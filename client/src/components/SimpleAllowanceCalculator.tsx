@@ -169,25 +169,56 @@ export default function SimpleAllowanceCalculator() {
         {/* Right Column - Results */}
         <div className="space-y-6">
           
-          {/* Summary */}
+          {/* Headline Result Card */}
+          <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+            <div className="text-center mb-4">
+              <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Tax Relief</h4>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                {formatCurrency(result.totalRelief)}
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Net cost: <span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(result.effectiveNetCost)}</span>
+              </p>
+            </div>
+            
+            <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div className="text-center">
+                  <div className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(result.reliefThis)}</div>
+                  <div className="text-gray-500 dark:text-gray-400">This Year</div>
+                </div>
+                <div className="text-center border-l border-gray-200 dark:border-gray-600">
+                  <div className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(result.reliefPrev)}</div>
+                  <div className="text-gray-500 dark:text-gray-400">Carry-back</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary Details */}
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-            <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">Summary</h4>
+            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+              <i className="fas fa-list-ul text-sm text-blue-600" aria-hidden="true"></i>
+              Calculation Summary
+            </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Relief this year:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(result.reliefThis)}</span>
+                <span className="text-gray-600 dark:text-gray-300">Investment amount:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(inputs.investmentThisYear)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Carry-back relief:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(result.reliefPrev)}</span>
-              </div>
-              <div className="flex justify-between font-semibold text-blue-600 dark:text-blue-400 border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
-                <span>Total relief:</span>
-                <span>{formatCurrency(result.totalRelief)}</span>
+                <span className="text-gray-600 dark:text-gray-300">Relief rate:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{formatPercentage(result.rate * 100, 0)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Effective net cost:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(result.effectiveNetCost)}</span>
+                <span className="text-gray-600 dark:text-gray-300">Tax liability this year:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(inputs.incomeTaxLiabilityThisYear)}</span>
+              </div>
+              <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
+                <span className="text-gray-600 dark:text-gray-300">Effective rate of return:</span>
+                <span className="font-medium text-green-600 dark:text-green-400">
+                  {formatPercentage((result.totalRelief / inputs.investmentThisYear) * 100, 1)}
+                </span>
               </div>
             </div>
           </div>
@@ -263,8 +294,73 @@ export default function SimpleAllowanceCalculator() {
             </div>
           </div>
 
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+                onClick={() => {
+                  // Recalculate with current inputs
+                  setResult(calcAllowance(inputs));
+                }}
+              >
+                <i className="fas fa-calculator text-sm" aria-hidden="true"></i>
+                Recalculate
+              </button>
+              
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+                onClick={() => {
+                  const reportData = {
+                    timestamp: new Date().toLocaleString(),
+                    inputs,
+                    results: result
+                  };
+                  
+                  // Create and download report
+                  const dataStr = JSON.stringify(reportData, null, 2);
+                  const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                  const url = URL.createObjectURL(dataBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `allowance-calculation-${new Date().toISOString().split('T')[0]}.json`;
+                  link.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <i className="fas fa-download text-sm" aria-hidden="true"></i>
+                Export
+              </button>
+            </div>
+            
+            <button
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: 'EIS/SEIS Allowance Calculation',
+                    text: `Total Relief: ${formatCurrency(result.totalRelief)} | Net Cost: ${formatCurrency(result.effectiveNetCost)}`,
+                    url: window.location.href
+                  });
+                } else {
+                  // Fallback to clipboard
+                  const shareText = `EIS/SEIS Calculation Results:
+Investment: ${formatCurrency(inputs.investmentThisYear)}
+Total Relief: ${formatCurrency(result.totalRelief)}
+Net Cost: ${formatCurrency(result.effectiveNetCost)}
+Rate: ${formatPercentage(result.rate * 100, 0)}`;
+                  navigator.clipboard.writeText(shareText);
+                  // Could add a toast notification here
+                }
+              }}
+            >
+              <i className="fas fa-share text-sm" aria-hidden="true"></i>
+              Share Results
+            </button>
+          </div>
+
           {/* Badges */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap pt-4 border-t border-gray-200 dark:border-gray-700">
             <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs font-medium">
               {inputs.scheme}
             </span>
@@ -276,15 +372,73 @@ export default function SimpleAllowanceCalculator() {
             <span className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
               Rate: {formatPercentage(result.rate * 100, 0)}
             </span>
+            <span className="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded-full text-xs font-medium">
+              <i className="fas fa-clock mr-1" aria-hidden="true"></i>
+              2024/25
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Tool Footnote */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-        <i className="fas fa-info-circle mr-1" aria-hidden="true"></i>
-        Based on 2024/25 tax year rates and limits. Subject to income tax liability and scheme rules. 
-        Illustrative only - not financial advice.
+      {/* Enhanced Footnote & Actions */}
+      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex gap-2">
+            <button
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
+              onClick={() => {
+                // Reset to default values
+                setInputs({
+                  scheme: 'EIS',
+                  isKIC: false,
+                  investmentThisYear: 50000,
+                  incomeTaxLiabilityThisYear: 25000,
+                  investmentPrevYear: 0,
+                  carryBackFromThisYear: 0,
+                  incomeTaxLiabilityPrevYear: 15000,
+                  investorLimitUsedPrevYear: false
+                });
+              }}
+            >
+              <i className="fas fa-redo text-xs" aria-hidden="true"></i>
+              Reset
+            </button>
+            
+            <button
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
+              onClick={() => {
+                // Save to localStorage
+                const savedData = {
+                  inputs,
+                  result,
+                  timestamp: new Date().toISOString(),
+                  name: `EIS/SEIS Calculation - ${new Date().toLocaleDateString()}`
+                };
+                const existing = JSON.parse(localStorage.getItem('saved-calculations') || '[]');
+                existing.unshift(savedData);
+                localStorage.setItem('saved-calculations', JSON.stringify(existing.slice(0, 10))); // Keep last 10
+                // Could add toast notification here
+              }}
+            >
+              <i className="fas fa-bookmark text-xs" aria-hidden="true"></i>
+              Save
+            </button>
+          </div>
+          
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+            Last updated: {new Date().toLocaleTimeString()}
+          </div>
+        </div>
+        
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+          <div className="flex items-start gap-2">
+            <i className="fas fa-info-circle text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            <div className="text-xs text-yellow-800 dark:text-yellow-200">
+              <strong>Important:</strong> Based on 2024/25 tax year rates and limits. Subject to income tax liability and scheme rules. 
+              Results are illustrative only and do not constitute financial advice. Always consult a qualified advisor for investment decisions.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
