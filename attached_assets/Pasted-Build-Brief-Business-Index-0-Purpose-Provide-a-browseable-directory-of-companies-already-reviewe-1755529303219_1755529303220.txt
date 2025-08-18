@@ -1,0 +1,291 @@
+Build Brief — Business Index
+0) Purpose
+
+Provide a browseable directory of companies already reviewed in Unlock, with:
+
+Verified Companies House data (badge + key facts),
+
+Snapshot report summary (one-screen digest),
+
+Community engagement signals (syndicate interest, questions asked),
+
+Useful filters (sector, size, risk profile, eligibility).
+
+1) Routes
+
+/businesses — index grid/list with filters + search + sort.
+
+/business/:id — profile page: verified facts, snapshot summary, community panel.
+
+2) Page structure
+/businesses
+
+Header row:
+
+Search input (company name / number / URL).
+
+Sort select: Relevance (default) · Most discussed · Newest · Oldest · Lowest risk.
+
+Filters panel (left on desktop; drawer on mobile):
+
+Sector (multi-select chips)
+
+Size (radio or multi: Micro (1-9), Small (10-49), Medium (50-249), Large (250+); or revenue bands)
+
+Risk profile (Low · Medium · High)
+
+Eligibility (EIS eligible · SEIS eligible)
+
+Results area (right):
+
+View toggle: Cards (default) / Table.
+
+Results count + “Clear all” chip if any filter applied.
+
+Paginated list (12 per page) with empty/skeleton states.
+
+/business/:id
+
+Header strip: Company name, ✅ Verified TrustMarker (if verified), Companies House number, sector chip, location, risk pill.
+
+Key Facts bar: Age (years), Size, Eligibility (EIS/SEIS chips), Last filing date, Directors (#), Website domain.
+
+Snapshot Summary (card):
+
+Filing health, Director checks, Web footprint score, Red-flag count (0–3), Quick narrative (2–3 sentences).
+
+Community (card):
+
+Syndicate interest (percentage + mini bar), Questions asked (#) + last question preview.
+
+Buttons (stubs): Follow, Ask a question, Join discussion.
+
+Actions row: Open full Snapshot (stub), Export (locked 🔒), Share link (stub).
+
+3) Data (mocks)
+
+Create src/mocks/businesses.json:
+
+[
+  {
+    "id": "biz_001",
+    "name": "Acme Biotech Ltd",
+    "ch_number": "12345678",
+    "verified": true,
+    "sector": "Biotechnology",
+    "size": "Small",                // Micro | Small | Medium | Large
+    "employees": 34,
+    "revenueBand": "£1m–£5m",
+    "location": "London, UK",
+    "foundedYear": 2018,
+    "risk": "Low",                  // Low | Medium | High
+    "eligibility": { "EIS": true, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Good",       // Good | Watch | Poor
+      "lastFilingDate": "2025-05-02",
+      "directors": 3,
+      "webScore": 76,               // 0–100
+      "redFlags": 0,
+      "summary": "Clinical tooling spin-out with solid governance; clean filing cadence; moderate web footprint."
+    },
+    "community": {
+      "syndicateInterestPct": 41,   // 0–100
+      "questionsCount": 6,
+      "lastQuestion": "Any KOL references for the pilot sites?"
+    },
+    "addedAt": "2025-07-12"
+  },
+  {
+    "id": "biz_002",
+    "name": "FinPay Solutions Ltd",
+    "ch_number": "09112233",
+    "verified": true,
+    "sector": "Fintech",
+    "size": "Medium",
+    "employees": 120,
+    "revenueBand": "£5m–£10m",
+    "location": "Manchester, UK",
+    "foundedYear": 2016,
+    "risk": "Medium",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Watch",
+      "lastFilingDate": "2025-03-20",
+      "directors": 5,
+      "webScore": 64,
+      "redFlags": 1,
+      "summary": "Payments orchestration with multi-PSP routing; minor filing lag noted; strong traffic trend."
+    },
+    "community": {
+      "syndicateInterestPct": 23,
+      "questionsCount": 11,
+      "lastQuestion": "How concentrated is enterprise revenue (>20%)?"
+    },
+    "addedAt": "2025-06-02"
+  },
+  {
+    "id": "biz_003",
+    "name": "EcoPack Materials PLC",
+    "ch_number": "00998877",
+    "verified": false,
+    "sector": "Sustainable Materials",
+    "size": "Large",
+    "employees": 850,
+    "revenueBand": "£50m+",
+    "location": "Bristol, UK",
+    "foundedYear": 2009,
+    "risk": "High",
+    "eligibility": { "EIS": false, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Poor",
+      "lastFilingDate": "2024-11-14",
+      "directors": 9,
+      "webScore": 51,
+      "redFlags": 3,
+      "summary": "Commodity exposure and leverage risks; late filings; governance turnover flagged."
+    },
+    "community": {
+      "syndicateInterestPct": 12,
+      "questionsCount": 3,
+      "lastQuestion": "Debt covenants and maturity profile?"
+    },
+    "addedAt": "2025-04-18"
+  }
+]
+
+
+Optional lists for filters: src/mocks/sectors.json, sizes.json, risk.json, eligibility.json.
+
+4) Components (contracts only)
+
+BusinessFilters
+
+Props: { sectors, sizes, risks, eligibilityOptions, selected, onChange }
+
+Behaviour: multi-select sectors, single/multi size, single risk, eligibility toggles. Reset button restores defaults.
+
+BusinessCard (index view)
+
+Props: business (one of above)
+
+Shows: name + ✅ Verified/⚠️ Unverified; sector chip; risk pill; EIS/SEIS chips; brief snapshot line; community chips: 📊 Peers {pct}% · ❓ {questionsCount}.
+
+CTA: Open Profile → /business/:id.
+
+BusinessTable (alt view)
+
+Columns: Name, Sector, Size, Risk, EIS/SEIS, Filing health, Peers %, Questions, Last filing.
+
+BusinessProfileHeader
+
+Props: business
+
+Shows: name, ch_number, ✅ badge, sector/location/risk pills.
+
+KeyFactsBar
+
+Facts: Age (thisYear − foundedYear), Size, EIS/SEIS, Last filing date, Directors, Website (if known).
+
+SnapshotSummaryCard
+
+Visual: filing health badge, webScore meter, red-flag count, 2–3 line narrative.
+
+Button: Open full Snapshot (stub).
+
+CommunityCard
+
+Shows: syndicateInterestPct bar + label; questionsCount with preview of lastQuestion.
+
+Buttons: Follow (toggle), Ask a question (modal stub), Join discussion (stub).
+
+TrustMarker (reuse)
+
+✅ Verified · 🔒 Premium · 📊 Peers %
+
+5) Behaviours
+
+Search:
+
+Matches name, Companies House number, and domain tokens.
+
+Debounced; clears when filters reset.
+
+Filtering:
+
+All filters combine with AND logic.
+
+Eligibility toggles: show if EIS true and/or SEIS true.
+
+Risk: Low/Medium/High (single select; allow “Any”).
+
+Sorting:
+
+Relevance (search match > verified > higher Peers %)
+
+Most discussed (questionsCount desc)
+
+Newest / Oldest (by addedAt)
+
+Lowest risk (Low > Medium > High)
+
+Pagination:
+
+12 per page; Load more or numbered pages.
+
+Skeletons for first page and on filter changes.
+
+States:
+
+Empty: “No companies match your filters.” + Clear all
+
+Error (mock): “Couldn’t load companies. Retry.”
+
+Accessibility:
+
+Filters and chips keyboard-navigable; visible focus ring.
+
+Result list uses <section aria-label="Business results">.
+
+Badges have aria-label (e.g., “Verified Companies House data”).
+
+6) Profile page specifics (/business/:id)
+
+Header:
+
+Company name + ✅ Verified (if verified=true), Companies House number (copy icon), sector/location, risk pill (colour-coded by token).
+
+Key Facts bar:
+
+Age (auto-computed), Size (and employees if present), Eligibility chips (EIS/SEIS), Last filing date, Directors, Website.
+
+Snapshot Summary card:
+
+Filing Health (Good/Watch/Poor), webScore meter, redFlags, narrative.
+
+Open full Snapshot (stub route e.g. /business/:id/snapshot).
+
+Community card:
+
+Syndicate interest: horizontal bar (0–100%) with label “Peers short-listing this business”.
+
+Questions asked: list last 3 questions (from mock; or one-liner).
+
+CTAs: Follow (toggle), Ask a question (modal stub), Join discussion (stub route /syndication).
+
+Breadcrumbs:
+
+“Businesses → {Sector} → {Name}”.
+
+Mobile:
+
+Stacked order: Header → Key Facts → Snapshot → Community.
+
+7) Styling & tokens
+
+No hard-coded colours; use CSS variables.
+
+Cards radius 12px; shadow soft; spacing rhythm 12/16/24.
+
+Verified badge: small ✅ + “Verified” text chip.
+
+Risk pills: Low (calm/green token), Medium (amber), High (red) with AA contrast.

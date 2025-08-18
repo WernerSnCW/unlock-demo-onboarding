@@ -1,0 +1,170 @@
+[
+  {
+    "id": "biz_001",
+    "name": "Acme Biotech Ltd",
+    "ch_number": "12345678",
+    "verified": true,
+    "sector": "Biotechnology",
+    "size": "Small",
+    "employees": 34,
+    "revenueBand": "£1m–£5m",
+    "location": "London, UK",
+    "foundedYear": 2018,
+    "risk": "Low",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-05-02",
+      "directors": 3,
+      "webScore": 76,
+      "redFlags": 0,
+      "summary": "Clinical tooling spin-out with solid governance; clean filing cadence; moderate web footprint."
+    },
+    "community": {
+      "syndicateInterestPct": 41,
+      "questionsCount": 6,
+      "lastQuestion": "Any KOL references for the pilot sites?"
+    },
+    "addedAt": "2025-07-12"
+  },
+  {
+    "id": "biz_002",
+    "name": "FinPay Solutions Ltd",
+    "ch_number": "09112233",
+    "verified": true,
+    "sector": "Fintech",
+    "size": "Medium",
+    "employees": 120,
+    "revenueBand": "£5m–£10m",
+    "location": "Manchester, UK",
+    "foundedYear": 2016,
+    "risk": "Medium",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Watch",
+      "lastFilingDate": "2025-03-20",
+      "directors": 5,
+      "webScore": 64,
+      "redFlags": 1,
+      "summary": "Payments orchestration with multi-PSP routing; minor filing lag noted; strong traffic trend."
+    },
+    "community": {
+      "syndicateInterestPct": 23,
+      "questionsCount": 11,
+      "lastQuestion": "How concentrated is enterprise revenue (>20%)?"
+    },
+    "addedAt": "2025-06-02"
+  },
+  {
+    "id": "biz_003",
+    "name": "EcoPack Materials PLC",
+    "ch_number": "00998877",
+    "verified": false,
+    "sector": "Sustainable Materials",
+    "size": "Large",
+    "employees": 850,
+    "revenueBand": "£50m+",
+    "location": "Bristol, UK",
+    "foundedYear": 2009,
+    "risk": "High",
+    "eligibility": { "EIS": false, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Poor",
+      "lastFilingDate": "2024-11-14",
+      "directors": 9,
+      "webScore": 51,
+      "redFlags": 3,
+      "summary": "Commodity exposure and leverage risks; late filings; governance turnover flagged."
+    },
+    "community": {
+      "syndicateInterestPct": 12,
+      "questionsCount": 3,
+      "lastQuestion": "Debt covenants and maturity profile?"
+    },
+    "addedAt": "2025-04-18"
+  },
+  {
+    "id": "biz_004",
+    "name": "GreenTech Innovations Ltd",
+    "ch_number": "11223344",
+    "verified": true,
+    "sector": "CleanTech",
+    "size": "Small",
+    "employees": 28,
+    "revenueBand": "£500k–£1m",
+    "location": "Edinburgh, UK",
+    "foundedYear": 2020,
+    "risk": "Medium",
+    "eligibility": { "EIS": true, "SEIS": true },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-04-15",
+      "directors": 4,
+      "webScore": 68,
+      "redFlags": 0,
+      "summary": "Solar panel efficiency breakthrough; strong IP portfolio; early commercialisation stage."
+    },
+    "community": {
+      "syndicateInterestPct": 67,
+      "questionsCount": 18,
+      "lastQuestion": "Patent protection timeline in EU markets?"
+    },
+    "addedAt": "2025-08-01"
+  },
+  {
+    "id": "biz_005",
+    "name": "HealthAI Diagnostics Ltd",
+    "ch_number": "13579246",
+    "verified": true,
+    "sector": "HealthTech",
+    "size": "Micro",
+    "employees": 8,
+    "revenueBand": "£100k–£500k",
+    "location": "Cambridge, UK",
+    "foundedYear": 2022,
+    "risk": "High",
+    "eligibility": { "EIS": true, "SEIS": true },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-06-30",
+      "directors": 2,
+      "webScore": 82,
+      "redFlags": 1,
+      "summary": "AI-powered radiology platform; regulatory pathway unclear; promising pilot results."
+    },
+    "community": {
+      "syndicateInterestPct": 89,
+      "questionsCount": 24,
+      "lastQuestion": "FDA approval timeline and costs?"
+    },
+    "addedAt": "2025-09-12"
+  },
+  {
+    "id": "biz_006",
+    "name": "Quantum Compute Systems Ltd",
+    "ch_number": "98765432",
+    "verified": true,
+    "sector": "DeepTech",
+    "size": "Small",
+    "employees": 45,
+    "revenueBand": "£2m–£5m",
+    "location": "Oxford, UK",
+    "foundedYear": 2019,
+    "risk": "High",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-05-20",
+      "directors": 6,
+      "webScore": 91,
+      "redFlags": 2,
+      "summary": "Quantum computing hardware development; significant R&D spend; long commercialisation horizon."
+    },
+    "community": {
+      "syndicateInterestPct": 34,
+      "questionsCount": 9,
+      "lastQuestion": "Commercial applications beyond research?"
+    },
+    "addedAt": "2025-05-30"
+  }
+]
