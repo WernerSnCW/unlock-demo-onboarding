@@ -1,0 +1,93 @@
+Add Due Diligence Snapshot Hero Block
+Purpose
+
+Make the Due Diligence Snapshot Search the primary, top-centre block of the dashboard. This ensures users immediately see the core Unlock function on first load.
+
+Placement & Layout
+
+Location: Directly above the News & Insights Feed in the centre column of the dashboard (Option 2 layout we’re using).
+
+Size: Full width of the centre column. Should visually dominate more than secondary cards.
+
+Spacing: Add generous padding (e.g. p-6) and margin below (mb-6) so it feels separated.
+
+Content & UI
+
+Block Name: “Due Diligence Snapshot”
+
+Elements inside block:
+
+Title/Header
+
+Text: “Generate a Due Diligence Snapshot”
+
+Style: Bold, larger font (text-xl or text-2xl).
+
+Colour: Default text colour.
+
+Input field
+
+Placeholder: “Enter a company name, URL, or registration number”.
+
+Wide input across ~70% of block width.
+
+Rounded corners (rounded-xl), subtle shadow.
+
+CTA button
+
+Label: “Generate Snapshot”.
+
+Sits to the right of the input.
+
+Use Unlock highlight colour (e.g. --color-primary or one of your accent brand tokens, not default grey).
+
+Hover state: darken slightly.
+
+Helper text (small, below input)
+
+“Snapshots use only publicly available data. This is not financial advice.”
+
+Style: muted text (text-sm text-gray-500).
+
+Styling
+
+Background colour:
+Use one of your accent colours (e.g. pale version of Unlock blue or teal) with enough contrast for text. For example:
+
+Background: --color-accent-light (soft pastel from your palette).
+
+Text & button still high-contrast (dark text on light bg).
+
+Rounded corners: rounded-2xl.
+
+Shadow: Soft card shadow (shadow-md).
+
+Behaviour
+
+Input doesn’t need live backend — just stub/mock the action.
+
+For now:
+
+On clicking “Generate Snapshot”:
+
+Show a toast: “Snapshot request submitted (stub).”
+
+Or redirect to /snapshots/[id] placeholder page.
+
+Keep saved companies/watchlist integration in mind: add a “Save” checkbox in v2.
+
+Accessibility
+
+Input should have aria-label="Company search".
+
+Button should have aria-label="Generate snapshot".
+
+Acceptance Criteria
+
+The block appears first in the dashboard centre column, visually larger than other cards.
+
+Input + CTA work (stub behaviour).
+
+Background colour is a branded accent that stands out.
+
+Works on desktop, tablet, mobile (on mobile, input and button stack vertically).

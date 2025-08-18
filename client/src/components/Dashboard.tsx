@@ -8,6 +8,7 @@ import NewsletterControls from './NewsletterControls';
 import QuickTools from './QuickTools';
 import MiniDock from './MiniDock';
 import ToolModal from './ToolModal';
+import DDSnapshotHero from './DDSnapshotHero';
 
 // Mock data imports
 import onboardingProfileData from '../mocks/onboardingProfile.json';
@@ -173,9 +174,13 @@ export default function Dashboard() {
               />
             </div>
             <div className="md:hidden">
+              <DDSnapshotHero onToolOpen={handleToolOpen} />
+            </div>
+            <div className="md:hidden">
               <NewsFeed
                 items={newsItems}
                 onLoadMore={handleLoadMore}
+                onToolOpen={handleToolOpen}
               />
             </div>
             <QuickTools onToolOpen={handleToolOpen} />
@@ -191,6 +196,7 @@ export default function Dashboard() {
 
           {/* Right Column - "The Market" (hidden on mobile) */}
           <div className="hidden md:block order-3 md:order-2 space-y-6">
+            <DDSnapshotHero onToolOpen={handleToolOpen} />
             <NewsletterControls
               frequency={profile.newsletterFrequency}
               whatsappEnabled={profile.whatsappAlerts}
@@ -200,6 +206,7 @@ export default function Dashboard() {
             <NewsFeed
               items={newsItems}
               onLoadMore={handleLoadMore}
+              onToolOpen={handleToolOpen}
             />
           </div>
         </div>

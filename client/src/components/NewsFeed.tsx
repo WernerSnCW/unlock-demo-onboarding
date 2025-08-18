@@ -15,11 +15,13 @@ interface NewsItem {
 interface NewsFeedProps {
   items: NewsItem[];
   onLoadMore: () => void;
+  onToolOpen?: (toolId: string) => void;
 }
 
 export default function NewsFeed({
   items,
-  onLoadMore
+  onLoadMore,
+  onToolOpen
 }: NewsFeedProps) {
   const [visibleItems, setVisibleItems] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -63,7 +65,7 @@ export default function NewsFeed({
         {/* News Items */}
         <div className="space-y-4">
           {items.slice(0, visibleItems).map((item) => (
-            <NewsCard key={item.id} {...item} />
+            <NewsCard key={item.id} {...item} onToolOpen={onToolOpen} />
           ))}
         </div>
 
