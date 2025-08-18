@@ -25,6 +25,8 @@
 
   --accent: #F8D49B;
   --accent-foreground: #1A1A1A;
+  --neutral-bg-alt: #f8fafc;
+  --brand-accent-bg: #5193B3;
 
   --muted: #F3F4F6;
   --muted-foreground: #64748B;
@@ -72,6 +74,10 @@
 
   --accent: #F8D49B;
   --accent-foreground: #1A1A1A;
+  --neutral-bg-alt: #1e293b;
+  --brand-accent-bg: #62C4C3;
+  --neutral-bg-alt: #1e293b;
+  --brand-accent-bg: #62C4C3;
 
   --muted: #374151;
   --muted-foreground: #9CA3AF;

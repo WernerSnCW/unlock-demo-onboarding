@@ -1,0 +1,92 @@
+Delta Build Instruction — /news
+1. Layout Adjustments
+
+Retain 3-column layout:
+
+Left (col-3): Preferences Panel
+
+Centre (col-6): News Feed
+
+Right (col-3): AI Chat Assistant + Saved Items
+
+Add a light background tint (--neutral-bg-alt) behind the centre feed so it visually anchors user focus.
+
+Above the feed, insert a call-to-action chip:
+
+Label: “Looking for company due diligence snapshots? → Start here”
+
+Links to /dashboard#due-diligence (anchor to already-implemented dashboard block).
+
+Style: pill-shaped, --brand-accent-bg, hover → darker shade.
+
+2. Preferences Panel (Left Column)
+
+Extend beyond basic frequency/channels. Must include:
+
+Newsletter Frequency: Daily / Weekly / Monthly (segmented control).
+
+Alert Channels: Multi-select chips → In-app, Email, WhatsApp.
+
+If WhatsApp selected → show small info note: “Verification coming soon.”
+
+Sector Filters: User’s selected sectors (from onboarding quiz) as toggle chips.
+
+Default = all selected sectors active.
+
+Risk Appetite Filters: Low / Medium / High toggle.
+
+EIS/SEIS Toggle: Single switch → filters feed to show/hide EIS/SEIS related updates.
+
+Reset Button: Restores all settings to onboarding defaults.
+
+Behaviour:
+
+Every change updates the feed instantly.
+
+Save preference changes to local profile JSON.
+
+Show toast: “Preferences updated” after every change.
+
+3. News Feed (Centre Column)
+
+Card design remains the same.
+
+Content types: policy, market, company, insight.
+
+Insight cards must always show “Not advice.” footnote.
+
+“Load more” appends 5 more items.
+
+Empty state: “No results. Try adjusting your preferences.” with Reset button inline.
+
+4. AI Chat Assistant (Right Column, Top)
+
+WhatsApp-style UI.
+
+Seed 2–3 FAQs (already in your brief):
+
+“What are my tax allowances?”
+
+“Any red flags in fintech this week?”
+
+“Ask about this” shortcut from any card inserts that headline into chat input.
+
+5. Saved Items (Right Column, Below Chat)
+
+List previously saved items.
+
+Clicking scrolls feed to the card.
+
+Empty state: “You haven’t saved any insights yet. Use the ⭐ Save button on any card.”
+
+6. Accessibility & UX
+
+Keyboard navigation for all preference chips.
+
+Announce filter updates with aria-live="polite".
+
+Chat transcript uses role="log".
+
+Alt text required on all feed images.
+
+Contrast checked to AA standard.

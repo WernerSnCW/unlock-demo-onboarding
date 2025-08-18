@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import AIChat from '../components/AIChat';
+import PreferencesPanel from '../components/PreferencesPanel';
 
 // Import mock data
 import newsItemsData from '../mocks/newsItems.json';
@@ -25,9 +26,9 @@ interface UserPreferences {
     whatsapp: boolean;
     pushNotifications: boolean;
   };
-  categories: string[];
   sectors: string[];
-  riskProfile: 'conservative' | 'moderate' | 'aggressive';
+  riskAppetite: ('low' | 'medium' | 'high')[];
+  eisSeisEnabled: boolean;
 }
 
 export default function News() {
@@ -35,26 +36,60 @@ export default function News() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [preferences, setPreferences] = useState<UserPreferences>({
-    frequency: 'daily',
+    frequency: 'weekly',
     channels: { email: true, whatsapp: false, pushNotifications: true },
-    categories: ['eis-seis', 'startup-funding'],
-    sectors: ['Fintech', 'Healthcare', 'AI'],
-    riskProfile: 'moderate'
+    sectors: ['Fintech', 'Biotech'],
+    riskAppetite: ['medium'],
+    eisSeisEnabled: true
   });
+
+  const [savedArticles, setSavedArticles] = useState<string[]>([]);
+
+  const defaultPreferences: UserPreferences = {
+    frequency: 'weekly',
+    channels: { email: true, whatsapp: false, pushNotifications: true },
+    sectors: ['Fintech', 'Biotech'],
+    riskAppetite: ['medium'],
+    eisSeisEnabled: true
+  };
 
   const [filteredNews, setFilteredNews] = useState(newsItemsData);
 
   useEffect(() => {
     let filtered = newsItemsData;
     
+    // Apply category filter
     if (selectedCategory !== 'all') {
       if (selectedCategory === 'your-sectors') {
-        filtered = filtered.filter(item => newsProfileData.sectors.includes(item.sector));
+        filtered = filtered.filter(item => preferences.sectors.includes(item.sector));
       } else {
         filtered = filtered.filter(item => item.type === selectedCategory);
       }
     }
     
+    // Apply preference filters
+    if (preferences.sectors.length > 0) {
+      filtered = filtered.filter(item => 
+        preferences.sectors.includes(item.sector) || item.sector === 'All'
+      );
+    }
+    
+    // Apply risk appetite filter
+    if (preferences.riskAppetite.length > 0) {
+      filtered = filtered.filter(item => 
+        preferences.riskAppetite.includes(item.riskTag as any) || item.riskTag === 'n/a'
+      );
+    }
+    
+    // Apply EIS/SEIS filter
+    if (preferences.eisSeisEnabled) {
+      filtered = filtered.filter(item => 
+        item.tags.some(tag => tag.includes('EIS') || tag.includes('SEIS')) || 
+        item.type === 'insight'
+      );
+    }
+    
+    // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(item => 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -64,7 +99,7 @@ export default function News() {
     }
     
     setFilteredNews(filtered);
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, preferences]);
 
   const getNewsIcon = (category: string) => {
     switch (category) {
@@ -85,6 +120,24 @@ export default function News() {
       case 'regulatory': return 'from-purple-600 to-violet-700';
       default: return 'from-gray-600 to-slate-700';
     }
+  };
+
+  const handleSaveArticle = (articleId: string) => {
+    const newSaved = savedArticles.includes(articleId)
+      ? savedArticles.filter(id => id !== articleId)
+      : [...savedArticles, articleId];
+    setSavedArticles(newSaved);
+  };
+
+  const handleAskAboutArticle = (title: string) => {
+    // This would integrate with the AI chat component
+    console.log(`Ask about: ${title}`);
+  };
+
+  const handleResetPreferences = () => {
+    setPreferences(defaultPreferences);
+    setSelectedCategory('all');
+    setSearchQuery('');
   };
 
   const NewsCard = ({ item }: { item: typeof newsItemsData[0] }) => (
@@ -142,8 +195,24 @@ export default function News() {
             </div>
             
             <div className="flex items-center gap-2">
-              <button className="text-sm text-[var(--muted-foreground)] hover:text-[var(--accent)] transition-colors">
-                <i className="fas fa-bookmark mr-1"></i>Save
+              <button 
+                onClick={() => handleSaveArticle(item.id)}
+                className={`text-sm transition-colors ${
+                  savedArticles.includes(item.id) 
+                    ? 'text-[var(--accent)] hover:text-[var(--accent)]/80' 
+                    : 'text-[var(--muted-foreground)] hover:text-[var(--accent)]'
+                }`}
+                aria-label={savedArticles.includes(item.id) ? 'Remove from saved' : 'Save article'}
+              >
+                <i className={`fas ${savedArticles.includes(item.id) ? 'fa-bookmark' : 'fa-bookmark-o'} mr-1`}></i>
+                Save
+              </button>
+              <button 
+                onClick={() => handleAskAboutArticle(item.title)}
+                className="text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+                aria-label="Ask AI about this article"
+              >
+                <i className="fas fa-comments mr-1"></i>Ask about this
               </button>
               <button className="text-sm text-[var(--muted-foreground)] hover:text-[var(--accent)] transition-colors">
                 <i className="fas fa-share mr-1"></i>Share
@@ -152,6 +221,14 @@ export default function News() {
           </div>
         </div>
       </div>
+      
+      {/* Insight Disclaimer */}
+      {item.type === 'insight' && (
+        <div className="mt-4 pt-3 border-t border-[var(--border)] text-xs text-[var(--muted-foreground)] italic">
+          <i className="fas fa-info-circle mr-1"></i>
+          Not advice.
+        </div>
+      )}
     </article>
   );
 
@@ -204,27 +281,30 @@ export default function News() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    aria-label="Search news articles"
                   />
-                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--muted-foreground)]"></i>
+                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
                 </div>
               </div>
 
               {/* Categories Filter */}
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
                 <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Categories</h3>
-                <div className="space-y-2">
+                <div className="space-y-2" role="radiogroup" aria-label="News categories">
                   {newsCategories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full flex items-center justify-between p-2 rounded-[var(--radius-sm)] text-left transition-colors ${
+                      className={`w-full flex items-center justify-between p-2 rounded-[var(--radius-sm)] text-left transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] ${
                         selectedCategory === category.id 
                           ? 'bg-[var(--primary)] text-[var(--primary-foreground)]' 
                           : 'hover:bg-[var(--muted)] text-[var(--card-foreground)]'
                       }`}
+                      role="radio"
+                      aria-checked={selectedCategory === category.id}
                     >
                       <div className="flex items-center gap-2">
-                        <i className={`fas ${getNewsIcon(category.id)} text-sm`}></i>
+                        <i className={`fas ${getNewsIcon(category.id)} text-sm`} aria-hidden="true"></i>
                         <span className="text-sm font-medium">{category.name}</span>
                       </div>
                       <span className="text-xs opacity-70">{category.count}</span>
@@ -233,77 +313,31 @@ export default function News() {
                 </div>
               </div>
 
-              {/* Newsletter Preferences */}
-              <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
-                <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Newsletter</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-[var(--card-foreground)] mb-2 block">
-                      Frequency
-                    </label>
-                    <select 
-                      value={preferences.frequency}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, frequency: e.target.value as any }))}
-                      className="w-full p-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                    >
-                      <option value="daily">Daily Digest</option>
-                      <option value="weekly">Weekly Summary</option>
-                      <option value="monthly">Monthly Report</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-[var(--card-foreground)] mb-2 block">
-                      Delivery Channels
-                    </label>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input 
-                          type="checkbox"
-                          checked={preferences.channels.email}
-                          onChange={(e) => setPreferences(prev => ({
-                            ...prev,
-                            channels: { ...prev.channels, email: e.target.checked }
-                          }))}
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-[var(--card-foreground)]">Email</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input 
-                          type="checkbox"
-                          checked={preferences.channels.whatsapp}
-                          onChange={(e) => setPreferences(prev => ({
-                            ...prev,
-                            channels: { ...prev.channels, whatsapp: e.target.checked }
-                          }))}
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-[var(--card-foreground)]">WhatsApp</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input 
-                          type="checkbox"
-                          checked={preferences.channels.pushNotifications}
-                          onChange={(e) => setPreferences(prev => ({
-                            ...prev,
-                            channels: { ...prev.channels, pushNotifications: e.target.checked }
-                          }))}
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-[var(--card-foreground)]">Push Notifications</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* Enhanced Preferences Panel */}
+              <PreferencesPanel 
+                preferences={preferences}
+                onUpdatePreferences={setPreferences}
+                onResetPreferences={handleResetPreferences}
+              />
             </div>
           </div>
 
           {/* Main Content - News Feed */}
           <div className="lg:col-span-6">
-            <div className="space-y-6">
+            <div className="bg-[var(--neutral-bg-alt)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+              
+              {/* Call-to-Action Chip */}
+              <div className="mb-6">
+                <Link
+                  href="/#due-diligence"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-accent-bg)] hover:bg-[var(--brand-accent-bg)]/90 text-white rounded-full text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent-bg)] focus:ring-offset-2"
+                >
+                  <i className="fas fa-search text-xs" aria-hidden="true"></i>
+                  Looking for company due diligence snapshots? → Start here
+                </Link>
+              </div>
+              
+              <div className="space-y-6">
               
               {/* Stats Bar */}
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
@@ -339,22 +373,32 @@ export default function News() {
               <div className="space-y-6">
                 {filteredNews.length > 0 ? (
                   filteredNews.map((item) => (
-                    <NewsCard key={item.id} item={item} />
+                    <div key={item.id} id={`article-${item.id}`}>
+                      <NewsCard item={item} />
+                    </div>
                   ))
                 ) : (
                   <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-8 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--muted)] flex items-center justify-center">
-                      <i className="fas fa-search text-2xl text-[var(--muted-foreground)]"></i>
+                      <i className="fas fa-filter text-2xl text-[var(--muted-foreground)]" aria-hidden="true"></i>
                     </div>
                     <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-2">
-                      No articles found
+                      No results found
                     </h3>
-                    <p className="text-[var(--muted-foreground)]">
-                      Try adjusting your filters or search terms
+                    <p className="text-[var(--muted-foreground)] mb-4">
+                      Try adjusting your preferences to see more content.
                     </p>
+                    <button
+                      onClick={handleResetPreferences}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+                    >
+                      <i className="fas fa-undo text-xs" aria-hidden="true"></i>
+                      Reset Filters
+                    </button>
                   </div>
                 )}
               </div>
+            </div>
             </div>
           </div>
 
@@ -375,33 +419,45 @@ export default function News() {
                   Saved Articles
                 </h3>
                 
-                {savedNewsData.length > 0 ? (
+{savedArticles.length > 0 ? (
                   <div className="space-y-3">
-                    {savedNewsData.map((saved) => (
-                      <button
-                        key={saved.id}
-                        className="w-full text-left p-3 rounded-[var(--radius-sm)] hover:bg-[var(--muted)] transition-colors group"
-                      >
-                        <h4 className="text-sm font-medium text-[var(--card-foreground)] line-clamp-2 group-hover:text-[var(--primary)]">
-                          {saved.title}
-                        </h4>
-                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                          {new Date(saved.dateISO).toLocaleDateString()}
-                        </p>
-                      </button>
-                    ))}
+                    {savedArticles.slice(0, 5).map((articleId) => {
+                      const article = newsItemsData.find(item => item.id === articleId);
+                      return article ? (
+                        <button
+                          key={article.id}
+                          onClick={() => {
+                            const element = document.getElementById(`article-${article.id}`);
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                          }}
+                          className="w-full text-left p-3 rounded-[var(--radius-sm)] hover:bg-[var(--muted)] transition-colors group"
+                          aria-label={`Scroll to ${article.title}`}
+                        >
+                          <h4 className="text-sm font-medium text-[var(--card-foreground)] line-clamp-2 group-hover:text-[var(--primary)]">
+                            {article.title}
+                          </h4>
+                          <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                            {new Date(article.dateISO).toLocaleDateString()}
+                          </p>
+                        </button>
+                      ) : null;
+                    })}
                     
-                    <button className="w-full text-center py-2 text-sm text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors">
-                      View all saved →
-                    </button>
+                    {savedArticles.length > 5 && (
+                      <div className="text-center py-2 text-sm text-[var(--muted-foreground)]">
+                        +{savedArticles.length - 5} more saved
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-6">
                     <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-[var(--muted)] flex items-center justify-center">
-                      <i className="fas fa-bookmark text-[var(--muted-foreground)]"></i>
+                      <i className="fas fa-star text-[var(--muted-foreground)]" aria-hidden="true"></i>
                     </div>
                     <p className="text-sm text-[var(--muted-foreground)]">
-                      No saved articles yet
+                      You haven't saved any insights yet. Use the ⭐ Save button on any card.
                     </p>
                   </div>
                 )}
