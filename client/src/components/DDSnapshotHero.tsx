@@ -31,12 +31,12 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-[var(--secondary)]/10 to-[var(--primary)]/10 border border-[var(--border)] rounded-2xl p-6 mb-6 shadow-md">
+    <div className="bg-[var(--primary)] border border-[var(--primary)] rounded-2xl p-6 mb-6 shadow-md">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-[var(--card-foreground)] mb-2">
+        <h2 className="text-2xl font-bold text-[var(--primary-foreground)] mb-2">
           Generate a Due Diligence Snapshot
         </h2>
-        <p className="text-[var(--muted-foreground)]">
+        <p className="text-[var(--primary-foreground)]/80">
           Get comprehensive business intelligence and risk analysis in seconds
         </p>
       </div>
@@ -51,13 +51,13 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Enter a company name, URL, or registration number"
               aria-label="Company search"
-              className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl shadow-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-white border border-white/20 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all"
             />
           </div>
           <button
             type="submit"
             aria-label="Generate snapshot"
-            className="px-6 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold rounded-xl hover:bg-[var(--primary)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 transition-all shadow-sm hover:shadow-md flex-shrink-0"
+            className="px-6 py-3 bg-white text-[var(--primary)] font-semibold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[var(--primary)] transition-all shadow-sm hover:shadow-md flex-shrink-0"
           >
             Generate Snapshot
           </button>
@@ -71,36 +71,36 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Enter company name, URL, or registration number"
             aria-label="Company search"
-            className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] rounded-xl shadow-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+            className="w-full px-4 py-3 bg-white border border-white/20 rounded-xl shadow-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all"
           />
           <button
             type="submit"
             aria-label="Generate snapshot"
-            className="w-full px-6 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold rounded-xl hover:bg-[var(--primary)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 transition-all shadow-sm hover:shadow-md"
+            className="w-full px-6 py-3 bg-white text-[var(--primary)] font-semibold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[var(--primary)] transition-all shadow-sm hover:shadow-md"
           >
             Generate Snapshot
           </button>
         </div>
 
-        <p className="text-sm text-[var(--muted-foreground)] text-center">
+        <p className="text-sm text-[var(--primary-foreground)]/70 text-center">
           Snapshots use only publicly available data. This is not financial advice.
         </p>
       </form>
 
       {/* Quick Stats */}
-      <div className="mt-6 pt-4 border-t border-[var(--border)]/50">
+      <div className="mt-6 pt-4 border-t border-[var(--primary-foreground)]/20">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-lg font-semibold text-[var(--card-foreground)]">2.3M+</div>
-            <div className="text-xs text-[var(--muted-foreground)]">Companies</div>
+            <div className="text-lg font-semibold text-[var(--primary-foreground)]">2.3M+</div>
+            <div className="text-xs text-[var(--primary-foreground)]/70">Companies</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-[var(--card-foreground)]">45s</div>
-            <div className="text-xs text-[var(--muted-foreground)]">Avg. Time</div>
+            <div className="text-lg font-semibold text-[var(--primary-foreground)]">45s</div>
+            <div className="text-xs text-[var(--primary-foreground)]/70">Avg. Time</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-[var(--card-foreground)]">99.2%</div>
-            <div className="text-xs text-[var(--muted-foreground)]">Accuracy</div>
+            <div className="text-lg font-semibold text-[var(--primary-foreground)]">99.2%</div>
+            <div className="text-xs text-[var(--primary-foreground)]/70">Accuracy</div>
           </div>
         </div>
       </div>
