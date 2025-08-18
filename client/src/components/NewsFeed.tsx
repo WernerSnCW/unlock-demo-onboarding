@@ -30,16 +30,23 @@ export default function NewsFeed({
   onLoadMore
 }: NewsFeedProps) {
   const [visibleItems, setVisibleItems] = useState(3);
+  const [loading, setLoading] = useState(false);
 
   const handleLoadMore = () => {
+    setLoading(true);
     setVisibleItems(prev => Math.min(prev + 3, items.length));
     onLoadMore();
+    // Simulate loading delay
+    setTimeout(() => setLoading(false), 600);
   };
 
   if (!items.length) {
     return (
       <div className="space-y-4">
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 text-center">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-6 text-center" style={{ boxShadow: 'var(--shadow-sm)' }}>
+          <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-[var(--muted)] flex items-center justify-center">
+            <i className="fas fa-newspaper text-xl text-[var(--muted-foreground)]"></i>
+          </div>
           <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-2">
             No new insights today
           </h3>
@@ -54,7 +61,7 @@ export default function NewsFeed({
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--card-foreground)]">
@@ -65,9 +72,9 @@ export default function NewsFeed({
                 <button
                   key={freq}
                   onClick={() => onChangeFrequency(freq)}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium transition-colors ${
                     frequency === freq
-                      ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                      ? 'bg-[var(--accent)] text-[var(--accent-foreground)]'
                       : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
                   }`}
                 >
@@ -84,8 +91,8 @@ export default function NewsFeed({
             <button
               id="whatsapp-toggle"
               onClick={() => onToggleWhatsapp(!whatsappEnabled)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                whatsappEnabled ? 'bg-[var(--primary)]' : 'bg-[var(--muted)]'
+              className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--ring)] ${
+                whatsappEnabled ? 'bg-[var(--accent)]' : 'bg-[var(--muted)]'
               }`}
               aria-pressed={whatsappEnabled}
             >
@@ -111,9 +118,19 @@ export default function NewsFeed({
         <div className="text-center">
           <button
             onClick={handleLoadMore}
-            className="bg-[var(--primary)] text-[var(--primary-foreground)] px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 bg-[var(--accent)] text-[var(--accent-foreground)] px-6 py-2.5 rounded-[var(--radius-sm)] font-medium hover:opacity-90 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--ring)] aria-label='Load more news articles'"
           >
-            Load more
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <span>Loading...</span>
+              </>
+            ) : (
+              <>
+                <span>Load more</span>
+                <i className="fas fa-chevron-down text-xs"></i>
+              </>
+            )}
           </button>
         </div>
       )}

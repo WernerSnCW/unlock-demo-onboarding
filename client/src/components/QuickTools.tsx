@@ -91,32 +91,36 @@ export default function QuickTools() {
   const activeModalData = tools.find(tool => tool.id === activeModal);
 
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 shadow-sm">
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">
         Quick Tools
       </h3>
       
-      <div className="grid grid-cols-1 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         {tools.map((tool) => (
           <button
             key={tool.id}
             onClick={() => handleToolClick(tool.id)}
-            className="flex items-center gap-3 p-3 text-left bg-[var(--muted)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] rounded-lg transition-colors group"
+            className="flex flex-col items-center gap-2 p-3 text-center bg-[var(--muted)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] rounded-[var(--radius-sm)] transition-colors group focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
           >
-            <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white">
-              <i className={`${tool.icon} text-lg`}></i>
+            <div className="w-9 h-9 rounded-full bg-[var(--primary)] flex items-center justify-center text-white">
+              <i className={`${tool.icon} text-sm`}></i>
             </div>
-            <div>
-              <div className="font-medium text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent-foreground)]">
+            <div className="space-y-1">
+              <div className="font-medium text-[var(--card-foreground)] group-hover:text-[var(--accent-foreground)]" style={{ fontSize: '14px' }}>
                 {tool.title}
               </div>
+              <div className="text-xs text-[var(--muted-foreground)] group-hover:text-[var(--accent-foreground)] opacity-75">
+                {tool.description.split('.')[0]}
+              </div>
             </div>
+            <i className="fas fa-chevron-right text-xs text-[var(--muted-foreground)] group-hover:text-[var(--accent-foreground)] opacity-50"></i>
           </button>
         ))}
       </div>
       
-      <div className="pt-3 border-t border-[var(--border)]">
-        <Link href="/toolkit" className="text-[var(--primary)] text-sm hover:underline">
+      <div className="pt-4 border-t border-[var(--border)]">
+        <Link href="/toolkit" className="text-[var(--accent)] text-sm font-medium hover:underline">
           More tools in Toolkit →
         </Link>
       </div>

@@ -30,33 +30,41 @@ export default function NewsCard({
   };
 
   return (
-    <article className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4 shadow-sm hover:shadow-md transition-shadow">
+    <article className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <div className="flex gap-4">
+        {/* Desktop: 56x56 image left, Mobile: stacked */}
         {image && (
-          <div className="flex-shrink-0 w-16 h-16 bg-[var(--muted)] rounded-lg overflow-hidden">
+          <div className="hidden md:block flex-shrink-0 w-14 h-14 bg-[var(--muted)] rounded-[var(--radius-sm)] overflow-hidden">
             <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] opacity-20"></div>
           </div>
         )}
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="text-[var(--card-foreground)] font-semibold text-sm leading-tight">
+          {/* Mobile: stacked image */}
+          {image && (
+            <div className="md:hidden mb-3 w-full h-32 bg-[var(--muted)] rounded-[var(--radius-sm)] overflow-hidden">
+              <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] opacity-20"></div>
+            </div>
+          )}
+          
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h3 className="text-[var(--card-foreground)] font-semibold leading-tight" style={{ fontSize: '16px' }}>
               {title}
             </h3>
             {getConfidenceLabel() && (
-              <span className="flex-shrink-0 text-xs text-[var(--primary)] font-medium">
+              <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--success)] text-[var(--success-foreground)]">
                 {getConfidenceLabel()}
               </span>
             )}
           </div>
           
-          <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)] mb-2">
+          <div className="flex items-center gap-2 text-[var(--muted-foreground)] mb-3" style={{ fontSize: '12px' }}>
             <span>{source}</span>
             <span>•</span>
             <span>{formatDistanceToNow(new Date(dateISO), { addSuffix: true })}</span>
           </div>
           
-          <p className="text-[var(--muted-foreground)] text-sm mb-3" style={{ 
+          <p className="text-[var(--muted-foreground)] text-sm mb-4 leading-relaxed" style={{ 
             display: '-webkit-box', 
             WebkitBoxOrient: 'vertical', 
             WebkitLineClamp: 2, 
@@ -65,40 +73,48 @@ export default function NewsCard({
             {summary}
           </p>
           
-          <div className="flex flex-wrap gap-1 mb-3">
-            {tags.map((tag) => (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {tags.slice(0, 3).map((tag) => (
               <span 
                 key={tag}
-                className="inline-flex px-2 py-1 rounded text-xs bg-[var(--accent)] text-[var(--accent-foreground)]"
+                className="inline-flex px-2 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--muted)] text-[var(--muted-foreground)]"
               >
                 {tag}
               </span>
             ))}
+            {tags.length > 3 && (
+              <span className="inline-flex px-2 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--muted)] text-[var(--muted-foreground)]">
+                +{tags.length - 3}
+              </span>
+            )}
             <button 
-              className="text-xs text-[var(--primary)] hover:underline"
+              className="text-xs text-[var(--accent)] hover:underline font-medium"
               title="Matched your sector/risk profile"
             >
               Why this?
             </button>
           </div>
           
-          <div className="flex gap-3 text-xs">
+          <div className="flex gap-3">
             <button 
               onClick={() => handleAction('Save')}
-              className="text-[var(--primary)] hover:underline"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
             >
+              <i className="fas fa-bookmark text-xs"></i>
               Save
             </button>
             <button 
               onClick={() => handleAction('Add to Watchlist')}
-              className="text-[var(--primary)] hover:underline"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
             >
-              Add to Watchlist
+              <i className="fas fa-eye text-xs"></i>
+              Watchlist
             </button>
             <button 
               onClick={() => handleAction('Share')}
-              className="text-[var(--primary)] hover:underline"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
             >
+              <i className="fas fa-share text-xs"></i>
               Share
             </button>
           </div>

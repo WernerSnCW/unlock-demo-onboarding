@@ -133,12 +133,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
         {/* Desktop: 3 columns, Tablet: 2 columns, Mobile: 1 column */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] md:grid-cols-[1fr_320px] gap-6">
           
           {/* Left Column - Welcome Panel */}
-          <div className="md:col-span-12 lg:col-span-3 order-1">
+          <div className="order-1">
             <WelcomePanel 
               profile={profile} 
               onChangePreferences={handlePreferencesChange}
@@ -146,7 +146,7 @@ export default function Dashboard() {
           </div>
 
           {/* Center Column - News Feed */}
-          <div className="md:col-span-8 lg:col-span-6 order-3 md:order-2">
+          <div className="order-3 md:order-2">
             <NewsFeed
               items={newsItems}
               frequency={profile.newsletterFrequency}
@@ -158,7 +158,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column - Tools, Watchlist, Upgrade */}
-          <div className="md:col-span-4 lg:col-span-3 order-2 md:order-3">
+          <div className="order-2 md:order-3">
             <div className="space-y-6">
               <QuickTools />
               <Watchlist companies={companies} />

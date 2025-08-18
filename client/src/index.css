@@ -11,12 +11,11 @@
 /* Light Theme (default)         */
 /* ============================= */
 :root {
-  --background: #F4F8FA;
-  --foreground: #1A1A1A;
-  /* dark grey for contrast */
+  --background: #F9FAFB;
+  --foreground: #1F2937;
 
-  --card: #ffffff;
-  --card-foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1F2937;
 
   --primary: #5193B3;
   --primary-foreground: #ffffff;
@@ -27,17 +26,26 @@
   --accent: #F8D49B;
   --accent-foreground: #1A1A1A;
 
-  --muted: #f3f3f3;
-  --muted-foreground: #666666;
+  --muted: #F3F4F6;
+  --muted-foreground: #64748B;
 
-  --destructive: #e63946;
+  --destructive: #EF4444;
   --destructive-foreground: #ffffff;
 
-  --border: #e0e0e0;
-  --input: #f9f9f9;
+  --success: #10B981;
+  --success-foreground: #ffffff;
+
+  --border: #E5E7EB;
+  --input: #F9FAFB;
   --ring: var(--primary);
 
-  --radius: 1rem;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
   --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
@@ -46,15 +54,14 @@
 /* Dark Theme                    */
 /* ============================= */
 .dark {
-  --background: #1A1A1A;
-  --foreground: #F8E6CB;
+  --background: #111827;
+  --foreground: #F9FAFB;
 
-  --card: #2A2A2A;
-  --card-foreground: #F8E6CB;
+  --card: #1F2937;
+  --card-foreground: #F9FAFB;
 
   --primary: #62C4C3;
-  /* slightly lighter tone for contrast in dark */
-  --primary-foreground: #1A1A1A;
+  --primary-foreground: #111827;
 
   --secondary: #5193B3;
   --secondary-foreground: #ffffff;
@@ -62,13 +69,16 @@
   --accent: #F8D49B;
   --accent-foreground: #1A1A1A;
 
-  --muted: #333333;
-  --muted-foreground: #aaaaaa;
+  --muted: #374151;
+  --muted-foreground: #9CA3AF;
 
-  --destructive: #e63946;
+  --destructive: #EF4444;
   --destructive-foreground: #ffffff;
 
-  --border: #444444;
-  --input: #2a2a2a;
+  --success: #10B981;
+  --success-foreground: #ffffff;
+
+  --border: #374151;
+  --input: #1F2937;
   --ring: var(--primary);
 }

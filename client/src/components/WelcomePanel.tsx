@@ -17,7 +17,7 @@ interface WelcomePanelProps {
 export default function WelcomePanel({ profile, onChangePreferences }: WelcomePanelProps) {
   if (!profile) {
     return (
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 shadow-md">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <div className="text-center">
           <h2 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">
             Get Started
@@ -26,7 +26,7 @@ export default function WelcomePanel({ profile, onChangePreferences }: WelcomePa
             Complete 2-min onboarding to personalise your feed
           </p>
           <button 
-            className="bg-[var(--primary)] text-[var(--primary-foreground)] px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="bg-[var(--primary)] text-[var(--primary-foreground)] px-6 py-2.5 rounded-[var(--radius-sm)] font-medium hover:opacity-90 transition-opacity"
             disabled
           >
             Complete Onboarding
@@ -37,43 +37,43 @@ export default function WelcomePanel({ profile, onChangePreferences }: WelcomePa
   }
 
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 shadow-md">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-2">
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">
           Welcome back, {profile.firstName}.
         </h2>
         
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[var(--primary)] text-[var(--primary-foreground)]">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium bg-[var(--primary)] text-[var(--primary-foreground)]">
             {profile.investorType.charAt(0).toUpperCase() + profile.investorType.slice(1)} Investor
           </span>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[var(--secondary)] text-[var(--secondary-foreground)]">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium bg-[var(--muted)] text-[var(--muted-foreground)]">
             {profile.riskProfile.charAt(0).toUpperCase() + profile.riskProfile.slice(1)} Risk
           </span>
-          {profile.sectors.slice(0, 2).map((sector) => (
-            <span key={sector} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[var(--accent)] text-[var(--accent-foreground)]">
-              {sector}
-            </span>
-          ))}
+          <span className="inline-flex items-center px-3 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium bg-[var(--muted)] text-[var(--muted-foreground)]">
+            {profile.sectors[0]}
+          </span>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)]">
-            Newsletter: {profile.newsletterFrequency}
-          </span>
-          <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)]">
-            WhatsApp: {profile.whatsappAlerts ? 'On' : 'Off'}
-          </span>
+        {/* Profile completeness bar */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-[var(--muted-foreground)]">Profile completeness</span>
+            <span className="text-xs text-[var(--muted-foreground)]">75%</span>
+          </div>
+          <div className="w-full bg-[var(--muted)] rounded-full h-2">
+            <div className="bg-[var(--success)] h-2 rounded-full" style={{ width: '75%' }}></div>
+          </div>
         </div>
 
         <button 
-          className="text-[var(--primary)] text-sm hover:underline mb-4"
+          className="text-[var(--accent)] text-sm font-medium hover:underline mb-4"
           disabled
         >
-          Edit profile
+          Improve my feed →
         </button>
 
-        <p className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] p-3 rounded">
+        <p className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] p-3 rounded-[var(--radius-sm)]">
           Free plan: Snapshot diligence only. No investment advice.
         </p>
       </div>
