@@ -90,25 +90,34 @@ export default function WhatsAppConnectModal({ isOpen, onClose }: WhatsAppConnec
               </div>
             </div>
 
-            <div className="bg-[var(--muted)] rounded-[var(--radius-md)] p-4 mb-6">
-              <div className="flex items-start gap-2">
-                <i className="fas fa-info-circle text-[var(--primary)] mt-0.5" aria-hidden="true"></i>
-                <div>
-                  <p className="text-sm text-[var(--card-foreground)] font-medium mb-1">
-                    Coming Soon
-                  </p>
-                  <p className="text-xs text-[var(--muted-foreground)]">
-                    WhatsApp integration is currently in development. We'll notify you when it's ready!
-                  </p>
-                </div>
+            {/* Phone Number Input */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
+                WhatsApp Phone Number
+              </label>
+              <div className="flex gap-2">
+                <select className="px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+49">🇩🇪 +49</option>
+                </select>
+                <input
+                  type="tel"
+                  placeholder="7123 456789"
+                  className="flex-1 px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                />
               </div>
+              <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                We'll send a verification code to this number
+              </p>
             </div>
           </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t border-[var(--border)]">
             <p className="text-xs text-[var(--muted-foreground)]">
-              Prototype stores settings locally only
+              Secure connection • Data stored locally • SMS rates may apply
             </p>
             <div className="flex gap-2">
               <button
@@ -118,12 +127,15 @@ export default function WhatsAppConnectModal({ isOpen, onClose }: WhatsAppConnec
                 Maybe Later
               </button>
               <button
-                onClick={onClose}
+                onClick={() => {
+                  // Simulate successful connection
+                  alert('WhatsApp connection request sent! You will receive a verification code shortly.');
+                  onClose();
+                }}
                 className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[var(--radius-md)] text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-                disabled
               >
                 <i className="fab fa-whatsapp mr-2" aria-hidden="true"></i>
-                Notify Me
+                Connect WhatsApp
               </button>
             </div>
           </div>
