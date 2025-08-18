@@ -56,31 +56,31 @@ export default function QuickTools() {
       id: 'eis-calculator',
       title: 'EIS/SEIS Calculator',
       description: 'Calculate your EIS and SEIS allowances for tax-efficient investing.',
-      icon: '🧮'
+      icon: 'fas fa-calculator'
     },
     {
       id: 'loss-relief',
       title: 'Loss Relief Calculator',
       description: 'Estimate potential loss relief benefits on your investments.',
-      icon: '📉'
+      icon: 'fas fa-chart-line'
     },
     {
       id: 'cgt-deferral',
       title: 'CGT Deferral Calculator',
       description: 'Calculate capital gains tax deferral opportunities.',
-      icon: '💰'
+      icon: 'fas fa-pound-sign'
     },
     {
       id: 'due-diligence',
       title: 'Request DD Snapshot',
       description: 'Request a due diligence snapshot for any business.',
-      icon: '🔍'
+      icon: 'fas fa-search'
     },
     {
       id: 'pitch-analyzer',
       title: 'Pitch Deck Analyser',
       description: 'Upload and analyze pitch decks for key insights.',
-      icon: '📊'
+      icon: 'fas fa-chart-bar'
     }
   ];
 
@@ -103,7 +103,9 @@ export default function QuickTools() {
             onClick={() => handleToolClick(tool.id)}
             className="flex items-center gap-3 p-3 text-left bg-[var(--muted)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] rounded-lg transition-colors group"
           >
-            <span className="text-2xl">{tool.icon}</span>
+            <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white">
+              <i className={`${tool.icon} text-lg`}></i>
+            </div>
             <div>
               <div className="font-medium text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent-foreground)]">
                 {tool.title}
