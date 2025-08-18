@@ -1,0 +1,10 @@
+{
+  "firstName": "Thomas",
+  "investorType": "angel",
+  "sectors": ["Fintech", "Biotech"],
+  "riskAppetite": "medium",
+  "jurisdiction": "UK",
+  "wantsEISSEIS": true,
+  "newsletterFrequency": "weekly",
+  "alertChannels": ["in-app", "email"]
+}
