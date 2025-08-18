@@ -27,6 +27,28 @@ interface AnalysisResult {
     benchmarkMin: number;
     benchmarkMax: number;
     assessment: string;
+    methods: {
+      preMoney: number;
+      postMoney: number;
+      revenueMultiple: {
+        arr: number;
+        multiple: number;
+        impliedValue: number;
+      };
+      ebitdaMultiple: {
+        ebitda: number;
+        multiple: number;
+        impliedValue: number;
+      };
+      roiProjection: {
+        equityStake: number;
+        projectedExit: number;
+        investorReturn: number;
+        roiMultiple: number;
+        irr: number;
+      };
+    };
+    suggestedQuestions: string[];
   };
   riskFlags: {
     level: 'Low' | 'Medium' | 'High';
@@ -210,10 +232,38 @@ export default function PitchDeckAnalyser() {
         }
       ],
       valuation: {
-        declared: 10000000,
+        declared: 20000000,
         benchmarkMin: 4200000,
         benchmarkMax: 6800000,
-        assessment: 'Overvalued by ~35% compared to stage and sector peers'
+        assessment: 'Overvalued by ~35% compared to stage and sector peers',
+        methods: {
+          preMoney: 20000000,
+          postMoney: 25000000,
+          revenueMultiple: {
+            arr: 250000,
+            multiple: 10,
+            impliedValue: 2500000
+          },
+          ebitdaMultiple: {
+            ebitda: 1200000,
+            multiple: 12,
+            impliedValue: 14400000
+          },
+          roiProjection: {
+            equityStake: 20,
+            projectedExit: 100000000,
+            investorReturn: 20000000,
+            roiMultiple: 4,
+            irr: 31
+          }
+        },
+        suggestedQuestions: [
+          'Which valuation methodology did you use to justify £20m pre-money?',
+          'How do you reconcile the 8× difference between ARR multiple valuation (£2.5m) and your ask (£20m)?',
+          'What assumptions underpin your forecast EBITDA?',
+          'What comparable companies were used in your valuation benchmark?',
+          'If your exit is £100m, how do you justify that growth rate vs industry averages?'
+        ]
       },
       riskFlags: [
         { level: 'High', issue: 'Missing exit strategy completely' },
@@ -459,26 +509,172 @@ export default function PitchDeckAnalyser() {
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-3">
               <i className="fas fa-pound-sign text-[#5193B3]" aria-hidden="true"></i>
-              Valuation Snapshot
+              Valuation Analysis
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {/* Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div className="text-2xl font-bold text-[#5193B3] mb-1">
                   {formatCurrency(result.valuation.declared)}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Declared Valuation</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Pre-Money Valuation</div>
               </div>
               <div className="text-center p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
                 <div className="text-2xl font-bold text-[#62C4C3] mb-1">
-                  {formatCurrency(result.valuation.benchmarkMin)}–{formatCurrency(result.valuation.benchmarkMax)}
+                  {formatCurrency(result.valuation.methods.postMoney)}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Benchmark Range</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Post-Money Valuation</div>
               </div>
               <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                 <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
                   {result.valuation.assessment}
                 </div>
+              </div>
+            </div>
+
+            {/* Benchmarking Table */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <i className="fas fa-table text-[#5193B3]" aria-hidden="true"></i>
+                Valuation Methods Comparison
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Method</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Basis Used</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Implied Value</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Deck Value</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Commentary</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800">
+                    <tr className="border-b border-gray-100 dark:border-gray-700">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">Pre/Post Money</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">£5m ask for 20%</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre, {formatCurrency(result.valuation.methods.postMoney)} post</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
+                      <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400">Matches stated figures</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-700">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">Revenue Multiple</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.revenueMultiple.arr)} ARR × {result.valuation.methods.revenueMultiple.multiple}x</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
+                      <td className="px-4 py-3 text-sm text-red-600 dark:text-red-400">Overvalued vs ARR benchmark</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-700">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">EBITDA Multiple</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)} EBITDA × {result.valuation.methods.ebitdaMultiple.multiple}x</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
+                      <td className="px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400">Premium pricing applied</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">ROI Projection</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">Exit {formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{result.valuation.methods.roiProjection.roiMultiple}× return ({result.valuation.methods.roiProjection.equityStake}% stake)</td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">N/A</td>
+                      <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400">Attractive if growth targets hit</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Method Details */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <i className="fas fa-chart-line text-[#5193B3] text-sm" aria-hidden="true"></i>
+                  Revenue Multiple Analysis
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-300">Current ARR:</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{formatCurrency(result.valuation.methods.revenueMultiple.arr)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-300">Industry Multiple:</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{result.valuation.methods.revenueMultiple.multiple}×</span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
+                    <span className="text-gray-600 dark:text-gray-300">Fair Value:</span>
+                    <span className="font-bold text-[#5193B3]">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Most common for SaaS/tech startups. Focuses on recurring revenue potential.</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <i className="fas fa-chart-bar text-[#62C4C3] text-sm" aria-hidden="true"></i>
+                  EBITDA Multiple Analysis
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-300">Forecasted EBITDA (Y3):</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-300">Industry Multiple:</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{result.valuation.methods.ebitdaMultiple.multiple}×</span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
+                    <span className="text-gray-600 dark:text-gray-300">Implied Value:</span>
+                    <span className="font-bold text-[#62C4C3]">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Useful for later-stage businesses. Reflects profitability and efficiency.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ROI Analysis */}
+            <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg mb-8">
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+                <i className="fas fa-trophy text-[#F8D49B] text-sm" aria-hidden="true"></i>
+                Investor ROI Projection
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#F8D49B] mb-1">{result.valuation.methods.roiProjection.equityStake}%</div>
+                  <div className="text-gray-600 dark:text-gray-400">Equity Stake</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#F8D49B] mb-1">{result.valuation.methods.roiProjection.roiMultiple}×</div>
+                  <div className="text-gray-600 dark:text-gray-400">ROI Multiple</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#F8D49B] mb-1">{result.valuation.methods.roiProjection.irr}%</div>
+                  <div className="text-gray-600 dark:text-gray-400">IRR (5 years)</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-[#F8D49B] mb-1">{formatCurrency(result.valuation.methods.roiProjection.investorReturn)}</div>
+                  <div className="text-gray-600 dark:text-gray-400">Projected Return</div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3 text-center">
+                Above VC target hurdle (~25–30%), but depends heavily on hitting ARR forecast and achieving {formatCurrency(result.valuation.methods.roiProjection.projectedExit)} exit.
+              </p>
+            </div>
+
+            {/* Valuation Questions */}
+            <div>
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+                <i className="fas fa-question-circle text-[#5193B3] text-sm" aria-hidden="true"></i>
+                Key Valuation Questions
+              </h4>
+              <div className="space-y-2">
+                {result.valuation.suggestedQuestions.map((question, index) => (
+                  <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                    <span className="inline-flex items-center justify-center w-5 h-5 bg-[#5193B3] text-white text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
+                      {index + 1}
+                    </span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{question}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

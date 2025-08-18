@@ -1,0 +1,84 @@
+Valuation Section – Expanded Spec
+1. Method Used
+
+Pre-Money / Post-Money Valuation
+
+Extracted directly from the deck (e.g. £20m pre-money).
+
+Shows calculation with investment ask (e.g. £5m raise = £25m post-money).
+
+Useful for quick dilution impact analysis.
+
+Revenue Multiple (Comparable SaaS Benchmarking)
+
+Applied to ARR or forecasted ARR.
+
+E.g. £250k ARR × 10x = £2.5m fair value → compares against stated £20m.
+
+Highlights overvaluation/undervaluation.
+
+EBITDA Multiple (if later stage)
+
+Applied if company projects positive EBITDA.
+
+Shows whether valuation is in line with industry (e.g. 12–18x EBITDA for SaaS).
+
+DCF (Discounted Cash Flow) (if data available)
+
+Optional long-term value indicator.
+
+2. Why This Method Is Used
+
+Revenue Multiple: Most common for SaaS/tech startups at seed/series A. Focuses on recurring revenue potential.
+
+EBITDA Multiple: Useful in later-stage businesses, reflects profitability and efficiency.
+
+DCF: Captures long-term cashflow potential, but very assumption-heavy — used more for cross-checking.
+
+ROI (Investor View): Quick way to see potential exit upside given ask + equity offered.
+
+3. EBITDA View (Mock Example)
+
+Forecasted EBITDA (Yr 3): £1.2m
+
+Industry Average EBITDA Multiple: 12×
+
+Implied Valuation: £14.4m
+
+Deck Stated Valuation: £20m
+
+Commentary: Implied deck valuation exceeds EBITDA-based benchmark, suggesting premium pricing.
+
+4. ROI View (Mock Example)
+
+Ask: £5m for 20% equity → £20m pre-money, £25m post-money.
+
+Investor Equity Stake: 20% (assuming no dilution).
+
+Projected Exit (Yr 5): £100m valuation.
+
+Investor Return: £20m (20% of £100m).
+
+ROI Multiple: 4×.
+
+IRR (Internal Rate of Return): ~31% (over 5 years).
+
+Commentary: Above VC target hurdle (~25–30%), but depends heavily on hitting ARR forecast.
+
+5. Benchmarking Table (Investor-Friendly)
+Method	Basis Used	Implied Valuation	Deck Valuation	Commentary
+Pre-Money/Post-Money	£5m ask for 20%	£20m pre, £25m post	£20m pre	Matches stated figures.
+Revenue Multiple	£250k ARR × 10x	£2.5m	£20m pre	Overvalued vs ARR benchmark.
+EBITDA Multiple	£1.2m EBITDA × 12x	£14.4m	£20m pre	Premium pricing applied.
+ROI Projection	Exit £100m	4× return (20% stake)	N/A	Attractive if growth targets hit.
+6. Suggested Investor Questions
+
+“Which valuation methodology did you use to justify £20m pre-money?”
+
+“How do you reconcile the 8× difference between ARR multiple valuation (£2.5m) and your ask (£20m)?”
+
+“What assumptions underpin your forecast EBITDA?”
+
+“What comparable companies were used in your valuation benchmark?”
+
+“If your exit is £100m, how do you justify that growth rate vs industry averages?”
