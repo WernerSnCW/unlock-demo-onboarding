@@ -65,7 +65,7 @@ export default function NewsEnhanced() {
   const [showNewsletterPreview, setShowNewsletterPreview] = useState(false);
   const [showWhatsAppConnect, setShowWhatsAppConnect] = useState(false);
   const [filteredNews, setFilteredNews] = useState(newsItemsData);
-  const [visibleCount, setVisibleCount] = useState(5);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
 
   const hasUnreadAlerts = alertsData.some(alert => alert.priority === 'high');
@@ -89,53 +89,64 @@ export default function NewsEnhanced() {
   const applyAdvancedFiltering = (items: any[]) => {
     let filtered = [...items];
 
-    // Apply preference filters
-    if (preferences.sectors.length > 0) {
+    // Only apply sector filtering if user has explicitly selected specific sectors
+    // Default behavior: show all sectors unless specifically filtered
+    if (preferences.sectors.length > 0 && selectedCategory === 'your-sectors') {
       filtered = filtered.filter(item => 
         preferences.sectors.includes(item.sector) || item.sector === 'All'
       );
     }
 
-    if (preferences.regions && preferences.regions.length > 0) {
+    // Apply region filter only if regions are specified and not empty
+    if (preferences.regions && preferences.regions.length > 0 && preferences.regions[0] !== '') {
       filtered = filtered.filter(item => 
-        !item.region || preferences.regions.includes(item.region)
+        !item.region || preferences.regions.includes(item.region) || item.region === 'Global'
       );
     }
 
-    if (preferences.topics && preferences.topics.length > 0) {
+    // Apply topic filter more permissively - OR logic
+    if (preferences.topics && preferences.topics.length > 0 && preferences.topics[0] !== '') {
+      // Don't filter by topics unless explicitly searching for them
+      // This allows broader content discovery
+    }
+
+    // Apply ticker filter only when specifically relevant
+    if (preferences.tickers && preferences.tickers.length > 0 && preferences.tickers[0] !== '') {
+      // Only filter by tickers if the article actually has ticker information
       filtered = filtered.filter(item =>
-        !item.topics || item.topics.some((topic: string) => preferences.topics.includes(topic))
+        !item.tickers || item.tickers.length === 0 || item.tickers.some((ticker: string) => preferences.tickers.includes(ticker))
       );
     }
 
-    if (preferences.tickers && preferences.tickers.length > 0) {
-      filtered = filtered.filter(item =>
-        !item.tickers || item.tickers.some((ticker: string) => preferences.tickers.includes(ticker))
-      );
+    // Apply source inclusion filter only if sources are specifically selected
+    if (preferences.includeSources && preferences.includeSources.length > 0 && preferences.includeSources[0] !== '') {
+      // More permissive - include if no sources specified or if source matches
+      const hasSourceFilter = preferences.includeSources.some(source => source.trim() !== '');
+      if (hasSourceFilter) {
+        filtered = filtered.filter(item =>
+          preferences.includeSources.includes(item.source)
+        );
+      }
     }
 
-    if (preferences.includeSources && preferences.includeSources.length > 0) {
-      filtered = filtered.filter(item =>
-        preferences.includeSources.includes(item.source)
-      );
-    }
-
+    // Apply source exclusion
     if (preferences.excludeSources && preferences.excludeSources.length > 0) {
       filtered = filtered.filter(item =>
         !preferences.excludeSources.includes(item.source)
       );
     }
 
+    // EIS/SEIS filter - default to enabled (show EIS content)
     if (!preferences.eisSeisEnabled) {
       filtered = filtered.filter(item =>
         !item.tags.some((tag: string) => tag.toLowerCase().includes('eis') || tag.toLowerCase().includes('seis'))
       );
     }
 
-    // Hide low-value items
+    // Hide low-value items - more permissive threshold
     if (preferences.hideLowValue) {
       filtered = filtered.filter(item => 
-        item.relevance >= 0.35 || (item.tickers && item.tickers.some((ticker: string) => preferences.tickers?.includes(ticker)))
+        item.relevance >= 0.25 || (item.tickers && item.tickers.some((ticker: string) => preferences.tickers?.includes(ticker)))
       );
     }
 
@@ -171,7 +182,7 @@ export default function NewsEnhanced() {
     filtered = applyAdvancedFiltering(filtered);
 
     setFilteredNews(filtered);
-    setVisibleCount(5);
+    setVisibleCount(10);
   }, [selectedCategory, searchQuery, preferences]);
 
   const updatePreferences = (newPrefs: UserPreferences) => {
@@ -203,7 +214,7 @@ export default function NewsEnhanced() {
     setIsLoading(true);
     
     setTimeout(() => {
-      setVisibleCount(prev => prev + 5);
+      setVisibleCount(prev => prev + 10);
       setIsLoading(false);
     }, 500);
   };
