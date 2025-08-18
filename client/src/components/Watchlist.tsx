@@ -59,7 +59,23 @@ export default function Watchlist({ companies, onToolOpen }: WatchlistProps) {
                   {company.name}
                 </h4>
                 {company.verified && (
-                  <span className="inline-flex items-center text-xs">✅</span>
+                  <div className="w-4 h-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <svg 
+                      width="10" 
+                      height="10" 
+                      viewBox="0 0 12 12" 
+                      fill="none" 
+                      className="text-white"
+                    >
+                      <path 
+                        d="M10 3L4.5 8.5L2 6" 
+                        stroke="currentColor" 
+                        strokeWidth="1.5" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-2">
