@@ -1,6 +1,6 @@
 # Overview
 
-This project is "Unlock Free Version" - a business due diligence platform prototype built with React, TypeScript, and Express.js. The application provides investment due diligence snapshots using entirely mock data but appears fully functional. It features a split-screen premium dashboard with "Your World" (personalized content) on the left and "The Market" (curated news & insights) on the right. The design uses a strict CSS custom property system for consistent theming across light/dark modes with a calm, professional fintech aesthetic.
+This project is "Unlock Free Version" - a business due diligence platform prototype built with React, TypeScript, and Express.js. The application provides investment due diligence snapshots using entirely mock data but appears fully functional. It features a split-screen premium dashboard with "Your World" (personalized content) on the left and "The Market" (curated news & insights) on the right, plus a comprehensive Investor Toolkit workspace. The design uses explicit Tailwind classes for reliable text visibility and consistent theming across light/dark modes with a calm, professional fintech aesthetic.
 
 # User Preferences
 
@@ -12,13 +12,14 @@ Preferred communication style: Simple, everyday language.
 - **Framework**: React 18 with TypeScript for type safety and modern development patterns
 - **Build Tool**: Vite for fast development server and optimized production builds with hot module replacement
 - **Routing**: Wouter for lightweight client-side routing
-- **Styling**: Tailwind CSS with strict CSS custom properties system (no hard-coded colors)
+- **Styling**: Tailwind CSS with explicit color classes for reliable text visibility (migrated from CSS custom properties)
 - **Design System**: Professional color palette with --primary: #5193B3, --secondary: #62C4C3, --accent: #F8D49B
-- **Layout System**: Split-screen dashboard: "Your World" (left) and "The Market" (right) with responsive mobile stacking
+- **Layout System**: Split-screen dashboard: "Your World" (left) and "The Market" (right) with responsive mobile stacking, plus comprehensive Investor Toolkit
 - **Spacing Scale**: Unified spacing tokens (12px, 16px, 24px) and radius tokens (8px, 12px, 16px)
 - **Theme Support**: Complete light/dark mode implementation with ThemeProvider
 - **Mock Data**: JSON-based fake data system for realistic business due diligence content
-- **UI Components**: Custom business-focused components (NewsCard, WelcomePanel, AlertsPreferences, NewsletterControls, etc.)
+- **UI Components**: Custom business-focused components (NewsCard, WelcomePanel, AlertsPreferences, NewsletterControls, ToolCard, ToolkitModal)
+- **Investor Toolkit**: Comprehensive tool workspace with categorized tool cards (Tax Relief, Analysis, Utilities), modal system, and premium preview section
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js framework for RESTful API endpoints
@@ -35,7 +36,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Project Structure
 - **Monorepo Design**: Client, server, and shared code organized in separate directories
-- **Component Library**: Specialized business components (WelcomePanel, NewsFeed, AlertsPreferences, NewsletterControls, Watchlist, UpgradeCard)
+- **Component Library**: Specialized business components (WelcomePanel, NewsFeed, AlertsPreferences, NewsletterControls, Watchlist, UpgradeCard, ToolCard, ToolkitModal, SimpleAllowanceCalculator)
 - **Mock Data System**: JSON files in /src/mocks/ providing realistic business data
 - **Theme Architecture**: CSS custom properties in index.css for global color management
 - **Split-Screen Layout**: Desktop (2-col equal), Tablet (2-col with wider right), Mobile (1-col stacked: Welcome → Alerts → Newsletter → News → Watchlist → Upgrade)
