@@ -114,7 +114,7 @@ export default function MiniDock({ onToolOpen, isVisible, onToggle }: MiniDockPr
               }`}
             >
               <div className="w-8 h-8 bg-[var(--muted)] rounded-full flex items-center justify-center flex-shrink-0">
-                <i className={`${tool.icon} text-sm text-[var(--muted-foreground)]`}></i>
+                <i className={`${tool.icon} text-sm text-[var(--card-foreground)]`}></i>
               </div>
               <span className="text-sm font-medium text-[var(--card-foreground)]">
                 {tool.name}

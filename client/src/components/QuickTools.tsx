@@ -112,7 +112,7 @@ export default function QuickTools({ onToolOpen }: QuickToolsProps) {
             className="flex items-center gap-3 p-3 rounded-[var(--radius-sm)] hover:bg-[var(--muted)] hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ring)] group"
           >
             <div className="w-9 h-9 bg-[var(--muted)] rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-foreground)] transition-colors">
-              <i className={`${tool.icon} text-sm`}></i>
+              <i className={`${tool.icon} text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent-foreground)]`}></i>
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-[var(--card-foreground)] truncate">
@@ -137,7 +137,7 @@ export default function QuickTools({ onToolOpen }: QuickToolsProps) {
               className="flex-shrink-0 flex flex-col items-center gap-2 p-3 rounded-[var(--radius-sm)] hover:bg-[var(--muted)] transition-colors text-center min-w-[80px] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
             >
               <div className="w-9 h-9 bg-[var(--muted)] rounded-full flex items-center justify-center">
-                <i className={`${tool.icon} text-sm text-[var(--muted-foreground)]`}></i>
+                <i className={`${tool.icon} text-sm text-[var(--card-foreground)]`}></i>
               </div>
               <div className="text-xs font-medium text-[var(--card-foreground)]">
                 {tool.name}

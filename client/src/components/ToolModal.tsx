@@ -127,7 +127,7 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--muted)] rounded-full flex items-center justify-center">
-                <i className={`${tool.icon} text-lg text-[var(--muted-foreground)]`}></i>
+                <i className={`${tool.icon} text-lg text-[var(--card-foreground)]`}></i>
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
