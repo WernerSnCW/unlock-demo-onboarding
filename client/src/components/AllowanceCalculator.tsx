@@ -83,7 +83,7 @@ export default function AllowanceCalculator() {
             <h4 className="text-md font-semibold text-[var(--card-foreground)] mb-3">This Tax Year</h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Investment Amount (£)
                 </label>
                 <input
@@ -92,11 +92,11 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.investmentThisYear}
                   onChange={(e) => updateInput('investmentThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-[var(--radius-sm)] text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Income Tax Liability (£)
                 </label>
                 <input
@@ -105,7 +105,7 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.incomeTaxLiabilityThisYear}
                   onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-[var(--radius-sm)] text-gray-900 dark:text-gray-100"
                 />
               </div>
             </div>
@@ -113,7 +113,7 @@ export default function AllowanceCalculator() {
 
           {/* Previous Tax Year */}
           <div>
-            <h4 className="text-md font-semibold text-[var(--card-foreground)] mb-3">Previous Tax Year</h4>
+            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3">Previous Tax Year</h4>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
