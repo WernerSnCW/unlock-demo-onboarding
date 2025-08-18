@@ -1,0 +1,339 @@
+Route & page frame
+
+Route: /toolkit
+
+Structure: Two columns
+
+Main: three calculator accordions (Allowance; Loss Relief; CGT Deferral)
+
+Sidebar: “About”, “FAQs”, and a Premium Sneak Preview (locked)
+
+Global disclaimer (top + per-tool footnote):
+Educational illustration only. Unlock does not provide financial advice.
+
+1) Allowance Calculator (EIS & SEIS) — Annual + carry-back
+Inputs (grouped)
+
+Scheme: EIS or SEIS (radio)
+
+Is Knowledge-Intensive (KIC)? (EIS only) true | false
+
+This tax year
+
+investmentThisYear (£)
+
+incomeTaxLiabilityThisYear (£) (cap relief to liability)
+
+Previous tax year
+
+investmentPrevYear (£ actually made last year)
+
+unusedAllowancePrevYear (£, if known; otherwise tool derives from limits)
+
+carryBackFromThisYear (£ user chooses how much of this year’s subscription to carry back)
+
+incomeTaxLiabilityPrevYear (£) (cap carry-back relief)
+
+Investor limit used in previous year? (checkbox) (if ticked, carry-back must be £0)
+
+Limits to model
+
+EIS: 30% relief, max £1m per tax year (£2m if KIC and at least £1m of total is in KICs). Carry-back allowed to the immediately preceding tax year, subject to that year’s limits and liability. 
+GOV.UK
++1
+
+SEIS: 50% relief, max £200k per tax year (from 6 Apr 2023). Carry-back allowed similarly, to the previous year within its limits. 
+GOV.UK
++1
+
+Calculations (deterministic)
+
+Let:
+
+rate = 0.30 for EIS; 0.50 for SEIS
+
+limitThis = (scheme==EIS ? (isKIC? 2000000 : 1000000) : 200000)
+
+limitPrev = same logic, but if shares issued in prev year use prev-year limit (we are modelling the investor limit; company rules out of scope)
+
+Steps:
+
+Validate carry-back cap
+carryBackFromThisYear ≤ min(investmentThisYear, unusedAllowancePrevYear, limitPrev - investmentPrevYear)
+If invalid, show inline error and cap automatically.
+
+Relief base amounts
+
+elegibleForPrev = min(carryBackFromThisYear, incomeTaxLiabilityPrevYear / rate) (cannot create a refund beyond tax due)
+
+reliefPrev = elegibleForPrev × rate
+
+remainingThisYearSubscription = investmentThisYear - carryBackFromThisYear
+
+Apply this-year allowance
+
+allowanceLeftThis = max(0, limitThis - remainingThisYearSubscription) (for info)
+
+Cap relief to liability:
+eligibleForThis = min(remainingThisYearSubscription, incomeTaxLiabilityThisYear / rate)
+reliefThis = eligibleForThis × rate
+
+Totals
+
+totalRelief = reliefPrev + reliefThis
+
+effectiveNetCost = (investmentThisYear) - (reliefThis) - (reliefPrev) (ignoring future disposal)
+
+Validation & assumptions
+
+Relief cannot exceed each year’s income tax liability (we do not model carry-forward of unused relief).
+
+Carry-back is only to immediately preceding tax year.
+
+We do not police company eligibility; this is an investor-limit calculator.
+
+For EIS KIC, enforce: if limitThis == 2m, show helper text: “Anything above £1m must be in KICs.” 
+GOV.UK
+
+Outputs
+
+Summary line: “Relief this year £X; carry-back relief £Y; total relief £Z.”
+
+Breakdown panel (two columns): “This year” vs “Carried back to last year”
+
+Subscription applied, Relief rate, Relief amount, Remaining allowance, Liability cap hit? (Yes/No)
+
+Chips: EIS | SEIS, KIC (if applicable)
+
+UX details
+
+Show progress bars for allowance usage (this year / last year).
+
+Inline cap badges if user hits a limit (allowance or liability).
+
+Worked example (display under the card as “Example”)
+
+EIS (non-KIC). Invest £120,000 this year; choose to carry back £20,000. Last year you used £950,000 of allowance and had £10,000 income tax due. This year you have £50,000 income tax due.
+
+Last year remaining allowance = £50,000 → carry-back £20,000 ok. Relief last year = £20,000 × 30% = £6,000 (cap to liability if needed).
+
+This year relief = (£120,000 − £20,000) × 30% = £30,000.
+
+Total relief = £36,000. Remaining this-year allowance = £1,000,000 − £100,000 = £900,000.
+
+2) Loss Relief Calculator — Downside modelling after upfront relief
+
+Loss relief is available if the investment is disposed of at a loss. The loss is calculated on the effective cost after deducting the upfront income-tax relief, and can be set against income tax (marginal rate) or CGT, depending on the claim. 
+Octopus Investments
+Growth Capital Ventures
+Wealth Club
+
+Inputs
+
+Scheme: EIS or SEIS (drives upfront rate: 30% vs 50%)
+
+subscription (£)
+
+saleProceeds (£) (0 if company fails)
+
+Offset against: Income tax (choose marginal rate 20% / 40% / 45%) or CGT (10% / 20%)
+
+(Optional) upfrontReliefActuallyClaimed (£) (default = scheme rate × subscription; editable for realism)
+
+Calculations
+
+Upfront relief
+upfront = (upfrontReliefActuallyClaimed ?? subscription × rate) where rate = 0.30 (EIS) | 0.50 (SEIS)
+
+Effective loss
+effectiveLoss = max(0, subscription − upfront − saleProceeds)
+(If proceeds > subscription − upfront, loss is £0.)
+
+Loss relief
+
+If offset against Income tax: lossRelief = effectiveLoss × marginalIncomeRate
+
+If against CGT: lossRelief = effectiveLoss × chosenCGTRate
+
+Net result
+netLossAfterAllRelief = subscription − upfront − saleProceeds − lossRelief
+Report also the % reduction vs gross loss:
+grossLoss = subscription − saleProceeds
+reductionPct = (1 − netLossAfterAllRelief / grossLoss) × 100
+
+Validation & assumptions
+
+We assume a qualifying loss and no disqualifying events.
+
+We ignore disposal costs and time value of money.
+
+If user changes upfrontReliefActuallyClaimed, clamp it to 0…(rate × subscription).
+
+Show an info note: “Choosing CGT vs income offset depends on your circumstances; this tool does not optimise for you.”
+
+Outputs
+
+Headline: “Net loss after tax relief: £X (reduction of Y% vs gross loss)”
+
+Breakdown table:
+
+Subscription, Upfront relief, Proceeds, Effective loss, Chosen offset & rate, Loss relief value, Final net loss
+
+Badge: EIS/SEIS, Offset: Income or Offset: CGT
+
+Worked examples
+
+EIS, 45% income taxpayer
+Subscription £10,000; proceeds £0. Upfront 30% = £3,000.
+Effective loss = £7,000. Loss relief = £7,000 × 45% = £3,150.
+Net loss = £10,000 − £3,000 − £3,150 = £3,850 (61.5% reduction).
+
+SEIS, 20% income taxpayer
+Subscription £20,000; proceeds £5,000. Upfront 50% = £10,000.
+Effective loss = £5,000 (20,000 − 10,000 − 5,000).
+Loss relief = £5,000 × 20% = £1,000. Net loss = £4,000.
+
+3) CGT Deferral Calculator — EIS reinvestment deferral + SEIS reinvestment (50% exemption)
+What we model
+
+EIS Deferral Relief: You can defer CGT on a gain if you invest an amount in EIS qualifying shares within the window 1 year before to 3 years after the disposal date. Deferral amount is effectively unlimited (subject to qualifying conditions). CGT becomes payable when the EIS shares are disposed of (or certain events occur). 
+GOV.UK
+Techzone
+
+SEIS Reinvestment Relief: If you invest in SEIS shares, 50% of the amount invested (up to £200k invested) can be exempt from CGT on the original gain (i.e., it reduces the gain, it doesn’t defer it). 
+GOV.UK
++1
+
+Inputs
+
+Mode: EIS Deferral | SEIS Reinvestment (50% exemption)
+
+originalGain (£)
+
+subscription (£) (amount invested in EIS/SEIS)
+
+dateOfDisposal (date) (date the original gain arose)
+
+dateOfShareIssue (date) (date EIS/SEIS shares were issued)
+
+Your CGT rate (10% / 20%) (for illustrations of tax deferred/saved)
+
+Calculations
+
+Common checks
+
+Window test (EIS only): dateOfShareIssue must be within [disposal−1y, disposal+3y]. If false → show red validation and set deferrable to £0. 
+GOV.UK
+
+A) EIS Deferral mode
+
+Deferrable amount
+deferrable = min(originalGain, subscription) (no statutory cap on amount deferred) 
+Techzone
+
+CGT deferred (illustration)
+cgtDeferred = deferrable × chosenCGTRate
+
+Earliest re-trigger date
+For the illustration, show: “CGT becomes chargeable when you dispose of the EIS shares (or on a disqualifying event). You must hold ≥3 years.” (show dateOfShareIssue + 3y as the minimum hold period marker). 
+Techzone
+
+B) SEIS Reinvestment mode (50% exemption)
+
+Eligible investment cap: eligible = min(subscription, 200000) (invested amount) 
+GOV.UK
+
+Gain exempted: gainExempt = min(originalGain, eligible × 50%)
+
+CGT saved: cgtSaved = gainExempt × chosenCGTRate
+
+Gain remaining: remainingGain = originalGain − gainExempt
+
+Validation & assumptions
+
+We do not model detailed share identification rules or partial disposals.
+
+If EIS window test fails → show helper: “EIS deferral window is 1y before to 3y after the disposal date.” 
+GOV.UK
+
+If subscription > originalGain in EIS mode, we still cap deferrable to the gain.
+
+If SEIS: remind user SEIS is exemption (not deferral) and is limited to £200k invested → £100k gain exempt. 
+GOV.UK
+
+Outputs
+
+Headline: “Estimated CGT deferred/saved: £X”
+
+Breakdown: Original gain; Amount matched; Rate used; Exempted/Deferred; Remaining gain (SEIS) or “Deferred until disposal” (EIS)
+
+Timeline stub (EIS): Disposal → Share issue (✓ window?) → Minimum hold 3 years → “CGT due on disposal”
+
+Worked examples
+
+EIS Deferral
+Gain £150,000; invest £120,000; CGT 20%; share issue 6 months after disposal.
+Deferrable = £120,000; CGT deferred = £24,000; Minimum hold date = issue+3 years.
+
+SEIS Reinvestment
+Gain £180,000; invest £160,000 in SEIS; CGT 20%.
+Eligible = £160,000 (≤200k); Gain exempt = 50% × 160k = £80,000; CGT saved = £16,000; Remaining gain = £100,000.
+
+4) Premium Sneak Preview (Sidebar)
+
+Card title: Advanced Tools (Premium)
+
+Locked tiles (non-functional):
+
+Portfolio Diversification Simulator
+
+Exit/Downside Scenario Analysis
+
+Enhanced Tax Planning Dashboard
+
+Copy: “Preview only · Unlock Pro adds deeper modelling and exports.”
+
+CTA (primary): Upgrade to Pro (inert)
+
+5) Implementation notes (dev)
+
+Put calculator maths in src/utils/calculators.ts with pure functions:
+
+calcAllowance(inputs) → { reliefThis, reliefPrev, totalRelief, allowanceLeftThis, notes[] }
+
+calcLossRelief(inputs) → { netLoss, reductionPct, breakdown }
+
+calcCGTDeferral(inputs) → { cgtDeferredOrSaved, remainingGain, windowPass, minHoldDate, breakdown }
+
+Use a shared number input with:
+
+currency formatting (£), min=0, step=100
+
+auto-clamp invalid values; show inline helper text
+
+Tokens only; no hard-coded colours.
+
+Accessibility: labelled groups, aria-live="polite" for result updates, keyboard reachable accordions.
+
+6) Acceptance criteria (DoD)
+
+Allowance Calculator correctly applies EIS/SEIS rates, annual limits (EIS £1m/£2m KIC; SEIS £200k), carry-back to prior year, and caps by each year’s income tax liability; shows remaining allowances and total relief. 
+GOV.UK
++2
+GOV.UK
++2
+
+Loss Relief Calculator computes effective loss (subscription − upfront relief − proceeds) and offsets against chosen income tax or CGT rate; returns net loss and % reduction; editable upfront relief with clamping. 
+Octopus Investments
+Growth Capital Ventures
+
+CGT Deferral Calculator supports EIS deferral (window −1y/+3y, unlimited amount subject to gain; min hold 3y) and SEIS reinvestment (50% exemption on up to £200k invested). It outputs deferred/saved tax, remaining gain (SEIS), a timeline marker, and a window pass/fail indicator. 
+GOV.UK
++1
+Techzone
+
+All calculators include clear footnotes: illustrative only; not advice; subject to personal circumstances and HMRC rules.
+
+Responsive: calculators stack on mobile; no horizontal scroll.
+
+No console errors; keyboard and screen-reader use pass a basic AA check.
