@@ -262,7 +262,7 @@ export default function Businesses() {
                     <i className="fas fa-fire text-orange-500" aria-hidden="true"></i>
                     Spotlight Companies
                   </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
                     {filteredAndSortedBusinesses
                       .filter(b => b.community.syndicateInterestPct >= 70)
                       .slice(0, 2)
@@ -297,7 +297,7 @@ export default function Businesses() {
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {filteredAndSortedBusinesses.map((business) => (
                     <BusinessCard key={business.id} business={business as any} />
                   ))}

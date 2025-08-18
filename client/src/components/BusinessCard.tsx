@@ -70,7 +70,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     : 'border-l-4 border-l-gray-300 dark:border-l-gray-600';
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${borderColor} p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${borderColor} p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden`}>
       {/* Trending Badge */}
       {(isHighInterest || isTrending) && (
         <div className="absolute top-4 right-4">
@@ -90,13 +90,13 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       {/* Header */}
       <div className="flex items-start gap-4 mb-4">
         {/* Company Logo/Avatar */}
-        <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[#5193B3] to-[#62C4C3] rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
+        <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-[#5193B3] to-[#62C4C3] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
           {getCompanyInitials(business.name)}
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{business.name}</h3>
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate">{business.name}</h3>
             {business.verified ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs rounded-md flex-shrink-0">
                 <i className="fas fa-check-circle" aria-hidden="true"></i>
@@ -112,21 +112,21 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-xs rounded-md">
-              <span className="text-sm">{getSectorIcon(business.sector)}</span>
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-sm rounded-lg">
+              <span className="text-base">{getSectorIcon(business.sector)}</span>
               {business.sector}
             </span>
-            <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md ${getRiskColor(business.risk)}`} title={`${business.risk} risk profile`}>
+            <span className={`inline-flex items-center gap-1 px-3 py-1 text-sm rounded-lg ${getRiskColor(business.risk)}`} title={`${business.risk} risk profile`}>
               <span>{getRiskDot(business.risk)}</span>
               {business.risk} Risk
             </span>
             {business.eligibility.EIS && (
-              <span className="px-2 py-1 bg-[#5193B3]/10 text-[#5193B3] dark:bg-[#5193B3]/20 dark:text-[#5193B3] text-xs rounded-md">
+              <span className="px-3 py-1 bg-[#5193B3]/10 text-[#5193B3] dark:bg-[#5193B3]/20 dark:text-[#5193B3] text-sm rounded-lg">
                 EIS
               </span>
             )}
             {business.eligibility.SEIS && (
-              <span className="px-2 py-1 bg-[#62C4C3]/10 text-[#62C4C3] dark:bg-[#62C4C3]/20 dark:text-[#62C4C3] text-xs rounded-md">
+              <span className="px-3 py-1 bg-[#62C4C3]/10 text-[#62C4C3] dark:bg-[#62C4C3]/20 dark:text-[#62C4C3] text-sm rounded-lg">
                 SEIS
               </span>
             )}
@@ -159,14 +159,14 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       </p>
 
       {/* Mini Financials */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{business.revenueBand}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Revenue</div>
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{business.revenueBand}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Revenue</div>
         </div>
-        <div className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{business.employees}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Employees</div>
+        <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{business.employees}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Employees</div>
         </div>
       </div>
 
