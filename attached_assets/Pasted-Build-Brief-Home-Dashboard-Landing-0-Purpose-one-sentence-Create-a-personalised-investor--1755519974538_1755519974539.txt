@@ -1,0 +1,433 @@
+Build Brief — Home / Dashboard (Landing)
+0) Purpose (one sentence)
+Create a personalised investor dashboard that greets the user, surfaces curated news, offers quick tools, shows a business watchlist, and presents a clear Upgrade CTA for deep-dive diligence. Free plan only; no financial advice.
+
+1) Page route & structure
+Route: /
+
+
+Top layout: Sticky NavBar already shared (Dashboard | Businesses | Toolkit | Syndication | News).
+
+
+Main grid (desktop ≥1280px): 3 columns
+
+
+Left (col-3): Welcome panel + profile summary
+
+
+Centre (col-6): News & Insights feed (infinite list)
+
+
+Right (col-3): Quick Tools Launcher (cards) + Business Watchlist + Upgrade CTA
+
+
+Tablet (≥768px <1280px): 2 columns (left + centre stacked, right side becomes second column)
+
+
+Mobile (<768px): Single column, sections stack in order: Welcome → Tools → News → Watchlist → Upgrade
+
+
+
+2) Personalisation (Welcome panel)
+Goal: Show a friendly, data-driven welcome that proves the app “knows” the user.
+Data source: onboardingProfile.json (mock).
+ Fields required:
+firstName: string
+
+
+investorType: "angel" | "syndicate" | "advisor" | "other"
+
+
+sectors: string[] (e.g., ["Fintech","Biotech"])
+
+
+riskProfile: "low" | "medium" | "high"
+
+
+newsletterFrequency: "daily" | "weekly" | "monthly"
+
+
+whatsappAlerts: boolean
+
+
+UI contents:
+Greeting: “Welcome back, {firstName}.”
+
+
+Badges: Investor type, risk profile, top 1–2 sectors.
+
+
+Personalisation chips (read-only): newsletter frequency, WhatsApp alerts state.
+
+
+Action: “Edit profile” (opens future settings; non-functional).
+
+
+Copy block (small): “Free plan: Snapshot diligence only. No investment advice.”
+
+
+Empty state: If profile missing, show “Complete 2-min onboarding to personalise your feed” + button (non-functional).
+
+3) News & Insights Feed (centre column)
+Goal: Curated, AI-personalised feed with frequency + WhatsApp alert controls.
+Data source: newsFeed.json (mock list).
+ Item fields:
+id, title, summary, source, dateISO, image (optional), tags: string[], relevanceScore: number (0–1)
+
+
+Controls (top of feed):
+Frequency selector (radio or segmented): Daily / Weekly / Monthly
+
+
+WhatsApp alerts toggle (on/off)
+
+
+Filter pills (optional): Your sectors, EIS/SEIS, Risk
+
+
+Card contents:
+Image (placeholder ok), headline, source + date (relative), summary (2–3 lines)
+
+
+Tags; small “Why this?” (tooltip: matched {sector}/risk profile)
+
+
+Actions (non-functional): Save, Add to Watchlist, Share
+
+
+Confidence hint: “High match” if relevanceScore ≥ 0.7
+
+
+Empty/loading states:
+Loading skeleton on first load
+
+
+Empty: “No new insights today. Try broadening sectors or set Weekly updates.”
+
+
+Pagination:
+“Load more” button (non-functional; just appends next 5 items from mock when clicked)
+
+
+Behavioural notes:
+Changing Frequency or WhatsApp updates the personalisation chips in Welcome panel for visual coherence (reads/writes mock locally).
+
+
+
+4) Quick Tools Launcher (right column, top)
+Goal: One-click access to free utilities.
+Tools to show (cards with icon + short label):
+EIS/SEIS Allowance Calculator
+
+
+Loss Relief Calculator
+
+
+CGT Deferral Calculator
+
+
+Request Due Diligence (DD) Snapshot
+
+
+Pitch Deck Analyser (upload)
+
+
+Behaviours:
+Clicking a tool opens a modal stub (non-functional inputs, simple descriptive text).
+
+
+For Pitch Deck: open modal with an “Upload” button (disabled / stub).
+
+
+Footer row: “More tools in Toolkit” (link to /toolkit)
+
+
+Empty state: None (always visible)
+
+5) Business Watchlist (right column, middle)
+Goal: Quick glance at saved companies.
+Data source: watchlist.json (mock list).
+ Item fields:
+id, name, sector, verified: boolean, peerShortlistPct: number (0–100)
+
+
+Row design:
+Company name + sector
+
+
+TrustMarker: ✅ if verified
+
+
+Peer signal chip: “Peers: {peerShortlistPct}%”
+
+
+CTA: “Open Snapshot” (deep-links to /business/:id, non-functional mock ok)
+
+
+Empty state:
+“No saved businesses yet. Add from News or the Index.” + button linking to /businesses.
+
+
+
+6) Upgrade CTA (right column, bottom)
+Goal: Make it obvious what paid unlocks.
+Card contents:
+Title: “Deep-dive due diligence”
+
+
+Bullets: “Director checks”, “Filing timeline”, “Web footprint”, “Peer questions & answers”
+
+
+Badge: 🔒 Premium
+
+
+CTA button: Upgrade to Pro (non-functional)
+
+
+Subtext: “Keep free access to Snapshot. No advice; businesses only.”
+
+
+Visual treatment: Higher-contrast card, but tasteful; should not distract from main feed.
+
+7) Accessibility & UX rules (global)
+Keyboard: tab order is logical; all controls focusable.
+
+
+Labels: every interactive element has a visible label or aria-label.
+
+
+Colour contrast: text/icons meet WCAG AA on both light/dark themes.
+
+
+Notifications: when toggles change (frequency/WhatsApp), show a small non-modal toast “Preference saved”.
+
+
+
+8) Performance & states
+Use skeletons while loading all three areas (Welcome, News, Watchlist).
+
+
+Lazy load news images below the fold.
+
+
+Degrade gracefully if any mock file fails: show empty state card with retry.
+
+
+
+9) Telemetry (stub only; no real analytics)
+When frequency changes → log { event: "newsletter_frequency_changed", value } to console.
+
+
+When WhatsApp toggled → log { event: "whatsapp_alerts_toggled", value }.
+
+
+When Upgrade CTA clicked → log { event: "upgrade_cta_clicked" }.
+
+
+
+10) Files & mock data to create (names matter)
+src/mocks/onboardingProfile.json
+
+ {
+  "firstName": "Thomas",
+  "investorType": "angel",
+  "sectors": ["Fintech", "Biotech"],
+  "riskProfile": "medium",
+  "newsletterFrequency": "weekly",
+  "whatsappAlerts": true
+}
+
+
+src/mocks/newsFeed.json
+
+ [
+  {
+    "id": "n1",
+    "title": "HMRC outlines EIS guidance update",
+    "summary": "Key clarifications relevant to early-stage investments.",
+    "source": "GOV.UK",
+    "dateISO": "2025-08-10",
+    "image": "/placeholder.png",
+    "tags": ["EIS","Policy"],
+    "relevanceScore": 0.83
+  },
+  {
+    "id": "n2",
+    "title": "Fintech filings weekly: notable directors’ changes",
+    "summary": "Round-up of filings and leadership changes in UK fintech.",
+    "source": "Companies House",
+    "dateISO": "2025-08-12",
+    "tags": ["Fintech","Filings"],
+    "relevanceScore": 0.72
+  }
+]
+
+
+src/mocks/watchlist.json
+
+ [
+  { "id":"c1","name":"Acme Robotics Ltd","sector":"Robotics","verified":true,"peerShortlistPct":23 },
+  { "id":"c2","name":"GreenLeaf Bio","sector":"Biotech","verified":true,"peerShortlistPct":41 }
+]
+
+
+(If a single file is preferred, a /src/mocks/dashboard.json may combine these three blocks.)
+
+11) Components to use/reuse (no code, just contract)
+WelcomePanel
+
+
+Inputs: profile (object above)
+
+
+Outputs: emits onChangePreferences({ newsletterFrequency, whatsappAlerts })
+
+
+NewsFeed
+
+
+Inputs: items[], frequency, whatsappEnabled
+
+
+Emits: onChangeFrequency(value), onToggleWhatsapp(value), onLoadMore()
+
+
+NewsCard
+
+
+Inputs: title, summary, source, dateISO, image?, tags[], relevanceScore
+
+
+Actions: Save / Add to Watchlist / Share (non-functional)
+
+
+QuickTools
+
+
+Shows 5 tool cards; each opens a ModalStub with title + one-line description.
+
+
+Watchlist
+
+
+Inputs: companies[]
+
+
+Each row shows: name, sector, ✅ if verified, “Peers: X%”, CTA “Open Snapshot”
+
+
+UpgradeCard
+
+
+Static content + click logs to console
+
+
+(All components must use design tokens via CSS variables; no hard-coded colours.)
+
+12) Interactions (what happens when I click?)
+Change frequency (Daily/Weekly/Monthly)
+
+
+Update welcome chips; store locally (mock); show toast “Newsletter set to {value}.”
+
+
+Toggle WhatsApp
+
+
+Update welcome chips; toast “WhatsApp alerts {On|Off}.”
+
+
+News → Save/Add/Share
+
+
+For now: console log the action.
+
+
+Tool card click
+
+
+Open modal with summary + CTA disabled (stub).
+
+
+Watchlist → Open Snapshot
+
+
+Navigate to /business/:id (works even with placeholder content).
+
+
+Upgrade
+
+
+Console log event and show a non-blocking info message “Deep-dive is part of Pro (coming soon).”
+
+
+
+13) Visual rules
+Use spacing scale consistently (e.g., 8/12/16/24).
+
+
+Section titles with consistent typographic scale (e.g., 18–20 px semibold).
+
+
+Cards have identical padding, radius and shadows (from tokens).
+
+
+Trust markers:
+
+
+Verified: ✅ text “Verified”
+
+
+Premium: 🔒 text “Premium”
+
+
+Peer %: 📊 text “Peers: {pct}%”
+
+
+
+14) Accessibility acceptance (AA)
+Focus ring visible on all interactive items (use token --ring).
+
+
+Colour contrast ≥ 4.5:1 for text; ≥ 3:1 for large text/icons.
+
+
+All images have alt; decorative images marked aria-hidden.
+
+
+Toggle and segmented controls are labelled programmatically.
+
+
+
+15) Definition of Done (Dashboard)
+Layout matches the described 3-column/2-column/1-column behaviour.
+
+
+Welcome panel displays profile data and stays in sync with frequency/WhatsApp controls.
+
+
+News feed lists items from mock, supports frequency toggle, WhatsApp toggle, and “Load more”.
+
+
+Quick Tools opens non-functional modals for all 5 tools.
+
+
+Watchlist renders companies with ✅/📊 and deep-links to /business/:id.
+
+
+Upgrade card present with clear language and logs click.
+
+
+All empty states and loading skeletons present.
+
+
+No hard-coded colours; all from tokens.
+
+
+Accessibility items above pass manual check.
+
+
+No console errors.
+
+
+

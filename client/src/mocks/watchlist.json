@@ -1,0 +1,23 @@
+[
+  { 
+    "id": "c1", 
+    "name": "Acme Robotics Ltd", 
+    "sector": "Robotics", 
+    "verified": true, 
+    "peerShortlistPct": 23 
+  },
+  { 
+    "id": "c2", 
+    "name": "GreenLeaf Bio", 
+    "sector": "Biotech", 
+    "verified": true, 
+    "peerShortlistPct": 41 
+  },
+  { 
+    "id": "c3", 
+    "name": "FinPay Solutions", 
+    "sector": "Fintech", 
+    "verified": false, 
+    "peerShortlistPct": 18 
+  }
+]

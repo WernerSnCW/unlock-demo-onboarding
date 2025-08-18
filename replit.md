@@ -1,6 +1,6 @@
 # Overview
 
-This project is a modern full-stack web application built with React, TypeScript, and Express.js. It features a component-rich frontend using shadcn/ui components with Tailwind CSS styling, and includes a complete backend API infrastructure with PostgreSQL database integration via Drizzle ORM. The application follows a monorepo structure with shared schemas between frontend and backend, emphasizing developer experience with hot module replacement, type safety, and modern tooling.
+This project is "Unlock Free Version" - a business due diligence platform prototype built with React, TypeScript, and Express.js. The application provides investment due diligence snapshots using entirely mock data but appears fully functional. It features a professional dashboard with personalized news feeds, quick tools, business watchlists, and upgrade prompts. The design uses a strict CSS custom property system for consistent theming across light/dark modes.
 
 # User Preferences
 
@@ -12,9 +12,11 @@ Preferred communication style: Simple, everyday language.
 - **Framework**: React 18 with TypeScript for type safety and modern development patterns
 - **Build Tool**: Vite for fast development server and optimized production builds with hot module replacement
 - **Routing**: Wouter for lightweight client-side routing
-- **Styling**: Tailwind CSS with shadcn/ui component library providing pre-built, accessible components
-- **State Management**: TanStack Query (React Query) for server state management and API caching
-- **UI Components**: Comprehensive component library built on Radix UI primitives with consistent design system
+- **Styling**: Tailwind CSS with strict CSS custom properties system (no hard-coded colors)
+- **Design System**: Professional color palette with --primary: #5193B3, --secondary: #62C4C3, --accent: #F8D49B
+- **Theme Support**: Complete light/dark mode implementation with ThemeProvider
+- **Mock Data**: JSON-based fake data system for realistic business due diligence content
+- **UI Components**: Custom business-focused components (TrustMarker, NewsCard, WelcomePanel, etc.)
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js framework for RESTful API endpoints
@@ -31,8 +33,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Project Structure
 - **Monorepo Design**: Client, server, and shared code organized in separate directories
-- **Shared Schemas**: Common data types and validation schemas accessible to both frontend and backend
-- **Asset Management**: Centralized asset handling with proper path resolution
+- **Component Library**: Specialized business components (WelcomePanel, NewsFeed, QuickTools, Watchlist, UpgradeCard)
+- **Mock Data System**: JSON files in /src/mocks/ providing realistic business data
+- **Theme Architecture**: CSS custom properties in index.css for global color management
+- **Responsive Layout**: Mobile-first grid system (3-col desktop, 2-col tablet, 1-col mobile)
 - **Development Tools**: Integrated development environment with Replit-specific optimizations
 
 ## Authentication & Security

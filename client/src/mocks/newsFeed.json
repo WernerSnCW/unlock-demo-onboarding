@@ -1,0 +1,50 @@
+[
+  {
+    "id": "n1",
+    "title": "HMRC outlines EIS guidance update",
+    "summary": "Key clarifications relevant to early-stage investments affecting angel investors and syndicates.",
+    "source": "GOV.UK",
+    "dateISO": "2025-08-15",
+    "image": "/placeholder.png",
+    "tags": ["EIS","Policy"],
+    "relevanceScore": 0.83
+  },
+  {
+    "id": "n2",
+    "title": "Fintech filings weekly: notable directors' changes",
+    "summary": "Round-up of filings and leadership changes in UK fintech sector this week.",
+    "source": "Companies House",
+    "dateISO": "2025-08-14",
+    "tags": ["Fintech","Filings"],
+    "relevanceScore": 0.72
+  },
+  {
+    "id": "n3",
+    "title": "Biotech funding rounds: Q3 2025 analysis",
+    "summary": "Deep dive into latest biotech funding trends and emerging opportunities in life sciences.",
+    "source": "TechCrunch",
+    "dateISO": "2025-08-13",
+    "image": "/placeholder.png",
+    "tags": ["Biotech","Funding"],
+    "relevanceScore": 0.89
+  },
+  {
+    "id": "n4",
+    "title": "SEIS relief changes effective October 2025",
+    "summary": "New SEIS relief structures and what they mean for early-stage investments.",
+    "source": "HMRC Updates",
+    "dateISO": "2025-08-12",
+    "tags": ["SEIS","Policy"],
+    "relevanceScore": 0.76
+  },
+  {
+    "id": "n5",
+    "title": "AI startups dominate latest YC batch",
+    "summary": "Analysis of Y Combinator's summer batch reveals AI and ML focus across multiple sectors.",
+    "source": "Venture Beat",
+    "dateISO": "2025-08-11",
+    "image": "/placeholder.png",
+    "tags": ["AI","Startups"],
+    "relevanceScore": 0.65
+  }
+]

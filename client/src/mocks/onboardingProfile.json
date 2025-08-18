@@ -1,0 +1,8 @@
+{
+  "firstName": "Thomas",
+  "investorType": "angel",
+  "sectors": ["Fintech", "Biotech"],
+  "riskProfile": "medium",
+  "newsletterFrequency": "weekly",
+  "whatsappAlerts": true
+}
