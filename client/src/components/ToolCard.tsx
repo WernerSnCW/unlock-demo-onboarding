@@ -11,7 +11,7 @@ interface ToolCardProps {
 
 export default function ToolCard({ 
   icon, 
-  iconColor = "text-blue-600", 
+  iconColor = "text-[#5193B3]", 
   title, 
   description, 
   actionText, 
@@ -19,69 +19,132 @@ export default function ToolCard({
   isPremium = false,
   onClick 
 }: ToolCardProps) {
+  const getCardTheme = () => {
+    if (isPremium && !isLocked) {
+      return {
+        background: 'bg-gradient-to-br from-blue-50 via-white to-teal-50 dark:from-blue-900/30 dark:via-gray-800 dark:to-teal-900/30',
+        border: 'border-[#5193B3]/30 dark:border-[#5193B3]/50',
+        hoverBorder: 'hover:border-[#5193B3] dark:hover:border-[#62C4C3]',
+        shadow: 'hover:shadow-xl hover:shadow-[#5193B3]/20 dark:hover:shadow-[#62C4C3]/20'
+      };
+    }
+    
+    if (isLocked) {
+      return {
+        background: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900',
+        border: 'border-gray-300 dark:border-gray-600',
+        hoverBorder: '',
+        shadow: 'hover:shadow-md'
+      };
+    }
+    
+    return {
+      background: 'bg-gradient-to-br from-white via-blue-50/30 to-teal-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-teal-900/20',
+      border: 'border-gray-200 dark:border-gray-700',
+      hoverBorder: 'hover:border-[#5193B3]/60 dark:hover:border-[#62C4C3]/60',
+      shadow: 'hover:shadow-lg hover:shadow-blue-100 dark:hover:shadow-blue-900/50'
+    };
+  };
+
+  const theme = getCardTheme();
+
   return (
     <div className={`
-      bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 
-      p-6 hover:shadow-lg transition-all duration-200 relative
-      ${isLocked ? 'opacity-75' : 'hover:border-blue-300 dark:hover:border-blue-600'}
+      ${theme.background} rounded-xl border ${theme.border} 
+      p-6 transition-all duration-300 relative group
+      ${!isLocked ? `${theme.hoverBorder} ${theme.shadow} hover:-translate-y-1` : 'opacity-75'}
     `}>
       
       {/* Premium Badge */}
       {isPremium && (
-        <div className="absolute top-3 right-3">
-          <span className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-2 py-1 rounded-full text-xs font-medium">
+        <div className="absolute -top-2 -right-2 z-10">
+          <span className="inline-block bg-gradient-to-r from-[#F8D49B] to-[#62C4C3] text-gray-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg">
             <i className="fas fa-crown mr-1" aria-hidden="true"></i>
-            Pro
+            PRO
           </span>
         </div>
       )}
 
       {/* Lock Icon for Locked Tools */}
-      {isLocked && (
-        <div className="absolute top-3 right-3">
-          <i className="fas fa-lock text-gray-400 text-sm" aria-hidden="true"></i>
+      {isLocked && !isPremium && (
+        <div className="absolute top-4 right-4">
+          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+            <i className="fas fa-lock text-gray-500 text-sm" aria-hidden="true"></i>
+          </div>
         </div>
       )}
 
       {/* Main Content */}
       <div className="flex flex-col h-full">
         
-        {/* Icon */}
+        {/* Icon with Brand Colors */}
         <div className="mb-4">
-          <div className="w-12 h-12 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-            <i className={`${icon} text-2xl ${iconColor}`} aria-hidden="true"></i>
+          <div className={`
+            w-14 h-14 rounded-xl flex items-center justify-center relative overflow-hidden
+            ${isPremium 
+              ? 'bg-gradient-to-br from-[#5193B3] to-[#62C4C3] shadow-lg' 
+              : isLocked 
+                ? 'bg-gray-200 dark:bg-gray-700'
+                : 'bg-gradient-to-br from-[#5193B3]/10 to-[#62C4C3]/10 border border-[#5193B3]/20 dark:border-[#62C4C3]/20'
+            }
+          `}>
+            <i className={`
+              ${icon} text-2xl transition-transform duration-200 group-hover:scale-110
+              ${isPremium 
+                ? 'text-white' 
+                : isLocked 
+                  ? 'text-gray-500 dark:text-gray-400'
+                  : iconColor || 'text-[#5193B3] dark:text-[#62C4C3]'
+              }
+            `} aria-hidden="true"></i>
+            
+            {/* Subtle shine effect for premium */}
+            {isPremium && (
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            )}
           </div>
         </div>
 
-        {/* Title */}
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
+        {/* Title with Brand Colors */}
+        <h3 className={`
+          text-lg font-semibold mb-2 transition-colors duration-200
+          ${isPremium 
+            ? 'text-[#5193B3] dark:text-[#62C4C3]' 
+            : 'text-gray-800 dark:text-gray-100 group-hover:text-[#5193B3] dark:group-hover:text-[#62C4C3]'
+          }
+        `}>
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 flex-1">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 flex-1 leading-relaxed">
           {description}
         </p>
 
-        {/* Action Button */}
+        {/* Enhanced Action Button */}
         <button
           onClick={onClick}
           disabled={isLocked}
           className={`
-            w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors
+            w-full py-3 px-4 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2
             ${isLocked 
-              ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md'
+              ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' 
+              : isPremium
+                ? 'bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                : 'bg-[#5193B3] hover:bg-[#4A85A3] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
             }
           `}
         >
           {isLocked ? (
             <>
-              <i className="fas fa-lock mr-2" aria-hidden="true"></i>
+              <i className="fas fa-lock text-sm" aria-hidden="true"></i>
               Preview Only
             </>
           ) : (
-            actionText
+            <>
+              <span>{actionText}</span>
+              <i className="fas fa-arrow-right text-xs opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200" aria-hidden="true"></i>
+            </>
           )}
         </button>
 
