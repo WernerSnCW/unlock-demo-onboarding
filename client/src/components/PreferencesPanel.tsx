@@ -9,14 +9,26 @@ interface PreferencesPanelProps {
       pushNotifications: boolean;
     };
     sectors: string[];
+    regions: string[];
+    topics: string[];
+    tickers: string[];
+    includeSources: string[];
+    excludeSources: string[];
     riskAppetite: ('low' | 'medium' | 'high')[];
     eisSeisEnabled: boolean;
+    dedupe: boolean;
+    hideLowValue: boolean;
   };
   onUpdatePreferences: (preferences: any) => void;
   onResetPreferences: () => void;
 }
 
 const availableSectors = ['Fintech', 'Biotech', 'AI', 'Cleantech', 'PropTech', 'HealthTech'];
+const availableRegions = ['UK', 'EU', 'US', 'Asia'];
+const availableTopics = ['M&A', 'Rates', 'Filings', 'EIS/SEIS', 'Regulatory', 'Funding'];
+const availableTickers = ['VOD.L', 'BARC.L', 'LLOY.L', 'BP.L', 'SHEL.L'];
+const availableSources = ['Reuters', 'LSE RNS', 'GOV.UK', 'FT', 'TechCrunch', 'Bloomberg'];
+
 const riskLevels = [
   { id: 'low', label: 'Low', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
   { id: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
@@ -81,8 +93,58 @@ export default function PreferencesPanel({
     showUpdateToast();
   };
 
+  const toggleRegion = (region: string) => {
+    const newRegions = preferences.regions.includes(region)
+      ? preferences.regions.filter(r => r !== region)
+      : [...preferences.regions, region];
+    onUpdatePreferences({ ...preferences, regions: newRegions });
+    showUpdateToast();
+  };
+
+  const toggleTopic = (topic: string) => {
+    const newTopics = preferences.topics.includes(topic)
+      ? preferences.topics.filter(t => t !== topic)
+      : [...preferences.topics, topic];
+    onUpdatePreferences({ ...preferences, topics: newTopics });
+    showUpdateToast();
+  };
+
+  const toggleTicker = (ticker: string) => {
+    const newTickers = preferences.tickers.includes(ticker)
+      ? preferences.tickers.filter(t => t !== ticker)
+      : [...preferences.tickers, ticker];
+    onUpdatePreferences({ ...preferences, tickers: newTickers });
+    showUpdateToast();
+  };
+
+  const toggleIncludeSource = (source: string) => {
+    const newSources = preferences.includeSources.includes(source)
+      ? preferences.includeSources.filter(s => s !== source)
+      : [...preferences.includeSources, source];
+    onUpdatePreferences({ ...preferences, includeSources: newSources });
+    showUpdateToast();
+  };
+
+  const toggleExcludeSource = (source: string) => {
+    const newSources = preferences.excludeSources.includes(source)
+      ? preferences.excludeSources.filter(s => s !== source)
+      : [...preferences.excludeSources, source];
+    onUpdatePreferences({ ...preferences, excludeSources: newSources });
+    showUpdateToast();
+  };
+
+  const toggleDedupe = () => {
+    onUpdatePreferences({ ...preferences, dedupe: !preferences.dedupe });
+    showUpdateToast();
+  };
+
+  const toggleHideLowValue = () => {
+    onUpdatePreferences({ ...preferences, hideLowValue: !preferences.hideLowValue });
+    showUpdateToast();
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-preferences-panel>
       
       {/* Toast Notification */}
       {showToast && (
@@ -217,6 +279,165 @@ export default function PreferencesPanel({
         </div>
       </div>
 
+      {/* Interests - Tickers */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Tickers</h3>
+        <div className="flex flex-wrap gap-2">
+          {availableTickers.map((ticker) => (
+            <button
+              key={ticker}
+              onClick={() => toggleTicker(ticker)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.tickers.includes(ticker)
+                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
+              }`}
+              aria-pressed={preferences.tickers.includes(ticker)}
+            >
+              <i className={`fas ${preferences.tickers.includes(ticker) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              {ticker}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Interests - Regions */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Regions</h3>
+        <div className="flex flex-wrap gap-2">
+          {availableRegions.map((region) => (
+            <button
+              key={region}
+              onClick={() => toggleRegion(region)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.regions.includes(region)
+                  ? 'bg-[var(--secondary)] text-[var(--secondary-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
+              }`}
+              aria-pressed={preferences.regions.includes(region)}
+            >
+              <i className={`fas ${preferences.regions.includes(region) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              {region}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Interests - Topics */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Topics</h3>
+        <div className="flex flex-wrap gap-2">
+          {availableTopics.map((topic) => (
+            <button
+              key={topic}
+              onClick={() => toggleTopic(topic)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.topics.includes(topic)
+                  ? 'bg-[var(--accent)] text-[var(--accent-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
+              }`}
+              aria-pressed={preferences.topics.includes(topic)}
+            >
+              <i className={`fas ${preferences.topics.includes(topic) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              {topic}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Sources - Include */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Include Sources</h3>
+        <div className="flex flex-wrap gap-2">
+          {availableSources.map((source) => (
+            <button
+              key={source}
+              onClick={() => toggleIncludeSource(source)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.includeSources.includes(source)
+                  ? 'bg-[var(--success)] text-[var(--success-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--success)] hover:text-[var(--success-foreground)]'
+              }`}
+              aria-pressed={preferences.includeSources.includes(source)}
+            >
+              <i className={`fas ${preferences.includeSources.includes(source) ? 'fa-plus-circle' : 'fa-circle'} text-xs`}></i>
+              {source}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Sources - Exclude */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Exclude Sources</h3>
+        <div className="flex flex-wrap gap-2">
+          {availableSources.map((source) => (
+            <button
+              key={source}
+              onClick={() => toggleExcludeSource(source)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.excludeSources.includes(source)
+                  ? 'bg-[var(--destructive)] text-[var(--destructive-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--destructive)] hover:text-[var(--destructive-foreground)]'
+              }`}
+              aria-pressed={preferences.excludeSources.includes(source)}
+            >
+              <i className={`fas ${preferences.excludeSources.includes(source) ? 'fa-minus-circle' : 'fa-circle'} text-xs`}></i>
+              {source}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Noise Control */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Noise Control</h3>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-[var(--card-foreground)]">De-duplicate similar stories</h4>
+              <p className="text-sm text-[var(--muted-foreground)]">Hide articles with similar content</p>
+            </div>
+            <button
+              onClick={toggleDedupe}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 ${
+                preferences.dedupe ? 'bg-[var(--primary)]' : 'bg-[var(--muted)]'
+              }`}
+              role="switch"
+              aria-checked={preferences.dedupe}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                  preferences.dedupe ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-[var(--card-foreground)]">Hide low-value items</h4>
+              <p className="text-sm text-[var(--muted-foreground)]">Filter out low-relevance content</p>
+            </div>
+            <button
+              onClick={toggleHideLowValue}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 ${
+                preferences.hideLowValue ? 'bg-[var(--primary)]' : 'bg-[var(--muted)]'
+              }`}
+              role="switch"
+              aria-checked={preferences.hideLowValue}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                  preferences.hideLowValue ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Reset Button */}
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
         <button
@@ -226,6 +447,12 @@ export default function PreferencesPanel({
           <i className="fas fa-undo mr-2"></i>
           Reset to Defaults
         </button>
+      </div>
+
+      {/* GDPR Notice */}
+      <div className="text-xs text-[var(--muted-foreground)] p-3 bg-[var(--muted)] rounded-[var(--radius-sm)]">
+        <i className="fas fa-shield-alt mr-1"></i>
+        In this prototype, preferences are stored locally only.
       </div>
       
       {/* Live Region for Accessibility */}

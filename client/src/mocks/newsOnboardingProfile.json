@@ -6,5 +6,12 @@
   "jurisdiction": "UK",
   "wantsEISSEIS": true,
   "newsletterFrequency": "weekly",
-  "alertChannels": ["in-app", "email"]
+  "alertChannels": ["in-app", "email"],
+  "tickers": ["VOD.L", "BARC.L", "LLOY.L"],
+  "regions": ["UK", "EU"],
+  "topics": ["M&A", "Rates", "Filings", "EIS/SEIS", "Regulatory"],
+  "includeSources": ["Reuters", "LSE RNS", "GOV.UK", "FT"],
+  "excludeSources": [],
+  "dedupe": true,
+  "hideLowValue": true
 }

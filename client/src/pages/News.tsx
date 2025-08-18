@@ -2,11 +2,17 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import AIChat from '../components/AIChat';
 import PreferencesPanel from '../components/PreferencesPanel';
+import EnhancedNewsCard from '../components/EnhancedNewsCard';
+import AlertsCentre from '../components/AlertsCentre';
+import TrendingTopics from '../components/TrendingTopics';
+import NewsletterPreviewModal from '../components/NewsletterPreviewModal';
+import WhatsAppConnectModal from '../components/WhatsAppConnectModal';
 
 // Import mock data
 import newsItemsData from '../mocks/newsItems.json';
 import newsProfileData from '../mocks/newsOnboardingProfile.json';
 import savedNewsData from '../mocks/savedNews.json';
+import alertsData from '../mocks/alerts.json';
 
 // Mock data for personalized news
 const newsCategories = [
@@ -27,8 +33,15 @@ interface UserPreferences {
     pushNotifications: boolean;
   };
   sectors: string[];
+  regions: string[];
+  topics: string[];
+  tickers: string[];
+  includeSources: string[];
+  excludeSources: string[];
   riskAppetite: ('low' | 'medium' | 'high')[];
   eisSeisEnabled: boolean;
+  dedupe: boolean;
+  hideLowValue: boolean;
 }
 
 export default function News() {
@@ -39,66 +52,163 @@ export default function News() {
     frequency: 'weekly',
     channels: { email: true, whatsapp: false, pushNotifications: true },
     sectors: ['Fintech', 'Biotech'],
+    regions: ['UK'],
+    topics: ['EIS/SEIS', 'Regulatory'],
+    tickers: ['VOD.L', 'BARC.L'],
+    includeSources: ['Reuters', 'LSE RNS', 'GOV.UK'],
+    excludeSources: [],
     riskAppetite: ['medium'],
-    eisSeisEnabled: true
+    eisSeisEnabled: true,
+    dedupe: true,
+    hideLowValue: true
   });
 
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
+  const [showAlertsCenter, setShowAlertsCenter] = useState(false);
+  const [showNewsletterPreview, setShowNewsletterPreview] = useState(false);
+  const [showWhatsAppConnect, setShowWhatsAppConnect] = useState(false);
 
   const defaultPreferences: UserPreferences = {
     frequency: 'weekly',
     channels: { email: true, whatsapp: false, pushNotifications: true },
     sectors: ['Fintech', 'Biotech'],
+    regions: ['UK'],
+    topics: ['EIS/SEIS', 'Regulatory'],
+    tickers: ['VOD.L', 'BARC.L'],
+    includeSources: ['Reuters', 'LSE RNS', 'GOV.UK'],
+    excludeSources: [],
     riskAppetite: ['medium'],
-    eisSeisEnabled: true
+    eisSeisEnabled: true,
+    dedupe: true,
+    hideLowValue: true
   };
 
   const [filteredNews, setFilteredNews] = useState(newsItemsData);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    let filtered = newsItemsData;
-    
-    // Apply category filter
-    if (selectedCategory !== 'all') {
-      if (selectedCategory === 'your-sectors') {
-        filtered = filtered.filter(item => preferences.sectors.includes(item.sector));
-      } else {
-        filtered = filtered.filter(item => item.type === selectedCategory);
-      }
-    }
-    
+  const hasUnreadAlerts = alertsData.some(alert => alert.priority === 'high');
+
+  // Enhanced filtering with deduplication and smart filtering
+  const applyAdvancedFiltering = (items: any[]) => {
+    let filtered = [...items];
+
     // Apply preference filters
     if (preferences.sectors.length > 0) {
       filtered = filtered.filter(item => 
         preferences.sectors.includes(item.sector) || item.sector === 'All'
       );
     }
-    
-    // Apply risk appetite filter
-    if (preferences.riskAppetite.length > 0) {
+
+    if (preferences.regions.length > 0) {
       filtered = filtered.filter(item => 
-        preferences.riskAppetite.includes(item.riskTag as any) || item.riskTag === 'n/a'
+        !item.region || preferences.regions.includes(item.region)
       );
     }
-    
-    // Apply EIS/SEIS filter
-    if (preferences.eisSeisEnabled) {
-      filtered = filtered.filter(item => 
-        item.tags.some(tag => tag.includes('EIS') || tag.includes('SEIS')) || 
-        item.type === 'insight'
+
+    if (preferences.topics.length > 0) {
+      filtered = filtered.filter(item =>
+        !item.topics || item.topics.some((topic: string) => preferences.topics.includes(topic))
       );
     }
-    
+
+    if (preferences.tickers.length > 0) {
+      filtered = filtered.filter(item =>
+        !item.tickers || item.tickers.some((ticker: string) => preferences.tickers.includes(ticker))
+      );
+    }
+
+    if (preferences.includeSources.length > 0) {
+      filtered = filtered.filter(item =>
+        preferences.includeSources.includes(item.source)
+      );
+    }
+
+    if (preferences.excludeSources.length > 0) {
+      filtered = filtered.filter(item =>
+        !preferences.excludeSources.includes(item.source)
+      );
+    }
+
+    if (!preferences.eisSeisEnabled) {
+      filtered = filtered.filter(item =>
+        !item.tags.some((tag: string) => tag.toLowerCase().includes('eis') || tag.toLowerCase().includes('seis'))
+      );
+    }
+
+    // Hide low-value items
+    if (preferences.hideLowValue) {
+      filtered = filtered.filter(item => 
+        item.relevance >= 0.35 || (item.tickers && item.tickers.some((ticker: string) => preferences.tickers.includes(ticker)))
+      );
+    }
+
+    // Deduplicate similar stories
+    if (preferences.dedupe) {
+      const seenTitles = new Set();
+      const relatedGroups = new Set();
+      
+      filtered = filtered.filter(item => {
+        // Check for similar titles (80% similarity)
+        const titleWords = item.title.toLowerCase().split(' ');
+        const isSimilar = Array.from(seenTitles).some((seenTitle: any) => {
+          const seenWords = seenTitle.toLowerCase().split(' ');
+          const commonWords = titleWords.filter(word => seenWords.includes(word));
+          return commonWords.length / Math.max(titleWords.length, seenWords.length) >= 0.8;
+        });
+        
+        // Check for related story groups
+        if (item.relatedIds) {
+          const relatedKey = item.relatedIds.sort().join(',');
+          if (relatedGroups.has(relatedKey)) {
+            return false;
+          }
+          relatedGroups.add(relatedKey);
+        }
+        
+        if (!isSimilar) {
+          seenTitles.add(item.title);
+          return true;
+        }
+        return false;
+      });
+    }
+
+    // Sort by date desc, then relevance desc
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.publishedAt || a.dateISO).getTime();
+      const dateB = new Date(b.publishedAt || b.dateISO).getTime();
+      if (dateB !== dateA) return dateB - dateA;
+      return b.relevance - a.relevance;
+    });
+
+    return filtered;
+  };
+
+  useEffect(() => {
+    let filtered = newsItemsData;
+
     // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(item => 
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        item.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
-    
+
+    // Apply category filter
+    if (selectedCategory === 'your-sectors') {
+      filtered = filtered.filter(item => newsProfileData.sectors.includes(item.sector));
+    } else if (selectedCategory !== 'all') {
+      filtered = filtered.filter(item => item.type === selectedCategory);
+    }
+
+    // Apply advanced filtering
+    filtered = applyAdvancedFiltering(filtered);
+
     setFilteredNews(filtered);
+    setVisibleCount(5); // Reset visible count when filters change
   }, [selectedCategory, searchQuery, preferences]);
 
   const getNewsIcon = (category: string) => {
@@ -132,6 +242,69 @@ export default function News() {
   const handleAskAboutArticle = (title: string) => {
     // This would integrate with the AI chat component
     console.log(`Ask about: ${title}`);
+  };
+
+  const updatePreferences = (newPrefs: UserPreferences) => {
+    setPreferences(newPrefs);
+  };
+
+  const resetPreferences = () => {
+    setPreferences(defaultPreferences);
+  };
+
+  const toggleSaved = (articleId: string) => {
+    setSavedArticles(prev => 
+      prev.includes(articleId) 
+        ? prev.filter(id => id !== articleId)
+        : [...prev, articleId]
+    );
+  };
+
+  const handleAskAbout = (headline: string, source: string) => {
+    const chatInput = document.querySelector('#chat-input') as HTMLInputElement;
+    if (chatInput) {
+      chatInput.value = `Tell me more about: "${headline}" from ${source}`;
+      chatInput.focus();
+    }
+  };
+
+  const loadMoreNews = () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    
+    // Simulate loading delay
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 5);
+      setIsLoading(false);
+    }, 500);
+  };
+
+  const getMatchingPreferences = (item: any) => {
+    const matching: any = {};
+    
+    if (item.sector && preferences.sectors.includes(item.sector)) {
+      matching.sectors = [item.sector];
+    }
+    if (item.topics) {
+      matching.topics = item.topics.filter((topic: string) => preferences.topics.includes(topic));
+    }
+    if (item.region && preferences.regions.includes(item.region)) {
+      matching.regions = [item.region];
+    }
+    if (item.tickers) {
+      matching.tickers = item.tickers.filter((ticker: string) => preferences.tickers.includes(ticker));
+    }
+    
+    return matching;
+  };
+
+  const handleTopicClick = (topic: string) => {
+    const currentTopics = preferences.topics;
+    const newTopics = currentTopics.includes(topic)
+      ? currentTopics.filter(t => t !== topic)
+      : [...currentTopics, topic];
+    
+    updatePreferences({ ...preferences, topics: newTopics });
   };
 
   const handleResetPreferences = () => {

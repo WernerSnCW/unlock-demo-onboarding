@@ -9,7 +9,7 @@ import Home from "@/pages/Home";
 import Businesses from "@/pages/Businesses";
 import Toolkit from "@/pages/Toolkit";
 import Syndication from "@/pages/Syndication";
-import News from "@/pages/News";
+import NewsEnhanced from "@/pages/NewsEnhanced";
 
 function Router() {
   return (
@@ -18,7 +18,7 @@ function Router() {
       <Route path="/businesses" component={Businesses} />
       <Route path="/toolkit" component={Toolkit} />
       <Route path="/syndication" component={Syndication} />
-      <Route path="/news" component={News} />
+      <Route path="/news" component={NewsEnhanced} />
       <Route component={NotFound} />
     </Switch>
   );

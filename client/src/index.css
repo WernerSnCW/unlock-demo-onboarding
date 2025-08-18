@@ -37,6 +37,12 @@
   --success: #10B981;
   --success-foreground: #ffffff;
 
+  --warning: #F59E0B;
+  --warning-foreground: #1A1A1A;
+
+  --info: #3B82F6;
+  --info-foreground: #ffffff;
+
   --border: #E5E7EB;
   --input: #F9FAFB;
   --ring: var(--primary);
@@ -87,6 +93,12 @@
 
   --success: #10B981;
   --success-foreground: #ffffff;
+
+  --warning: #F59E0B;
+  --warning-foreground: #1A1A1A;
+
+  --info: #3B82F6;
+  --info-foreground: #ffffff;
 
   --border: #374151;
   --input: #1F2937;

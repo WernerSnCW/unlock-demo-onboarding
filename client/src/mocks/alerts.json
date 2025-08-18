@@ -1,0 +1,32 @@
+[
+  {
+    "id": "a1",
+    "title": "RNS: Vodafone Group announces strategic partnership with AI startup",
+    "priority": "high",
+    "timeAgo": "4h",
+    "type": "filing",
+    "ticker": "VOD.L"
+  },
+  {
+    "id": "a2", 
+    "title": "Rates: Bank of England governor remarks on fintech regulation",
+    "priority": "medium",
+    "timeAgo": "1d",
+    "type": "policy"
+  },
+  {
+    "id": "a3",
+    "title": "EIS/SEIS: HMRC publishes updated guidance on qualifying investments",
+    "priority": "high",
+    "timeAgo": "6h",
+    "type": "regulatory"
+  },
+  {
+    "id": "a4",
+    "title": "M&A: Barclays explores acquisition of fintech payment processor",
+    "priority": "medium", 
+    "timeAgo": "2d",
+    "type": "market",
+    "ticker": "BARC.L"
+  }
+]

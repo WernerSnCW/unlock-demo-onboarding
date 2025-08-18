@@ -1,0 +1,190 @@
+Replit Instruction — Align /news with the Concept Brief
+
+Goal: Make the News experience reflect the brief’s requirements: credible aggregation; AI filtering & tagging; personalised feed; real-time alerts; multi-channel delivery; basic AI analytics (summary/sentiment/relevance); preferences/watchlists; GDPR clarity; source transparency. 
+
+1) Page structure (keep your 3-column layout; upgrade content)
+
+Left (Preferences)
+
+Expand controls (see §2).
+
+Centre (Feed)
+
+Add source transparency row, AI badges (summary/sentiment/relevance), related stories, and tiny price-context stubs.
+
+Right (Assistant + Saved)
+
+Add WhatsApp connect banner (stub), and a small Trending Topics panel.
+
+(Rationale: matches “comprehensive aggregation,” “AI personalisation,” and “intelligent insights & analysis.”) 
+
+2) Preferences Panel — expand to match “User Customisation & Control”
+
+Add/keep the following groups (all write to local mock profile; apply instantly to the feed):
+
+Frequency: Daily / Weekly / Monthly (already present).
+
+Channels: In-app, Email, WhatsApp (multi-select; WhatsApp shows “verification coming soon”).
+
+Interests (multi-select chips): Tickers, Sectors, Regions, Topics.
+
+Sources: “Include” list (e.g., Reuters, LSE RNS) and optional “Exclude” list (chips).
+
+EIS/SEIS: On/Off filter.
+
+Noise control: Toggles for De-duplicate similar stories and Hide low-value items.
+
+Reset: Restore onboarding defaults.
+
+Toast on change: “Preferences updated.”
+GDPR note (small, under panel): “In this prototype, preferences are stored locally only.” (Required by brief’s GDPR emphasis.) 
+
+Mock additions:
+Create/extend src/mocks/newsOnboardingProfile.json to include:
+
+{
+  "tickers": ["VOD.L", "BARC.L"],
+  "regions": ["UK", "EU"],
+  "topics": ["M&A", "Rates", "Filings"],
+  "includeSources": ["Reuters", "LSE RNS"],
+  "excludeSources": [],
+  "dedupe": true,
+  "hideLowValue": true
+}
+
+3) News Card — transparency + basic AI analytics (stubbed)
+
+For every card, add:
+
+Source row (top, small): Source • Timestamp (relative) + “View source” link (href can be # in prototype). (The brief stresses credible sources + auditability.) 
+
+AI badges row (small, muted):
+
+Summary (show your 2–3 line summary—already present).
+
+Sentiment: Positive / Neutral / Negative (badge).
+
+Relevance: 0–1 → display as “Match: 83%”.
+
+Related: If same ticker/topic appears in other items, show “Related: 2” pill; clicking expands an inline list of titles (no navigation needed).
+
+Price context stub (right of meta, or below on mobile): tiny sparkline placeholder with a “1D | 1W” toggle (does nothing).
+
+“Why this?”: explain which preferences matched (e.g., “Sectors: Fintech • Topic: Filings • Region: UK”).
+
+“Not advice.” footnote for type: "insight" items (always).
+
+Card data shape (extend newsItems.json):
+
+{
+  "id": "n_001",
+  "title": "HMRC clarifies EIS eligibility on X",
+  "summary": "Key points in two sentences …",
+  "source": "GOV.UK",
+  "publishedAt": "2025-08-12T09:30:00Z",
+  "tags": ["EIS","Policy","UK"],
+  "sector": "Fintech",
+  "region": "UK",
+  "tickers": ["VOD.L"],
+  "topics": ["Filings"],
+  "type": "policy",
+  "image": "/placeholder.png",
+  "sentiment": "neutral",           // "positive" | "neutral" | "negative"
+  "relevance": 0.83,                // 0–1
+  "relatedIds": ["n_004","n_007"]   // optional
+}
+
+
+(Meets “basic AI analytics: summarisation, sentiment & relevance tagging,” and “credible sources & timestamps.”) 
+
+4) Feed behaviour — filtering, dedupe, related links
+
+Apply all Preference filters live (tickers, sectors, regions, topics, EIS/SEIS, include/exclude sources).
+
+Dedupe: when “dedupe” is on, hide items whose titles are ≥80% similar to a visible item or that share the same relatedIds group; instead, increment that item’s “Related: +N” pill.
+
+Hide low-value: hide items with relevance < 0.35 unless the user’s tickers are present.
+
+Sorting: date desc, then relevance desc.
+
+Load more: +5 items per click, with a brief spinner.
+
+(Maps to “duplicate/low-value filtering” and “related story linking.”) 
+
+5) Alerts (real-time) — Alerts Centre drawer (stub)
+
+Bell icon in navbar opens right-side drawer “Alerts Centre”.
+
+Sections:
+
+Recent alerts (list): high-priority items with time badges (“4h”, “1d”).
+
+Rules (read-only): e.g., “Major regulatory filings”, “Price move >5%”, with channel badges (In-app/Email/WhatsApp).
+
+Manage alerts → jumps cursor/focus to Preferences Panel on /news.
+
+Mock: src/mocks/alerts.json
+
+[
+  {"id":"a1","title":"RNS: Example plc announces placing","priority":"high","timeAgo":"4h"},
+  {"id":"a2","title":"Rates: BoE governor remarks at …","priority":"medium","timeAgo":"1d"}
+]
+
+
+(Meets “real-time alerts & push notifications” UX at prototype level.) 
+
+6) Multi-channel delivery stubs
+
+Newsletter Preview: add a “Preview my digest” button above the feed → opens a modal showing a simple email-style list of today’s top 5 items with source lines.
+
+WhatsApp banner (top of Chat panel): “Use WhatsApp to get on-the-go summaries.” Connect (stub) opens a modal with short copy about verification and privacy. (The brief highlights WhatsApp and newsletter as key channels.) 
+
+7) Trending Topics (right column, below Saved)
+
+Add a small Trending Topics card listing the top 5 topics from the visible feed (e.g., “EIS”, “M&A”, “Rates”, “Filings”), each as a filter pill (toggles the topic in Preferences). (Covers “trend detection.”) 
+
+8) Compliance copy & audit cues (lightweight)
+
+Per-card: always show source name and published time; keep a “View source” action.
+
+Footer (site-wide): “Information only. No financial advice. Businesses only.”
+
+Privacy line near Preferences: “Prototype stores settings locally only; no personal data is transmitted.”
+(Brief stresses source credibility, timestamps, and GDPR-aware messaging.) 
+
+9) Assistant (stub) — response format
+
+Replies end with “This is not advice.”
+
+Add a small “Sources shown when available” line under each assistant message.
+
+Add “Ask about this” from cards (you already have the pattern): inserts the headline and source into the input.
+(Matches “intelligent search & optional chatbot querying” without building back-end.) 
+
+10) Accessibility & performance
+
+All new pills/toggles focusable; visible focus ring.
+
+aria-live="polite" for “Preferences updated” toasts.
+
+Alt text on thumbnails; decorative icons aria-hidden="true".
+
+Lazy-load images; skeletons on filter change and initial load.
+
+Acceptance (DoD) — /news after delta
+
+Preferences cover tickers, sectors, regions, topics, sources include/exclude, EIS/SEIS, dedupe, hide low-value, frequency, channels, with instant feed updates and a GDPR note. 
+
+News cards show source + timestamp, summary, sentiment badge, relevance%, related count, Why this?, and Not advice on insights. 
+
+Feed supports dedupe, low-value hiding, topic/ticker/region/source filtering, and Load more.
+
+Alerts Centre drawer exists with recent alerts and read-only rules; bell shows a dot if alerts.length>0. 
+
+Newsletter Preview modal and WhatsApp Connect banner/modal are present (stubs). 
+
+Trending Topics card filters the feed via preferences.
+
+Assistant replies include the “Sources shown when available” line and end with “This is not advice.”
+
+All new UI uses tokens; AA contrast; keyboard navigable; no console errors.
