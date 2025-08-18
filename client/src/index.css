@@ -11,162 +11,64 @@
 /* Light Theme (default)         */
 /* ============================= */
 :root {
-  /* Core surface & text */
-  --background: hsl(210 20% 98%);
-  /* page background: very light neutral */
-  --foreground: hsl(220 18% 20%);
-  /* primary text: deep slate */
+  --background: #F4F8FA;
+  --foreground: #1A1A1A;
+  /* dark grey for contrast */
 
-  /* Cards / Popovers */
-  --card: hsl(0 0% 100%);
-  /* pure white cards */
-  --card-foreground: hsl(220 18% 20%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(220 18% 20%);
+  --card: #ffffff;
+  --card-foreground: #1A1A1A;
 
-  /* Brand / Actions */
-  --primary: hsl(221 75% 55%);
-  /* trust blue (CTA, links, ring) */
-  --primary-foreground: hsl(0 0% 100%);
-  /* text on primary */
-  --secondary: hsl(220 14% 96%);
-  /* subtle secondary surfaces */
-  --secondary-foreground: hsl(220 18% 20%);
+  --primary: #5193B3;
+  --primary-foreground: #ffffff;
 
-  /* Muted / Accents */
-  --muted: hsl(220 14% 96%);
-  /* muted backgrounds / chips */
-  --muted-foreground: hsl(220 10% 46%);
-  /* muted text */
-  --accent: hsl(206 100% 97%);
-  /* very light blue tint for highlights */
-  --accent-foreground: var(--primary);
+  --secondary: #62C4C3;
+  --secondary-foreground: #ffffff;
 
-  /* Status */
-  --destructive: hsl(0 72% 52%);
-  /* red (errors) */
-  --destructive-foreground: hsl(0 0% 100%);
-  --success-500: hsl(158 64% 45%);
-  /* success green */
-  --warning-500: hsl(43 96% 50%);
-  /* amber */
+  --accent: #F8D49B;
+  --accent-foreground: #1A1A1A;
 
-  /* Inputs / Borders / Focus */
-  --border: hsl(220 13% 91%);
-  --input: hsl(220 16% 97%);
+  --muted: #f3f3f3;
+  --muted-foreground: #666666;
+
+  --destructive: #e63946;
+  --destructive-foreground: #ffffff;
+
+  --border: #e0e0e0;
+  --input: #f9f9f9;
   --ring: var(--primary);
 
-  /* Chart palette (distinct, accessible) */
-  --chart-1: hsl(221 75% 55%);
-  /* blue */
-  --chart-2: hsl(188 60% 45%);
-  /* teal */
-  --chart-3: hsl(43 96% 50%);
-  /* amber */
-  --chart-4: hsl(262 55% 60%);
-  /* violet */
-  --chart-5: hsl(344 70% 54%);
-  /* rose */
-
-  /* Sidebar */
-  --sidebar: hsl(0 0% 100%);
-  --sidebar-foreground: hsl(220 18% 20%);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(220 14% 96%);
-  --sidebar-accent-foreground: var(--primary);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: var(--primary);
-
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-
-  /* Radius & Shadows (subtle, modern) */
-  --radius: 1.0rem;
-  --shadow-2xs: 0 1px 1px hsl(220 10% 10% / 0.04);
-  --shadow-xs: 0 1px 2px hsl(220 10% 10% / 0.06);
-  --shadow-sm: 0 1px 3px hsl(220 10% 10% / 0.08), 0 1px 2px hsl(220 10% 10% / 0.04);
-  --shadow: 0 2px 6px hsl(220 10% 10% / 0.08), 0 1px 2px hsl(220 10% 10% / 0.04);
-  --shadow-md: 0 4px 10px hsl(220 10% 10% / 0.10);
-  --shadow-lg: 0 8px 20px hsl(220 10% 10% / 0.12);
-  --shadow-xl: 0 12px 32px hsl(220 10% 10% / 0.14);
-  --shadow-2xl: 0 18px 48px hsl(220 10% 10% / 0.16);
-
-  /* Letterspacing & spacing unit (optional) */
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-
-  /* Optional template-specific colours */
-  --color-vite: var(--primary);
-  --color-react: hsl(193 95% 60%);
+  --radius: 1rem;
+  --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
+
 
 /* ============================= */
 /* Dark Theme                    */
 /* ============================= */
 .dark {
-  --background: hsl(220 15% 10%);
-  /* deep slate */
-  --foreground: hsl(210 20% 92%);
-  /* near-white text */
+  --background: #1A1A1A;
+  --foreground: #F8E6CB;
 
-  --card: hsl(220 16% 14%);
-  --card-foreground: hsl(210 20% 92%);
-  --popover: hsl(220 16% 14%);
-  --popover-foreground: hsl(210 20% 92%);
+  --card: #2A2A2A;
+  --card-foreground: #F8E6CB;
 
-  --primary: hsl(221 70% 62%);
-  /* slightly brighter for contrast */
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(220 10% 22%);
-  --secondary-foreground: hsl(210 20% 92%);
+  --primary: #62C4C3;
+  /* slightly lighter tone for contrast in dark */
+  --primary-foreground: #1A1A1A;
 
-  --muted: hsl(220 10% 20%);
-  --muted-foreground: hsl(220 12% 65%);
-  --accent: hsl(220 12% 18%);
-  /* subtle tinted surface */
-  --accent-foreground: var(--primary);
+  --secondary: #5193B3;
+  --secondary-foreground: #ffffff;
 
-  --destructive: hsl(358 75% 59%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --success-500: hsl(158 64% 45%);
-  --warning-500: hsl(43 96% 50%);
+  --accent: #F8D49B;
+  --accent-foreground: #1A1A1A;
 
-  --border: hsl(220 12% 23%);
-  --input: hsl(220 12% 18%);
+  --muted: #333333;
+  --muted-foreground: #aaaaaa;
+
+  --destructive: #e63946;
+  --destructive-foreground: #ffffff;
+
+  --border: #444444;
+  --input: #2a2a2a;
   --ring: var(--primary);
-
-  --chart-1: hsl(221 70% 62%);
-  --chart-2: hsl(188 60% 50%);
-  --chart-3: hsl(43 96% 55%);
-  --chart-4: hsl(262 55% 66%);
-  --chart-5: hsl(344 70% 58%);
-
-  --sidebar: hsl(220 16% 14%);
-  --sidebar-foreground: hsl(210 20% 92%);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(220 12% 18%);
-  --sidebar-accent-foreground: var(--primary);
-  --sidebar-border: hsl(220 12% 23%);
-  --sidebar-ring: var(--primary);
-
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-
-  --radius: 1.0rem;
-}
-
-/* Tailwind base bridge to variables */
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
-  }
 }
