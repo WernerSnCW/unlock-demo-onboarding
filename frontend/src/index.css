@@ -1,68 +1,172 @@
+/* index.css — Unlock professional palette (light & dark) */
+
+@import './styles/globals.css';
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================= */
+/* Light Theme (default)         */
+/* ============================= */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Core surface & text */
+  --background: hsl(210 20% 98%);
+  /* page background: very light neutral */
+  --foreground: hsl(220 18% 20%);
+  /* primary text: deep slate */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Cards / Popovers */
+  --card: hsl(0 0% 100%);
+  /* pure white cards */
+  --card-foreground: hsl(220 18% 20%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(220 18% 20%);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Brand / Actions */
+  --primary: hsl(221 75% 55%);
+  /* trust blue (CTA, links, ring) */
+  --primary-foreground: hsl(0 0% 100%);
+  /* text on primary */
+  --secondary: hsl(220 14% 96%);
+  /* subtle secondary surfaces */
+  --secondary-foreground: hsl(220 18% 20%);
+
+  /* Muted / Accents */
+  --muted: hsl(220 14% 96%);
+  /* muted backgrounds / chips */
+  --muted-foreground: hsl(220 10% 46%);
+  /* muted text */
+  --accent: hsl(206 100% 97%);
+  /* very light blue tint for highlights */
+  --accent-foreground: var(--primary);
+
+  /* Status */
+  --destructive: hsl(0 72% 52%);
+  /* red (errors) */
+  --destructive-foreground: hsl(0 0% 100%);
+  --success-500: hsl(158 64% 45%);
+  /* success green */
+  --warning-500: hsl(43 96% 50%);
+  /* amber */
+
+  /* Inputs / Borders / Focus */
+  --border: hsl(220 13% 91%);
+  --input: hsl(220 16% 97%);
+  --ring: var(--primary);
+
+  /* Chart palette (distinct, accessible) */
+  --chart-1: hsl(221 75% 55%);
+  /* blue */
+  --chart-2: hsl(188 60% 45%);
+  /* teal */
+  --chart-3: hsl(43 96% 50%);
+  /* amber */
+  --chart-4: hsl(262 55% 60%);
+  /* violet */
+  --chart-5: hsl(344 70% 54%);
+  /* rose */
+
+  /* Sidebar */
+  --sidebar: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(220 18% 20%);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(220 14% 96%);
+  --sidebar-accent-foreground: var(--primary);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: var(--primary);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+
+  /* Radius & Shadows (subtle, modern) */
+  --radius: 1.0rem;
+  --shadow-2xs: 0 1px 1px hsl(220 10% 10% / 0.04);
+  --shadow-xs: 0 1px 2px hsl(220 10% 10% / 0.06);
+  --shadow-sm: 0 1px 3px hsl(220 10% 10% / 0.08), 0 1px 2px hsl(220 10% 10% / 0.04);
+  --shadow: 0 2px 6px hsl(220 10% 10% / 0.08), 0 1px 2px hsl(220 10% 10% / 0.04);
+  --shadow-md: 0 4px 10px hsl(220 10% 10% / 0.10);
+  --shadow-lg: 0 8px 20px hsl(220 10% 10% / 0.12);
+  --shadow-xl: 0 12px 32px hsl(220 10% 10% / 0.14);
+  --shadow-2xl: 0 18px 48px hsl(220 10% 10% / 0.16);
+
+  /* Letterspacing & spacing unit (optional) */
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Optional template-specific colours */
+  --color-vite: var(--primary);
+  --color-react: hsl(193 95% 60%);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* ============================= */
+/* Dark Theme                    */
+/* ============================= */
+.dark {
+  --background: hsl(220 15% 10%);
+  /* deep slate */
+  --foreground: hsl(210 20% 92%);
+  /* near-white text */
+
+  --card: hsl(220 16% 14%);
+  --card-foreground: hsl(210 20% 92%);
+  --popover: hsl(220 16% 14%);
+  --popover-foreground: hsl(210 20% 92%);
+
+  --primary: hsl(221 70% 62%);
+  /* slightly brighter for contrast */
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(220 10% 22%);
+  --secondary-foreground: hsl(210 20% 92%);
+
+  --muted: hsl(220 10% 20%);
+  --muted-foreground: hsl(220 12% 65%);
+  --accent: hsl(220 12% 18%);
+  /* subtle tinted surface */
+  --accent-foreground: var(--primary);
+
+  --destructive: hsl(358 75% 59%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --success-500: hsl(158 64% 45%);
+  --warning-500: hsl(43 96% 50%);
+
+  --border: hsl(220 12% 23%);
+  --input: hsl(220 12% 18%);
+  --ring: var(--primary);
+
+  --chart-1: hsl(221 70% 62%);
+  --chart-2: hsl(188 60% 50%);
+  --chart-3: hsl(43 96% 55%);
+  --chart-4: hsl(262 55% 66%);
+  --chart-5: hsl(344 70% 58%);
+
+  --sidebar: hsl(220 16% 14%);
+  --sidebar-foreground: hsl(210 20% 92%);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(220 12% 18%);
+  --sidebar-accent-foreground: var(--primary);
+  --sidebar-border: hsl(220 12% 23%);
+  --sidebar-ring: var(--primary);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+
+  --radius: 1.0rem;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Tailwind base bridge to variables */
+@layer base {
+  * {
+    @apply border-border;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
   }
 }

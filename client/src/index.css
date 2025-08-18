@@ -1,103 +1,166 @@
+/* index.css — Unlock professional palette (light & dark) */
+
 @import './styles/globals.css';
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================= */
+/* Light Theme (default)         */
+/* ============================= */
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(210 25% 7.8431%);
-  --card: hsl(180 6.6667% 97.0588%);
-  --card-foreground: hsl(210 25% 7.8431%);
+  /* Core surface & text */
+  --background: hsl(210 20% 98%);
+  /* page background: very light neutral */
+  --foreground: hsl(220 18% 20%);
+  /* primary text: deep slate */
+
+  /* Cards / Popovers */
+  --card: hsl(0 0% 100%);
+  /* pure white cards */
+  --card-foreground: hsl(220 18% 20%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(210 25% 7.8431%);
-  --primary: hsl(234, 89%, 73%);
+  --popover-foreground: hsl(220 18% 20%);
+
+  /* Brand / Actions */
+  --primary: hsl(221 75% 55%);
+  /* trust blue (CTA, links, ring) */
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 25% 7.8431%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(240 1.9608% 90%);
-  --muted-foreground: hsl(210 25% 7.8431%);
-  --accent: hsl(211.5789 51.3514% 92.7451%);
-  --accent-foreground: hsl(234, 89%, 73%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  /* text on primary */
+  --secondary: hsl(220 14% 96%);
+  /* subtle secondary surfaces */
+  --secondary-foreground: hsl(220 18% 20%);
+
+  /* Muted / Accents */
+  --muted: hsl(220 14% 96%);
+  /* muted backgrounds / chips */
+  --muted-foreground: hsl(220 10% 46%);
+  /* muted text */
+  --accent: hsl(206 100% 97%);
+  /* very light blue tint for highlights */
+  --accent-foreground: var(--primary);
+
+  /* Status */
+  --destructive: hsl(0 72% 52%);
+  /* red (errors) */
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(201.4286 30.4348% 90.9804%);
-  --input: hsl(200 23.0769% 97.4510%);
-  --ring: hsl(234, 89%, 73%);
-  --chart-1: hsl(234, 89%, 73%);
-  --chart-2: hsl(193, 95%, 68%);
-  --chart-3: hsl(43, 96%, 56%);
-  --chart-4: hsl(158, 64%, 52%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(180 6.6667% 97.0588%);
-  --sidebar-foreground: hsl(210 25% 7.8431%);
-  --sidebar-primary: hsl(234, 89%, 73%);
+  --success-500: hsl(158 64% 45%);
+  /* success green */
+  --warning-500: hsl(43 96% 50%);
+  /* amber */
+
+  /* Inputs / Borders / Focus */
+  --border: hsl(220 13% 91%);
+  --input: hsl(220 16% 97%);
+  --ring: var(--primary);
+
+  /* Chart palette (distinct, accessible) */
+  --chart-1: hsl(221 75% 55%);
+  /* blue */
+  --chart-2: hsl(188 60% 45%);
+  /* teal */
+  --chart-3: hsl(43 96% 50%);
+  /* amber */
+  --chart-4: hsl(262 55% 60%);
+  /* violet */
+  --chart-5: hsl(344 70% 54%);
+  /* rose */
+
+  /* Sidebar */
+  --sidebar: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(220 18% 20%);
+  --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
-  --sidebar-accent-foreground: hsl(234, 89%, 73%);
-  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
-  --sidebar-ring: hsl(234, 89%, 73%);
+  --sidebar-accent: hsl(220 14% 96%);
+  --sidebar-accent-foreground: var(--primary);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: var(--primary);
+
+  /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
-  --radius: 1.3rem;
-  --shadow-2xs: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00), 0px 1px 2px -1px hsl(234, 89%, 73% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00), 0px 1px 2px -1px hsl(234, 89%, 73% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00), 0px 2px 4px -1px hsl(234, 89%, 73% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00), 0px 4px 6px -1px hsl(234, 89%, 73% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00), 0px 8px 10px -1px hsl(234, 89%, 73% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(234, 89%, 73% / 0.00);
+
+  /* Radius & Shadows (subtle, modern) */
+  --radius: 1.0rem;
+  --shadow-2xs: 0 1px 1px hsl(220 10% 10% / 0.04);
+  --shadow-xs: 0 1px 2px hsl(220 10% 10% / 0.06);
+  --shadow-sm: 0 1px 3px hsl(220 10% 10% / 0.08), 0 1px 2px hsl(220 10% 10% / 0.04);
+  --shadow: 0 2px 6px hsl(220 10% 10% / 0.08), 0 1px 2px hsl(220 10% 10% / 0.04);
+  --shadow-md: 0 4px 10px hsl(220 10% 10% / 0.10);
+  --shadow-lg: 0 8px 20px hsl(220 10% 10% / 0.12);
+  --shadow-xl: 0 12px 32px hsl(220 10% 10% / 0.14);
+  --shadow-2xl: 0 18px 48px hsl(220 10% 10% / 0.16);
+
+  /* Letterspacing & spacing unit (optional) */
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  
-  /* Custom DevStack colors */
-  --color-vite: hsl(234, 89%, 73%);
-  --color-react: hsl(193, 95%, 68%);
-  --color-success: hsl(158, 64%, 52%);
-  --color-warning: hsl(43, 96%, 56%);
+
+  /* Optional template-specific colours */
+  --color-vite: var(--primary);
+  --color-react: hsl(193 95% 60%);
 }
 
+/* ============================= */
+/* Dark Theme                    */
+/* ============================= */
 .dark {
-  --background: hsl(0 0% 0%);
-  --foreground: hsl(200 6.6667% 91.1765%);
-  --card: hsl(228 9.8039% 10%);
-  --card-foreground: hsl(0 0% 85.0980%);
-  --popover: hsl(0 0% 0%);
-  --popover-foreground: hsl(200 6.6667% 91.1765%);
-  --primary: hsl(234, 89%, 73%);
+  --background: hsl(220 15% 10%);
+  /* deep slate */
+  --foreground: hsl(210 20% 92%);
+  /* near-white text */
+
+  --card: hsl(220 16% 14%);
+  --card-foreground: hsl(210 20% 92%);
+  --popover: hsl(220 16% 14%);
+  --popover-foreground: hsl(210 20% 92%);
+
+  --primary: hsl(221 70% 62%);
+  /* slightly brighter for contrast */
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(195.0000 15.3846% 94.9020%);
-  --secondary-foreground: hsl(210 25% 7.8431%);
-  --muted: hsl(0 0% 9.4118%);
-  --muted-foreground: hsl(210 3.3898% 46.2745%);
-  --accent: hsl(205.7143 70% 7.8431%);
-  --accent-foreground: hsl(234, 89%, 73%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --secondary: hsl(220 10% 22%);
+  --secondary-foreground: hsl(210 20% 92%);
+
+  --muted: hsl(220 10% 20%);
+  --muted-foreground: hsl(220 12% 65%);
+  --accent: hsl(220 12% 18%);
+  /* subtle tinted surface */
+  --accent-foreground: var(--primary);
+
+  --destructive: hsl(358 75% 59%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(210 5.2632% 14.9020%);
-  --input: hsl(207.6923 27.6596% 18.4314%);
-  --ring: hsl(234, 89%, 73%);
-  --chart-1: hsl(234, 89%, 73%);
-  --chart-2: hsl(193, 95%, 68%);
-  --chart-3: hsl(43, 96%, 56%);
-  --chart-4: hsl(158, 64%, 52%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(228 9.8039% 10%);
-  --sidebar-foreground: hsl(0 0% 85.0980%);
-  --sidebar-primary: hsl(234, 89%, 73%);
+  --success-500: hsl(158 64% 45%);
+  --warning-500: hsl(43 96% 50%);
+
+  --border: hsl(220 12% 23%);
+  --input: hsl(220 12% 18%);
+  --ring: var(--primary);
+
+  --chart-1: hsl(221 70% 62%);
+  --chart-2: hsl(188 60% 50%);
+  --chart-3: hsl(43 96% 55%);
+  --chart-4: hsl(262 55% 66%);
+  --chart-5: hsl(344 70% 58%);
+
+  --sidebar: hsl(220 16% 14%);
+  --sidebar-foreground: hsl(210 20% 92%);
+  --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(205.7143 70% 7.8431%);
-  --sidebar-accent-foreground: hsl(234, 89%, 73%);
-  --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
-  --sidebar-ring: hsl(234, 89%, 73%);
+  --sidebar-accent: hsl(220 12% 18%);
+  --sidebar-accent-foreground: var(--primary);
+  --sidebar-border: hsl(220 12% 23%);
+  --sidebar-ring: var(--primary);
+
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
-  --radius: 1.3rem;
+
+  --radius: 1.0rem;
 }
 
+/* Tailwind base bridge to variables */
 @layer base {
   * {
     @apply border-border;
