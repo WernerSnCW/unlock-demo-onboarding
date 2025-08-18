@@ -7,7 +7,7 @@ interface TrustMarkerProps {
 export default function TrustMarker({ type, value, className = "" }: TrustMarkerProps) {
   if (type === 'verified') {
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 ${className}`}>
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 ${className}`}>
         ✅ Verified
       </span>
     );
@@ -23,7 +23,7 @@ export default function TrustMarker({ type, value, className = "" }: TrustMarker
 
   if (type === 'peer' && value !== undefined) {
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 ${className}`}>
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 ${className}`}>
         📊 Peers: {value}%
       </span>
     );
