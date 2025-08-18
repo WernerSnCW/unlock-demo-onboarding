@@ -31,23 +31,41 @@ export default function NewsCard({
     return relevanceScore >= 0.7 ? 'High match' : '';
   };
 
+  const getThemeIcon = () => {
+    const firstTag = tags[0]?.toLowerCase() || '';
+    if (firstTag.includes('eis') || firstTag.includes('policy')) return 'fa-university';
+    if (firstTag.includes('fintech') || firstTag.includes('filing')) return 'fa-chart-line';
+    if (firstTag.includes('biotech') || firstTag.includes('funding')) return 'fa-flask';
+    if (firstTag.includes('tech') || firstTag.includes('ai')) return 'fa-microchip';
+    return 'fa-building';
+  };
+
+  const getThemeGradient = () => {
+    const firstTag = tags[0]?.toLowerCase() || '';
+    if (firstTag.includes('eis') || firstTag.includes('policy')) return 'from-blue-500 to-indigo-600';
+    if (firstTag.includes('fintech') || firstTag.includes('filing')) return 'from-green-500 to-emerald-600';
+    if (firstTag.includes('biotech') || firstTag.includes('funding')) return 'from-purple-500 to-violet-600';
+    if (firstTag.includes('tech') || firstTag.includes('ai')) return 'from-orange-500 to-red-600';
+    return 'from-gray-500 to-slate-600';
+  };
+
   return (
     <article className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <div className="flex gap-4">
         {/* Desktop: 56x56 image left, Mobile: stacked */}
-        {image && (
-          <div className="hidden md:block flex-shrink-0 w-14 h-14 bg-[var(--muted)] rounded-[var(--radius-sm)] overflow-hidden">
-            <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] opacity-20"></div>
+        <div className="hidden md:block flex-shrink-0 w-14 h-14 bg-[var(--muted)] rounded-[var(--radius-sm)] overflow-hidden">
+          <div className={`w-full h-full bg-gradient-to-br ${getThemeGradient()} flex items-center justify-center`}>
+            <i className={`fas ${getThemeIcon()} text-white text-lg`}></i>
           </div>
-        )}
+        </div>
         
         <div className="flex-1 min-w-0">
           {/* Mobile: stacked image */}
-          {image && (
-            <div className="md:hidden mb-3 w-full h-32 bg-[var(--muted)] rounded-[var(--radius-sm)] overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] opacity-20"></div>
+          <div className="md:hidden mb-3 w-full h-32 bg-[var(--muted)] rounded-[var(--radius-sm)] overflow-hidden">
+            <div className={`w-full h-full bg-gradient-to-br ${getThemeGradient()} flex items-center justify-center`}>
+              <i className={`fas ${getThemeIcon()} text-white text-3xl`}></i>
             </div>
-          )}
+          </div>
           
           <div className="flex items-start justify-between gap-3 mb-2">
             <h3 className="text-[var(--card-foreground)] font-semibold leading-tight" style={{ fontSize: '16px' }}>
