@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import AllowanceCalculator from '../components/AllowanceCalculator';
+import LossReliefCalculator from '../components/LossReliefCalculator';
+import CGTDeferralCalculator from '../components/CGTDeferralCalculator';
 
 export default function Toolkit() {
   const [openAccordion, setOpenAccordion] = useState<string>('allowance');
@@ -63,12 +66,8 @@ export default function Toolkit() {
               </button>
               
               {openAccordion === 'allowance' && (
-                <div className="border-t border-[var(--border)] p-6">
-                  <div className="text-center py-8">
-                    <i className="fas fa-calculator text-4xl text-[var(--primary)] mb-4" aria-hidden="true"></i>
-                    <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-2">Allowance Calculator</h3>
-                    <p className="text-[var(--muted-foreground)]">Calculate EIS and SEIS annual limits and carry-back relief</p>
-                  </div>
+                <div className="border-t border-[var(--border)]">
+                  <AllowanceCalculator />
                 </div>
               )}
             </div>
@@ -97,12 +96,8 @@ export default function Toolkit() {
               </button>
               
               {openAccordion === 'loss-relief' && (
-                <div className="border-t border-[var(--border)] p-6">
-                  <div className="text-center py-8">
-                    <i className="fas fa-chart-line-down text-4xl text-[var(--secondary)] mb-4" aria-hidden="true"></i>
-                    <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-2">Loss Relief Calculator</h3>
-                    <p className="text-[var(--muted-foreground)]">Model downside scenarios after upfront relief</p>
-                  </div>
+                <div className="border-t border-[var(--border)]">
+                  <LossReliefCalculator />
                 </div>
               )}
             </div>
@@ -131,12 +126,8 @@ export default function Toolkit() {
               </button>
               
               {openAccordion === 'cgt-deferral' && (
-                <div className="border-t border-[var(--border)] p-6">
-                  <div className="text-center py-8">
-                    <i className="fas fa-clock text-4xl text-[var(--accent)] mb-4" aria-hidden="true"></i>
-                    <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-2">CGT Deferral Calculator</h3>
-                    <p className="text-[var(--muted-foreground)]">EIS reinvestment deferral & SEIS 50% exemption</p>
-                  </div>
+                <div className="border-t border-[var(--border)]">
+                  <CGTDeferralCalculator />
                 </div>
               )}
             </div>
