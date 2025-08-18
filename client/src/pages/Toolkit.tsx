@@ -37,7 +37,7 @@ export default function Toolkit() {
     {
       id: 'loss-relief-calculator',
       category: 'tax-relief',
-      icon: 'fas fa-chart-line-down',
+      icon: 'fas fa-chart-line',
       iconColor: 'text-[#62C4C3]',
       title: 'Loss Relief Calculator',
       description: 'Model downside scenarios and calculate loss relief after upfront benefits.',
