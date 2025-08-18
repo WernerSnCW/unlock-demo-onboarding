@@ -71,35 +71,19 @@ export default function BusinessCard({ business }: BusinessCardProps) {
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${borderColor} p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden`}>
-      {/* Trending Badge */}
-      {(isHighInterest || isTrending) && (
-        <div className="absolute top-4 right-4 z-10">
-          {isHighInterest && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs rounded-full font-medium shadow-lg">
-              🔥 Hot
-            </span>
-          )}
-          {isTrending && !isHighInterest && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-blue-400 to-purple-500 text-white text-xs rounded-full font-medium shadow-lg">
-              📈 Trending
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Header */}
+      {/* Header with integrated badges */}
       <div className="flex items-start gap-4 mb-4">
         {/* Company Logo/Avatar */}
         <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-[#5193B3] to-[#62C4C3] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
           {getCompanyInitials(business.name)}
         </div>
         
-        <div className="flex-1 min-w-0 pr-20">
-          <div className="flex items-start gap-2 mb-3">
-            <div className="flex-1">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1 min-w-0 pr-2">
               <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate">{business.name}</h3>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {business.verified ? (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs rounded-md">
                   <i className="fas fa-check-circle" aria-hidden="true"></i>
@@ -110,6 +94,20 @@ export default function BusinessCard({ business }: BusinessCardProps) {
                   <i className="fas fa-exclamation-triangle" aria-hidden="true"></i>
                   Unverified
                 </span>
+              )}
+              {(isHighInterest || isTrending) && (
+                <div>
+                  {isHighInterest && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs rounded-full font-medium shadow-lg">
+                      🔥 Hot
+                    </span>
+                  )}
+                  {isTrending && !isHighInterest && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-blue-400 to-purple-500 text-white text-xs rounded-full font-medium shadow-lg">
+                      📈 Trending
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
