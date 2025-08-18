@@ -193,7 +193,7 @@ export default function News() {
           
           {/* Left Sidebar - Filters & Preferences */}
           <div className="lg:col-span-3">
-            <div className="sticky top-6 space-y-6">
+            <div className="space-y-6">
               
               {/* Search */}
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
@@ -360,7 +360,7 @@ export default function News() {
 
           {/* Right Sidebar - AI Chat & Saved Items */}
           <div className="lg:col-span-3">
-            <div className="sticky top-6 space-y-6">
+            <div className="space-y-6">
               
               {/* AI Chat Assistant */}
               <AIChat seedPrompts={[

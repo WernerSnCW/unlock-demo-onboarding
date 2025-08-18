@@ -34,11 +34,16 @@ export default function AIChat({ seedPrompts = [] }: AIChatProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll if there are new messages and chat is visible
+    if (messages.length > 1) {
+      setTimeout(scrollToBottom, 100);
+    }
   }, [messages]);
 
   const generateResponse = (prompt: string): string => {
@@ -99,7 +104,7 @@ export default function AIChat({ seedPrompts = [] }: AIChatProps) {
   };
 
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] flex flex-col h-[500px]" style={{ boxShadow: 'var(--shadow-sm)' }}>
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] flex flex-col h-[400px]" style={{ boxShadow: 'var(--shadow-sm)' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
