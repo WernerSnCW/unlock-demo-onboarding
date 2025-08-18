@@ -191,24 +191,94 @@ export default function Businesses() {
 
             {/* Results */}
             <div className="flex-1">
+              {/* Active Filters Chips */}
+              {hasActiveFilters && (
+                <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-lg">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active filters:</span>
+                    {filters.sectors.map((sector) => (
+                      <span
+                        key={sector}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-[#5193B3] text-white text-xs rounded-md cursor-pointer hover:bg-[#4082a2]"
+                        onClick={() => setFilters(prev => ({ ...prev, sectors: prev.sectors.filter(s => s !== sector) }))}
+                      >
+                        {sector}
+                        <i className="fas fa-times" aria-hidden="true"></i>
+                      </span>
+                    ))}
+                    {filters.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-[#62C4C3] text-white text-xs rounded-md cursor-pointer hover:bg-[#51b3b2]"
+                        onClick={() => setFilters(prev => ({ ...prev, sizes: prev.sizes.filter(s => s !== size) }))}
+                      >
+                        {size}
+                        <i className="fas fa-times" aria-hidden="true"></i>
+                      </span>
+                    ))}
+                    {filters.risk !== 'Any' && (
+                      <span
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-[#F8D49B] text-gray-800 text-xs rounded-md cursor-pointer hover:bg-[#f6c877]"
+                        onClick={() => setFilters(prev => ({ ...prev, risk: 'Any' }))}
+                      >
+                        {filters.risk} Risk
+                        <i className="fas fa-times" aria-hidden="true"></i>
+                      </span>
+                    )}
+                    {(filters.eligibility.EIS || filters.eligibility.SEIS) && (
+                      <span
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-md cursor-pointer hover:bg-purple-600"
+                        onClick={() => setFilters(prev => ({ ...prev, eligibility: { EIS: false, SEIS: false } }))}
+                      >
+                        Tax Relief
+                        <i className="fas fa-times" aria-hidden="true"></i>
+                      </span>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAllFilters}
+                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xs"
+                    >
+                      Clear all
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {/* Results Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     {filteredAndSortedBusinesses.length} companies found
                   </span>
-                  {hasActiveFilters && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={clearAllFilters}
-                      className="text-[#5193B3] hover:text-[#4082a2] hover:bg-[#5193B3]/10"
-                    >
-                      Clear all filters
-                    </Button>
-                  )}
                 </div>
               </div>
+
+              {/* Spotlight Section for High-Interest Companies */}
+              {filteredAndSortedBusinesses.some(b => b.community.syndicateInterestPct >= 70) && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <i className="fas fa-fire text-orange-500" aria-hidden="true"></i>
+                    Spotlight Companies
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    {filteredAndSortedBusinesses
+                      .filter(b => b.community.syndicateInterestPct >= 70)
+                      .slice(0, 2)
+                      .map((business) => (
+                        <div key={`spotlight-${business.id}`} className="transform scale-105">
+                          <BusinessCard business={business as any} />
+                        </div>
+                      ))}
+                  </div>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      All Companies
+                    </h3>
+                  </div>
+                </div>
+              )}
 
               {/* Results Grid */}
               {filteredAndSortedBusinesses.length === 0 ? (

@@ -1,0 +1,85 @@
+1. Layout & Structure
+
+Card hierarchy: Add stronger visual separation between company cards using:
+
+Subtle shadows & rounded corners for a modern look.
+
+Accent borders or colour strips to highlight "Verified" vs "Unverified".
+
+Grid/List toggle: You already have a toggle icon — make grid view cards more visual (logos, sector icons), and list view more compact/dense for scanning.
+
+Featured/Highlighted companies: Introduce a “spotlight” row at the top with larger cards for trending/high peer-interest companies.
+
+🔹 2. Visual Branding
+
+Logos/Icons: Add company logos (or generated placeholders if not available).
+
+Sector icons: Each sector (FinTech, BioTech, CleanTech, etc.) could have a small industry-themed icon or illustration.
+
+Risk profile badges: Replace plain labels with visual indicators:
+
+🟢 Green dot for Low Risk, 🟡 Yellow for Medium, 🔴 Red for High.
+
+Add tooltip with an explanation of risk.
+
+🔹 3. Engagement & Social Proof
+
+Community heatmap: Instead of just “Peers 89%”, show a mini horizontal bar/heat indicator for quick scanning.
+
+Investor questions preview: Show the top 1–2 questions asked (truncated), with a link to “+ View All”.
+
+Badges: Add badges for:
+
+“Trending” (based on engagement in the last 30 days)
+
+“Most Viewed” or “Rising Star”
+
+🔹 4. Filters & Sorting Enhancements
+
+Multi-select filters: Show selected filters as chips above results (easy to remove).
+
+Advanced filter options:
+
+Funding stage (Seed, Series A, Series B)
+
+Revenue band (Pre-revenue, <£1m, £1–5m, etc.)
+
+Investor sentiment (positive/neutral/negative community feedback).
+
+Save filters: Allow logged-in users to save favourite filter sets (e.g., “High-growth EIS BioTech”).
+
+🔹 5. Profile Previews
+
+Expand company cards slightly:
+
+Mini financials (Revenue range, Valuation estimate, Funding stage).
+
+Snapshot tags (e.g., "Strong IP", "Late filings", "Growing market").
+
+Hover effects: On hover, card flips/expands with extra details (valuation band, founders, last funding round).
+
+🔹 6. Premium Differentiation
+
+Lock icons for premium-only insights (valuation range, detailed due diligence, etc.), prompting upgrade.
+
+Subtle “blurred” placeholders for premium data so users see what they’re missing.
+
+🔹 7. Visual Inspiration
+
+Think along the lines of:
+
+Crunchbase for professional look.
+
+Product Hunt for community-driven feel.
+
+AngelList for investment-style polish.
+
+✅ Mock data addition for better visuals in Replit:
+
+Company logos (placeholder via ui-avatars or similar).
+
+Sector icons (FontAwesome: 🧬 BioTech, 💳 FinTech, 🌱 CleanTech, 🧠 DeepTech).
+
+Engagement mini-bars (e.g., Peers 89% → show as progress bar).
+
+Tags for quick insights: "Strong IP", "Early Stage", "Pending SEIS", "Governance Risk".

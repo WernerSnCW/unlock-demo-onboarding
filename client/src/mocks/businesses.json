@@ -18,7 +18,8 @@
       "directors": 3,
       "webScore": 76,
       "redFlags": 0,
-      "summary": "Clinical tooling spin-out with solid governance; clean filing cadence; moderate web footprint."
+      "summary": "Clinical tooling spin-out with solid governance; clean filing cadence; moderate web footprint.",
+      "tags": ["University Spin-out", "Clinical Trials", "Strong Team"]
     },
     "community": {
       "syndicateInterestPct": 41,
@@ -46,7 +47,8 @@
       "directors": 5,
       "webScore": 64,
       "redFlags": 1,
-      "summary": "Payments orchestration with multi-PSP routing; minor filing lag noted; strong traffic trend."
+      "summary": "Payments orchestration with multi-PSP routing; minor filing lag noted; strong traffic trend.",
+      "tags": ["B2B SaaS", "Growing Market", "Filing Lag"]
     },
     "community": {
       "syndicateInterestPct": 23,
@@ -74,7 +76,8 @@
       "directors": 9,
       "webScore": 51,
       "redFlags": 3,
-      "summary": "Commodity exposure and leverage risks; late filings; governance turnover flagged."
+      "summary": "Commodity exposure and leverage risks; late filings; governance turnover flagged.",
+      "tags": ["Governance Risk", "Late Filings", "Commodity Exposure"]
     },
     "community": {
       "syndicateInterestPct": 12,
@@ -102,7 +105,8 @@
       "directors": 4,
       "webScore": 68,
       "redFlags": 0,
-      "summary": "Solar panel efficiency breakthrough; strong IP portfolio; early commercialisation stage."
+      "summary": "Solar panel efficiency breakthrough; strong IP portfolio; early commercialisation stage.",
+      "tags": ["Strong IP", "Breakthrough Tech", "Pending SEIS"]
     },
     "community": {
       "syndicateInterestPct": 67,
@@ -130,7 +134,8 @@
       "directors": 2,
       "webScore": 82,
       "redFlags": 1,
-      "summary": "AI-powered radiology platform; regulatory pathway unclear; promising pilot results."
+      "summary": "AI-powered radiology platform; regulatory pathway unclear; promising pilot results.",
+      "tags": ["Strong IP", "Early Stage", "Regulatory Risk"]
     },
     "community": {
       "syndicateInterestPct": 89,
@@ -158,7 +163,8 @@
       "directors": 6,
       "webScore": 91,
       "redFlags": 2,
-      "summary": "Quantum computing hardware development; significant R&D spend; long commercialisation horizon."
+      "summary": "Quantum computing hardware development; significant R&D spend; long commercialisation horizon.",
+      "tags": ["Deep Tech", "High R&D", "Long Horizon"]
     },
     "community": {
       "syndicateInterestPct": 34,
