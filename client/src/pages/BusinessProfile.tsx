@@ -206,7 +206,7 @@ export default function BusinessProfile() {
                 </p>
               </div>
 
-              <Button className="w-full mt-4" variant="outline">
+              <Button className="w-full mt-4 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" variant="outline">
                 Open Full Snapshot
                 <i className="fas fa-external-link-alt ml-2" aria-hidden="true"></i>
               </Button>
@@ -253,15 +253,15 @@ export default function BusinessProfile() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Button className="w-full">
+                  <Button className="w-full bg-[#5193B3] hover:bg-[#4082a2] text-white">
                     <i className="fas fa-heart mr-2" aria-hidden="true"></i>
                     Follow
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i className="fas fa-question-circle mr-2" aria-hidden="true"></i>
                     Ask a Question
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i className="fas fa-comments mr-2" aria-hidden="true"></i>
                     Join Discussion
                   </Button>
@@ -272,15 +272,15 @@ export default function BusinessProfile() {
 
           {/* Action Row */}
           <div className="flex flex-wrap gap-4 mt-6">
-            <Button size="lg" className="bg-[#5193B3] hover:bg-[#4082a2]">
+            <Button size="lg" className="bg-[#5193B3] hover:bg-[#4082a2] text-white">
               <i className="fas fa-file-alt mr-2" aria-hidden="true"></i>
               Open Full Snapshot
             </Button>
-            <Button variant="outline" size="lg" disabled>
+            <Button variant="outline" size="lg" disabled className="text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-600">
               <i className="fas fa-lock mr-2" aria-hidden="true"></i>
               Export (Premium)
             </Button>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
               <i className="fas fa-share-alt mr-2" aria-hidden="true"></i>
               Share Link
             </Button>
