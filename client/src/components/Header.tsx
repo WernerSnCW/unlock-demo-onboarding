@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useTheme } from './ThemeProvider';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [location] = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -13,13 +15,13 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+    <header className="bg-white dark:bg-slate-900 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-2">
               <i className="fas fa-bolt text-[#646cff] text-xl"></i>
-              <span className="text-xl font-bold text-slate-900">DevStack</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">DevStack</span>
             </Link>
             <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#646cff]/10 text-[#646cff]">
               v1.0.0
@@ -39,8 +41,12 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-slate-600 hover:text-slate-900 transition-colors duration-200">
-              <i className="fas fa-moon text-lg"></i>
+            <button 
+              onClick={toggleTheme}
+              className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors duration-200"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'} text-lg`}></i>
             </button>
             <button 
               className="md:hidden p-2 text-slate-600 hover:text-slate-900"

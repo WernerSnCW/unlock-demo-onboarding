@@ -1,6 +1,6 @@
 export default function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-slate-50 to-slate-100 pt-16 pb-20">
+    <section className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 pt-16 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <div className="flex justify-center space-x-4 mb-8">
@@ -15,12 +15,12 @@ export default function HeroSection() {
             </div>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
             Modern Development
             <span className="bg-gradient-to-r from-[#646cff] to-[#41d1ff] bg-clip-text text-transparent ml-3">Stack</span>
           </h1>
           
-          <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
             Built with <span className="font-semibold text-[#646cff]">Vite</span>, 
             <span className="font-semibold text-[#41d1ff]"> React</span>, and 
             <span className="font-semibold text-blue-600"> TypeScript</span>. 

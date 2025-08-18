@@ -51,8 +51,8 @@ export default function Footer() {
                   {link.href.startsWith('#') ? (
                     <a href={link.href} className="hover:text-white transition-colors duration-200">{link.name}</a>
                   ) : (
-                    <Link href={link.href}>
-                      <a className="hover:text-white transition-colors duration-200">{link.name}</a>
+                    <Link href={link.href} className="hover:text-white transition-colors duration-200">
+                      {link.name}
                     </Link>
                   )}
                 </li>
