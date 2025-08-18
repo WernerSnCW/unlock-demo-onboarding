@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
+import PitchDeckAnalyser from './PitchDeckAnalyser';
 
 interface ToolkitModalProps {
   isOpen: boolean;
@@ -17,31 +18,7 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         return <SimpleAllowanceCalculator />;
         
       case 'pitch-deck-analyser':
-        return (
-          <div className="p-6 text-center">
-            <div className="mb-6">
-              <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-file-powerpoint text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Pitch Deck Analyser</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">Upload your pitch deck to receive AI-generated feedback on clarity, consistency, and investor appeal.</p>
-            </div>
-            
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 mb-6">
-              <i className="fas fa-upload text-3xl text-gray-400 mb-4" aria-hidden="true"></i>
-              <p className="text-gray-500 dark:text-gray-400 mb-2">Drag and drop your PDF here</p>
-              <p className="text-sm text-gray-400">or click to browse (Max 10MB)</p>
-            </div>
-            
-            <button 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-              disabled
-            >
-              <i className="fas fa-magic mr-2" aria-hidden="true"></i>
-              Analyze with AI (Coming Soon)
-            </button>
-          </div>
-        );
+        return <PitchDeckAnalyser />;
         
       case 'business-snapshot':
         return (

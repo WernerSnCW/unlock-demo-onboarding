@@ -66,8 +66,8 @@ export default function Toolkit() {
       title: 'Pitch Deck Analyser',
       description: 'Upload pitch decks for AI-generated clarity and consistency feedback.',
       actionText: 'Upload Pitch Deck',
-      isLocked: true,
-      isPremium: true
+      isLocked: false,
+      isPremium: false
     },
     {
       id: 'business-snapshot',

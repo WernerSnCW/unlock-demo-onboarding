@@ -1,0 +1,157 @@
+Pitch Deck Analyser – Enhanced Specification
+🎯 Purpose
+
+Analyse startup pitch decks to:
+
+Extract key information.
+
+Benchmark against investor expectations.
+
+Provide valuation estimates.
+
+Generate investor questions for due diligence.
+
+Give strengths & weaknesses by section.
+
+🔹 1. Input
+
+Upload PDF/PPTX deck.
+
+Optional: sector, stage, geography.
+
+🔹 2. Processing Modules
+A. Section Identification & Analysis
+
+Tool scans for the 9–10 standard pitch deck sections.
+For each section:
+
+Presence: Detected / Missing.
+
+Strengths: What’s clearly articulated (e.g., “Strong TAM data with credible sources”).
+
+Weaknesses: Gaps or unclear points (e.g., “No revenue model explained”).
+
+Investor Questions: Auto-generated prompts.
+
+Example (Business Model Section):
+
+Strength: Clear SaaS subscription model with tiered pricing.
+
+Weakness: No unit economics or customer acquisition cost.
+
+Suggested Questions:
+
+“What is your current CAC and how do you project it will change?”
+
+“How long is your average customer retention?”
+
+B. Content Completeness
+
+% of standard sections covered.
+
+Radar chart showing which are strong vs weak.
+
+C. Clarity & Consistency
+
+NLP checks for clarity vs jargon.
+
+Detect contradictions across slides.
+
+Score out of 10.
+
+D. Financial & Market Sanity
+
+Extracted financials compared to stage & sector benchmarks.
+
+Highlight unrealistic assumptions (burn multiple, revenue CAGR).
+
+Output: benchmark chart + “plausibility flag”.
+
+E. Valuation Analysis
+
+Quick Benchmark: Compare stage & sector medians.
+
+Basic Model: Apply revenue/EBITDA multiples.
+
+Output: Estimated range vs declared ask.
+
+Pro Option: Adjustable inputs for custom scenario.
+
+F. Risk Indicators
+
+Automatically flag missing or weak areas:
+
+No competition slide.
+
+No exit strategy.
+
+No traction metrics.
+
+Assign severity level (⚠️ Low, 🚩 Medium, ❌ High).
+
+🔹 3. Outputs & UX
+A. Executive Summary
+
+Overall score (Completeness, Clarity, Valuation Plausibility).
+
+Top 3 strengths.
+
+Top 3 weaknesses.
+
+Top 5 investor questions to ask.
+
+B. Section-by-Section Deep Dive
+
+For each section:
+
+Status: Present / Missing.
+
+Strengths.
+
+Weaknesses.
+
+Suggested investor questions.
+
+Example Output:
+
+Market Size (TAM/SAM/SOM):
+
+Strength: Includes TAM figure with source (PwC 2023).
+
+Weakness: No clear SAM or SOM breakdown.
+
+Investor Questions:
+
+“How do you validate your SAM figure beyond top-down estimates?”
+
+“What % of SOM do you realistically aim to capture in 3 years?”
+
+C. Valuation Snapshot
+
+“Declared valuation: £10m”
+
+“Benchmark range: £4.2–6.8m”
+
+“Overvalued by ~35% compared to peers.”
+
+D. Report Modes
+
+In-App Dashboard (Free): Interactive cards + charts.
+
+Exportable PDF (Pro): Full deck breakdown, valuation charts, question bank.
+
+🔹 4. Example User Story
+
+As an investor, I upload a deck and get not just a score, but a structured breakdown of each section with strengths, weaknesses, and targeted questions. I can quickly decide if the startup merits a follow-up call and go into that call with intelligent, specific questions ready.
+
+🔹 5. Differentiator
+
+Other tools stop at summarisation. Unlock’s analyser:
+
+Goes section-by-section.
+
+Provides practical investor questions.
+
+Connects analysis to valuation reality.
+
+Outputs a due diligence conversation guide.
