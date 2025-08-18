@@ -1,74 +1,48 @@
 @import './tokens.css';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Global Styles */
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
-  font-family: var(--font-family-sans);
-  line-height: 1.6;
-  color: hsl(203, 24%, 27%);
-  background-color: hsl(210, 20%, 98%);
-  margin: 0;
-  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: system-ui, sans-serif;
 }
 
-/* Custom utility classes */
-.gradient-text {
-  background: linear-gradient(to right, var(--color-vite), var(--color-react));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6);
 }
 
-.animate-bounce-delayed-1 {
-  animation: bounce 1s infinite;
-  animation-delay: 0.1s;
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
-.animate-bounce-delayed-2 {
-  animation: bounce 1s infinite;
-  animation-delay: 0.2s;
+.btn {
+  border-radius: var(--radius-button);
+  padding: 10px 14px;
 }
 
-@keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
-    transform: translate3d(0,0,0);
-  }
-  40%, 43% {
-    transform: translate3d(0,-8px,0);
-  }
-  70% {
-    transform: translate3d(0,-4px,0);
-  }
-  90% {
-    transform: translate3d(0,-2px,0);
-  }
+.btn-primary {
+  background: var(--color-accent);
+  color: #0A0A0A;
 }
 
-/* Loading animations */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-/* Smooth transitions */
-a, button {
-  transition: var(--transition-normal);
-}
-
-/* Focus states */
-.focus-ring {
-  @apply focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #1b2129;
+  color: var(--color-muted);
 }
