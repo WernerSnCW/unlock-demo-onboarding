@@ -86,3 +86,13 @@
   --input: #1F2937;
   --ring: var(--primary);
 }
+
+/* Scrollbar utilities */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

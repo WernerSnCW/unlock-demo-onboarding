@@ -11,9 +11,10 @@ interface Company {
 
 interface WatchlistProps {
   companies: Company[];
+  onToolOpen?: (toolId: string) => void;
 }
 
-export default function Watchlist({ companies }: WatchlistProps) {
+export default function Watchlist({ companies, onToolOpen }: WatchlistProps) {
   if (!companies.length) {
     return (
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
@@ -70,12 +71,12 @@ export default function Watchlist({ companies }: WatchlistProps) {
             
             <div className="flex items-center gap-3">
               <TrustMarker type="peer" value={company.peerShortlistPct} />
-              <Link 
-                href={`/business/${company.id}`} 
+              <button
+                onClick={() => onToolOpen?.('dd_snapshot')}
                 className="bg-[var(--muted)] text-[var(--muted-foreground)] px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
               >
-                Open Snapshot
-              </Link>
+                Request DD
+              </button>
             </div>
           </div>
         ))}

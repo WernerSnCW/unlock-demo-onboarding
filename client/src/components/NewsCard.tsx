@@ -9,6 +9,7 @@ interface NewsCardProps {
   image?: string;
   tags: string[];
   relevanceScore: number;
+  onToolOpen?: (toolId: string) => void;
 }
 
 export default function NewsCard({ 
@@ -19,7 +20,8 @@ export default function NewsCard({
   dateISO, 
   image, 
   tags, 
-  relevanceScore 
+  relevanceScore,
+  onToolOpen 
 }: NewsCardProps) {
   const handleAction = (action: string) => {
     console.log(`${action} clicked for news item:`, id);
@@ -118,11 +120,11 @@ export default function NewsCard({
               Share
             </button>
             <button 
-              onClick={() => handleAction('Ask AI')}
+              onClick={() => onToolOpen?.('sector_insights')}
               className="inline-flex items-center gap-1 px-2 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
             >
-              <i className="fas fa-robot text-xs"></i>
-              Ask AI
+              <i className="fas fa-chart-line text-xs"></i>
+              Insights
             </button>
           </div>
         </div>

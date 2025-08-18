@@ -5,6 +5,9 @@ import Watchlist from './Watchlist';
 import UpgradeCard from './UpgradeCard';
 import AlertsPreferences from './AlertsPreferences';
 import NewsletterControls from './NewsletterControls';
+import QuickTools from './QuickTools';
+import MiniDock from './MiniDock';
+import ToolModal from './ToolModal';
 
 // Mock data imports
 import onboardingProfileData from '../mocks/onboardingProfile.json';
@@ -25,6 +28,9 @@ export default function Dashboard() {
   const [newsItems] = useState(newsFeedData);
   const [companies] = useState(watchlistData);
   const [loading, setLoading] = useState(true);
+  const [dockVisible, setDockVisible] = useState(true);
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [isToolModalOpen, setIsToolModalOpen] = useState(false);
 
   useEffect(() => {
     // Simulate loading
@@ -66,6 +72,20 @@ export default function Dashboard() {
 
   const handleLoadMore = () => {
     console.log('Loading more news items...');
+  };
+
+  const handleToolOpen = (toolId: string) => {
+    setSelectedTool(toolId);
+    setIsToolModalOpen(true);
+  };
+
+  const handleToolModalClose = () => {
+    setIsToolModalOpen(false);
+    setSelectedTool(null);
+  };
+
+  const toggleDock = () => {
+    setDockVisible(!dockVisible);
   };
 
   const showToast = (message: string) => {
@@ -158,13 +178,14 @@ export default function Dashboard() {
                 onLoadMore={handleLoadMore}
               />
             </div>
+            <QuickTools onToolOpen={handleToolOpen} />
             <AlertsPreferences 
               frequency={profile.newsletterFrequency}
               whatsappEnabled={profile.whatsappAlerts}
               onChangeFrequency={handleFrequencyChange}
               onToggleWhatsapp={handleWhatsappToggle}
             />
-            <Watchlist companies={companies} />
+            <Watchlist companies={companies} onToolOpen={handleToolOpen} />
             <UpgradeCard />
           </div>
 
@@ -183,6 +204,22 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Mini Dock FAB */}
+      <MiniDock
+        isVisible={dockVisible}
+        onToggle={toggleDock}
+        onToolOpen={handleToolOpen}
+      />
+
+      {/* Tool Modal */}
+      {selectedTool && (
+        <ToolModal
+          isOpen={isToolModalOpen}
+          onClose={handleToolModalClose}
+          toolId={selectedTool}
+        />
+      )}
     </div>
   );
 }
