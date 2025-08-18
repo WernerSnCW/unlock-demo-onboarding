@@ -42,7 +42,8 @@ export default function Toolkit() {
       title: 'Loss Relief Calculator',
       description: 'Model downside scenarios and calculate loss relief after upfront benefits.',
       actionText: 'Open Calculator',
-      isLocked: true
+      isLocked: true,
+      isPremium: true
     },
     {
       id: 'cgt-deferral-calculator',
@@ -52,7 +53,8 @@ export default function Toolkit() {
       title: 'CGT Deferral Calculator',
       description: 'Calculate EIS reinvestment deferral and SEIS 50% exemption benefits.',
       actionText: 'Open Calculator',
-      isLocked: true
+      isLocked: true,
+      isPremium: true
     },
     
     // Analysis Tools
@@ -64,7 +66,8 @@ export default function Toolkit() {
       title: 'Pitch Deck Analyser',
       description: 'Upload pitch decks for AI-generated clarity and consistency feedback.',
       actionText: 'Upload Pitch Deck',
-      isLocked: true
+      isLocked: true,
+      isPremium: true
     },
     {
       id: 'business-snapshot',
@@ -107,7 +110,8 @@ export default function Toolkit() {
       title: 'EIS/SEIS Glossary',
       description: 'Quick definitions and explanations of key investment terminology.',
       actionText: 'Browse Terms',
-      isLocked: true
+      isLocked: true,
+      isPremium: true
     },
     {
       id: 'saved-calculations',
