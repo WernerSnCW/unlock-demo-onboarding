@@ -1,0 +1,165 @@
+Split-Screen Narrative)
+0) Purpose (one sentence)
+
+Present a balanced, premium dashboard: Your World (profile, watchlist, preferences) on the left, and The Market (curated news & insights) on the right — clear, calm, and action-oriented. Free plan; no advice.
+
+1) Layout & responsive grid
+
+Desktop (≥1280px):
+
+Two equal columns within a centred container (max-width 1280px, side padding 24px):
+
+Left column (Your World) width ≈ 48–50%.
+
+Right column (The Market) width ≈ 50–52%.
+
+Row gap: 24px. Column gap: 32px.
+
+Section order (top→bottom):
+
+Left: Welcome Panel → Alerts & Preferences → Watchlist → Upgrade CTA.
+
+Right: Newsletter Controls (sticky under navbar) → News & Insights Feed → Load more.
+
+Tablet (768–1279px):
+
+Still two columns, but reduce column gap to 24px; make right column slightly wider (≈56%) so news lines wrap elegantly.
+
+Mobile (<768px):
+
+Single column in this order: Welcome → Alerts & Preferences → Newsletter Controls → News Feed → Watchlist → Upgrade.
+
+Sticky elements:
+
+Keep Newsletter Controls bar sticky at the top of the right column (not the entire page) with subtle shadow.
+
+2) Visual rhythm & tokens (no hard-coded colours)
+
+Spacing scale: 12 / 16 / 24 only.
+
+Card padding: 16–20px; card radius: 12px; shadow: soft (token-based).
+
+Typography scale (desktop):
+
+Page section titles: 18–20px, semibold.
+
+Card titles: 16–17px, semibold.
+
+Meta & chips: 12–13px, medium.
+
+Use tokens for all colours, borders, shadows, radii, focus ring. Accent only for interactive elements (links, primary CTAs, active chips).
+
+3) Left Column — “Your World”
+3.1 Welcome Panel (top, full width)
+
+Content:
+
+Heading: “Welcome back, {FirstName}.”
+
+Compact chips (max 3): Investor Type, Risk, Top Sector.
+
+Small link: “Edit profile”.
+
+Footnote (muted): “Free plan: Snapshot only. No advice.”
+
+Behaviour:
+
+If no profile: show “Improve your feed — complete onboarding (2 min)” with an action link (non-functional).
+
+3.2 Alerts & Preferences (below welcome)
+
+Goal: A mini summary + quick edit.
+
+Row 1: Newsletter frequency (Daily / Weekly / Monthly) — segmented control (mirrors global setting).
+
+Row 2: Channels (multi-select chips): In-app, Email, WhatsApp (WhatsApp shows small “verify number soon” note if selected).
+
+Toast on change: “Preferences saved”.
+
+3.3 Business Watchlist (limit to 3 items)
+
+Each row:
+
+Name (14–15px, semibold) with ✅ Verified inline if verified=true.
+
+Sector (12px, muted) under name.
+
+Right side: Peers X% pill + Open Snapshot (quiet button).
+
+Footer link: “View all businesses →”.
+
+Empty state: “No saved businesses yet. Add from News or the Index.”
+
+3.4 Upgrade CTA (calm, premium)
+
+Ribbon badge: Premium (small, top-right).
+
+Title: Deep-dive due diligence
+
+Inline bullets (muted): Director checks • Filing timeline • Web footprint • Peer Q&A
+
+Primary button: Upgrade to Pro (inert).
+
+Footnote: Keep free access to Snapshot. No advice; businesses only.
+
+4) Right Column — “The Market”
+4.1 Newsletter Controls (sticky bar under navbar)
+
+Frequency (Daily / Weekly / Monthly) — segmented control.
+
+WhatsApp alerts toggle (on/off).
+
+When changed, updates the summary in Alerts & Preferences (left column) so both stay in sync. Toast “Preferences saved”.
+
+4.2 News & Insights Feed
+
+Data: from mocks (news items + “insight” items).
+Card layout (desktop):
+
+Left: 56×56 image (rounded).
+
+Right: content stack:
+
+Headline (16–17px, semibold; 2-line clamp).
+
+Meta line: Source + relative date (12–13px, muted).
+
+Summary: 2–3 lines.
+
+Tags row: show max 3 chips; if more, add a “+N” chip.
+
+Actions row (quiet): Save / Add to Watchlist / Share / Ask AI (inserts title into assistant input).
+
+Match badge (if relevanceScore ≥ 0.7): small success-toned “High match”, right-aligned in headline row.
+
+Sorting & paging:
+
+Sort by dateISO desc; secondary by relevance.
+
+Show initial 6–8 items; “Load more” appends 4–6. Fake a 600ms spinner for feedback.
+
+States:
+
+Skeletons: 3 cards on initial load & after filter changes.
+
+Empty: “No items match your filters. Try Weekly or clear filters.”
+
+5) Micro-interactions & feedback
+
+Card hover: subtle lift (shadow token) + 1px translateY(−1).
+
+Focus ring: visible, token-coloured, around segment buttons, toggles, links, and cards.
+
+Chip overflow: tags beyond 3 collapse into a +N chip; clicking +N expands inline (in place, no modal).
+
+All preference changes trigger a non-blocking toast (3–4s, bottom).
+
+6) Accessibility (AA)
+
+Keyboard navigation: natural tab order left-to-right, top-to-bottom; sticky controls are reachable and not skipped.
+
+All actionable icons have aria-label; informative icons (e.g., “Why this?”) have tooltips and aria-describedby.
+
+Images have alt text, or aria-hidden="true" if decorative.
+
+Contrast: verify body text and chips meet AA in both light & dark schemes.

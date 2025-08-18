@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import WelcomePanel from './WelcomePanel';
 import NewsFeed from './NewsFeed';
-import QuickTools from './QuickTools';
 import Watchlist from './Watchlist';
 import UpgradeCard from './UpgradeCard';
+import AlertsPreferences from './AlertsPreferences';
+import NewsletterControls from './NewsletterControls';
 
 // Mock data imports
 import onboardingProfileData from '../mocks/onboardingProfile.json';
@@ -133,37 +134,52 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        {/* Desktop: 3 columns, Tablet: 2 columns, Mobile: 1 column */}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] md:grid-cols-[1fr_320px] gap-6">
+      <div className="max-w-[1280px] mx-auto px-6 py-6">
+        {/* Desktop: Split-screen, Tablet: Split-screen, Mobile: Single column */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8">
           
-          {/* Left Column - Welcome Panel */}
-          <div className="order-1">
+          {/* Left Column - "Your World" */}
+          <div className="order-1 space-y-6">
             <WelcomePanel 
               profile={profile} 
               onChangePreferences={handlePreferencesChange}
             />
-          </div>
-
-          {/* Center Column - News Feed */}
-          <div className="order-3 md:order-2">
-            <NewsFeed
-              items={newsItems}
+            <div className="md:hidden">
+              <NewsletterControls
+                frequency={profile.newsletterFrequency}
+                whatsappEnabled={profile.whatsappAlerts}
+                onChangeFrequency={handleFrequencyChange}
+                onToggleWhatsapp={handleWhatsappToggle}
+              />
+            </div>
+            <div className="md:hidden">
+              <NewsFeed
+                items={newsItems}
+                onLoadMore={handleLoadMore}
+              />
+            </div>
+            <AlertsPreferences 
               frequency={profile.newsletterFrequency}
               whatsappEnabled={profile.whatsappAlerts}
               onChangeFrequency={handleFrequencyChange}
               onToggleWhatsapp={handleWhatsappToggle}
-              onLoadMore={handleLoadMore}
             />
+            <Watchlist companies={companies} />
+            <UpgradeCard />
           </div>
 
-          {/* Right Column - Tools, Watchlist, Upgrade */}
-          <div className="order-2 md:order-3">
-            <div className="space-y-6">
-              <QuickTools />
-              <Watchlist companies={companies} />
-              <UpgradeCard />
-            </div>
+          {/* Right Column - "The Market" (hidden on mobile) */}
+          <div className="hidden md:block order-3 md:order-2 space-y-6">
+            <NewsletterControls
+              frequency={profile.newsletterFrequency}
+              whatsappEnabled={profile.whatsappAlerts}
+              onChangeFrequency={handleFrequencyChange}
+              onToggleWhatsapp={handleWhatsappToggle}
+            />
+            <NewsFeed
+              items={newsItems}
+              onLoadMore={handleLoadMore}
+            />
           </div>
         </div>
       </div>
