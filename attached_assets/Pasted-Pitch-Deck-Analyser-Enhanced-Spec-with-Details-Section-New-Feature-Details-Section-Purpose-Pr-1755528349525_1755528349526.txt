@@ -1,0 +1,215 @@
+Pitch Deck Analyser – Enhanced Spec with Details Section
+🔹 New Feature: Details Section
+Purpose
+
+Provide investors with a structured, section-by-section breakdown of the pitch deck. Each section shows:
+
+Extracted content (text/numbers).
+
+Commentary (strengths/weaknesses).
+
+Suggested investor questions.
+
+Benchmarks (where applicable).
+
+🔹 Example Detailed Section Structure
+
+1. Problem Statement
+
+Extracted Content:
+“SMEs lose £50bn annually due to inefficient invoice reconciliation.”
+
+Strengths: Uses quantifiable pain point with credible source (PwC).
+
+Weaknesses: No primary data or survey evidence provided.
+
+Investor Questions:
+
+“How did you validate the £50bn figure?”
+
+“Have you spoken directly to SMEs to quantify demand?”
+
+Benchmark: Problem slides typically score high if using third-party data + primary validation. Current deck = Medium strength.
+
+2. Solution
+
+Extracted Content:
+“AI-powered reconciliation platform reduces processing time by 70%.”
+
+Strengths: Clear and measurable benefit.
+
+Weaknesses: No demo evidence, no IP/proprietary advantage shown.
+
+Investor Questions:
+
+“Is the AI model proprietary or built on third-party APIs?”
+
+“What is the onboarding time for SMEs?”
+
+Benchmark: Top solutions include live traction or demo screenshots. Deck = Needs evidence.
+
+3. Market Size (TAM/SAM/SOM)
+
+Extracted Content:
+TAM: $50bn (PwC 2023)
+SAM: $12bn (UK/EU mid-market)
+SOM: $300m targetable in first 3 years.
+
+Strengths: TAM + SAM included with source.
+
+Weaknesses: SOM estimate unclear; no bottom-up methodology.
+
+Investor Questions:
+
+“How did you calculate your SOM — bottom-up or top-down?”
+
+“What share of SOM is realistically achievable in 3 years?”
+
+Benchmark: TAM always present, SOM often weak. Deck = Partial.
+
+4. Business Model
+
+Extracted Content:
+SaaS subscription: £250/month SME, £1,200/month enterprise.
+
+Strengths: Clear pricing tiers.
+
+Weaknesses: No CAC or churn assumptions provided.
+
+Investor Questions:
+
+“What’s your projected CAC and payback period?”
+
+“Do you anticipate different churn between SME vs enterprise?”
+
+Benchmark: Investors expect CAC, LTV, churn. Deck = Light detail.
+
+5. Traction
+
+Extracted Content:
+50 paying SMEs, £250k ARR, 15% MoM growth.
+
+Strengths: Real revenue traction shown.
+
+Weaknesses: Churn rate and pipeline missing.
+
+Investor Questions:
+
+“What’s your current churn rate?”
+
+“Do you have signed LOIs with enterprises?”
+
+Benchmark: Deck shows solid early traction. Deck = Above average.
+
+6. Team
+
+Extracted Content:
+CEO: ex-Xero Head of Product
+CTO: PhD in ML, ex-Google
+
+Strengths: Experienced leadership.
+
+Weaknesses: No commercial/finance hire mentioned.
+
+Investor Questions:
+
+“Who is responsible for fundraising and finance strategy?”
+
+“Do you have advisors with SME industry expertise?”
+
+Benchmark: Deck team is strong but incomplete.
+
+7. Financials & Ask
+
+Extracted Content:
+Asking: £5m for 20% equity (pre-money £20m).
+Forecast: £2m ARR in 18 months.
+
+Strengths: Forecasted ARR shown.
+
+Weaknesses: No bottom-up forecast detail; valuation high for stage.
+
+Investor Questions:
+
+“What assumptions underpin your £2m ARR forecast?”
+
+“Why do you believe a £20m valuation is justified at seed stage?”
+
+Benchmark: Valuation benchmark = £6–10m for UK SaaS seed. Deck = Overvalued.
+
+🔹 Mock Data for Prototype (Replit Ready)
+
+Here’s JSON-style placeholder data Replit could load into the “Details” view for a sample pitch deck:
+
+{
+  "Problem": {
+    "extracted": "SMEs lose £50bn annually due to inefficient invoice reconciliation.",
+    "strengths": ["Uses quantifiable pain point with credible source (PwC)."],
+    "weaknesses": ["No primary data validation."],
+    "questions": [
+      "How did you validate the £50bn figure?",
+      "Have you spoken directly to SMEs to quantify demand?"
+    ],
+    "benchmark": "Medium strength"
+  },
+  "Solution": {
+    "extracted": "AI-powered reconciliation platform reduces processing time by 70%.",
+    "strengths": ["Clear measurable benefit."],
+    "weaknesses": ["No demo evidence or IP defensibility."],
+    "questions": [
+      "Is the AI model proprietary or built on third-party APIs?",
+      "What is the onboarding time for SMEs?"
+    ],
+    "benchmark": "Needs evidence"
+  },
+  "Market Size": {
+    "extracted": "TAM: $50bn, SAM: $12bn, SOM: $300m.",
+    "strengths": ["TAM + SAM sourced."],
+    "weaknesses": ["SOM unclear; no bottom-up approach."],
+    "questions": [
+      "How did you calculate your SOM?",
+      "What % of SOM can you realistically capture?"
+    ],
+    "benchmark": "Partial"
+  },
+  "Business Model": {
+    "extracted": "SaaS subscription: £250/mo SME, £1,200/mo enterprise.",
+    "strengths": ["Clear pricing tiers."],
+    "weaknesses": ["No CAC or churn assumptions."],
+    "questions": [
+      "What’s your projected CAC and payback?",
+      "How do SME and enterprise churn differ?"
+    ],
+    "benchmark": "Light detail"
+  },
+  "Traction": {
+    "extracted": "50 paying SMEs, £250k ARR, 15% MoM growth.",
+    "strengths": ["Revenue traction shown."],
+    "weaknesses": ["Churn rate and pipeline missing."],
+    "questions": [
+      "What’s your current churn rate?",
+      "Do you have enterprise LOIs?"
+    ],
+    "benchmark": "Above average"
+  },
+  "Team": {
+    "extracted": "CEO ex-Xero, CTO ex-Google PhD ML.",
+    "strengths": ["Experienced leadership."],
+    "weaknesses": ["No finance/commercial role mentioned."],
+    "questions": [
+      "Who is responsible for finance?",
+      "Any industry advisors on board?"
+    ],
+    "benchmark": "Strong but incomplete"
+  },
+  "Financials": {
+    "extracted": "£5m for 20% equity, forecast £2m ARR in 18 months.",
+    "strengths": ["Forecast provided."],
+    "weaknesses": ["Overvalued vs stage, assumptions unclear."],
+    "questions": [
+      "What assumptions underpin your ARR forecast?",
+      "Why is valuation set at £20m pre-money?"
+    ],
+    "benchmark": "Overvalued"
+  }
+}

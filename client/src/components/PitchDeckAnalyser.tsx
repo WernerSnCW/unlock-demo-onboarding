@@ -16,9 +16,11 @@ interface AnalysisResult {
   sections: {
     name: string;
     status: 'Present' | 'Missing' | 'Weak';
+    extracted: string;
     strengths: string[];
     weaknesses: string[];
     questions: string[];
+    benchmark: string;
   }[];
   valuation: {
     declared: number;
@@ -79,72 +81,132 @@ export default function PitchDeckAnalyser() {
         {
           name: 'Problem Statement',
           status: 'Present',
-          strengths: ['Clear articulation of customer pain points', 'Supported by market research data'],
-          weaknesses: ['Could benefit from specific customer validation quotes'],
-          questions: ['How did you validate this problem with potential customers?']
+          extracted: 'SMEs lose £50bn annually due to inefficient invoice reconciliation processes and manual data entry errors.',
+          strengths: ['Uses quantifiable pain point with credible source (PwC)', 'Clear financial impact stated'],
+          weaknesses: ['No primary data validation provided', 'Missing customer interviews or surveys'],
+          questions: [
+            'How did you validate the £50bn figure with actual SMEs?',
+            'Have you conducted primary research to quantify demand?',
+            'What specific pain points did customers mention most frequently?'
+          ],
+          benchmark: 'Medium strength - has third-party data but lacks primary validation'
         },
         {
           name: 'Solution Overview',
           status: 'Present',
-          strengths: ['Product demo screenshots included', 'Clear feature differentiation'],
-          weaknesses: ['Technical feasibility not addressed', 'No mention of IP or competitive moats'],
-          questions: ['What technical barriers exist for competitors to replicate this?']
+          extracted: 'AI-powered reconciliation platform that reduces invoice processing time by 70% through automated matching and error detection.',
+          strengths: ['Clear measurable benefit (70% time reduction)', 'Technology approach specified'],
+          weaknesses: ['No demo evidence or screenshots', 'IP defensibility unclear', 'No technical architecture shown'],
+          questions: [
+            'Is the AI model proprietary or built on third-party APIs?',
+            'What is the typical onboarding time for SME clients?',
+            'Do you have patents or IP protection for your algorithms?'
+          ],
+          benchmark: 'Needs evidence - lacks visual proof or technical depth'
         },
         {
           name: 'Market Size (TAM/SAM/SOM)',
           status: 'Present',
-          strengths: ['TAM figure with credible source (PwC 2023)', 'Market growth trends included'],
-          weaknesses: ['No clear SAM or SOM breakdown', 'Regional market analysis missing'],
-          questions: ['What percentage of SOM do you realistically aim to capture in 3 years?']
+          extracted: 'TAM: £50bn (global invoice processing market), SAM: £12bn (UK/EU mid-market), SOM: £300m targetable in first 3 years.',
+          strengths: ['TAM and SAM included with sources', 'Geographic focus specified'],
+          weaknesses: ['SOM calculation methodology unclear', 'No bottom-up market analysis', 'Growth rate assumptions missing'],
+          questions: [
+            'How did you calculate your £300m SOM - bottom-up or top-down approach?',
+            'What percentage of SOM can you realistically capture in 3 years?',
+            'What are the key market drivers for growth in this sector?'
+          ],
+          benchmark: 'Partial - strong TAM/SAM but weak SOM justification'
         },
         {
           name: 'Business Model',
           status: 'Present',
-          strengths: ['Clear SaaS subscription model', 'Multiple revenue streams identified'],
-          weaknesses: ['No unit economics provided', 'Pricing justification unclear'],
-          questions: ['What is your average revenue per user and how does it trend?']
-        },
-        {
-          name: 'Competition Analysis',
-          status: 'Weak',
-          strengths: ['Some competitive landscape mapping'],
-          weaknesses: ['Missing key direct competitors', 'No competitive advantage analysis'],
-          questions: ['How do you compete with established players like [Company X]?']
+          extracted: 'SaaS subscription model: £250/month for SMEs, £1,200/month for enterprise clients, with annual contracts.',
+          strengths: ['Clear pricing tiers', 'Target segments defined', 'Recurring revenue model'],
+          weaknesses: ['No CAC or LTV analysis', 'Churn assumptions missing', 'Unit economics not provided'],
+          questions: [
+            'What is your projected customer acquisition cost (CAC) and payback period?',
+            'How do you expect churn rates to differ between SME and enterprise?',
+            'What are your gross margins and key cost drivers?'
+          ],
+          benchmark: 'Light detail - pricing clear but missing unit economics'
         },
         {
           name: 'Traction & Metrics',
           status: 'Present',
-          strengths: ['User growth metrics shown', 'Revenue progression clear'],
-          weaknesses: ['No cohort analysis', 'Customer retention metrics missing'],
-          questions: ['What does your customer retention look like by cohort?']
+          extracted: '50 paying SME customers, £250k ARR, 15% month-over-month growth, average deal size £250/month.',
+          strengths: ['Real revenue traction demonstrated', 'Strong MoM growth rate', 'Clear customer base'],
+          weaknesses: ['Churn rate not disclosed', 'Sales pipeline visibility missing', 'Customer satisfaction metrics absent'],
+          questions: [
+            'What is your current monthly and annual churn rate?',
+            'Do you have signed letters of intent with enterprise prospects?',
+            'What is your sales pipeline value and conversion rate?'
+          ],
+          benchmark: 'Above average - solid early traction with revenue growth'
         },
         {
-          name: 'Financial Projections',
+          name: 'Competition Analysis',
           status: 'Weak',
-          strengths: ['5-year revenue forecast provided'],
-          weaknesses: ['Growth assumptions not justified', 'Cost structure unclear'],
-          questions: ['What drives your projected 300% YoY growth rate?']
+          extracted: 'Competitive landscape includes legacy providers like Sage and QuickBooks, plus newer entrants like Receipt Bank.',
+          strengths: ['Major competitors identified', 'Market positioning attempted'],
+          weaknesses: ['Direct feature comparison missing', 'Competitive advantages unclear', 'Market share analysis absent'],
+          questions: [
+            'How do you differentiate from Receipt Bank and other AI-powered solutions?',
+            'What prevents competitors from replicating your core features?',
+            'Have you lost any deals to competitors and why?'
+          ],
+          benchmark: 'Weak - lacks detailed competitive analysis and differentiation'
         },
         {
           name: 'Team',
           status: 'Present',
-          strengths: ['Relevant industry experience', 'Clear role definitions'],
-          weaknesses: ['No advisory board mentioned', 'Key hires plan missing'],
-          questions: ['What key hires do you plan in the next 12 months?']
+          extracted: 'CEO: Former Head of Product at Xero with 8 years fintech experience. CTO: PhD in Machine Learning, ex-Google engineer.',
+          strengths: ['Relevant industry experience', 'Strong technical leadership', 'Proven track record'],
+          weaknesses: ['No commercial or finance expertise shown', 'Advisory board not mentioned', 'Key hiring plans missing'],
+          questions: [
+            'Who is responsible for fundraising and financial strategy?',
+            'Do you have advisors with SME accounting industry expertise?',
+            'What key hires are planned for the next 12 months?'
+          ],
+          benchmark: 'Strong but incomplete - excellent founders but gaps in commercial roles'
+        },
+        {
+          name: 'Financial Projections',
+          status: 'Weak',
+          extracted: 'Forecasting £2m ARR within 18 months, targeting 200 enterprise customers at £1,200/month average.',
+          strengths: ['Clear revenue target', 'Customer acquisition goals specified'],
+          weaknesses: ['Bottom-up assumptions unclear', 'Cost projections missing', 'Sensitivity analysis absent'],
+          questions: [
+            'What assumptions underpin your £2m ARR forecast?',
+            'How do you plan to acquire 200 enterprise customers?',
+            'What happens to projections if growth is 50% slower?'
+          ],
+          benchmark: 'Optimistic - lacks detailed bottom-up justification'
         },
         {
           name: 'Funding Ask & Use of Funds',
           status: 'Present',
-          strengths: ['Clear funding amount requested', 'High-level use of funds breakdown'],
-          weaknesses: ['Detailed milestone mapping missing', 'Runway calculation not shown'],
-          questions: ['What specific milestones will this funding achieve?']
+          extracted: 'Seeking £5m for 20% equity (£20m pre-money valuation). Funds split: 60% sales/marketing, 25% product development, 15% operations.',
+          strengths: ['Clear funding amount', 'Use of funds breakdown provided', 'Equity stake specified'],
+          weaknesses: ['Milestone mapping unclear', 'Runway calculation missing', 'Valuation justification weak'],
+          questions: [
+            'What specific milestones will this funding achieve?',
+            'How long will £5m last at projected burn rate?',
+            'Why do you believe £20m valuation is justified at this stage?'
+          ],
+          benchmark: 'Overvalued - typical UK SaaS seed valuations are £6-10m'
         },
         {
           name: 'Exit Strategy',
           status: 'Missing',
+          extracted: 'No exit strategy information provided in the deck.',
           strengths: [],
-          weaknesses: ['No exit strategy or comparable transactions mentioned'],
-          questions: ['What is your 5-7 year exit strategy and potential acquirers?']
+          weaknesses: ['Complete absence of exit planning', 'No comparable transactions mentioned', 'Strategic acquirer analysis missing'],
+          questions: [
+            'What is your 5-7 year exit strategy and timeline?',
+            'Who are the potential strategic acquirers in this space?',
+            'Have you researched comparable transaction multiples?'
+          ],
+          benchmark: 'Missing entirely - investors expect some exit consideration'
         }
       ],
       valuation: {
@@ -198,6 +260,14 @@ export default function PitchDeckAnalyser() {
       case 'High': return 'text-red-600 dark:text-red-400';
       default: return 'text-gray-600 dark:text-gray-400';
     }
+  };
+
+  const getBenchmarkColor = (benchmark: string) => {
+    const lower = benchmark.toLowerCase();
+    if (lower.includes('strong') || lower.includes('above average')) return 'text-green-600 dark:text-green-400';
+    if (lower.includes('medium') || lower.includes('partial')) return 'text-yellow-600 dark:text-yellow-400';
+    if (lower.includes('weak') || lower.includes('missing') || lower.includes('overvalued') || lower.includes('needs')) return 'text-red-600 dark:text-red-400';
+    return 'text-gray-600 dark:text-gray-400';
   };
 
   return (
@@ -451,12 +521,26 @@ export default function PitchDeckAnalyser() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Extracted Content */}
+                  <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-[#5193B3]">
+                    <h4 className="font-medium text-[#5193B3] mb-2 text-sm flex items-center gap-2">
+                      <i className="fas fa-quote-left text-xs" aria-hidden="true"></i>
+                      Extracted Content
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                      "{section.extracted}"
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     {/* Strengths */}
                     {section.strengths.length > 0 && (
                       <div>
-                        <h4 className="font-medium text-green-700 dark:text-green-400 mb-2 text-sm">Strengths</h4>
-                        <ul className="space-y-1">
+                        <h4 className="font-medium text-green-700 dark:text-green-400 mb-2 text-sm flex items-center gap-2">
+                          <i className="fas fa-thumbs-up text-xs" aria-hidden="true"></i>
+                          Strengths
+                        </h4>
+                        <ul className="space-y-2">
                           {section.strengths.map((strength, idx) => (
                             <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
                               <i className="fas fa-check text-green-600 mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
@@ -470,11 +554,14 @@ export default function PitchDeckAnalyser() {
                     {/* Weaknesses */}
                     {section.weaknesses.length > 0 && (
                       <div>
-                        <h4 className="font-medium text-red-700 dark:text-red-400 mb-2 text-sm">Areas for Improvement</h4>
-                        <ul className="space-y-1">
+                        <h4 className="font-medium text-red-700 dark:text-red-400 mb-2 text-sm flex items-center gap-2">
+                          <i className="fas fa-exclamation-triangle text-xs" aria-hidden="true"></i>
+                          Areas for Improvement
+                        </h4>
+                        <ul className="space-y-2">
                           {section.weaknesses.map((weakness, idx) => (
                             <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
-                              <i className="fas fa-exclamation text-red-600 mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
+                              <i className="fas fa-times text-red-600 mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
                               {weakness}
                             </li>
                           ))}
@@ -483,18 +570,34 @@ export default function PitchDeckAnalyser() {
                     )}
                   </div>
 
+                  {/* Benchmark */}
+                  <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1 text-sm flex items-center gap-2">
+                      <i className="fas fa-chart-bar text-xs" aria-hidden="true"></i>
+                      Benchmark Assessment
+                    </h4>
+                    <p className={`text-sm font-medium ${getBenchmarkColor(section.benchmark)}`}>
+                      {section.benchmark}
+                    </p>
+                  </div>
+
                   {/* Questions */}
                   {section.questions.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                      <h4 className="font-medium text-[#5193B3] mb-2 text-sm">Suggested Questions</h4>
-                      <ul className="space-y-1">
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                      <h4 className="font-medium text-[#5193B3] mb-3 text-sm flex items-center gap-2">
+                        <i className="fas fa-question-circle text-xs" aria-hidden="true"></i>
+                        Suggested Investor Questions
+                      </h4>
+                      <div className="space-y-2">
                         {section.questions.map((question, idx) => (
-                          <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
-                            <i className="fas fa-question text-[#5193B3] mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
-                            {question}
-                          </li>
+                          <div key={idx} className="flex items-start gap-3 p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                            <span className="inline-flex items-center justify-center w-5 h-5 bg-[#5193B3] text-white text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{question}</span>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
                 </div>
