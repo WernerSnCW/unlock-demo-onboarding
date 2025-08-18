@@ -10,6 +10,7 @@ import Businesses from "@/pages/Businesses";
 import Toolkit from "@/pages/Toolkit";
 import Syndication from "@/pages/Syndication";
 import NewsEnhanced from "@/pages/NewsEnhanced";
+import PitchDeckAnalyserPage from "@/pages/PitchDeckAnalyser";
 
 function Router() {
   return (
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/businesses" component={Businesses} />
       <Route path="/toolkit" component={Toolkit} />
+      <Route path="/pitch-deck-analyser" component={PitchDeckAnalyserPage} />
       <Route path="/syndication" component={Syndication} />
       <Route path="/news" component={NewsEnhanced} />
       <Route component={NotFound} />

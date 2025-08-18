@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ToolCard from '../components/ToolCard';
@@ -9,8 +10,15 @@ export default function Toolkit() {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedTool, setSelectedTool] = useState<string>('');
   const [selectedTitle, setSelectedTitle] = useState<string>('');
+  const [, navigate] = useLocation();
 
   const openTool = (toolType: string, title: string) => {
+    // Special handling for pitch deck analyser - navigate to full page
+    if (toolType === 'pitch-deck-analyser') {
+      navigate('/pitch-deck-analyser');
+      return;
+    }
+    
     setSelectedTool(toolType);
     setSelectedTitle(title);
     setModalOpen(true);
