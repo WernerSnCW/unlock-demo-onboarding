@@ -114,10 +114,8 @@ export default function QuickTools() {
       </div>
       
       <div className="pt-3 border-t border-[var(--border)]">
-        <Link href="/toolkit">
-          <a className="text-[var(--primary)] text-sm hover:underline">
-            More tools in Toolkit →
-          </a>
+        <Link href="/toolkit" className="text-[var(--primary)] text-sm hover:underline">
+          More tools in Toolkit →
         </Link>
       </div>
 

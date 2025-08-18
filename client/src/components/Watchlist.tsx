@@ -25,10 +25,8 @@ export default function Watchlist({ companies }: WatchlistProps) {
           <p className="text-[var(--muted-foreground)] mb-4">
             No saved businesses yet. Add from News or the Index.
           </p>
-          <Link href="/businesses">
-            <a className="bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-              Browse Businesses
-            </a>
+          <Link href="/businesses" className="bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+            Browse Businesses
           </Link>
         </div>
       </div>
@@ -65,10 +63,8 @@ export default function Watchlist({ companies }: WatchlistProps) {
               </div>
             </div>
             
-            <Link href={`/business/${company.id}`}>
-              <a className="bg-[var(--primary)] text-[var(--primary-foreground)] px-3 py-1 rounded text-xs font-medium hover:opacity-90 transition-opacity ml-3">
-                Open Snapshot
-              </a>
+            <Link href={`/business/${company.id}`} className="bg-[var(--primary)] text-[var(--primary-foreground)] px-3 py-1 rounded text-xs font-medium hover:opacity-90 transition-opacity ml-3">
+              Open Snapshot
             </Link>
           </div>
         ))}
