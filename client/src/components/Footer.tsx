@@ -1,24 +1,25 @@
 import { Link } from 'wouter';
+import unlockLogo from '@assets/unlock-logo.svg';
 
 export default function Footer() {
   const resourceLinks = [
-    { name: 'Documentation', href: '/docs' },
-    { name: 'API Reference', href: '#' },
-    { name: 'Examples', href: '#' },
-    { name: 'Community', href: '#' }
+    { name: 'Due Diligence Hub', href: '/due-diligence' },
+    { name: 'Business Index', href: '/business' },
+    { name: 'Syndication Discovery', href: '/syndication' },
+    { name: 'Investor Toolkit', href: '/toolkit' }
   ];
 
   const supportLinks = [
-    { name: 'Getting Started', href: '#' },
-    { name: 'Troubleshooting', href: '#' },
+    { name: 'Help Centre', href: '#' },
+    { name: 'Contact Support', href: '#' },
     { name: 'Report Issues', href: '#' },
-    { name: 'Contributing', href: '#' }
+    { name: 'Feature Requests', href: '#' }
   ];
 
   const socialLinks = [
-    { icon: 'fab fa-github', href: '#' },
+    { icon: 'fab fa-linkedin', href: '#' },
     { icon: 'fab fa-twitter', href: '#' },
-    { icon: 'fab fa-discord', href: '#' }
+    { icon: 'fab fa-youtube', href: '#' }
   ];
 
   return (
@@ -26,13 +27,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <i className="fas fa-bolt text-[#646cff] text-xl"></i>
-              <span className="text-xl font-bold">DevStack</span>
+            <Link href="/" className="flex items-center space-x-3 mb-4">
+              <img src={unlockLogo} alt="Unlock" className="h-8 w-auto" />
+              <span className="text-xl font-bold">Unlock</span>
             </Link>
             <p className="text-slate-400 mb-4 max-w-md">
-              A modern development stack built with Vite, React, and TypeScript. 
-              Fast, scalable, and developer-friendly.
+              Comprehensive business due diligence platform providing investment insights, 
+              risk assessment, and financial intelligence for informed decision-making.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
@@ -44,7 +45,7 @@ export default function Footer() {
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
+            <h4 className="font-semibold mb-4">Platform</h4>
             <ul className="space-y-2 text-slate-400">
               {resourceLinks.map((link) => (
                 <li key={link.name}>
@@ -72,13 +73,32 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-slate-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-slate-400 text-sm">
-            © 2024 DevStack. Built with modern web technologies.
-          </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Privacy Policy</a>
-            <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Terms of Service</a>
+        <div className="mt-8 pt-8 border-t border-slate-800">
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <h5 className="font-medium text-white mb-2">Legal & Compliance</h5>
+              <p className="text-sm text-slate-400">
+                All due diligence reports are for informational purposes only and do not constitute financial advice. 
+                Please consult with qualified professionals before making investment decisions.
+              </p>
+            </div>
+            <div>
+              <h5 className="font-medium text-white mb-2">Data Sources</h5>
+              <p className="text-sm text-slate-400">
+                Our platform aggregates data from Companies House, financial databases, and public records 
+                to provide comprehensive business intelligence.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-slate-400 text-sm">© 2024 Unlock Intelligence Ltd. All rights reserved.</p>
+            <div className="flex space-x-6 mt-4 sm:mt-0">
+              <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Privacy Policy</a>
+              <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Terms of Service</a>
+              <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Data Policy</a>
+              <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Security</a>
+            </div>
           </div>
         </div>
       </div>
