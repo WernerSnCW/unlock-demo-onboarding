@@ -2,19 +2,22 @@ import { useRoute } from 'wouter';
 import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { ArrowLeft, Download, ExternalLink, RotateCcw, Trash2, Check, Lock, Building2 } from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink, RotateCcw, Trash2, Check, Lock, Building2, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusPill } from '@/components/due/StatusPill';
 import { Timeline } from '@/components/due/Timeline';
 import { useRequestById, useDueStore } from '@/state/dueStore';
 import { useToast } from '@/hooks/use-toast';
+import ReportQnA from '@/components/qna/ReportQnA';
+import currentUserData from '@/mocks/currentUser.json';
 
 export default function DueDiligenceRequestDetail() {
   const [, params] = useRoute('/due-diligence/requests/:id');
   const { toast } = useToast();
-  const { createRequest, deleteRequest } = useDueStore();
+  const { createRequest, deleteRequest, addQuestion, addAnswer, toggleUpvote, toggleFollow, markAnswered } = useDueStore();
   const request = useRequestById(params?.id || '');
 
   if (!request) {
@@ -46,6 +49,7 @@ export default function DueDiligenceRequestDetail() {
       jurisdiction: request.jurisdiction,
       requestedBy: request.requestedBy,
       sla: request.sla,
+      businessContext: request.businessContext,
       inputs: request.inputs
     });
 
@@ -68,6 +72,27 @@ export default function DueDiligenceRequestDetail() {
       // Navigate back to requests list
       window.history.pushState({}, '', '/due-diligence/requests');
     }
+  };
+
+  // Q&A handlers
+  const handleQuestionSubmit = (question: { body: string; target: 'company' | 'lead' | 'community' }) => {
+    addQuestion(request.id, question);
+  };
+
+  const handleUpvote = (questionId: string) => {
+    toggleUpvote(request.id, questionId, currentUserData.id);
+  };
+
+  const handleFollow = (questionId: string) => {
+    toggleFollow(request.id, questionId, currentUserData.id);
+  };
+
+  const handleAnswer = (questionId: string, body: string) => {
+    addAnswer(request.id, questionId, body);
+  };
+
+  const handleMarkAnswered = (questionId: string, answerId: string) => {
+    markAnswered(request.id, questionId, answerId);
   };
 
   return (
@@ -128,17 +153,34 @@ export default function DueDiligenceRequestDetail() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Status & Timeline */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Status & Timeline</span>
-                  <StatusPill status={request.status} />
-                </CardTitle>
-              </CardHeader>
+        {/* Tabs */}
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="result">Result</TabsTrigger>
+            <TabsTrigger value="qna" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Q&A
+              <span className="bg-[var(--primary)] text-white text-xs px-1.5 py-0.5 rounded-full">
+                {request.qna?.questions?.length || 0}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Status & Timeline */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Status & Timeline</span>
+                      <StatusPill status={request.status} />
+                    </CardTitle>
+                  </CardHeader>
               <CardContent className="space-y-6">
                 {request.status === 'processing' && (
                   <div>
@@ -300,8 +342,72 @@ export default function DueDiligenceRequestDetail() {
                 </CardContent>
               </Card>
             )}
-          </div>
-        </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Result Tab */}
+          <TabsContent value="result" className="space-y-6">
+            {request.status === 'completed' && request.result ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Analysis Complete</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Summary</h4>
+                    <p className="text-gray-600 dark:text-gray-400">{request.result.summary}</p>
+                  </div>
+                  
+                  <div className="flex gap-2 pt-4">
+                    <Link href={`/snapshot-report/${request.id}`}>
+                      <Button className="flex-1">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Full Report
+                      </Button>
+                    </Link>
+                    <Button variant="outline" className="flex-1">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-gray-500 dark:text-gray-400">
+                  {request.status === 'processing' ? 'Analysis in progress...' : 'No results available yet'}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Q&A Tab */}
+          <TabsContent value="qna" className="space-y-6">
+            <ReportQnA
+              requestId={request.id}
+              questions={request.qna?.questions || []}
+              isCompleted={request.status === 'completed'}
+              onQuestionSubmit={handleQuestionSubmit}
+              onUpvote={handleUpvote}
+              onFollow={handleFollow}
+              onAnswer={handleAnswer}
+              onMarkAnswered={handleMarkAnswered}
+            />
+          </TabsContent>
+
+          {/* Activity Tab */}
+          <TabsContent value="activity" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Timeline request={request} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
       </main>
       <Footer />

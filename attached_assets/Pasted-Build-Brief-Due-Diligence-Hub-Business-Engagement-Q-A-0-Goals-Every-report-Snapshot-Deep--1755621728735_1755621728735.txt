@@ -1,0 +1,231 @@
+Build Brief — Due Diligence Hub » Business Engagement (Q&A)
+0) Goals
+
+Every report (Snapshot / Deep Dive) gets its own Q&A thread.
+
+Investors can submit questions.
+
+Business representatives (and Lead Investor) can reply.
+
+Threads are publicly visible in the app (transparency; collective diligence).
+
+Front-end only (localStorage + mocks); easy to swap to API later.
+
+1) Routes
+
+/due-diligence/requests/:id — extend existing detail page with a “Q&A” tab.
+
+/business/:id/qna — aggregated Q&A across all requests for that business (public view; optional backlink from directory/syndicate).
+
+Tabs for request detail: Overview | Result | Q&A (new) | Activity
+(Mobile: tab bar; Desktop: tabs below header.)
+
+2) Components (new/reuse)
+
+New
+
+ReportQnA.tsx (tab wrapper)
+
+AskQuestionInline.tsx (composer)
+
+QnaThread.tsx (list)
+
+QnaQuestionCard.tsx (question + actions)
+
+QnaAnswerItem.tsx
+
+RoleBadge.tsx (Investor / Lead / Company – Verified)
+
+Reuse (from Community)
+
+StatusPill, Toast, Modal, Confirm
+
+Keep styling via tokens; no hard-coded colours.
+
+3) Data model (mocks)
+
+Extend your dueRequests.json entry with a qna block:
+
+{
+  "id": "req_1001",
+  "type": "snapshot",
+  "businessId": "biz_001",
+  "companyNumber": "12345678",
+  "...": "...",
+  "qna": {
+    "questions": [
+      {
+        "id": "q_7001",
+        "target": "company",           // company | lead | community
+        "body": "Can you clarify gross margin assumptions for FY+1?",
+        "author": { "id": "u_angel_01", "role": "investor" }, // investor | lead | company
+        "createdAt": "2025-08-18T10:20:00Z",
+        "upvotes": 12,
+        "followers": 5,
+        "status": "open",              // open | answered | closed
+        "answers": [
+          {
+            "id": "a_9101",
+            "author": { "id": "u_co_01", "role": "company", "verified": true },
+            "body": "Target 62% blended; sensitivity model available on request.",
+            "createdAt": "2025-08-18T14:05:00Z"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+
+For the business-level aggregate page (/business/:id/qna), either:
+
+compute from all requests with the same businessId, or
+
+keep src/mocks/businessQna/<businessId>.json as a derived cache (prototype OK).
+
+Persist to localStorage (e.g., key unlock_due_requests_v1).
+
+4) Permissions (prototype)
+
+Investor (default user): can ask, upvote, follow, edit/delete own question (within 10 mins).
+
+Lead: can answer, mark “answered”, and pin top answers.
+
+Company rep: can answer; answers show “Verified Company Response” badge when author.verified=true.
+
+All: can view threads (transparent by default).
+
+In prototype, derive role from src/mocks/currentUser.json (e.g., { "role": "investor" }).
+
+5) Q&A tab UX
+A) Header row
+
+“Ask a question” textarea (multi-line, min 8 chars) with Route to radio: Lead · Company · Community (defaults to Company if result is completed; else Lead).
+
+Post button (primary, disabled until valid).
+
+Helper line: “Public Q&A — keep it professional; no personal data.”
+
+B) Controls
+
+Filter chips: All · To Lead · To Company · Community · Unanswered
+
+Sort: Top (upvotes desc), New (created desc), Active (last answer desc)
+
+Search input: filters by text across questions/answers.
+
+C) Thread list
+
+Each QnaQuestionCard shows:
+
+Target badge (To Company / To Lead / Community)
+
+Question text (expandable if long)
+
+Meta: upvotes ▲, followers 🔔, status pill (Open/Answered/Closed), relative time
+
+Actions: Upvote (toggle), Follow (toggle), Copy link
+
+Answers list (first visible; “Show X more” collapsible):
+
+Each QnaAnswerItem shows avatar placeholder, RoleBadge (Company – Verified, Lead Investor, Investor), time, text.
+
+Mark as answered (Lead/Company only) sets status and floats verified answer to top.
+
+D) Empty states
+
+None found (with filters): “No questions match. Try All or ask a new one.”
+
+No questions yet: “Be the first to ask the Lead or Company.”
+
+6) Behaviours
+
+Posting:
+
+Create question with status:"open", upvotes:0, followers:0.
+
+Insert at top; show toast “Question posted”.
+
+Upvote:
+
+Client-side toggle; increment/decrement upvotes.
+
+Follow:
+
+Toggle; change followers count; toast “You’ll be notified when this is answered (prototype)”.
+
+Answering:
+
+Role check (lead/company). Append answer; if first answer → optionally set status:"answered".
+
+Pin verified:
+
+If author.role==="company" && author.verified, pin to top and add Verified chip.
+
+Share link:
+
+Copy URL fragment .../requests/:id?q=q_7001 to clipboard; on open, auto-scroll & highlight.
+
+7) Activity & audit trail (lightweight)
+
+Append to the existing Activity Timeline on the request detail:
+
+“Question added: {first 60 chars}”
+
+“Company answered”
+
+“Marked as answered”
+
+Keep simple activity array in the request record to render timeline.
+
+8) Aggregation (business page)
+
+On /business/:id/qna:
+
+Merge questions from all requests for that businessId.
+
+Show source tag per question: Snapshot (date) / Deep Dive (date) with link back to request detail.
+
+Same controls (filters/sort/search).
+
+CTA: Open latest report or Request a report.
+
+9) Accessibility
+
+Composer labelled (aria-label="Ask a question").
+
+Each thread is a <section role="article"> with aria-labelledby.
+
+Upvote/follow buttons have aria-pressed and announce count changes via aria-live="polite".
+
+Verified company answers include visually hidden text: “Verified company response”.
+
+10) Copy (paste)
+
+Tooltip for Target badges:
+
+Lead: “Directed to the lead investor (thesis, terms, diligence).”
+
+Company: “Directed to the company (product, metrics, roadmap).”
+
+Community: “Peer discussion among investors.”
+
+Disclaimer under composer: “Public Q&A. Do not share personal data. This is not advice.”
+
+Verified label: “Verified Company Response”.
+
+11) Definition of Done (QA)
+
+Q&A tab appears on /due-diligence/requests/:id, showing composer, filters, sort, search, and a list of threads from request.qna.questions.
+
+Ask creates a new question (role=investor), appears instantly at top, persists to localStorage.
+
+Answers can be added by Lead/Company (set role via currentUser.json); a verified company answer shows the Verified badge and can mark the thread Answered.
+
+Upvote and Follow toggles update counts and reflect state per user session.
+
+Activity timeline logs Q&A events.
+
+/business/:id/qna aggregates questions across all requests for that business; each item links back to its request.
+
+All UI uses tokens; AA contrast; keyboard navigation works; no console errors.

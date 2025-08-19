@@ -114,3 +114,8 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Q&A highlighting */
+.highlight-question {
+  @apply border-[var(--accent)] shadow-md;
+}
