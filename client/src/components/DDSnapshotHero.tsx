@@ -18,7 +18,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
-    <div className="rounded-lg p-6 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, #5193B3 0%, #4A8AA3 100%)' }}>
+    <div className="rounded-lg p-6 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, hsl(from var(--primary) h s calc(l - 0.1)) 100%)' }}>
       <div className="max-w-4xl mx-auto text-center">
         <div className="mb-4">
           <div className="flex justify-center mb-3">
@@ -39,8 +39,8 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
-            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: '#62C4C3' }}>
-              <TrendingUp className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: 'var(--secondary)' }}>
+              <TrendingUp className="h-5 w-5" style={{ color: 'var(--secondary-foreground)' }} />
             </div>
             <h3 className="font-semibold text-white mb-1">Financial Analysis</h3>
             <p className="text-blue-100 text-xs leading-relaxed">
@@ -49,8 +49,8 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           </div>
           
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
-            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: '#F8D49B' }}>
-              <Building2 className="h-5 w-5 text-gray-800" />
+            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: 'var(--accent)' }}>
+              <Building2 className="h-5 w-5" style={{ color: 'var(--accent-foreground)' }} />
             </div>
             <h3 className="font-semibold text-white mb-1">Risk Assessment</h3>
             <p className="text-blue-100 text-xs leading-relaxed">
@@ -59,8 +59,8 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           </div>
           
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
-            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: '#62C4C3' }}>
-              <TrendingUp className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: 'var(--secondary)' }}>
+              <TrendingUp className="h-5 w-5" style={{ color: 'var(--secondary-foreground)' }} />
             </div>
             <h3 className="font-semibold text-white mb-1">Market Position</h3>
             <p className="text-blue-100 text-xs leading-relaxed">
@@ -72,7 +72,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogTrigger asChild>
-              <Button className="px-6 bg-white hover:bg-blue-50 font-semibold" style={{ color: '#5193B3' }}>
+              <Button className="px-6 bg-white hover:bg-blue-50 font-semibold" style={{ color: 'var(--primary)' }}>
                 <Building2 className="h-4 w-4 mr-2" />
                 Request Snapshot
               </Button>
