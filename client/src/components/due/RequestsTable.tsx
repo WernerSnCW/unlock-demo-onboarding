@@ -218,7 +218,7 @@ export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps)
                     <div className="space-y-1">
                       <div className="flex items-center gap-1">
                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                          {request.result.overallScore || '4.3'}/5.0
+                          4.3/5.0
                         </span>
                         <div className="flex items-center">
                           {[1, 2, 3, 4].map((star) => (

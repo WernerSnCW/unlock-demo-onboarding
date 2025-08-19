@@ -17,6 +17,7 @@ import PitchDeckAnalyserPage from "@/pages/PitchDeckAnalyser";
 import DueDiligenceHub from "@/pages/DueDiligenceHub";
 import DueDiligenceRequests from "@/pages/DueDiligenceRequests";
 import DueDiligenceRequestDetail from "@/pages/DueDiligenceRequestDetail";
+import DueDiligenceSnapshot from "@/pages/DueDiligenceSnapshot";
 
 function Router() {
   return (
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/due-diligence" component={DueDiligenceHub} />
       <Route path="/due-diligence/requests" component={DueDiligenceRequests} />
       <Route path="/due-diligence/requests/:id" component={DueDiligenceRequestDetail} />
+      <Route path="/due-diligence/snapshot/:id" component={DueDiligenceSnapshot} />
       <Route component={NotFound} />
     </Switch>
   );

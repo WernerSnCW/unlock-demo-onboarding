@@ -2,28 +2,64 @@ import { useRoute, Link, useLocation } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
+import { useRequestById } from '@/state/dueStore';
 import businessesData from '../mocks/businesses.json';
 
 export default function SnapshotReport() {
-  const [, params] = useRoute('/snapshot/:id');
+  const [, params] = useRoute('/due-diligence/snapshot/:id');
   const [, setLocation] = useLocation();
-  const business = businessesData.find(b => b.id === params?.id);
+  
+  // Try to get due diligence request first
+  const dueRequest = useRequestById(params?.id || '');
+  
+  // If no due diligence request, try business data (for backward compatibility)
+  const business = !dueRequest ? businessesData.find(b => b.id === params?.id) : null;
 
-  if (!business) {
+  if (!dueRequest && !business) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Business Not Found</h1>
-          <Link href="/businesses">
-            <Button>Back to Businesses</Button>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Snapshot Not Found</h1>
+          <Link href="/due-diligence">
+            <Button>Back to Due Diligence</Button>
           </Link>
         </div>
       </div>
     );
   }
 
+  // If we have a due diligence request but it's not completed, show appropriate message
+  if (dueRequest && (!dueRequest.result || dueRequest.status !== 'completed')) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            {dueRequest.status === 'processing' ? 'Analysis In Progress' : 
+             dueRequest.status === 'queued' ? 'Analysis Queued' :
+             dueRequest.status === 'failed' ? 'Analysis Failed' : 'Snapshot Not Ready'}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {dueRequest.status === 'processing' ? `Analysis is ${dueRequest.progress}% complete. Please check back shortly.` :
+             dueRequest.status === 'queued' ? 'Your request is queued for processing.' :
+             dueRequest.status === 'failed' ? 'The analysis failed. Please try submitting a new request.' :
+             'The snapshot is not available yet.'}
+          </p>
+          <Link href={`/due-diligence/requests/${dueRequest.id}`}>
+            <Button>View Request Details</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Use data from due diligence request or fallback to business data
+  const companyData = dueRequest || business;
+
   const calculateOverallScore = () => {
-    if (!business.snapshot.detailedAssessment) return 75;
+    if (dueRequest) {
+      return 86; // Fixed score for due diligence requests
+    }
+    if (!business?.snapshot?.detailedAssessment) return 75;
     const sections = Object.values(business.snapshot.detailedAssessment);
     const totalScore = sections.reduce((sum, section) => sum + section.score, 0);
     return Math.round(totalScore / sections.length);
@@ -72,56 +108,56 @@ export default function SnapshotReport() {
     {
       id: 'company',
       title: 'Company',
-      data: business.snapshot.detailedAssessment?.company || { score: 75, status: 'Good' },
+      data: business?.snapshot?.detailedAssessment?.company || { score: 85, status: 'Strong' },
       icon: 'fas fa-building',
       description: 'Business registration, structure, and operational legitimacy assessment'
     },
     {
       id: 'complianceCheck',
       title: 'Compliance Check',
-      data: business.snapshot.detailedAssessment?.complianceCheck || { score: 75, status: 'Good' },
+      data: business?.snapshot?.detailedAssessment?.complianceCheck || { score: 88, status: 'Excellent' },
       icon: 'fas fa-shield-alt',
       description: 'Regulatory compliance, legal standing, and governance framework evaluation'
     },
     {
       id: 'fraudRisk',
       title: 'Fraud Risk Assessment',
-      data: business.snapshot.detailedAssessment?.fraudRisk || { score: 90, status: 'Very Low' },
+      data: business?.snapshot?.detailedAssessment?.fraudRisk || { score: 92, status: 'Very Low' },
       icon: 'fas fa-user-shield',
       description: 'Background verification, transparency, and integrity risk analysis'
     },
     {
       id: 'financialHealth',
       title: 'Financial Health',
-      data: business.snapshot.detailedAssessment?.financialHealth || { score: 75, status: 'Good' },
+      data: business?.snapshot?.detailedAssessment?.financialHealth || { score: 78, status: 'Good' },
       icon: 'fas fa-chart-line',
       description: 'Revenue analysis, cash flow, profitability, and financial stability metrics'
     },
     {
       id: 'management',
       title: 'Management',
-      data: business.snapshot.detailedAssessment?.management || { score: 85, status: 'Strong' },
+      data: business?.snapshot?.detailedAssessment?.management || { score: 89, status: 'Strong' },
       icon: 'fas fa-users',
       description: 'Leadership experience, team quality, and management capability assessment'
     },
     {
       id: 'marketing',
       title: 'Marketing & Brand Management',
-      data: business.snapshot.detailedAssessment?.marketing || { score: 75, status: 'Good' },
+      data: business?.snapshot?.detailedAssessment?.marketing || { score: 82, status: 'Good' },
       icon: 'fas fa-bullhorn',
       description: 'Market presence, brand strength, and marketing strategy effectiveness'
     },
     {
       id: 'claimsManagement',
       title: 'Claims Management',
-      data: business.snapshot.detailedAssessment?.claimsManagement || { score: 85, status: 'Strong' },
+      data: business?.snapshot?.detailedAssessment?.claimsManagement || { score: 86, status: 'Strong' },
       icon: 'fas fa-file-contract',
       description: 'Insurance coverage, legal risk management, and claims handling processes'
     },
     {
       id: 'investorValidation',
       title: 'Investor Validation',
-      data: business.snapshot.detailedAssessment?.investorValidation || { score: 85, status: 'Strong' },
+      data: business?.snapshot?.detailedAssessment?.investorValidation || { score: 84, status: 'Strong' },
       icon: 'fas fa-handshake',
       description: 'Previous funding rounds, investor quality, and validation credentials'
     }
@@ -129,8 +165,12 @@ export default function SnapshotReport() {
 
   const overallScore = calculateOverallScore();
 
+  const displayName = dueRequest ? dueRequest.companyName : business?.name || 'Company';
+  const displayNumber = dueRequest ? dueRequest.companyNumber : business?.ch_number || 'N/A';
+  const backUrl = dueRequest ? '/due-diligence' : '/businesses';
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[var(--background)]">
       <Header />
       <main className="flex-1">
         {/* Header Section */}
@@ -139,23 +179,24 @@ export default function SnapshotReport() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <Button 
-                    onClick={() => setLocation(`/business/${business.id}`)}
-                    variant="outline"
-                    size="sm"
-                    className="text-white border-white/40 hover:bg-white/20 bg-white/10 font-medium"
-                  >
-                    <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
-                    Back
-                  </Button>
+                  <Link href={backUrl}>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="text-white border-white/40 hover:bg-white/20 bg-white/10 font-medium"
+                    >
+                      <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
+                      Back
+                    </Button>
+                  </Link>
                   <h1 className="text-2xl font-bold">UNLOCK</h1>
                   <span className="text-lg font-medium">Due Diligence Snapshot</span>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
                   <div className="bg-white/10 rounded-lg p-3">
                     <span className="text-white/70 block">Company</span>
-                    <div className="font-semibold text-lg">{business.name}</div>
-                    <div className="text-xs text-white/60">CH: {business.ch_number}</div>
+                    <div className="font-semibold text-lg">{displayName}</div>
+                    <div className="text-xs text-white/60">CH: {displayNumber}</div>
                   </div>
                   <div className="bg-white/10 rounded-lg p-3">
                     <span className="text-white/70 block">Report Generated</span>
@@ -180,13 +221,11 @@ export default function SnapshotReport() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Navigation */}
           <nav className="mb-6 text-sm">
-            <Link href="/businesses" className="text-[#5193B3] hover:text-[#4082a2]">
-              Businesses
+            <Link href={backUrl} className="text-[var(--primary)] hover:text-[var(--primary)]/80">
+              {dueRequest ? 'Due Diligence' : 'Businesses'}
             </Link>
-            <span className="text-gray-500 mx-2">→</span>
-            <Link href={`/business/${business.id}`} className="text-[#5193B3] hover:text-[#4082a2]">
-              {business.name}
-            </Link>
+            <span className="text-[var(--muted-foreground)] mx-2">→</span>
+            <span className="text-[var(--foreground)]">{displayName} Snapshot</span>
             <span className="text-gray-500 mx-2">→</span>
             <span className="text-gray-900 dark:text-gray-100">Due Diligence Snapshot</span>
           </nav>
