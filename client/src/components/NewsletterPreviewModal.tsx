@@ -1,3 +1,5 @@
+import Logo from './Logo';
+
 interface NewsletterPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -57,14 +59,8 @@ export default function NewsletterPreviewModal({
             
             {/* Email Header with Branding */}
             <div className="bg-white border-b-2 border-[#F8D49B] p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#5193B3] to-[#62C4C3] rounded-lg flex items-center justify-center">
-                  <i className="fas fa-unlock text-white text-xl" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-[#5193B3] mb-0">Unlock</h1>
-                  <p className="text-sm text-gray-600 -mt-1">Investment Intelligence</p>
-                </div>
+              <div className="mb-2">
+                <Logo variant="email" />
               </div>
               <div className="h-1 bg-[#F8D49B] w-full"></div>
             </div>

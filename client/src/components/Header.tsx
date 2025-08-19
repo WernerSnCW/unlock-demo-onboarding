@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from './ThemeProvider';
-import unlockLogo from '@assets/unlock-logo.svg';
+import Logo from './Logo';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,14 +22,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center">
-              <img 
-                src={unlockLogo} 
-                alt="Unlock" 
-                className="h-8 w-auto"
-                style={{
-                  filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
-                }}
-              />
+              <Logo size="md" />
             </Link>
             <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--accent)] text-[var(--accent-foreground)]">
               Free
