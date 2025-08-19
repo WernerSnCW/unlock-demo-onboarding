@@ -142,7 +142,7 @@ export default function SnapshotReport() {
                     onClick={() => window.history.back()}
                     variant="outline"
                     size="sm"
-                    className="text-white border-white/20 hover:bg-white/10"
+                    className="text-white border-white/40 hover:bg-white/20 bg-white/10 font-medium"
                   >
                     <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
                     Back
@@ -297,48 +297,52 @@ export default function SnapshotReport() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Competitive Strengths */}
-              <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-l-4 border-green-500 rounded-xl">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-thumbs-up text-green-600 dark:text-green-400" aria-hidden="true"></i>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-green-200 dark:border-green-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-thumbs-up text-green-600 dark:text-green-400 text-sm" aria-hidden="true"></i>
+                  </div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">Competitive Strengths</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <li className="flex items-start gap-2">
-                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1" aria-hidden="true"></i>
+                <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     Strong verification across {ddCategories.filter(c => c.data.score >= 80).length} core business areas
                   </li>
-                  <li className="flex items-start gap-2">
-                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1" aria-hidden="true"></i>
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     {business.snapshot.summary}
                   </li>
-                  <li className="flex items-start gap-2">
-                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1" aria-hidden="true"></i>
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     Established {business.sector} market presence since {business.foundedYear}
                   </li>
                 </ul>
               </div>
 
               {/* Key Concerns */}
-              <div className="p-5 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-l-4 border-amber-500 rounded-xl">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-exclamation-triangle text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-amber-200 dark:border-amber-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-exclamation-triangle text-amber-600 dark:text-amber-400 text-sm" aria-hidden="true"></i>
+                  </div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">Areas for Review</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                   {overallScore < 80 ? (
                     <>
-                      <li className="flex items-start gap-2">
-                        <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1" aria-hidden="true"></i>
+                      <li className="flex items-start gap-3">
+                        <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                         {8 - ddCategories.filter(c => c.data.score >= 80).length} categories require enhanced monitoring
                       </li>
-                      <li className="flex items-start gap-2">
-                        <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1" aria-hidden="true"></i>
+                      <li className="flex items-start gap-3">
+                        <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                         Due diligence completion recommended before investment
                       </li>
                     </>
                   ) : (
-                    <li className="flex items-start gap-2">
-                      <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1" aria-hidden="true"></i>
+                    <li className="flex items-start gap-3">
+                      <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                       Standard ongoing monitoring protocols sufficient
                     </li>
                   )}
@@ -346,40 +350,44 @@ export default function SnapshotReport() {
               </div>
 
               {/* Market Opportunity */}
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-l-4 border-[var(--primary)] rounded-xl">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-chart-line text-[var(--primary)] dark:text-blue-400" aria-hidden="true"></i>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-[var(--primary)]/10 dark:bg-[var(--primary)]/20 rounded-full flex items-center justify-center">
+                    <i className="fas fa-chart-line text-[var(--primary)] text-sm" aria-hidden="true"></i>
+                  </div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">Market Opportunity</h3>
                 </div>
-                <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <p className="flex items-start gap-2">
-                    <i className="fas fa-circle text-[var(--primary)] dark:text-blue-400 text-xs mt-1" aria-hidden="true"></i>
+                <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  <p className="flex items-start gap-3">
+                    <i className="fas fa-circle text-[var(--primary)] text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     {business.sector} sector positioning with {business.employees} team members
                   </p>
-                  <p className="flex items-start gap-2">
-                    <i className="fas fa-circle text-[var(--primary)] dark:text-blue-400 text-xs mt-1" aria-hidden="true"></i>
+                  <p className="flex items-start gap-3">
+                    <i className="fas fa-circle text-[var(--primary)] text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     Revenue band: {business.revenueBand} demonstrates market traction
                   </p>
                 </div>
               </div>
 
               {/* Investment Factors */}
-              <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-l-4 border-purple-500 rounded-xl">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-coins text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-[var(--accent)]/20 dark:bg-[var(--accent)]/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-coins text-[var(--accent)] dark:text-yellow-400 text-sm" aria-hidden="true"></i>
+                  </div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">Investment Factors</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <li className="flex items-start gap-2">
-                    <i className="fas fa-circle text-purple-600 dark:text-purple-400 text-xs mt-1" aria-hidden="true"></i>
+                <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     {business.eligibility?.EIS ? 'EIS eligible' : 'EIS eligibility pending'} • {business.eligibility?.SEIS ? 'SEIS qualified' : 'SEIS under review'}
                   </li>
-                  <li className="flex items-start gap-2">
-                    <i className="fas fa-circle text-purple-600 dark:text-purple-400 text-xs mt-1" aria-hidden="true"></i>
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     Risk level: {business.risk} based on current assessment
                   </li>
-                  <li className="flex items-start gap-2">
-                    <i className="fas fa-circle text-purple-600 dark:text-purple-400 text-xs mt-1" aria-hidden="true"></i>
+                  <li className="flex items-start gap-3">
+                    <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
                     Verification score supports {overallScore >= 80 ? 'premium' : 'standard'} valuation approach
                   </li>
                 </ul>
@@ -488,16 +496,16 @@ export default function SnapshotReport() {
           {/* Action Buttons */}
           <div className="flex justify-center gap-4 mt-8">
             <Link href={`/business/${business.id}`}>
-              <Button variant="outline" size="lg" className="hover:bg-[var(--primary)]/5">
+              <Button variant="outline" size="lg" className="text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800">
                 <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
                 Back to Profile
               </Button>
             </Link>
-            <Button variant="outline" size="lg" disabled className="text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-600">
+            <Button variant="outline" size="lg" disabled className="text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 cursor-not-allowed">
               <i className="fas fa-lock mr-2" aria-hidden="true"></i>
               Export PDF (Premium)
             </Button>
-            <Button size="lg" className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white">
+            <Button size="lg" className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white shadow-md">
               <i className="fas fa-share-alt mr-2" aria-hidden="true"></i>
               Share Report
             </Button>
