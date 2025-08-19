@@ -266,14 +266,11 @@ export default function BusinessProfile() {
                 </div>
               </div>
 
-              {/* Verification Summary */}
-              <div className="mb-4 p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
-                <div className="flex items-center justify-center gap-2 text-center">
-                  <i className={`${getVerificationLevel(calculateOverallScore()).icon} ${getVerificationLevel(calculateOverallScore()).color}`} aria-hidden="true"></i>
-                  <span className={`font-medium ${getVerificationLevel(calculateOverallScore()).color}`}>
-                    {getVerificationLevel(calculateOverallScore()).level}
-                  </span>
-                </div>
+              {/* Investment Summary */}
+              <div className="mb-4 p-4 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <strong className="text-gray-900 dark:text-gray-100">{business.name}</strong> presents a {getVerificationLevel(calculateOverallScore()).level.toLowerCase()} investment opportunity based on completed due diligence analysis. The company demonstrates {calculateOverallScore() >= 80 ? 'strong' : calculateOverallScore() >= 60 ? 'moderate' : 'limited'} credibility across business verification, compliance standards, and operational frameworks. {calculateOverallScore() >= 80 ? 'Key strengths include robust management structure and reliable financial positioning.' : calculateOverallScore() >= 60 ? 'Areas for consideration include enhanced compliance monitoring and risk management protocols.' : 'Significant concerns warrant comprehensive review before proceeding with investment decisions.'}
+                </p>
               </div>
               
               <div className="space-y-3">
