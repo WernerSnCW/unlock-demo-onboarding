@@ -219,9 +219,9 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
               Request Detailed Snapshot
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
                 <Building2 className="h-5 w-5" />
                 Request Due Diligence Snapshot
               </DialogTitle>
@@ -230,7 +230,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Company Field */}
               <div className="space-y-2">
-                <Label htmlFor="company">Company *</Label>
+                <Label htmlFor="company" className="text-gray-900 dark:text-gray-100 font-medium">Company *</Label>
                 <div className="flex gap-2">
                   <Input
                     id="company"
@@ -276,7 +276,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
 
               {/* Website Field */}
               <div className="space-y-2">
-                <Label htmlFor="website">Company Website (optional)</Label>
+                <Label htmlFor="website" className="text-gray-900 dark:text-gray-100 font-medium">Company Website (optional)</Label>
                 <Input
                   id="website"
                   type="url"
@@ -289,7 +289,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
               {/* Jurisdiction and Reason */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="jurisdiction">Jurisdiction</Label>
+                  <Label htmlFor="jurisdiction" className="text-gray-900 dark:text-gray-100 font-medium">Jurisdiction</Label>
                   <Select value={formData.jurisdiction} onValueChange={(value) => setFormData(prev => ({ ...prev, jurisdiction: value }))}>
                     <SelectTrigger>
                       <SelectValue />
@@ -305,7 +305,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="reason">Reason for Snapshot *</Label>
+                  <Label htmlFor="reason" className="text-gray-900 dark:text-gray-100 font-medium">Reason for Snapshot *</Label>
                   <Select value={formData.reason} onValueChange={(value) => setFormData(prev => ({ ...prev, reason: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select reason" />
@@ -322,7 +322,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
 
               {/* Include Checks */}
               <div className="space-y-3">
-                <Label>Include Checks</Label>
+                <Label className="text-gray-900 dark:text-gray-100 font-medium">Include Checks</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -330,7 +330,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                       checked={formData.includeDirectorChecks}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeDirectorChecks: !!checked }))}
                     />
-                    <Label htmlFor="director-checks" className="text-sm font-normal">Director checks</Label>
+                    <Label htmlFor="director-checks" className="text-sm font-normal text-gray-700 dark:text-gray-300">Director checks</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -338,7 +338,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                       checked={formData.includeFilingTimeline}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeFilingTimeline: !!checked }))}
                     />
-                    <Label htmlFor="filing-timeline" className="text-sm font-normal">Filing timeline</Label>
+                    <Label htmlFor="filing-timeline" className="text-sm font-normal text-gray-700 dark:text-gray-300">Filing timeline</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -346,7 +346,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                       checked={formData.includeWebFootprint}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeWebFootprint: !!checked }))}
                     />
-                    <Label htmlFor="web-footprint" className="text-sm font-normal">Web footprint</Label>
+                    <Label htmlFor="web-footprint" className="text-sm font-normal text-gray-700 dark:text-gray-300">Web footprint</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -354,14 +354,14 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                       checked={formData.includePeerQA}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includePeerQA: !!checked }))}
                     />
-                    <Label htmlFor="peer-qa" className="text-sm font-normal">Peer questions & answers</Label>
+                    <Label htmlFor="peer-qa" className="text-sm font-normal text-gray-700 dark:text-gray-300">Peer questions & answers</Label>
                   </div>
                 </div>
               </div>
 
               {/* File Attachments */}
               <div className="space-y-3">
-                <Label>Attachments (optional)</Label>
+                <Label className="text-gray-900 dark:text-gray-100 font-medium">Attachments (optional)</Label>
                 <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
                   <input
                     type="file"
@@ -412,7 +412,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                   checked={formData.consentGiven}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, consentGiven: !!checked }))}
                 />
-                <Label htmlFor="consent" className="text-sm font-normal leading-relaxed">
+                <Label htmlFor="consent" className="text-sm font-normal leading-relaxed text-gray-700 dark:text-gray-300">
                   I understand snapshots use only public data and are not financial advice. *
                 </Label>
               </div>
