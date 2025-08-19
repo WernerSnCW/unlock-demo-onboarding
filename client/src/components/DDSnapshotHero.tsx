@@ -94,11 +94,11 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           <Button 
             variant="outline" 
             size="lg" 
-            className="px-8"
+            className="px-8 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
             onClick={() => window.open('/due-diligence', '_self')}
           >
             View All Requests
-            <ArrowRight className="h-5 w-5 ml-2" />
+            <ArrowRight className="h-5 w-5 ml-2 text-gray-900 dark:text-gray-100" />
           </Button>
         </div>
 
