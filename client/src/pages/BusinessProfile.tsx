@@ -89,11 +89,11 @@ export default function BusinessProfile() {
 
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-gray-600 dark:text-gray-400">Companies House:</span>
-                  <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm">
+                  <code className="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm font-mono">
                     {business.ch_number}
                   </code>
-                  <Button variant="ghost" size="sm" className="px-2">
-                    <i className="fas fa-copy text-gray-400" aria-hidden="true"></i>
+                  <Button variant="ghost" size="sm" className="px-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                    <i className="fas fa-copy" aria-hidden="true"></i>
                   </Button>
                 </div>
 
