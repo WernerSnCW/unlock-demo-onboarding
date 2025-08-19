@@ -1,4 +1,4 @@
-import { useRoute, Link } from 'wouter';
+import { useRoute, Link, useLocation } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import businessesData from '../mocks/businesses.json';
 
 export default function SnapshotReport() {
   const [, params] = useRoute('/snapshot/:id');
+  const [, setLocation] = useLocation();
   const business = businessesData.find(b => b.id === params?.id);
 
   if (!business) {
@@ -139,7 +140,7 @@ export default function SnapshotReport() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <Button 
-                    onClick={() => window.history.back()}
+                    onClick={() => setLocation(`/business/${business.id}`)}
                     variant="outline"
                     size="sm"
                     className="text-white border-white/40 hover:bg-white/20 bg-white/10 font-medium"
