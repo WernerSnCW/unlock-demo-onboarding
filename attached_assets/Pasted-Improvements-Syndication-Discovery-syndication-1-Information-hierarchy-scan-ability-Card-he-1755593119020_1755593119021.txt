@@ -1,0 +1,84 @@
+Improvements — Syndication Discovery (/syndication)
+1) Information hierarchy & scan-ability
+
+Card header: add company logo placeholder (circle), company name, ✅ Verified, sector chips (keep).
+
+Primary metric row (bigger):
+
+Committed bar with value label (e.g., “£816k of £1.2m • 68%”).
+
+Closes in badge (e.g., “47d”).
+
+Secondary metric row (smaller):
+
+Investors like you badge with tooltip.
+
+Confidence meter (colour-banded) + info icon → tooltip text (composite of momentum, lead credibility, interest).
+
+Min cheque and EIS/SEIS chips.
+
+2) Micro-visuals that add insight
+
+Add a 7-point sparkline under the committed bar using the interest.history array. Tooltip: “Momentum last 7 updates.”
+
+Use a stacked cohort mini-bar (Angels / Funds / FOs) in the card footer for quick mix visual.
+
+Animate bars to target values on mount (200–300ms ease-out).
+
+3) Filters & controls (usability)
+
+Show selected filters as chips above results with one-click remove.
+
+Add Sort select: Relevance (default) · Confidence · Committed % · Closing soon.
+
+Debounce search (250ms) and highlight matches in names/aliases.
+
+Keep Clear all visible (right-aligned) and enabled only when something is applied.
+
+4) Actions & state
+
+Card CTAs:
+
+View Syndicate (primary).
+
+Watch (heart toggle) → toast “Added to Watchlist (prototype)”.
+
+Empty state:
+
+“No syndicates match. Try removing filters or widening stage.” + Reset button.
+
+Loading state:
+
+Skeleton cards (logo circle, 2 lines, bar placeholder).
+
+5) Copy & tooltips (paste verbatim)
+
+Investors like you: “Share of participating investors with a similar profile to you (sector focus, ticket band, risk).”
+
+Confidence: “Composite of momentum, lead track record, and community interest. Informational only—this is not advice.”
+
+Committed: “% of target raise soft-circled by the group.”
+
+6) Accessibility
+
+All meters expose aria-valuenow, aria-valuemin, aria-valuemax and an off-screen text summary (e.g., “Confidence 82 out of 100 — High”).
+
+Filter chips & buttons have visible focus rings; keyboard nav reaches every control.
+
+Cards are <article> with aria-labelledby pointing to the company name.
+
+7) Responsive polish
+
+≥1280px: 3-across grid; stick the Filters panel on scroll (CSS sticky top-3).
+
+≤1024px: 2-across; ≤640px: 1-across; put filters in a drawer with a “Filters (3)” button.
+
+8) Data presentation tweaks (from your mocks)
+
+Replace “Target £1.2m • 68%” with computed currency: show committed absolute (e.g., “£816k of £1.2m • 68%”).
+
+Colour bands for Confidence:
+
+0–49 Low (muted/amber), 50–74 Moderate (amber/green), 75–100 High (green).
+
+If eligibility.EIS || eligibility.SEIS false → show “Not EIS/SEIS” muted pill.
