@@ -14,6 +14,9 @@ import Syndication from "@/pages/Syndication";
 import SyndicateDetail from "./pages/SyndicateDetail";
 import NewsEnhanced from "@/pages/NewsEnhanced";
 import PitchDeckAnalyserPage from "@/pages/PitchDeckAnalyser";
+import DueDiligenceHub from "@/pages/DueDiligenceHub";
+import DueDiligenceRequests from "@/pages/DueDiligenceRequests";
+import DueDiligenceRequestDetail from "@/pages/DueDiligenceRequestDetail";
 
 function Router() {
   return (
@@ -27,6 +30,9 @@ function Router() {
       <Route path="/syndication" component={Syndication} />
       <Route path="/syndication/:id" component={SyndicateDetail} />
       <Route path="/news" component={NewsEnhanced} />
+      <Route path="/due-diligence" component={DueDiligenceHub} />
+      <Route path="/due-diligence/requests" component={DueDiligenceRequests} />
+      <Route path="/due-diligence/requests/:id" component={DueDiligenceRequestDetail} />
       <Route component={NotFound} />
     </Switch>
   );

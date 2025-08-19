@@ -1,0 +1,254 @@
+Replit Update — Due Diligence & Requests (Snapshots + Deep Dives)
+0) What stays the same
+
+Keep the blue “Request a Due Diligence Snapshot” hero on the Dashboard.
+
+Keep your existing snapshot request form logic if already implemented.
+
+1) New routes to add
+
+/due-diligence — overview hub with tabs.
+
+/due-diligence/requests — full requests list (all types).
+
+/due-diligence/requests/:id — request detail (status + result).
+
+(Existing) / (Dashboard) — now also shows a “My requests” mini-panel and a link to the hub.
+
+Nav: add a top-nav item Due Diligence linking to /due-diligence.
+
+2) File & component plan
+
+Create these components (TypeScript/React):
+
+src/pages/DueDiligenceHub.tsx
+
+src/pages/DueDiligenceRequests.tsx
+
+src/pages/DueDiligenceRequestDetail.tsx
+
+src/components/due/RequestForm.tsx (replaces/extends your hero form; can also be mounted in a modal)
+
+src/components/due/CHAutocomplete.tsx
+
+src/components/due/RequestsMiniPanel.tsx (dashboard right column)
+
+src/components/due/RequestsTable.tsx
+
+src/components/due/StatusPill.tsx (queued|processing|completed|failed)
+
+src/components/due/Timeline.tsx
+
+src/state/dueStore.ts (localStorage-backed store + “fake worker” timers)
+
+Styling: use your tokens only. No hard-coded colours.
+
+3) Data shapes (mocks)
+
+Create/extend mocks:
+
+src/mocks/companiesHouseIndex.json (autocomplete list—already described earlier).
+
+src/mocks/dueRequests.json (seed []).
+
+Each request:
+
+{
+  "id": "req_1001",
+  "type": "snapshot",              // snapshot | deep_dive
+  "companyNumber": "12345678",
+  "companyName": "Acme Biotech Ltd",
+  "companyUrl": "https://acmebio.example",
+  "jurisdiction": "UK",
+  "requestedBy": "thomas@unlock",
+  "createdAt": "2025-08-19T10:02:11Z",
+  "status": "queued",              // queued | processing | completed | failed
+  "progress": 0,                   // 0–100
+  "sla": "fast",                   // fast (snapshot) | extended (deep_dive)
+  "inputs": {
+    "reason": "Initial screening",
+    "includeDirectorCheck": true,
+    "includeFilingTimeline": true,
+    "includeWebFootprint": true,
+    "includePeerQA": true,
+    "attachments": []
+  },
+  "result": null,                  // set when completed
+  "error": null
+}
+
+
+When completed, result becomes:
+
+{
+  "reportId": "snap_0001",
+  "summary": "Clean filings; low governance risk; moderate web footprint.",
+  "scorecard": { "filingHealth": "Good", "redFlags": 0, "webScore": 72 },
+  "downloadUrl": "#",              // stub
+  "openUrl": "#"                   // stub
+}
+
+4) State & “fake worker”
+
+Implement a tiny job engine in dueStore.ts:
+
+Persists requests to localStorage (key unlock_due_requests_v1).
+
+createRequest(payload) → pushes a new request with status:"queued", progress:0, sla:"fast" for snapshots, "extended" for deep dives.
+
+Timer progression (front-end only):
+
+Snapshots (sla:"fast"): 3–10 s → processing, then tick to 100% in ~45 s, then completed (90% chance) or failed (10%).
+
+Deep dives (sla:"extended"): 10–20 s → processing, tick slowly (show “ETA hours” hint), complete after ~90 s in prototype.
+
+Provide store selectors: useRequests(), useRequestById(id), useRecentRequests(limit).
+
+5) Dashboard changes
+
+Replace current hero button’s form with RequestForm (still in the hero).
+
+Add RequestsMiniPanel below/right of hero:
+
+Show last 5 requests with Company, Type, StatusPill, Progress, Requested (relative), View link.
+
+Footer link: “View all requests → /due-diligence/requests”.
+
+6) Request form spec (shared for Snapshot & Deep Dive)
+
+Fields:
+
+Request type tabs: Snapshot (Free) | Deep Dive (Premium)
+
+If Deep Dive selected: show a small lock badge and text “Preview only in prototype. In production, requires subscription.”
+
+Company: free text with CHAutocomplete (supports CH number ^\d{8}$).
+
+Company website (optional, URL).
+
+Jurisdiction (UK default).
+
+Reason (select: Initial screening · Follow-up diligence · Portfolio monitoring · Other).
+
+Include checks (toggles):
+
+Director checks · Filing timeline · Web footprint · Peer Q&A
+
+Deep Dive only (show but disabled in prototype): Adverse media, Beneficial ownership, Credit events.
+
+Attachments: up to 3 files (store filenames only).
+
+Consent checkbox: “Public data only. This is not financial advice.” (required)
+
+Actions:
+
+Request Snapshot / Request Deep Dive (primary)
+→ calls createRequest() and shows toast “Request queued”.
+
+Form behaviour:
+
+If an autocomplete result is chosen (or CH number verified in mock), show “✅ Verified: {name} ({number}) — {status} • Incorporated {date} • {office}”.
+
+7) Due Diligence hub (/due-diligence)
+
+Header: “Due Diligence”
+
+Tabs: All Requests (default) · Snapshots · Deep Dives
+
+Inline RequestForm with type tabs (so users can start a new request here as well).
+
+Below form: RequestsTable filtered by active tab.
+
+8) Requests index (/due-diligence/requests)
+
+Controls:
+
+Search (company name/number)
+
+Filters: Type (All/Snapshot/Deep Dive), Status (All/Queued/Processing/Completed/Failed), Time (Today/7d/30d)
+
+Sort: Newest (default) · Oldest · Company A–Z · Status
+
+RequestsTable columns:
+
+Company (name + number + ✅ if verified)
+
+Type (chips: Snapshot / Deep Dive)
+
+Status (StatusPill) + Progress bar
+
+Requested (relative)
+
+Result (when completed: Open / Download stubs)
+
+Action: View
+
+Empty state: “No requests yet. Start with a Snapshot or request a Deep Dive.”
+
+9) Request detail (/due-diligence/requests/:id)
+
+Sections:
+
+Header: Company name + number + ✅ badge + Type chip + Jurisdiction.
+
+Status timeline: Queued → Processing → Completed/Failed (timestamps).
+
+Progress bar + ETA hint (static text based on sla).
+
+Inputs summary: reason, toggles, attachments list.
+
+Result (when completed):
+
+Summary paragraph + scorecard chips (Filing health, Red flags, Web score).
+
+Buttons: Open report (stub), Download PDF (stub).
+
+If failed: show error text + Retry button (clones request with new id).
+
+Actions: Re-run (clone), Delete request (local-only).
+
+Accessibility:
+
+Timeline uses role="list" with labelled items; status changes announced via aria-live="polite".
+
+Buttons have clear aria-labels.
+
+10) Premium upsell hooks
+
+In the hub and the form, when Deep Dive is selected:
+
+Show locked fields (Adverse media, Beneficial ownership, Credit events).
+
+Show CTA button “Upgrade to Pro” (stub) near the form.
+
+In the Requests table, Deep Dive rows show a small Premium badge.
+
+11) Tooltips & copy (paste exactly)
+
+Hero consent small print: “Snapshots use only publicly available data. This is not financial advice.”
+
+Status tooltips:
+
+Queued: “Waiting to start”
+
+Processing: “Collecting and analysing data”
+
+Completed: “Report is ready”
+
+Failed: “We hit a temporary issue—try again”
+
+Deep Dive note: “Premium feature. Simulated in prototype; requires subscription in production.”
+
+12) Acceptance criteria (DoD)
+
+From the Dashboard hero, user can submit Snapshot or Deep Dive (deep dive shows premium note). New request appears in the mini panel and progresses through Queued → Processing → Completed/Failed without refresh.
+
+/due-diligence hub renders the form and a tabbed table (All/Snapshots/Deep Dives) using the same data.
+
+/due-diligence/requests lists all requests with search, filters, sort, and shows status + progress correctly; clicking a row opens the detail page.
+
+/due-diligence/requests/:id shows a timeline, progress, inputs, and a result section (with report stubs) when completed; Retry works for failed.
+
+State persists in localStorage; reload keeps history.
+
+All colours via CSS variables; AA contrast; keyboard navigation works; no console errors.

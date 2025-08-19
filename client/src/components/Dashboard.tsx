@@ -9,6 +9,7 @@ import QuickTools from './QuickTools';
 import MiniDock from './MiniDock';
 import ToolModal from './ToolModal';
 import DDSnapshotHero from './DDSnapshotHero';
+import { RequestsMiniPanel } from './due/RequestsMiniPanel';
 
 // Mock data imports
 import onboardingProfileData from '../mocks/onboardingProfile.json';
@@ -191,6 +192,7 @@ export default function Dashboard() {
               onToggleWhatsapp={handleWhatsappToggle}
             />
             <Watchlist companies={companies} onToolOpen={handleToolOpen} />
+            <RequestsMiniPanel />
             <UpgradeCard />
           </div>
 

@@ -12,6 +12,7 @@ export default function Header() {
     { name: 'Dashboard', href: '/' },
     { name: 'Businesses', href: '/businesses' },
     { name: 'Toolkit', href: '/toolkit' },
+    { name: 'Due Diligence', href: '/due-diligence' },
     { name: 'Syndication', href: '/syndication' },
     { name: 'News', href: '/news' },
   ];
