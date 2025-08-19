@@ -391,6 +391,23 @@ export default function BusinessProfile() {
                   <i className="fas fa-external-link-alt ml-2" aria-hidden="true"></i>
                 </Button>
               </Link>
+
+              {/* Deep Dive Report Button - Premium Feature */}
+              <Button 
+                className="w-full mt-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 relative overflow-hidden"
+                disabled
+              >
+                <div className="flex items-center justify-center w-full">
+                  <i className="fas fa-microscope mr-2" aria-hidden="true"></i>
+                  <span>View Deep Dive Report</span>
+                  <div className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs font-medium">
+                    Premium
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                  <i className="fas fa-lock text-white/80" aria-hidden="true"></i>
+                </div>
+              </Button>
               
               <div className="flex gap-2 mt-3">
                 <Button 
