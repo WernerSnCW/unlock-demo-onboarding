@@ -24,10 +24,10 @@ export default function AskQuestionInline({ onSubmit, defaultTarget = 'company',
   const isValid = body.trim().length >= 8;
 
   return (
-    <div className="bg-[var(--card)] border rounded-xl p-6 mb-6">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-6">
       <div className="space-y-4">
         <div>
-          <Label htmlFor="question-input" className="text-sm font-medium text-[var(--foreground)] mb-2 block">
+          <Label htmlFor="question-input" className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 block">
             Ask a question
           </Label>
           <Textarea
@@ -35,14 +35,14 @@ export default function AskQuestionInline({ onSubmit, defaultTarget = 'company',
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Ask about financials, product roadmap, market position..."
-            className="min-h-[80px] resize-none"
+            className="min-h-[80px] resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 placeholder:text-gray-500 dark:placeholder:text-gray-400"
             disabled={disabled}
             aria-label="Ask a question"
           />
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+          <Label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 block">
             Route to
           </Label>
           <RadioGroup
@@ -52,30 +52,30 @@ export default function AskQuestionInline({ onSubmit, defaultTarget = 'company',
             disabled={disabled}
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="lead" id="lead" />
+              <RadioGroupItem value="lead" id="lead" className="border-gray-400 dark:border-gray-500 text-gray-900 dark:text-gray-100" />
               <Label 
                 htmlFor="lead" 
-                className="text-sm cursor-pointer"
+                className="text-sm cursor-pointer text-gray-900 dark:text-gray-100"
                 title="Directed to the lead investor (thesis, terms, diligence)"
               >
                 Lead
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="company" id="company" />
+              <RadioGroupItem value="company" id="company" className="border-gray-400 dark:border-gray-500 text-gray-900 dark:text-gray-100" />
               <Label 
                 htmlFor="company" 
-                className="text-sm cursor-pointer"
+                className="text-sm cursor-pointer text-gray-900 dark:text-gray-100"
                 title="Directed to the company (product, metrics, roadmap)"
               >
                 Company
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="community" id="community" />
+              <RadioGroupItem value="community" id="community" className="border-gray-400 dark:border-gray-500 text-gray-900 dark:text-gray-100" />
               <Label 
                 htmlFor="community" 
-                className="text-sm cursor-pointer"
+                className="text-sm cursor-pointer text-gray-900 dark:text-gray-100"
                 title="Peer discussion among investors"
               >
                 Community
@@ -85,7 +85,7 @@ export default function AskQuestionInline({ onSubmit, defaultTarget = 'company',
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-xs text-[var(--muted-foreground)]">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             Public Q&A. Do not share personal data. This is not advice.
           </p>
           <Button 

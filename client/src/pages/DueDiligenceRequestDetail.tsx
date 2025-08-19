@@ -103,7 +103,7 @@ export default function DueDiligenceRequestDetail() {
         {/* Header */}
         <div className="mb-6">
           <Link href="/due-diligence/requests">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Requests
             </Button>
@@ -141,11 +141,11 @@ export default function DueDiligenceRequestDetail() {
             </div>
             
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleRetry}>
+              <Button variant="outline" onClick={handleRetry} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Re-run
               </Button>
-              <Button variant="outline" onClick={handleDelete} className="text-red-600 hover:text-red-700">
+              <Button variant="outline" onClick={handleDelete} className="bg-white dark:bg-gray-800 text-red-600 hover:text-red-700 border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </Button>
@@ -161,7 +161,7 @@ export default function DueDiligenceRequestDetail() {
             <TabsTrigger value="qna" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               Q&A
-              <span className="bg-[var(--primary)] text-white text-xs px-1.5 py-0.5 rounded-full">
+              <span className="bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full">
                 {request.qna?.questions?.length || 0}
               </span>
             </TabsTrigger>

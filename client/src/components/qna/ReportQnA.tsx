@@ -112,14 +112,14 @@ export default function ReportQnA({
       />
 
       {/* Helper text */}
-      <div className="text-xs text-[var(--muted-foreground)] p-4 bg-[var(--muted)]/20 rounded-lg">
-        <p className="mb-2">
+      <div className="text-xs text-gray-600 dark:text-gray-400 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+        <p className="mb-2 text-gray-900 dark:text-gray-100">
           <strong>Public Q&A</strong> — keep it professional; no personal data.
         </p>
-        <p>
+        <p className="text-gray-900 dark:text-gray-100">
           <strong>Target guidelines:</strong>
         </p>
-        <ul className="mt-1 space-y-1 ml-4">
+        <ul className="mt-1 space-y-1 ml-4 text-gray-700 dark:text-gray-300">
           <li>• <strong>Lead:</strong> Directed to the lead investor (thesis, terms, diligence)</li>
           <li>• <strong>Company:</strong> Directed to the company (product, metrics, roadmap)</li>
           <li>• <strong>Community:</strong> Peer discussion among investors</li>
