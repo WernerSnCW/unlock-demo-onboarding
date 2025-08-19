@@ -18,52 +18,52 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-8 shadow-sm">
+    <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-8 shadow-lg text-white">
       <div className="max-w-4xl mx-auto text-center">
         <div className="mb-6">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-100 dark:bg-blue-900/20 p-3 rounded-full">
-              <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <div className="bg-white/20 p-3 rounded-full">
+              <Building2 className="h-8 w-8 text-white" />
             </div>
           </div>
           
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-            Due Diligence Snapshot
+          <h1 className="text-3xl font-bold text-white mb-3">
+            Request Due Diligence
           </h1>
           
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+          <p className="text-lg text-blue-100 mb-6 max-w-2xl mx-auto">
             Get comprehensive business intelligence reports in minutes. Analyze company filings, 
             assess financial health, and identify potential risks with AI-powered insights.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="text-center">
-            <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded-lg inline-flex mb-3">
-              <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+            <div className="bg-green-400 p-3 rounded-full inline-flex mb-4">
+              <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Financial Analysis</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Revenue trends, profitability metrics, and financial stability
+            <h3 className="font-bold text-white mb-2 text-lg">Financial Analysis</h3>
+            <p className="text-blue-100 text-sm leading-relaxed">
+              Revenue trends, profitability metrics, and financial stability assessment
             </p>
           </div>
           
-          <div className="text-center">
-            <div className="bg-amber-100 dark:bg-amber-900/20 p-2 rounded-lg inline-flex mb-3">
-              <Building2 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+            <div className="bg-amber-400 p-3 rounded-full inline-flex mb-4">
+              <Building2 className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Risk Assessment</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Compliance status, legal issues, and operational risks
+            <h3 className="font-bold text-white mb-2 text-lg">Risk Assessment</h3>
+            <p className="text-blue-100 text-sm leading-relaxed">
+              Compliance status, legal issues, and operational risk evaluation
             </p>
           </div>
           
-          <div className="text-center">
-            <div className="bg-purple-100 dark:bg-purple-900/20 p-2 rounded-lg inline-flex mb-3">
-              <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+            <div className="bg-purple-400 p-3 rounded-full inline-flex mb-4">
+              <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Market Position</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <h3 className="font-bold text-white mb-2 text-lg">Market Position</h3>
+            <p className="text-blue-100 text-sm leading-relaxed">
               Industry analysis, competitive landscape, and growth potential
             </p>
           </div>
@@ -72,7 +72,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="px-8">
+              <Button size="lg" className="px-8 bg-white text-blue-700 hover:bg-blue-50 font-semibold">
                 <Building2 className="h-5 w-5 mr-2" />
                 Request Snapshot
               </Button>
@@ -94,21 +94,21 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           <Button 
             variant="outline" 
             size="lg" 
-            className="px-8 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="px-8 bg-transparent border-white/30 text-white hover:bg-white/10 font-semibold"
             onClick={() => window.open('/due-diligence', '_self')}
           >
             View All Requests
-            <ArrowRight className="h-5 w-5 ml-2 text-gray-900 dark:text-gray-100" />
+            <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
         </div>
 
-        <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 text-sm text-blue-100">
           <span className="inline-flex items-center gap-1">
-            🚀 <strong>Free tier:</strong> 3 snapshots per month
+            🚀 <strong className="text-white">Free tier:</strong> 3 snapshots per month
           </span>
           <span className="mx-2">•</span>
           <span className="inline-flex items-center gap-1">
-            ⚡ Typical delivery: ~2 minutes
+            ⚡ <strong className="text-white">Typical delivery:</strong> ~2 minutes
           </span>
         </div>
       </div>
