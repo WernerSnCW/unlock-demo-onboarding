@@ -17,9 +17,29 @@ interface Business {
     tags?: string[];
   };
   community: {
-    syndicateInterestPct: number;
-    questionsCount: number;
-    lastQuestion: string;
+    interest: {
+      interestPct: number;
+      followers: number;
+      leadInvestors: number;
+      avgChequeGBP: number;
+      history: number[];
+    };
+    questions: Array<{
+      id: string;
+      target: string;
+      body: string;
+      upvotes: number;
+      status: string;
+      createdAt: string;
+      answers: Array<{
+        authorRole: string;
+        author: string;
+        verified: boolean;
+        body: string;
+        createdAt: string;
+      }>;
+      followers: number;
+    }>;
   };
 }
 
@@ -59,11 +79,12 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   };
 
   const getCompanyInitials = (name: string) => {
+    if (!name) return 'XX';
     return name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase();
   };
 
-  const isHighInterest = business.community.syndicateInterestPct >= 70;
-  const isTrending = business.community.questionsCount >= 15;
+  const isHighInterest = business.community.interest.interestPct >= 70;
+  const isTrending = business.community.questions.length >= 15;
   
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden shadow-sm">
@@ -173,12 +194,12 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         <div>
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-gray-600 dark:text-gray-400">Syndicate Interest</span>
-            <span className="font-medium text-gray-900 dark:text-gray-100">{business.community.syndicateInterestPct}%</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{business.community.interest.interestPct}%</span>
           </div>
           <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-[#5193B3] to-[#62C4C3] transition-all duration-300"
-              style={{ width: `${business.community.syndicateInterestPct}%` }}
+              style={{ width: `${business.community.interest.interestPct}%` }}
             />
           </div>
         </div>
@@ -186,9 +207,11 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <i className="fas fa-comments text-[#62C4C3]" aria-hidden="true"></i>
-            <span className="text-gray-600 dark:text-gray-400">{business.community.questionsCount} questions</span>
+            <span className="text-gray-600 dark:text-gray-400">{business.community.questions.length} questions</span>
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">Last: "{business.community.lastQuestion.substring(0, 30)}..."</span>
+          {business.community.questions.length > 0 && business.community.questions[0]?.body && (
+            <span className="text-xs text-gray-500 dark:text-gray-400">Last: "{business.community.questions[0].body.substring(0, 30)}..."</span>
+          )}
         </div>
       </div>
 
