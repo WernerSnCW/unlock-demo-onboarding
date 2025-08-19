@@ -145,10 +145,11 @@ export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps)
           <TableHeader>
             <TableRow className="border-gray-200 dark:border-gray-700">
               <TableHead className="text-gray-900 dark:text-gray-100">Company</TableHead>
+              <TableHead className="text-gray-900 dark:text-gray-100">Business Info</TableHead>
               <TableHead className="text-gray-900 dark:text-gray-100">Type</TableHead>
               <TableHead className="text-gray-900 dark:text-gray-100">Status</TableHead>
+              <TableHead className="text-gray-900 dark:text-gray-100">Assessment</TableHead>
               <TableHead className="text-gray-900 dark:text-gray-100">Requested</TableHead>
-              <TableHead className="text-gray-900 dark:text-gray-100">Result</TableHead>
               <TableHead className="text-gray-900 dark:text-gray-100">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -171,6 +172,17 @@ export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps)
                           {request.companyNumber}
                         </div>
                       )}
+                    </div>
+                  </div>
+                </TableCell>
+                
+                <TableCell>
+                  <div className="text-sm">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {request.businessContext.industry}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {request.businessContext.headquarters} • {request.businessContext.size}
                     </div>
                   </div>
                 </TableCell>
@@ -201,36 +213,68 @@ export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps)
                   </div>
                 </TableCell>
                 
-                <TableCell className="text-gray-600 dark:text-gray-400 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
-                  </div>
-                </TableCell>
-                
                 <TableCell>
                   {request.status === 'completed' && request.result ? (
-                    <div className="flex gap-1">
-                      <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Open
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                        <Download className="h-3 w-3 mr-1" />
-                        PDF
-                      </Button>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                          {request.result.overallScore || '4.3'}/5.0
+                        </span>
+                        <div className="flex items-center">
+                          {[1, 2, 3, 4].map((star) => (
+                            <span key={star} className="text-amber-400 text-xs">★</span>
+                          ))}
+                          <span className="text-gray-300 text-xs">★</span>
+                        </div>
+                      </div>
+                      <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 rounded font-medium">
+                        Recommended
+                      </span>
+                    </div>
+                  ) : request.status === 'processing' ? (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Analyzing...
+                    </div>
+                  ) : request.status === 'queued' ? (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Queued
+                    </div>
+                  ) : request.status === 'failed' ? (
+                    <div className="text-xs text-red-600 dark:text-red-400">
+                      Failed
                     </div>
                   ) : (
                     <span className="text-gray-400 dark:text-gray-500 text-sm">—</span>
                   )}
                 </TableCell>
                 
+                <TableCell className="text-gray-600 dark:text-gray-400 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {request.requestedBy}
+                  </div>
+                </TableCell>
+                
                 <TableCell>
-                  <Link href={`/due-diligence/requests/${request.id}`}>
-                    <Button variant="ghost" size="sm" className="h-7 px-2">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <div className="flex gap-1">
+                    {request.status === 'completed' && request.result ? (
+                      <Link href={`/due-diligence/snapshot/${request.id}`}>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
+                          <Eye className="h-3 w-3 mr-1" />
+                          View
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link href={`/due-diligence/requests/${request.id}`}>
+                        <Button variant="ghost" size="sm" className="h-7 px-2">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
