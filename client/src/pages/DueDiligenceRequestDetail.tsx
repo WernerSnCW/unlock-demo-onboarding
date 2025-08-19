@@ -289,7 +289,7 @@ export default function DueDiligenceRequestDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                      <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
                         <div className="text-3xl font-bold text-green-700 dark:text-green-400 mb-2">4.3/5.0</div>
                         <div className="text-sm text-green-600 dark:text-green-400 font-medium">Investment Score</div>
                         <div className="flex justify-center mt-2">
@@ -300,7 +300,7 @@ export default function DueDiligenceRequestDetail() {
                         </div>
                       </div>
                       
-                      <div className="text-center p-6 rounded-lg border" style={{ 
+                      <div className="text-center p-6 rounded-xl border" style={{ 
                         backgroundColor: 'rgba(81, 147, 179, 0.1)', 
                         borderColor: '#5193B3' 
                       }}>
@@ -309,7 +309,7 @@ export default function DueDiligenceRequestDetail() {
                         <div className="text-xs mt-1" style={{ color: '#5193B3' }}>Data Quality</div>
                       </div>
                       
-                      <div className="text-center p-6 rounded-lg border" style={{ 
+                      <div className="text-center p-6 rounded-xl border" style={{ 
                         backgroundColor: 'rgba(98, 196, 195, 0.1)', 
                         borderColor: '#62C4C3' 
                       }}>
@@ -321,7 +321,7 @@ export default function DueDiligenceRequestDetail() {
 
                     {/* Key Metrics Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                           {request.result.scorecard.filingHealth}
                         </div>
@@ -511,7 +511,7 @@ export default function DueDiligenceRequestDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                      <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
                         <div className="text-3xl font-bold text-green-700 dark:text-green-400 mb-2">4.3/5.0</div>
                         <div className="text-sm text-green-600 dark:text-green-400 font-medium">Investment Score</div>
                         <div className="flex justify-center mt-2">
@@ -522,20 +522,26 @@ export default function DueDiligenceRequestDetail() {
                         </div>
                       </div>
                       
-                      <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <div className="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-2">{request.result.confidenceScore}%</div>
-                        <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">Confidence</div>
-                        <div className="text-xs text-blue-500 dark:text-blue-400 mt-1">Data Quality</div>
+                      <div className="text-center p-6 rounded-xl border" style={{ 
+                        backgroundColor: 'rgba(81, 147, 179, 0.1)', 
+                        borderColor: '#5193B3' 
+                      }}>
+                        <div className="text-3xl font-bold mb-2" style={{ color: '#5193B3' }}>{request.result.confidenceScore}%</div>
+                        <div className="text-sm font-medium" style={{ color: '#5193B3' }}>Confidence</div>
+                        <div className="text-xs mt-1" style={{ color: '#5193B3' }}>Data Quality</div>
                       </div>
                       
-                      <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                        <div className="text-3xl font-bold text-purple-700 dark:text-purple-400 mb-2">{request.result.coverageScore}%</div>
-                        <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">Coverage</div>
-                        <div className="text-xs text-purple-500 dark:text-purple-400 mt-1">Completeness</div>
+                      <div className="text-center p-6 rounded-xl border" style={{ 
+                        backgroundColor: 'rgba(98, 196, 195, 0.1)', 
+                        borderColor: '#62C4C3' 
+                      }}>
+                        <div className="text-3xl font-bold mb-2" style={{ color: '#62C4C3' }}>{request.result.coverageScore}%</div>
+                        <div className="text-sm font-medium" style={{ color: '#62C4C3' }}>Coverage</div>
+                        <div className="text-xs mt-1" style={{ color: '#62C4C3' }}>Completeness</div>
                       </div>
                     </div>
                     
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
                       <div className="flex items-center gap-2 mb-2">
                         <Check className="h-5 w-5 text-green-600" />
                         <span className="font-semibold text-green-800 dark:text-green-400">Recommended for Investment</span>
@@ -548,6 +554,49 @@ export default function DueDiligenceRequestDetail() {
                   </CardContent>
                 </Card>
 
+                {/* Individual Section Scores */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Individual Section Scores</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
+                        <div className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">8.5/10</div>
+                        <div className="text-sm text-green-600 dark:text-green-400 font-medium">Financial Analysis</div>
+                        <div className="text-xs text-green-500 dark:text-green-400 mt-1">Strong Performance</div>
+                      </div>
+                      
+                      <div className="p-4 rounded-xl border" style={{ 
+                        backgroundColor: 'rgba(81, 147, 179, 0.1)', 
+                        borderColor: '#5193B3' 
+                      }}>
+                        <div className="text-2xl font-bold mb-2" style={{ color: '#5193B3' }}>7.8/10</div>
+                        <div className="text-sm font-medium" style={{ color: '#5193B3' }}>Risk Assessment</div>
+                        <div className="text-xs mt-1" style={{ color: '#5193B3' }}>Low-Medium Risk</div>
+                      </div>
+                      
+                      <div className="p-4 rounded-xl border" style={{ 
+                        backgroundColor: 'rgba(98, 196, 195, 0.1)', 
+                        borderColor: '#62C4C3' 
+                      }}>
+                        <div className="text-2xl font-bold mb-2" style={{ color: '#62C4C3' }}>9.2/10</div>
+                        <div className="text-sm font-medium" style={{ color: '#62C4C3' }}>Market Position</div>
+                        <div className="text-xs mt-1" style={{ color: '#62C4C3' }}>Strong Positioning</div>
+                      </div>
+                      
+                      <div className="p-4 rounded-xl border" style={{ 
+                        backgroundColor: 'rgba(248, 212, 155, 0.2)', 
+                        borderColor: '#F8D49B' 
+                      }}>
+                        <div className="text-2xl font-bold mb-2" style={{ color: '#B8860B' }}>6.9/10</div>
+                        <div className="text-sm font-medium" style={{ color: '#B8860B' }}>Compliance</div>
+                        <div className="text-xs mt-1" style={{ color: '#B8860B' }}>Meets Standards</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Key Metrics */}
                 <Card>
                   <CardHeader>
@@ -555,7 +604,7 @@ export default function DueDiligenceRequestDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                           {request.result.scorecard.filingHealth}
                         </div>
@@ -563,7 +612,7 @@ export default function DueDiligenceRequestDetail() {
                         <div className="text-xs text-green-600 dark:text-green-400 mt-1">Current & Up-to-date</div>
                       </div>
                       
-                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                           {request.result.scorecard.redFlags}
                         </div>
@@ -571,7 +620,7 @@ export default function DueDiligenceRequestDetail() {
                         <div className="text-xs text-green-600 dark:text-green-400 mt-1">Low Risk Profile</div>
                       </div>
                       
-                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                           {request.result.scorecard.webScore}/10
                         </div>
