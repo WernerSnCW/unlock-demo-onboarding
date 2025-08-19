@@ -22,9 +22,43 @@
       "tags": ["University Spin-out", "Clinical Trials", "Strong Team"]
     },
     "community": {
-      "syndicateInterestPct": 41,
-      "questionsCount": 6,
-      "lastQuestion": "Any KOL references for the pilot sites?"
+      "interest": {
+        "interestPct": 41,
+        "followers": 87,
+        "leadInvestors": 1,
+        "avgChequeGBP": 25000,
+        "history": [28, 31, 34, 37, 39, 40, 41]
+      },
+      "questions": [
+        {
+          "id": "q_101",
+          "target": "company",
+          "body": "Any KOL references for the pilot sites? Would like to understand validation pathway.",
+          "upvotes": 12,
+          "status": "answered",
+          "createdAt": "2025-08-10T14:30:00Z",
+          "answers": [
+            {
+              "authorRole": "company",
+              "author": "Chief Medical Officer",
+              "verified": true,
+              "body": "We have 3 KOLs from NHS trusts validating our approach. Happy to share references under NDA.",
+              "createdAt": "2025-08-11T09:15:00Z"
+            }
+          ],
+          "followers": 8
+        },
+        {
+          "id": "q_102", 
+          "target": "lead",
+          "body": "What's your thesis on regulatory timeline vs competitors?",
+          "upvotes": 6,
+          "status": "open",
+          "createdAt": "2025-08-12T11:20:00Z",
+          "answers": [],
+          "followers": 4
+        }
+      ]
     },
     "addedAt": "2025-07-12"
   },
@@ -51,9 +85,43 @@
       "tags": ["B2B SaaS", "Growing Market", "Filing Lag"]
     },
     "community": {
-      "syndicateInterestPct": 23,
-      "questionsCount": 11,
-      "lastQuestion": "How concentrated is enterprise revenue (>20%)?"
+      "interest": {
+        "interestPct": 23,
+        "followers": 45,
+        "leadInvestors": 0,
+        "avgChequeGBP": 18000,
+        "history": [15, 17, 19, 20, 21, 22, 23]
+      },
+      "questions": [
+        {
+          "id": "q_201",
+          "target": "company",
+          "body": "How concentrated is enterprise revenue (>20%)? Any single customer risk?",
+          "upvotes": 8,
+          "status": "open",
+          "createdAt": "2025-08-14T16:45:00Z",
+          "answers": [],
+          "followers": 5
+        },
+        {
+          "id": "q_202",
+          "target": "community",
+          "body": "Thoughts on B2B payments space saturation vs growth potential?",
+          "upvotes": 14,
+          "status": "answered",
+          "createdAt": "2025-08-13T10:15:00Z",
+          "answers": [
+            {
+              "authorRole": "lead",
+              "author": "Senior Partner",
+              "verified": false,
+              "body": "Market is large but competitive. Key differentiator will be enterprise integration speed.",
+              "createdAt": "2025-08-13T14:20:00Z"
+            }
+          ],
+          "followers": 12
+        }
+      ]
     },
     "addedAt": "2025-06-02"
   },
@@ -80,9 +148,25 @@
       "tags": ["Governance Risk", "Late Filings", "Commodity Exposure"]
     },
     "community": {
-      "syndicateInterestPct": 12,
-      "questionsCount": 3,
-      "lastQuestion": "Debt covenants and maturity profile?"
+      "interest": {
+        "interestPct": 12,
+        "followers": 18,
+        "leadInvestors": 0,
+        "avgChequeGBP": 12000,
+        "history": [8, 9, 10, 11, 11, 12, 12]
+      },
+      "questions": [
+        {
+          "id": "q_301",
+          "target": "company",
+          "body": "Debt covenants and maturity profile? Any refinancing risks?",
+          "upvotes": 3,
+          "status": "open",
+          "createdAt": "2025-08-15T12:30:00Z",
+          "answers": [],
+          "followers": 2
+        }
+      ]
     },
     "addedAt": "2025-04-18"
   },
@@ -109,9 +193,51 @@
       "tags": ["Strong IP", "Breakthrough Tech", "Pending SEIS"]
     },
     "community": {
-      "syndicateInterestPct": 67,
-      "questionsCount": 18,
-      "lastQuestion": "Patent protection timeline in EU markets?"
+      "interest": {
+        "interestPct": 67,
+        "followers": 156,
+        "leadInvestors": 3,
+        "avgChequeGBP": 35000,
+        "history": [58, 60, 62, 65, 66, 67, 67]
+      },
+      "questions": [
+        {
+          "id": "q_401",
+          "target": "company",
+          "body": "Patent protection timeline in EU markets? Any freedom to operate risks?",
+          "upvotes": 22,
+          "status": "answered",
+          "createdAt": "2025-08-09T09:45:00Z",
+          "answers": [
+            {
+              "authorRole": "company",
+              "author": "IP Director",
+              "verified": true,
+              "body": "EU filing submitted Q2; FTO analysis clear in key jurisdictions. Priority patents expire 2041.",
+              "createdAt": "2025-08-09T16:30:00Z"
+            }
+          ],
+          "followers": 18
+        },
+        {
+          "id": "q_402",
+          "target": "lead",
+          "body": "Manufacturing scalability concerns vs market timing?",
+          "upvotes": 15,
+          "status": "answered",
+          "createdAt": "2025-08-11T14:15:00Z",
+          "answers": [
+            {
+              "authorRole": "lead",
+              "author": "Lead Partner",
+              "verified": false,
+              "body": "Staged rollout approach mitigates risk. Strong supplier partnerships already established.",
+              "createdAt": "2025-08-11T17:45:00Z"
+            }
+          ],
+          "followers": 11
+        }
+      ]
     },
     "addedAt": "2025-08-01"
   },
@@ -138,9 +264,61 @@
       "tags": ["Strong IP", "Early Stage", "Regulatory Risk"]
     },
     "community": {
-      "syndicateInterestPct": 89,
-      "questionsCount": 24,
-      "lastQuestion": "FDA approval timeline and costs?"
+      "interest": {
+        "interestPct": 89,
+        "followers": 312,
+        "leadInvestors": 2,
+        "avgChequeGBP": 15000,
+        "history": [62, 64, 70, 75, 83, 86, 89]
+      },
+      "questions": [
+        {
+          "id": "q_501",
+          "target": "lead",
+          "body": "FDA approval timeline and expected costs?",
+          "upvotes": 18,
+          "status": "answered",
+          "createdAt": "2025-08-12T10:00:00Z",
+          "answers": [
+            {
+              "authorRole": "company",
+              "author": "Regulatory Officer",
+              "verified": true,
+              "body": "We expect 9–12 months for 510(k) with two external lab studies.",
+              "createdAt": "2025-08-13T15:10:00Z"
+            }
+          ],
+          "followers": 23
+        },
+        {
+          "id": "q_502",
+          "target": "company",
+          "body": "Current enterprise churn and CAC payback?",
+          "upvotes": 27,
+          "status": "open",
+          "createdAt": "2025-08-14T08:40:00Z",
+          "answers": [],
+          "followers": 11
+        },
+        {
+          "id": "q_503",
+          "target": "community",
+          "body": "Thoughts on regulatory risk vs. EU pathway?",
+          "upvotes": 9,
+          "status": "answered",
+          "createdAt": "2025-08-10T09:20:00Z",
+          "answers": [
+            {
+              "authorRole": "lead",
+              "author": "Lead Investor",
+              "verified": false,
+              "body": "EU MDR timeline is longer; our base case prices in a staged roll-out.",
+              "createdAt": "2025-08-10T12:05:00Z"
+            }
+          ],
+          "followers": 6
+        }
+      ]
     },
     "addedAt": "2025-09-12"
   },
@@ -167,9 +345,43 @@
       "tags": ["Deep Tech", "High R&D", "Long Horizon"]
     },
     "community": {
-      "syndicateInterestPct": 34,
-      "questionsCount": 9,
-      "lastQuestion": "Commercial applications beyond research?"
+      "interest": {
+        "interestPct": 34,
+        "followers": 78,
+        "leadInvestors": 1,
+        "avgChequeGBP": 45000,
+        "history": [28, 29, 31, 32, 33, 34, 34]
+      },
+      "questions": [
+        {
+          "id": "q_601",
+          "target": "company",
+          "body": "Commercial applications beyond research? Timeline to market?",
+          "upvotes": 12,
+          "status": "open",
+          "createdAt": "2025-08-13T13:20:00Z",
+          "answers": [],
+          "followers": 8
+        },
+        {
+          "id": "q_602",
+          "target": "community",
+          "body": "Quantum advantage vs classical computing - realistic timeline?",
+          "upvotes": 7,
+          "status": "answered",
+          "createdAt": "2025-08-11T16:45:00Z",
+          "answers": [
+            {
+              "authorRole": "peer",
+              "author": "Tech Analyst",
+              "verified": false,
+              "body": "5-10 years for narrow applications, longer for general purpose computing.",
+              "createdAt": "2025-08-12T10:15:00Z"
+            }
+          ],
+          "followers": 5
+        }
+      ]
     },
     "addedAt": "2025-05-30"
   }

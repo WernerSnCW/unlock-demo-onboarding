@@ -1,0 +1,217 @@
+Build Brief — Business Profile » Community (Replit)
+1) Files & routes
+
+Route: /business/:id (already exists).
+
+New components:
+
+CommunityPanel.tsx (wrapper)
+
+SyndicateInterest.tsx
+
+QuestionsFeed.tsx
+
+QuestionCard.tsx + AnswerItem.tsx
+
+AskQuestionModal.tsx
+
+Mocks: src/mocks/community/<businessId>.json (per business)
+or extend businesses.json with a community block (shown below).
+
+2) Data contracts (mocks)
+{
+  "interest": {
+    "interestPct": 89,                 // peers short-listing this business
+    "followers": 312,
+    "leadInvestors": 2,
+    "avgChequeGBP": 15000,
+    "history": [62, 64, 70, 75, 83, 86, 89]   // last 7 points for sparkline
+  },
+  "questions": [
+    {
+      "id": "q_101",
+      "target": "lead",                 // lead | company | community
+      "body": "FDA approval timeline and expected costs?",
+      "upvotes": 18,
+      "status": "answered",             // answered | open
+      "createdAt": "2025-08-12T10:00:00Z",
+      "answers": [
+        {
+          "authorRole": "company",      // company | lead | peer
+          "author": "Regulatory Officer",
+          "verified": true,             // show 'Verified company response'
+          "body": "We expect 9–12 months for 510(k) with two external lab studies.",
+          "createdAt": "2025-08-13T15:10:00Z"
+        }
+      ],
+      "followers": 23                    // users following this question
+    },
+    {
+      "id": "q_102",
+      "target": "company",
+      "body": "Current enterprise churn and CAC payback?",
+      "upvotes": 27,
+      "status": "open",
+      "createdAt": "2025-08-14T08:40:00Z",
+      "answers": [],
+      "followers": 11
+    },
+    {
+      "id": "q_103",
+      "target": "community",
+      "body": "Thoughts on regulatory risk vs. EU pathway?",
+      "upvotes": 9,
+      "status": "answered",
+      "createdAt": "2025-08-10T09:20:00Z",
+      "answers": [
+        {
+          "authorRole": "lead",
+          "author": "Lead Investor",
+          "verified": false,
+          "body": "EU MDR timeline is longer; our base case prices in a staged roll-out.",
+          "createdAt": "2025-08-10T12:05:00Z"
+        }
+      ],
+      "followers": 6
+    }
+  ]
+}
+
+3) UI spec
+A) CommunityPanel (card)
+
+Header: “Community”
+
+Sections:
+
+SyndicateInterest
+
+Big % label (e.g., 89%) + progress bar.
+
+Mini metrics row: Followers, Lead investors, Avg cheque.
+
+Tiny sparkline from interest.history.
+
+Tooltip on bar: “% of investors short-listing this business for potential group investment.”
+
+QuestionsFeed
+
+Controls row:
+
+Target filter: All · To Lead · To Company · To Community
+
+Sort: Top · New · Unanswered
+
+Search box (client-side filter over body/answers)
+
+List of QuestionCards (paginated 5 per page).
+
+Actions row (sticky foot at card bottom on desktop):
+
+❤️ Follow (toggle company follow)
+
+❓ Ask a Question (opens modal)
+
+💬 Join Discussion → /syndication (stub)
+
+B) QuestionCard
+
+Badges: Target (To Lead, To Company, Community) — coloured chips.
+
+Body (2–3 lines, expandable).
+
+Meta: upvotes, followers, createdAt (relative time).
+
+Buttons: ▲ Upvote (toggle), 🔔 Follow question (toggle).
+
+Answers list (collapsed if >1):
+
+Each AnswerItem shows avatar placeholder, source badge (Company – Verified, Lead Investor, Peer), body, time.
+
+“Show X more answers” link when collapsed.
+
+Status tag: Answered / Open.
+
+Empty state: “No questions yet. Be the first to ask the lead, company, or community.”
+
+C) AskQuestionModal
+
+Fields:
+
+Route to: Lead investor | Company | Community (radio)
+
+Your question (textarea, min 10 chars)
+
+Footer:
+
+Primary: Submit (stub) → appends to local state with status:"open" and 0 upvotes.
+
+Legal line: “Public Q&A. Keep it professional; no personal data.”
+
+4) Behaviours
+
+Interest bar animation: tween to interestPct on mount.
+
+Upvote: client-side toggle; increment/decrement upvotes.
+
+Follow question: toggle followers count and show toast “You’ll be notified when this question is answered (prototype).”
+
+Filters/sort:
+
+Target: filter by target.
+
+Sort Top: by upvotes desc, then createdAt desc.
+
+New: by createdAt desc.
+
+Unanswered: status === "open" first, then createdAt desc.
+
+Pagination: 5 per page with “Load more”.
+
+Accessibility:
+
+All controls keyboard reachable; visible focus ring.
+
+aria-label on target chips, upvote, follow.
+
+Announce toasts with aria-live="polite".
+
+5) Copy (ready to paste)
+
+Syndicate tooltip: “Shows how many investors viewing this company have short-listed it for potential group investment.”
+
+Target badges:
+
+To Lead → Questions about thesis, terms, diligence rationale.
+
+To Company → Operational, product, or financial details.
+
+Community → Peer opinions and comparisons.
+
+Verified company response badge: “Verified Company Response”
+
+Empty feed: “No questions match your filters. Try ‘All’ or ask a new one.”
+
+6) Styling (tokens only)
+
+Card radius 12px; soft shadow token.
+
+Progress bar uses accent token; risk-colours never used here.
+
+Badges: small, pill, token background (lead=accent; company=teal; community=muted).
+
+Spacing rhythm 12/16/24.
+
+7) Acceptance criteria (DoD)
+
+CommunityPanel renders interest bar + metrics + sparkline, questions feed with filter/sort/search, and action buttons.
+
+AskQuestionModal routes new questions to selected target and appends to list (stub).
+
+QuestionCard shows target badge, status, upvote & follow toggles, answers with source badges; verified company answers display a “Verified” chip.
+
+Filters (target) and Sort (Top/New/Unanswered) work together; pagination loads more.
+
+Syndicate interest tooltip and copy present; animations smooth; toasts on follow/upvote.
+
+All UI uses CSS variables; keyboard & screen reader usable; no console errors.

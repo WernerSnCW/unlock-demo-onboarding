@@ -2,6 +2,7 @@ import { useRoute, Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
+import { CommunityPanel } from '@/components/community/CommunityPanel';
 import businessesData from '../mocks/businesses.json';
 
 export default function BusinessProfile() {
@@ -213,61 +214,7 @@ export default function BusinessProfile() {
             </div>
 
             {/* Community */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <i className="fas fa-users text-[#62C4C3]" aria-hidden="true"></i>
-                Community
-              </h2>
-
-              <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Syndicate Interest</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {business.community.syndicateInterestPct}%
-                    </span>
-                  </div>
-                  <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-[#5193B3] to-[#62C4C3] transition-all duration-500"
-                      style={{ width: `${business.community.syndicateInterestPct}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Peers short-listing this business
-                  </p>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Questions Asked</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {business.community.questionsCount}
-                    </span>
-                  </div>
-                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 italic">
-                      "{business.community.lastQuestion}"
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Button className="w-full bg-[#5193B3] hover:bg-[#4082a2] text-white">
-                    <i className="fas fa-heart mr-2" aria-hidden="true"></i>
-                    Follow
-                  </Button>
-                  <Button variant="outline" className="w-full text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <i className="fas fa-question-circle mr-2" aria-hidden="true"></i>
-                    Ask a Question
-                  </Button>
-                  <Button variant="outline" className="w-full text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <i className="fas fa-comments mr-2" aria-hidden="true"></i>
-                    Join Discussion
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <CommunityPanel business={business} />
           </div>
 
           {/* Action Row */}
