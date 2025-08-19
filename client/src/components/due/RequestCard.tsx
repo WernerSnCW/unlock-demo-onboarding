@@ -56,10 +56,8 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
   };
 
   return (
-    <Card className={`group transition-all duration-200 hover:shadow-md border border-[var(--border)] ${
-      variant === 'compact' ? 'p-3' : 'p-4'
-    }`} 
-    style={{ borderRadius: '12px' }}>
+    <Card className="group transition-all duration-200 hover:shadow-md border border-[var(--border)] overflow-hidden" 
+    style={{ borderRadius: '12px', padding: '16px' }}>
       
       {/* Content Zone */}
       <CardContent className="p-0 space-y-3">
@@ -90,21 +88,21 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
         </div>
 
         {/* Essentials */}
-        <div className="flex items-center gap-3 text-sm text-[var(--muted-foreground)]">
+        <div className="flex items-center flex-wrap gap-2 text-sm text-[var(--muted-foreground)]">
           <span className="font-medium">{request.businessContext.industry}</span>
-          <span>•</span>
+          <span className="text-xs">•</span>
           <span className="flex items-center gap-1">
             <MapPin className="h-3 w-3 opacity-70" />
             {request.businessContext.headquarters}
           </span>
-          <span>•</span>
+          <span className="text-xs">•</span>
           <span className="flex items-center gap-1">
             <Users2 className="h-3 w-3 opacity-70" />
             {request.businessContext.size} ({request.businessContext.employeeCount})
           </span>
           {request.companyNumber && (
             <>
-              <span>•</span>
+              <span className="text-xs">•</span>
               <span className="font-mono text-xs">#{request.companyNumber}</span>
             </>
           )}
@@ -139,33 +137,33 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
         {variant !== 'compact' && (
           <>
             {isLoading && (
-              <div className="flex items-center gap-4 text-sm">
-                <div>
+              <div className="flex items-center flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-1">
                   <span className="font-medium">{request.progress}%</span>
-                  <span className="text-xs text-[var(--muted-foreground)] ml-1">Progress</span>
+                  <span className="text-xs text-[var(--muted-foreground)]">Progress</span>
                 </div>
                 {request.status === 'processing' && (
-                  <div>
+                  <div className="flex items-center gap-1">
                     <span className="font-medium">{request.sla === 'fast' ? '10-15' : '30-45'}min</span>
-                    <span className="text-xs text-[var(--muted-foreground)] ml-1">Est. time</span>
+                    <span className="text-xs text-[var(--muted-foreground)]">Est. time</span>
                   </div>
                 )}
               </div>
             )}
 
             {isCompleted && request.result && (
-              <div className="flex items-center gap-4 text-sm">
-                <div>
+              <div className="flex items-center flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-1">
                   <span className="font-medium">{request.result.confidenceScore}%</span>
-                  <span className="text-xs text-[var(--muted-foreground)] ml-1">Confidence</span>
+                  <span className="text-xs text-[var(--muted-foreground)]">Confidence</span>
                 </div>
-                <div>
+                <div className="flex items-center gap-1">
                   <span className="font-medium">{request.result.coverageScore}%</span>
-                  <span className="text-xs text-[var(--muted-foreground)] ml-1">Coverage</span>
+                  <span className="text-xs text-[var(--muted-foreground)]">Coverage</span>
                 </div>
-                <div>
+                <div className="flex items-center gap-1">
                   <span className="font-medium">{request.result.turnaroundTime}min</span>
-                  <span className="text-xs text-[var(--muted-foreground)] ml-1">Turnaround</span>
+                  <span className="text-xs text-[var(--muted-foreground)]">Turnaround</span>
                 </div>
               </div>
             )}
@@ -173,33 +171,33 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
         )}
 
         {/* When & Who */}
-        <div className="flex items-center justify-between text-sm text-[var(--muted-foreground)]">
+        <div className="flex items-center justify-between flex-wrap gap-2 text-sm text-[var(--muted-foreground)]">
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3 opacity-70" />
-            <span>{formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}</span>
+            <span className="text-xs">{formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}</span>
           </div>
-          <span>{request.requestedBy}</span>
+          <span className="text-xs">{request.requestedBy}</span>
         </div>
       </CardContent>
 
       {/* Actions Zone */}
       {showActions && (
-        <CardFooter className="border-t border-[var(--border)] p-0 pt-3 mt-4">
-          <div className="flex items-center gap-2 w-full">
+        <CardFooter className="border-t border-[var(--border)] p-0 pt-3 mt-3">
+          <div className="flex items-center flex-wrap gap-2 w-full">
             {isCompleted && request.result && (
               <>
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
                   <Eye className="h-3 w-3 opacity-70" />
                   View
                 </Button>
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
                   <Download className="h-3 w-3 opacity-70" />
                   Download
                 </Button>
                 {request.type === 'snapshot' && (
                   <Button 
                     size="sm" 
-                    className="flex items-center gap-1 bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] text-black hover:opacity-90"
+                    className="flex items-center gap-1 bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] text-black hover:opacity-90 text-xs"
                   >
                     <Crown className="h-3 w-3" />
                     Upgrade
@@ -209,7 +207,7 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
             )}
 
             {isFailed && (
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
                 <RotateCcw className="h-3 w-3 opacity-70" />
                 Retry
               </Button>
