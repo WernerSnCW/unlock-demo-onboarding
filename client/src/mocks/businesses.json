@@ -19,7 +19,107 @@
       "webScore": 76,
       "redFlags": 0,
       "summary": "Clinical tooling spin-out with solid governance; clean filing cadence; moderate web footprint.",
-      "tags": ["University Spin-out", "Clinical Trials", "Strong Team"]
+      "tags": ["University Spin-out", "Clinical Trials", "Strong Team"],
+      "detailedAssessment": {
+        "company": {
+          "score": 85,
+          "status": "Strong",
+          "keyPoints": [
+            "Clear value proposition with differentiated biotech solutions",
+            "Experienced founding team from Oxford research background", 
+            "Strong intellectual property portfolio with 3 filed patents",
+            "Validated product-market fit with NHS pilot programs"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 92,
+          "status": "Excellent",
+          "keyPoints": [
+            "Full regulatory compliance with MHRA and FDA guidance",
+            "Up-to-date Companies House filings with no late submissions",
+            "Proper employment contracts and IP assignments in place",
+            "ISO 13485 quality management system implemented"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 95,
+          "status": "Very Low",
+          "keyPoints": [
+            "All directors have clean backgrounds with no adverse findings",
+            "Financial statements audited by Grant Thornton",
+            "No red flags in Experian credit reports or sanctions screening",
+            "Transparent operations with verifiable NHS references"
+          ],
+          "concerns": []
+        },
+        "financialHealth": {
+          "score": 78,
+          "status": "Good",
+          "keyPoints": [
+            "Strong revenue growth of 140% year-over-year from pilot contracts",
+            "Positive gross margins with improving unit economics",
+            "24 months runway based on current burn rate",
+            "Grant funding of £850k secured from Innovate UK"
+          ],
+          "concerns": [
+            "Dependency on NHS procurement cycles for revenue timing",
+            "Working capital requirements for clinical trial inventory"
+          ]
+        },
+        "management": {
+          "score": 88,
+          "status": "Strong",
+          "keyPoints": [
+            "CEO has 12+ years experience in clinical research",
+            "CTO previously led biotech initiatives at GSK",
+            "Complete leadership team with complementary skill sets",
+            "Strong advisory board including KOLs from Oxford and Imperial"
+          ],
+          "concerns": [
+            "Limited commercial scaling experience outside clinical trials"
+          ]
+        },
+        "marketing": {
+          "score": 72,
+          "status": "Good",
+          "keyPoints": [
+            "Strong positioning in clinical trials optimization market",
+            "Active presence at key industry conferences (BIO, SCOPE)",
+            "Growing thought leadership through peer-reviewed publications",
+            "Effective B2B sales process with NHS procurement experience"
+          ],
+          "concerns": [
+            "Limited brand awareness in international markets",
+            "Digital marketing presence could be strengthened"
+          ]
+        },
+        "claimsManagement": {
+          "score": 85,
+          "status": "Strong",
+          "keyPoints": [
+            "Comprehensive professional indemnity insurance (£5M coverage)",
+            "Product liability insurance appropriate for medical device classification",
+            "Clinical trial insurance covering all pilot programs",
+            "No current legal disputes or outstanding claims"
+          ],
+          "concerns": []
+        },
+        "investorValidation": {
+          "score": 83,
+          "status": "Strong",
+          "keyPoints": [
+            "Previous seed round led by Oxford Sciences Innovation",
+            "Strong cap table with strategic healthcare investor participation",
+            "Board includes experienced biotech industry veterans",
+            "Positive investor references and continued backing"
+          ],
+          "concerns": [
+            "Could benefit from additional institutional healthcare VCs"
+          ]
+        }
+      }
     },
     "community": {
       "interest": {
@@ -82,7 +182,115 @@
       "webScore": 64,
       "redFlags": 1,
       "summary": "Payments orchestration with multi-PSP routing; minor filing lag noted; strong traffic trend.",
-      "tags": ["B2B SaaS", "Growing Market", "Filing Lag"]
+      "tags": ["B2B SaaS", "Growing Market", "Filing Lag"],
+      "detailedAssessment": {
+        "company": {
+          "score": 78,
+          "status": "Good",
+          "keyPoints": [
+            "Established payments orchestration platform with proven technology",
+            "Strong B2B SaaS model with recurring revenue streams",
+            "Multi-PSP routing provides competitive differentiation",
+            "Growing customer base with established enterprise clients"
+          ],
+          "concerns": [
+            "Competitive fintech market with established players"
+          ]
+        },
+        "complianceCheck": {
+          "score": 75,
+          "status": "Good",
+          "keyPoints": [
+            "FCA authorization for payment services in place",
+            "PCI DSS Level 1 compliance maintained",
+            "GDPR compliance framework implemented",
+            "Regular compliance audits conducted"
+          ],
+          "concerns": [
+            "Minor filing delays noted in recent submissions",
+            "Need to monitor regulatory changes in payment services"
+          ]
+        },
+        "fraudRisk": {
+          "score": 88,
+          "status": "Strong",
+          "keyPoints": [
+            "Directors have clean financial and regulatory records",
+            "No adverse regulatory actions or sanctions",
+            "Transparent financial reporting with external auditors",
+            "Strong operational controls and risk management"
+          ],
+          "concerns": []
+        },
+        "financialHealth": {
+          "score": 70,
+          "status": "Good",
+          "keyPoints": [
+            "Revenue growth of 95% year-over-year",
+            "Positive unit economics with expanding margins",
+            "Diversified customer base reducing concentration risk",
+            "Strong cash flow from operations improving"
+          ],
+          "concerns": [
+            "Higher cash burn during expansion phase",
+            "Working capital requirements for payment float",
+            "Dependency on payment processing volumes"
+          ]
+        },
+        "management": {
+          "score": 82,
+          "status": "Strong",
+          "keyPoints": [
+            "Experienced fintech leadership team",
+            "CEO previously scaled payment companies",
+            "Strong technical leadership with payments expertise",
+            "Proven track record in B2B SaaS scaling"
+          ],
+          "concerns": [
+            "Key person dependency on founder-CEO"
+          ]
+        },
+        "marketing": {
+          "score": 68,
+          "status": "Good",
+          "keyPoints": [
+            "Strong positioning in payments orchestration market",
+            "Effective B2B sales and marketing processes",
+            "Growing brand recognition in fintech community",
+            "Good customer testimonials and case studies"
+          ],
+          "concerns": [
+            "Limited international brand presence",
+            "Customer acquisition costs increasing with competition",
+            "Need to strengthen thought leadership position"
+          ]
+        },
+        "claimsManagement": {
+          "score": 85,
+          "status": "Strong",
+          "keyPoints": [
+            "Comprehensive professional indemnity coverage",
+            "Payment services insurance appropriate for volumes",
+            "Cyber liability insurance covering data breaches",
+            "No outstanding legal disputes or claims"
+          ],
+          "concerns": []
+        },
+        "investorValidation": {
+          "score": 74,
+          "status": "Good",
+          "keyPoints": [
+            "Previous funding from recognized fintech investors",
+            "Board includes payments industry experts",
+            "Strategic partnerships with major PSPs",
+            "Positive references from existing investor base"
+          ],
+          "concerns": [
+            "Could benefit from tier-1 VC backing",
+            "Limited institutional investor diversity"
+          ]
+        }
+      }
     },
     "community": {
       "interest": {

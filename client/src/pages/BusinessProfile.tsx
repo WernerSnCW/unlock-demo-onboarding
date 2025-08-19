@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { CommunityPanel } from '@/components/community/CommunityPanel';
+import { DetailedSnapshot } from '@/components/DetailedSnapshot';
 import businessesData from '../mocks/businesses.json';
 
 export default function BusinessProfile() {
@@ -216,6 +217,13 @@ export default function BusinessProfile() {
             {/* Community */}
             <CommunityPanel business={business} />
           </div>
+
+          {/* Detailed Due Diligence Assessment */}
+          {business.snapshot.detailedAssessment && (
+            <div className="mt-6">
+              <DetailedSnapshot assessment={business.snapshot.detailedAssessment} />
+            </div>
+          )}
 
           {/* Action Row */}
           <div className="flex flex-wrap gap-4 mt-6">
