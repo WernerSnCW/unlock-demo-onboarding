@@ -91,7 +91,7 @@ export default function Footer() {
           </div>
           
           <div className="flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-slate-400 text-sm">© 2024 Unlock Intelligence Ltd. All rights reserved.</p>
+            <p className="text-slate-400 text-sm">© 2025 Unlock Ltd. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
               <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Privacy Policy</a>
               <a href="#" className="text-slate-400 hover:text-white text-sm transition-colors duration-200">Terms of Service</a>
