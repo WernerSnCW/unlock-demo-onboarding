@@ -22,27 +22,30 @@ export function RequestsMiniPanel() {
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               No requests yet. Start with a snapshot above.
             </p>
-            <Link href="/due-diligence">
-              <span 
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '10px 16px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#000000 !important',
-                  backgroundColor: '#f3f4f6',
-                  border: '2px solid #9ca3af',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  textDecoration: 'none',
-                  fontFamily: 'system-ui, sans-serif'
-                }}
-              >
-                ▶ View Due Diligence Hub
-              </span>
-            </Link>
+            <div 
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                backgroundColor: '#2563eb',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                textDecoration: 'none',
+                fontFamily: 'Arial, sans-serif',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                textShadow: 'none',
+                WebkitTextFillColor: '#ffffff',
+                textRendering: 'optimizeLegibility'
+              }}
+              onClick={() => window.location.href = '/due-diligence'}
+            >
+              🔍 View Due Diligence Hub
+            </div>
           </div>
         </CardContent>
       </Card>
