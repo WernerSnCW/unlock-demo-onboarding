@@ -116,12 +116,78 @@ export function SyndicateInterest({ interest }: SyndicateInterestProps) {
         </div>
       </div>
 
-      {/* Sparkline */}
-      <div className="flex items-center justify-center gap-2 pt-2">
-        <div className="text-xs text-gray-600 dark:text-gray-400">
-          7-day trend:
+      {/* Enhanced 7-Day Trend */}
+      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-medium text-gray-600 dark:text-gray-400">7-day trend</div>
+          <div className="flex items-center gap-1 text-xs">
+            {(() => {
+              const current = interest.history[interest.history.length - 1];
+              const previous = interest.history[interest.history.length - 2];
+              const change = current - previous;
+              const isUp = change > 0;
+              const isFlat = change === 0;
+              
+              return (
+                <div className={`flex items-center gap-0.5 font-medium ${
+                  isFlat ? 'text-gray-500 dark:text-gray-400' :
+                  isUp ? 'text-green-600 dark:text-green-400' : 
+                  'text-red-600 dark:text-red-400'
+                }`}>
+                  <i className={`fas ${
+                    isFlat ? 'fa-minus' :
+                    isUp ? 'fa-arrow-up' : 'fa-arrow-down'
+                  } text-xs`} aria-hidden="true"></i>
+                  <span>
+                    {isFlat ? 'No change' : `${isUp ? '+' : ''}${change.toFixed(1)}%`}
+                  </span>
+                </div>
+              );
+            })()}
+          </div>
         </div>
-        {generateSparkline(interest.history)}
+        
+        {/* Mini Bar Chart */}
+        <div className="flex items-end justify-between gap-1 h-10">
+          {interest.history.map((value, index) => {
+            const maxValue = Math.max(...interest.history);
+            const minValue = Math.min(...interest.history);
+            const range = maxValue - minValue || 1;
+            const normalizedHeight = Math.max(20, ((value - minValue) / range) * 80 + 20);
+            const isLast = index === interest.history.length - 1;
+            const isHigh = value >= maxValue * 0.8;
+            
+            return (
+              <div
+                key={index}
+                className="relative flex-1 group cursor-help max-w-6"
+                title={`${7 - index} days ago: ${value}% interest`}
+              >
+                <div
+                  className={`w-full rounded-t transition-all duration-300 ${
+                    isLast 
+                      ? 'bg-gradient-to-t from-[#5193B3] to-[#62C4C3] shadow-md border border-[#5193B3]/20' 
+                      : isHigh
+                      ? 'bg-gradient-to-t from-[#F8D49B]/60 to-[#F8D49B]/80 group-hover:from-[#F8D49B] group-hover:to-[#F8D49B]'
+                      : 'bg-gray-300 dark:bg-gray-600 group-hover:bg-gradient-to-t group-hover:from-[#5193B3]/40 group-hover:to-[#62C4C3]/40'
+                  }`}
+                  style={{ height: `${normalizedHeight}%` }}
+                />
+                
+                {/* Value label on hover */}
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {value}%
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Time Labels */}
+        <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500">
+          <span>7d ago</span>
+          <span>Today</span>
+        </div>
       </div>
     </div>
   );
