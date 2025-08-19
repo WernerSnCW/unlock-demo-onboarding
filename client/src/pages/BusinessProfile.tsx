@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { CommunityPanel } from '@/components/community/CommunityPanel';
-import { DetailedSnapshot } from '@/components/DetailedSnapshot';
+
 import businessesData from '../mocks/businesses.json';
 
 export default function BusinessProfile() {
@@ -46,6 +46,23 @@ export default function BusinessProfile() {
       case 'Watch': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
       case 'Poor': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'excellent':
+      case 'very low':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'strong':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'good':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'watch':
+      case 'moderate':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+      default:
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
     }
   };
 
@@ -165,39 +182,68 @@ export default function BusinessProfile() {
                 Snapshot Summary
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3">
+                {/* Company */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Filing Health:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getFilingHealthColor(business.snapshot.filingHealth)}`}>
-                    {business.snapshot.filingHealth}
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Company:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.company?.status || 'Good')}`}>
+                    {business.snapshot.detailedAssessment?.company?.status || 'Good'}
                   </span>
                 </div>
-                
+
+                {/* Compliance Check */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Web Score:</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-[#5193B3] transition-all duration-300"
-                        style={{ width: `${business.snapshot.webScore}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {business.snapshot.webScore}/100
-                    </span>
-                  </div>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Compliance Check:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.complianceCheck?.status || 'Good')}`}>
+                    {business.snapshot.detailedAssessment?.complianceCheck?.status || 'Good'}
+                  </span>
                 </div>
-                
+
+                {/* Fraud Risk Assessment */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Red Flags:</span>
-                  <span className={`text-sm font-medium ${
-                    business.snapshot.redFlags === 0 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : business.snapshot.redFlags <= 2 
-                      ? 'text-yellow-600 dark:text-yellow-400'
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {business.snapshot.redFlags}
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Fraud Risk Assessment:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.fraudRisk?.status || 'Low')}`}>
+                    {business.snapshot.detailedAssessment?.fraudRisk?.status || 'Very Low'}
+                  </span>
+                </div>
+
+                {/* Financial Health */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Financial Health:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.financialHealth?.status || 'Good')}`}>
+                    {business.snapshot.detailedAssessment?.financialHealth?.status || 'Good'}
+                  </span>
+                </div>
+
+                {/* Management */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Management:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.management?.status || 'Strong')}`}>
+                    {business.snapshot.detailedAssessment?.management?.status || 'Strong'}
+                  </span>
+                </div>
+
+                {/* Marketing & Brand Management */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.marketing?.status || 'Good')}`}>
+                    {business.snapshot.detailedAssessment?.marketing?.status || 'Good'}
+                  </span>
+                </div>
+
+                {/* Claims Management */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Claims Management:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.claimsManagement?.status || 'Strong')}`}>
+                    {business.snapshot.detailedAssessment?.claimsManagement?.status || 'Strong'}
+                  </span>
+                </div>
+
+                {/* Investor Validation */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Investor Validation:</span>
+                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.investorValidation?.status || 'Strong')}`}>
+                    {business.snapshot.detailedAssessment?.investorValidation?.status || 'Strong'}
                   </span>
                 </div>
               </div>
@@ -218,12 +264,7 @@ export default function BusinessProfile() {
             <CommunityPanel business={business} />
           </div>
 
-          {/* Detailed Due Diligence Assessment */}
-          {business.snapshot.detailedAssessment && (
-            <div className="mt-6">
-              <DetailedSnapshot assessment={business.snapshot.detailedAssessment} />
-            </div>
-          )}
+
 
           {/* Action Row */}
           <div className="flex flex-wrap gap-4 mt-6">
