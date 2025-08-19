@@ -34,7 +34,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
     <div className="bg-[var(--primary)] border border-[var(--primary)] rounded-2xl p-6 mb-6 shadow-md">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-[var(--primary-foreground)] mb-2">
-          Generate a Due Diligence Snapshot
+          Request a Due Diligence Snapshot
         </h2>
         <p className="text-[var(--primary-foreground)]/80">
           Get comprehensive business intelligence and risk analysis in seconds
@@ -56,10 +56,10 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           </div>
           <button
             type="submit"
-            aria-label="Generate snapshot"
+            aria-label="Request snapshot"
             className="px-6 py-3 bg-white text-[var(--primary)] font-semibold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[var(--primary)] transition-all shadow-sm hover:shadow-md flex-shrink-0"
           >
-            Generate Snapshot
+            Request Snapshot
           </button>
         </div>
 
@@ -75,10 +75,10 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           />
           <button
             type="submit"
-            aria-label="Generate snapshot"
+            aria-label="Request snapshot"
             className="w-full px-6 py-3 bg-white text-[var(--primary)] font-semibold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[var(--primary)] transition-all shadow-sm hover:shadow-md"
           >
-            Generate Snapshot
+            Request Snapshot
           </button>
         </div>
 
