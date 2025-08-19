@@ -186,13 +186,10 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
       source: "detailed_form",
     });
 
-    // Open the DD Snapshot tool with context
-    onToolOpen?.("dd_snapshot");
-
-    // Show confirmation
+    // Show success message
     toast({
-      title: "Snapshot Request Queued",
-      description: `Request queued for ${formData.verifiedCompany?.name || formData.company}`,
+      title: "Snapshot Request Submitted",
+      description: `Due diligence snapshot request for ${formData.verifiedCompany?.name || formData.company} has been successfully submitted. You'll receive an email when it's ready.`,
     });
 
     // Reset form and close
