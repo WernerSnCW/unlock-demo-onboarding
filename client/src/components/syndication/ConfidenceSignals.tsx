@@ -17,12 +17,12 @@ export function ConfidenceSignals({ interest }: ConfidenceSignalsProps) {
 
   const confidence = getConfidenceLevel(interest.confidenceScore);
 
-  // Create sparkline SVG path
-  const createSparklinePath = (data: number[]) => {
-    if (data.length < 2) return '';
+  // Create sparkline data for enhanced trend visualization
+  const createTrendData = (data: number[]) => {
+    if (data.length < 2) return { path: '', points: [] };
     
-    const width = 120;
-    const height = 30;
+    const width = 300;
+    const height = 60;
     const maxValue = Math.max(...data);
     const minValue = Math.min(...data);
     const range = maxValue - minValue || 1;
@@ -30,10 +30,14 @@ export function ConfidenceSignals({ interest }: ConfidenceSignalsProps) {
     const points = data.map((value, index) => {
       const x = (index / (data.length - 1)) * width;
       const y = height - ((value - minValue) / range) * height;
-      return `${x},${y}`;
-    }).join(' ');
+      return { x, y, value };
+    });
     
-    return `M ${points.replace(/,/g, ' L ').replace(/ L /, ' ')}`;
+    const pathData = points.map((point, index) => 
+      index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`
+    ).join(' ');
+    
+    return { path: pathData, points };
   };
 
   return (
@@ -152,44 +156,44 @@ export function ConfidenceSignals({ interest }: ConfidenceSignalsProps) {
             Last 7 periods
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <svg width="120" height="30" className="w-full max-w-[120px]">
-              <path
-                d={createSparklinePath(interest.history)}
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="2"
-                className="drop-shadow-sm"
-              />
-              {interest.history.map((value, index) => {
-                const width = 120;
-                const height = 30;
-                const maxValue = Math.max(...interest.history);
-                const minValue = Math.min(...interest.history);
-                const range = maxValue - minValue || 1;
-                const x = (index / (interest.history.length - 1)) * width;
-                const y = height - ((value - minValue) / range) * height;
-                
-                return (
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Interest Trend
+              </div>
+              <svg width="300" height="60" className="opacity-90">
+                {/* Trend line */}
+                <path
+                  d={createTrendData(interest.history).path}
+                  fill="none"
+                  stroke="var(--primary)"
+                  strokeWidth="2"
+                  className="drop-shadow-sm"
+                />
+                {/* Data points */}
+                {createTrendData(interest.history).points.map((point, index) => (
                   <circle
                     key={index}
-                    cx={x}
-                    cy={y}
-                    r="2"
+                    cx={point.x}
+                    cy={point.y}
+                    r="3"
                     fill="var(--primary)"
                     className="drop-shadow-sm"
                   />
-                );
-              })}
-            </svg>
-          </div>
-          <div className="text-right">
-            <div className="text-lg font-bold text-[var(--primary)]">
-              {interest.overallPct}%
+                ))}
+              </svg>
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              Current
+            <div className="text-right">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Last 7 periods
+              </div>
+              <div className="text-lg font-bold text-[var(--primary)]">
+                {interest.overallPct}%
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Current
+              </div>
             </div>
           </div>
         </div>

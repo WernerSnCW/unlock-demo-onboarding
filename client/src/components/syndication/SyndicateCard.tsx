@@ -73,10 +73,10 @@ export function SyndicateCard({ syndicate, onOpen, searchTerm }: SyndicateCardPr
     );
   };
 
-  const createSparklinePath = (data: number[]) => {
-    if (data.length < 2) return '';
-    const width = 60;
-    const height = 16;
+  const createSparklineData = (data: number[]) => {
+    if (data.length < 2) return { path: '', points: [] };
+    const width = 120;
+    const height = 24;
     const maxValue = Math.max(...data);
     const minValue = Math.min(...data);
     const range = maxValue - minValue || 1;
@@ -84,10 +84,14 @@ export function SyndicateCard({ syndicate, onOpen, searchTerm }: SyndicateCardPr
     const points = data.map((value, index) => {
       const x = (index / (data.length - 1)) * width;
       const y = height - ((value - minValue) / range) * height;
-      return `${x},${y}`;
-    }).join(' ');
+      return { x, y, value };
+    });
     
-    return `M ${points.replace(/,/g, ' L ').replace(/ L /, ' ')}`;
+    const pathData = points.map((point, index) => 
+      index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`
+    ).join(' ');
+    
+    return { path: pathData, points };
   };
 
   const handleWatchToggle = () => {
@@ -196,23 +200,45 @@ export function SyndicateCard({ syndicate, onOpen, searchTerm }: SyndicateCardPr
           ></div>
         </div>
         
-        {/* Sparkline */}
-        <div className="flex items-center gap-2">
-          <svg width="60" height="16" className="opacity-70">
-            <path
-              d={createSparklinePath(syndicate.interest.history)}
-              fill="none"
-              stroke="var(--primary)"
-              strokeWidth="1.5"
-              className="drop-shadow-sm"
-            />
-          </svg>
-          <span 
-            className="text-xs text-gray-500 dark:text-gray-400 cursor-help"
-            title="Momentum last 7 updates"
-          >
-            Momentum
-          </span>
+        {/* Interest Trend */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+              Interest Trend
+            </span>
+            <svg width="120" height="24" className="opacity-90">
+              {/* Trend line */}
+              <path
+                d={createSparklineData(syndicate.interest.history).path}
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="1.5"
+                className="drop-shadow-sm"
+              />
+              {/* Data points */}
+              {createSparklineData(syndicate.interest.history).points.map((point, index) => (
+                <circle
+                  key={index}
+                  cx={point.x}
+                  cy={point.y}
+                  r="2"
+                  fill="var(--primary)"
+                  className="drop-shadow-sm"
+                />
+              ))}
+            </svg>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              Last 7 periods
+            </div>
+            <div className="text-sm font-semibold text-[var(--primary)]">
+              {syndicate.interest.overallPct}%
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              Current
+            </div>
+          </div>
         </div>
       </div>
 
