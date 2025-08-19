@@ -180,7 +180,7 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
           
           <TabsContent value="deep_dive" className="mt-2">
             <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
-              <strong>Premium feature.</strong> Simulated in prototype; requires subscription in production.
+              <strong>Premium feature.</strong> Requires subscription for access.
             </div>
           </TabsContent>
         </Tabs>
