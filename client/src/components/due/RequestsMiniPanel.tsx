@@ -23,7 +23,7 @@ export function RequestsMiniPanel() {
               No requests yet. Start with a snapshot above.
             </p>
             <Link href="/due-diligence">
-              <Button variant="outline" size="sm" className="w-full">
+              <Button variant="outline" size="sm" className="w-full text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800">
                 View Due Diligence Hub →
               </Button>
             </Link>
