@@ -39,10 +39,10 @@ interface SnapshotRequest {
   website?: string;
   jurisdiction: string;
   reason: string;
-  includeDirectorChecks: boolean;
-  includeFilingTimeline: boolean;
-  includeWebFootprint: boolean;
-  includePeerQA: boolean;
+  includeFinancialAnalysis: boolean;
+  includeRiskAssessment: boolean;
+  includeMarketPosition: boolean;
+  includeComplianceCheck: boolean;
   attachments: File[];
   consentGiven: boolean;
 }
@@ -60,10 +60,10 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
     website: "",
     jurisdiction: "UK",
     reason: "",
-    includeDirectorChecks: true,
-    includeFilingTimeline: true,
-    includeWebFootprint: false,
-    includePeerQA: false,
+    includeFinancialAnalysis: true,
+    includeRiskAssessment: true,
+    includeMarketPosition: false,
+    includeComplianceCheck: false,
     attachments: [],
     consentGiven: false,
   });
@@ -203,10 +203,10 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
       website: "",
       jurisdiction: "UK",
       reason: "",
-      includeDirectorChecks: true,
-      includeFilingTimeline: true,
-      includeWebFootprint: false,
-      includePeerQA: false,
+      includeFinancialAnalysis: true,
+      includeRiskAssessment: true,
+      includeMarketPosition: false,
+      includeComplianceCheck: false,
       attachments: [],
       consentGiven: false,
     });
@@ -343,15 +343,15 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                       setFormData((prev) => ({ ...prev, jurisdiction: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="UK">United Kingdom</SelectItem>
-                      <SelectItem value="US">United States</SelectItem>
-                      <SelectItem value="EU">European Union</SelectItem>
-                      <SelectItem value="CA">Canada</SelectItem>
-                      <SelectItem value="AU">Australia</SelectItem>
+                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                      <SelectItem value="UK" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">United Kingdom</SelectItem>
+                      <SelectItem value="US" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">United States</SelectItem>
+                      <SelectItem value="EU" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">European Union</SelectItem>
+                      <SelectItem value="CA" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">Canada</SelectItem>
+                      <SelectItem value="AU" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">Australia</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -369,18 +369,18 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                       setFormData((prev) => ({ ...prev, reason: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                       <SelectValue placeholder="Select reason" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="initial">Initial screening</SelectItem>
-                      <SelectItem value="followup">
+                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                      <SelectItem value="initial" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">Initial screening</SelectItem>
+                      <SelectItem value="followup" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">
                         Follow-up diligence
                       </SelectItem>
-                      <SelectItem value="monitoring">
+                      <SelectItem value="monitoring" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">
                         Portfolio monitoring
                       </SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="other" className="text-gray-900 dark:text-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -394,74 +394,74 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="director-checks"
-                      checked={formData.includeDirectorChecks}
+                      id="financial-analysis"
+                      checked={formData.includeFinancialAnalysis}
                       onCheckedChange={(checked) =>
                         setFormData((prev) => ({
                           ...prev,
-                          includeDirectorChecks: !!checked,
+                          includeFinancialAnalysis: !!checked,
                         }))
                       }
                     />
                     <Label
-                      htmlFor="director-checks"
+                      htmlFor="financial-analysis"
                       className="text-sm font-normal text-gray-700 dark:text-gray-300"
                     >
-                      Director checks
+                      Financial Analysis
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="filing-timeline"
-                      checked={formData.includeFilingTimeline}
+                      id="risk-assessment"
+                      checked={formData.includeRiskAssessment}
                       onCheckedChange={(checked) =>
                         setFormData((prev) => ({
                           ...prev,
-                          includeFilingTimeline: !!checked,
+                          includeRiskAssessment: !!checked,
                         }))
                       }
                     />
                     <Label
-                      htmlFor="filing-timeline"
+                      htmlFor="risk-assessment"
                       className="text-sm font-normal text-gray-700 dark:text-gray-300"
                     >
-                      Filing timeline
+                      Risk Assessment
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="web-footprint"
-                      checked={formData.includeWebFootprint}
+                      id="market-position"
+                      checked={formData.includeMarketPosition}
                       onCheckedChange={(checked) =>
                         setFormData((prev) => ({
                           ...prev,
-                          includeWebFootprint: !!checked,
+                          includeMarketPosition: !!checked,
                         }))
                       }
                     />
                     <Label
-                      htmlFor="web-footprint"
+                      htmlFor="market-position"
                       className="text-sm font-normal text-gray-700 dark:text-gray-300"
                     >
-                      Web footprint
+                      Market Position
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="peer-qa"
-                      checked={formData.includePeerQA}
+                      id="compliance-check"
+                      checked={formData.includeComplianceCheck}
                       onCheckedChange={(checked) =>
                         setFormData((prev) => ({
                           ...prev,
-                          includePeerQA: !!checked,
+                          includeComplianceCheck: !!checked,
                         }))
                       }
                     />
                     <Label
-                      htmlFor="peer-qa"
+                      htmlFor="compliance-check"
                       className="text-sm font-normal text-gray-700 dark:text-gray-300"
                     >
-                      Peer questions & answers
+                      Compliance Check
                     </Label>
                   </div>
                 </div>
