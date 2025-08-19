@@ -18,7 +18,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-8 shadow-lg text-white">
+    <div className="rounded-lg p-8 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, #5193B3 0%, #4A8AA3 100%)' }}>
       <div className="max-w-4xl mx-auto text-center">
         <div className="mb-6">
           <div className="flex justify-center mb-4">
@@ -72,7 +72,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="px-8 bg-white text-blue-700 hover:bg-blue-50 font-semibold">
+              <Button size="lg" className="px-8 bg-white hover:bg-blue-50 font-semibold" style={{ color: '#5193B3' }}>
                 <Building2 className="h-5 w-5 mr-2" />
                 Request Snapshot
               </Button>
