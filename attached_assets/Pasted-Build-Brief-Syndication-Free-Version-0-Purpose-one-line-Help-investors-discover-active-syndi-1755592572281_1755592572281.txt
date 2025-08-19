@@ -1,0 +1,284 @@
+Build Brief — Syndication (Free Version)
+0) Purpose (one line)
+
+Help investors discover active syndicates, see anonymised confidence signals (“investors like you are short-listing this”), request to join (nominal fee: stub), and preview an AI Syndicate Builder Assistant (locked).
+
+1) Routes
+
+/syndication — discovery index (all open syndicates).
+
+/syndication/:id — syndicate detail for one company.
+
+Entry points:
+
+From Business Profile → Community → Join Discussion.
+
+From Business Directory cards (new chip: Open Syndicate).
+
+2) Page structure
+A) /syndication (Discovery)
+
+Header: “Syndication” + subline “Explore open syndicates and community confidence signals.”
+
+Filters row: Sector (chips), Stage, Eligibility (EIS/SEIS), Min cheque band, Closing window (≤ 2 weeks / 30 days / 90 days).
+
+Cards grid (3-across desktop, 1-col mobile). Each SyndicateCard shows:
+
+Company name + ✅ Verified chip + sector chips.
+
+Raise target (e.g., “Target £1.2m”), Committed bar with %.
+
+“Investors like you” badge (e.g., “21% of angels like you shortlisted this”).
+
+Confidence meter (0–100) with tooltip.
+
+Meta row: Lead (alias) · Min cheque · Closes in 18d · EIS/SEIS chips.
+
+CTA: View syndicate (→ /syndication/:id).
+
+B) /syndication/:id (Detail)
+
+Layout: two columns
+
+Left (main)
+
+Overview card: raise target, committed %, min cheque, closing date, carry/fees (if disclosed), EIS/SEIS eligibility.
+
+Confidence & Signals card (see §5).
+
+Activity Timeline (last 10 events): Q&A posted, commitments, updates.
+
+Right (actions & preview)
+
+Join Syndicate (Nominal Fee) card (stub): “Reserve a seat — £25” → modal (no payments; just a success toast + badge “Requested”).
+
+Syndicate Builder Assistant — Preview (locked): blurred sample outreach draft + Upgrade to Pro CTA.
+
+FAQs / Risks: clear “This is not advice. Community interest is not a recommendation.”
+
+3) Components (contracts)
+
+SyndicateCard.tsx
+
+Props: Syndicate
+
+Emits: onOpen()
+
+SyndicateDetailHeader.tsx
+
+Props: Syndicate, Business
+
+ConfidenceSignals.tsx
+
+Props: interest, likeYou, confidenceScore, cohorts, history[]
+
+Renders: meter, cohort bars, “investors like you” badge, sparkline
+
+ActivityTimeline.tsx
+
+Props: events[]
+
+Items: date, icon, text (e.g., “Lead updated valuation memo”)
+
+JoinSyndicateCard.tsx
+
+Props: minCheque, nominalFee
+
+Action: Request to Join → JoinSyndicateModal
+
+JoinSyndicateModal.tsx
+
+Fields: confirm T&Cs checkbox; radio: Share my profile with lead: Yes/No
+
+Primary: Request (stub) → sets requested=true
+
+AssistantPreview.tsx (locked)
+
+Shows: generated email/WhatsApp draft (blurred), Generate button disabled, Upgrade CTA
+
+4) Data (mocks)
+
+Create src/mocks/syndicates.json:
+
+[
+  {
+    "id": "syn_001",
+    "businessId": "biz_001",
+    "company": "Acme Biotech Ltd",
+    "sector": ["Biotechnology"],
+    "verified": true,
+    "stage": "Seed",
+    "targetRaiseGBP": 1200000,
+    "committedPct": 68,
+    "minChequeGBP": 5000,
+    "carryPct": 10,
+    "mgmtFeePct": 0,
+    "closingDate": "2025-10-05",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "lead": { "alias": "LeadAngel-K", "trackRecord": "4 exits" },
+    "interest": {
+      "overallPct": 74,
+      "likeYouPct": 21,
+      "cohorts": { "angels": 62, "funds": 26, "familyOffices": 12 },
+      "history": [40, 45, 55, 60, 67, 71, 74],
+      "confidenceScore": 82
+    },
+    "activity": [
+      { "ts": "2025-08-10T09:00:00Z", "type": "qa", "text": "Founder answered: regulatory plan timelines." },
+      { "ts": "2025-08-12T15:20:00Z", "type": "commit", "text": "New commitments: £150k." },
+      { "ts": "2025-08-16T18:00:00Z", "type": "update", "text": "Lead posted valuation memo (summary)." }
+    ]
+  },
+  {
+    "id": "syn_002",
+    "businessId": "biz_002",
+    "company": "FinPay Solutions Ltd",
+    "sector": ["Fintech"],
+    "verified": true,
+    "stage": "A",
+    "targetRaiseGBP": 3500000,
+    "committedPct": 31,
+    "minChequeGBP": 10000,
+    "carryPct": 15,
+    "mgmtFeePct": 1,
+    "closingDate": "2025-09-18",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "lead": { "alias": "Payments-LP", "trackRecord": "ex-Adyen VP" },
+    "interest": {
+      "overallPct": 58,
+      "likeYouPct": 12,
+      "cohorts": { "angels": 48, "funds": 42, "familyOffices": 10 },
+      "history": [20, 24, 34, 41, 47, 55, 58],
+      "confidenceScore": 66
+    },
+    "activity": []
+  }
+]
+
+
+User profile (used to compute “investors like you”): src/mocks/userProfile.json
+
+{
+  "investorType": "angel",
+  "sectors": ["Biotechnology","Fintech"],
+  "risk": "medium",
+  "ticketBandGBP": "5k-25k"
+}
+
+5) “Investors like you” & Confidence — simple model (front-end)
+A) Like-You % (badge)
+
+Compute overlap with each member in the syndicate cohort (mocked).
+
+Similarity score per member:
+
++0.5 if sector intersects
+
++0.3 if ticket band matches
+
++0.2 if risk ±1 band
+
+“Like-You” cohort = members with score ≥ 0.7.
+
+likeYouPct = likeYouCount / totalMembers × 100 (we’ll store this in interest.likeYouPct for now).
+
+B) Confidence Score (0–100)
+
+Weighted blend (store as interest.confidenceScore for prototype):
+
+Commitment momentum (last 3 deltas from history) → 40%
+
+Lead credibility (static 0–100; derive from lead.trackRecord) → 30%
+
+Overall interest (overallPct) → 30%
+
+Show as meter with bands: 0–49 Low, 50–74 Moderate, 75–100 High.
+
+Tooltip: “Composite of momentum, lead track record, and community interest. Informational, not advice.”
+
+6) Assistant (Preview) — locked content
+
+UI copy (paste):
+
+Title: Syndicate Builder Assistant (Preview)
+
+Body (blurred):
+
+Subject: Intro: {{Company}} syndicate (closes {{date}})
+Hi {{Name}},
+We’re organising a small syndicate for {{Company}} ({{sector}}). Lead: {{lead.alias}} ({{lead.trackRecord}}). Target £{{targetRaise}}; min cheque £{{minCheque}}; EIS {{eligibility.EIS ? 'yes' : 'no'}}.
+Reasons: {{3 bullets}}.
+Would you like the memo?
+— Sent via Unlock (preview)
+
+Buttons: Generate, Copy, Share via WhatsApp (all disabled with 🔒).
+
+CTA: Upgrade to Pro to draft outreach with AI.
+
+7) Join Syndicate (Nominal Fee) — stub
+
+Button text: Request to Join (Reserve seat — £25)
+
+Click → JoinSyndicateModal:
+
+Checkbox: I agree this is a non-binding reservation; no advice provided.
+
+Radio: Share my profile with lead (Yes/No).
+
+Primary: Request Reservation (stub) → success toast “Request sent. A coordinator will follow up.”
+
+After success: show badge on detail header “Requested”.
+
+No payment integration in prototype; just state/UX.
+
+8) Copy & tooltips (ready to paste)
+
+Investors like you tooltip: “Share of participating investors with a similar profile to yours (sector focus, ticket size, risk).”
+
+Confidence meter tooltip: “Composite signal of momentum, lead track record, and community interest. Informational only.”
+
+Committed tooltip: “% of target raise soft-circled by the group.”
+
+Nominal fee footnote: “Reservation fee shown for illustration. No transaction occurs in this prototype.”
+
+9) Styling (tokens only)
+
+Use brand accent for meters/badges; shadows subtle; cards radius 12px.
+
+Confidence meter: gradient from muted → amber → success.
+
+Cohort bars (Angels/Funds/FO): tiny stacked bars with labels.
+
+Sparkline: simple SVG polyline; no external chart lib required.
+
+10) Behaviours
+
+Filters combine with AND; text search matches company + lead alias.
+
+Discovery cards lazy-load logos (placeholder avatar if none).
+
+Skeletons on first load and when changing filters.
+
+On /syndication/:id, requested state persists in local storage.
+
+Accessibility:
+
+All controls tab-reachable; visible focus ring.
+
+Meter has aria-valuenow with text alt.
+
+Announce toasts via aria-live="polite".
+
+11) Acceptance criteria (Definition of Done)
+
+Discovery page lists syndicates with: verified badge, raise target, committed bar, Investors like you badge, confidence meter, meta row, and View CTA.
+
+Filters (sector, stage, eligibility, cheque band, closing window) work together; search works.
+
+Detail page shows overview, Confidence & Signals, Activity Timeline, Join Syndicate (stub), and Assistant Preview (locked).
+
+“Request to Join” opens modal; submitting sets “Requested” state and shows success toast (no payments).
+
+Confidence meter and Investors like you render with tooltips; cohorts and sparkline display.
+
+All UI uses CSS variables; AA contrast; keyboard navigation passes a basic check; no console errors.

@@ -1,0 +1,84 @@
+[
+  {
+    "id": "syn_001",
+    "businessId": "biz_001",
+    "company": "Acme Biotech Ltd",
+    "sector": ["Biotechnology"],
+    "verified": true,
+    "stage": "Seed",
+    "targetRaiseGBP": 1200000,
+    "committedPct": 68,
+    "minChequeGBP": 5000,
+    "carryPct": 10,
+    "mgmtFeePct": 0,
+    "closingDate": "2025-10-05",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "lead": { "alias": "LeadAngel-K", "trackRecord": "4 exits" },
+    "interest": {
+      "overallPct": 74,
+      "likeYouPct": 21,
+      "cohorts": { "angels": 62, "funds": 26, "familyOffices": 12 },
+      "history": [40, 45, 55, 60, 67, 71, 74],
+      "confidenceScore": 82
+    },
+    "activity": [
+      { "ts": "2025-08-10T09:00:00Z", "type": "qa", "text": "Founder answered: regulatory plan timelines." },
+      { "ts": "2025-08-12T15:20:00Z", "type": "commit", "text": "New commitments: £150k." },
+      { "ts": "2025-08-16T18:00:00Z", "type": "update", "text": "Lead posted valuation memo (summary)." }
+    ]
+  },
+  {
+    "id": "syn_002",
+    "businessId": "biz_002",
+    "company": "FinPay Solutions Ltd",
+    "sector": ["Fintech"],
+    "verified": true,
+    "stage": "A",
+    "targetRaiseGBP": 3500000,
+    "committedPct": 31,
+    "minChequeGBP": 10000,
+    "carryPct": 15,
+    "mgmtFeePct": 1,
+    "closingDate": "2025-09-18",
+    "eligibility": { "EIS": true, "SEIS": false },
+    "lead": { "alias": "Payments-LP", "trackRecord": "ex-Adyen VP" },
+    "interest": {
+      "overallPct": 58,
+      "likeYouPct": 12,
+      "cohorts": { "angels": 48, "funds": 42, "familyOffices": 10 },
+      "history": [20, 24, 34, 41, 47, 55, 58],
+      "confidenceScore": 66
+    },
+    "activity": [
+      { "ts": "2025-08-14T11:30:00Z", "type": "qa", "text": "Q&A session: payment infrastructure scaling." },
+      { "ts": "2025-08-15T14:45:00Z", "type": "commit", "text": "New commitments: £75k." }
+    ]
+  },
+  {
+    "id": "syn_003",
+    "businessId": "biz_003",
+    "company": "GreenTech Innovations Ltd",
+    "sector": ["CleanTech", "Energy"],
+    "verified": false,
+    "stage": "Pre-Seed",
+    "targetRaiseGBP": 800000,
+    "committedPct": 45,
+    "minChequeGBP": 2500,
+    "carryPct": 8,
+    "mgmtFeePct": 0,
+    "closingDate": "2025-09-30",
+    "eligibility": { "EIS": true, "SEIS": true },
+    "lead": { "alias": "CleanTech-Pro", "trackRecord": "2 exits in renewables" },
+    "interest": {
+      "overallPct": 67,
+      "likeYouPct": 18,
+      "cohorts": { "angels": 55, "funds": 35, "familyOffices": 10 },
+      "history": [25, 30, 38, 42, 50, 58, 67],
+      "confidenceScore": 75
+    },
+    "activity": [
+      { "ts": "2025-08-11T16:00:00Z", "type": "update", "text": "Tech demo scheduled for next week." },
+      { "ts": "2025-08-13T09:15:00Z", "type": "commit", "text": "New commitments: £90k." }
+    ]
+  }
+]

@@ -11,6 +11,7 @@ import BusinessProfile from "@/pages/BusinessProfile";
 import SnapshotReport from "@/pages/SnapshotReport";
 import Toolkit from "@/pages/Toolkit";
 import Syndication from "@/pages/Syndication";
+import SyndicateDetail from "./pages/SyndicateDetail";
 import NewsEnhanced from "@/pages/NewsEnhanced";
 import PitchDeckAnalyserPage from "@/pages/PitchDeckAnalyser";
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/toolkit" component={Toolkit} />
       <Route path="/pitch-deck-analyser" component={PitchDeckAnalyserPage} />
       <Route path="/syndication" component={Syndication} />
+      <Route path="/syndication/:id" component={SyndicateDetail} />
       <Route path="/news" component={NewsEnhanced} />
       <Route component={NotFound} />
     </Switch>
