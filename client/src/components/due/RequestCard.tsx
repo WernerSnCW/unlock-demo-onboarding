@@ -9,7 +9,8 @@ import {
   MapPin,
   Users2,
   RotateCcw,
-  AlertTriangle
+  AlertTriangle,
+  ExternalLink
 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -206,10 +207,16 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
           <div className="flex items-center flex-wrap gap-2 w-full">
             {isCompleted && request.result && (
               <>
-                <Link href={`/due-diligence/snapshot/${request.id}`}>
+                <Link href={`/snapshot-report/${request.id}`}>
                   <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
                     <Eye className="h-3 w-3 opacity-70" />
-                    View
+                    Report
+                  </Button>
+                </Link>
+                <Link href={`/due-diligence/requests/${request.id}`}>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
+                    <ExternalLink className="h-3 w-3 opacity-70" />
+                    Details
                   </Button>
                 </Link>
                 <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
@@ -229,10 +236,27 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
             )}
 
             {isFailed && (
-              <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
-                <RotateCcw className="h-3 w-3 opacity-70" />
-                Retry
-              </Button>
+              <>
+                <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
+                  <RotateCcw className="h-3 w-3 opacity-70" />
+                  Retry
+                </Button>
+                <Link href={`/due-diligence/requests/${request.id}`}>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs">
+                    <ExternalLink className="h-3 w-3 opacity-70" />
+                    Details
+                  </Button>
+                </Link>
+              </>
+            )}
+
+            {(request.status === 'processing' || request.status === 'queued') && (
+              <Link href={`/due-diligence/requests/${request.id}`}>
+                <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs">
+                  <ExternalLink className="h-3 w-3 opacity-70" />
+                  Details
+                </Button>
+              </Link>
             )}
           </div>
         </CardFooter>
