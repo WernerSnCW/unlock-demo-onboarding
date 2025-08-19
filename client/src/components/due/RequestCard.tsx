@@ -119,8 +119,28 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
         )}
 
         {isCompleted && request.result && (
-          <div className="text-sm text-[var(--foreground)]">
-            {truncateSummary(request.result.summary)}
+          <div className="space-y-2">
+            <div className="text-sm text-[var(--foreground)]">
+              {truncateSummary(request.result.summary)}
+            </div>
+            {/* Overall Assessment Score */}
+            <div className="p-2 bg-[var(--muted)]/30 rounded-lg">
+              <div className="text-xs text-[var(--muted-foreground)] font-medium mb-1">Overall Assessment</div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-[var(--foreground)]">
+                  {request.result.overallScore || '4.3'}/5.0
+                </span>
+                <div className="flex items-center">
+                  {[1, 2, 3, 4].map((star) => (
+                    <span key={star} className="text-[var(--accent)] text-sm">★</span>
+                  ))}
+                  <span className="text-gray-300 text-sm">★</span>
+                </div>
+                <span className="text-xs px-1.5 py-0.5 bg-[var(--success)] text-white rounded font-medium">
+                  Recommended
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -186,10 +206,12 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
           <div className="flex items-center flex-wrap gap-2 w-full">
             {isCompleted && request.result && (
               <>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
-                  <Eye className="h-3 w-3 opacity-70" />
-                  View
-                </Button>
+                <Link href={`/due-diligence/snapshot/${request.id}`}>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
+                    <Eye className="h-3 w-3 opacity-70" />
+                    View
+                  </Button>
+                </Link>
                 <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
                   <Download className="h-3 w-3 opacity-70" />
                   Download
