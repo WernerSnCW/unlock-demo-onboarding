@@ -16,11 +16,11 @@ export default function UpgradeCard() {
         <div className="flex flex-wrap gap-1 text-sm text-[var(--muted-foreground)]">
           <span>Director checks</span>
           <span>•</span>
-          <span>Filing timeline</span>
-          <span>•</span>
           <span>Web footprint</span>
           <span>•</span>
-          <span>Peer Q&A</span>
+          <span>Business Q&A</span>
+          <span>•</span>
+          <span>Financial Analysis</span>
         </div>
 
         <button 
