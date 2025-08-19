@@ -109,10 +109,137 @@ const processRequest = (
   }, processingDelay);
 };
 
+// Sample data for development
+const sampleRequests: DueRequest[] = [
+  {
+    id: 'req_001',
+    type: 'snapshot',
+    companyName: 'TechFlow Solutions Ltd',
+    companyNumber: '12345678',
+    jurisdiction: 'UK',
+    requestedBy: 'John Smith',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'completed',
+    progress: 100,
+    sla: 'fast',
+    inputs: {
+      reason: 'Investment due diligence',
+      includeFinancialAnalysis: true,
+      includeRiskAssessment: true,
+      includeMarketPosition: true,
+      includeComplianceCheck: true,
+      attachments: []
+    },
+    result: {
+      reportId: 'snap_1234567890',
+      summary: 'Clean filings; low governance risk; moderate web footprint.',
+      scorecard: {
+        filingHealth: 'Excellent',
+        redFlags: 0,
+        webScore: 85
+      },
+      downloadUrl: '#',
+      openUrl: '#'
+    }
+  },
+  {
+    id: 'req_002',
+    type: 'deep_dive',
+    companyName: 'GreenEnergy Ventures',
+    companyNumber: '87654321',
+    jurisdiction: 'UK',
+    requestedBy: 'Sarah Wilson',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'processing',
+    progress: 75,
+    sla: 'extended',
+    inputs: {
+      reason: 'Acquisition assessment',
+      includeFinancialAnalysis: true,
+      includeRiskAssessment: true,
+      includeMarketPosition: true,
+      includeComplianceCheck: true,
+      attachments: []
+    }
+  },
+  {
+    id: 'req_003',
+    type: 'snapshot',
+    companyName: 'DataMind Analytics',
+    companyNumber: '11223344',
+    jurisdiction: 'UK',
+    requestedBy: 'Mike Johnson',
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    status: 'completed',
+    progress: 100,
+    sla: 'fast',
+    inputs: {
+      reason: 'Partnership evaluation',
+      includeFinancialAnalysis: true,
+      includeRiskAssessment: false,
+      includeMarketPosition: true,
+      includeComplianceCheck: true,
+      attachments: []
+    },
+    result: {
+      reportId: 'snap_1234567891',
+      summary: 'Emerging company with high growth potential. Some regulatory concerns.',
+      scorecard: {
+        filingHealth: 'Good',
+        redFlags: 2,
+        webScore: 72
+      },
+      downloadUrl: '#',
+      openUrl: '#'
+    }
+  },
+  {
+    id: 'req_004',
+    type: 'snapshot',
+    companyName: 'RetailMax Group',
+    companyNumber: '55667788',
+    jurisdiction: 'UK',
+    requestedBy: 'Emma Davis',
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    status: 'queued',
+    progress: 0,
+    sla: 'fast',
+    inputs: {
+      reason: 'Vendor assessment',
+      includeFinancialAnalysis: true,
+      includeRiskAssessment: true,
+      includeMarketPosition: false,
+      includeComplianceCheck: true,
+      attachments: []
+    }
+  },
+  {
+    id: 'req_005',
+    type: 'deep_dive',
+    companyName: 'FinTech Innovations Inc',
+    companyNumber: '99887766',
+    jurisdiction: 'UK',
+    requestedBy: 'Alex Brown',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'failed',
+    progress: 0,
+    sla: 'extended',
+    inputs: {
+      reason: 'Investment screening',
+      includeFinancialAnalysis: true,
+      includeRiskAssessment: true,
+      includeMarketPosition: true,
+      includeComplianceCheck: true,
+      attachments: []
+    },
+    error: 'Company data not available in public records'
+  }
+];
+
 export const useDueStore = create<DueStore>()(
   persist(
     (set, get) => ({
-      requests: [],
+      requests: sampleRequests,
       
       createRequest: (payload) => {
         const id = generateId();
@@ -159,8 +286,8 @@ export const useDueStore = create<DueStore>()(
       }
     }),
     {
-      name: 'unlock_due_requests_v1',
-      version: 1
+      name: 'unlock_due_requests_v2',
+      version: 2
     }
   )
 );

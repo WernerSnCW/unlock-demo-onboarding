@@ -60,19 +60,19 @@ export default function DueDiligenceHub() {
 
         {/* Status Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Requests</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalRequests}</p>
                 </div>
-                <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <Building2 className="h-8 w-8" style={{ color: 'var(--primary)' }} />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -84,19 +84,19 @@ export default function DueDiligenceHub() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Processing</p>
-                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{processingRequests}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>{processingRequests}</p>
                 </div>
-                <Clock className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <Clock className="h-8 w-8" style={{ color: 'var(--primary)' }} />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -110,9 +110,9 @@ export default function DueDiligenceHub() {
         </div>
 
         {/* Requests Table */}
-        <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="space-y-1">
               <CardTitle className="text-gray-900 dark:text-gray-100">Recent Requests</CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
                 Track and manage your due diligence requests
