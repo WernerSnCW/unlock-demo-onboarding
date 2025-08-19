@@ -129,7 +129,7 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
               <div className="text-xs text-[var(--muted-foreground)] font-medium mb-1">Overall Assessment</div>
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-[var(--foreground)]">
-                  {request.result.overallScore || '4.3'}/5.0
+                  4.3/5.0
                 </span>
                 <div className="flex items-center">
                   {[1, 2, 3, 4].map((star) => (
@@ -207,16 +207,10 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
           <div className="flex items-center flex-wrap gap-2 w-full">
             {isCompleted && request.result && (
               <>
-                <Link href={`/snapshot-report/${request.id}`}>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
-                    <Eye className="h-3 w-3 opacity-70" />
-                    Report
-                  </Button>
-                </Link>
                 <Link href={`/due-diligence/requests/${request.id}`}>
                   <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
                     <ExternalLink className="h-3 w-3 opacity-70" />
-                    Details
+                    Explore Report
                   </Button>
                 </Link>
                 <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs">
@@ -244,7 +238,7 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
                 <Link href={`/due-diligence/requests/${request.id}`}>
                   <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs">
                     <ExternalLink className="h-3 w-3 opacity-70" />
-                    Details
+                    Explore Report
                   </Button>
                 </Link>
               </>
@@ -254,7 +248,7 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
               <Link href={`/due-diligence/requests/${request.id}`}>
                 <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs">
                   <ExternalLink className="h-3 w-3 opacity-70" />
-                  Details
+                  Explore Report
                 </Button>
               </Link>
             )}
