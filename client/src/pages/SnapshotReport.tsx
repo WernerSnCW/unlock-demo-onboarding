@@ -54,13 +54,48 @@ export default function SnapshotReport() {
 
   // Use data from due diligence request or fallback to business data
   const companyData = dueRequest || business;
+  
+  // Generate mock business data structure for due diligence requests
+  const mockBusinessFromDueRequest = dueRequest ? {
+    id: dueRequest.id,
+    name: dueRequest.companyName,
+    ch_number: dueRequest.companyNumber || 'N/A',
+    verified: true,
+    sector: dueRequest.businessContext.industry,
+    size: dueRequest.businessContext.size,
+    employees: dueRequest.businessContext.size === 'Large' ? 250 : dueRequest.businessContext.size === 'Medium' ? 75 : 25,
+    revenueBand: '£1m–£5m',
+    location: dueRequest.businessContext.headquarters,
+    foundedYear: 2019,
+    risk: 'Low',
+    eligibility: { EIS: true, SEIS: false },
+    snapshot: {
+      filingHealth: 'Good',
+      lastFilingDate: '2025-05-02',
+      directors: 3,
+      webScore: 86,
+      redFlags: 0,
+      summary: dueRequest.result?.summary || 'Comprehensive due diligence analysis completed with strong verification across key business areas.',
+      tags: ['Verified', 'Due Diligence Complete', 'Recommended'],
+      detailedAssessment: {
+        company: { score: 85, status: 'Strong' },
+        complianceCheck: { score: 88, status: 'Excellent' },
+        fraudRisk: { score: 92, status: 'Very Low' },
+        financialHealth: { score: 78, status: 'Good' },
+        management: { score: 89, status: 'Strong' },
+        marketing: { score: 82, status: 'Good' },
+        claimsManagement: { score: 86, status: 'Strong' },
+        investorValidation: { score: 84, status: 'Strong' }
+      }
+    }
+  } : null;
+  
+  // Use mock business data for due diligence requests
+  const reportData = dueRequest ? mockBusinessFromDueRequest : business;
 
   const calculateOverallScore = () => {
-    if (dueRequest) {
-      return 86; // Fixed score for due diligence requests
-    }
-    if (!business?.snapshot?.detailedAssessment) return 75;
-    const sections = Object.values(business.snapshot.detailedAssessment);
+    if (!reportData?.snapshot?.detailedAssessment) return 75;
+    const sections = Object.values(reportData.snapshot.detailedAssessment);
     const totalScore = sections.reduce((sum, section) => sum + section.score, 0);
     return Math.round(totalScore / sections.length);
   };
@@ -108,56 +143,56 @@ export default function SnapshotReport() {
     {
       id: 'company',
       title: 'Company',
-      data: business?.snapshot?.detailedAssessment?.company || { score: 85, status: 'Strong' },
+      data: reportData?.snapshot?.detailedAssessment?.company || { score: 85, status: 'Strong' },
       icon: 'fas fa-building',
       description: 'Business registration, structure, and operational legitimacy assessment'
     },
     {
       id: 'complianceCheck',
       title: 'Compliance Check',
-      data: business?.snapshot?.detailedAssessment?.complianceCheck || { score: 88, status: 'Excellent' },
+      data: reportData?.snapshot?.detailedAssessment?.complianceCheck || { score: 88, status: 'Excellent' },
       icon: 'fas fa-shield-alt',
       description: 'Regulatory compliance, legal standing, and governance framework evaluation'
     },
     {
       id: 'fraudRisk',
       title: 'Fraud Risk Assessment',
-      data: business?.snapshot?.detailedAssessment?.fraudRisk || { score: 92, status: 'Very Low' },
+      data: reportData?.snapshot?.detailedAssessment?.fraudRisk || { score: 92, status: 'Very Low' },
       icon: 'fas fa-user-shield',
       description: 'Background verification, transparency, and integrity risk analysis'
     },
     {
       id: 'financialHealth',
       title: 'Financial Health',
-      data: business?.snapshot?.detailedAssessment?.financialHealth || { score: 78, status: 'Good' },
+      data: reportData?.snapshot?.detailedAssessment?.financialHealth || { score: 78, status: 'Good' },
       icon: 'fas fa-chart-line',
       description: 'Revenue analysis, cash flow, profitability, and financial stability metrics'
     },
     {
       id: 'management',
       title: 'Management',
-      data: business?.snapshot?.detailedAssessment?.management || { score: 89, status: 'Strong' },
+      data: reportData?.snapshot?.detailedAssessment?.management || { score: 89, status: 'Strong' },
       icon: 'fas fa-users',
       description: 'Leadership experience, team quality, and management capability assessment'
     },
     {
       id: 'marketing',
       title: 'Marketing & Brand Management',
-      data: business?.snapshot?.detailedAssessment?.marketing || { score: 82, status: 'Good' },
+      data: reportData?.snapshot?.detailedAssessment?.marketing || { score: 82, status: 'Good' },
       icon: 'fas fa-bullhorn',
       description: 'Market presence, brand strength, and marketing strategy effectiveness'
     },
     {
       id: 'claimsManagement',
       title: 'Claims Management',
-      data: business?.snapshot?.detailedAssessment?.claimsManagement || { score: 86, status: 'Strong' },
+      data: reportData?.snapshot?.detailedAssessment?.claimsManagement || { score: 86, status: 'Strong' },
       icon: 'fas fa-file-contract',
       description: 'Insurance coverage, legal risk management, and claims handling processes'
     },
     {
       id: 'investorValidation',
       title: 'Investor Validation',
-      data: business?.snapshot?.detailedAssessment?.investorValidation || { score: 84, status: 'Strong' },
+      data: reportData?.snapshot?.detailedAssessment?.investorValidation || { score: 84, status: 'Strong' },
       icon: 'fas fa-handshake',
       description: 'Previous funding rounds, investor quality, and validation credentials'
     }
@@ -165,8 +200,8 @@ export default function SnapshotReport() {
 
   const overallScore = calculateOverallScore();
 
-  const displayName = dueRequest ? dueRequest.companyName : business?.name || 'Company';
-  const displayNumber = dueRequest ? dueRequest.companyNumber : business?.ch_number || 'N/A';
+  const displayName = reportData?.name || 'Company';
+  const displayNumber = reportData?.ch_number || 'N/A';
   const backUrl = dueRequest ? '/due-diligence' : '/businesses';
 
   return (
@@ -337,12 +372,12 @@ export default function SnapshotReport() {
 
             <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
               <p className="mb-4">
-                <strong className="text-gray-900 dark:text-gray-100">{business.name}</strong> presents a {getVerificationLevel(overallScore).level.toLowerCase()} investment opportunity based on completed due diligence analysis. The company demonstrates {overallScore >= 80 ? 'strong' : overallScore >= 60 ? 'moderate' : 'limited'} credibility across business verification, compliance standards, and operational frameworks.
+                <strong className="text-gray-900 dark:text-gray-100">{reportData.name}</strong> presents a {getVerificationLevel(overallScore).level.toLowerCase()} investment opportunity based on completed due diligence analysis. The company demonstrates {overallScore >= 80 ? 'strong' : overallScore >= 60 ? 'moderate' : 'limited'} credibility across business verification, compliance standards, and operational frameworks.
               </p>
               
               <p className="mb-4">
                 {overallScore >= 80 ? (
-                  <>The assessment reveals robust performance across {ddCategories.filter(c => c.data.score >= 80).length} of 8 key areas, with particularly strong scores in management structure and business verification. The company's {business.sector} positioning, combined with its {business.employees}-person team and {business.revenueBand} revenue performance, indicates a well-established market presence.</>
+                  <>The assessment reveals robust performance across {ddCategories.filter(c => c.data.score >= 80).length} of 8 key areas, with particularly strong scores in management structure and business verification. The company's {reportData.sector} positioning, combined with its {reportData.employees}-person team and {reportData.revenueBand} revenue performance, indicates a well-established market presence.</>
                 ) : overallScore >= 60 ? (
                   <>The evaluation identifies {ddCategories.filter(c => c.data.score >= 80).length} areas of strength alongside {8 - ddCategories.filter(c => c.data.score >= 80).length} categories requiring enhanced monitoring. While the core business fundamentals appear sound, additional verification steps are recommended to address compliance and operational gaps before proceeding with investment decisions.</>
                 ) : (
@@ -351,7 +386,7 @@ export default function SnapshotReport() {
               </p>
 
               <p>
-                The company's {business.eligibility?.EIS ? 'confirmed EIS eligibility' : 'pending EIS status'} and {business.eligibility?.SEIS ? 'SEIS qualification' : 'SEIS review process'} provide relevant tax advantages for qualifying investors. Risk assessment categorizes this opportunity as {business.risk.toLowerCase()} risk, consistent with the overall verification score and market positioning within the {business.sector} sector.
+                The company's {reportData.eligibility?.EIS ? 'confirmed EIS eligibility' : 'pending EIS status'} and {reportData.eligibility?.SEIS ? 'SEIS qualification' : 'SEIS review process'} provide relevant tax advantages for qualifying investors. Risk assessment categorizes this opportunity as {reportData.risk.toLowerCase()} risk, consistent with the overall verification score and market positioning within the {reportData.sector} sector.
               </p>
             </div>
           </div>
@@ -425,7 +460,7 @@ export default function SnapshotReport() {
 
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">BENCHMARKING:</h4>
-                      <p>Verification score of {category.data.score}/100 compares {category.data.score >= 80 ? 'favorably' : category.data.score >= 60 ? 'adequately' : 'below standard'} to industry benchmarks for {business.sector.toLowerCase()} companies of similar size and maturity stage.</p>
+                      <p>Verification score of {category.data.score}/100 compares {category.data.score >= 80 ? 'favorably' : category.data.score >= 60 ? 'adequately' : 'below standard'} to industry benchmarks for {reportData.sector.toLowerCase()} companies of similar size and maturity stage.</p>
                     </div>
                   </div>
                 </div>
@@ -456,11 +491,11 @@ export default function SnapshotReport() {
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    {business.snapshot.summary}
+                    {reportData.snapshot.summary}
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    Established {business.sector} market presence since {business.foundedYear}
+                    Established {reportData.sector} market presence since {reportData.foundedYear}
                   </li>
                 </ul>
               </div>
@@ -505,11 +540,11 @@ export default function SnapshotReport() {
                 <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                   <p className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--primary)] text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    {business.sector} sector positioning with {business.employees} team members
+                    {reportData.sector} sector positioning with {reportData.employees} team members
                   </p>
                   <p className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--primary)] text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    Revenue band: {business.revenueBand} demonstrates market traction
+                    Revenue band: {reportData.revenueBand} demonstrates market traction
                   </p>
                 </div>
               </div>
@@ -525,11 +560,11 @@ export default function SnapshotReport() {
                 <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                   <li className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    {business.eligibility?.EIS ? 'EIS eligible' : 'EIS eligibility pending'} • {business.eligibility?.SEIS ? 'SEIS qualified' : 'SEIS under review'}
+                    {reportData.eligibility?.EIS ? 'EIS eligible' : 'EIS eligibility pending'} • {reportData.eligibility?.SEIS ? 'SEIS qualified' : 'SEIS under review'}
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    Risk level: {business.risk} based on current assessment
+                    Risk level: {reportData.risk} based on current assessment
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
@@ -658,7 +693,7 @@ export default function SnapshotReport() {
           <div className="text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4">
             <p className="mb-2">This report is generated based on available verification data and should be supplemented with additional due diligence.</p>
             <div className="flex justify-between items-center">
-              <span>Processing Time: 4.1s | Report ID: snapshot_{business.id.replace('_', '')}{Date.now().toString().slice(-6)}</span>
+              <span>Processing Time: 4.1s | Report ID: snapshot_{reportData.id.replace('_', '')}{Date.now().toString().slice(-6)}</span>
               <span>Generated: {new Date().toLocaleDateString('en-US')} {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
             <p className="mt-2 italic">Due diligence based on data provided by the company and public sources. This snapshot is for initial screening purposes only.</p>
@@ -666,7 +701,7 @@ export default function SnapshotReport() {
 
           {/* Action Buttons */}
           <div className="flex justify-center gap-4 mt-8">
-            <Link href={`/business/${business.id}`}>
+            <Link href={dueRequest ? `/due-diligence/requests/${dueRequest.id}` : `/business/${reportData.id}`}>
               <Button variant="outline" size="lg" className="text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800">
                 <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
                 Back to Profile
