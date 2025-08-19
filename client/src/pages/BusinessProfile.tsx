@@ -385,10 +385,12 @@ export default function BusinessProfile() {
                 </p>
               </div>
 
-              <Button className="w-full mt-4 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" variant="outline">
-                Open Full Snapshot
-                <i className="fas fa-external-link-alt ml-2" aria-hidden="true"></i>
-              </Button>
+              <Link href={`/snapshot/${business.id}`}>
+                <Button className="w-full mt-4 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" variant="outline">
+                  Open Full Snapshot
+                  <i className="fas fa-external-link-alt ml-2" aria-hidden="true"></i>
+                </Button>
+              </Link>
               
               <div className="flex gap-2 mt-3">
                 <Button 

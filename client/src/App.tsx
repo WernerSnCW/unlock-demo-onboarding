@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Businesses from "@/pages/Businesses";
 import BusinessProfile from "@/pages/BusinessProfile";
+import SnapshotReport from "@/pages/SnapshotReport";
 import Toolkit from "@/pages/Toolkit";
 import Syndication from "@/pages/Syndication";
 import NewsEnhanced from "@/pages/NewsEnhanced";
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/businesses" component={Businesses} />
       <Route path="/business/:id" component={BusinessProfile} />
+      <Route path="/snapshot/:id" component={SnapshotReport} />
       <Route path="/toolkit" component={Toolkit} />
       <Route path="/pitch-deck-analyser" component={PitchDeckAnalyserPage} />
       <Route path="/syndication" component={Syndication} />
