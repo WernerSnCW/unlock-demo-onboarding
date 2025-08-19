@@ -229,10 +229,19 @@ export default function BusinessProfile() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Snapshot Summary */}
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <i className="fas fa-camera text-[#5193B3]" aria-hidden="true"></i>
-                Snapshot Summary
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <i className="fas fa-camera text-[#5193B3]" aria-hidden="true"></i>
+                  Snapshot Summary
+                </h2>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Generated: {new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </div>
+              </div>
 
               {/* Overall Assessment Score */}
               <div className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -265,11 +274,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.company?.score || 75)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.company?.score || 75).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.company?.score || 75).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.company?.score || 75).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.company?.score || 75).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.company?.score || 75).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.company?.score || 75).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -281,11 +287,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.complianceCheck?.score || 75)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.complianceCheck?.score || 75).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.complianceCheck?.score || 75).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.complianceCheck?.score || 75).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.complianceCheck?.score || 75).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.complianceCheck?.score || 75).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.complianceCheck?.score || 75).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -297,11 +300,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.fraudRisk?.score || 90)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.fraudRisk?.score || 90).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.fraudRisk?.score || 90).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.fraudRisk?.score || 90).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.fraudRisk?.score || 90).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.fraudRisk?.score || 90).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.fraudRisk?.score || 90).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -313,11 +313,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.financialHealth?.score || 75)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.financialHealth?.score || 75).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.financialHealth?.score || 75).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.financialHealth?.score || 75).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.financialHealth?.score || 75).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.financialHealth?.score || 75).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.financialHealth?.score || 75).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -329,11 +326,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.management?.score || 85)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.management?.score || 85).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.management?.score || 85).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.management?.score || 85).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.management?.score || 85).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.management?.score || 85).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.management?.score || 85).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -345,11 +339,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.marketing?.score || 75)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -361,11 +352,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.claimsManagement?.score || 85)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.claimsManagement?.score || 85).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.claimsManagement?.score || 85).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.claimsManagement?.score || 85).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.claimsManagement?.score || 85).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.claimsManagement?.score || 85).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.claimsManagement?.score || 85).level}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -377,11 +365,8 @@ export default function BusinessProfile() {
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.investorValidation?.score || 85)}
                     </div>
-                    <div className={`flex items-center gap-2 px-2 py-1 text-xs rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.investorValidation?.score || 85).bgColor}`}>
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.investorValidation?.score || 85).bgColor}`}>
                       <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.investorValidation?.score || 85).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.investorValidation?.score || 85).color}`} aria-hidden="true"></i>
-                      <span className={getVerificationLevel(business.snapshot.detailedAssessment?.investorValidation?.score || 85).color}>
-                        {getVerificationLevel(business.snapshot.detailedAssessment?.investorValidation?.score || 85).level}
-                      </span>
                     </div>
                   </div>
                 </div>
