@@ -23,9 +23,30 @@ export function RequestsMiniPanel() {
               No requests yet. Start with a snapshot above.
             </p>
             <Link href="/due-diligence">
-              <div className="w-full px-3 py-2 text-sm font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer text-center">
+              <button 
+                type="button"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#111827',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f9fafb';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#ffffff';
+                }}
+              >
                 View Due Diligence Hub →
-              </div>
+              </button>
             </Link>
           </div>
         </CardContent>
