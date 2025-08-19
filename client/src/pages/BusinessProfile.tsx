@@ -188,14 +188,23 @@ export default function BusinessProfile() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Key Facts</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <i className="fas fa-calendar-alt text-[#5193B3] text-lg" aria-hidden="true"></i>
+                </div>
                 <div className="text-2xl font-bold text-[#5193B3] mb-1">{companyAge}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">Years Old</div>
               </div>
               <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <i className="fas fa-users text-[#62C4C3] text-lg" aria-hidden="true"></i>
+                </div>
                 <div className="text-2xl font-bold text-[#62C4C3] mb-1">{business.employees}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">{business.size}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Employees ({business.size})</div>
               </div>
               <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <i className="fas fa-certificate text-gray-600 dark:text-gray-400 text-lg" aria-hidden="true"></i>
+                </div>
                 <div className="flex justify-center gap-1 mb-1">
                   {business.eligibility.EIS && (
                     <span className="px-2 py-1 bg-[#5193B3]/10 text-[#5193B3] text-xs rounded">EIS</span>
@@ -207,19 +216,28 @@ export default function BusinessProfile() {
                     <span className="text-gray-400 text-xs">N/A</span>
                   )}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Eligibility</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Tax Eligibility</div>
               </div>
               <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <i className="fas fa-file-alt text-gray-600 dark:text-gray-400 text-lg" aria-hidden="true"></i>
+                </div>
                 <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
                   {new Date(business.snapshot.lastFilingDate).toLocaleDateString()}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">Last Filing</div>
               </div>
               <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <i className="fas fa-user-tie text-[#F8D49B] text-lg" aria-hidden="true"></i>
+                </div>
                 <div className="text-2xl font-bold text-[#F8D49B] mb-1">{business.snapshot.directors}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">Directors</div>
               </div>
               <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <i className="fas fa-pound-sign text-gray-600 dark:text-gray-400 text-lg" aria-hidden="true"></i>
+                </div>
                 <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">{business.revenueBand}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">Revenue</div>
               </div>
