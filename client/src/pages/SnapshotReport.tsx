@@ -403,28 +403,34 @@ export default function SnapshotReport() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500 dark:border-red-400">
-                <div className="flex items-center gap-2 mb-2">
-                  <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400" aria-hidden="true"></i>
-                  <span className="font-semibold text-red-800 dark:text-red-300">IMMEDIATE:</span>
+              <div className="p-5 bg-white dark:bg-gray-700 border border-red-200 dark:border-red-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">IMMEDIATE:</span>
                 </div>
-                <p className="text-sm text-red-700 dark:text-red-300">Complete comprehensive verification across all due diligence categories</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 ml-11">Complete comprehensive verification across all due diligence categories</p>
               </div>
 
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/10 border-l-4 border-yellow-500 dark:border-yellow-400">
-                <div className="flex items-center gap-2 mb-2">
-                  <i className="fas fa-clock text-yellow-600 dark:text-yellow-400" aria-hidden="true"></i>
-                  <span className="font-semibold text-yellow-800 dark:text-yellow-300">SHORT-TERM:</span>
+              <div className="p-5 bg-white dark:bg-gray-700 border border-amber-200 dark:border-amber-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-clock text-amber-600 dark:text-amber-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">SHORT-TERM:</span>
                 </div>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">Address identified compliance and verification gaps through enhanced monitoring</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 ml-11">Address identified compliance and verification gaps through enhanced monitoring</p>
               </div>
 
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border-l-4 border-blue-500 dark:border-blue-400">
-                <div className="flex items-center gap-2 mb-2">
-                  <i className="fas fa-calendar-alt text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
-                  <span className="font-semibold text-blue-800 dark:text-blue-300">LONG-TERM:</span>
+              <div className="p-5 bg-white dark:bg-gray-700 border border-blue-200 dark:border-blue-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-calendar-alt text-blue-600 dark:text-blue-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">LONG-TERM:</span>
                 </div>
-                <p className="text-sm text-blue-700 dark:text-blue-300">Establish ongoing monitoring and verification processes for sustained compliance</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 ml-11">Establish ongoing monitoring and verification processes for sustained compliance</p>
               </div>
             </div>
           </div>
@@ -436,48 +442,68 @@ export default function SnapshotReport() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Risk Assessment Matrix</h2>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* High Risk */}
-              <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400" aria-hidden="true"></i>
-                  <h3 className="font-semibold text-red-800 dark:text-red-300">High Risk</h3>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-red-200 dark:border-red-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">High Risk</h3>
                 </div>
                 {overallScore < 60 ? (
-                  <ul className="space-y-2 text-sm text-red-700 dark:text-red-300">
-                    <li>• <span className="w-2 h-2 bg-red-600 rounded-full inline-block mr-2"></span>Incomplete verification data</li>
-                    <li>• <span className="w-2 h-2 bg-red-600 rounded-full inline-block mr-2"></span>Unverified compliance claims</li>
+                  <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-red-600 rounded-full inline-block mt-1.5 flex-shrink-0"></span>
+                      Incomplete verification data
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-red-600 rounded-full inline-block mt-1.5 flex-shrink-0"></span>
+                      Unverified compliance claims
+                    </li>
                   </ul>
                 ) : (
-                  <p className="text-sm text-red-700 dark:text-red-300">No high-risk factors identified</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">No high-risk factors identified</p>
                 )}
               </div>
 
               {/* Medium Risk */}
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-exclamation-circle text-yellow-600 dark:text-yellow-400" aria-hidden="true"></i>
-                  <h3 className="font-semibold text-yellow-800 dark:text-yellow-300">Medium Risk</h3>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-amber-200 dark:border-amber-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-exclamation-circle text-amber-600 dark:text-amber-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Medium Risk</h3>
                 </div>
                 {overallScore >= 60 && overallScore < 80 ? (
-                  <ul className="space-y-2 text-sm text-yellow-700 dark:text-yellow-300">
-                    <li>• <span className="w-2 h-2 bg-yellow-600 rounded-full inline-block mr-2"></span>Pending compliance verification</li>
-                    <li>• <span className="w-2 h-2 bg-yellow-600 rounded-full inline-block mr-2"></span>Limited market validation data</li>
+                  <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-amber-600 rounded-full inline-block mt-1.5 flex-shrink-0"></span>
+                      Areas for ongoing monitoring identified
+                    </li>
                   </ul>
                 ) : (
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">Areas for ongoing monitoring identified</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">Standard monitoring protocols sufficient</p>
                 )}
               </div>
 
               {/* Low Risk */}
-              <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-check-circle text-green-600 dark:text-green-400" aria-hidden="true"></i>
-                  <h3 className="font-semibold text-green-800 dark:text-green-300">Low Risk</h3>
+              <div className="p-6 bg-white dark:bg-gray-700 border border-green-200 dark:border-green-700 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                    <i className="fas fa-check-circle text-green-600 dark:text-green-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Low Risk</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-green-700 dark:text-green-300">
-                  <li>• <span className="w-2 h-2 bg-green-600 rounded-full inline-block mr-2"></span>Strong verification scores across categories</li>
-                  <li>• <span className="w-2 h-2 bg-green-600 rounded-full inline-block mr-2"></span>Reliable compliance framework</li>
+                <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 bg-green-600 rounded-full inline-block mt-1.5 flex-shrink-0"></span>
+                    Strong verification scores across categories
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 bg-green-600 rounded-full inline-block mt-1.5 flex-shrink-0"></span>
+                    Reliable compliance framework
+                  </li>
                 </ul>
               </div>
             </div>
