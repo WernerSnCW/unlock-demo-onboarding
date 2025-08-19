@@ -49,7 +49,7 @@ const generateId = () => `req_${Date.now()}_${Math.random().toString(36).substr(
 const generateResult = (type: 'snapshot' | 'deep_dive', companyName: string) => {
   const isSuccess = Math.random() > 0.1; // 90% success rate
   
-  if (!isSuccess) return null;
+  if (!isSuccess) return undefined;
 
   return {
     reportId: `${type === 'snapshot' ? 'snap' : 'deep'}_${Date.now()}`,
@@ -148,11 +148,11 @@ export const useDueStore = create<DueStore>()(
         }));
       },
       
-      getRequestById: (id) => {
+      getRequestById: (id: string) => {
         return get().requests.find(req => req.id === id);
       },
       
-      getRecentRequests: (limit) => {
+      getRecentRequests: (limit: number) => {
         return get().requests
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, limit);
@@ -167,5 +167,9 @@ export const useDueStore = create<DueStore>()(
 
 // Hooks for common use cases
 export const useRequests = () => useDueStore(state => state.requests);
-export const useRequestById = (id: string) => useDueStore(state => state.getRequestById(id));
-export const useRecentRequests = (limit: number = 5) => useDueStore(state => state.getRecentRequests(limit));
+export const useRequestById = (id: string) => useDueStore(state => state.requests.find(req => req.id === id));
+export const useRecentRequests = (limit: number = 5) => useDueStore(state => 
+  state.requests
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, limit)
+);
