@@ -43,6 +43,7 @@ interface QnaQuestionCardProps {
   onAnswer: (questionId: string, body: string) => void;
   onMarkAnswered?: (questionId: string, answerId: string) => void;
   requestId?: string;
+  canAskQuestions?: boolean;
 }
 
 export default function QnaQuestionCard({
@@ -53,7 +54,8 @@ export default function QnaQuestionCard({
   onFollow,
   onAnswer,
   onMarkAnswered,
-  requestId
+  requestId,
+  canAskQuestions = true
 }: QnaQuestionCardProps) {
   const { toast } = useToast();
   const [showAllAnswers, setShowAllAnswers] = useState(false);

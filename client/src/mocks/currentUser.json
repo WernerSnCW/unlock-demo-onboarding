@@ -2,5 +2,6 @@
   "id": "u_investor_01",
   "role": "investor",
   "name": "Alex Thompson",
-  "verified": false
+  "verified": false,
+  "subscription": "free"
 }

@@ -40,6 +40,7 @@ interface QnaThreadProps {
   onAnswer: (questionId: string, body: string) => void;
   onMarkAnswered?: (questionId: string, answerId: string) => void;
   requestId?: string;
+  canAskQuestions?: boolean;
 }
 
 type FilterType = 'all' | 'lead' | 'company' | 'community' | 'unanswered';
@@ -53,7 +54,8 @@ export default function QnaThread({
   onFollow,
   onAnswer,
   onMarkAnswered,
-  requestId
+  requestId,
+  canAskQuestions = true
 }: QnaThreadProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
@@ -194,6 +196,7 @@ export default function QnaThread({
               onAnswer={onAnswer}
               onMarkAnswered={onMarkAnswered}
               requestId={requestId}
+              canAskQuestions={canAskQuestions}
             />
           ))
         ) : (
