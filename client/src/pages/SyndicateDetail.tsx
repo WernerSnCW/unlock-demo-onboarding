@@ -36,6 +36,11 @@ export default function SyndicateDetail() {
     );
   }
 
+  const handleJoinSyndicate = (syndicateId: string) => {
+    localStorage.setItem(`syndicate_requested_${syndicateId}`, 'true');
+    setRequested(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -65,8 +70,16 @@ export default function SyndicateDetail() {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <JoinSyndicateCard 
-                minCheque={syndicate.minChequeGBP} 
-                requested={requested} 
+                syndicate={{
+                  id: syndicate.id,
+                  company: syndicate.company,
+                  minChequeGBP: syndicate.minChequeGBP,
+                  closingDate: syndicate.closingDate,
+                  carryPct: syndicate.carryPct,
+                  mgmtFeePct: syndicate.mgmtFeePct,
+                  verified: syndicate.verified
+                }}
+                onJoin={handleJoinSyndicate}
               />
               
               <AssistantPreview

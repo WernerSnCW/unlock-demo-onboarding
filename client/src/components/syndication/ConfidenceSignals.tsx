@@ -70,77 +70,91 @@ export function ConfidenceSignals({ interest }: ConfidenceSignalsProps) {
         </p>
       </div>
 
-      {/* Investors Like You */}
+      {/* Enhanced Investors Like You */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-4">
           <i className="fas fa-users text-[var(--secondary)]" aria-hidden="true"></i>
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Investors Like You
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-[var(--secondary)]">
-                {interest.likeYouPct}%
-              </span>
-              <span 
-                className="text-sm text-gray-600 dark:text-gray-400 cursor-help"
-                title="Share of participating investors with a similar profile to yours (sector focus, ticket size, risk)."
-              >
-                of angels like you shortlisted this
-              </span>
+        
+        <div className="bg-gradient-to-r from-[var(--secondary)]/10 to-[var(--primary)]/10 dark:from-[var(--secondary)]/5 dark:to-[var(--primary)]/5 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-3xl font-bold text-[var(--secondary)]">
+              {interest.likeYouPct}%
+            </span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              of angels with similar profiles shortlisted this
+            </span>
+          </div>
+          
+          {/* Breakdown by Investor Type */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <i className="fas fa-user text-blue-500 text-sm" aria-hidden="true"></i>
+                <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                  {interest.cohorts.angels}%
+                </span>
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Angels</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <i className="fas fa-building text-purple-500 text-sm" aria-hidden="true"></i>
+                <span className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+                  {interest.cohorts.funds}%
+                </span>
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Funds</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <i className="fas fa-home text-green-500 text-sm" aria-hidden="true"></i>
+                <span className="text-lg font-semibold text-green-600 dark:text-green-400">
+                  {interest.cohorts.familyOffices}%
+                </span>
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Family Offices</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Cohort Breakdown */}
+      {/* Social Proof / Testimonials */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Investor Cohorts
+          Why Others Are Interested
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Angels</span>
-            <div className="flex items-center gap-2">
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${interest.cohorts.angels}%` }}
-                ></div>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <i className="fas fa-quote-left text-gray-400 text-sm mt-1" aria-hidden="true"></i>
+              <div className="flex-1">
+                <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                  "Strong sector growth potential and experienced founding team"
+                </p>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  — Anonymous Angel Investor
+                </div>
               </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100 w-8">
-                {interest.cohorts.angels}%
-              </span>
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Funds</span>
-            <div className="flex items-center gap-2">
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-purple-500 h-2 rounded-full"
-                  style={{ width: `${interest.cohorts.funds}%` }}
-                ></div>
+          
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <i className="fas fa-quote-left text-gray-400 text-sm mt-1" aria-hidden="true"></i>
+              <div className="flex-1">
+                <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                  "Lead's track record gives me confidence in execution"
+                </p>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  — Anonymous Fund Manager
+                </div>
               </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100 w-8">
-                {interest.cohorts.funds}%
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Family Offices</span>
-            <div className="flex items-center gap-2">
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-green-500 h-2 rounded-full"
-                  style={{ width: `${interest.cohorts.familyOffices}%` }}
-                ></div>
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100 w-8">
-                {interest.cohorts.familyOffices}%
-              </span>
             </div>
           </div>
         </div>

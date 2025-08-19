@@ -1,7 +1,10 @@
+import { useState } from 'react';
+
 interface ActivityEvent {
   ts: string;
   type: 'qa' | 'commit' | 'update';
   text: string;
+  isNew?: boolean;
 }
 
 interface ActivityTimelineProps {
@@ -9,6 +12,18 @@ interface ActivityTimelineProps {
 }
 
 export function ActivityTimeline({ events }: ActivityTimelineProps) {
+  const [activeFilter, setActiveFilter] = useState<string>('all');
+  
+  const filters = [
+    { key: 'all', label: 'All Updates', icon: 'fas fa-list' },
+    { key: 'commit', label: 'Commitments', icon: 'fas fa-handshake' },
+    { key: 'qa', label: 'Founder Q&A', icon: 'fas fa-question-circle' },
+    { key: 'update', label: 'Lead Notes', icon: 'fas fa-sticky-note' },
+  ];
+  
+  const filteredEvents = activeFilter === 'all' 
+    ? events 
+    : events.filter(event => event.type === activeFilter);
   const getEventIcon = (type: string) => {
     switch (type) {
       case 'qa':
@@ -48,12 +63,35 @@ export function ActivityTimeline({ events }: ActivityTimelineProps) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
-        Activity Timeline
-      </h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Activity Timeline
+        </h2>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          {events.filter(e => e.isNew).length} new since last login
+        </div>
+      </div>
+      
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2 mb-6 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+        {filters.map(filter => (
+          <button
+            key={filter.key}
+            onClick={() => setActiveFilter(filter.key)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeFilter === filter.key
+                ? 'bg-[var(--primary)] text-white'
+                : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+            }`}
+          >
+            <i className={`${filter.icon} text-xs`} aria-hidden="true"></i>
+            {filter.label}
+          </button>
+        ))}
+      </div>
 
       <div className="space-y-4">
-        {events.map((event, index) => {
+        {filteredEvents.map((event, index) => {
           const eventMeta = getEventIcon(event.type);
           
           return (

@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { JoinSyndicateModal } from './JoinSyndicateModal';
 
 interface JoinSyndicateCardProps {
-  minCheque: number;
-  nominalFee?: number;
-  requested?: boolean;
+  syndicate: {
+    id: string;
+    company: string;
+    minChequeGBP: number;
+    closingDate: string;
+    carryPct: number;
+    mgmtFeePct: number;
+    verified: boolean;
+  };
+  onJoin: (syndicateId: string) => void;
 }
 
-export function JoinSyndicateCard({ minCheque, nominalFee = 25, requested = false }: JoinSyndicateCardProps) {
-  const [showModal, setShowModal] = useState(false);
+export function JoinSyndicateCard({ syndicate, onJoin }: JoinSyndicateCardProps) {
+  const [isJoining, setIsJoining] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
@@ -18,80 +25,141 @@ export function JoinSyndicateCard({ minCheque, nominalFee = 25, requested = fals
     return `£${(amount / 1000).toFixed(0)}k`;
   };
 
-  if (requested) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <div className="text-center">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="fas fa-check text-blue-600 dark:text-blue-400 text-xl" aria-hidden="true"></i>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Request Submitted
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-            Your reservation request has been sent. A coordinator will follow up soon.
-          </p>
-          <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-sm rounded-lg">
-            <i className="fas fa-clock" aria-hidden="true"></i>
-            Pending Review
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const getDaysUntilClosing = () => {
+    const today = new Date();
+    const closing = new Date(syndicate.closingDate);
+    const diffTime = closing.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const handleJoinClick = async () => {
+    setIsJoining(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    onJoin(syndicate.id);
+    setIsJoining(false);
+  };
+
+  const daysUntilClosing = getDaysUntilClosing();
+  const isUrgent = daysUntilClosing <= 7;
 
   return (
-    <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <div className="text-center">
-          <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="fas fa-handshake text-[var(--primary)] text-xl" aria-hidden="true"></i>
-          </div>
-          
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Join Syndicate
-          </h3>
-          
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-            Reserve your seat in this syndicate with a nominal fee
-          </p>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 sticky top-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Join Syndicate
+        </h3>
+        {syndicate.verified && (
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs rounded">
+            <i className="fas fa-check-circle text-xs" aria-hidden="true"></i>
+            Verified
+          </span>
+        )}
+      </div>
 
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-gray-600 dark:text-gray-400">Min Investment</div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">
-                  {formatCurrency(minCheque)}
-                </div>
-              </div>
-              <div>
-                <div className="text-gray-600 dark:text-gray-400">Reservation Fee</div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">
-                  £{nominalFee}
-                </div>
-              </div>
+      {/* Key Details */}
+      <div className="space-y-4 mb-6">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600 dark:text-gray-400">Min Investment</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            {formatCurrency(syndicate.minChequeGBP)}
+          </span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600 dark:text-gray-400">Closing</span>
+          <span className={`text-sm font-medium ${isUrgent ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}>
+            {isUrgent && <i className="fas fa-exclamation-triangle mr-1" aria-hidden="true"></i>}
+            {daysUntilClosing}d left
+          </span>
+        </div>
+      </div>
+
+      {/* Fee Structure - Collapsible */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="w-full flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+        >
+          <span>Fee Structure</span>
+          <i className={`fas fa-chevron-${showDetails ? 'up' : 'down'} text-xs`} aria-hidden="true"></i>
+        </button>
+        
+        {showDetails && (
+          <div className="mt-3 space-y-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600 dark:text-gray-400">Carry</span>
+              <span className="text-gray-900 dark:text-gray-100">{syndicate.carryPct}%</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600 dark:text-gray-400">Management Fee</span>
+              <span className="text-gray-900 dark:text-gray-100">{syndicate.mgmtFeePct}%</span>
             </div>
           </div>
+        )}
+      </div>
 
-          <Button 
-            className="w-full mb-3"
-            onClick={() => setShowModal(true)}
-          >
-            <i className="fas fa-ticket-alt mr-2" aria-hidden="true"></i>
-            Request to Join (Reserve seat — £{nominalFee})
-          </Button>
+      {/* Call to Action */}
+      <div className="space-y-3">
+        <Button
+          onClick={handleJoinClick}
+          disabled={isJoining}
+          className="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-medium py-3"
+        >
+          {isJoining ? (
+            <span className="flex items-center gap-2">
+              <i className="fas fa-spinner fa-spin" aria-hidden="true"></i>
+              Processing...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <i className="fas fa-handshake" aria-hidden="true"></i>
+              Express Interest
+            </span>
+          )}
+        </Button>
+        
+        <Button
+          variant="outline"
+          className="w-full border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          <i className="fas fa-download mr-2" aria-hidden="true"></i>
+          Download Terms
+        </Button>
+      </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            * Reservation fee shown for illustration. No transaction occurs in this prototype.
+      {/* Disclaimer */}
+      <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-200 dark:border-yellow-800">
+        <div className="flex items-start gap-2">
+          <i className="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-sm mt-0.5" aria-hidden="true"></i>
+          <p className="text-xs text-yellow-800 dark:text-yellow-300">
+            <strong>Investment Risk:</strong> Capital at risk. Past performance is not indicative of future results. 
+            This is not financial advice.
           </p>
         </div>
       </div>
 
-      <JoinSyndicateModal
-        open={showModal}
-        onOpenChange={setShowModal}
-        nominalFee={nominalFee}
-      />
-    </>
+      {/* Premium Feature Preview */}
+      <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10 rounded-lg border border-purple-200 dark:border-purple-700">
+        <div className="flex items-center gap-2 mb-2">
+          <i className="fas fa-crown text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
+          <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
+            Premium Feature
+          </span>
+        </div>
+        <p className="text-xs text-purple-800 dark:text-purple-200 mb-3">
+          Get instant notifications when similar opportunities match your criteria
+        </p>
+        <Button
+          size="sm"
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs"
+        >
+          <i className="fas fa-star mr-1" aria-hidden="true"></i>
+          Upgrade for Smart Alerts
+        </Button>
+      </div>
+    </div>
   );
 }
