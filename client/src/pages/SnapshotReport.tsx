@@ -288,10 +288,115 @@ export default function SnapshotReport() {
             </div>
           </div>
 
-          {/* Investment Thesis */}
+          {/* Overall Assessment */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Overall Assessment</h2>
+            </div>
+
+            <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+              <p className="mb-4">
+                <strong className="text-gray-900 dark:text-gray-100">{business.name}</strong> presents a {getVerificationLevel(overallScore).level.toLowerCase()} investment opportunity based on completed due diligence analysis. The company demonstrates {overallScore >= 80 ? 'strong' : overallScore >= 60 ? 'moderate' : 'limited'} credibility across business verification, compliance standards, and operational frameworks.
+              </p>
+              
+              <p className="mb-4">
+                {overallScore >= 80 ? (
+                  <>The assessment reveals robust performance across {ddCategories.filter(c => c.data.score >= 80).length} of 8 key areas, with particularly strong scores in management structure and business verification. The company's {business.sector} positioning, combined with its {business.employees}-person team and {business.revenueBand} revenue performance, indicates a well-established market presence.</>
+                ) : overallScore >= 60 ? (
+                  <>The evaluation identifies {ddCategories.filter(c => c.data.score >= 80).length} areas of strength alongside {8 - ddCategories.filter(c => c.data.score >= 80).length} categories requiring enhanced monitoring. While the core business fundamentals appear sound, additional verification steps are recommended to address compliance and operational gaps before proceeding with investment decisions.</>
+                ) : (
+                  <>The assessment highlights significant areas of concern across multiple due diligence categories. With only {ddCategories.filter(c => c.data.score >= 80).length} areas meeting reliability standards, comprehensive review and verification are essential before any investment consideration.</>
+                )}
+              </p>
+
+              <p>
+                The company's {business.eligibility?.EIS ? 'confirmed EIS eligibility' : 'pending EIS status'} and {business.eligibility?.SEIS ? 'SEIS qualification' : 'SEIS review process'} provide relevant tax advantages for qualifying investors. Risk assessment categorizes this opportunity as {business.risk.toLowerCase()} risk, consistent with the overall verification score and market positioning within the {business.sector} sector.
+              </p>
+            </div>
+          </div>
+
+          {/* Section Analysis */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Section Analysis</h2>
+            </div>
+
+            <div className="space-y-8">
+              {ddCategories.map((category) => (
+                <div key={category.id} className="border-l-4 border-gray-200 dark:border-gray-600 pl-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                      <i className={`${category.icon} text-gray-600 dark:text-gray-400 text-sm`} aria-hidden="true"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{category.title}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{category.data.score}/100</span>
+                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                          category.data.score >= 80 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                          category.data.score >= 60 ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' :
+                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          {category.data.score >= 80 ? 'Reliable Verification' : 
+                           category.data.score >= 60 ? 'Conditional Verification' : 
+                           'Critical Review Recommended'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                    <div>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">KEY FINDINGS:</h4>
+                      <p>{category.description} Assessment shows {category.data.status.toLowerCase()} performance with verification score of {category.data.score}/100.</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">STRATEGIC IMPLICATIONS:</h4>
+                      <p>{category.data.score >= 80 ? 
+                        `Strong performance in ${category.title.toLowerCase()} enhances overall investment confidence and reduces associated risks. This area demonstrates reliable verification standards that support positive valuation considerations.` :
+                        category.data.score >= 60 ?
+                        `Moderate performance in ${category.title.toLowerCase()} requires ongoing monitoring and potential enhancement. While meeting basic requirements, additional verification may strengthen investment positioning.` :
+                        `${category.title} performance below optimal standards presents potential risk factors that warrant comprehensive review and remediation before investment consideration.`
+                      }</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">INVESTOR CONSIDERATIONS:</h4>
+                      <p>{category.data.score >= 80 ?
+                        `The strong verification score supports confidence in this area's reliability for investment decision-making. Recommended for inclusion in positive investment thesis development.` :
+                        category.data.score >= 60 ?
+                        `Moderate verification levels suggest standard due diligence protocols are adequate, with periodic review recommended to maintain investment confidence.` :
+                        `Below-threshold performance requires enhanced due diligence and potential risk mitigation strategies before proceeding with investment decisions.`
+                      }</p>
+                    </div>
+
+                    {category.data.score < 80 && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">RISK MITIGATION:</h4>
+                        <p>{category.data.score >= 60 ?
+                          `Standard monitoring protocols and periodic verification updates recommended to maintain acceptable risk levels in ${category.title.toLowerCase()}.` :
+                          `Comprehensive review and remediation required in ${category.title.toLowerCase()} before investment consideration. Enhanced verification processes essential for risk management.`
+                        }</p>
+                      </div>
+                    )}
+
+                    <div>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">BENCHMARKING:</h4>
+                      <p>Verification score of {category.data.score}/100 compares {category.data.score >= 80 ? 'favorably' : category.data.score >= 60 ? 'adequately' : 'below standard'} to industry benchmarks for {business.sector.toLowerCase()} companies of similar size and maturity stage.</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Investment Thesis */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Investment Thesis</h2>
             </div>
 
@@ -398,7 +503,7 @@ export default function SnapshotReport() {
           {/* Actionable Recommendations */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Actionable Recommendations</h2>
             </div>
 
@@ -438,7 +543,7 @@ export default function SnapshotReport() {
           {/* Risk Assessment Matrix */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">7</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Risk Assessment Matrix</h2>
             </div>
 
