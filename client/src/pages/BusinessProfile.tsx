@@ -265,6 +265,16 @@ export default function BusinessProfile() {
                   Overall Investment Assessment Score
                 </div>
               </div>
+
+              {/* Verification Summary */}
+              <div className="mb-4 p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center justify-center gap-2 text-center">
+                  <i className={`${getVerificationLevel(calculateOverallScore()).icon} ${getVerificationLevel(calculateOverallScore()).color}`} aria-hidden="true"></i>
+                  <span className={`font-medium ${getVerificationLevel(calculateOverallScore()).color}`}>
+                    {getVerificationLevel(calculateOverallScore()).level}
+                  </span>
+                </div>
+              </div>
               
               <div className="space-y-3">
                 {/* Company */}
