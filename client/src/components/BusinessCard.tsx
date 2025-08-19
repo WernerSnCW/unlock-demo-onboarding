@@ -65,12 +65,8 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   const isHighInterest = business.community.syndicateInterestPct >= 70;
   const isTrending = business.community.questionsCount >= 15;
   
-  const borderColor = business.verified 
-    ? 'border-l-4 border-l-green-500 dark:border-l-green-400' 
-    : 'border-l-4 border-l-gray-300 dark:border-l-gray-600';
-
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${borderColor} p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden`}>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden shadow-sm">
       {/* Header with integrated badges */}
       <div className="flex items-start gap-4 mb-4">
         {/* Company Logo/Avatar */}
