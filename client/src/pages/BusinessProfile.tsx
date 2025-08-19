@@ -66,6 +66,54 @@ export default function BusinessProfile() {
     }
   };
 
+  const getScoreFromStatus = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'excellent': return 95;
+      case 'very low': return 95;
+      case 'strong': return 85;
+      case 'good': return 75;
+      case 'watch': return 60;
+      case 'moderate': return 60;
+      default: return 50;
+    }
+  };
+
+  const calculateOverallScore = () => {
+    if (!business.snapshot.detailedAssessment) return 75;
+    
+    const sections = Object.values(business.snapshot.detailedAssessment);
+    const totalScore = sections.reduce((sum, section) => sum + section.score, 0);
+    return Math.round(totalScore / sections.length);
+  };
+
+  const getStarRating = (score: number) => {
+    const rating = Math.round((score / 100) * 5);
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars.push(<i key={i} className="fas fa-star text-[#F8D49B]" aria-hidden="true"></i>);
+      } else {
+        stars.push(<i key={i} className="far fa-star text-gray-300 dark:text-gray-600" aria-hidden="true"></i>);
+      }
+    }
+    return stars;
+  };
+
+  const getRecommendationText = (score: number) => {
+    if (score >= 90) return 'Highly Recommended';
+    if (score >= 80) return 'Recommended';
+    if (score >= 70) return 'Consider with Caution';
+    if (score >= 60) return 'Further Review Required';
+    return 'Critical Review Recommended';
+  };
+
+  const getRecommendationColor = (score: number) => {
+    if (score >= 80) return 'text-green-600 dark:text-green-400';
+    if (score >= 70) return 'text-blue-600 dark:text-blue-400';
+    if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
+  };
+
   const currentYear = new Date().getFullYear();
   const companyAge = currentYear - business.foundedYear;
 
@@ -181,70 +229,130 @@ export default function BusinessProfile() {
                 <i className="fas fa-camera text-[#5193B3]" aria-hidden="true"></i>
                 Snapshot Summary
               </h2>
+
+              {/* Overall Assessment Score */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {(calculateOverallScore() / 20).toFixed(1)}/5.0
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {getStarRating(calculateOverallScore())}
+                    </div>
+                  </div>
+                  <span className={`text-sm font-medium ${getRecommendationColor(calculateOverallScore())}`}>
+                    {getRecommendationText(calculateOverallScore())}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Overall Investment Assessment Score
+                </div>
+              </div>
               
               <div className="space-y-3">
                 {/* Company */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Company:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.company?.status || 'Good')}`}>
-                    {business.snapshot.detailedAssessment?.company?.status || 'Good'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.company?.score || 75)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.company?.status || 'Good')}`}>
+                      {business.snapshot.detailedAssessment?.company?.status || 'Good'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Compliance Check */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Compliance Check:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.complianceCheck?.status || 'Good')}`}>
-                    {business.snapshot.detailedAssessment?.complianceCheck?.status || 'Good'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.complianceCheck?.score || 75)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.complianceCheck?.status || 'Good')}`}>
+                      {business.snapshot.detailedAssessment?.complianceCheck?.status || 'Good'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Fraud Risk Assessment */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Fraud Risk Assessment:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.fraudRisk?.status || 'Low')}`}>
-                    {business.snapshot.detailedAssessment?.fraudRisk?.status || 'Very Low'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.fraudRisk?.score || 90)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.fraudRisk?.status || 'Very Low')}`}>
+                      {business.snapshot.detailedAssessment?.fraudRisk?.status || 'Very Low'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Financial Health */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Financial Health:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.financialHealth?.status || 'Good')}`}>
-                    {business.snapshot.detailedAssessment?.financialHealth?.status || 'Good'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.financialHealth?.score || 75)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.financialHealth?.status || 'Good')}`}>
+                      {business.snapshot.detailedAssessment?.financialHealth?.status || 'Good'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Management */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Management:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.management?.status || 'Strong')}`}>
-                    {business.snapshot.detailedAssessment?.management?.status || 'Strong'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.management?.score || 85)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.management?.status || 'Strong')}`}>
+                      {business.snapshot.detailedAssessment?.management?.status || 'Strong'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Marketing & Brand Management */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.marketing?.status || 'Good')}`}>
-                    {business.snapshot.detailedAssessment?.marketing?.status || 'Good'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.marketing?.score || 75)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.marketing?.status || 'Good')}`}>
+                      {business.snapshot.detailedAssessment?.marketing?.status || 'Good'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Claims Management */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Claims Management:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.claimsManagement?.status || 'Strong')}`}>
-                    {business.snapshot.detailedAssessment?.claimsManagement?.status || 'Strong'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.claimsManagement?.score || 85)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.claimsManagement?.status || 'Strong')}`}>
+                      {business.snapshot.detailedAssessment?.claimsManagement?.status || 'Strong'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Investor Validation */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Investor Validation:</span>
-                  <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.investorValidation?.status || 'Strong')}`}>
-                    {business.snapshot.detailedAssessment?.investorValidation?.status || 'Strong'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStarRating(business.snapshot.detailedAssessment?.investorValidation?.score || 85)}
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded-lg ${getStatusColor(business.snapshot.detailedAssessment?.investorValidation?.status || 'Strong')}`}>
+                      {business.snapshot.detailedAssessment?.investorValidation?.status || 'Strong'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
