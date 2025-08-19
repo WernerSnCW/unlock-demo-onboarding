@@ -139,7 +139,7 @@ export function SyndicateCard({ syndicate, onOpen }: SyndicateCardProps) {
       {/* CTA */}
       <Link href={`/syndication/${syndicate.id}`}>
         <Button 
-          className="w-full" 
+          className="w-full text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" 
           variant="outline"
           onClick={onOpen}
         >
