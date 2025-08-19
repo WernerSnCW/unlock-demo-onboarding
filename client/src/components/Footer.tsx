@@ -28,7 +28,7 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <Link href="/" className="flex items-center mb-4">
-              <img src={unlockLogo} alt="Unlock" className="h-8 w-auto" />
+              <img src={unlockLogo} alt="Unlock" className="h-8 w-auto brightness-0 invert" />
             </Link>
             <p className="text-slate-400 mb-4 max-w-md">
               Comprehensive business due diligence platform providing investment insights, 
