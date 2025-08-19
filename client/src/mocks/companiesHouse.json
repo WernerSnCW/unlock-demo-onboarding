@@ -1,0 +1,37 @@
+[
+  {
+    "number": "12345678",
+    "name": "Acme Biotech Ltd",
+    "status": "active",
+    "incorporationDate": "2018-05-12",
+    "address": "London"
+  },
+  {
+    "number": "87654321",
+    "name": "TechFlow Solutions Ltd",
+    "status": "active", 
+    "incorporationDate": "2020-03-15",
+    "address": "Manchester"
+  },
+  {
+    "number": "11223344",
+    "name": "Green Energy Partners Ltd",
+    "status": "active",
+    "incorporationDate": "2019-11-08", 
+    "address": "Edinburgh"
+  },
+  {
+    "number": "44556677",
+    "name": "Digital Marketing Hub Ltd",
+    "status": "active",
+    "incorporationDate": "2021-07-22",
+    "address": "Birmingham"
+  },
+  {
+    "number": "99887766",
+    "name": "Advanced Manufacturing Co Ltd",
+    "status": "active",
+    "incorporationDate": "2017-09-30",
+    "address": "Leeds"
+  }
+]
