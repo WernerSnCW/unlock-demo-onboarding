@@ -1,5 +1,7 @@
 import { useRoute } from 'wouter';
 import { Link } from 'wouter';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import { ArrowLeft, Download, ExternalLink, RotateCcw, Trash2, Check, Lock, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,16 +19,20 @@ export default function DueDiligenceRequestDetail() {
 
   if (!request) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Request Not Found</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            The request you're looking for doesn't exist or has been deleted.
-          </p>
-          <Link href="/due-diligence">
-            <Button>Back to Due Diligence</Button>
-          </Link>
-        </div>
+      <div className="min-h-screen bg-[var(--background)]">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Request Not Found</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              The request you're looking for doesn't exist or has been deleted.
+            </p>
+            <Link href="/due-diligence">
+              <Button>Back to Due Diligence</Button>
+            </Link>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -65,7 +71,9 @@ export default function DueDiligenceRequestDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[var(--background)]">
+      <Header />
+      <main className="flex-1">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
@@ -295,6 +303,8 @@ export default function DueDiligenceRequestDetail() {
           </div>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 }

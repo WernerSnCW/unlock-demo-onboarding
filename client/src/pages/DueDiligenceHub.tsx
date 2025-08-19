@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Clock, CheckCircle2, AlertCircle, Plus, ArrowRight } from 'lucide-react';
@@ -24,42 +26,45 @@ export default function DueDiligenceHub() {
   const failedRequests = requests.filter(r => r.status === 'failed').length;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Due Diligence Hub
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Comprehensive business intelligence and risk assessment platform
-            </p>
-          </div>
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg">
-                <Plus className="h-4 w-4 mr-2" />
-                New Request
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                  <Building2 className="h-5 w-5" />
-                  Request Due Diligence Snapshot
-                </DialogTitle>
-              </DialogHeader>
-              <RequestForm 
-                onSuccess={() => setIsFormOpen(false)}
-                className="mt-4"
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+    <div className="min-h-screen bg-[var(--background)]">
+      <Header />
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Due Diligence Hub
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  Comprehensive business intelligence and risk assessment platform
+                </p>
+              </div>
+              <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg">
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Request
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                      <Building2 className="h-5 w-5" />
+                      Request Due Diligence Snapshot
+                    </DialogTitle>
+                  </DialogHeader>
+                  <RequestForm 
+                    onSuccess={() => setIsFormOpen(false)}
+                    className="mt-4"
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
 
-        {/* Status Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            {/* Status Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -107,30 +112,33 @@ export default function DueDiligenceHub() {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Requests Table */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div className="space-y-1">
-              <CardTitle className="text-gray-900 dark:text-gray-100">Recent Requests</CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400">
-                Track and manage your due diligence requests
-              </CardDescription>
             </div>
-            {totalRequests > 0 && (
-              <Link href="/due-diligence/requests">
-                <Button variant="outline" size="sm">
-                  View All <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </Link>
-            )}
-          </CardHeader>
-          <CardContent>
-            <RequestsTable limit={5} />
-          </CardContent>
-        </Card>
-      </div>
+
+            {/* Requests Table */}
+            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="space-y-1">
+                  <CardTitle className="text-gray-900 dark:text-gray-100">Recent Requests</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
+                    Track and manage your due diligence requests
+                  </CardDescription>
+                </div>
+                {totalRequests > 0 && (
+                  <Link href="/due-diligence/requests">
+                    <Button variant="outline" size="sm">
+                      View All <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </Link>
+                )}
+              </CardHeader>
+              <CardContent>
+                <RequestsTable limit={5} />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
