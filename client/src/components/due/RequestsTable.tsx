@@ -12,9 +12,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface RequestsTableProps {
   typeFilter?: 'all' | 'snapshot' | 'deep_dive';
+  limit?: number;
 }
 
-export function RequestsTable({ typeFilter = 'all' }: RequestsTableProps) {
+export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps) {
   const allRequests = useRequests();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -62,7 +63,10 @@ export function RequestsTable({ typeFilter = 'all' }: RequestsTableProps) {
     }
   });
 
-  if (sortedRequests.length === 0) {
+  // Apply limit if specified
+  const displayRequests = limit ? sortedRequests.slice(0, limit) : sortedRequests;
+
+  if (displayRequests.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-500 dark:text-gray-400">
@@ -81,8 +85,9 @@ export function RequestsTable({ typeFilter = 'all' }: RequestsTableProps) {
 
   return (
     <div className="space-y-4">
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      {/* Controls - hidden when limit is set (preview mode) */}
+      {!limit && (
+        <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
@@ -131,7 +136,8 @@ export function RequestsTable({ typeFilter = 'all' }: RequestsTableProps) {
             </SelectContent>
           </Select>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
@@ -147,7 +153,7 @@ export function RequestsTable({ typeFilter = 'all' }: RequestsTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedRequests.map((request) => (
+            {displayRequests.map((request) => (
               <TableRow key={request.id} className="border-gray-200 dark:border-gray-700">
                 <TableCell>
                   <div className="flex items-center gap-2">
