@@ -23,9 +23,9 @@ export function RequestsMiniPanel() {
               No requests yet. Start with a snapshot above.
             </p>
             <Link href="/due-diligence">
-              <Button variant="outline" size="sm" className="w-full text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800">
+              <div className="w-full px-3 py-2 text-sm font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer text-center">
                 View Due Diligence Hub →
-              </Button>
+              </div>
             </Link>
           </div>
         </CardContent>
