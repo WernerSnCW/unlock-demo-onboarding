@@ -133,44 +133,44 @@ export default function SnapshotReport() {
       <Header />
       <main className="flex-1">
         {/* Header Section */}
-        <div className="bg-gray-800 dark:bg-gray-900 text-white py-8">
+        <div className="bg-[var(--primary)] text-white py-8">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
               <div>
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-4">
+                  <Button 
+                    onClick={() => window.history.back()}
+                    variant="outline"
+                    size="sm"
+                    className="text-white border-white/20 hover:bg-white/10"
+                  >
+                    <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
+                    Back
+                  </Button>
                   <h1 className="text-2xl font-bold">UNLOCK</h1>
-                  <span className="text-lg font-medium">Company Due Diligence Snapshot</span>
+                  <span className="text-lg font-medium">Due Diligence Snapshot</span>
                 </div>
-                <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                  <div>
-                    <span className="text-gray-300">Company:</span>
-                    <div className="font-medium">{business.name}</div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <span className="text-white/70 block">Company</span>
+                    <div className="font-semibold text-lg">{business.name}</div>
+                    <div className="text-xs text-white/60">CH: {business.ch_number}</div>
                   </div>
-                  <div>
-                    <span className="text-gray-300">Report Date:</span>
-                    <div className="font-medium">{new Date().toLocaleDateString('en-US', { 
-                      year: 'numeric', 
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <span className="text-white/70 block">Report Generated</span>
+                    <div className="font-semibold">{new Date().toLocaleDateString('en-GB', { 
+                      day: 'numeric',
                       month: 'long', 
-                      day: 'numeric' 
+                      year: 'numeric' 
                     })}</div>
+                    <div className="text-xs text-white/60">v1.0 • System Generated</div>
                   </div>
-                  <div>
-                    <span className="text-gray-300">Analyst:</span>
-                    <div className="font-medium">System Generated</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-300">Authorized By:</span>
-                    <div className="font-medium">Unlock Intelligence Platform</div>
-                    <div className="text-xs text-gray-400">Generated on {new Date().toLocaleDateString('en-US')} at {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-300">Report Version:</span>
-                    <div className="font-medium">v1.0</div>
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <span className="text-white/70 block">Assessment Score</span>
+                    <div className="font-semibold text-lg">{(overallScore / 20).toFixed(1)}/5.0</div>
+                    <div className="text-xs text-white/60">{getRecommendationText(overallScore)}</div>
                   </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-300 mb-1">Unlock Intelligence Platform</div>
               </div>
             </div>
           </div>
@@ -191,9 +191,9 @@ export default function SnapshotReport() {
           </nav>
 
           {/* Overall Assessment */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gray-800 dark:bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Overall Assessment</h2>
             </div>
 
@@ -219,7 +219,7 @@ export default function SnapshotReport() {
                   {ddCategories.map((category) => (
                     <span 
                       key={category.id}
-                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-xs rounded-full"
+                      className="px-3 py-1 bg-[var(--secondary)]/20 text-[var(--primary)] text-xs rounded-full font-medium"
                     >
                       {category.title}
                     </span>
@@ -235,40 +235,49 @@ export default function SnapshotReport() {
           </div>
 
           {/* Analysis Report */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-gray-800 dark:bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Analysis Report</h2>
             </div>
 
             {/* Due Diligence Scorecard */}
-            <div className="bg-gray-800 dark:bg-gray-700 text-white p-4 rounded-lg mb-6">
+            <div className="bg-[var(--primary)] text-white p-6 rounded-xl mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-6 h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                <div className="w-6 h-6 bg-white/20 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  <i className="fas fa-clipboard-list" aria-hidden="true"></i>
+                </div>
                 <h3 className="font-semibold">Due Diligence Scorecard</h3>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-600">
-                      <th className="text-left py-3 px-2 font-medium">Area</th>
-                      <th className="text-center py-3 px-2 font-medium">Rating</th>
-                      <th className="text-left py-3 px-2 font-medium">Summary Comment</th>
+                    <tr className="border-b border-white/20">
+                      <th className="text-left py-4 px-3 font-semibold">Due Diligence Area</th>
+                      <th className="text-center py-4 px-3 font-semibold">Score</th>
+                      <th className="text-left py-4 px-3 font-semibold">Assessment Summary</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {ddCategories.map((category) => (
-                      <tr key={category.id} className="border-b border-gray-700">
-                        <td className="py-4 px-2">
-                          <div className="font-medium">{category.title}</div>
-                        </td>
-                        <td className="py-4 px-2 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            {getStarRating(category.data.score)}
+                    {ddCategories.map((category, index) => (
+                      <tr key={category.id} className={`${index !== ddCategories.length - 1 ? 'border-b border-white/10' : ''}`}>
+                        <td className="py-4 px-3">
+                          <div className="flex items-center gap-2">
+                            <i className={`${category.icon} text-white/70 w-4`} aria-hidden="true"></i>
+                            <div>
+                              <div className="font-semibold">{category.title}</div>
+                              <div className="text-xs text-white/60">{category.data.status}</div>
+                            </div>
                           </div>
                         </td>
-                        <td className="py-4 px-2 text-sm">
+                        <td className="py-4 px-3 text-center">
+                          <div className="flex items-center justify-center gap-1 mb-1">
+                            {getStarRating(category.data.score)}
+                          </div>
+                          <div className="text-xs text-white/70">{category.data.score}/100</div>
+                        </td>
+                        <td className="py-4 px-3 text-sm text-white/80">
                           {category.description}
                         </td>
                       </tr>
@@ -280,74 +289,108 @@ export default function SnapshotReport() {
           </div>
 
           {/* Investment Thesis */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-gray-800 dark:bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Investment Thesis</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Competitive Strengths */}
-              <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-l-4 border-green-500 rounded-xl">
                 <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-check-circle text-green-600 dark:text-green-400" aria-hidden="true"></i>
+                  <i className="fas fa-thumbs-up text-green-600 dark:text-green-400" aria-hidden="true"></i>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">Competitive Strengths</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <li>• Strong verification across core business areas</li>
-                  <li>• Robust management structure and experience</li>
-                  <li>• Reliable compliance and governance framework</li>
+                  <li className="flex items-start gap-2">
+                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1" aria-hidden="true"></i>
+                    Strong verification across {ddCategories.filter(c => c.data.score >= 80).length} core business areas
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1" aria-hidden="true"></i>
+                    {business.snapshot.summary}
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1" aria-hidden="true"></i>
+                    Established {business.sector} market presence since {business.foundedYear}
+                  </li>
                 </ul>
               </div>
 
               {/* Key Concerns */}
-              <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
+              <div className="p-5 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-l-4 border-amber-500 rounded-xl">
                 <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400" aria-hidden="true"></i>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Key Concerns</h3>
+                  <i className="fas fa-exclamation-triangle text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Areas for Review</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                   {overallScore < 80 ? (
                     <>
-                      <li>• Areas requiring enhanced monitoring identified</li>
-                      <li>• Compliance framework needs strengthening</li>
+                      <li className="flex items-start gap-2">
+                        <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1" aria-hidden="true"></i>
+                        {8 - ddCategories.filter(c => c.data.score >= 80).length} categories require enhanced monitoring
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1" aria-hidden="true"></i>
+                        Due diligence completion recommended before investment
+                      </li>
                     </>
                   ) : (
-                    <li>• No significant concerns identified at this time</li>
+                    <li className="flex items-start gap-2">
+                      <i className="fas fa-circle text-amber-600 dark:text-amber-400 text-xs mt-1" aria-hidden="true"></i>
+                      Standard ongoing monitoring protocols sufficient
+                    </li>
                   )}
                 </ul>
               </div>
 
               {/* Market Opportunity */}
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-l-4 border-[var(--primary)] rounded-xl">
                 <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-chart-bar text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+                  <i className="fas fa-chart-line text-[var(--primary)] dark:text-blue-400" aria-hidden="true"></i>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">Market Opportunity</h3>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Market opportunity assessment based on sector positioning and competitive landscape analysis.
-                </p>
+                <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                  <p className="flex items-start gap-2">
+                    <i className="fas fa-circle text-[var(--primary)] dark:text-blue-400 text-xs mt-1" aria-hidden="true"></i>
+                    {business.sector} sector positioning with {business.employees} team members
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <i className="fas fa-circle text-[var(--primary)] dark:text-blue-400 text-xs mt-1" aria-hidden="true"></i>
+                    Revenue band: {business.revenueBand} demonstrates market traction
+                  </p>
+                </div>
               </div>
 
-              {/* Valuation Factors */}
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+              {/* Investment Factors */}
+              <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-l-4 border-purple-500 rounded-xl">
                 <div className="flex items-center gap-2 mb-3">
-                  <i className="fas fa-dollar-sign text-yellow-600 dark:text-yellow-400" aria-hidden="true"></i>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Valuation Factors</h3>
+                  <i className="fas fa-coins text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Investment Factors</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <li>• Verification completeness impacts valuation confidence</li>
-                  <li>• Risk assessment requires additional data points</li>
-                  <li>• Market positioning analysis supports premium valuation</li>
+                  <li className="flex items-start gap-2">
+                    <i className="fas fa-circle text-purple-600 dark:text-purple-400 text-xs mt-1" aria-hidden="true"></i>
+                    {business.eligibility?.EIS ? 'EIS eligible' : 'EIS eligibility pending'} • {business.eligibility?.SEIS ? 'SEIS qualified' : 'SEIS under review'}
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="fas fa-circle text-purple-600 dark:text-purple-400 text-xs mt-1" aria-hidden="true"></i>
+                    Risk level: {business.risk} based on current assessment
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="fas fa-circle text-purple-600 dark:text-purple-400 text-xs mt-1" aria-hidden="true"></i>
+                    Verification score supports {overallScore >= 80 ? 'premium' : 'standard'} valuation approach
+                  </li>
                 </ul>
               </div>
             </div>
           </div>
 
           {/* Actionable Recommendations */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-gray-800 dark:bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Actionable Recommendations</h2>
             </div>
 
@@ -379,9 +422,9 @@ export default function SnapshotReport() {
           </div>
 
           {/* Risk Assessment Matrix */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-gray-800 dark:bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Risk Assessment Matrix</h2>
             </div>
 
@@ -445,16 +488,16 @@ export default function SnapshotReport() {
           {/* Action Buttons */}
           <div className="flex justify-center gap-4 mt-8">
             <Link href={`/business/${business.id}`}>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="hover:bg-[var(--primary)]/5">
                 <i className="fas fa-arrow-left mr-2" aria-hidden="true"></i>
                 Back to Profile
               </Button>
             </Link>
             <Button variant="outline" size="lg" disabled className="text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-600">
-              <i className="fas fa-download mr-2" aria-hidden="true"></i>
+              <i className="fas fa-lock mr-2" aria-hidden="true"></i>
               Export PDF (Premium)
             </Button>
-            <Button size="lg" className="bg-[#5193B3] hover:bg-[#4082a2] text-white">
+            <Button size="lg" className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white">
               <i className="fas fa-share-alt mr-2" aria-hidden="true"></i>
               Share Report
             </Button>
