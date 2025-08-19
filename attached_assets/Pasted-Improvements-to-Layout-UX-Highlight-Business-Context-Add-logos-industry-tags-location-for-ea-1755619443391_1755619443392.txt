@@ -1,0 +1,91 @@
+Improvements to Layout & UX
+
+Highlight Business Context
+
+Add logos / industry tags / location for each company in the list. Right now, it’s just a name + reg no. That feels sterile.
+
+Example row:
+RetailMax Group (Retail – UK, HQ London)
+
+Dynamic Request Cards (instead of plain rows)
+
+Each request could be a card with status, request type, and quick actions.
+
+Easier to scan at a glance vs. scanning a table.
+
+Progress Indicators
+
+For queued/processing items, add animated progress rings or bars. Right now “Queued” and “Processing” feel static and uncertain.
+
+Action Section
+
+Instead of a tiny “eye” icon, have clearer actions:
+
+View Summary (inline modal)
+
+Download Report (PDF)
+
+Request Deep Dive Upgrade (if free user)
+
+📊 Improve Insight & Value Perception
+
+Request Stats Overview
+
+Right now you only show Total, Completed, Processing, Failed.
+
+Add premium value indicators, e.g.:
+
+Avg. turnaround time (last 30 days)
+
+Snapshot vs Deep Dive split
+
+% of failed reports (low = reliability signal)
+
+Confidence Signals / Benchmarks
+
+For each completed report, add a confidence/coverage score (“87% of public data sources matched”).
+
+Shows users you’re not just pulling raw data, but analysing coverage and quality.
+
+Failed Requests
+
+Make failures more useful — instead of just “Failed”, say why:
+
+“Company not found in Companies House”
+
+“Insufficient public data”
+
+“Technical error (try again)”
+
+🌟 Premium Upsell & Differentiation
+
+Deep Dive Highlight
+
+Use gold framing/badge for premium Deep Dive reports so they stand out as higher value.
+
+Show what Deep Dive includes vs Snapshot (benchmarked financials, risk profile, etc.).
+
+Upgrade CTA Placement
+
+Every completed Snapshot should have a subtle CTA:
+“Want the full picture? Upgrade to Deep Dive.”
+
+Timeline View Option
+
+In addition to a table, allow a timeline view of requests (by date) to make it feel more like an ongoing intelligence feed.
+
+🎨 Visual Improvements
+
+Dashboard Visual Hierarchy
+
+The “Total / Completed / Processing / Failed” boxes at the top are too plain. Add icons, subtle colours, and hover states.
+
+Example: Completed box with a green check, Processing with a live spinner.
+
+Colour & Contrast
+
+Current status colours (green, blue, red) are fine but look generic. Make them brand-aligned and softer (e.g. pastel tones for free tier, bolder for premium).
+
+Empty State / Guidance
+
+If user has 0 requests, show a welcome panel explaining how to request due diligence, with a “New Request” button prominently highlighted.

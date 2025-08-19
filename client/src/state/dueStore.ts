@@ -21,6 +21,16 @@ export interface DueRequest {
     includeComplianceCheck: boolean;
     attachments: string[];
   };
+  // Enhanced business context
+  businessContext: {
+    industry: string;
+    sector: string;
+    location: string;
+    headquarters: string;
+    logo?: string;
+    size: 'Micro' | 'Small' | 'Medium' | 'Large';
+    employeeCount?: number;
+  };
   result?: {
     reportId: string;
     summary: string;
@@ -31,8 +41,17 @@ export interface DueRequest {
     };
     downloadUrl: string;
     openUrl: string;
+    // Enhanced insights
+    confidenceScore: number; // 0-100
+    coverageScore: number; // 0-100
+    turnaroundTime: number; // minutes
   };
   error?: string;
+  errorDetails?: {
+    type: 'not_found' | 'insufficient_data' | 'technical_error';
+    message: string;
+    suggestions: string[];
+  };
 }
 
 interface DueStore {
@@ -122,6 +141,14 @@ const sampleRequests: DueRequest[] = [
     status: 'completed',
     progress: 100,
     sla: 'fast',
+    businessContext: {
+      industry: 'Technology',
+      sector: 'Software Development',
+      location: 'UK',
+      headquarters: 'London',
+      size: 'Medium',
+      employeeCount: 150
+    },
     inputs: {
       reason: 'Investment due diligence',
       includeFinancialAnalysis: true,
@@ -139,7 +166,10 @@ const sampleRequests: DueRequest[] = [
         webScore: 85
       },
       downloadUrl: '#',
-      openUrl: '#'
+      openUrl: '#',
+      confidenceScore: 94,
+      coverageScore: 87,
+      turnaroundTime: 15
     }
   },
   {
@@ -153,6 +183,14 @@ const sampleRequests: DueRequest[] = [
     status: 'processing',
     progress: 75,
     sla: 'extended',
+    businessContext: {
+      industry: 'Energy',
+      sector: 'Renewable Energy',
+      location: 'UK',
+      headquarters: 'Edinburgh',
+      size: 'Small',
+      employeeCount: 45
+    },
     inputs: {
       reason: 'Acquisition assessment',
       includeFinancialAnalysis: true,
@@ -173,6 +211,14 @@ const sampleRequests: DueRequest[] = [
     status: 'completed',
     progress: 100,
     sla: 'fast',
+    businessContext: {
+      industry: 'Technology',
+      sector: 'Data Analytics',
+      location: 'UK',
+      headquarters: 'Manchester',
+      size: 'Small',
+      employeeCount: 25
+    },
     inputs: {
       reason: 'Partnership evaluation',
       includeFinancialAnalysis: true,
@@ -190,7 +236,10 @@ const sampleRequests: DueRequest[] = [
         webScore: 72
       },
       downloadUrl: '#',
-      openUrl: '#'
+      openUrl: '#',
+      confidenceScore: 78,
+      coverageScore: 82,
+      turnaroundTime: 12
     }
   },
   {
@@ -204,6 +253,14 @@ const sampleRequests: DueRequest[] = [
     status: 'queued',
     progress: 0,
     sla: 'fast',
+    businessContext: {
+      industry: 'Retail',
+      sector: 'Consumer Goods',
+      location: 'UK',
+      headquarters: 'Birmingham',
+      size: 'Large',
+      employeeCount: 850
+    },
     inputs: {
       reason: 'Vendor assessment',
       includeFinancialAnalysis: true,
@@ -224,6 +281,14 @@ const sampleRequests: DueRequest[] = [
     status: 'failed',
     progress: 0,
     sla: 'extended',
+    businessContext: {
+      industry: 'Financial Services',
+      sector: 'FinTech',
+      location: 'UK',
+      headquarters: 'London',
+      size: 'Medium',
+      employeeCount: 120
+    },
     inputs: {
       reason: 'Investment screening',
       includeFinancialAnalysis: true,
@@ -232,7 +297,16 @@ const sampleRequests: DueRequest[] = [
       includeComplianceCheck: true,
       attachments: []
     },
-    error: 'Company data not available in public records'
+    error: 'Company data not available in public records',
+    errorDetails: {
+      type: 'not_found',
+      message: 'Company not found in Companies House registry',
+      suggestions: [
+        'Verify company number is correct',
+        'Check if company is registered in different jurisdiction',
+        'Try searching by company name instead'
+      ]
+    }
   }
 ];
 
@@ -243,12 +317,52 @@ export const useDueStore = create<DueStore>()(
       
       createRequest: (payload) => {
         const id = generateId();
+        
+        // Generate business context based on company name patterns
+        const generateBusinessContext = (companyName: string): DueRequest['businessContext'] => {
+          const industries = [
+            { industry: 'Technology', sector: 'Software Development' },
+            { industry: 'Financial Services', sector: 'FinTech' },
+            { industry: 'Healthcare', sector: 'Medical Technology' },
+            { industry: 'Retail', sector: 'E-commerce' },
+            { industry: 'Energy', sector: 'Renewable Energy' },
+            { industry: 'Manufacturing', sector: 'Industrial Equipment' }
+          ];
+          
+          const locations = ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Bristol', 'Cambridge'];
+          const sizes: Array<'Micro' | 'Small' | 'Medium' | 'Large'> = ['Micro', 'Small', 'Medium', 'Large'];
+          
+          const randomIndustry = industries[Math.floor(Math.random() * industries.length)];
+          const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+          const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+          
+          const employeeRanges = {
+            'Micro': [1, 10],
+            'Small': [11, 50],
+            'Medium': [51, 250],
+            'Large': [251, 1000]
+          };
+          
+          const [min, max] = employeeRanges[randomSize];
+          const employeeCount = Math.floor(Math.random() * (max - min + 1)) + min;
+          
+          return {
+            industry: randomIndustry.industry,
+            sector: randomIndustry.sector,
+            location: 'UK',
+            headquarters: randomLocation,
+            size: randomSize,
+            employeeCount
+          };
+        };
+
         const request: DueRequest = {
           ...payload,
           id,
           createdAt: new Date().toISOString(),
           status: 'queued',
-          progress: 0
+          progress: 0,
+          businessContext: generateBusinessContext(payload.companyName)
         };
         
         set((state) => ({
