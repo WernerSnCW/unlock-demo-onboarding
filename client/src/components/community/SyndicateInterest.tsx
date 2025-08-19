@@ -148,34 +148,36 @@ export function SyndicateInterest({ interest }: SyndicateInterestProps) {
         </div>
         
         {/* Mini Bar Chart */}
-        <div className="flex items-end justify-between gap-1 h-10">
+        <div className="flex items-end justify-between gap-1 h-12 px-1">
           {interest.history.map((value, index) => {
             const maxValue = Math.max(...interest.history);
             const minValue = Math.min(...interest.history);
             const range = maxValue - minValue || 1;
-            const normalizedHeight = Math.max(20, ((value - minValue) / range) * 80 + 20);
+            
+            // Calculate height as pixels instead of percentage
+            const heightPixels = Math.max(8, Math.round(((value - minValue) / range) * 32 + 8));
             const isLast = index === interest.history.length - 1;
             const isHigh = value >= maxValue * 0.8;
             
             return (
               <div
                 key={index}
-                className="relative flex-1 group cursor-help max-w-6"
+                className="relative flex-1 group cursor-help"
                 title={`${7 - index} days ago: ${value}% interest`}
               >
                 <div
-                  className={`w-full rounded-t transition-all duration-300 ${
+                  className={`w-full rounded-t-sm transition-all duration-300 min-h-[8px] ${
                     isLast 
-                      ? 'bg-gradient-to-t from-[#5193B3] to-[#62C4C3] shadow-md border border-[#5193B3]/20' 
+                      ? 'bg-gradient-to-t from-[#5193B3] to-[#62C4C3] shadow-sm' 
                       : isHigh
-                      ? 'bg-gradient-to-t from-[#F8D49B]/60 to-[#F8D49B]/80 group-hover:from-[#F8D49B] group-hover:to-[#F8D49B]'
-                      : 'bg-gray-300 dark:bg-gray-600 group-hover:bg-gradient-to-t group-hover:from-[#5193B3]/40 group-hover:to-[#62C4C3]/40'
+                      ? 'bg-gradient-to-t from-[#F8D49B] to-[#F8D49B]/80 group-hover:shadow-sm'
+                      : 'bg-gray-400 dark:bg-gray-500 group-hover:bg-gradient-to-t group-hover:from-[#5193B3]/60 group-hover:to-[#62C4C3]/60'
                   }`}
-                  style={{ height: `${normalizedHeight}%` }}
+                  style={{ height: `${heightPixels}px` }}
                 />
                 
                 {/* Value label on hover */}
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
                   {value}%
                 </div>
               </div>
