@@ -17,20 +17,14 @@ export default function Logo({ className = '', size = 'md', variant = 'default' 
   };
 
   if (variant === 'email') {
-    // Email variant with icon and text for newsletter
+    // Email variant with centered logo for newsletter
     return (
-      <div className={`flex items-center gap-3 ${className}`}>
-        <div className="w-12 h-12 bg-gradient-to-r from-[#5193B3] to-[#62C4C3] rounded-lg flex items-center justify-center">
-          <img 
-            src={unlockLogo} 
-            alt="Unlock" 
-            className="h-6 w-auto brightness-0 invert"
-          />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-[#5193B3] mb-0">Unlock</h1>
-          <p className="text-sm text-gray-600 -mt-1">Investment Intelligence</p>
-        </div>
+      <div className={`flex justify-center ${className}`}>
+        <img 
+          src={unlockLogo} 
+          alt="Unlock" 
+          className="h-10 w-auto"
+        />
       </div>
     );
   }
