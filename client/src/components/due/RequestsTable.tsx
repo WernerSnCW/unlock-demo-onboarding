@@ -155,7 +155,11 @@ export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps)
           </TableHeader>
           <TableBody>
             {displayRequests.map((request) => (
-              <TableRow key={request.id} className="border-gray-200 dark:border-gray-700">
+              <TableRow 
+                key={request.id} 
+                className="border-gray-200 dark:border-gray-700 hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => window.location.href = `/due-diligence/requests/${request.id}`}
+              >
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <div>
@@ -259,14 +263,22 @@ export function RequestsTable({ typeFilter = 'all', limit }: RequestsTableProps)
                 </TableCell>
                 
                 <TableCell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     {request.status === 'completed' && request.result ? (
-                      <Link href={`/due-diligence/snapshot/${request.id}`}>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Eye className="h-3 w-3 mr-1" />
-                          View
-                        </Button>
-                      </Link>
+                      <>
+                        <Link href={`/snapshot-report/${request.id}`}>
+                          <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
+                            <Eye className="h-3 w-3 mr-1" />
+                            Report
+                          </Button>
+                        </Link>
+                        <Link href={`/due-diligence/requests/${request.id}`}>
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Details
+                          </Button>
+                        </Link>
+                      </>
                     ) : (
                       <Link href={`/due-diligence/requests/${request.id}`}>
                         <Button variant="ghost" size="sm" className="h-7 px-2">
