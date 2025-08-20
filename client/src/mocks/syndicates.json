@@ -9,17 +9,60 @@
     "targetRaiseGBP": 1200000,
     "committedPct": 68,
     "minChequeGBP": 5000,
-    "carryPct": 10,
-    "mgmtFeePct": 0,
     "closingDate": "2025-10-05",
     "eligibility": { "EIS": true, "SEIS": false },
-    "lead": { "alias": "LeadAngel-K", "trackRecord": "4 exits" },
+    "lead": { "alias": "LeadAngel-K", "trackRecord": "4 exits", "bio": "ex-BigPharma BD" },
     "interest": {
       "overallPct": 74,
       "likeYouPct": 21,
       "cohorts": { "angels": 62, "funds": 26, "familyOffices": 12 },
       "history": [40, 45, 55, 60, 67, 71, 74],
       "confidenceScore": 82
+    },
+    "fee": {
+      "carryPct": 10,
+      "adminAnnualPct": 0.8,
+      "platformFeeGBP": 0,
+      "notes": "No hidden commissions."
+    },
+    "whyThis": {
+      "reasoning": "Strong biotech play with experienced team and clear regulatory pathway. Three pilot sites already showing market demand with solid KOL network.",
+      "keyMetrics": [
+        "4 exits in lead's track record",
+        "3 active pilot sites showing demand",
+        "8.5x revenue multiple in sector"
+      ],
+      "riskFactors": [
+        "Clinical validation timeline risk",
+        "Customer concentration in year 1",
+        "Regulatory approval dependencies"
+      ],
+      "opportunityFactors": [
+        "Favourable regulatory pathway in UK",
+        "Team with prior exits and strong KOL network", 
+        "Market pull from 3 pilot sites",
+        "First mover advantage in niche"
+      ]
+    },
+    "benchmarks": {
+      "sector": "Biotech",
+      "stageMedianPreMoneyGBP": 8000000,
+      "revMultipleX": 8.5,
+      "recentComps": [
+        { "name": "BioX", "stage": "Seed", "preMoneyGBP": 9000000 },
+        { "name": "CellTech", "stage": "Seed", "preMoneyGBP": 7500000 }
+      ]
+    },
+    "trust": {
+      "dataSources": 3,
+      "investorHistory": "Verified",
+      "dealLegitimacy": "High"
+    },
+    "fractional": {
+      "unitName": "share",
+      "unitsOffered": 1000,
+      "unitPriceGBP": 1200,
+      "minUnitsPerInvestor": 1
     },
     "activity": [
       { "ts": "2025-08-10T09:00:00Z", "type": "qa", "text": "Founder answered: regulatory plan timelines." },
@@ -37,17 +80,53 @@
     "targetRaiseGBP": 3500000,
     "committedPct": 31,
     "minChequeGBP": 10000,
-    "carryPct": 15,
-    "mgmtFeePct": 1,
     "closingDate": "2025-09-18",
     "eligibility": { "EIS": true, "SEIS": false },
-    "lead": { "alias": "Payments-LP", "trackRecord": "ex-Adyen VP" },
+    "lead": { "alias": "Payments-LP", "trackRecord": "ex-Adyen VP", "bio": "Former VP of Payments at Adyen" },
     "interest": {
       "overallPct": 58,
       "likeYouPct": 12,
       "cohorts": { "angels": 48, "funds": 42, "familyOffices": 10 },
       "history": [20, 24, 34, 41, 47, 55, 58],
       "confidenceScore": 66
+    },
+    "fee": {
+      "carryPct": 15,
+      "adminAnnualPct": 1.0,
+      "platformFeeGBP": 100,
+      "notes": "Transparent, flat fees. No hidden commissions."
+    },
+    "whyThis": {
+      "thesis": [
+        "Large addressable market in B2B payments.",
+        "Strong product-market fit demonstrated.",
+        "Experienced payments team with domain expertise."
+      ],
+      "risks": [
+        "Competitive landscape with well-funded players.",
+        "Regulatory changes in payment processing."
+      ],
+      "sources": ["Lead memo 2025-08-10", "Due diligence report 2025-08"]
+    },
+    "benchmarks": {
+      "sector": "Fintech",
+      "stageMedianPreMoneyGBP": 12000000,
+      "revMultipleX": 6.2,
+      "recentComps": [
+        { "name": "PayTech Pro", "stage": "A", "preMoneyGBP": 11500000 },
+        { "name": "FinanceFlow", "stage": "A", "preMoneyGBP": 13200000 }
+      ]
+    },
+    "trust": {
+      "leadVetted": true,
+      "governanceAudited": true,
+      "docPackAvailable": true
+    },
+    "fractional": {
+      "unitName": "share",
+      "unitsOffered": 800,
+      "unitPriceGBP": 4375,
+      "minUnitsPerInvestor": 2
     },
     "activity": [
       { "ts": "2025-08-14T11:30:00Z", "type": "qa", "text": "Q&A session: payment infrastructure scaling." },
@@ -64,17 +143,54 @@
     "targetRaiseGBP": 800000,
     "committedPct": 45,
     "minChequeGBP": 2500,
-    "carryPct": 8,
-    "mgmtFeePct": 0,
     "closingDate": "2025-09-30",
     "eligibility": { "EIS": true, "SEIS": true },
-    "lead": { "alias": "CleanTech-Pro", "trackRecord": "2 exits in renewables" },
+    "lead": { "alias": "CleanTech-Pro", "trackRecord": "2 exits in renewables", "bio": "Former renewable energy entrepreneur" },
     "interest": {
       "overallPct": 67,
       "likeYouPct": 18,
       "cohorts": { "angels": 55, "funds": 35, "familyOffices": 10 },
       "history": [25, 30, 38, 42, 50, 58, 67],
       "confidenceScore": 75
+    },
+    "fee": {
+      "carryPct": 8,
+      "adminAnnualPct": 0.5,
+      "platformFeeGBP": 0,
+      "notes": "Lowest fees to maximize investor returns."
+    },
+    "whyThis": {
+      "thesis": [
+        "Growing demand for sustainable energy solutions.",
+        "Strong government incentives for clean technology.",
+        "Proprietary technology with patent protection."
+      ],
+      "risks": [
+        "Regulatory changes affecting subsidies.",
+        "Technology adoption timeline uncertainty.",
+        "Competition from established energy players."
+      ],
+      "sources": ["Tech assessment 2025-08", "Market analysis Q3 2025"]
+    },
+    "benchmarks": {
+      "sector": "CleanTech",
+      "stageMedianPreMoneyGBP": 3500000,
+      "revMultipleX": 4.8,
+      "recentComps": [
+        { "name": "SolarTech", "stage": "Pre-Seed", "preMoneyGBP": 3200000 },
+        { "name": "WindFlow", "stage": "Pre-Seed", "preMoneyGBP": 3800000 }
+      ]
+    },
+    "trust": {
+      "leadVetted": false,
+      "governanceAudited": false,
+      "docPackAvailable": false
+    },
+    "fractional": {
+      "unitName": "share",
+      "unitsOffered": 1500,
+      "unitPriceGBP": 533,
+      "minUnitsPerInvestor": 5
     },
     "activity": [
       { "ts": "2025-08-11T16:00:00Z", "type": "update", "text": "Tech demo scheduled for next week." },

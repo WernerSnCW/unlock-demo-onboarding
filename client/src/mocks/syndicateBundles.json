@@ -1,0 +1,74 @@
+[
+  {
+    "id": "bun_tech_seed",
+    "title": "UK Seed Tech (Diversified)",
+    "description": "5-company basket across FinTech, HealthTech, CleanTech offering balanced exposure to high-growth UK technology companies.",
+    "targetRaiseGBP": 2500000,
+    "minChequeGBP": 5000,
+    "confidenceScore": 76,
+    "diversification": { 
+      "count": 5, 
+      "sectors": ["FinTech", "HealthTech", "CleanTech"] 
+    },
+    "expectedHoldYears": 5,
+    "fees": { 
+      "carryPct": 10, 
+      "adminAnnualPct": 1.0 
+    },
+    "breakdown": [
+      { "synId": "syn_001", "weightPct": 20 },
+      { "synId": "syn_002", "weightPct": 20 },
+      { "synId": "syn_003", "weightPct": 20 },
+      { "synId": "syn_004", "weightPct": 20 },
+      { "synId": "syn_005", "weightPct": 20 }
+    ]
+  },
+  {
+    "id": "bun_ai_early",
+    "title": "AI & Machine Learning Focus",
+    "description": "4-company collection targeting AI infrastructure, enterprise AI, and consumer applications across seed and Series A stages.",
+    "targetRaiseGBP": 3200000,
+    "minChequeGBP": 10000,
+    "confidenceScore": 82,
+    "diversification": { 
+      "count": 4, 
+      "sectors": ["AI/ML", "Enterprise Software", "Consumer Tech"] 
+    },
+    "expectedHoldYears": 6,
+    "fees": { 
+      "carryPct": 12, 
+      "adminAnnualPct": 0.9 
+    },
+    "breakdown": [
+      { "synId": "syn_006", "weightPct": 30 },
+      { "synId": "syn_007", "weightPct": 25 },
+      { "synId": "syn_008", "weightPct": 25 },
+      { "synId": "syn_009", "weightPct": 20 }
+    ]
+  },
+  {
+    "id": "bun_impact_portfolio",
+    "title": "Impact & Sustainability Portfolio",
+    "description": "6-company portfolio focused on climate tech, social impact, and sustainable business models with strong ESG credentials.",
+    "targetRaiseGBP": 1800000,
+    "minChequeGBP": 3000,
+    "confidenceScore": 71,
+    "diversification": { 
+      "count": 6, 
+      "sectors": ["CleanTech", "Impact", "Sustainability"] 
+    },
+    "expectedHoldYears": 7,
+    "fees": { 
+      "carryPct": 8, 
+      "adminAnnualPct": 1.2 
+    },
+    "breakdown": [
+      { "synId": "syn_010", "weightPct": 18 },
+      { "synId": "syn_011", "weightPct": 17 },
+      { "synId": "syn_012", "weightPct": 17 },
+      { "synId": "syn_013", "weightPct": 16 },
+      { "synId": "syn_014", "weightPct": 16 },
+      { "synId": "syn_015", "weightPct": 16 }
+    ]
+  }
+]

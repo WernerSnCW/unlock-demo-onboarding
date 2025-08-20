@@ -4,17 +4,22 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SyndicateCard } from '@/components/syndication/SyndicateCard';
+import { BundleCard } from '@/components/syndicate/BundleCard';
 import syndicatesData from '../mocks/syndicates.json';
+import bundlesData from '../mocks/syndicateBundles.json';
 
 const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevance' },
-  { value: 'confidence', label: 'Confidence' },
+  { value: 'confidence', label: 'Highest Confidence' },
   { value: 'committed', label: 'Committed %' },
   { value: 'closing', label: 'Closing Soon' },
+  { value: 'fees', label: 'Lowest Fees' },
 ];
 
 export default function Syndication() {
+  const [activeTab, setActiveTab] = useState('syndicates');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
@@ -107,6 +112,13 @@ export default function Syndication() {
           const aDate = new Date(a.closingDate);
           const bDate = new Date(b.closingDate);
           return aDate.getTime() - bDate.getTime();
+        });
+        break;
+      case 'fees':
+        filtered.sort((a, b) => {
+          const totalFeeA = (a.fee?.carryPct || 0) + (a.fee?.adminAnnualPct || 0);
+          const totalFeeB = (b.fee?.carryPct || 0) + (b.fee?.adminAnnualPct || 0);
+          return totalFeeA - totalFeeB;
         });
         break;
       case 'relevance':
@@ -404,64 +416,104 @@ export default function Syndication() {
             </div>
           </div>
 
-          {/* Results */}
-          <div className="mb-6">
-            <p className="text-gray-600 dark:text-gray-400">
-              {filteredAndSortedSyndicates.length} syndicate{filteredAndSortedSyndicates.length !== 1 ? 's' : ''} found
-              {sortBy !== 'relevance' && (
-                <span className="ml-2 text-sm">
-                  • Sorted by {SORT_OPTIONS.find(opt => opt.value === sortBy)?.label}
-                </span>
-              )}
-            </p>
-          </div>
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="syndicates">All Syndicates</TabsTrigger>
+              <TabsTrigger value="bundles">Bundles</TabsTrigger>
+            </TabsList>
 
-          {/* Loading State */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2"></div>
-                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            <TabsContent value="syndicates" className="space-y-6">
+              {/* Results */}
+              <div className="mb-6">
+                <p className="text-gray-600 dark:text-gray-400">
+                  {filteredAndSortedSyndicates.length} syndicate{filteredAndSortedSyndicates.length !== 1 ? 's' : ''} found
+                  {sortBy !== 'relevance' && (
+                    <span className="ml-2 text-sm">
+                      • Sorted by {SORT_OPTIONS.find(opt => opt.value === sortBy)?.label}
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              {/* Loading State */}
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, index) => (
+                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                        </div>
+                      </div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     </div>
-                  </div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              {/* Syndicates Grid */}
+              ) : (
+                <>
+                  {/* Syndicates Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredAndSortedSyndicates.map(syndicate => (
+                      <SyndicateCard 
+                        key={syndicate.id} 
+                        syndicate={syndicate} 
+                        searchTerm={debouncedSearchTerm}
+                      />
+                    ))}
+                  </div>
+
+                  {filteredAndSortedSyndicates.length === 0 && (
+                    <div className="text-center py-12">
+                      <i className="fas fa-search text-4xl text-gray-400 mb-4" aria-hidden="true"></i>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        No syndicates match
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        Try removing filters or widening stage selection
+                      </p>
+                      <Button onClick={clearAllFilters}>
+                        Reset Filters
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="bundles" className="space-y-6">
+              {/* Bundle Results */}
+              <div className="mb-6">
+                <p className="text-gray-600 dark:text-gray-400">
+                  {bundlesData.length} themed bundle{bundlesData.length !== 1 ? 's' : ''} available
+                </p>
+              </div>
+
+              {/* Bundles Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredAndSortedSyndicates.map(syndicate => (
-                  <SyndicateCard 
-                    key={syndicate.id} 
-                    syndicate={syndicate} 
-                    searchTerm={debouncedSearchTerm}
-                  />
+                {bundlesData.map(bundle => (
+                  <Link key={bundle.id} href="/syndication/bundles">
+                    <BundleCard 
+                      bundle={bundle}
+                      onClick={() => {}}
+                    />
+                  </Link>
                 ))}
               </div>
 
-              {filteredAndSortedSyndicates.length === 0 && (
-                <div className="text-center py-12">
-                  <i className="fas fa-search text-4xl text-gray-400 mb-4" aria-hidden="true"></i>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    No syndicates match
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Try removing filters or widening stage selection
-                  </p>
-                  <Button onClick={clearAllFilters}>
-                    Reset Filters
+              {/* View All Bundles */}
+              <div className="text-center pt-6">
+                <Link href="/syndication/bundles">
+                  <Button variant="outline" size="lg">
+                    View All Bundle Details
                   </Button>
-                </div>
-              )}
-            </>
-          )}
+                </Link>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       <Footer />

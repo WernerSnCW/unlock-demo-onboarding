@@ -1,0 +1,297 @@
+Replit Update — Syndication Enhancements
+0) Scope
+
+Apply changes to both routes:
+
+/syndication (Discovery)
+
+/syndication/:id (Syndicate Detail)
+
+Add one new sub-section:
+
+/syndication/bundles (Themed Bundles)
+
+1) New/updated files
+
+Pages
+
+src/pages/SyndicationBundles.tsx (new)
+
+src/pages/SyndicationDetail.tsx (extend existing)
+
+Components
+
+src/components/syndicate/FeeBreakdown.tsx (new)
+
+src/components/syndicate/WhyThisSyndicate.tsx (new – educational overlay)
+
+src/components/syndicate/TrustBadges.tsx (new)
+
+src/components/syndicate/FractionalOwnership.tsx (new – preview)
+
+src/components/syndicate/BenchmarkPanel.tsx (new)
+
+src/components/syndicate/BundleCard.tsx (new)
+
+src/components/syndicate/BundleBreakdown.tsx (new)
+
+src/components/syndicate/CohortBar.tsx (reuse or extend mini stacked bars)
+
+src/components/shared/InfoPopover.tsx (generic tooltip/popover with title + body)
+
+Mocks
+
+src/mocks/syndicates.json (extend shape, see §2)
+
+src/mocks/syndicateBundles.json (new; see §2)
+
+2) Data contracts (mocks)
+A) Syndicate (extend existing)
+{
+  "id": "syn_001",
+  "businessId": "biz_001",
+  "company": "Acme Biotech Ltd",
+  "verified": true,
+  "stage": "Seed",
+  "targetRaiseGBP": 1200000,
+  "committedPct": 68,
+  "minChequeGBP": 5000,
+  "closingDate": "2025-10-05",
+  "eligibility": { "EIS": true, "SEIS": false },
+  "lead": { "alias": "LeadAngel-K", "trackRecord": "4 exits", "bio": "ex-BigPharma BD" },
+  "interest": {
+    "overallPct": 74,
+    "likeYouPct": 21,
+    "cohorts": { "angels": 62, "funds": 26, "familyOffices": 12 },
+    "history": [40,45,55,60,67,71,74],
+    "confidenceScore": 82
+  },
+  "fee": {
+    "carryPct": 10,
+    "adminAnnualPct": 0.8,
+    "platformFeeGBP": 0,          // prototype can be 0 or nominal
+    "notes": "No hidden commissions."
+  },
+  "whyThis": {
+    "thesis": [
+      "Favourable regulatory pathway in UK.",
+      "Team with prior exits; strong KOL network.",
+      "Market pull from 3 pilot sites."
+    ],
+    "risks": [
+      "Clinical validation timeline risk.",
+      "Customer concentration in year 1."
+    ],
+    "sources": ["Unlock Snapshot 2025-08", "Lead memo 2025-08-16"]
+  },
+  "benchmarks": {
+    "sector": "Biotech",
+    "stageMedianPreMoneyGBP": 8000000,
+    "revMultipleX": 8.5,
+    "recentComps": [
+      { "name": "BioX", "stage": "Seed", "preMoneyGBP": 9000000 },
+      { "name": "CellTech", "stage": "Seed", "preMoneyGBP": 7500000 }
+    ]
+  },
+  "trust": {                       // transparency badges
+    "leadVetted": true,
+    "governanceAudited": false,
+    "docPackAvailable": true      // shows memo/term sheet placeholders
+  },
+  "fractional": {                 // preview only
+    "unitName": "share",
+    "unitsOffered": 1000,
+    "unitPriceGBP": 1200,
+    "minUnitsPerInvestor": 1
+  }
+}
+
+B) Themed Bundles (new)
+
+src/mocks/syndicateBundles.json
+
+[
+  {
+    "id": "bun_tech_seed",
+    "title": "UK Seed Tech (Diversified)",
+    "description": "5-company basket across FinTech, HealthTech, CleanTech.",
+    "targetRaiseGBP": 2500000,
+    "minChequeGBP": 5000,
+    "confidenceScore": 76,
+    "diversification": { "count": 5, "sectors": ["FinTech","HealthTech","CleanTech"] },
+    "expectedHoldYears": 5,
+    "fees": { "carryPct": 10, "adminAnnualPct": 1.0 },
+    "breakdown": [
+      { "synId": "syn_001", "weightPct": 20 },
+      { "synId": "syn_002", "weightPct": 20 },
+      { "synId": "syn_003", "weightPct": 20 },
+      { "synId": "syn_004", "weightPct": 20 },
+      { "synId": "syn_005", "weightPct": 20 }
+    ]
+  }
+]
+
+3) Discovery page deltas (/syndication)
+
+New “Bundles” tab
+
+Tabs: All Syndicates (default) | Bundles.
+
+Each BundleCard shows: title, 3-line description, diversification (count + sector chips), confidence meter, min cheque, target raise, CTA View Bundle → /syndication/bundles.
+
+Card enrichments (single-company)
+
+Add Why This hover hotspot (i icon) → WhyThisSyndicate popover with bullets from whyThis.thesis & risks.
+
+Add Fee badge: “Carry 10% · Admin 0.8%/yr” (click → Fee modal via FeeBreakdown).
+
+Add TrustBadges line: ✅ Lead Vetted · 📄 Docs Available · 🛡️ Governance Audited (greys for false).
+
+Keep Confidence meter, Investors like you, Cohort bar.
+
+Sort additions
+
+Add Lowest Fees and Highest Confidence sorts.
+
+4) Syndicate Detail deltas (/syndication/:id)
+
+Header (hero)
+
+Add TrustBadges beneath company name.
+
+Show FeeBreakdown as a small card to the right:
+
+Carry, Admin (annual), Platform fee.
+
+Tooltip: “Transparent, flat fees. No hidden commissions.”
+
+Main column
+
+WhyThisSyndicate (full card):
+
+Two columns: Thesis (bullets) & Risks (bullets).
+
+“Sources” line with clickable stubs (lead memo, snapshot).
+
+BenchmarkPanel:
+
+Stage median pre-money vs current deal ask (bar comparison).
+
+Revenue multiple vs sector average.
+
+2 recent comps as tiny rows.
+
+FractionalOwnership (preview):
+
+“Units Offered 1,000 · Unit £1,200 · Min 1 unit”
+
+Disabled “Reserve Units” button with 🔒 and copy: “Preview—future secondary liquidity.”
+
+Keep Confidence & Signals, Activity Timeline, Join Syndicate (Nominal Fee) and Assistant Preview as you have them.
+
+Right column
+
+Downloadable doc pack stubs if trust.docPackAvailable true:
+
+Lead memo (summary), Indicative term sheet, Company deck (all locked/preview).
+
+5) Bundles page (/syndication/bundles)
+
+Grid of BundleCards.
+
+Clicking → Bundle detail drawer/modal:
+
+BundleBreakdown: pie or stacked bar of weights; list of included syndicates with quick stats; CTA “Join Bundle (Preview)”.
+
+Fee line for the bundle, min cheque, expected hold.
+
+Educational note: “Diversifies exposure; single commitment spreads across N companies.”
+
+6) Components behaviour
+FeeBreakdown
+
+Props: { fee: { carryPct, adminAnnualPct, platformFeeGBP } }
+
+Small inline view + modal with example cost table:
+
+“If total gains £X, 10% carry = £Y” (static example).
+
+WhyThisSyndicate
+
+Props: { thesis: string[], risks: string[], sources?: string[] }
+
+Collapsible on mobile; bullets capped to 5 each; “See more” toggle.
+
+TrustBadges
+
+Props: { leadVetted: boolean; governanceAudited: boolean; docPackAvailable: boolean }
+
+AA-contrast chips; show tooltip copy (paste):
+
+Lead Vetted: “Lead identity and track record reviewed by Unlock.”
+
+Governance Audited: “Key governance controls independently reviewed.”
+
+Docs Available: “Lead memo and term sheet available for review.”
+
+FractionalOwnership (preview)
+
+Props: { unitName, unitsOffered, unitPriceGBP, minUnitsPerInvestor }
+
+Disabled input for quantity + disabled CTA; helper: “Secondary market/liquidity under exploration.”
+
+BenchmarkPanel
+
+Props: { benchmarks: { stageMedianPreMoneyGBP, revMultipleX, recentComps[] }, dealAskPreMoneyGBP?: number }
+
+Renders comparison bars + tiny table of comps.
+
+BundleCard
+
+Props from bundle mocks; show confidence, diversification, min cheque, target raise; CTA open detail.
+
+7) Copy (paste)
+
+Fee badge tooltip: “Transparent, flat fees. No hidden commissions.”
+
+Why this header: “Why this syndicate?” / “Key risks to consider.”
+
+Benchmark footnote: “Benchmarks are indicative and not investment advice.”
+
+Bundle explainer: “A single commitment spreads across multiple companies for diversified exposure.”
+
+8) Accessibility
+
+All badges are real buttons with aria-label and tooltips announced via aria-live="polite".
+
+Comparison bars expose text equivalents (e.g., “Deal ask £9.0m vs seed median £8.0m”).
+
+Bundle breakdown chart has a tabular fallback under the graphic.
+
+9) Analytics (front-end only)
+
+Fire stub events to console.info on: open Fee modal, open WhyThis popover, click Join Bundle, click Assistant Generate (locked).
+
+Add data-analytics attributes so it’s easy to wire later.
+
+10) Definition of Done (QA)
+
+Discovery shows enriched cards (WhyThis popover, Fee badge, Trust badges) and a Bundles tab with working BundleCards.
+
+Sort includes “Lowest Fees” and “Highest Confidence”.
+
+Detail page displays FeeBreakdown, WhyThisSyndicate, BenchmarkPanel, FractionalOwnership (preview), and existing sections without layout breakage.
+
+Doc pack stubs appear when docPackAvailable=true.
+
+Bundles modal shows weights and included syndicates; CTA present (locked).
+
+All components use CSS variables only; AA contrast; keyboard accessible; no console errors.
+
+Implementation notes
+
+Reuse your existing chart style (sparklines/progress). Benchmarks can be simple CSS bars; no new chart lib required.
+
+Keep all numbers formatted with a helper formatGBP() and formatPct() for consistency.
+
+Use your existing toasts for “preview/locked” interactions.

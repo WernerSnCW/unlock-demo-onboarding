@@ -2,6 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { TrustBadges } from '../syndicate/TrustBadges';
+import { FeeBreakdown } from '../syndicate/FeeBreakdown';
+import { WhyThisSyndicate } from '../syndicate/WhyThisSyndicate';
 
 interface Syndicate {
   id: string;
@@ -16,6 +19,21 @@ interface Syndicate {
   closingDate: string;
   eligibility: { EIS: boolean; SEIS: boolean };
   lead: { alias: string; trackRecord: string };
+  trust?: {
+    dataSources: number;
+    investorHistory: string;
+    dealLegitimacy: string;
+  };
+  fee?: {
+    carryPct: number;
+    adminAnnualPct: number;
+  };
+  whyThis?: {
+    reasoning: string;
+    keyMetrics: string[];
+    riskFactors: string[];
+    opportunityFactors: string[];
+  };
   interest: {
     overallPct: number;
     likeYouPct: number;
@@ -285,6 +303,31 @@ export function SyndicateCard({ syndicate, onOpen, searchTerm }: SyndicateCardPr
             Confidence {syndicate.interest.confidenceScore} out of 100 — {confidence.level}
           </span>
         </div>
+      </div>
+
+      {/* Enhanced Features */}
+      <div className="space-y-3 mb-4">
+        {/* Trust Badges */}
+        {syndicate.trust && (
+          <TrustBadges trust={syndicate.trust} />
+        )}
+
+        {/* Fee Breakdown */}
+        {syndicate.fee && (
+          <FeeBreakdown 
+            fee={syndicate.fee} 
+            size="compact"
+            targetRaiseGBP={syndicate.targetRaiseGBP}
+          />
+        )}
+
+        {/* Why This Syndicate */}
+        {syndicate.whyThis && (
+          <WhyThisSyndicate 
+            whyThis={syndicate.whyThis}
+            company={syndicate.company}
+          />
+        )}
       </div>
 
       {/* Footer with cohort mini-bar and meta info */}

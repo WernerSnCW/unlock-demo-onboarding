@@ -7,6 +7,11 @@ import { ConfidenceSignals } from '@/components/syndication/ConfidenceSignals';
 import { ActivityTimeline } from '@/components/syndication/ActivityTimeline';
 import { JoinSyndicateCard } from '@/components/syndication/JoinSyndicateCard';
 import { AssistantPreview } from '@/components/syndication/AssistantPreview';
+import { BenchmarkPanel } from '@/components/syndicate/BenchmarkPanel';
+import { FractionalOwnership } from '@/components/syndicate/FractionalOwnership';
+import { TrustBadges } from '@/components/syndicate/TrustBadges';
+import { FeeBreakdown } from '@/components/syndicate/FeeBreakdown';
+import { WhyThisSyndicate } from '@/components/syndicate/WhyThisSyndicate';
 import syndicatesData from '../mocks/syndicates.json';
 
 export default function SyndicateDetail() {
@@ -63,6 +68,59 @@ export default function SyndicateDetail() {
             {/* Main Content */}
             <div className="lg:col-span-2">
               <SyndicateDetailHeader syndicate={syndicate} requested={requested} />
+              
+              {/* Enhanced Features */}
+              <div className="grid grid-cols-1 gap-6 mb-8">
+                {/* Trust & Transparency */}
+                {syndicate.trust && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      Trust & Transparency
+                    </h3>
+                    <TrustBadges trust={syndicate.trust} />
+                  </div>
+                )}
+
+                {/* Why This Syndicate */}
+                {syndicate.whyThis && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      Investment Thesis
+                    </h3>
+                    <div className="space-y-4">
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {syndicate.whyThis.reasoning}
+                      </p>
+                      <WhyThisSyndicate 
+                        whyThis={syndicate.whyThis}
+                        company={syndicate.company}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Fee Breakdown */}
+                {syndicate.fee && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                      Fee Structure
+                    </h3>
+                    <FeeBreakdown 
+                      fee={syndicate.fee}
+                      targetRaiseGBP={syndicate.targetRaiseGBP}
+                    />
+                  </div>
+                )}
+
+                {/* Market Benchmarks */}
+                {syndicate.benchmarks && (
+                  <BenchmarkPanel 
+                    benchmarks={syndicate.benchmarks}
+                    dealAskPreMoneyGBP={syndicate.targetRaiseGBP * 0.8} // Approximate pre-money based on target
+                  />
+                )}
+              </div>
+
               <ConfidenceSignals interest={syndicate.interest} />
               <ActivityTimeline events={syndicate.activity as any} />
             </div>
@@ -82,6 +140,13 @@ export default function SyndicateDetail() {
                 onJoin={handleJoinSyndicate}
               />
               
+              {/* Fractional Ownership (Preview Feature) */}
+              {syndicate.fractional && (
+                <div className="mb-6">
+                  <FractionalOwnership fractional={syndicate.fractional} />
+                </div>
+              )}
+
               <AssistantPreview
                 company={syndicate.company}
                 sector={syndicate.sector}
