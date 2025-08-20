@@ -76,42 +76,39 @@ export function RequestsMiniPanel() {
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 p-4">
+      <CardContent className="space-y-3 p-4">
         {sampleRequests.slice(0, 3).map((request, index) => (
           <Link key={request.id} href={`/due-diligence/${request.id}`}>
-            <div className={`group p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+            <div className={`group p-3 rounded-lg border transition-all duration-200 cursor-pointer ${
               request.status === 'completed' 
                 ? 'border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 hover:shadow-md hover:shadow-green-100 dark:hover:shadow-green-900/20' 
                 : 'border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 hover:shadow-md hover:shadow-amber-100 dark:hover:shadow-amber-900/20'
-            } hover:scale-[1.02] hover:-translate-y-0.5`}>
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${
+            } hover:scale-[1.01] hover:-translate-y-0.5`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-md ${
                     request.status === 'completed' 
                       ? 'bg-green-100 dark:bg-green-900/30' 
                       : 'bg-amber-100 dark:bg-amber-900/30'
                   }`}>
                     {request.status === 'completed' ? (
-                      <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <CheckCircle className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                     )}
                   </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                       {request.companyName}
                     </h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {request.status === 'completed' ? 'Analysis Complete' : 'In Progress'}
-                    </p>
                   </div>
                 </div>
-                <Eye className="h-4 w-4 text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Eye className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </div>
               <div className="flex items-center justify-between">
                 <Badge 
                   variant={request.type === 'deep_dive' ? 'default' : 'secondary'}
-                  className={`text-xs font-medium ${
+                  className={`text-xs font-medium px-2 py-0.5 ${
                     request.type === 'deep_dive' 
                       ? 'bg-blue-600 text-white dark:bg-blue-500 hover:bg-blue-700' 
                       : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
@@ -121,7 +118,9 @@ export function RequestsMiniPanel() {
                   {request.type === 'deep_dive' ? 'Deep Dive' : 'Snapshot'}
                 </Badge>
                 <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                  <Clock className="h-3 w-3" />
+                  <span className={`w-2 h-2 rounded-full ${
+                    request.status === 'completed' ? 'bg-green-400' : 'bg-amber-400'
+                  }`}></span>
                   {request.createdAt}
                 </div>
               </div>
