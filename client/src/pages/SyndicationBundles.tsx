@@ -51,7 +51,11 @@ export default function SyndicationBundles() {
             {/* Back to Syndication */}
             <div className="mb-6">
               <Link href="/syndication">
-                <Button variant="outline" size="sm" className="mb-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mb-4 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Syndication
                 </Button>
