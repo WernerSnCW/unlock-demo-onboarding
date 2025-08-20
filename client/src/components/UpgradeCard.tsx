@@ -3,9 +3,10 @@ import { Link } from 'wouter';
 export default function UpgradeCard() {
   return (
     <div className="relative bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-6 overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
-      {/* Premium ribbon */}
-      <div className="absolute top-3 right-3 bg-[var(--accent)] text-[var(--accent-foreground)] px-2 py-1 text-xs font-semibold rounded-[var(--radius-sm)]">
-        Premium
+      {/* Pro ribbon */}
+      <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 via-yellow-500 to-teal-400 text-white px-3 py-1 text-xs font-bold rounded-full shadow-sm flex items-center gap-1">
+        <i className="fas fa-crown text-xs" aria-hidden="true"></i>
+        PRO
       </div>
 
       <div className="space-y-4">
