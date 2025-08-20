@@ -229,7 +229,11 @@ export function BundleBreakdown({ bundle, onClose, className = '' }: BundleBreak
         </Button>
         
         {onClose && (
-          <Button variant="outline" onClick={onClose}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
             Close
           </Button>
         )}
