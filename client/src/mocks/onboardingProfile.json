@@ -1,11 +1,23 @@
 {
   "firstName": "Thomas",
-  "lastName": "Anderson",
+  "lastName": "Williams",
   "email": "thomas@unlock.com",
   "investorType": "angel",
   "sectors": ["Fintech", "Biotech"],
   "riskProfile": "medium",
   "newsletterFrequency": "weekly",
   "whatsappAlerts": true,
-  "profilePicture": null
+  "profilePicture": null,
+  "reportsViewed": 12,
+  "questionsAsked": 3,
+  "syndicatesJoined": 2,
+  "totalHoldingsValue": "£120k",
+  "topSector": {
+    "name": "Technology",
+    "percentage": 42
+  },
+  "portfolioLastUpdated": "Dec 15, 2024",
+  "reputationScore": 4.7,
+  "badges": ["Active Contributor", "Early Adopter"],
+  "currentPlan": "free"
 }

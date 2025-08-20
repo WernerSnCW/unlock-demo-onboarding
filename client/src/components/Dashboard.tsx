@@ -18,11 +18,27 @@ import watchlistData from '../mocks/watchlist.json';
 
 interface Profile {
   firstName: string;
+  lastName?: string;
+  email?: string;
   investorType: "angel" | "syndicate" | "advisor" | "other";
   sectors: string[];
   riskProfile: "low" | "medium" | "high";
   newsletterFrequency: "daily" | "weekly" | "monthly";
   whatsappAlerts: boolean;
+  profilePicture?: string;
+  // Investment Activity
+  reportsViewed: number;
+  questionsAsked: number;
+  syndicatesJoined: number;
+  // Portfolio Summary  
+  totalHoldingsValue?: string;
+  topSector?: { name: string; percentage: number };
+  portfolioLastUpdated?: string;
+  // Trust & Community
+  reputationScore: number;
+  badges: string[];
+  // Plan
+  currentPlan: "free" | "premium";
 }
 
 export default function Dashboard() {
@@ -165,6 +181,8 @@ export default function Dashboard() {
             <WelcomePanel 
               profile={profile} 
               onChangePreferences={handlePreferencesChange}
+              onEditSectors={() => console.log('Edit sectors clicked')}
+              onUpgrade={() => console.log('Upgrade clicked')}
             />
 
             <div className="md:hidden">
