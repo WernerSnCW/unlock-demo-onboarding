@@ -1,0 +1,92 @@
+Suggested Additions for Overview Tab
+1. Profile Snapshot (Investor Identity Card)
+
+At the top, show a condensed “Investor Card” with:
+
+Name + Avatar
+
+Investor Type (Angel / VC / Syndicate Member)
+
+Ticket Band (e.g. £5k–£25k)
+
+Risk Appetite (Conservative / Balanced / High Risk)
+
+Location / Tax relief interest (EIS/SEIS eligible?)
+
+👉 This anchors the page to the user’s identity.
+
+2. Portfolio At-a-Glance (if portfolio exists)
+
+Mini-widgets showing:
+
+Total Portfolio Value
+
+% Gain/Loss (today vs. overall)
+
+Top Holding
+
+Sectors Exposure donut (small version of the Portfolio tab chart)
+
+👉 Makes Portfolio visible without having to click into the next tab.
+
+3. Opportunities Feed (Personalised Teasers)
+
+Bring in small tiles like:
+
+“New AI/ML deal snapshot available”
+
+“3 investors like you backed Climate Tech this week”
+
+“Analyst Opinions: NVDA consensus overweight, avg target +12%”
+
+👉 Lightweight news/alerts that keep it fresh.
+
+4. Engagement Stats / Progress Meter
+
+Gamify profile completion or platform engagement:
+
+Profile completeness bar (e.g. “70% complete — add portfolio to unlock insights”).
+
+Usage metrics (“5 syndicates viewed, 2 questions asked, 1 deal saved this week”).
+
+👉 Encourages deeper use of platform features.
+
+5. Quick Actions Panel
+
+Buttons for most common actions:
+
+Upload Portfolio
+
+Request Due Diligence Snapshot
+
+Create a Watchlist
+
+Ask a Question
+
+👉 Removes friction by surfacing CTAs right away.
+
+6. “Investors Like You” Insight (Anonymised)
+
+Sector overlaps (“70% of investors like you hold AI/ML positions”).
+
+Trending syndicates among your peer group.
+
+👉 Adds a social proof element without exposing identities.
+
+7. Security / Compliance Notices (small footer strip)
+
+“EIS carry-back allowance deadline: 31 Jan.”
+
+“Tax-year end approaching.”
+
+👉 Keeps Overview useful beyond platform mechanics.
+
+✅ In summary:
+
+Top → Investor Identity Card (personal anchor)
+
+Middle → Portfolio glance + personalised opportunities
+
+Right rail → Stats, quick actions, and “investors like you”
+
+Bottom → Light compliance/tax reminders

@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileHeader, DEFAULT_PROFILE } from '@/components/profile/ProfileHeader';
+import { ProfileOverview } from '@/components/profile/ProfileOverview';
 import { PortfolioAnalytics } from '@/components/profile/PortfolioAnalytics';
 import { PortfolioTable } from '@/components/profile/PortfolioTable';
 import { PortfolioUploader } from '@/components/profile/PortfolioUploader';
@@ -24,60 +25,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState(getInitialTab());
 
   const OverviewTab = () => (
-    <div className="space-y-6">
-      {/* Profile widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Your Sectors
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {['Technology', 'Healthcare', 'Fintech', 'AI/ML', 'Climate Tech'].map((sector) => (
-                <button
-                  key={sector}
-                  className="px-3 py-1 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-[var(--primary)] hover:text-white transition-colors"
-                >
-                  {sector}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-              Edit your preferred sectors to personalize your news feed and deal recommendations.
-            </p>
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Watchlists</h4>
-            <div className="text-2xl font-bold text-[var(--primary)] mb-1">3</div>
-            <div className="text-xs text-gray-500 dark:text-gray-500">Active lists</div>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Saved Items</h4>
-            <div className="text-2xl font-bold text-[var(--secondary)] mb-1">12</div>
-            <div className="text-xs text-gray-500 dark:text-gray-500">Due diligence reports</div>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Recent Actions</h4>
-            <div className="space-y-2">
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                • Requested snapshot: TechCorp AI
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                • Asked question: Market size
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                • Saved syndicate: DeepTech Ventures
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ProfileOverview profile={DEFAULT_PROFILE} />
   );
 
   const PortfolioTab = () => (

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Filter, TrendingUp, AlertTriangle, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ export function AnalystOpinionsPanel({
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
 
   // Set ticker filter if specific tickers are provided
-  useMemo(() => {
+  useEffect(() => {
     if (tickers && tickers.length > 0) {
       setTickerFilter(tickers);
     }
