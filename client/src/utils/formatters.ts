@@ -44,34 +44,74 @@ export const formatDateRelative = (dateString: string): string => {
 };
 
 export const formatPrice = (price: number, currency: string): string => {
-  const formatter = new Intl.NumberFormat('en-GB', {
+  const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 2,
-    maximumFractionDigits: currency === 'GBP' ? 2 : 3,
+    maximumFractionDigits: 2,
   });
   
   return formatter.format(price);
 };
 
-export const formatPriceDelta = (current: number, target: number, currency: string): {
-  delta: number;
-  deltaPct: number;
-  deltaFormatted: string;
-  deltaPctFormatted: string;
-} => {
-  const delta = target - current;
-  const deltaPct = current > 0 ? (delta / current) * 100 : 0;
+export const formatPriceDelta = (delta: number, currency: string): string => {
+  const sign = delta >= 0 ? '+' : '';
+  return `${sign}${formatPrice(Math.abs(delta), currency)}`;
+};
+
+export const getGainColor = (gain: number): string => {
+  if (gain > 0) return 'text-green-600 dark:text-green-400';
+  if (gain < 0) return 'text-red-600 dark:text-red-400';
+  return 'text-gray-600 dark:text-gray-400';
+};
+
+export const getRatingColor = (rating: string): string => {
+  const lowerRating = rating.toLowerCase();
   
-  const deltaFormatted = `${delta >= 0 ? '+' : ''}${formatPrice(delta, currency)}`;
-  const deltaPctFormatted = `${delta >= 0 ? '+' : ''}${deltaPct.toFixed(1)}%`;
+  if (lowerRating.includes('strong buy') || lowerRating.includes('buy')) {
+    return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+  }
   
-  return {
-    delta,
-    deltaPct,
-    deltaFormatted,
-    deltaPctFormatted,
-  };
+  if (lowerRating.includes('overweight') || lowerRating.includes('outperform')) {
+    return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+  }
+  
+  if (lowerRating.includes('neutral') || lowerRating.includes('hold')) {
+    return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+  }
+  
+  if (lowerRating.includes('underweight') || lowerRating.includes('underperform') || lowerRating.includes('sell')) {
+    return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+  }
+  
+  return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+};
+
+// Chart color definitions
+export const CHART_COLORS = {
+  primary: ['#5193B3', '#62C4C3', '#F8D49B', '#E8A87C', '#C27D38'],
+  sectors: {
+    'Technology': '#5193B3',
+    'Healthcare': '#62C4C3',
+    'Financial': '#F8D49B',
+    'Energy': '#E8A87C',
+    'Consumer': '#C27D38',
+    'Industrial': '#85C1E9',
+    'Materials': '#F8C471',
+    'Utilities': '#82E0AA',
+    'Telecom': '#D2B4DE',
+    'Real Estate': '#F1948A',
+    'Other': '#AEB6BF'
+  },
+  countries: {
+    'US': '#5193B3',
+    'UK': '#62C4C3',
+    'EU': '#F8D49B',
+    'Asia': '#E8A87C',
+    'Canada': '#C27D38',
+    'Australia': '#85C1E9',
+    'Other': '#AEB6BF'
+  }
 };
 
 export const formatLargeNumber = (num: number, currency?: string): string => {
@@ -89,68 +129,17 @@ export const formatLargeNumber = (num: number, currency?: string): string => {
     return `${sign}${prefix}${(abs / 1000).toFixed(0)}K`;
   }
   
-  return `${sign}${prefix}${abs.toFixed(currency ? 2 : 0)}`;
+  return `${sign}${prefix}${abs.toFixed(0)}`;
 };
 
-// Color utilities for consistent theming
-export const getGainColor = (gain: number, isDark = false): string => {
-  if (gain > 0) return isDark ? 'text-green-400' : 'text-green-600';
-  if (gain < 0) return isDark ? 'text-red-400' : 'text-red-600';
-  return isDark ? 'text-gray-400' : 'text-gray-600';
-};
-
-export const getRatingColor = (rating: string): string => {
-  switch (rating.toLowerCase()) {
-    case 'strong buy':
-    case 'buy':
-    case 'outperform':
-      return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-    case 'overweight':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-    case 'neutral':
-    case 'hold':
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
-    case 'underweight':
-    case 'underperform':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
-    case 'sell':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
-  }
-};
-
-// Chart color palettes
-export const CHART_COLORS = {
-  primary: [
-    'var(--primary)',
-    'var(--secondary)', 
-    'var(--accent)',
-    '#10b981', // emerald-500
-    '#8b5cf6', // violet-500
-    '#f59e0b', // amber-500
-    '#ef4444', // red-500
-    '#6366f1', // indigo-500
-    '#ec4899', // pink-500
-    '#14b8a6', // teal-500
-  ],
-  sectors: {
-    'Technology': '#3b82f6', // blue-500
-    'Semiconductors': '#6366f1', // indigo-500
-    'Banks': '#10b981', // emerald-500
-    'Telecommunications': '#f59e0b', // amber-500
-    'Healthcare': '#ef4444', // red-500
-    'Energy': '#f97316', // orange-500
-    'Consumer': '#8b5cf6', // violet-500
-    'Industrials': '#6b7280', // gray-500
-    'Materials': '#84cc16', // lime-500
-    'Utilities': '#06b6d4', // cyan-500
-  },
-  countries: {
-    'US': '#3b82f6', // blue-500
-    'UK': '#ef4444', // red-500
-    'EU': '#10b981', // emerald-500
-    'Asia': '#f59e0b', // amber-500
-    'Other': '#6b7280', // gray-500
-  }
+export const calculateTargetDelta = (current: number, target: number, currency: string) => {
+  const delta = target - current;
+  const deltaPct = current > 0 ? (delta / current) * 100 : 0;
+  
+  return {
+    delta,
+    deltaPct,
+    deltaFormatted: `${delta >= 0 ? '+' : ''}${formatPrice(Math.abs(delta), currency)}`,
+    deltaPctFormatted: `${delta >= 0 ? '+' : ''}${deltaPct.toFixed(1)}%`,
+  };
 };

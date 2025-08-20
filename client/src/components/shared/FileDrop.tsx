@@ -1,173 +1,140 @@
-import { useState, useRef, DragEvent, ChangeEvent } from 'react';
-import { Upload, FileText, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState, useCallback } from 'react';
+import { Upload, FileText } from 'lucide-react';
 
 interface FileDropProps {
   onFileSelect: (file: File) => void;
-  acceptedTypes: string[];
-  maxSizeBytes?: number;
-  className?: string;
+  acceptedTypes?: string[];
+  maxSize?: number; // in bytes
   disabled?: boolean;
+  className?: string;
 }
 
 export function FileDrop({ 
   onFileSelect, 
-  acceptedTypes, 
-  maxSizeBytes = 10 * 1024 * 1024, // 10MB default
-  className = '',
-  disabled = false
+  acceptedTypes = ['.csv'], 
+  maxSize = 10 * 1024 * 1024, // 10MB default
+  disabled = false,
+  className = '' 
 }: FileDropProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = (file: File): string | null => {
-    // Check file type
-    const fileType = file.name.split('.').pop()?.toLowerCase();
-    const acceptsAnyType = acceptedTypes.some(type => 
-      type.includes('*') || type === file.type
-    );
-    const acceptsExtension = acceptedTypes.some(type => 
-      type.startsWith('.') && type.substring(1) === fileType
-    );
-    
-    if (!acceptsAnyType && !acceptsExtension && !acceptedTypes.includes(`.${fileType}`)) {
-      return `File type not supported. Accepted types: ${acceptedTypes.join(', ')}`;
-    }
-
-    // Check file size
-    if (file.size > maxSizeBytes) {
-      const maxSizeMB = maxSizeBytes / (1024 * 1024);
-      return `File too large. Maximum size: ${maxSizeMB}MB`;
-    }
-
-    return null;
-  };
-
-  const handleFile = (file: File) => {
-    setError(null);
-    const validationError = validateFile(file);
-    
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
-    onFileSelect(file);
-  };
-
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!disabled) {
       setIsDragOver(true);
     }
-  };
+  }, [disabled]);
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragOver(false);
-  };
+  }, []);
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragOver(false);
     
     if (disabled) return;
 
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFile(files[0]);
-    }
-  };
+    const file = files[0];
+    
+    if (!file) return;
 
-  const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFile(files[0]);
+    // Check file type
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (acceptedTypes.length > 0 && !acceptedTypes.includes(fileExtension)) {
+      alert(`Please select a file with one of these extensions: ${acceptedTypes.join(', ')}`);
+      return;
     }
-  };
 
-  const openFileDialog = () => {
-    if (!disabled && fileInputRef.current) {
-      fileInputRef.current.click();
+    // Check file size
+    if (file.size > maxSize) {
+      const maxSizeMB = maxSize / (1024 * 1024);
+      alert(`File size must be less than ${maxSizeMB}MB`);
+      return;
     }
-  };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
-      e.preventDefault();
-      openFileDialog();
+    onFileSelect(file);
+  }, [disabled, acceptedTypes, maxSize, onFileSelect]);
+
+  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (acceptedTypes.length > 0 && !acceptedTypes.includes(fileExtension)) {
+      alert(`Please select a file with one of these extensions: ${acceptedTypes.join(', ')}`);
+      return;
     }
-  };
+
+    // Check file size
+    if (file.size > maxSize) {
+      const maxSizeMB = maxSize / (1024 * 1024);
+      alert(`File size must be less than ${maxSizeMB}MB`);
+      return;
+    }
+
+    onFileSelect(file);
+    e.target.value = ''; // Reset input
+  }, [acceptedTypes, maxSize, onFileSelect]);
 
   return (
-    <div className={className}>
-      <div
-        className={`
-          border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer
-          ${isDragOver && !disabled
-            ? 'border-[var(--primary)] bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-300 dark:border-gray-600 hover:border-[var(--primary)] hover:bg-gray-50 dark:hover:bg-gray-800'
-          }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        `}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={openFileDialog}
-        onKeyDown={handleKeyDown}
-        tabIndex={disabled ? -1 : 0}
-        role="button"
-        aria-label="Upload file"
-        aria-describedby="file-drop-description"
-      >
-        <div className="flex flex-col items-center gap-4">
-          <div className={`p-3 rounded-full ${
-            isDragOver && !disabled
-              ? 'bg-[var(--primary)] text-white'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-          }`}>
-            <Upload className="h-6 w-6" />
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
-              {isDragOver ? 'Drop file here' : 'Upload your portfolio'}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400" id="file-drop-description">
-              Drag and drop your CSV or Excel file, or click to browse
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-              Accepted formats: {acceptedTypes.join(', ')} • Max size: {(maxSizeBytes / (1024 * 1024)).toFixed(0)}MB
-            </p>
-          </div>
-
-          <Button variant="outline" disabled={disabled} tabIndex={-1}>
-            <FileText className="h-4 w-4 mr-2" />
-            Choose File
-          </Button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-            <span className="text-sm text-red-700 dark:text-red-300">
-              {error}
-            </span>
-          </div>
-        </div>
-      )}
-
+    <div 
+      className={`
+        relative border-2 border-dashed rounded-xl p-8 text-center transition-colors
+        ${isDragOver 
+          ? 'border-[var(--primary)] bg-[var(--primary)]/5' 
+          : 'border-gray-300 dark:border-gray-600'
+        }
+        ${disabled 
+          ? 'opacity-50 cursor-not-allowed' 
+          : 'cursor-pointer hover:border-[var(--primary)] hover:bg-gray-50 dark:hover:bg-gray-800/50'
+        }
+        ${className}
+      `}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={() => !disabled && document.getElementById('file-input')?.click()}
+    >
       <input
-        ref={fileInputRef}
+        id="file-input"
         type="file"
         accept={acceptedTypes.join(',')}
         onChange={handleFileInput}
         className="hidden"
         disabled={disabled}
       />
+      
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          {isDragOver ? (
+            <Upload className="h-6 w-6 text-[var(--primary)]" />
+          ) : (
+            <FileText className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+          )}
+        </div>
+        
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
+            {isDragOver ? 'Drop your file here' : 'Upload your portfolio'}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {isDragOver 
+              ? 'Release to upload' 
+              : `Drag & drop or click to select (${acceptedTypes.join(', ')})`
+            }
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            Max file size: {Math.round(maxSize / (1024 * 1024))}MB
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
