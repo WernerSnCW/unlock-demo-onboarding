@@ -31,7 +31,7 @@ export default function UpgradeCard() {
         </button>
 
         <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-          Keep free access to Snapshot. No advice; businesses only.
+          Keep free access to Snapshot reports.
         </p>
       </div>
     </div>
