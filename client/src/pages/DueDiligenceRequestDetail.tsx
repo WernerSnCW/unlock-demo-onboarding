@@ -234,6 +234,42 @@ export default function DueDiligenceRequestDetail() {
                         <span className="text-sm text-gray-600 dark:text-gray-400">Compliance Check</span>
                       </div>
                     )}
+                    {request.inputs.includeFraudRiskAssessment && (
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Fraud Risk Assessment</span>
+                      </div>
+                    )}
+                    {request.inputs.includeFinancialHealth && (
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Financial Health</span>
+                      </div>
+                    )}
+                    {request.inputs.includeManagement && (
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Management</span>
+                      </div>
+                    )}
+                    {request.inputs.includeMarketingBrandManagement && (
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management</span>
+                      </div>
+                    )}
+                    {request.inputs.includeClaimsManagement && (
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Claims Management</span>
+                      </div>
+                    )}
+                    {request.inputs.includeInvestorValidation && (
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Investor Validation</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -405,6 +441,48 @@ export default function DueDiligenceRequestDetail() {
                               <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
                             </div>
                           )}
+                          {request.inputs.includeFraudRiskAssessment && (
+                            <div className="flex items-center gap-2">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Fraud Risk Assessment</span>
+                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
+                            </div>
+                          )}
+                          {request.inputs.includeFinancialHealth && (
+                            <div className="flex items-center gap-2">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Financial Health</span>
+                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
+                            </div>
+                          )}
+                          {request.inputs.includeManagement && (
+                            <div className="flex items-center gap-2">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Management</span>
+                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
+                            </div>
+                          )}
+                          {request.inputs.includeMarketingBrandManagement && (
+                            <div className="flex items-center gap-2">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management</span>
+                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
+                            </div>
+                          )}
+                          {request.inputs.includeClaimsManagement && (
+                            <div className="flex items-center gap-2">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Claims Management</span>
+                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
+                            </div>
+                          )}
+                          {request.inputs.includeInvestorValidation && (
+                            <div className="flex items-center gap-2">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Investor Validation</span>
+                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -561,39 +639,123 @@ export default function DueDiligenceRequestDetail() {
                     <CardTitle>Individual Section Scores</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
-                        <div className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">8.5/10</div>
-                        <div className="text-sm text-green-600 dark:text-green-400 font-medium">Financial Analysis</div>
-                        <div className="text-xs text-green-500 dark:text-green-400 mt-1">Strong Performance</div>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                      {/* Financial Analysis */}
+                      {request.inputs.includeFinancialAnalysis && (
+                        <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
+                          <div className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">8.5/10</div>
+                          <div className="text-sm text-green-600 dark:text-green-400 font-medium">Financial Analysis</div>
+                          <div className="text-xs text-green-500 dark:text-green-400 mt-1">Strong Performance</div>
+                        </div>
+                      )}
                       
-                      <div className="p-4 rounded-xl border" style={{ 
-                        backgroundColor: 'rgba(81, 147, 179, 0.1)', 
-                        borderColor: '#5193B3' 
-                      }}>
-                        <div className="text-2xl font-bold mb-2" style={{ color: '#5193B3' }}>7.8/10</div>
-                        <div className="text-sm font-medium" style={{ color: '#5193B3' }}>Risk Assessment</div>
-                        <div className="text-xs mt-1" style={{ color: '#5193B3' }}>Low-Medium Risk</div>
-                      </div>
+                      {/* Risk Assessment */}
+                      {request.inputs.includeRiskAssessment && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(81, 147, 179, 0.1)', 
+                          borderColor: '#5193B3' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#5193B3' }}>7.8/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#5193B3' }}>Risk Assessment</div>
+                          <div className="text-xs mt-1" style={{ color: '#5193B3' }}>Low-Medium Risk</div>
+                        </div>
+                      )}
                       
-                      <div className="p-4 rounded-xl border" style={{ 
-                        backgroundColor: 'rgba(98, 196, 195, 0.1)', 
-                        borderColor: '#62C4C3' 
-                      }}>
-                        <div className="text-2xl font-bold mb-2" style={{ color: '#62C4C3' }}>9.2/10</div>
-                        <div className="text-sm font-medium" style={{ color: '#62C4C3' }}>Market Position</div>
-                        <div className="text-xs mt-1" style={{ color: '#62C4C3' }}>Strong Positioning</div>
-                      </div>
+                      {/* Market Position */}
+                      {request.inputs.includeMarketPosition && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(98, 196, 195, 0.1)', 
+                          borderColor: '#62C4C3' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#62C4C3' }}>9.2/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#62C4C3' }}>Market Position</div>
+                          <div className="text-xs mt-1" style={{ color: '#62C4C3' }}>Strong Positioning</div>
+                        </div>
+                      )}
                       
-                      <div className="p-4 rounded-xl border" style={{ 
-                        backgroundColor: 'rgba(248, 212, 155, 0.2)', 
-                        borderColor: '#F8D49B' 
-                      }}>
-                        <div className="text-2xl font-bold mb-2" style={{ color: '#B8860B' }}>6.9/10</div>
-                        <div className="text-sm font-medium" style={{ color: '#B8860B' }}>Compliance</div>
-                        <div className="text-xs mt-1" style={{ color: '#B8860B' }}>Meets Standards</div>
-                      </div>
+                      {/* Compliance Check */}
+                      {request.inputs.includeComplianceCheck && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(248, 212, 155, 0.2)', 
+                          borderColor: '#F8D49B' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#B8860B' }}>6.9/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#B8860B' }}>Compliance</div>
+                          <div className="text-xs mt-1" style={{ color: '#B8860B' }}>Meets Standards</div>
+                        </div>
+                      )}
+                      
+                      {/* Fraud Risk Assessment */}
+                      {request.inputs.includeFraudRiskAssessment && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(220, 38, 127, 0.1)', 
+                          borderColor: '#DC267F' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#DC267F' }}>9.1/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#DC267F' }}>Fraud Risk Assessment</div>
+                          <div className="text-xs mt-1" style={{ color: '#DC267F' }}>Low Fraud Risk</div>
+                        </div>
+                      )}
+                      
+                      {/* Financial Health */}
+                      {request.inputs.includeFinancialHealth && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(46, 125, 50, 0.1)', 
+                          borderColor: '#2E7D32' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#2E7D32' }}>8.2/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#2E7D32' }}>Financial Health</div>
+                          <div className="text-xs mt-1" style={{ color: '#2E7D32' }}>Solid Fundamentals</div>
+                        </div>
+                      )}
+                      
+                      {/* Management */}
+                      {request.inputs.includeManagement && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(103, 58, 183, 0.1)', 
+                          borderColor: '#673AB7' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#673AB7' }}>7.5/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#673AB7' }}>Management</div>
+                          <div className="text-xs mt-1" style={{ color: '#673AB7' }}>Experienced Team</div>
+                        </div>
+                      )}
+                      
+                      {/* Marketing & Brand Management */}
+                      {request.inputs.includeMarketingBrandManagement && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(255, 152, 0, 0.1)', 
+                          borderColor: '#FF9800' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#FF9800' }}>7.9/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#FF9800' }}>Marketing & Brand</div>
+                          <div className="text-xs mt-1" style={{ color: '#FF9800' }}>Strong Brand Presence</div>
+                        </div>
+                      )}
+                      
+                      {/* Claims Management */}
+                      {request.inputs.includeClaimsManagement && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(244, 67, 54, 0.1)', 
+                          borderColor: '#F44336' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#F44336' }}>8.7/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#F44336' }}>Claims Management</div>
+                          <div className="text-xs mt-1" style={{ color: '#F44336' }}>Well Managed</div>
+                        </div>
+                      )}
+                      
+                      {/* Investor Validation */}
+                      {request.inputs.includeInvestorValidation && (
+                        <div className="p-4 rounded-xl border" style={{ 
+                          backgroundColor: 'rgba(63, 81, 181, 0.1)', 
+                          borderColor: '#3F51B5' 
+                        }}>
+                          <div className="text-2xl font-bold mb-2" style={{ color: '#3F51B5' }}>8.8/10</div>
+                          <div className="text-sm font-medium" style={{ color: '#3F51B5' }}>Investor Validation</div>
+                          <div className="text-xs mt-1" style={{ color: '#3F51B5' }}>Investment Ready</div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
