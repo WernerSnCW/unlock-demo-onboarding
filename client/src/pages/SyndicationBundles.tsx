@@ -8,6 +8,7 @@ import { BundleBreakdown } from '@/components/syndicate/BundleBreakdown';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -154,11 +155,14 @@ export default function SyndicationBundles() {
 
       {/* Bundle Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 [&>button]:text-gray-900 [&>button]:dark:text-gray-100 [&>button]:hover:bg-gray-100 [&>button]:dark:hover:bg-gray-800">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Bundle Details
             </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Detailed breakdown of the selected investment bundle including companies, allocation, and performance metrics
+            </DialogDescription>
           </DialogHeader>
           {selectedBundle && (
             <BundleBreakdown 
