@@ -418,9 +418,19 @@ export default function Syndication() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="syndicates">All Syndicates</TabsTrigger>
-              <TabsTrigger value="bundles">Bundles</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
+              <TabsTrigger 
+                value="syndicates" 
+                className="data-[state=active]:bg-white data-[state=active]:dark:bg-gray-700 data-[state=active]:text-gray-900 data-[state=active]:dark:text-gray-100 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 data-[state=active]:dark:border-gray-600 text-gray-600 dark:text-gray-400 font-medium transition-all duration-200"
+              >
+                All Syndicates
+              </TabsTrigger>
+              <TabsTrigger 
+                value="bundles" 
+                className="data-[state=active]:bg-white data-[state=active]:dark:bg-gray-700 data-[state=active]:text-gray-900 data-[state=active]:dark:text-gray-100 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200 data-[state=active]:dark:border-gray-600 text-gray-600 dark:text-gray-400 font-medium transition-all duration-200"
+              >
+                Bundles
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="syndicates" className="space-y-6">
