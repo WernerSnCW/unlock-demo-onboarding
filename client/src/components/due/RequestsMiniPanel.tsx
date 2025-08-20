@@ -76,10 +76,11 @@ export function RequestsMiniPanel() {
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 p-4">
-        {sampleRequests.slice(0, 3).map((request, index) => (
-          <Link key={request.id} href={`/due-diligence/${request.id}`}>
-            <div className={`group p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          {sampleRequests.slice(0, 3).map((request, index) => (
+            <Link key={request.id} href={`/due-diligence/${request.id}`}>
+              <div className={`group p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
               request.status === 'completed' 
                 ? 'border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 hover:shadow-md hover:shadow-green-100 dark:hover:shadow-green-900/20' 
                 : 'border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 hover:shadow-md hover:shadow-amber-100 dark:hover:shadow-amber-900/20'
@@ -126,7 +127,8 @@ export function RequestsMiniPanel() {
               </div>
             </div>
           </Link>
-        ))}
+          ))}
+        </div>
         
         <div className="pt-2">
           <Link href="/due-diligence">
