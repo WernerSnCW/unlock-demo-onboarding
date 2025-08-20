@@ -218,13 +218,16 @@ export function RequestCard({ request, showActions = true, variant = 'default' }
                   Download
                 </Button>
                 {request.type === 'snapshot' && (
-                  <Button 
-                    size="sm" 
-                    className="flex items-center gap-1 bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] text-black hover:opacity-90 text-xs"
+                  <button 
+                    className="flex items-center gap-1 bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg text-xs relative overflow-hidden"
+                    disabled
                   >
-                    <Crown className="h-3 w-3" />
-                    Upgrade
-                  </Button>
+                    <span className="relative z-10 flex items-center gap-1">
+                      <i className="fas fa-crown text-xs" aria-hidden="true"></i>
+                      <span>Upgrade</span>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
                 )}
               </>
             )}
