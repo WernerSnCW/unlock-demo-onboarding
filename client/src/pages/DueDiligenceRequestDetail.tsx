@@ -170,11 +170,8 @@ export default function DueDiligenceRequestDetail() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Status & Timeline */}
-                <Card>
+            {/* Status & Timeline */}
+            <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Status & Timeline</span>
@@ -442,12 +439,10 @@ export default function DueDiligenceRequestDetail() {
                 </CardContent>
               </Card>
             )}
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-4">
+            {/* Premium Feature Notice for Deep Dive */}
             {request.type === 'deep_dive' && (
-              <Card>
+              <Card className="mt-6">
                 <CardHeader>
                   <CardTitle className="text-amber-600 flex items-center gap-2">
                     <Lock className="h-4 w-4" />
@@ -472,8 +467,6 @@ export default function DueDiligenceRequestDetail() {
                 </CardContent>
               </Card>
             )}
-              </div>
-            </div>
           </TabsContent>
 
           {/* Result Tab */}
