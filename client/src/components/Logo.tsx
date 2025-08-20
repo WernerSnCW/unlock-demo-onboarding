@@ -24,6 +24,9 @@ export default function Logo({ className = '', size = 'md', variant = 'default' 
           src={unlockLogo} 
           alt="Unlock" 
           className="h-10 w-auto"
+          style={{
+            filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
+          }}
         />
       </div>
     );
