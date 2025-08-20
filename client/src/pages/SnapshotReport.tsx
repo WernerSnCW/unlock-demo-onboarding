@@ -6,8 +6,13 @@ import { useRequestById } from '@/state/dueStore';
 import businessesData from '../mocks/businesses.json';
 
 export default function SnapshotReport() {
-  const [, params] = useRoute('/due-diligence/snapshot/:id');
+  // Try both route patterns - due diligence snapshots and business snapshots
+  const [, dueDiligenceParams] = useRoute('/due-diligence/snapshot/:id');
+  const [, businessParams] = useRoute('/snapshot/:id');
   const [, setLocation] = useLocation();
+  
+  // Use whichever route matched
+  const params = dueDiligenceParams || businessParams;
   
   // Try to get due diligence request first
   const dueRequest = useRequestById(params?.id || '');
