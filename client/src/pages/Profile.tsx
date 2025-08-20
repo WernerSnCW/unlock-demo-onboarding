@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { User, PieChart, Settings, Bell, Shield } from 'lucide-react';
+import { User, PieChart, Settings, Bell, Shield, Upload, Link, FileText, Plus } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ProfileHeader, DEFAULT_PROFILE } from '@/components/profile/ProfileHeader';
 import { ProfileOverview } from '@/components/profile/ProfileOverview';
 import { PortfolioAnalytics } from '@/components/profile/PortfolioAnalytics';
@@ -30,6 +32,92 @@ export default function Profile() {
 
   const PortfolioTab = () => (
     <div className="space-y-6">
+      {/* Upload Portfolio Button - Always visible */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Portfolio</h2>
+          <p className="text-gray-600 dark:text-gray-400">Manage your investment portfolio and track performance</p>
+        </div>
+        
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Portfolio
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Upload Your Portfolio</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {/* Connect via Moneyhub/Plaid (recommended) */}
+              <button className="w-full p-4 border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-600 rounded-lg">
+                    <Link className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-green-800 dark:text-green-400">Connect via Moneyhub/Plaid</h3>
+                      <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">Recommended</span>
+                    </div>
+                    <p className="text-sm text-green-700 dark:text-green-400 mt-1">
+                      Securely connect your brokerage accounts for automatic portfolio sync
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Import CSV */}
+              <button className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-[var(--primary)] rounded-lg">
+                    <FileText className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Import CSV</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Upload a CSV file with your holdings and positions
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Link SPV accounts */}
+              <button className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-[var(--secondary)] rounded-lg">
+                    <Link className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Link my SPV accounts (Vauban/Odin)</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Connect your Special Purpose Vehicle accounts for startup investments
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Add manually */}
+              <button className="w-full p-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left group">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gray-600 rounded-lg">
+                    <Plus className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Add manually</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Enter your portfolio positions one by one using a simple form
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
       {positions.length === 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PortfolioUploader onUploadComplete={() => {/* Portfolio updated */}} />
