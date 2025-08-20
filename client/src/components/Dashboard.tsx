@@ -166,14 +166,7 @@ export default function Dashboard() {
               profile={profile} 
               onChangePreferences={handlePreferencesChange}
             />
-            <div className="md:hidden">
-              <NewsletterControls
-                frequency={profile.newsletterFrequency}
-                whatsappEnabled={profile.whatsappAlerts}
-                onChangeFrequency={handleFrequencyChange}
-                onToggleWhatsapp={handleWhatsappToggle}
-              />
-            </div>
+
             <div className="md:hidden">
               <DDSnapshotHero onToolOpen={handleToolOpen} />
             </div>
@@ -199,12 +192,7 @@ export default function Dashboard() {
           {/* Right Column - "The Market" (hidden on mobile) */}
           <div className="hidden md:block order-3 md:order-2 space-y-6">
             <DDSnapshotHero onToolOpen={handleToolOpen} />
-            <NewsletterControls
-              frequency={profile.newsletterFrequency}
-              whatsappEnabled={profile.whatsappAlerts}
-              onChangeFrequency={handleFrequencyChange}
-              onToggleWhatsapp={handleWhatsappToggle}
-            />
+
             <NewsFeed
               items={newsItems}
               onLoadMore={handleLoadMore}
