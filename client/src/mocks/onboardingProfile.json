@@ -1,8 +1,11 @@
 {
   "firstName": "Thomas",
+  "lastName": "Anderson",
+  "email": "thomas@unlock.com",
   "investorType": "angel",
   "sectors": ["Fintech", "Biotech"],
   "riskProfile": "medium",
   "newsletterFrequency": "weekly",
-  "whatsappAlerts": true
+  "whatsappAlerts": true,
+  "profilePicture": null
 }
