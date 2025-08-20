@@ -59,8 +59,8 @@ export function RequestsMiniPanel() {
 
   // Show requests list when we have requests
   return (
-    <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm">
-      <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-t-lg">
+    <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm rounded-xl">
+      <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-t-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -76,17 +76,17 @@ export function RequestsMiniPanel() {
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="space-y-4 p-4">
         {sampleRequests.slice(0, 3).map((request, index) => (
           <Link key={request.id} href={`/due-diligence/${request.id}`}>
-            <div className={`group p-3 rounded-lg border transition-all duration-200 cursor-pointer ${
+            <div className={`group p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
               request.status === 'completed' 
                 ? 'border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 hover:shadow-md hover:shadow-green-100 dark:hover:shadow-green-900/20' 
                 : 'border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 hover:shadow-md hover:shadow-amber-100 dark:hover:shadow-amber-900/20'
             } hover:scale-[1.01] hover:-translate-y-0.5`}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2.5">
-                  <div className={`p-1.5 rounded-md ${
+                  <div className={`p-1.5 rounded-lg ${
                     request.status === 'completed' 
                       ? 'bg-green-100 dark:bg-green-900/30' 
                       : 'bg-amber-100 dark:bg-amber-900/30'
@@ -133,7 +133,7 @@ export function RequestsMiniPanel() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full mt-2 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-300 dark:hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200"
+              className="w-full mt-2 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-300 dark:hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200 rounded-xl"
             >
               <Eye className="h-4 w-4 mr-2" />
               View All Requests
