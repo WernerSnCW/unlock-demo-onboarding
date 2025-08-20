@@ -458,9 +458,17 @@ export default function DueDiligenceRequestDetail() {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     Deep Dive analysis provides comprehensive insights including adverse media, beneficial ownership, and credit events.
                   </p>
-                  <Button variant="outline" className="w-full" disabled>
-                    Upgrade to Pro
-                  </Button>
+                  <button 
+                    className="w-full bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl cursor-not-allowed opacity-75 relative overflow-hidden"
+                    disabled
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      <i className="fas fa-crown text-sm" aria-hidden="true"></i>
+                      <span>Upgrade to Pro</span>
+                      <i className="fas fa-arrow-right text-sm" aria-hidden="true"></i>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
                 </CardContent>
               </Card>
             )}
