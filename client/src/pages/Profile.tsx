@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ProfileHeader, DEFAULT_PROFILE } from '@/components/profile/ProfileHeader';
 import { ProfileOverview } from '@/components/profile/ProfileOverview';
 import { PortfolioAnalytics } from '@/components/profile/PortfolioAnalytics';
@@ -48,7 +48,10 @@ export default function Profile() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Upload Your Portfolio</DialogTitle>
+              <DialogTitle className="text-gray-900 dark:text-gray-100 font-semibold">Upload Your Portfolio</DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-400">
+                Choose how you'd like to connect your portfolio data
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               {/* Connect via Moneyhub/Plaid (recommended) */}
