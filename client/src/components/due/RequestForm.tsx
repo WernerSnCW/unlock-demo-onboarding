@@ -30,6 +30,12 @@ interface RequestFormData {
   includeRiskAssessment: boolean;
   includeMarketPosition: boolean;
   includeComplianceCheck: boolean;
+  includeFraudRiskAssessment: boolean;
+  includeFinancialHealth: boolean;
+  includeManagement: boolean;
+  includeMarketingBrandManagement: boolean;
+  includeClaimsManagement: boolean;
+  includeInvestorValidation: boolean;
   attachments: File[];
   consentGiven: boolean;
 }
@@ -55,6 +61,12 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
     includeRiskAssessment: true,
     includeMarketPosition: false,
     includeComplianceCheck: false,
+    includeFraudRiskAssessment: false,
+    includeFinancialHealth: false,
+    includeManagement: false,
+    includeMarketingBrandManagement: false,
+    includeClaimsManagement: false,
+    includeInvestorValidation: false,
     attachments: [],
     consentGiven: false,
   });
@@ -127,12 +139,25 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
       jurisdiction: formData.jurisdiction,
       requestedBy: "user@unlock", // In real app, get from auth
       sla: formData.type === 'snapshot' ? 'fast' : 'extended',
+      businessContext: {
+        industry: "Technology",
+        sector: "Software",
+        location: formData.jurisdiction === 'UK' ? 'London' : 'New York',
+        headquarters: formData.jurisdiction === 'UK' ? 'London, UK' : 'New York, US',
+        size: 'Small' as const,
+      },
       inputs: {
         reason: formData.reason,
         includeFinancialAnalysis: formData.includeFinancialAnalysis,
         includeRiskAssessment: formData.includeRiskAssessment,
         includeMarketPosition: formData.includeMarketPosition,
         includeComplianceCheck: formData.includeComplianceCheck,
+        includeFraudRiskAssessment: formData.includeFraudRiskAssessment,
+        includeFinancialHealth: formData.includeFinancialHealth,
+        includeManagement: formData.includeManagement,
+        includeMarketingBrandManagement: formData.includeMarketingBrandManagement,
+        includeClaimsManagement: formData.includeClaimsManagement,
+        includeInvestorValidation: formData.includeInvestorValidation,
         attachments: formData.attachments.map(f => f.name),
       }
     });
@@ -156,6 +181,12 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
       includeRiskAssessment: true,
       includeMarketPosition: false,
       includeComplianceCheck: false,
+      includeFraudRiskAssessment: false,
+      includeFinancialHealth: false,
+      includeManagement: false,
+      includeMarketingBrandManagement: false,
+      includeClaimsManagement: false,
+      includeInvestorValidation: false,
       attachments: [],
       consentGiven: false,
     });
@@ -293,6 +324,54 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeComplianceCheck: !!checked }))}
               />
               <Label htmlFor="compliance-check" className="text-sm font-normal text-gray-700 dark:text-gray-300">Compliance Check</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="fraud-risk-assessment"
+                checked={formData.includeFraudRiskAssessment}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeFraudRiskAssessment: !!checked }))}
+              />
+              <Label htmlFor="fraud-risk-assessment" className="text-sm font-normal text-gray-700 dark:text-gray-300">Fraud Risk Assessment</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="financial-health"
+                checked={formData.includeFinancialHealth}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeFinancialHealth: !!checked }))}
+              />
+              <Label htmlFor="financial-health" className="text-sm font-normal text-gray-700 dark:text-gray-300">Financial Health</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="management"
+                checked={formData.includeManagement}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeManagement: !!checked }))}
+              />
+              <Label htmlFor="management" className="text-sm font-normal text-gray-700 dark:text-gray-300">Management</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="marketing-brand-management"
+                checked={formData.includeMarketingBrandManagement}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeMarketingBrandManagement: !!checked }))}
+              />
+              <Label htmlFor="marketing-brand-management" className="text-sm font-normal text-gray-700 dark:text-gray-300">Marketing & Brand Management</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="claims-management"
+                checked={formData.includeClaimsManagement}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeClaimsManagement: !!checked }))}
+              />
+              <Label htmlFor="claims-management" className="text-sm font-normal text-gray-700 dark:text-gray-300">Claims Management</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="investor-validation"
+                checked={formData.includeInvestorValidation}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeInvestorValidation: !!checked }))}
+              />
+              <Label htmlFor="investor-validation" className="text-sm font-normal text-gray-700 dark:text-gray-300">Investor Validation</Label>
             </div>
           </div>
 

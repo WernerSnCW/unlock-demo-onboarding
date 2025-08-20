@@ -50,6 +50,12 @@ export interface DueRequest {
     includeRiskAssessment: boolean;
     includeMarketPosition: boolean;
     includeComplianceCheck: boolean;
+    includeFraudRiskAssessment: boolean;
+    includeFinancialHealth: boolean;
+    includeManagement: boolean;
+    includeMarketingBrandManagement: boolean;
+    includeClaimsManagement: boolean;
+    includeInvestorValidation: boolean;
     attachments: string[];
   };
   // Enhanced business context
@@ -127,7 +133,10 @@ const generateResult = (type: 'snapshot' | 'deep_dive', companyName: string) => 
       webScore: 60 + Math.floor(Math.random() * 40)
     },
     downloadUrl: '#',
-    openUrl: '#'
+    openUrl: '#',
+    confidenceScore: 75 + Math.floor(Math.random() * 25),
+    coverageScore: 70 + Math.floor(Math.random() * 30),
+    turnaroundTime: type === 'snapshot' ? 10 + Math.floor(Math.random() * 20) : 30 + Math.floor(Math.random() * 60)
   };
 };
 
@@ -204,6 +213,12 @@ const sampleRequests: DueRequest[] = [
       includeRiskAssessment: true,
       includeMarketPosition: true,
       includeComplianceCheck: true,
+      includeFraudRiskAssessment: false,
+      includeFinancialHealth: true,
+      includeManagement: false,
+      includeMarketingBrandManagement: false,
+      includeClaimsManagement: false,
+      includeInvestorValidation: true,
       attachments: []
     },
     result: {
@@ -350,6 +365,12 @@ const sampleRequests: DueRequest[] = [
       includeRiskAssessment: true,
       includeMarketPosition: true,
       includeComplianceCheck: true,
+      includeFraudRiskAssessment: true,
+      includeFinancialHealth: true,
+      includeManagement: true,
+      includeMarketingBrandManagement: false,
+      includeClaimsManagement: false,
+      includeInvestorValidation: true,
       attachments: []
     }
   },
@@ -378,6 +399,12 @@ const sampleRequests: DueRequest[] = [
       includeRiskAssessment: false,
       includeMarketPosition: true,
       includeComplianceCheck: true,
+      includeFraudRiskAssessment: false,
+      includeFinancialHealth: false,
+      includeManagement: true,
+      includeMarketingBrandManagement: true,
+      includeClaimsManagement: false,
+      includeInvestorValidation: false,
       attachments: []
     },
     result: {
@@ -420,6 +447,12 @@ const sampleRequests: DueRequest[] = [
       includeRiskAssessment: true,
       includeMarketPosition: false,
       includeComplianceCheck: true,
+      includeFraudRiskAssessment: false,
+      includeFinancialHealth: true,
+      includeManagement: false,
+      includeMarketingBrandManagement: false,
+      includeClaimsManagement: true,
+      includeInvestorValidation: false,
       attachments: []
     }
   },
@@ -448,6 +481,12 @@ const sampleRequests: DueRequest[] = [
       includeRiskAssessment: true,
       includeMarketPosition: true,
       includeComplianceCheck: true,
+      includeFraudRiskAssessment: true,
+      includeFinancialHealth: true,
+      includeManagement: true,
+      includeMarketingBrandManagement: false,
+      includeClaimsManagement: false,
+      includeInvestorValidation: true,
       attachments: []
     },
     error: 'Company data not available in public records',
@@ -550,6 +589,151 @@ export const useDueStore = create<DueStore>()(
         return get().requests
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, limit);
+      },
+      
+      // Q&A methods
+      addQuestion: (requestId: string, question: { body: string; target: 'company' | 'lead' | 'community' }) => {
+        const questionId = `q_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        set((state) => ({
+          requests: state.requests.map(req => 
+            req.id === requestId 
+              ? {
+                  ...req,
+                  qna: {
+                    questions: [
+                      ...(req.qna?.questions || []),
+                      {
+                        id: questionId,
+                        target: question.target,
+                        body: question.body,
+                        author: { id: 'u_current', role: 'investor', name: 'Thomas Williams' },
+                        createdAt: new Date().toISOString(),
+                        upvotes: 0,
+                        followers: 0,
+                        status: 'open',
+                        upvotedBy: [],
+                        followedBy: [],
+                        answers: []
+                      }
+                    ]
+                  }
+                }
+              : req
+          )
+        }));
+      },
+      
+      addAnswer: (requestId: string, questionId: string, body: string) => {
+        const answerId = `a_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        set((state) => ({
+          requests: state.requests.map(req => 
+            req.id === requestId && req.qna
+              ? {
+                  ...req,
+                  qna: {
+                    questions: req.qna.questions.map(q =>
+                      q.id === questionId
+                        ? {
+                            ...q,
+                            answers: [
+                              ...q.answers,
+                              {
+                                id: answerId,
+                                body,
+                                author: { id: 'u_company', role: 'company', name: 'Company Representative' },
+                                createdAt: new Date().toISOString(),
+                                isAccepted: false
+                              }
+                            ]
+                          }
+                        : q
+                    )
+                  }
+                }
+              : req
+          )
+        }));
+      },
+      
+      toggleUpvote: (requestId: string, questionId: string, userId: string) => {
+        set((state) => ({
+          requests: state.requests.map(req => 
+            req.id === requestId && req.qna
+              ? {
+                  ...req,
+                  qna: {
+                    questions: req.qna.questions.map(q =>
+                      q.id === questionId
+                        ? {
+                            ...q,
+                            upvotedBy: q.upvotedBy.includes(userId)
+                              ? q.upvotedBy.filter(id => id !== userId)
+                              : [...q.upvotedBy, userId],
+                            upvotes: q.upvotedBy.includes(userId)
+                              ? q.upvotes - 1
+                              : q.upvotes + 1
+                          }
+                        : q
+                    )
+                  }
+                }
+              : req
+          )
+        }));
+      },
+      
+      toggleFollow: (requestId: string, questionId: string, userId: string) => {
+        set((state) => ({
+          requests: state.requests.map(req => 
+            req.id === requestId && req.qna
+              ? {
+                  ...req,
+                  qna: {
+                    questions: req.qna.questions.map(q =>
+                      q.id === questionId
+                        ? {
+                            ...q,
+                            followedBy: q.followedBy.includes(userId)
+                              ? q.followedBy.filter(id => id !== userId)
+                              : [...q.followedBy, userId],
+                            followers: q.followedBy.includes(userId)
+                              ? q.followers - 1
+                              : q.followers + 1
+                          }
+                        : q
+                    )
+                  }
+                }
+              : req
+          )
+        }));
+      },
+      
+      markAnswered: (requestId: string, questionId: string, answerId: string) => {
+        set((state) => ({
+          requests: state.requests.map(req => 
+            req.id === requestId && req.qna
+              ? {
+                  ...req,
+                  qna: {
+                    questions: req.qna.questions.map(q =>
+                      q.id === questionId
+                        ? {
+                            ...q,
+                            status: 'answered' as const,
+                            answers: q.answers.map(a =>
+                              a.id === answerId
+                                ? { ...a, isAccepted: true }
+                                : { ...a, isAccepted: false }
+                            )
+                          }
+                        : q
+                    )
+                  }
+                }
+              : req
+          )
+        }));
       }
     }),
     {
