@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { PieChart, ArrowLeft } from 'lucide-react';
+import { PieChart, ArrowLeft, X } from 'lucide-react';
 import bundlesData from '../mocks/syndicateBundles.json';
 
 export default function SyndicationBundles() {
@@ -155,7 +155,16 @@ export default function SyndicationBundles() {
 
       {/* Bundle Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 [&>button]:text-gray-900 [&>button]:dark:text-gray-100 [&>button]:hover:bg-gray-100 [&>button]:dark:hover:bg-gray-800">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+          {/* Custom Close Button */}
+          <button
+            onClick={handleCloseModal}
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400"
+          >
+            <X className="h-4 w-4 text-gray-900 dark:text-gray-100" />
+            <span className="sr-only">Close</span>
+          </button>
+          
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Bundle Details
