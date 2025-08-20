@@ -118,7 +118,7 @@ export function FeeBreakdown({ fee, inline = false, className = '' }: FeeBreakdo
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-md bg-white dark:bg-gray-900">
+        <DialogContent className="max-w-lg bg-white dark:bg-gray-900 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Fee Structure Details</DialogTitle>
             <DialogDescription>
@@ -132,24 +132,24 @@ export function FeeBreakdown({ fee, inline = false, className = '' }: FeeBreakdo
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Example Calculation</h4>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex justify-between">
-                  <span>Investment amount:</span>
-                  <span className="font-medium">£10,000</span>
+                <div className="flex justify-between items-center">
+                  <span className="flex-shrink-0">Investment amount:</span>
+                  <span className="font-medium text-right">£10,000</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Platform fee:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center">
+                  <span className="flex-shrink-0">Platform fee:</span>
+                  <span className="font-medium text-right">
                     {fee.platformFeeGBP === 0 ? 'Free' : formatGBP(fee.platformFeeGBP)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Annual admin fee ({formatPct(fee.adminAnnualPct)}):</span>
-                  <span className="font-medium">{formatGBP(10000 * (fee.adminAnnualPct / 100))}</span>
+                <div className="flex justify-between items-start">
+                  <span className="flex-shrink-0">Annual admin fee ({formatPct(fee.adminAnnualPct)}):</span>
+                  <span className="font-medium text-right ml-2">{formatGBP(10000 * (fee.adminAnnualPct / 100))}</span>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                  <div className="flex justify-between">
-                    <span>If total gains £50,000:</span>
-                    <span className="font-medium">Carry = {formatGBP(50000 * (fee.carryPct / 100))}</span>
+                  <div className="flex justify-between items-start">
+                    <span className="flex-shrink-0">If total gains £50,000:</span>
+                    <span className="font-medium text-right ml-2">Carry = {formatGBP(50000 * (fee.carryPct / 100))}</span>
                   </div>
                 </div>
               </div>
