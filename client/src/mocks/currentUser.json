@@ -1,7 +1,7 @@
 {
   "id": "u_investor_01",
   "role": "investor",
-  "name": "Alex Thompson",
-  "verified": false,
+  "name": "Thomas Williams",
+  "verified": true,
   "subscription": "free"
 }

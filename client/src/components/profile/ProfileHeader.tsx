@@ -190,7 +190,7 @@ export function ProfileHeader({ profile, onEdit, className = '' }: ProfileHeader
 
 // Default profile data for demo
 export const DEFAULT_PROFILE: ProfileData = {
-  name: 'Alex Thompson',
+  name: 'Thomas Williams',
   investorType: 'Angel',
   riskAppetite: 'Moderate',
   ticketRange: '£10k–£50k',

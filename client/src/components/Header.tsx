@@ -13,7 +13,7 @@ export default function Header() {
 
   // Mock user data - in real app this would come from auth context
   const user = {
-    name: 'Thomas Anderson',
+    name: 'Thomas Williams',
     email: 'thomas@unlock.com',
     profilePicture: null
   };
