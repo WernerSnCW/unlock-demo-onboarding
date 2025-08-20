@@ -1,0 +1,80 @@
+[
+  {
+    "id": "pos_1",
+    "ticker": "NVDA",
+    "name": "NVIDIA Corp.",
+    "market": "NASDAQ",
+    "currency": "USD",
+    "quantity": 120,
+    "avgCost": 612.50,
+    "price": 129.30,
+    "sector": "Semiconductors",
+    "country": "US",
+    "asOf": "2025-08-18"
+  },
+  {
+    "id": "pos_2",
+    "ticker": "BARC.L",
+    "name": "Barclays PLC",
+    "market": "LSE",
+    "currency": "GBP",
+    "quantity": 4500,
+    "avgCost": 1.48,
+    "price": 1.62,
+    "sector": "Banks",
+    "country": "UK",
+    "asOf": "2025-08-18"
+  },
+  {
+    "id": "pos_3",
+    "ticker": "AAPL",
+    "name": "Apple Inc.",
+    "market": "NASDAQ",
+    "currency": "USD",
+    "quantity": 85,
+    "avgCost": 178.25,
+    "price": 225.60,
+    "sector": "Technology",
+    "country": "US",
+    "asOf": "2025-08-18"
+  },
+  {
+    "id": "pos_4",
+    "ticker": "VOD.L",
+    "name": "Vodafone Group PLC",
+    "market": "LSE",
+    "currency": "GBP",
+    "quantity": 8200,
+    "avgCost": 0.73,
+    "price": 0.68,
+    "sector": "Telecommunications",
+    "country": "UK",
+    "asOf": "2025-08-18"
+  },
+  {
+    "id": "pos_5",
+    "ticker": "MSFT",
+    "name": "Microsoft Corporation",
+    "market": "NASDAQ",
+    "currency": "USD",
+    "quantity": 45,
+    "avgCost": 412.30,
+    "price": 439.75,
+    "sector": "Technology",
+    "country": "US",
+    "asOf": "2025-08-18"
+  },
+  {
+    "id": "pos_6",
+    "ticker": "LLOY.L",
+    "name": "Lloyds Banking Group PLC",
+    "market": "LSE",
+    "currency": "GBP",
+    "quantity": 12000,
+    "avgCost": 0.54,
+    "price": 0.61,
+    "sector": "Banks",
+    "country": "UK",
+    "asOf": "2025-08-18"
+  }
+]

@@ -1,0 +1,262 @@
+Replit Update — Investor Profile + Portfolio Upload & Analyst Opinions
+0) Scope
+
+New Profile section with portfolio ingestion + analytics. Add a free Analyst Opinions feed for public tickers used in the portfolio (and reusable elsewhere).
+
+1) Routes
+
+/profile — Investor Profile (tabs).
+
+/profile/portfolio — deep link to Portfolio tab.
+
+(Re-use) show small portfolio widgets on /news and /syndication when a story/syndicate references a held ticker.
+
+Tabs in /profile:
+Overview | Portfolio (new) | Preferences | Notifications | Security
+
+2) Files & Components
+
+Pages
+
+src/pages/Profile.tsx (tabbed)
+
+src/pages/ProfilePortfolio.tsx
+
+Components
+
+src/components/profile/ProfileHeader.tsx (name, investor type, risk band, EIS interest, geography)
+
+src/components/profile/PortfolioUploader.tsx (CSV/Excel drag-drop + mapping)
+
+src/components/profile/PortfolioTable.tsx (positions table)
+
+src/components/profile/PortfolioAnalytics.tsx (exposures, P&L, risk)
+
+src/components/profile/AnalystOpinionsPanel.tsx (free feed; filters & search)
+
+src/components/shared/StatCard.tsx, MiniSpark.tsx, Donut.tsx (simple SVG; no extra libs)
+
+src/components/shared/FileDrop.tsx (reusable drag-drop with parsing)
+
+State
+
+src/state/portfolioStore.ts (localStorage persistence)
+
+src/state/opinionsStore.ts (loads mock analyst opinions; filter by tickers)
+
+3) Data contracts (mocks)
+A) Portfolio positions
+
+src/mocks/portfolio.json (seed with 4–6 holdings)
+
+[
+  {
+    "id": "pos_1",
+    "ticker": "NVDA",
+    "name": "NVIDIA Corp.",
+    "market": "NASDAQ",
+    "currency": "USD",
+    "quantity": 120,
+    "avgCost": 612.50,
+    "price": 129.30,          // mock spot; update via opinions feed later
+    "sector": "Semiconductors",
+    "country": "US",
+    "asOf": "2025-08-18"
+  },
+  {
+    "id": "pos_2",
+    "ticker": "BARC.L",
+    "name": "Barclays PLC",
+    "market": "LSE",
+    "currency": "GBP",
+    "quantity": 4500,
+    "avgCost": 1.48,
+    "price": 1.62,
+    "sector": "Banks",
+    "country": "UK",
+    "asOf": "2025-08-18"
+  }
+]
+
+
+Derived fields in UI: marketValue = quantity * price, gainAbs, gainPct, FX assumed 1.0 in prototype.
+
+B) Analyst opinions (free feed)
+
+src/mocks/analyst_opinions.json
+
+[
+  {
+    "ticker": "NVDA",
+    "analyst": "J.P. Morgan",
+    "rating": "Overweight",   // Strong Buy | Buy | Overweight | Neutral | Underweight | Sell
+    "target": 145.00,
+    "currency": "USD",
+    "note": "AI data centre momentum; supply normalising.",
+    "asOf": "2025-08-16"
+  },
+  {
+    "ticker": "NVDA",
+    "analyst": "Citi",
+    "rating": "Neutral",
+    "target": 128.00,
+    "currency": "USD",
+    "note": "Valuation stretch vs peers; watch gross margin.",
+    "asOf": "2025-08-14"
+  },
+  {
+    "ticker": "BARC.L",
+    "analyst": "Morgan Stanley",
+    "rating": "Overweight",
+    "target": 2.20,
+    "currency": "GBP",
+    "note": "Capital return and UK retail NIM resilience.",
+    "asOf": "2025-08-10"
+  }
+]
+
+
+Re-use this dataset anywhere a ticker appears (news cards, portfolio rows, watchlist chips).
+
+4) CSV/Excel upload spec (what users can import)
+
+Accept .csv, .xlsx. Create src/mocks/portfolio_upload_template.csv with these columns:
+
+Ticker,Name,Market,Currency,Quantity,Average Cost,Purchase Date,ISIN,Notes
+NVDA,NVIDIA Corp.,NASDAQ,USD,120,612.5,2024-03-01,US67066G1040,Long-term AI bet
+BARC.L,Barclays PLC,LSE,GBP,4500,1.48,2023-11-10,GB0031348658,Dividend reinvest
+
+
+Mapping step (important):
+
+After upload, show a column mapping dialog (left: detected headers; right: required fields).
+
+Required: Ticker, Quantity, Average Cost
+
+Optional: others; unknown columns stored under meta.
+
+Validation:
+
+Ticker non-empty; Quantity ≥ 0; Average Cost ≥ 0; Currency ISO 3 (fallback from market).
+
+Show row-level errors and allow user to import valid rows only.
+
+5) Portfolio Analytics (what to show)
+
+Top strip (StatCards):
+
+Total Market Value (base currency GBP; static FX in prototype)
+
+Total P&L (£ and %)
+
+Holdings
+
+Top Position (% of portfolio)
+
+Charts (simple SVG / CSS only):
+
+Sector exposure donut (from sector field)
+
+Country exposure donut
+
+P&L distribution bar (gainers vs losers count and value)
+
+Risk hints (rules of thumb):
+
+“>30% in single name” → flag “Concentration risk”
+
+“>60% in one sector” → flag “Sector concentration”
+
+Table (PortfolioTable):
+
+Columns: Ticker | Name | Qty | Avg Cost | Price | Market Value | P&L £ | P&L % | Sector | Country | Opinions (badge count)
+
+Row expand shows AnalystOpinionsPanel snippet for that ticker.
+
+6) Analyst Opinions Panel
+
+Where it appears:
+
+/profile/portfolio right rail (global across portfolio tickers)
+
+Row expand in PortfolioTable
+
+News article sidebar when a story references a held ticker
+
+UI:
+
+Filters: All | Overweight/Buy | Neutral | Underweight/Sell | Last 7d | Last 30d
+
+Each opinion card: Analyst logo/initials, Rating badge, Target price vs current (∆%), date, 1-line note.
+
+Consensus header per ticker:
+
+“NVDA — Consensus: Overweight (6 Buy, 2 Neutral, 1 Sell), Avg target $139 (+7.5%).”
+
+In prototype, compute counts and simple average of target.
+
+Copy (paste):
+
+“Analyst opinions are third-party views and not financial advice.”
+
+“Targets are indicative and may change without notice.”
+
+7) Profile Overview (make it feel “investor-grade”)
+
+ProfileHeader
+
+Avatar (initials), full name, Investor type (Angel/VC/FO), Risk appetite pill, Ticket band (e.g., £5k–£25k), Jurisdictions, EIS/SEIS interest.
+
+A small “Signal score” (e.g., completeness %) to encourage filling in details.
+
+Overview widgets
+
+“Your sectors” (chips) — editable, feeds the News personalisation you already have.
+
+“Watchlists” and “Saved items” counters.
+
+“Recent actions” (requested snapshots, questions posted).
+
+8) Behaviours
+
+Upload: parse file → mapping dialog → validate → merge into portfolioStore (de-dupe tickers by summing quantities unless user chooses “replace”).
+
+Opinions: opinionsStore exposes getByTickers(tickers: string[]).
+
+Currency: assume GBP base; if currency !== GBP show “Converted at demo rate (prototype)”.
+
+Privacy: default private portfolio; toggle “Allow anonymised matching for ‘investors like you’” (off by default).
+
+9) Accessibility
+
+FileDrop is keyboard operable and has aria-describedby with template link.
+
+Data tables support sorting via buttons, not just headers; aria-sort applied.
+
+Donuts/bars have text equivalents (“Sector exposure: Semiconductors 42%, Banks 24%, …”).
+
+10) Acceptance Criteria (DoD)
+
+/profile loads with tabs; /profile/portfolio deep-links to Portfolio tab.
+
+Users can upload CSV/XLSX, map columns, validate, and import; invalid rows show inline errors; valid rows appear in the table.
+
+Portfolio analytics render: StatCards, two exposure donuts, P&L distribution, and risk hints when thresholds exceed.
+
+AnalystOpinionsPanel shows opinions for portfolio tickers with filters and a per-ticker consensus line; the same component can mount in news/story sidebars and row expands.
+
+Positions persist in localStorage; refresh keeps data.
+
+All colours via CSS variables; AA contrast; keyboard navigation; no console errors.
+
+Clear disclaimers are visible in the opinions panel.
+
+11) Quick implementation notes (Replit)
+
+Use papaparse (CSV) and sheetjs (xlsx) only if already in template; otherwise keep to CSV to avoid new deps.
+
+Keep charts as lightweight SVG components (MiniSpark, Donut) — no charting library needed.
+
+Centralise number formatting (formatGBP, formatPct, formatDate, ΔPrice helper) to keep the UI consistent.
+
+Create a TICKER_MAP.json for simple LSE suffix normalisation (e.g., BARC.L ↔ BARC), and use it in both opinions and portfolio.

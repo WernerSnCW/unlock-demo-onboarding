@@ -1,0 +1,119 @@
+[
+  {
+    "ticker": "NVDA",
+    "analyst": "J.P. Morgan",
+    "rating": "Overweight",
+    "target": 145.00,
+    "currency": "USD",
+    "note": "AI data centre momentum; supply normalising.",
+    "asOf": "2025-08-16"
+  },
+  {
+    "ticker": "NVDA",
+    "analyst": "Citi",
+    "rating": "Neutral",
+    "target": 128.00,
+    "currency": "USD",
+    "note": "Valuation stretch vs peers; watch gross margin.",
+    "asOf": "2025-08-14"
+  },
+  {
+    "ticker": "NVDA",
+    "analyst": "Goldman Sachs",
+    "rating": "Buy",
+    "target": 155.00,
+    "currency": "USD",
+    "note": "Strong data center demand continues into 2025.",
+    "asOf": "2025-08-18"
+  },
+  {
+    "ticker": "BARC.L",
+    "analyst": "Morgan Stanley",
+    "rating": "Overweight",
+    "target": 2.20,
+    "currency": "GBP",
+    "note": "Capital return and UK retail NIM resilience.",
+    "asOf": "2025-08-10"
+  },
+  {
+    "ticker": "BARC.L",
+    "analyst": "Deutsche Bank",
+    "rating": "Buy",
+    "target": 2.15,
+    "currency": "GBP",
+    "note": "Improved cost discipline and credit provisions normalize.",
+    "asOf": "2025-08-12"
+  },
+  {
+    "ticker": "AAPL",
+    "analyst": "UBS",
+    "rating": "Neutral",
+    "target": 220.00,
+    "currency": "USD",
+    "note": "iPhone cycle concerns; Services growth steady.",
+    "asOf": "2025-08-15"
+  },
+  {
+    "ticker": "AAPL",
+    "analyst": "Barclays",
+    "rating": "Underweight",
+    "target": 205.00,
+    "currency": "USD",
+    "note": "Hardware saturation risks; China headwinds persist.",
+    "asOf": "2025-08-13"
+  },
+  {
+    "ticker": "AAPL",
+    "analyst": "Wedbush",
+    "rating": "Outperform",
+    "target": 275.00,
+    "currency": "USD",
+    "note": "AI iPhone supercycle anticipated for 2025-2026.",
+    "asOf": "2025-08-17"
+  },
+  {
+    "ticker": "VOD.L",
+    "analyst": "Jefferies",
+    "rating": "Hold",
+    "target": 0.70,
+    "currency": "GBP",
+    "note": "Turnaround progress slow; dividend sustainability key.",
+    "asOf": "2025-08-09"
+  },
+  {
+    "ticker": "MSFT",
+    "analyst": "Cowen",
+    "rating": "Outperform",
+    "target": 485.00,
+    "currency": "USD",
+    "note": "Azure AI acceleration; Office Copilot adoption strong.",
+    "asOf": "2025-08-16"
+  },
+  {
+    "ticker": "MSFT",
+    "analyst": "Piper Sandler",
+    "rating": "Overweight",
+    "target": 475.00,
+    "currency": "USD",
+    "note": "Cloud leadership and AI monetization paths clear.",
+    "asOf": "2025-08-14"
+  },
+  {
+    "ticker": "LLOY.L",
+    "analyst": "RBC",
+    "rating": "Outperform",
+    "target": 0.75,
+    "currency": "GBP",
+    "note": "UK rate environment supportive; capital returns likely.",
+    "asOf": "2025-08-11"
+  },
+  {
+    "ticker": "LLOY.L",
+    "analyst": "Berenberg",
+    "rating": "Hold",
+    "target": 0.62,
+    "currency": "GBP",
+    "note": "Mortgage margin pressure; credit quality stable.",
+    "asOf": "2025-08-08"
+  }
+]
