@@ -195,7 +195,6 @@ export default function Dashboard() {
                 onToolOpen={handleToolOpen}
               />
             </div>
-            <QuickTools onToolOpen={handleToolOpen} />
             <AlertsPreferences 
               frequency={profile.newsletterFrequency}
               whatsappEnabled={profile.whatsappAlerts}
@@ -203,13 +202,14 @@ export default function Dashboard() {
               onToggleWhatsapp={handleWhatsappToggle}
             />
             <Watchlist companies={companies} onToolOpen={handleToolOpen} />
-            <RequestsMiniPanel />
             <UpgradeCard />
           </div>
 
           {/* Right Column - "The Market" (hidden on mobile) */}
           <div className="hidden md:block order-3 md:order-2 space-y-6">
             <DDSnapshotHero onToolOpen={handleToolOpen} />
+            <RequestsMiniPanel />
+            <QuickTools onToolOpen={handleToolOpen} />
 
             <NewsFeed
               items={newsItems}
