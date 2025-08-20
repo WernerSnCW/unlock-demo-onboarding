@@ -36,7 +36,7 @@ export function WhyThisSyndicate({ whyThis, company, className = '' }: WhyThisSy
           </div>
 
           {/* Key Metrics */}
-          {whyThis.keyMetrics.length > 0 && (
+          {whyThis.keyMetrics && whyThis.keyMetrics.length > 0 && (
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -56,7 +56,7 @@ export function WhyThisSyndicate({ whyThis, company, className = '' }: WhyThisSy
           )}
 
           {/* Opportunity Factors */}
-          {whyThis.opportunityFactors.length > 0 && (
+          {whyThis.opportunityFactors && whyThis.opportunityFactors.length > 0 && (
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -76,7 +76,7 @@ export function WhyThisSyndicate({ whyThis, company, className = '' }: WhyThisSy
           )}
 
           {/* Risk Factors */}
-          {whyThis.riskFactors.length > 0 && (
+          {whyThis.riskFactors && whyThis.riskFactors.length > 0 && (
             <div>
               <div className="flex items-center gap-1 mb-2">
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />

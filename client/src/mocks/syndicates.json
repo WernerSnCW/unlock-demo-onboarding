@@ -97,16 +97,23 @@
       "notes": "Transparent, flat fees. No hidden commissions."
     },
     "whyThis": {
-      "thesis": [
-        "Large addressable market in B2B payments.",
-        "Strong product-market fit demonstrated.",
-        "Experienced payments team with domain expertise."
+      "reasoning": "Strong fintech play in B2B payments with experienced team from Adyen. Large addressable market with demonstrated product-market fit.",
+      "keyMetrics": [
+        "Ex-Adyen VP leading the team",
+        "Product-market fit demonstrated",
+        "Large B2B payments addressable market"
       ],
-      "risks": [
-        "Competitive landscape with well-funded players.",
-        "Regulatory changes in payment processing."
+      "riskFactors": [
+        "Competitive landscape with well-funded players",
+        "Regulatory changes in payment processing",
+        "Integration complexity with enterprise clients"
       ],
-      "sources": ["Lead memo 2025-08-10", "Due diligence report 2025-08"]
+      "opportunityFactors": [
+        "Large addressable market in B2B payments",
+        "Strong product-market fit demonstrated",
+        "Experienced payments team with domain expertise",
+        "Growing demand for payment automation"
+      ]
     },
     "benchmarks": {
       "sector": "Fintech",
@@ -118,9 +125,9 @@
       ]
     },
     "trust": {
-      "leadVetted": true,
-      "governanceAudited": true,
-      "docPackAvailable": true
+      "dataSources": 4,
+      "investorHistory": "Verified",
+      "dealLegitimacy": "High"
     },
     "fractional": {
       "unitName": "share",
@@ -160,17 +167,24 @@
       "notes": "Lowest fees to maximize investor returns."
     },
     "whyThis": {
-      "thesis": [
-        "Growing demand for sustainable energy solutions.",
-        "Strong government incentives for clean technology.",
-        "Proprietary technology with patent protection."
+      "reasoning": "Clean energy startup with proprietary technology and strong patent protection. Government incentives support the sector with growing demand for sustainable solutions.",
+      "keyMetrics": [
+        "2 exits in renewables by lead",
+        "Patent-protected proprietary technology",
+        "Strong government incentive support"
       ],
-      "risks": [
-        "Regulatory changes affecting subsidies.",
-        "Technology adoption timeline uncertainty.",
-        "Competition from established energy players."
+      "riskFactors": [
+        "Regulatory changes affecting subsidies",
+        "Technology adoption timeline uncertainty",
+        "Competition from established energy players",
+        "Dependency on government policy"
       ],
-      "sources": ["Tech assessment 2025-08", "Market analysis Q3 2025"]
+      "opportunityFactors": [
+        "Growing demand for sustainable energy solutions",
+        "Strong government incentives for clean technology",
+        "Proprietary technology with patent protection",
+        "First mover advantage in niche clean tech"
+      ]
     },
     "benchmarks": {
       "sector": "CleanTech",
@@ -182,9 +196,9 @@
       ]
     },
     "trust": {
-      "leadVetted": false,
-      "governanceAudited": false,
-      "docPackAvailable": false
+      "dataSources": 2,
+      "investorHistory": "Limited",
+      "dealLegitimacy": "Medium"
     },
     "fractional": {
       "unitName": "share",
