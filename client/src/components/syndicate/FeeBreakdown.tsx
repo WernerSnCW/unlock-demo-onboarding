@@ -42,7 +42,7 @@ export function FeeBreakdown({ fee, inline = false, className = '' }: FeeBreakdo
     <div className={`space-y-3 ${className}`}>
       {showTitle && (
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">Fee Structure</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Fee Structure</h3>
           <InfoPopover title="Fee Information">
             <div className="space-y-2">
               <p><strong>Carry:</strong> Percentage of profits paid to the lead investor</p>
@@ -120,8 +120,8 @@ export function FeeBreakdown({ fee, inline = false, className = '' }: FeeBreakdo
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-lg bg-white dark:bg-gray-900 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Fee Structure Details</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900 dark:text-gray-100 font-semibold">Fee Structure Details</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
               How fees are calculated on your investment
             </DialogDescription>
           </DialogHeader>
