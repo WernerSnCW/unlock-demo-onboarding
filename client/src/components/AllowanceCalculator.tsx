@@ -43,7 +43,7 @@ export default function AllowanceCalculator() {
                   value="EIS"
                   checked={inputs.scheme === 'EIS'}
                   onChange={(e) => updateInput('scheme', e.target.value as 'EIS' | 'SEIS')}
-                  className="mr-2 text-[var(--primary)]"
+                  className="mr-2 accent-[#5193B3]"
                 />
                 <span className="text-sm">EIS</span>
               </label>
@@ -54,7 +54,7 @@ export default function AllowanceCalculator() {
                   value="SEIS"
                   checked={inputs.scheme === 'SEIS'}
                   onChange={(e) => updateInput('scheme', e.target.value as 'EIS' | 'SEIS')}
-                  className="mr-2 text-[var(--primary)]"
+                  className="mr-2 accent-[#5193B3]"
                 />
                 <span className="text-sm">SEIS</span>
               </label>
@@ -69,7 +69,7 @@ export default function AllowanceCalculator() {
                   type="checkbox"
                   checked={inputs.isKIC}
                   onChange={(e) => updateInput('isKIC', e.target.checked)}
-                  className="mr-2 text-[var(--primary)]"
+                  className="mr-2 accent-[#5193B3]"
                 />
                 <span className="text-sm font-medium text-[var(--card-foreground)]">
                   Knowledge-Intensive Company (KIC)
@@ -92,7 +92,7 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.investmentThisYear}
                   onChange={(e) => updateInput('investmentThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-[var(--radius-sm)] text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-[var(--radius-sm)] text-gray-900 dark:text-gray-100 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div>
@@ -105,7 +105,7 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.incomeTaxLiabilityThisYear}
                   onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-[var(--radius-sm)] text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-[var(--radius-sm)] text-gray-900 dark:text-gray-100 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] focus:outline-none"
                 />
               </div>
             </div>
@@ -125,7 +125,7 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.investmentPrevYear}
                   onChange={(e) => updateInput('investmentPrevYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div>
@@ -138,7 +138,7 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.carryBackFromThisYear}
                   onChange={(e) => updateInput('carryBackFromThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div>
@@ -151,7 +151,7 @@ export default function AllowanceCalculator() {
                   step="100"
                   value={inputs.incomeTaxLiabilityPrevYear}
                   onChange={(e) => updateInput('incomeTaxLiabilityPrevYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div>
@@ -160,7 +160,7 @@ export default function AllowanceCalculator() {
                     type="checkbox"
                     checked={inputs.investorLimitUsedPrevYear}
                     onChange={(e) => updateInput('investorLimitUsedPrevYear', e.target.checked)}
-                    className="mr-2 text-[var(--primary)]"
+                    className="mr-2 accent-[#5193B3]"
                   />
                   <span className="text-sm">Investor limit used in previous year</span>
                 </label>
