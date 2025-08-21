@@ -286,7 +286,7 @@ export default function SimpleAllowanceCalculator() {
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div 
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                    className="bg-[#5193B3] h-2 rounded-full transition-all duration-300" 
                     style={{ width: `${Math.min((result.eligibleForThis / result.limitThis) * 100, 100)}%` }}
                   ></div>
                 </div>
@@ -298,7 +298,7 @@ export default function SimpleAllowanceCalculator() {
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+                className="bg-[#5193B3] hover:bg-[#4A7FA0] text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
                 onClick={() => {
                   // Recalculate with current inputs
                   setResult(calcAllowance(inputs));
@@ -309,7 +309,7 @@ export default function SimpleAllowanceCalculator() {
               </button>
               
               <button
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+                className="bg-[#62C4C3] hover:bg-[#56B3B2] text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
                 onClick={() => {
                   const reportData = {
                     timestamp: new Date().toLocaleString(),
@@ -334,7 +334,7 @@ export default function SimpleAllowanceCalculator() {
             </div>
             
             <button
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-[#F8D49B] hover:bg-[#F5CE85] text-gray-800 font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
               onClick={() => {
                 if (navigator.share) {
                   navigator.share({
@@ -361,11 +361,11 @@ Rate: ${formatPercentage(result.rate * 100, 0)}`;
 
           {/* Badges */}
           <div className="flex gap-2 flex-wrap pt-4 border-t border-gray-200 dark:border-gray-700">
-            <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs font-medium">
+            <span className="inline-block bg-[#5193B3]/10 text-[#5193B3] px-3 py-1 rounded-full text-xs font-medium">
               {inputs.scheme}
             </span>
             {inputs.isKIC && (
-              <span className="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs font-medium">
+              <span className="inline-block bg-[#62C4C3]/10 text-[#62C4C3] px-3 py-1 rounded-full text-xs font-medium">
                 KIC
               </span>
             )}
