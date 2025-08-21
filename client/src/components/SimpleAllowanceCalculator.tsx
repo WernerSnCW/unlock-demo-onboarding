@@ -43,7 +43,7 @@ export default function SimpleAllowanceCalculator() {
                   value="EIS"
                   checked={inputs.scheme === 'EIS'}
                   onChange={(e) => updateInput('scheme', e.target.value as 'EIS' | 'SEIS')}
-                  className="mr-2 text-blue-600"
+                  className="mr-2 accent-[#5193B3]"
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">EIS</span>
               </label>
@@ -54,7 +54,7 @@ export default function SimpleAllowanceCalculator() {
                   value="SEIS"
                   checked={inputs.scheme === 'SEIS'}
                   onChange={(e) => updateInput('scheme', e.target.value as 'EIS' | 'SEIS')}
-                  className="mr-2 text-blue-600"
+                  className="mr-2 accent-[#5193B3]"
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">SEIS</span>
               </label>
@@ -67,7 +67,7 @@ export default function SimpleAllowanceCalculator() {
                     type="checkbox"
                     checked={inputs.isKIC}
                     onChange={(e) => updateInput('isKIC', e.target.checked)}
-                    className="mr-2 text-blue-600"
+                    className="mr-2 accent-[#5193B3]"
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Knowledge-Intensive Company (KIC)</span>
                 </label>
@@ -89,7 +89,7 @@ export default function SimpleAllowanceCalculator() {
                   step="100"
                   value={inputs.investmentThisYear}
                   onChange={(e) => updateInput('investmentThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
                 />
               </div>
               <div>
@@ -102,7 +102,7 @@ export default function SimpleAllowanceCalculator() {
                   step="100"
                   value={inputs.incomeTaxLiabilityThisYear}
                   onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
                 />
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function SimpleAllowanceCalculator() {
                   step="100"
                   value={inputs.investmentPrevYear}
                   onChange={(e) => updateInput('investmentPrevYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
                 />
               </div>
               <div>
@@ -135,7 +135,7 @@ export default function SimpleAllowanceCalculator() {
                   step="100"
                   value={inputs.carryBackFromThisYear}
                   onChange={(e) => updateInput('carryBackFromThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
                 />
               </div>
               <div>
@@ -148,7 +148,7 @@ export default function SimpleAllowanceCalculator() {
                   step="100"
                   value={inputs.incomeTaxLiabilityPrevYear}
                   onChange={(e) => updateInput('incomeTaxLiabilityPrevYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
                 />
               </div>
               <div>
@@ -157,7 +157,7 @@ export default function SimpleAllowanceCalculator() {
                     type="checkbox"
                     checked={inputs.investorLimitUsedPrevYear}
                     onChange={(e) => updateInput('investorLimitUsedPrevYear', e.target.checked)}
-                    className="mr-2 text-blue-600"
+                    className="mr-2 accent-[#5193B3]"
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Investor limit used in previous year</span>
                 </label>
@@ -170,10 +170,10 @@ export default function SimpleAllowanceCalculator() {
         <div className="space-y-6">
           
           {/* Headline Result Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+          <div className="bg-gradient-to-br from-[#5193B3]/10 to-[#62C4C3]/10 dark:from-[#5193B3]/20 dark:to-[#62C4C3]/20 rounded-lg p-6 border border-[#5193B3]/30 dark:border-[#5193B3]/50">
             <div className="text-center mb-4">
               <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Tax Relief</h4>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-3xl font-bold" style={{ color: '#5193B3' }}>
                 {formatCurrency(result.totalRelief)}
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
