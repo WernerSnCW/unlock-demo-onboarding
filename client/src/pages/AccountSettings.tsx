@@ -69,11 +69,15 @@ const portfolioHoldingSchema = z.object({
 });
 
 const propertySchema = z.object({
+  uprn: z.string().optional(),
+  titleNumber: z.string().optional(),
   addressLine1: z.string().min(1, 'Address is required'),
   addressLine2: z.string().optional(),
   city: z.string().optional(),
   postcode: z.string().optional(),
   country: z.string().default('UK'),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
   propertyType: z.string().optional(),
   bedrooms: z.number().optional(),
   floorAreaSqm: z.string().optional(),
@@ -326,11 +330,15 @@ export default function AccountSettings() {
   const propertyForm = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
     defaultValues: {
+      uprn: '',
+      titleNumber: '',
       addressLine1: '',
       addressLine2: '',
       city: '',
       postcode: '',
       country: 'UK',
+      latitude: '',
+      longitude: '',
       propertyType: 'residential',
       bedrooms: undefined,
       floorAreaSqm: '',
@@ -927,6 +935,38 @@ export default function AccountSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={propertyForm.control}
+                  name="uprn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UPRN</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="100023336956" data-testid="input-uprn" />
+                      </FormControl>
+                      <FormDescription>
+                        UK Unique Property Reference Number
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="titleNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="TGL123456" data-testid="input-title-number" />
+                      </FormControl>
+                      <FormDescription>
+                        HM Land Registry title number
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
                   name="addressLine1"
                   render={({ field }) => (
                     <FormItem>
@@ -1050,6 +1090,67 @@ export default function AccountSettings() {
                           data-testid="input-year-built" 
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="epcRating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>EPC Rating</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-epc-rating">
+                            <SelectValue placeholder="Select EPC rating" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="A">A (Very Efficient)</SelectItem>
+                          <SelectItem value="B">B</SelectItem>
+                          <SelectItem value="C">C</SelectItem>
+                          <SelectItem value="D">D</SelectItem>
+                          <SelectItem value="E">E</SelectItem>
+                          <SelectItem value="F">F</SelectItem>
+                          <SelectItem value="G">G (Least Efficient)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Energy Performance Certificate rating
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="latitude"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Latitude</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="51.5074" data-testid="input-latitude" />
+                      </FormControl>
+                      <FormDescription>
+                        GPS latitude coordinate
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="longitude"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Longitude</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="-0.1278" data-testid="input-longitude" />
+                      </FormControl>
+                      <FormDescription>
+                        GPS longitude coordinate
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
