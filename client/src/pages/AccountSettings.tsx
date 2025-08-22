@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -88,30 +88,28 @@ export default function AccountSettings() {
   const [selectedInvestorId, setSelectedInvestorId] = useState<string | null>(null);
   const [newInvestorName, setNewInvestorName] = useState('');
 
-  // Mock data for demo investors - in real app this would come from API
-  const [demoInvestors, setDemoInvestors] = useState<DemoInvestor[]>([
-    {
-      userId: 'demo-1',
-      name: 'Conservative Pension Fund',
-      investorType: 'Fund',
-      riskBand: 'Low',
-      country: 'UK'
-    },
-    {
-      userId: 'demo-2', 
-      name: 'Tech Angel Investor',
-      investorType: 'Angel',
-      riskBand: 'High',
-      country: 'UK'
-    },
-    {
-      userId: 'demo-3',
-      name: 'Family Office - Europe',
-      investorType: 'Family Office',
-      riskBand: 'Moderate',
-      country: 'UK'
+  // Load investors from database
+  const { data: investorsData } = useQuery({
+    queryKey: ['/api/investors'],
+    queryFn: () => fetch('/api/investors').then(res => res.json()),
+  });
+
+  // Local state for demo investors
+  const [demoInvestors, setDemoInvestors] = useState<DemoInvestor[]>([]);
+
+  // Update local state when data loads from API
+  useEffect(() => {
+    if (investorsData?.length > 0) {
+      const formattedInvestors = investorsData.map((inv: any) => ({
+        userId: inv.userId,
+        name: inv.name,
+        investorType: inv.investorType,
+        riskBand: undefined,
+        country: undefined
+      }));
+      setDemoInvestors(formattedInvestors);
     }
-  ]);
+  }, [investorsData]);
 
   // Form instances
   const investorForm = useForm<InvestorFormData>({
@@ -168,6 +166,41 @@ export default function AccountSettings() {
     }
   };
 
+  // Add new investor mutation
+  const addInvestorMutation = useMutation({
+    mutationFn: async (investorData: InsertInvestor) => {
+      return fetch('/api/investors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(investorData),
+      }).then(res => res.json());
+    },
+    onSuccess: (newInvestor) => {
+      setDemoInvestors(prev => [...prev, {
+        userId: newInvestor.userId,
+        name: newInvestor.name,
+        investorType: newInvestor.investorType,
+        riskBand: undefined,
+        country: undefined
+      }]);
+      setNewInvestorName('');
+      setSelectedInvestorId(newInvestor.userId);
+      handleInvestorSelect(newInvestor.userId);
+      
+      toast({
+        title: 'Investor Saved',
+        description: `${newInvestor.name} has been saved to the database.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Save Failed',
+        description: 'Failed to save investor to database.',
+        variant: 'destructive',
+      });
+    }
+  });
+
   // Add new investor
   const handleAddInvestor = () => {
     if (!newInvestorName.trim()) {
@@ -179,49 +212,82 @@ export default function AccountSettings() {
       return;
     }
 
-    const newInvestor: DemoInvestor = {
+    const investorData: InsertInvestor = {
       userId: `demo-${Date.now()}`,
       name: newInvestorName,
       investorType: 'Angel',
-      riskBand: 'Moderate',
-      country: 'UK'
     };
 
-    setDemoInvestors(prev => [...prev, newInvestor]);
-    setNewInvestorName('');
-    setSelectedInvestorId(newInvestor.userId);
-    handleInvestorSelect(newInvestor.userId);
-    
-    toast({
-      title: 'Investor Added',
-      description: `${newInvestorName} has been added to your demo investors.`,
-    });
+    addInvestorMutation.mutate(investorData);
   };
+
+  // Delete investor mutation
+  const deleteInvestorMutation = useMutation({
+    mutationFn: async (investorId: string) => {
+      return fetch(`/api/investors/${investorId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: (_, investorId) => {
+      setDemoInvestors(prev => prev.filter(inv => inv.userId !== investorId));
+      if (selectedInvestorId === investorId) {
+        setSelectedInvestorId(null);
+      }
+      toast({
+        title: 'Investor Deleted',
+        description: 'The investor has been permanently removed.',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Delete Failed',
+        description: 'Failed to delete investor from database.',
+        variant: 'destructive',
+      });
+    }
+  });
 
   // Delete investor
   const handleDeleteInvestor = (investorId: string) => {
-    setDemoInvestors(prev => prev.filter(inv => inv.userId !== investorId));
-    if (selectedInvestorId === investorId) {
-      setSelectedInvestorId('');
-    }
-    toast({
-      title: 'Investor Removed',
-      description: 'The investor has been removed from your demo list.',
-    });
+    deleteInvestorMutation.mutate(investorId);
   };
 
-  // Save investor data
+  // Save investor mutation
+  const updateInvestorMutation = useMutation({
+    mutationFn: async (data: { userId: string; investorType: string }) => {
+      return fetch(`/api/investors/${data.userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ investorType: data.investorType }),
+      });
+    },
+    onSuccess: (_, data) => {
+      setDemoInvestors(prev => prev.map(inv => 
+        inv.userId === data.userId 
+          ? { ...inv, investorType: data.investorType }
+          : inv
+      ));
+      
+      toast({
+        title: 'Investor Updated',
+        description: 'Basic investor information has been saved to database.',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Update Failed',
+        description: 'Failed to update investor in database.',
+        variant: 'destructive',
+      });
+    }
+  });
+
   const handleSaveInvestor = (data: InvestorFormData) => {
-    // Update the demo investor in state
-    setDemoInvestors(prev => prev.map(inv => 
-      inv.userId === selectedInvestorId 
-        ? { ...inv, investorType: data.investorType || inv.investorType }
-        : inv
-    ));
+    if (!selectedInvestorId) return;
     
-    toast({
-      title: 'Investor Updated',
-      description: 'Investor information has been saved successfully.',
+    updateInvestorMutation.mutate({
+      userId: selectedInvestorId,
+      investorType: data.investorType || 'Angel',
     });
   };
 
