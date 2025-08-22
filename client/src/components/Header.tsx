@@ -1,22 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from './ThemeProvider';
+import { useInvestor } from '../contexts/InvestorContext';
 import { User, ChevronDown, Settings, LogOut } from 'lucide-react';
 import Logo from './Logo';
 
-interface HeaderProps {
-  selectedInvestor?: {
-    name: string;
-    investorType: string;
-    userId: string;
-  } | null;
-}
-
-export default function Header({ selectedInvestor }: HeaderProps = {}) {
+export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { selectedInvestor } = useInvestor();
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   // Use selected investor data if available, otherwise default user
