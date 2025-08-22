@@ -1,0 +1,102 @@
+-- 1) Canonical property record
+CREATE TABLE properties (
+  id UUID PRIMARY KEY,
+  uprn TEXT,                            -- UK Unique Property Reference Number (if available)
+  title_number TEXT,                    -- HM Land Registry title no. (if available)
+  address_line1 TEXT NOT NULL,
+  address_line2 TEXT,
+  city TEXT,
+  postcode TEXT,
+  country TEXT NOT NULL DEFAULT 'UK',
+  latitude NUMERIC, longitude NUMERIC,
+  property_type TEXT,                   -- 'residential','btL','commercial','industrial','land','mixed'
+  bedrooms INT,
+  floor_area_sqm NUMERIC,
+  year_built INT,
+  epc_rating TEXT,                      -- 'A'..'G' if known
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now(),
+  UNIQUE (COALESCE(uprn,''), COALESCE(title_number,''), address_line1, postcode)
+);
+
+-- 2) Who owns what (direct or via SPV)
+CREATE TABLE property_ownerships (
+  id UUID PRIMARY KEY,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  ownership_type TEXT NOT NULL,         -- 'direct','spv'
+  spv_company_id UUID REFERENCES companies(id), -- if held via company/SPV
+  share_pct NUMERIC NOT NULL CHECK (share_pct > 0 AND share_pct <= 100),
+  acquisition_date DATE,
+  acquisition_price_gbp NUMERIC,        -- headline price (100% basis)
+  acquisition_costs_gbp NUMERIC,        -- stamp duty, legal, broker etc.
+  is_primary_residence BOOLEAN DEFAULT FALSE
+);
+
+-- 3) Debt/mortgage on the asset (can be multiple tranches)
+CREATE TABLE property_loans (
+  id UUID PRIMARY KEY,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  lender_name TEXT,
+  provider TEXT,                         -- 'OpenBanking','Manual','Moneyhub'...
+  provider_account_id TEXT,
+  original_amount_gbp NUMERIC,
+  current_balance_gbp NUMERIC,
+  interest_rate_pct NUMERIC,
+  rate_type TEXT,                        -- 'fixed','tracker','variable'
+  fix_end_date DATE,
+  maturity_date DATE,
+  payment_amount_gbp NUMERIC,
+  payment_frequency TEXT,                -- 'monthly','quarterly'
+  ltv_at_origination_pct NUMERIC,
+  updated_at TIMESTAMP DEFAULT now()
+);
+
+-- 4) Valuations (purchase, AVM, appraisal, manual)
+CREATE TABLE property_valuations (
+  id UUID PRIMARY KEY,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  valuation_date DATE NOT NULL,
+  method TEXT,                           -- 'purchase','appraisal','avm','manual'
+  value_gbp NUMERIC NOT NULL,
+  source TEXT,                           -- 'Hometrack','Zoopla','Surveyor Smith','LandRegistry'
+  confidence NUMERIC,                    -- 0..1
+  created_at TIMESTAMP DEFAULT now()
+);
+
+-- 5) Income stream (tenancies/leases)
+CREATE TABLE property_leases (
+  id UUID PRIMARY KEY,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  tenant_label TEXT,                     -- avoid PII (hash/pseudonym if needed)
+  start_date DATE,
+  end_date DATE,
+  break_date DATE,
+  rent_gbp NUMERIC,
+  rent_frequency TEXT DEFAULT 'monthly', -- 'monthly','quarterly','annual'
+  indexation TEXT,                       -- 'RPI','CPI','fixed','none'
+  deposit_gbp NUMERIC,
+  status TEXT DEFAULT 'active'           -- 'active','notice','void','ended'
+);
+
+-- 6) Cashflows (rent in, mortgage/insurance/repairs/tax out)
+CREATE TABLE property_cashflows (
+  id UUID PRIMARY KEY,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  flow_date DATE NOT NULL,
+  kind TEXT,                             -- 'rent','mortgage','service_charge','insurance','maintenance','tax','other'
+  amount_gbp NUMERIC NOT NULL,           -- positive = inflow, negative = outflow
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+-- 7) Documents (title, EPC, tenancy, survey, loan offer, etc.)
+CREATE TABLE property_documents (
+  id UUID PRIMARY KEY,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  type TEXT,                             -- 'title','epc','tenancy','survey','loan','valuation','invoice'
+  storage_url TEXT,
+  external_url TEXT,
+  uploaded_at TIMESTAMP DEFAULT now()
+);

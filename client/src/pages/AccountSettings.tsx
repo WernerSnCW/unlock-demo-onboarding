@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users, Briefcase, PieChart } from 'lucide-react';
+import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users, Briefcase, PieChart, Building2 } from 'lucide-react';
 import { z } from 'zod';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -14,11 +14,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { queryClient } from '@/lib/queryClient';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import type { 
   InsertInvestor, InsertInvestorPreferences, InsertTaxProfile,
   InsertPortfolioAccount, InsertPortfolioHolding,
-  PortfolioAccount, PortfolioHolding
+  PortfolioAccount, PortfolioHolding,
+  InsertProperty, Property
 } from '@shared/schema';
 
 // Form schemas
@@ -67,11 +68,33 @@ const portfolioHoldingSchema = z.object({
   currentValueGbp: z.string().optional(),
 });
 
+const propertySchema = z.object({
+  addressLine1: z.string().min(1, 'Address is required'),
+  addressLine2: z.string().optional(),
+  city: z.string().optional(),
+  postcode: z.string().optional(),
+  country: z.string().default('UK'),
+  propertyType: z.string().optional(),
+  bedrooms: z.number().optional(),
+  floorAreaSqm: z.string().optional(),
+  yearBuilt: z.number().optional(),
+  epcRating: z.string().optional(),
+  // Ownership fields
+  userId: z.string().min(1, 'User ID is required'),
+  ownershipType: z.string().default('direct'),
+  sharePct: z.number().min(1).max(100),
+  acquisitionDate: z.string().optional(),
+  acquisitionPriceGbp: z.string().optional(),
+  acquisitionCostsGbp: z.string().optional(),
+  isPrimaryResidence: z.boolean().default(false),
+});
+
 type InvestorFormData = z.infer<typeof investorSchema>;
 type PreferencesFormData = z.infer<typeof preferencesSchema>;
 type TaxProfileFormData = z.infer<typeof taxProfileSchema>;
 type PortfolioAccountFormData = z.infer<typeof portfolioAccountSchema>;
 type PortfolioHoldingFormData = z.infer<typeof portfolioHoldingSchema>;
+type PropertyFormData = z.infer<typeof propertySchema>;
 
 interface DemoInvestor {
   userId: string;
@@ -165,6 +188,10 @@ export default function AccountSettings() {
         userId: investorId,
         country: investor.country || '',
         interests: [],
+      });
+      propertyForm.reset({
+        ...propertyForm.getValues(),
+        userId: investorId,
       });
     }
   };
@@ -294,6 +321,55 @@ export default function AccountSettings() {
       investorType: data.investorType || 'Angel',
     });
   };
+
+  // Properties form
+  const propertyForm = useForm<PropertyFormData>({
+    resolver: zodResolver(propertySchema),
+    defaultValues: {
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      postcode: '',
+      country: 'UK',
+      propertyType: 'residential',
+      bedrooms: undefined,
+      floorAreaSqm: '',
+      yearBuilt: undefined,
+      epcRating: '',
+      userId: selectedInvestorId || '',
+      ownershipType: 'direct',
+      sharePct: 100,
+      acquisitionDate: '',
+      acquisitionPriceGbp: '',
+      acquisitionCostsGbp: '',
+      isPrimaryResidence: false,
+    },
+  });
+
+  // Properties mutations
+  const createPropertyMutation = useMutation({
+    mutationFn: (data: PropertyFormData) => {
+      return apiRequest('/api/properties', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Property added successfully'
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      propertyForm.reset();
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add property'
+      });
+    },
+  });
 
   // Save preferences
   const handleSavePreferences = (data: PreferencesFormData) => {
@@ -832,6 +908,281 @@ export default function AccountSettings() {
     </div>
   );
 
+  // Render Properties tab
+  const renderPropertiesTab = () => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            Property Portfolio
+          </CardTitle>
+          <CardDescription>
+            Manage property investments and real estate holdings for this investor profile.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Form {...propertyForm}>
+            <form onSubmit={propertyForm.handleSubmit(createPropertyMutation.mutate)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={propertyForm.control}
+                  name="addressLine1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address Line 1</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="123 Main Street" data-testid="input-address-line1" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="addressLine2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address Line 2</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Apartment, Unit, etc." data-testid="input-address-line2" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="London" data-testid="input-city" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="postcode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Postcode</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="SW1A 1AA" data-testid="input-postcode" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="propertyType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Property Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-property-type">
+                            <SelectValue placeholder="Select property type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="residential">Residential</SelectItem>
+                          <SelectItem value="btL">Buy to Let</SelectItem>
+                          <SelectItem value="commercial">Commercial</SelectItem>
+                          <SelectItem value="industrial">Industrial</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
+                          <SelectItem value="mixed">Mixed Use</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="bedrooms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bedrooms</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number" 
+                          min="0" 
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          data-testid="input-bedrooms" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="floorAreaSqm"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Floor Area (sqm)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="120" data-testid="input-floor-area" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={propertyForm.control}
+                  name="yearBuilt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Year Built</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number" 
+                          min="1800" 
+                          max="2030"
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          data-testid="input-year-built" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="text-lg font-semibold mb-4">Ownership Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={propertyForm.control}
+                    name="ownershipType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ownership Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-ownership-type">
+                              <SelectValue placeholder="Select ownership type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="direct">Direct</SelectItem>
+                            <SelectItem value="spv">SPV/Company</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={propertyForm.control}
+                    name="sharePct"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ownership Share (%)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="number" 
+                            min="1" 
+                            max="100"
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 100)}
+                            data-testid="input-share-pct" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={propertyForm.control}
+                    name="acquisitionDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Acquisition Date</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="date" data-testid="input-acquisition-date" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={propertyForm.control}
+                    name="acquisitionPriceGbp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Acquisition Price (£)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="450000" data-testid="input-acquisition-price" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={propertyForm.control}
+                    name="acquisitionCostsGbp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Acquisition Costs (£)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="25000" data-testid="input-acquisition-costs" />
+                        </FormControl>
+                        <FormDescription>
+                          Stamp duty, legal fees, broker fees, etc.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={propertyForm.control}
+                    name="isPrimaryResidence"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="checkbox-primary-residence"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Primary Residence</FormLabel>
+                          <FormDescription>
+                            Is this the investor's primary residence?
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button 
+                  type="submit" 
+                  disabled={createPropertyMutation.isPending}
+                  data-testid="button-save-property"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {createPropertyMutation.isPending ? 'Saving...' : 'Add Property'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -852,7 +1203,7 @@ export default function AccountSettings() {
           {/* Configuration Tabs */}
           {selectedInvestorId && (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
+              <TabsList className="grid w-full grid-cols-5 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
                 <TabsTrigger 
                   value="preferences" 
                   className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
@@ -885,6 +1236,14 @@ export default function AccountSettings() {
                   <PieChart className="h-4 w-4 mr-2" />
                   Holdings
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="properties" 
+                  className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                  data-testid="tab-properties"
+                >
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Properties
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="preferences">
@@ -901,6 +1260,10 @@ export default function AccountSettings() {
 
               <TabsContent value="portfolio-holdings">
                 {renderPortfolioHoldingsTab()}
+              </TabsContent>
+
+              <TabsContent value="properties">
+                {renderPropertiesTab()}
               </TabsContent>
             </Tabs>
           )}

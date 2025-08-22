@@ -3,7 +3,15 @@ import {
   type Investor, type InsertInvestor,
   type InvestorPreferences, type InsertInvestorPreferences,
   type TaxProfile, type InsertTaxProfile,
-  users, investors, investorPreferences, taxProfile
+  type Property, type InsertProperty,
+  type PropertyOwnership, type InsertPropertyOwnership,
+  type PropertyLoan, type InsertPropertyLoan,
+  type PropertyValuation, type InsertPropertyValuation,
+  type PropertyLease, type InsertPropertyLease,
+  type PropertyCashflow, type InsertPropertyCashflow,
+  users, investors, investorPreferences, taxProfile,
+  properties, propertyOwnerships, propertyLoans, 
+  propertyValuations, propertyLeases, propertyCashflows
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -30,6 +38,33 @@ export interface IStorage {
   // Tax Profile methods
   getTaxProfile(userId: string): Promise<TaxProfile | undefined>;
   upsertTaxProfile(profile: InsertTaxProfile): Promise<TaxProfile>;
+  
+  // Property methods
+  getAllProperties(userId: string): Promise<Property[]>;
+  getProperty(propertyId: string): Promise<Property | undefined>;
+  createProperty(property: InsertProperty): Promise<Property>;
+  updateProperty(propertyId: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
+  deleteProperty(propertyId: string): Promise<boolean>;
+  
+  // Property Ownership methods  
+  getPropertyOwnerships(propertyId: string): Promise<PropertyOwnership[]>;
+  createPropertyOwnership(ownership: InsertPropertyOwnership): Promise<PropertyOwnership>;
+  
+  // Property Loan methods
+  getPropertyLoans(propertyId: string): Promise<PropertyLoan[]>;
+  createPropertyLoan(loan: InsertPropertyLoan): Promise<PropertyLoan>;
+  
+  // Property Valuation methods
+  getPropertyValuations(propertyId: string): Promise<PropertyValuation[]>;
+  createPropertyValuation(valuation: InsertPropertyValuation): Promise<PropertyValuation>;
+  
+  // Property Lease methods
+  getPropertyLeases(propertyId: string): Promise<PropertyLease[]>;
+  createPropertyLease(lease: InsertPropertyLease): Promise<PropertyLease>;
+  
+  // Property Cashflow methods
+  getPropertyCashflows(propertyId: string): Promise<PropertyCashflow[]>;
+  createPropertyCashflow(cashflow: InsertPropertyCashflow): Promise<PropertyCashflow>;
 }
 
 
@@ -132,6 +167,106 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return upserted;
+  }
+  
+  // Property methods
+  async getAllProperties(userId: string): Promise<Property[]> {
+    const results = await db.select({ property: properties }).from(properties)
+      .leftJoin(propertyOwnerships, eq(properties.id, propertyOwnerships.propertyId))
+      .where(eq(propertyOwnerships.userId, userId));
+    return results.map(result => result.property);
+  }
+
+  async getProperty(propertyId: string): Promise<Property | undefined> {
+    const [property] = await db.select().from(properties).where(eq(properties.id, propertyId));
+    return property || undefined;
+  }
+
+  async createProperty(property: InsertProperty): Promise<Property> {
+    const [newProperty] = await db
+      .insert(properties)
+      .values(property)
+      .returning();
+    return newProperty;
+  }
+
+  async updateProperty(propertyId: string, property: Partial<InsertProperty>): Promise<Property | undefined> {
+    const [updated] = await db
+      .update(properties)
+      .set(property)
+      .where(eq(properties.id, propertyId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteProperty(propertyId: string): Promise<boolean> {
+    const result = await db.delete(properties).where(eq(properties.id, propertyId));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Property Ownership methods
+  async getPropertyOwnerships(propertyId: string): Promise<PropertyOwnership[]> {
+    return await db.select().from(propertyOwnerships).where(eq(propertyOwnerships.propertyId, propertyId));
+  }
+
+  async createPropertyOwnership(ownership: InsertPropertyOwnership): Promise<PropertyOwnership> {
+    const [newOwnership] = await db
+      .insert(propertyOwnerships)
+      .values(ownership)
+      .returning();
+    return newOwnership;
+  }
+
+  // Property Loan methods
+  async getPropertyLoans(propertyId: string): Promise<PropertyLoan[]> {
+    return await db.select().from(propertyLoans).where(eq(propertyLoans.propertyId, propertyId));
+  }
+
+  async createPropertyLoan(loan: InsertPropertyLoan): Promise<PropertyLoan> {
+    const [newLoan] = await db
+      .insert(propertyLoans)
+      .values(loan)
+      .returning();
+    return newLoan;
+  }
+
+  // Property Valuation methods
+  async getPropertyValuations(propertyId: string): Promise<PropertyValuation[]> {
+    return await db.select().from(propertyValuations).where(eq(propertyValuations.propertyId, propertyId));
+  }
+
+  async createPropertyValuation(valuation: InsertPropertyValuation): Promise<PropertyValuation> {
+    const [newValuation] = await db
+      .insert(propertyValuations)
+      .values(valuation)
+      .returning();
+    return newValuation;
+  }
+
+  // Property Lease methods
+  async getPropertyLeases(propertyId: string): Promise<PropertyLease[]> {
+    return await db.select().from(propertyLeases).where(eq(propertyLeases.propertyId, propertyId));
+  }
+
+  async createPropertyLease(lease: InsertPropertyLease): Promise<PropertyLease> {
+    const [newLease] = await db
+      .insert(propertyLeases)
+      .values(lease)
+      .returning();
+    return newLease;
+  }
+
+  // Property Cashflow methods
+  async getPropertyCashflows(propertyId: string): Promise<PropertyCashflow[]> {
+    return await db.select().from(propertyCashflows).where(eq(propertyCashflows.propertyId, propertyId));
+  }
+
+  async createPropertyCashflow(cashflow: InsertPropertyCashflow): Promise<PropertyCashflow> {
+    const [newCashflow] = await db
+      .insert(propertyCashflows)
+      .values(cashflow)
+      .returning();
+    return newCashflow;
   }
 }
 
