@@ -58,6 +58,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/investors/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const partialData = req.body;
+      const investor = await storage.updateInvestor(userId, partialData);
+      if (!investor) {
+        return res.status(404).json({ message: 'Investor not found' });
+      }
+      res.json(investor);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update investor' });
+    }
+  });
+
   app.delete('/api/investors/:userId', async (req, res) => {
     try {
       const { userId } = req.params;

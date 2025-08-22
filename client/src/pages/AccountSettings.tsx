@@ -24,6 +24,7 @@ import type {
 // Form schemas
 const investorSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
+  name: z.string().min(1, "Name is required"),
   investorType: z.string().optional(),
 });
 
@@ -116,6 +117,7 @@ export default function AccountSettings() {
     resolver: zodResolver(investorSchema),
     defaultValues: {
       userId: selectedInvestorId,
+      name: '',
       investorType: '',
     },
   });
@@ -148,6 +150,7 @@ export default function AccountSettings() {
     if (investor) {
       investorForm.reset({
         userId: investorId,
+        name: investor.name,
         investorType: investor.investorType,
       });
       preferencesForm.reset({
@@ -287,6 +290,7 @@ export default function AccountSettings() {
     
     updateInvestorMutation.mutate({
       userId: selectedInvestorId,
+      name: data.name,
       investorType: data.investorType || 'Angel',
     });
   };
@@ -399,6 +403,24 @@ export default function AccountSettings() {
           <CardContent>
             <Form {...investorForm}>
               <form onSubmit={investorForm.handleSubmit(handleSaveInvestor)} className="space-y-4">
+                <FormField
+                  control={investorForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Investor Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter investor name"
+                          data-testid="input-investor-name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
                 <FormField
                   control={investorForm.control}
                   name="investorType"
