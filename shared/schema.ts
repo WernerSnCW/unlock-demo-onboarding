@@ -10,13 +10,14 @@ export const users = pgTable("users", {
 });
 
 export const investors = pgTable("investors", {
-  userId: varchar("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").primaryKey(),
+  name: text("name").notNull(),
   investorType: text("investor_type"), // 'Angel','Fund','Family Office',...
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
 export const investorPreferences = pgTable("investor_preferences", {
-  userId: varchar("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").primaryKey(),
   riskBand: text("risk_band"), // 'Low','Moderate','High'
   ticketMinGbp: numeric("ticket_min_gbp"),
   ticketMaxGbp: numeric("ticket_max_gbp"),
@@ -25,7 +26,7 @@ export const investorPreferences = pgTable("investor_preferences", {
 });
 
 export const taxProfile = pgTable("tax_profile", {
-  userId: varchar("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").primaryKey(),
   country: text("country"),
   interests: text("interests").array(), // e.g., ['EIS','SEIS']
 });

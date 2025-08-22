@@ -67,6 +67,7 @@ export class DatabaseStorage implements IStorage {
       .insert(investors)
       .values({
         userId: investor.userId,
+        name: investor.name,
         investorType: investor.investorType
       })
       .returning();
