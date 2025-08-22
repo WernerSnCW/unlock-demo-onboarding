@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from './ThemeProvider';
-import { useInvestor } from '../contexts/InvestorContext';
 import { User, ChevronDown, Settings, LogOut } from 'lucide-react';
 import Logo from './Logo';
 
@@ -10,20 +9,13 @@ export default function Header() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const { selectedInvestor } = useInvestor();
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Use selected investor data if available, otherwise default user
-  const user = selectedInvestor ? {
-    name: selectedInvestor.name,
-    email: `${selectedInvestor.name.toLowerCase().replace(' ', '.')}@demo.com`,
-    profilePicture: null,
-    investorType: selectedInvestor.investorType
-  } : {
+  // Mock user data - in real app this would come from auth context
+  const user = {
     name: 'Thomas Williams',
     email: 'thomas@unlock.com',
-    profilePicture: null,
-    investorType: 'Angel'
+    profilePicture: null
   };
 
   // Handle clicking outside profile dropdown
@@ -101,7 +93,7 @@ export default function Header() {
                   </div>
                 )}
                 <span className="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {user.name.split(' ')[0]}
+                  Thomas
                 </span>
                 <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -125,7 +117,7 @@ export default function Header() {
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{selectedInvestor ? `${user.investorType} Investor (Demo)` : 'Free Plan'}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Free Plan</p>
                       </div>
                     </div>
                   </div>

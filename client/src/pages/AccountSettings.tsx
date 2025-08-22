@@ -5,7 +5,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users, Briefcase, PieChart, Building2 } from 'lucide-react';
 import { z } from 'zod';
 import Header from '../components/Header';
-import { useInvestor } from '../contexts/InvestorContext';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -113,11 +112,8 @@ interface DemoInvestor {
 
 export default function AccountSettings() {
   const { toast } = useToast();
-  const { selectedInvestor, setSelectedInvestor } = useInvestor();
   const [activeTab, setActiveTab] = useState('preferences');
-  
-  // Use global investor context instead of local state
-  const selectedInvestorId = selectedInvestor?.userId || null;
+  const [selectedInvestorId, setSelectedInvestorId] = useState<string | null>(null);
   const [newInvestorName, setNewInvestorName] = useState('');
 
   // Load investors from database
@@ -176,16 +172,9 @@ export default function AccountSettings() {
 
   // Load investor data when selected
   const handleInvestorSelect = (investorId: string) => {
+    setSelectedInvestorId(investorId);
     const investor = demoInvestors.find(inv => inv.userId === investorId);
     if (investor) {
-      // Update global context
-      setSelectedInvestor({
-        userId: investor.userId,
-        name: investor.name,
-        investorType: investor.investorType
-      });
-      
-      // Reset forms with investor data
       investorForm.reset({
         userId: investorId,
         name: investor.name,
@@ -229,11 +218,7 @@ export default function AccountSettings() {
         country: undefined
       }]);
       setNewInvestorName('');
-      setSelectedInvestor({
-        userId: newInvestor.userId,
-        name: newInvestor.name,
-        investorType: newInvestor.investorType
-      });
+      setSelectedInvestorId(newInvestor.userId);
       handleInvestorSelect(newInvestor.userId);
       
       toast({
@@ -280,7 +265,7 @@ export default function AccountSettings() {
     onSuccess: (_, investorId) => {
       setDemoInvestors(prev => prev.filter(inv => inv.userId !== investorId));
       if (selectedInvestorId === investorId) {
-        setSelectedInvestor(null);
+        setSelectedInvestorId(null);
       }
       toast({
         title: 'Investor Deleted',
