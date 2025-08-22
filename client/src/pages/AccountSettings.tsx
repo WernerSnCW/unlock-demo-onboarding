@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users } from 'lucide-react';
+import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users, Briefcase, PieChart } from 'lucide-react';
 import { z } from 'zod';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -15,7 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import type { InsertInvestor, InsertInvestorPreferences, InsertTaxProfile } from '@shared/schema';
+import type { 
+  InsertInvestor, InsertInvestorPreferences, InsertTaxProfile,
+  InsertPortfolioAccount, InsertPortfolioHolding,
+  PortfolioAccount, PortfolioHolding
+} from '@shared/schema';
 
 // Form schemas
 const investorSchema = z.object({
@@ -38,9 +42,35 @@ const taxProfileSchema = z.object({
   interests: z.array(z.string()).optional(),
 });
 
+const portfolioAccountSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  provider: z.string().optional(),
+  providerAccountId: z.string().optional(),
+  accountType: z.string().optional(),
+  currency: z.string().optional(),
+  connected: z.boolean().optional(),
+});
+
+const portfolioHoldingSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  accountId: z.string().optional(),
+  assetType: z.string().optional(),
+  provider: z.string().optional(),
+  sourceRef: z.string().optional(),
+  symbol: z.string().optional(),
+  name: z.string().optional(),
+  sectorId: z.number().optional(),
+  quantity: z.string().optional(),
+  costBasisGbp: z.string().optional(),
+  currentPriceGbp: z.string().optional(),
+  currentValueGbp: z.string().optional(),
+});
+
 type InvestorFormData = z.infer<typeof investorSchema>;
 type PreferencesFormData = z.infer<typeof preferencesSchema>;
 type TaxProfileFormData = z.infer<typeof taxProfileSchema>;
+type PortfolioAccountFormData = z.infer<typeof portfolioAccountSchema>;
+type PortfolioHoldingFormData = z.infer<typeof portfolioHoldingSchema>;
 
 interface DemoInvestor {
   userId: string;
@@ -48,6 +78,8 @@ interface DemoInvestor {
   investorType: string;
   riskBand?: string;
   country?: string;
+  portfolioAccounts?: PortfolioAccount[];
+  portfolioHoldings?: PortfolioHolding[];
 }
 
 export default function AccountSettings() {
@@ -542,6 +574,220 @@ export default function AccountSettings() {
     </div>
   );
 
+  const renderPortfolioAccountsTab = () => (
+    <div className="space-y-6">
+      {!selectedInvestorId ? (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              Please select an investor from the Investors tab to configure their portfolio accounts.
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Portfolio Accounts
+              </CardTitle>
+              <CardDescription>
+                Add demo brokerage, cash, and private investment accounts for this investor.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Add Account Form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Input placeholder="Provider (e.g., HL, AJ Bell)" data-testid="input-account-provider" />
+                <Select>
+                  <SelectTrigger data-testid="select-account-type">
+                    <SelectValue placeholder="Account Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="brokerage">Brokerage</SelectItem>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="pension">Pension</SelectItem>
+                    <SelectItem value="isa">ISA</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select>
+                  <SelectTrigger data-testid="select-currency">
+                    <SelectValue placeholder="Currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button data-testid="button-add-account">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Account
+                </Button>
+              </div>
+
+              {/* Accounts List */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Accounts</h4>
+                {/* Sample accounts for demo */}
+                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Hargreaves Lansdown</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Brokerage Account • GBP • Connected</p>
+                    </div>
+                    <Button variant="destructive" size="sm" data-testid="button-delete-account-1">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Cash ISA</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">ISA Account • GBP • Connected</p>
+                    </div>
+                    <Button variant="destructive" size="sm" data-testid="button-delete-account-2">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderPortfolioHoldingsTab = () => (
+    <div className="space-y-6">
+      {!selectedInvestorId ? (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              Please select an investor from the Investors tab to configure their portfolio holdings.
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PieChart className="h-5 w-5" />
+                Portfolio Holdings
+              </CardTitle>
+              <CardDescription>
+                Add demo investments and positions for this investor's portfolio.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Add Holding Form */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Select>
+                      <SelectTrigger data-testid="select-asset-type">
+                        <SelectValue placeholder="Asset Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="equity">Equity</SelectItem>
+                        <SelectItem value="fund">Fund</SelectItem>
+                        <SelectItem value="crypto">Crypto</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input placeholder="Symbol (e.g., AAPL)" data-testid="input-symbol" />
+                  </div>
+                  <Input placeholder="Company/Asset Name" data-testid="input-asset-name" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input placeholder="Quantity" data-testid="input-quantity" />
+                    <Input placeholder="Cost Basis (GBP)" data-testid="input-cost-basis" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input placeholder="Current Price (GBP)" data-testid="input-current-price" />
+                    <Input placeholder="Current Value (GBP)" data-testid="input-current-value" />
+                  </div>
+                  <Input placeholder="Provider" data-testid="input-holding-provider" />
+                  <Button className="w-full" data-testid="button-add-holding">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Holding
+                  </Button>
+                </div>
+              </div>
+
+              {/* Holdings List */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Holdings</h4>
+                {/* Sample holdings for demo */}
+                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                          <h5 className="font-medium text-gray-900 dark:text-gray-100">Apple Inc</h5>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">AAPL • Equity</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">50</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">£7,500</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
+                          <p className="font-medium text-green-600">£9,200</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="destructive" size="sm" data-testid="button-delete-holding-1">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                          <h5 className="font-medium text-gray-900 dark:text-gray-100">Vanguard FTSE 100</h5>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">VUKE • Fund</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">200</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">£15,000</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
+                          <p className="font-medium text-green-600">£16,800</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="destructive" size="sm" data-testid="button-delete-holding-2">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -555,7 +801,7 @@ export default function AccountSettings() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
+            <TabsList className="grid w-full grid-cols-5 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
               <TabsTrigger 
                 value="investors" 
                 className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
@@ -580,6 +826,22 @@ export default function AccountSettings() {
                 <MapPin className="h-4 w-4 mr-2" />
                 Tax Profile
               </TabsTrigger>
+              <TabsTrigger 
+                value="portfolio-accounts" 
+                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                data-testid="tab-portfolio-accounts"
+              >
+                <Briefcase className="h-4 w-4 mr-2" />
+                Accounts
+              </TabsTrigger>
+              <TabsTrigger 
+                value="portfolio-holdings" 
+                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                data-testid="tab-portfolio-holdings"
+              >
+                <PieChart className="h-4 w-4 mr-2" />
+                Holdings
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="investors">
@@ -592,6 +854,14 @@ export default function AccountSettings() {
 
             <TabsContent value="tax-profile">
               {renderTaxProfileTab()}
+            </TabsContent>
+
+            <TabsContent value="portfolio-accounts">
+              {renderPortfolioAccountsTab()}
+            </TabsContent>
+
+            <TabsContent value="portfolio-holdings">
+              {renderPortfolioHoldingsTab()}
             </TabsContent>
           </Tabs>
         </div>
