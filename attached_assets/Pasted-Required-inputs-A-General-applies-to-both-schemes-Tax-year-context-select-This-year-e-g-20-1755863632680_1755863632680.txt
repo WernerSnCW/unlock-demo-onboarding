@@ -1,0 +1,214 @@
+Required inputs
+A. General (applies to both schemes)
+
+Tax year context: select “This year” (e.g., 2025/26) — auto-set “Previous year” (e.g., 2024/25).
+
+Income tax liability (before VCT/EIS/SEIS reliefs)
+
+incomeTaxLiabilityThisYear (£)
+
+incomeTaxLiabilityPrevYear (£)
+
+Other income-tax reductions claimed (optional but recommended, to avoid over-allocating relief)
+
+otherReliefsThisYear (£)
+
+otherReliefsPrevYear (£)
+
+We calculate SEIS and EIS together so the sum of relief in a year never exceeds the year’s final liability. 
+BDO UK
+
+B. SEIS section
+
+SEIS subscribed this year: seisThisYear (£)
+
+Amount you want to carry back to the previous year (can be “Auto optimise”): seisCarryBackRequested (£)
+
+SEIS already used last year (subscriptions on which you claimed relief): seisUsedPrevYear (£)
+
+SEIS rate 50%, annual investor cap £200,000, and carry-back to the immediately preceding tax year is allowed (subject to that year’s cap). No carry-forward. 
+GOV.UK
++1
+
+C. EIS section
+
+EIS subscribed this year (total): eisThisYearTotal (£)
+
+…of which is in Knowledge-Intensive Companies (KIC): eisThisYearKIC (£)
+
+Amount you want to carry back to the previous year (can be “Auto optimise”): eisCarryBackRequested (£)
+
+EIS already used last year (total subscriptions on which you claimed relief): eisUsedPrevYear (£)
+
+EIS rate 30%. Investor cap £1,000,000, or £2,000,000 provided the amount over £1m is invested in KICs. Carry-back to the previous year is allowed (subject to that year’s cap). No carry-forward; any relief above a year’s liability is foregone. 
+GOV.UK
++1
+
+2) Calculation logic (deterministic & optimised)
+
+We compute per scheme, per year, then enforce the per-year income-tax liability cap across schemes.
+
+Constants
+
+SEIS: RATE = 0.50, CAP = 200_000 (per year). 
+GOV.UK
+
+EIS: RATE = 0.30, CAP = 1_000_000 + min(KIC_in_year, 1_000_000) (so 1m + up to 1m KIC → max 2m). 
+GOV.UK
+
+Step A — SEIS allocation
+
+Previous-year capacity:
+seisPrevCapAvail = max(0, 200_000 - seisUsedPrevYear). 
+GOV.UK
+
+Carry-back applied:
+seisToPrev = min(seisCarryBackRequested (or auto), seisThisYear, seisPrevCapAvail).
+
+This-year applied:
+seisToThis = min(seisThisYear - seisToPrev, 200_000).
+
+Potential reliefs (before liability caps):
+seisReliefPrevPotential = 0.50 * seisToPrev,
+seisReliefThisPotential = 0.50 * seisToThis. 
+GOV.UK
+
+Step B — EIS allocation (with KIC rule)
+
+Let eisNonKICThis = eisThisYearTotal - eisThisYearKIC.
+
+Carry-back to previous year (greedy, KIC-aware and optimal):
+
+Non-KIC to fill up to £1m total last year:
+nonKIC_to_prev = min(eisNonKICThis, max(0, 1_000_000 - eisUsedPrevYear)).
+
+KIC for the band over £1m up to £2m:
+kicBandCapacityPrev = max(0, 2_000_000 - (eisUsedPrevYear + nonKIC_to_prev))
+KIC_to_prev_raw = min(eisThisYearKIC, kicBandCapacityPrev)
+
+Respect the investor’s requested carry-back ceiling:
+eisToPrev = min(eisCarryBackRequested (or auto), nonKIC_to_prev + KIC_to_prev_raw)
+If eisToPrev < nonKIC_to_prev, reduce nonKIC_to_prev = eisToPrev and set KIC_to_prev = 0;
+else KIC_to_prev = eisToPrev - nonKIC_to_prev.
+
+Apply in this year:
+4. Remainders:
+nonKIC_rem = eisNonKICThis - nonKIC_to_prev
+KIC_rem = eisThisYearKIC - KIC_to_prev
+5. Apply non-KIC in this year up to £1m:
+nonKIC_to_this = min(nonKIC_rem, 1_000_000)
+6. Apply KIC in this year to the 2m cap:
+KIC_to_this = min(KIC_rem, 2_000_000 - nonKIC_to_this)
+7. Potential reliefs:
+eisReliefPrevPotential = 0.30 * eisToPrev
+eisReliefThisPotential = 0.30 * (nonKIC_to_this + KIC_to_this). 
+GOV.UK
+
+The above guarantees:
+• Total EIS per year ≤ £2m;
+• Any amount over £1m in a year is KIC-sourced;
+• Carry-back respects the previous year’s £1m + KIC-only to £2m structure. 
+GOV.UK
+
+Step C — Enforce per-year income-tax liability caps (and optimise across schemes)
+
+For each year independently:
+
+Available liability after “other reliefs”:
+liabPrev = max(0, incomeTaxLiabilityPrevYear - otherReliefsPrevYear)
+liabThis = max(0, incomeTaxLiabilityThisYear - otherReliefsThisYear)
+
+Priority rule to maximise relief: apply SEIS first (50%), then EIS (30%).
+
+seisReliefPrev = min(seisReliefPrevPotential, liabPrev)
+liabPrevRem = liabPrev - seisReliefPrev
+eisReliefPrev = min(eisReliefPrevPotential, liabPrevRem)
+
+seisReliefThis = min(seisReliefThisPotential, liabThis)
+liabThisRem = liabThis - seisReliefThis
+eisReliefThis = min(eisReliefThisPotential, liabThisRem)
+
+No carry-forward: if liabYearRem hits zero and there’s still potential relief, the excess is lost by law. 
+GOV.UK
+
+(Optional UX) Allow a toggle to change priority (e.g., favour EIS if the user prefers) — but defaulting to SEIS-first maximises relief per £.
+
+Step D — Totals, residual allowances, effective net cost
+
+Totals:
+totalRelief = seisReliefPrev + eisReliefPrev + seisReliefThis + eisReliefThis
+
+Residual investor allowance (per scheme, per year):
+
+SEIS (prev): 200k - (seisUsedPrevYear + seisToPrev)
+
+SEIS (this): 200k - seisToThis
+
+EIS (prev):
+
+“to £1m (any company)”: max(0, 1_000_000 - (eisUsedPrevYear + nonKIC_to_prev + KIC_to_prev))
+
+“KIC-only band to £2m”: max(0, 2_000_000 - (eisUsedPrevYear + nonKIC_to_prev + KIC_to_prev))
+
+EIS (this): same two numbers using nonKIC_to_this + KIC_to_this.
+
+Effective net cost (pure income-tax view):
+(seisThisYear + eisThisYearTotal) − (seisReliefPrev + seisReliefThis + eisReliefPrev + eisReliefThis)
+
+3) What to display (outputs)
+A. Headline summary
+
+Total relief (all years, all schemes)
+
+Relief this year / Relief carried back to last year
+
+Effective net cost (income-tax relief only)
+
+Reminder: “No carry-forward of unused relief; relief in each year cannot exceed that year’s income-tax liability.” 
+GOV.UK
+
+B. Per-scheme breakdown cards
+
+SEIS
+
+Eligible applied to previous year / to this year
+
+Rate 50% and relief amounts
+
+Allowance remaining prev / this (to £200k)
+
+Unused potential lost (if liability capped it)
+
+EIS
+
+Eligible non-KIC and KIC amounts to previous year and to this year
+
+Rate 30% and relief amounts
+
+Allowance remaining shown in two bands for each year:
+
+“Up to £1,000,000 (any qualifying EIS)”
+
+“KIC-only band to £2,000,000”
+
+Unused potential lost (if liability capped it)
+
+C. Progress bars (per year)
+
+SEIS usage: used / £200k
+
+EIS usage:
+
+Segment 1: up to £1m (any)
+
+Segment 2: £1m–£2m (KIC-only)
+
+D. Optimiser suggestions & validation
+
+If “Auto optimise” is on, show the suggested carry-back amounts (SEIS & EIS) and the rationale (e.g., “uses all your 2024/25 liability first”).
+
+Clear validation messages for: negative inputs, carry-back > this-year subscription, exceeding caps, or blank numbers being treated as 0.
+
+E. Scope note
+
+“This tool models income-tax relief only under SEIS/EIS. It does not model CGT deferral (EIS) or CGT reduction/reinvestment (SEIS) or loss relief. See our CGT/Loss Relief tools.”
