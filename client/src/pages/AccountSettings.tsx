@@ -394,32 +394,62 @@ export default function AccountSettings() {
     },
   });
 
-  // Save preferences
+  // Save preferences mutation
+  const savePreferencesMutation = useMutation({
+    mutationFn: async (data: PreferencesFormData) => {
+      if (!selectedInvestorId) throw new Error('No investor selected');
+      return apiRequest(`/api/investors/${selectedInvestorId}/preferences`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Preferences Updated', 
+        description: 'Investment preferences have been saved successfully.',
+      });
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save preferences. Please try again.',
+      });
+    }
+  });
+
   const handleSavePreferences = (data: PreferencesFormData) => {
-    setDemoInvestors(prev => prev.map(inv => 
-      inv.userId === selectedInvestorId 
-        ? { ...inv, riskBand: data.riskBand || inv.riskBand }
-        : inv
-    ));
-    
-    toast({
-      title: 'Preferences Updated', 
-      description: 'Investment preferences have been saved successfully.',
-    });
+    savePreferencesMutation.mutate(data);
   };
 
-  // Save tax profile
+  // Save tax profile mutation
+  const saveTaxProfileMutation = useMutation({
+    mutationFn: async (data: TaxProfileFormData) => {
+      if (!selectedInvestorId) throw new Error('No investor selected');
+      return apiRequest(`/api/investors/${selectedInvestorId}/tax-profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Tax Profile Updated',
+        description: 'Tax profile information has been saved successfully.',
+      });
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save tax profile. Please try again.',
+      });
+    }
+  });
+
   const handleSaveTaxProfile = (data: TaxProfileFormData) => {
-    setDemoInvestors(prev => prev.map(inv => 
-      inv.userId === selectedInvestorId 
-        ? { ...inv, country: data.country || inv.country }
-        : inv
-    ));
-    
-    toast({
-      title: 'Tax Profile Updated',
-      description: 'Tax profile information has been saved successfully.',
-    });
+    saveTaxProfileMutation.mutate(data);
   };
 
   const renderInvestorManagement = () => (
@@ -654,9 +684,13 @@ export default function AccountSettings() {
                 </div>
               </FormItem>
 
-              <Button type="submit" data-testid="button-save-preferences">
+              <Button 
+                type="submit" 
+                data-testid="button-save-preferences"
+                disabled={savePreferencesMutation.isPending}
+              >
                 <Save className="h-4 w-4 mr-2" />
-                Save Preferences
+                {savePreferencesMutation.isPending ? 'Saving...' : 'Save Preferences'}
               </Button>
             </form>
           </Form>
@@ -730,9 +764,13 @@ export default function AccountSettings() {
                 </FormDescription>
               </FormItem>
 
-              <Button type="submit" data-testid="button-save-tax-profile">
+              <Button 
+                type="submit" 
+                data-testid="button-save-tax-profile"
+                disabled={saveTaxProfileMutation.isPending}
+              >
                 <Save className="h-4 w-4 mr-2" />
-                Save Tax Profile
+                {saveTaxProfileMutation.isPending ? 'Saving...' : 'Save Tax Profile'}
               </Button>
             </form>
           </Form>
