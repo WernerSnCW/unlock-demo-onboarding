@@ -47,6 +47,9 @@
   --input: #F9FAFB;
   --ring: var(--primary);
 
+  --popover: #FFFFFF;
+  --popover-foreground: #1F2937;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -103,6 +106,9 @@
   --border: #374151;
   --input: #1F2937;
   --ring: var(--primary);
+
+  --popover: #1F2937;
+  --popover-foreground: #F9FAFB;
 }
 
 /* Scrollbar utilities */
