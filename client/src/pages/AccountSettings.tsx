@@ -221,7 +221,7 @@ export default function AccountSettings() {
     });
   };
 
-  const InvestorManagement = () => (
+  const renderInvestorManagement = () => (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -337,7 +337,7 @@ export default function AccountSettings() {
     </div>
   );
 
-  const PreferencesTab = () => (
+  const renderPreferencesTab = () => (
     <div className="space-y-6">
       {!selectedInvestorId ? (
         <Card>
@@ -456,7 +456,7 @@ export default function AccountSettings() {
     </div>
   );
 
-  const TaxProfileTab = () => (
+  const renderTaxProfileTab = () => (
     <div className="space-y-6">
       {!selectedInvestorId ? (
         <Card>
@@ -583,15 +583,15 @@ export default function AccountSettings() {
             </TabsList>
 
             <TabsContent value="investors">
-              <InvestorManagement />
+              {renderInvestorManagement()}
             </TabsContent>
 
             <TabsContent value="preferences">
-              <PreferencesTab />
+              {renderPreferencesTab()}
             </TabsContent>
 
             <TabsContent value="tax-profile">
-              <TaxProfileTab />
+              {renderTaxProfileTab()}
             </TabsContent>
           </Tabs>
         </div>
