@@ -84,8 +84,8 @@ interface DemoInvestor {
 
 export default function AccountSettings() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('investors');
-  const [selectedInvestorId, setSelectedInvestorId] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('preferences');
+  const [selectedInvestorId, setSelectedInvestorId] = useState<string | null>(null);
   const [newInvestorName, setNewInvestorName] = useState('');
 
   // Mock data for demo investors - in real app this would come from API
@@ -371,420 +371,376 @@ export default function AccountSettings() {
 
   const renderPreferencesTab = () => (
     <div className="space-y-6">
-      {!selectedInvestorId ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              Please select an investor from the Investors tab to configure their preferences.
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Investment Preferences
-            </CardTitle>
-            <CardDescription>
-              Configure investment preferences for the selected demo investor.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...preferencesForm}>
-              <form onSubmit={preferencesForm.handleSubmit(handleSavePreferences)} className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Investment Preferences
+          </CardTitle>
+          <CardDescription>
+            Configure investment preferences for the selected demo investor.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...preferencesForm}>
+            <form onSubmit={preferencesForm.handleSubmit(handleSavePreferences)} className="space-y-4">
+              <FormField
+                control={preferencesForm.control}
+                name="riskBand"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Risk Tolerance</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-risk-band">
+                          <SelectValue placeholder="Select risk tolerance" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Low">Low Risk</SelectItem>
+                        <SelectItem value="Moderate">Moderate Risk</SelectItem>
+                        <SelectItem value="High">High Risk</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={preferencesForm.control}
-                  name="riskBand"
+                  name="ticketMinGbp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Risk Tolerance</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-risk-band">
-                            <SelectValue placeholder="Select risk tolerance" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Low">Low Risk</SelectItem>
-                          <SelectItem value="Moderate">Moderate Risk</SelectItem>
-                          <SelectItem value="High">High Risk</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Minimum Investment (GBP)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 10000"
+                          {...field}
+                          data-testid="input-min-investment"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={preferencesForm.control}
-                    name="ticketMinGbp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Minimum Investment (GBP)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 10000"
-                            {...field}
-                            data-testid="input-min-investment"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={preferencesForm.control}
-                    name="ticketMaxGbp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Maximum Investment (GBP)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 500000"
-                            {...field}
-                            data-testid="input-max-investment"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormItem>
-                  <FormLabel>Preferred Regions</FormLabel>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {['UK', 'Europe', 'North America', 'Asia', 'Australia', 'Global'].map((region) => (
-                      <div key={region} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={region}
-                          data-testid={`checkbox-region-${region.toLowerCase().replace(' ', '-')}`}
+                <FormField
+                  control={preferencesForm.control}
+                  name="ticketMaxGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maximum Investment (GBP)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 500000"
+                          {...field}
+                          data-testid="input-max-investment"
                         />
-                        <label 
-                          htmlFor={region}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {region}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </FormItem>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                <Button type="submit" data-testid="button-save-preferences">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Preferences
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
+              <FormItem>
+                <FormLabel>Preferred Regions</FormLabel>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {['UK', 'Europe', 'North America', 'Asia', 'Australia', 'Global'].map((region) => (
+                    <div key={region} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={region}
+                        data-testid={`checkbox-region-${region.toLowerCase().replace(' ', '-')}`}
+                      />
+                      <label 
+                        htmlFor={region}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {region}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </FormItem>
+
+              <Button type="submit" data-testid="button-save-preferences">
+                <Save className="h-4 w-4 mr-2" />
+                Save Preferences
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 
   const renderTaxProfileTab = () => (
     <div className="space-y-6">
-      {!selectedInvestorId ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              Please select an investor from the Investors tab to configure their tax profile.
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Tax Profile
-            </CardTitle>
-            <CardDescription>
-              Configure tax-related information for the selected demo investor.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...taxProfileForm}>
-              <form onSubmit={taxProfileForm.handleSubmit(handleSaveTaxProfile)} className="space-y-4">
-                <FormField
-                  control={taxProfileForm.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tax Residence Country</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-tax-country">
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="UK">United Kingdom</SelectItem>
-                          <SelectItem value="US">United States</SelectItem>
-                          <SelectItem value="Germany">Germany</SelectItem>
-                          <SelectItem value="France">France</SelectItem>
-                          <SelectItem value="Netherlands">Netherlands</SelectItem>
-                          <SelectItem value="Switzerland">Switzerland</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Tax Profile
+          </CardTitle>
+          <CardDescription>
+            Configure tax-related information for the selected demo investor.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...taxProfileForm}>
+            <form onSubmit={taxProfileForm.handleSubmit(handleSaveTaxProfile)} className="space-y-4">
+              <FormField
+                control={taxProfileForm.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax Residence Country</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-tax-country">
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="UK">United Kingdom</SelectItem>
+                        <SelectItem value="US">United States</SelectItem>
+                        <SelectItem value="Germany">Germany</SelectItem>
+                        <SelectItem value="France">France</SelectItem>
+                        <SelectItem value="Netherlands">Netherlands</SelectItem>
+                        <SelectItem value="Switzerland">Switzerland</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormItem>
-                  <FormLabel>Tax Schemes of Interest</FormLabel>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {['EIS', 'SEIS', 'VCT', 'CGT Relief', 'Pension Scheme', 'ISA'].map((scheme) => (
-                      <div key={scheme} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={scheme}
-                          data-testid={`checkbox-tax-${scheme.toLowerCase().replace(' ', '-')}`}
-                        />
-                        <label 
-                          htmlFor={scheme}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {scheme}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <FormDescription>
-                    Select tax schemes that are relevant for this investor profile.
-                  </FormDescription>
-                </FormItem>
+              <FormItem>
+                <FormLabel>Tax Schemes of Interest</FormLabel>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {['EIS', 'SEIS', 'VCT', 'CGT Relief', 'Pension Scheme', 'ISA'].map((scheme) => (
+                    <div key={scheme} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={scheme}
+                        data-testid={`checkbox-tax-${scheme.toLowerCase().replace(' ', '-')}`}
+                      />
+                      <label 
+                        htmlFor={scheme}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {scheme}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <FormDescription>
+                  Select tax schemes that are relevant for this investor profile.
+                </FormDescription>
+              </FormItem>
 
-                <Button type="submit" data-testid="button-save-tax-profile">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Tax Profile
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
+              <Button type="submit" data-testid="button-save-tax-profile">
+                <Save className="h-4 w-4 mr-2" />
+                Save Tax Profile
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 
   const renderPortfolioAccountsTab = () => (
     <div className="space-y-6">
-      {!selectedInvestorId ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              Please select an investor from the Investors tab to configure their portfolio accounts.
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Portfolio Accounts
-              </CardTitle>
-              <CardDescription>
-                Add demo brokerage, cash, and private investment accounts for this investor.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add Account Form */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Input placeholder="Provider (e.g., HL, AJ Bell)" data-testid="input-account-provider" />
-                <Select>
-                  <SelectTrigger data-testid="select-account-type">
-                    <SelectValue placeholder="Account Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="brokerage">Brokerage</SelectItem>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="private">Private</SelectItem>
-                    <SelectItem value="pension">Pension</SelectItem>
-                    <SelectItem value="isa">ISA</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select>
-                  <SelectTrigger data-testid="select-currency">
-                    <SelectValue placeholder="Currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GBP">GBP</SelectItem>
-                    <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="EUR">EUR</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button data-testid="button-add-account">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Account
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Briefcase className="h-5 w-5" />
+            Portfolio Accounts
+          </CardTitle>
+          <CardDescription>
+            Add demo brokerage, cash, and private investment accounts for this investor.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add Account Form */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <Input placeholder="Provider (e.g., HL, AJ Bell)" data-testid="input-account-provider" />
+            <Select>
+              <SelectTrigger data-testid="select-account-type">
+                <SelectValue placeholder="Account Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="brokerage">Brokerage</SelectItem>
+                <SelectItem value="cash">Cash</SelectItem>
+                <SelectItem value="private">Private</SelectItem>
+                <SelectItem value="pension">Pension</SelectItem>
+                <SelectItem value="isa">ISA</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select>
+              <SelectTrigger data-testid="select-currency">
+                <SelectValue placeholder="Currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="GBP">GBP</SelectItem>
+                <SelectItem value="USD">USD</SelectItem>
+                <SelectItem value="EUR">EUR</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button data-testid="button-add-account">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Account
+            </Button>
+          </div>
+
+          {/* Accounts List */}
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Accounts</h4>
+            {/* Sample accounts for demo */}
+            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h5 className="font-medium text-gray-900 dark:text-gray-100">Hargreaves Lansdown</h5>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Brokerage Account • GBP • Connected</p>
+                </div>
+                <Button variant="destructive" size="sm" data-testid="button-delete-account-1">
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-
-              {/* Accounts List */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Accounts</h4>
-                {/* Sample accounts for demo */}
-                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Hargreaves Lansdown</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Brokerage Account • GBP • Connected</p>
-                    </div>
-                    <Button variant="destructive" size="sm" data-testid="button-delete-account-1">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            </div>
+            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h5 className="font-medium text-gray-900 dark:text-gray-100">Cash ISA</h5>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">ISA Account • GBP • Connected</p>
                 </div>
-                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Cash ISA</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">ISA Account • GBP • Connected</p>
-                    </div>
-                    <Button variant="destructive" size="sm" data-testid="button-delete-account-2">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <Button variant="destructive" size="sm" data-testid="button-delete-account-2">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 
   const renderPortfolioHoldingsTab = () => (
     <div className="space-y-6">
-      {!selectedInvestorId ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              Please select an investor from the Investors tab to configure their portfolio holdings.
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <PieChart className="h-5 w-5" />
+            Portfolio Holdings
+          </CardTitle>
+          <CardDescription>
+            Add demo investments and positions for this investor's portfolio.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add Holding Form */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Select>
+                  <SelectTrigger data-testid="select-asset-type">
+                    <SelectValue placeholder="Asset Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="equity">Equity</SelectItem>
+                    <SelectItem value="fund">Fund</SelectItem>
+                    <SelectItem value="crypto">Crypto</SelectItem>
+                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input placeholder="Symbol (e.g., AAPL)" data-testid="input-symbol" />
+              </div>
+              <Input placeholder="Company/Asset Name" data-testid="input-asset-name" />
+              <div className="grid grid-cols-2 gap-4">
+                <Input placeholder="Quantity" data-testid="input-quantity" />
+                <Input placeholder="Cost Basis (GBP)" data-testid="input-cost-basis" />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChart className="h-5 w-5" />
-                Portfolio Holdings
-              </CardTitle>
-              <CardDescription>
-                Add demo investments and positions for this investor's portfolio.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add Holding Form */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Select>
-                      <SelectTrigger data-testid="select-asset-type">
-                        <SelectValue placeholder="Asset Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="equity">Equity</SelectItem>
-                        <SelectItem value="fund">Fund</SelectItem>
-                        <SelectItem value="crypto">Crypto</SelectItem>
-                        <SelectItem value="private">Private</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input placeholder="Symbol (e.g., AAPL)" data-testid="input-symbol" />
-                  </div>
-                  <Input placeholder="Company/Asset Name" data-testid="input-asset-name" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="Quantity" data-testid="input-quantity" />
-                    <Input placeholder="Cost Basis (GBP)" data-testid="input-cost-basis" />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="Current Price (GBP)" data-testid="input-current-price" />
-                    <Input placeholder="Current Value (GBP)" data-testid="input-current-value" />
-                  </div>
-                  <Input placeholder="Provider" data-testid="input-holding-provider" />
-                  <Button className="w-full" data-testid="button-add-holding">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Holding
-                  </Button>
-                </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Input placeholder="Current Price (GBP)" data-testid="input-current-price" />
+                <Input placeholder="Current Value (GBP)" data-testid="input-current-value" />
               </div>
+              <Input placeholder="Provider" data-testid="input-holding-provider" />
+              <Button className="w-full" data-testid="button-add-holding">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Holding
+              </Button>
+            </div>
+          </div>
 
-              {/* Holdings List */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Holdings</h4>
-                {/* Sample holdings for demo */}
-                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                          <h5 className="font-medium text-gray-900 dark:text-gray-100">Apple Inc</h5>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">AAPL • Equity</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">50</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">£7,500</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
-                          <p className="font-medium text-green-600">£9,200</p>
-                        </div>
-                      </div>
+          {/* Holdings List */}
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Holdings</h4>
+            {/* Sample holdings for demo */}
+            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Apple Inc</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">AAPL • Equity</p>
                     </div>
-                    <Button variant="destructive" size="sm" data-testid="button-delete-holding-1">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">50</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">£7,500</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
+                      <p className="font-medium text-green-600">£9,200</p>
+                    </div>
                   </div>
                 </div>
-                <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                          <h5 className="font-medium text-gray-900 dark:text-gray-100">Vanguard FTSE 100</h5>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">VUKE • Fund</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">200</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">£15,000</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
-                          <p className="font-medium text-green-600">£16,800</p>
-                        </div>
-                      </div>
-                    </div>
-                    <Button variant="destructive" size="sm" data-testid="button-delete-holding-2">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <Button variant="destructive" size="sm" data-testid="button-delete-holding-1">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Vanguard FTSE 100</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">VUKE • Fund</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">200</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">£15,000</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
+                      <p className="font-medium text-green-600">£16,800</p>
+                    </div>
+                  </div>
+                </div>
+                <Button variant="destructive" size="sm" data-testid="button-delete-holding-2">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 
@@ -800,70 +756,78 @@ export default function AccountSettings() {
             </p>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
-              <TabsTrigger 
-                value="investors" 
-                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
-                data-testid="tab-investors"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Investors
-              </TabsTrigger>
-              <TabsTrigger 
-                value="preferences" 
-                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
-                data-testid="tab-preferences"
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Preferences
-              </TabsTrigger>
-              <TabsTrigger 
-                value="tax-profile" 
-                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
-                data-testid="tab-tax-profile"
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                Tax Profile
-              </TabsTrigger>
-              <TabsTrigger 
-                value="portfolio-accounts" 
-                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
-                data-testid="tab-portfolio-accounts"
-              >
-                <Briefcase className="h-4 w-4 mr-2" />
-                Accounts
-              </TabsTrigger>
-              <TabsTrigger 
-                value="portfolio-holdings" 
-                className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
-                data-testid="tab-portfolio-holdings"
-              >
-                <PieChart className="h-4 w-4 mr-2" />
-                Holdings
-              </TabsTrigger>
-            </TabsList>
+          {/* Investor Selection Section */}
+          <div className="mb-8">
+            {renderInvestorManagement()}
+          </div>
 
-            <TabsContent value="investors">
-              {renderInvestorManagement()}
-            </TabsContent>
+          {/* Configuration Tabs */}
+          {selectedInvestorId && (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
+                <TabsTrigger 
+                  value="preferences" 
+                  className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                  data-testid="tab-preferences"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Preferences
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="tax-profile" 
+                  className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                  data-testid="tab-tax-profile"
+                >
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Tax Profile
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="portfolio-accounts" 
+                  className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                  data-testid="tab-portfolio-accounts"
+                >
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Accounts
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="portfolio-holdings" 
+                  className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                  data-testid="tab-portfolio-holdings"
+                >
+                  <PieChart className="h-4 w-4 mr-2" />
+                  Holdings
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="preferences">
-              {renderPreferencesTab()}
-            </TabsContent>
+              <TabsContent value="preferences">
+                {renderPreferencesTab()}
+              </TabsContent>
 
-            <TabsContent value="tax-profile">
-              {renderTaxProfileTab()}
-            </TabsContent>
+              <TabsContent value="tax-profile">
+                {renderTaxProfileTab()}
+              </TabsContent>
 
-            <TabsContent value="portfolio-accounts">
-              {renderPortfolioAccountsTab()}
-            </TabsContent>
+              <TabsContent value="portfolio-accounts">
+                {renderPortfolioAccountsTab()}
+              </TabsContent>
 
-            <TabsContent value="portfolio-holdings">
-              {renderPortfolioHoldingsTab()}
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="portfolio-holdings">
+                {renderPortfolioHoldingsTab()}
+              </TabsContent>
+            </Tabs>
+          )}
+
+          {!selectedInvestorId && (
+            <Card className="mt-8">
+              <CardContent className="pt-6">
+                <div className="text-center text-gray-500 dark:text-gray-400">
+                  <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">No Investor Selected</h3>
+                  <p>Please select or add an investor above to configure their profile settings.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
       <Footer />
