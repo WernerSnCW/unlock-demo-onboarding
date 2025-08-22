@@ -49,7 +49,12 @@ export function InvestorProvider({ children }: { children: ReactNode }) {
 export function useInvestor() {
   const context = useContext(InvestorContext);
   if (context === undefined) {
-    throw new Error('useInvestor must be used within an InvestorProvider');
+    // Return default values instead of throwing to prevent app crashes
+    console.warn('useInvestor must be used within an InvestorProvider');
+    return {
+      selectedInvestor: null,
+      setSelectedInvestor: () => {}
+    };
   }
   return context;
 }
