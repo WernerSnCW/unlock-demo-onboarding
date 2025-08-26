@@ -128,6 +128,19 @@ export default function AccountSettings() {
     queryFn: () => fetch('/api/investors').then(res => res.json()),
   });
 
+  // Load preferences for selected investor
+  const { data: preferencesData } = useQuery({
+    queryKey: ['/api/investors', selectedInvestorId, 'preferences'],
+    queryFn: () => {
+      if (!selectedInvestorId) return null;
+      return fetch(`/api/investors/${selectedInvestorId}/preferences`).then(res => {
+        if (res.ok) return res.json();
+        return null; // Return null if preferences don't exist yet
+      });
+    },
+    enabled: !!selectedInvestorId,
+  });
+
   // Local state for demo investors
   const [demoInvestors, setDemoInvestors] = useState<DemoInvestor[]>([]);
 
@@ -178,6 +191,22 @@ export default function AccountSettings() {
     },
   });
 
+  // Update preferences form when data loads
+  useEffect(() => {
+    if (preferencesData && selectedInvestorId) {
+      preferencesForm.reset({
+        userId: selectedInvestorId,
+        riskBand: preferencesData.riskBand || '',
+        ticketMinGbp: preferencesData.ticketMinGbp || '',
+        ticketMaxGbp: preferencesData.ticketMaxGbp || '',
+        regions: preferencesData.regions || [],
+        focusSectors: preferencesData.focusSectors || [],
+        existingInvestments: preferencesData.existingInvestments || [],
+        investmentInterests: preferencesData.investmentInterests || [],
+      });
+    }
+  }, [preferencesData, selectedInvestorId, preferencesForm]);
+
   // Load investor data when selected
   const handleInvestorSelect = (investorId: string) => {
     const investor = demoInvestors.find(inv => inv.userId === investorId);
@@ -195,16 +224,9 @@ export default function AccountSettings() {
         name: investor.name,
         investorType: investor.investorType,
       });
-      preferencesForm.reset({
-        userId: investorId,
-        riskBand: investor.riskBand || '',
-        ticketMinGbp: '',
-        ticketMaxGbp: '',
-        regions: [],
-        focusSectors: [],
-        existingInvestments: [],
-        investmentInterests: [],
-      });
+      
+      // Note: preferences form will be populated by the useEffect above when preferencesData loads
+      
       taxProfileForm.reset({
         userId: investorId,
         country: investor.country || '',
