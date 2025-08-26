@@ -215,7 +215,7 @@ function PropertyOwnershipView({ propertyId }: { propertyId: string }) {
 
 export default function AccountSettings() {
   const { toast } = useToast();
-  const { setCurrentInvestor, positions: portfolioPositions, isLoading: portfolioLoading, addPosition } = usePortfolioStoreDB();
+  const { setCurrentInvestor, positions: portfolioPositions, isLoading: portfolioLoading, addPosition, removePosition } = usePortfolioStoreDB();
   const { selectedInvestor, setSelectedInvestor } = useInvestor();
   const [activeTab, setActiveTab] = useState('preferences');
   
@@ -830,6 +830,24 @@ export default function AccountSettings() {
         variant: 'destructive',
         title: 'Error',
         description: 'Failed to add portfolio holding. Please try again.',
+      });
+    }
+  };
+
+  // Handle deleting portfolio holding
+  const handleDeleteHolding = async (holdingId: string, holdingName: string) => {
+    try {
+      await removePosition(holdingId);
+      toast({
+        title: 'Success',
+        description: `${holdingName} has been deleted successfully.`,
+      });
+    } catch (error) {
+      console.error('Error deleting holding:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete portfolio holding. Please try again.',
       });
     }
   };
@@ -1969,7 +1987,8 @@ export default function AccountSettings() {
                         variant="destructive" 
                         size="sm" 
                         data-testid={`button-delete-holding-${position.id}`}
-                        onClick={() => {/* TODO: Implement delete */}}
+                        onClick={() => handleDeleteHolding(position.id, position.name)}
+                        title={`Delete ${position.name}`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
