@@ -512,7 +512,7 @@ export default function AccountSettings() {
         title: 'Success',
         description: 'Property added successfully'
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', selectedInvestorId] });
       propertyForm.reset();
     },
     onError: () => {
@@ -663,6 +663,16 @@ export default function AccountSettings() {
     queryFn: () => {
       if (!selectedInvestorId) return [];
       return fetch(`/api/investors/${selectedInvestorId}/portfolio-accounts`).then(res => res.json());
+    },
+    enabled: !!selectedInvestorId,
+  });
+
+  // Properties query
+  const { data: propertiesData } = useQuery({
+    queryKey: ['/api/properties', selectedInvestorId],
+    queryFn: () => {
+      if (!selectedInvestorId) return [];
+      return fetch(`/api/properties/${selectedInvestorId}`).then(res => res.json());
     },
     enabled: !!selectedInvestorId,
   });
@@ -1984,6 +1994,69 @@ export default function AccountSettings() {
               </div>
             </form>
           </Form>
+
+          {/* Properties List */}
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">Property Portfolio</h4>
+            {propertiesData && propertiesData.length > 0 ? (
+              propertiesData.map((property: any) => (
+                <div key={property.id} className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <h5 className="font-medium text-gray-900 dark:text-gray-100">
+                            {property.addressLine1}
+                            {property.addressLine2 && `, ${property.addressLine2}`}
+                          </h5>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {property.city}, {property.postcode} • {property.propertyType}
+                          </p>
+                          {property.uprn && (
+                            <p className="text-xs text-gray-500 dark:text-gray-500">UPRN: {property.uprn}</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Details</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {property.bedrooms ? `${property.bedrooms} bed` : 'N/A'}
+                            {property.floorAreaSqm && ` • ${property.floorAreaSqm}m²`}
+                          </p>
+                          {property.epcRating && (
+                            <p className="text-xs text-gray-500 dark:text-gray-500">EPC: {property.epcRating}</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Added</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {new Date(property.createdAt).toLocaleDateString('en-GB')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      data-testid={`button-delete-property-${property.id}`}
+                      onClick={() => {
+                        // TODO: Implement delete property functionality
+                        toast({
+                          title: 'Not Implemented',
+                          description: 'Property deletion is not yet implemented.',
+                        });
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                <p className="text-sm text-gray-600 dark:text-gray-400">No properties yet. Add one above to get started.</p>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
