@@ -353,7 +353,12 @@ function PropertyValuationForm() {
 export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
   const [isLoading, setIsLoading] = useState(true);
   
+  // Debug: Log the toolId to see what's being passed
+  console.log('ToolModal received toolId:', toolId);
+  console.log('Available tools:', Object.keys(toolDetails));
+  
   const tool = toolDetails[toolId];
+  console.log('Found tool:', tool);
 
   useEffect(() => {
     if (isOpen) {
@@ -382,7 +387,25 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen || !tool) return null;
+  if (!isOpen) return null;
+  
+  // If tool is not found, show debug info and fallback
+  if (!tool) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div 
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={onClose}
+        ></div>
+        <div className="relative bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] shadow-2xl max-w-2xl w-full mx-4 p-6">
+          <h2 className="text-xl font-semibold mb-4">Debug: Tool Not Found</h2>
+          <p>ToolId received: <code>{toolId}</code></p>
+          <p>Available tools: <code>{Object.keys(toolDetails).join(', ')}</code></p>
+          <button onClick={onClose} className="mt-4 px-4 py-2 bg-[var(--primary)] text-white rounded">Close</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
