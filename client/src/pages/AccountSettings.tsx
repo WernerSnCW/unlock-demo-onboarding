@@ -672,22 +672,80 @@ export default function AccountSettings() {
 
               <FormItem>
                 <FormLabel>Preferred Regions</FormLabel>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['UK', 'Europe', 'North America', 'Asia', 'Australia', 'Global'].map((region) => (
-                    <div key={region} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={region}
-                        data-testid={`checkbox-region-${region.toLowerCase().replace(' ', '-')}`}
-                      />
-                      <label 
-                        htmlFor={region}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {region}
-                      </label>
+                <FormField
+                  control={preferencesForm.control}
+                  name="regions"
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {['UK', 'Europe', 'North America', 'Asia', 'Australia', 'Global'].map((region) => (
+                        <div key={region} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={region}
+                            checked={field.value?.includes(region) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, region]);
+                              } else {
+                                field.onChange(current.filter((item: string) => item !== region));
+                              }
+                            }}
+                            data-testid={`checkbox-region-${region.toLowerCase().replace(' ', '-')}`}
+                          />
+                          <label 
+                            htmlFor={region}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {region}
+                          </label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                />
+              </FormItem>
+
+              <FormItem>
+                <FormLabel>Focus Sectors</FormLabel>
+                <FormDescription>
+                  Select the business sectors you prefer to invest in
+                </FormDescription>
+                <FormField
+                  control={preferencesForm.control}
+                  name="focusSectors"
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {[
+                        'Technology', 'Healthcare', 'Financial Services', 'Consumer Goods',
+                        'Energy', 'Manufacturing', 'Real Estate', 'Media & Entertainment',
+                        'Telecommunications', 'Transportation', 'Education', 'Agriculture',
+                        'Retail', 'Construction', 'Aerospace', 'Automotive'
+                      ].map((sector, index) => (
+                        <div key={sector} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={sector}
+                            checked={field.value?.includes(index + 1) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, index + 1]);
+                              } else {
+                                field.onChange(current.filter((item: number) => item !== index + 1));
+                              }
+                            }}
+                            data-testid={`checkbox-sector-${sector.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
+                          />
+                          <label 
+                            htmlFor={sector}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {sector}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                />
               </FormItem>
 
               <FormItem>
