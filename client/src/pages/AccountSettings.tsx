@@ -521,10 +521,23 @@ export default function AccountSettings() {
   const createPropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
       console.log('Sending property data to API:', data);
+      
+      // Clean the data - convert empty strings to null for numeric fields
+      const cleanedData = {
+        ...data,
+        latitude: data.latitude === '' ? null : data.latitude,
+        longitude: data.longitude === '' ? null : data.longitude,
+        floorAreaSqm: data.floorAreaSqm === '' ? null : data.floorAreaSqm,
+        acquisitionPriceGbp: data.acquisitionPriceGbp === '' ? null : data.acquisitionPriceGbp,
+        acquisitionCostsGbp: data.acquisitionCostsGbp === '' ? null : data.acquisitionCostsGbp,
+      };
+      
+      console.log('Cleaned property data:', cleanedData);
+      
       const response = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(cleanedData),
       });
       
       if (!response.ok) {
