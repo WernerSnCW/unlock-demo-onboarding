@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { and, like, eq, gte, desc } from "drizzle-orm";
 import { 
   insertInvestorSchema, 
   insertInvestorPreferencesSchema, 
@@ -13,7 +15,8 @@ import {
   insertPropertyLoanSchema,
   insertPropertyValuationSchema,
   insertPropertyLeaseSchema,
-  insertPropertyCashflowSchema
+  insertPropertyCashflowSchema,
+  propertyPriceData
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -298,6 +301,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(investments);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch alternative investments' });
+    }
+  });
+
+  // Property valuation endpoint - find comparable sales
+  app.get('/api/property-comparables/:postcode', async (req, res) => {
+    try {
+      const { postcode } = req.params;
+      const { propertyType, radius = '5' } = req.query;
+      
+      // Get property comparables from the HM Land Registry data
+      const comparables = await db.select()
+        .from(propertyPriceData)
+        .where(
+          and(
+            like(propertyPriceData.postcode, `${postcode.split(' ')[0]}%`), // Match postcode area
+            propertyType ? eq(propertyPriceData.propertyType, propertyType as string) : undefined,
+            gte(propertyPriceData.dateOfTransfer, '2023-01-01') // Recent sales only
+          )
+        )
+        .orderBy(desc(propertyPriceData.dateOfTransfer))
+        .limit(50);
+      
+      // Calculate statistics
+      const prices = comparables.map(c => Number(c.price));
+      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const medianPrice = prices.sort((a, b) => a - b)[Math.floor(prices.length / 2)];
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      
+      res.json({
+        comparables: comparables.slice(0, 10), // Return top 10 for display
+        statistics: {
+          count: comparables.length,
+          averagePrice: Math.round(avgPrice),
+          medianPrice: Math.round(medianPrice),
+          minPrice,
+          maxPrice,
+          estimatedValue: Math.round(avgPrice), // Basic estimation
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching property comparables:', error);
+      res.status(500).json({ error: 'Failed to fetch property comparables' });
     }
   });
 

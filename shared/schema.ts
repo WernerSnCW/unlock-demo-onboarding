@@ -90,6 +90,28 @@ export const properties = pgTable("properties", {
 });
 
 // Alternative Investments Table
+// Property Price Data Table (HM Land Registry)
+export const propertyPriceData = pgTable("property_price_data", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  transactionId: text("transaction_id").notNull(), // HM Land Registry transaction unique identifier
+  price: numeric("price").notNull(),
+  dateOfTransfer: text("date_of_transfer").notNull(), // YYYY-MM-DD format
+  postcode: text("postcode").notNull(),
+  propertyType: text("property_type"), // D=Detached, S=Semi-detached, T=Terraced, F=Flat
+  oldNew: text("old_new"), // N=New build, Y=Old
+  duration: text("duration"), // F=Freehold, L=Leasehold
+  primaryAddressableName: text("primary_addressable_name"),
+  secondaryAddressableName: text("secondary_addressable_name"),
+  street: text("street"),
+  locality: text("locality"),
+  townCity: text("town_city"),
+  district: text("district"),
+  county: text("county"),
+  ppdCategoryType: text("ppd_category_type"), // A=Standard Price Paid, B=Additional Price Paid
+  recordStatus: text("record_status"), // A=Addition, C=Change, D=Delete
+  createdAt: timestamp("created_at").default(sql`now()`),
+});
+
 export const alternativeInvestments = pgTable("alternative_investments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => investors.userId, { onDelete: "cascade" }),

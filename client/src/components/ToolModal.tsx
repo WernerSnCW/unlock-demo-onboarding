@@ -110,6 +110,142 @@ function ChartStub() {
   );
 }
 
+function PropertyValuationDetails({ propertyId, properties }: { propertyId: string; properties: any[] }) {
+  const property = properties.find((p: any) => p.id === propertyId);
+  const [valuationData, setValuationData] = useState<any>(null);
+  const [isLoadingValuation, setIsLoadingValuation] = useState(false);
+
+  useEffect(() => {
+    if (property?.postcode) {
+      setIsLoadingValuation(true);
+      fetch(`/api/property-comparables/${property.postcode}?propertyType=${property.propertyType || ''}`)
+        .then(res => res.json())
+        .then(data => {
+          setValuationData(data);
+          setIsLoadingValuation(false);
+        })
+        .catch(error => {
+          console.error('Error fetching valuation:', error);
+          setIsLoadingValuation(false);
+        });
+    }
+  }, [property?.postcode, property?.propertyType]);
+
+  if (!property) return null;
+
+  return (
+    <div className="space-y-4">
+      {/* Property Details */}
+      <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+        <h4 className="font-medium text-[var(--card-foreground)] mb-3">Property Details</h4>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-[var(--muted-foreground)]">Type:</span>
+            <span className="ml-2 text-[var(--card-foreground)] capitalize">
+              {property.propertyType || 'Not specified'}
+            </span>
+          </div>
+          <div>
+            <span className="text-[var(--muted-foreground)]">Bedrooms:</span>
+            <span className="ml-2 text-[var(--card-foreground)]">
+              {property.bedrooms || 'Not specified'}
+            </span>
+          </div>
+          {property.yearBuilt && (
+            <div>
+              <span className="text-[var(--muted-foreground)]">Year Built:</span>
+              <span className="ml-2 text-[var(--card-foreground)]">{property.yearBuilt}</span>
+            </div>
+          )}
+          {property.epcRating && (
+            <div>
+              <span className="text-[var(--muted-foreground)]">EPC Rating:</span>
+              <span className="ml-2 text-[var(--card-foreground)]">{property.epcRating}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Valuation Results */}
+      {isLoadingValuation ? (
+        <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm text-[var(--card-foreground)]">Analyzing comparable sales...</span>
+          </div>
+        </div>
+      ) : valuationData ? (
+        <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+          <h4 className="font-medium text-[var(--card-foreground)] mb-3">Valuation Analysis</h4>
+          
+          {/* Key Statistics */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="text-center p-3 bg-[var(--card)] rounded-[var(--radius-sm)]">
+              <div className="text-2xl font-bold text-[var(--primary)]">
+                £{valuationData.statistics.estimatedValue.toLocaleString()}
+              </div>
+              <div className="text-sm text-[var(--muted-foreground)]">Estimated Value</div>
+            </div>
+            <div className="text-center p-3 bg-[var(--card)] rounded-[var(--radius-sm)]">
+              <div className="text-lg font-semibold text-[var(--card-foreground)]">
+                {valuationData.statistics.count}
+              </div>
+              <div className="text-sm text-[var(--muted-foreground)]">Comparable Sales</div>
+            </div>
+          </div>
+
+          {/* Price Range */}
+          <div className="grid grid-cols-3 gap-2 mb-4 text-sm">
+            <div className="text-center">
+              <div className="font-medium text-[var(--card-foreground)]">
+                £{valuationData.statistics.minPrice.toLocaleString()}
+              </div>
+              <div className="text-[var(--muted-foreground)]">Min</div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium text-[var(--card-foreground)]">
+                £{valuationData.statistics.medianPrice.toLocaleString()}
+              </div>
+              <div className="text-[var(--muted-foreground)]">Median</div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium text-[var(--card-foreground)]">
+                £{valuationData.statistics.maxPrice.toLocaleString()}
+              </div>
+              <div className="text-[var(--muted-foreground)]">Max</div>
+            </div>
+          </div>
+
+          {/* Recent Comparables */}
+          {valuationData.comparables.length > 0 && (
+            <div>
+              <h5 className="text-sm font-medium text-[var(--card-foreground)] mb-2">Recent Sales</h5>
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {valuationData.comparables.slice(0, 5).map((comp: any, index: number) => (
+                  <div key={index} className="flex justify-between items-center text-xs">
+                    <div className="text-[var(--card-foreground)]">
+                      {comp.street}, {comp.townCity}
+                    </div>
+                    <div className="text-[var(--primary)] font-medium">
+                      £{Number(comp.price).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4 text-center">
+          <div className="text-sm text-[var(--muted-foreground)]">
+            No comparable sales data available for this postcode
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PropertyValuationForm() {
   const { selectedInvestor } = useInvestor();
   const [selectedProperty, setSelectedProperty] = useState<string>('');
@@ -182,44 +318,8 @@ function PropertyValuationForm() {
         </select>
       </div>
 
-      {/* Show property details if selected */}
-      {selectedProperty && (
-        <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
-          {(() => {
-            const property = properties.find((p: any) => p.id === selectedProperty);
-            if (!property) return null;
-            
-            return (
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-[var(--muted-foreground)]">Type:</span>
-                  <span className="ml-2 text-[var(--card-foreground)] capitalize">
-                    {property.propertyType || 'Not specified'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[var(--muted-foreground)]">Bedrooms:</span>
-                  <span className="ml-2 text-[var(--card-foreground)]">
-                    {property.bedrooms || 'Not specified'}
-                  </span>
-                </div>
-                {property.yearBuilt && (
-                  <div>
-                    <span className="text-[var(--muted-foreground)]">Year Built:</span>
-                    <span className="ml-2 text-[var(--card-foreground)]">{property.yearBuilt}</span>
-                  </div>
-                )}
-                {property.epcRating && (
-                  <div>
-                    <span className="text-[var(--muted-foreground)]">EPC Rating:</span>
-                    <span className="ml-2 text-[var(--card-foreground)]">{property.epcRating}</span>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-        </div>
-      )}
+      {/* Show property details and valuation if selected */}
+      {selectedProperty && <PropertyValuationDetails propertyId={selectedProperty} properties={properties} />}
 
       {/* Valuation Method */}
       <div className="space-y-2">
