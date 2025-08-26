@@ -11,6 +11,7 @@ function PropertyValuationComponent() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState('');
+  const [selectedPropertyData, setSelectedPropertyData] = useState<any>(null);
   const [valuationMethod, setValuationMethod] = useState('comparable');
   const [marketConditions, setMarketConditions] = useState('current');
   const [isGeneratingValuation, setIsGeneratingValuation] = useState(false);
@@ -54,35 +55,33 @@ function PropertyValuationComponent() {
   };
 
   const handleGenerateValuation = async () => {
-    if (!selectedProperty) return;
+    // Allow valuation even without a specific property selected if we have a search query (postcode)
+    if (!selectedProperty && !searchQuery.trim()) return;
 
     setIsGeneratingValuation(true);
     try {
       // Find the selected property details
       let propertyDetails = null;
       
-      if (searchMode === 'saved') {
-        propertyDetails = properties.find((p: any) => p.id === selectedProperty);
-      } else {
-        propertyDetails = searchResults.find((p: any) => p.id === selectedProperty);
-      }
-
-      if (!propertyDetails) {
-        console.error('Property details not found');
-        return;
+      if (selectedProperty) {
+        if (searchMode === 'saved') {
+          propertyDetails = properties.find((p: any) => p.id === selectedProperty);
+        } else {
+          propertyDetails = selectedPropertyData;
+        }
       }
 
       // Prepare comprehensive valuation request
       const valuationRequest = {
-        postcode: propertyDetails.postcode,
-        propertyType: propertyDetails.type || propertyDetails.propertyType,
-        paon: propertyDetails.paon,
-        saon: propertyDetails.saon,
-        street: propertyDetails.street,
-        purchasePrice: propertyDetails.purchasePrice,
-        purchaseDate: propertyDetails.purchaseDate,
-        bedrooms: propertyDetails.bedrooms,
-        propertyId: propertyDetails.id
+        postcode: propertyDetails?.postcode || searchQuery.trim().toUpperCase(),
+        propertyType: propertyDetails?.type || propertyDetails?.propertyType || 'Flat',
+        paon: propertyDetails?.paon,
+        saon: propertyDetails?.saon,
+        street: propertyDetails?.street,
+        purchasePrice: propertyDetails?.purchasePrice,
+        purchaseDate: propertyDetails?.purchaseDate,
+        bedrooms: propertyDetails?.bedrooms,
+        propertyId: propertyDetails?.id
       };
 
       const response = await fetch('/api/property-valuation', {
@@ -139,7 +138,13 @@ function PropertyValuationComponent() {
           <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden mb-3">
             <button
               type="button"
-              onClick={() => setSearchMode('saved')}
+              onClick={() => {
+                setSearchMode('saved');
+                setSearchQuery('');
+                setSearchResults([]);
+                setSelectedProperty('');
+                setSelectedPropertyData(null);
+              }}
               className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
                 searchMode === 'saved'
                   ? 'bg-blue-600 text-white'
@@ -151,7 +156,11 @@ function PropertyValuationComponent() {
             </button>
             <button
               type="button"
-              onClick={() => setSearchMode('search')}
+              onClick={() => {
+                setSearchMode('search');
+                setSelectedProperty('');
+                setSelectedPropertyData(null);
+              }}
               className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
                 searchMode === 'search'
                   ? 'bg-blue-600 text-white'
@@ -171,7 +180,10 @@ function PropertyValuationComponent() {
                     <button
                       key={property.id}
                       type="button"
-                      onClick={() => setSelectedProperty(property.id)}
+                      onClick={() => {
+                        setSelectedProperty(property.id);
+                        setSelectedPropertyData(property);
+                      }}
                       className={`p-4 border rounded-lg text-left transition-all hover:shadow-md ${
                         selectedProperty === property.id
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
@@ -279,22 +291,53 @@ function PropertyValuationComponent() {
                       type="button"
                       onClick={() => {
                         setSelectedProperty(property.id);
+                        setSelectedPropertyData(property);
                         setSearchResults([]);
                       }}
                       className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
                     >
                       <div className="font-medium text-gray-900 dark:text-gray-100">{property.address}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {property.type} • {property.bedrooms} bed • {property.postcode}
+                        {property.type} • {property.postcode} • £{property.price?.toLocaleString()} ({property.date})
                       </div>
                     </button>
                   ))}
                 </div>
               )}
 
-              {searchQuery && searchResults.length === 0 && !isSearching && (
-                <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
-                  No properties found. Try a different search term.
+              {selectedPropertyData && searchMode === 'search' && (
+                <div className="p-4 border border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium text-green-900 dark:text-green-100 mb-1">
+                        Selected: {selectedPropertyData.address}
+                      </div>
+                      <div className="text-sm text-green-700 dark:text-green-300">
+                        {selectedPropertyData.type} • {selectedPropertyData.postcode} • £{selectedPropertyData.price?.toLocaleString()} ({selectedPropertyData.date})
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedProperty('');
+                        setSelectedPropertyData(null);
+                      }}
+                      className="ml-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {searchQuery && searchResults.length === 0 && !isSearching && !selectedPropertyData && (
+                <div className="p-4 border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                    <div className="font-medium mb-1">No specific properties found for "{searchQuery}"</div>
+                    <div className="text-yellow-700 dark:text-yellow-300">
+                      Don't worry! We'll use the postcode area data to provide an accurate valuation based on comparable sales in the {searchQuery.toUpperCase()} area.
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -335,7 +378,7 @@ function PropertyValuationComponent() {
           <button
             type="button"
             onClick={handleGenerateValuation}
-            disabled={!selectedProperty || isGeneratingValuation}
+            disabled={(!selectedProperty && !searchQuery.trim()) || isGeneratingValuation}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {isGeneratingValuation ? (
