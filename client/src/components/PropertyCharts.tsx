@@ -277,14 +277,27 @@ export const ValuationRangeChart: React.FC<{
   geography: string;
 }> = ({ valuation, purchase, geography }) => {
   // Parse the range string (e.g., "£254,859 - £387,500")
-  const parseRange = (rangeStr: string) => {
-    const matches = rangeStr.match(/£([\d,]+)\s*-\s*£([\d,]+)/);
+  const parseRange = (rangeStr: string | any) => {
+    // Ensure we have a string to work with
+    const rangeString = typeof rangeStr === 'string' ? rangeStr : String(rangeStr || '');
+    
+    const matches = rangeString.match(/£([\d,]+)\s*-\s*£([\d,]+)/);
     if (matches) {
       return {
         min: parseInt(matches[1].replace(/,/g, '')),
         max: parseInt(matches[2].replace(/,/g, ''))
       };
     }
+    
+    // Try parsing numbers directly if no £ symbols
+    const numberMatches = rangeString.match(/([\d,]+)\s*-\s*([\d,]+)/);
+    if (numberMatches) {
+      return {
+        min: parseInt(numberMatches[1].replace(/,/g, '')),
+        max: parseInt(numberMatches[2].replace(/,/g, ''))
+      };
+    }
+    
     // Fallback: estimate ±15%
     return {
       min: Math.round(valuation.estimate * 0.85),

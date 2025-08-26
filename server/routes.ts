@@ -1032,7 +1032,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalPoints: trendData.length,
           hasDetachedData: trendData.some(d => d.detachedIndex > 0),
           hasAveragePrice: trendData.some(d => d.averagePrice > 0),
-          dateRange: `${trendData[trendData.length - 1]?.date} to ${trendData[0]?.date}`
+          dateRange: `${trendData[trendData.length - 1]?.date} to ${trendData[0]?.date}`,
+          valuationRange: range
         });
       }
 
