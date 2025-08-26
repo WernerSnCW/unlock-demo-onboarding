@@ -777,7 +777,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Birmingham
           'B1': 'Birmingham', 'B2': 'Birmingham', 'B3': 'Birmingham', 'B4': 'Birmingham', 'B5': 'Birmingham', 'B6': 'Birmingham', 'B7': 'Birmingham', 'B8': 'Birmingham', 'B9': 'Birmingham', 'B10': 'Birmingham',
           'B11': 'Birmingham', 'B12': 'Birmingham', 'B13': 'Birmingham', 'B14': 'Birmingham', 'B15': 'Birmingham', 'B16': 'Birmingham', 'B17': 'Birmingham', 'B18': 'Birmingham', 'B19': 'Birmingham', 'B20': 'Birmingham',
-          'B21': 'Birmingham', 'B23': 'Birmingham', 'B24': 'Birmingham', 'B25': 'Birmingham', 'B26': 'Birmingham', 'B27': 'Birmingham', 'B28': 'Birmingham', 'B29': 'Birmingham', 'B30': 'Birmingham', 'B31': 'Birmingham', 'B32': 'Birmingham', 'B33': 'Birmingham', 'B34': 'Birmingham', 'B35': 'Birmingham', 'B36': 'Birmingham', 'B37': 'Birmingham', 'B38': 'Birmingham', 'B40': 'Birmingham', 'B42': 'Birmingham', 'B43': 'Birmingham', 'B44': 'Birmingham', 'B45': 'Birmingham', 'B46': 'Birmingham', 'B47': 'Birmingham', 'B48': 'Birmingham'
+          'B21': 'Birmingham', 'B23': 'Birmingham', 'B24': 'Birmingham', 'B25': 'Birmingham', 'B26': 'Birmingham', 'B27': 'Birmingham', 'B28': 'Birmingham', 'B29': 'Birmingham', 'B30': 'Birmingham', 'B31': 'Birmingham', 'B32': 'Birmingham', 'B33': 'Birmingham', 'B34': 'Birmingham', 'B35': 'Birmingham', 'B36': 'Birmingham', 'B37': 'Birmingham', 'B38': 'Birmingham', 'B40': 'Birmingham', 'B42': 'Birmingham', 'B43': 'Birmingham', 'B44': 'Birmingham', 'B45': 'Birmingham', 'B46': 'Birmingham', 'B47': 'Birmingham', 'B48': 'Birmingham',
+          
+          // Other major UK areas
+          'SY1': 'Shropshire', 'SY2': 'Shropshire', 'SY3': 'Shropshire', 'SY4': 'Shropshire', 'SY5': 'Shropshire', 'SY6': 'Shropshire', 'SY7': 'Shropshire', 'SY8': 'Shropshire', 'SY9': 'Shropshire', 'SY10': 'Shropshire',
+          'SY11': 'Shropshire', 'SY12': 'Shropshire', 'SY13': 'Shropshire', 'SY14': 'Shropshire', 'SY15': 'Shropshire', 'SY16': 'Shropshire', 'SY17': 'Shropshire', 'SY18': 'Shropshire', 'SY19': 'Shropshire', 'SY20': 'Shropshire',
+          'SY21': 'Shropshire', 'SY22': 'Shropshire', 'SY23': 'Shropshire', 'SY24': 'Shropshire', 'SY25': 'Shropshire'
         };
         
         const regionName = postcodeToRegion[postcodeArea];
@@ -800,6 +805,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .orderBy(desc(ukHpi.date))
             .limit(1);
           console.log(`London fallback found ${hpiData.length} results`);
+        }
+        
+        // Ultimate fallback: try to find ANY region that contains the postcode prefix
+        if (hpiData.length === 0) {
+          console.log(`Trying wildcard search for any region with ${postcodePrefix}`);
+          hpiData = await db.select()
+            .from(ukHpi)
+            .where(like(ukHpi.regionName, `%${postcodePrefix.substring(0, 2)}%`))
+            .orderBy(desc(ukHpi.date))
+            .limit(1);
+          console.log(`Wildcard search found ${hpiData.length} results`);
+        }
+        
+        // Final fallback: use England average data
+        if (hpiData.length === 0) {
+          console.log(`Trying England fallback`);
+          hpiData = await db.select()
+            .from(ukHpi)
+            .where(eq(ukHpi.regionName, 'England'))
+            .orderBy(desc(ukHpi.date))
+            .limit(1);
+          console.log(`England fallback found ${hpiData.length} results`);
         }
       }
 
