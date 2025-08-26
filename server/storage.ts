@@ -164,7 +164,9 @@ export class DatabaseStorage implements IStorage {
         target: taxProfile.userId,
         set: {
           country: profile.country,
-          interests: profile.interests
+          interests: profile.interests,
+          annualEarningsGbp: profile.annualEarningsGbp,
+          cgtAllowanceGbp: profile.cgtAllowanceGbp
         }
       })
       .returning();
