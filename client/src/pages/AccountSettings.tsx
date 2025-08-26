@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users, Briefcase, PieChart, Building2 } from 'lucide-react';
+import { User, Settings, DollarSign, MapPin, Plus, Trash2, Save, Users, Briefcase, PieChart, Building2, Eye } from 'lucide-react';
 import { z } from 'zod';
 import Header from '../components/Header';
 import { useInvestor } from '../contexts/InvestorContext';
@@ -14,6 +14,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 import { queryClient, apiRequest } from '@/lib/queryClient';
@@ -2112,19 +2113,117 @@ export default function AccountSettings() {
                         </div>
                       </div>
                     </div>
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      disabled={deletePropertyMutation.isPending}
-                      data-testid={`button-delete-property-${property.id}`}
-                      onClick={() => {
-                        if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-                          deletePropertyMutation.mutate(property.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            data-testid={`button-view-property-${property.id}`}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Property Details</DialogTitle>
+                            <DialogDescription>
+                              Complete information for {property.addressLine1}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Address Information</h4>
+                              <div className="space-y-2 text-sm">
+                                <div>
+                                  <span className="font-medium text-gray-600 dark:text-gray-400">Address:</span>
+                                  <p className="text-gray-900 dark:text-gray-100">
+                                    {property.addressLine1}
+                                    {property.addressLine2 && <br />}{property.addressLine2}
+                                    <br />{property.city}, {property.postcode}
+                                    <br />{property.country}
+                                  </p>
+                                </div>
+                                {property.uprn && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">UPRN:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.uprn}</p>
+                                  </div>
+                                )}
+                                {property.titleNumber && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">Title Number:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.titleNumber}</p>
+                                  </div>
+                                )}
+                                {(property.latitude || property.longitude) && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">Coordinates:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.latitude}, {property.longitude}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Property Details</h4>
+                              <div className="space-y-2 text-sm">
+                                <div>
+                                  <span className="font-medium text-gray-600 dark:text-gray-400">Type:</span>
+                                  <p className="text-gray-900 dark:text-gray-100 capitalize">{property.propertyType}</p>
+                                </div>
+                                {property.bedrooms && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">Bedrooms:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.bedrooms}</p>
+                                  </div>
+                                )}
+                                {property.floorAreaSqm && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">Floor Area:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.floorAreaSqm} m²</p>
+                                  </div>
+                                )}
+                                {property.yearBuilt && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">Year Built:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.yearBuilt}</p>
+                                  </div>
+                                )}
+                                {property.epcRating && (
+                                  <div>
+                                    <span className="font-medium text-gray-600 dark:text-gray-400">EPC Rating:</span>
+                                    <p className="text-gray-900 dark:text-gray-100">{property.epcRating}</p>
+                                  </div>
+                                )}
+                                <div>
+                                  <span className="font-medium text-gray-600 dark:text-gray-400">Added:</span>
+                                  <p className="text-gray-900 dark:text-gray-100">
+                                    {new Date(property.createdAt).toLocaleDateString('en-GB', {
+                                      day: 'numeric',
+                                      month: 'long',
+                                      year: 'numeric'
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        disabled={deletePropertyMutation.isPending}
+                        data-testid={`button-delete-property-${property.id}`}
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+                            deletePropertyMutation.mutate(property.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))
