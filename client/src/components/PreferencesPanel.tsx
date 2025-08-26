@@ -42,8 +42,11 @@ const investmentTypes = [
 const investmentInterestTypes = [
   'Seed Stage Startups', 'Growth Stage Companies', 'Pre-IPO Opportunities',
   'ESG/Impact Investing', 'Technology Sector', 'Healthcare & Biotech',
-  'Green Energy', 'Emerging Markets', 'Alternative Assets', 'Property Development',
-  'Fintech Innovation', 'AI & Machine Learning'
+  'Green Energy', 'Emerging Markets', 'Property Development',
+  'Fintech Innovation', 'AI & Machine Learning', 'Whisky & Spirits Casks',
+  'Fine Wine Investment', 'Classic Car Collecting', 'Luxury Watches',
+  'Contemporary Art', 'Rare Collectibles', 'Infrastructure Projects',
+  'Forestry & Timber', 'Precious Metals Trading', 'Cryptocurrency Trading'
 ];
 
 const riskLevels = [

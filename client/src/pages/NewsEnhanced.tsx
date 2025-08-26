@@ -61,7 +61,7 @@ export default function NewsEnhanced() {
     dedupe: true,
     hideLowValue: true,
     existingInvestments: ['Public Equity', 'Angel Investing', 'Whisky & Spirits'],
-    investmentInterests: ['Seed Stage Startups', 'Technology Sector']
+    investmentInterests: ['Seed Stage Startups', 'Technology Sector', 'Whisky & Spirits Casks']
   });
 
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
@@ -88,7 +88,7 @@ export default function NewsEnhanced() {
     dedupe: true,
     hideLowValue: true,
     existingInvestments: ['Public Equity', 'Angel Investing', 'Whisky & Spirits'],
-    investmentInterests: ['Seed Stage Startups', 'Technology Sector']
+    investmentInterests: ['Seed Stage Startups', 'Technology Sector', 'Whisky & Spirits Casks']
   };
 
   // Enhanced filtering with deduplication and smart filtering
