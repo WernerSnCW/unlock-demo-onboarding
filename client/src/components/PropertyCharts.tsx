@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Legend, ComposedChart, Area, AreaChart } from 'recharts';
 
 interface ChartData {
   date: string;
@@ -21,6 +21,14 @@ interface PropertyChartsProps {
   yoyChange: number;
   chartConfidence: string;
   chartConfidenceScore: number;
+  valuation?: {
+    estimate: number;
+    range: string;
+  };
+  purchase?: {
+    originalPrice: number;
+    purchaseDate: string;
+  } | null;
 }
 
 // Custom tooltip for better UX
@@ -262,7 +270,90 @@ export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) =>
   );
 };
 
-// 5. Confidence Badge
+// 5. Valuation Range Chart
+export const ValuationRangeChart: React.FC<{ 
+  valuation: { estimate: number; range: string }; 
+  purchase?: { originalPrice: number; purchaseDate: string } | null;
+  geography: string;
+}> = ({ valuation, purchase, geography }) => {
+  // Parse the range string (e.g., "£254,859 - £387,500")
+  const parseRange = (rangeStr: string) => {
+    const matches = rangeStr.match(/£([\d,]+)\s*-\s*£([\d,]+)/);
+    if (matches) {
+      return {
+        min: parseInt(matches[1].replace(/,/g, '')),
+        max: parseInt(matches[2].replace(/,/g, ''))
+      };
+    }
+    // Fallback: estimate ±15%
+    return {
+      min: Math.round(valuation.estimate * 0.85),
+      max: Math.round(valuation.estimate * 1.15)
+    };
+  };
+
+  const range = parseRange(valuation.range);
+  
+  // Create chart data
+  const chartData = [
+    {
+      name: 'Market Range',
+      min: range.min,
+      max: range.max,
+      estimate: valuation.estimate,
+      purchase: purchase?.originalPrice || null
+    }
+  ];
+
+  return (
+    <div className="h-32 min-h-0">
+      <div className="mb-2">
+        <h6 className="text-sm font-medium text-[var(--card-foreground)]">Valuation Analysis</h6>
+        <p className="text-xs text-[var(--muted-foreground)]">
+          Current estimate vs {purchase ? 'purchase price &' : ''} market range
+        </p>
+      </div>
+      <ResponsiveContainer width="100%" height={90} minWidth={0} minHeight={0}>
+        <ComposedChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+          <YAxis hide />
+          <Tooltip 
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const data = payload[0].payload;
+                return (
+                  <div className="bg-[var(--card)] p-3 rounded-[var(--radius-sm)] border border-[var(--border)] shadow-lg">
+                    <p className="font-medium text-[var(--card-foreground)] mb-1">Valuation Breakdown</p>
+                    <p className="text-sm text-[var(--success)]">Estimate: £{data.estimate.toLocaleString()}</p>
+                    <p className="text-sm text-[var(--muted-foreground)]">Range: £{data.min.toLocaleString()} - £{data.max.toLocaleString()}</p>
+                    {data.purchase && (
+                      <p className="text-sm text-[var(--primary)]">Purchase: £{data.purchase.toLocaleString()}</p>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          {/* Market range area */}
+          <Bar dataKey="min" fill="var(--muted)" opacity={0.3} />
+          <Bar dataKey="max" fill="var(--muted)" opacity={0.3} />
+          {/* Current estimate line */}
+          <ReferenceLine y={valuation.estimate} stroke="var(--success)" strokeWidth={3} strokeDasharray="0" />
+          {/* Purchase price line if available */}
+          {purchase && (
+            <ReferenceLine y={purchase.originalPrice} stroke="var(--primary)" strokeWidth={2} strokeDasharray="5 5" />
+          )}
+        </ComposedChart>
+      </ResponsiveContainer>
+      <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
+        <span>Range: £{range.min.toLocaleString()} - £{range.max.toLocaleString()}</span>
+        {purchase && <span>Purchase: £{purchase.originalPrice.toLocaleString()}</span>}
+      </div>
+    </div>
+  );
+};
+
+// 6. Confidence Badge
 export const ConfidenceBadge: React.FC<{ confidence: string; score: number }> = ({ confidence, score }) => {
   const badgeColor = confidence === 'High' 
     ? 'bg-[var(--success)]/20 text-[var(--success)]' 
@@ -285,7 +376,9 @@ const PropertyCharts: React.FC<PropertyChartsProps> = ({
   geography, 
   yoyChange, 
   chartConfidence, 
-  chartConfidenceScore 
+  chartConfidenceScore,
+  valuation,
+  purchase
 }) => {
   if (!trendData || trendData.length === 0) {
     return (
@@ -304,7 +397,7 @@ const PropertyCharts: React.FC<PropertyChartsProps> = ({
       </div>
 
       {/* Main Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
         {/* Regional Sparkline */}
         <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">
           <h5 className="font-medium text-[var(--card-foreground)] mb-2 text-sm">
@@ -312,6 +405,13 @@ const PropertyCharts: React.FC<PropertyChartsProps> = ({
           </h5>
           <RegionalSparkline data={trendData} yoyChange={yoyChange} />
         </div>
+
+        {/* Valuation Range Chart */}
+        {valuation && (
+          <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">
+            <ValuationRangeChart valuation={valuation} purchase={purchase} geography={geography} />
+          </div>
+        )}
 
         {/* Market Pulse */}
         <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">

@@ -523,6 +523,8 @@ function PropertyValuationComponent() {
                   yoyChange={valuationResult.trend.yoyChange}
                   chartConfidence={valuationResult.trend.chartConfidence}
                   chartConfidenceScore={valuationResult.trend.chartConfidenceScore}
+                  valuation={valuationResult.valuation}
+                  purchase={valuationResult.purchase}
                 />
               )}
             </div>
