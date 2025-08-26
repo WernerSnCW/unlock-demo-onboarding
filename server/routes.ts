@@ -920,6 +920,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let finalEstimate = hpiAdjustedValue;
       let method = 'HPI_ONLY';
       let range = { min: 0, max: 0 };
+      
+      // Enhanced calculation logging for validation
+      console.log('=== VALUATION CALCULATION BREAKDOWN ===');
+      console.log(`HPI Base Price (${hpi.regionName}): £${hpiBasePrice.toLocaleString()}`);
+      console.log(`HPI Adjusted Value: £${hpiAdjustedValue.toLocaleString()}`);
+      console.log(`HPI Uplift Factor: ${hpiUpliftFactor.toFixed(3)}`);
+      if (purchasePrice && purchaseDate) {
+        console.log(`Purchase Price: £${purchasePrice.toLocaleString()} on ${purchaseDate}`);
+        const purchaseUplift = hpiAdjustedValue - purchasePrice;
+        const purchaseUpliftPct = (purchaseUplift / purchasePrice) * 100;
+        console.log(`Purchase Uplift: £${purchaseUplift.toLocaleString()} (${purchaseUpliftPct.toFixed(1)}%)`);
+      }
+      console.log(`Comparables Found: ${comparables.length}`);
+      
       let explainability = {
         hpiBaseline: hpiBasePrice,
         hpiUpliftFactor: hpiUpliftFactor,
@@ -946,17 +960,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const compMax = Math.max(...trimmedPrices);
 
           // Blend HPI and comparables (70% comps, 30% HPI)
-          finalEstimate = Math.round(compAverage * 0.7 + hpiAdjustedValue * 0.3);
+          const compComponent = compAverage * 0.7;
+          const hpiComponent = hpiAdjustedValue * 0.3;
+          finalEstimate = Math.round(compComponent + hpiComponent);
           method = 'HPI_PLUS_COMPS';
+          
+          // Validation logging for blended calculation
+          console.log('--- BLENDED CALCULATION ---');
+          console.log(`Raw Comparable Prices: [${compPrices.map(p => '£' + p.toLocaleString()).join(', ')}]`);
+          console.log(`Trimmed Prices (${start}-${end}): [${trimmedPrices.map(p => '£' + p.toLocaleString()).join(', ')}]`);
+          console.log(`Comparable Average: £${compAverage.toLocaleString()}`);
+          console.log(`Comparable Component (70%): £${compComponent.toLocaleString()}`);
+          console.log(`HPI Component (30%): £${hpiComponent.toLocaleString()}`);
+          console.log(`Final Blended Estimate: £${finalEstimate.toLocaleString()}`);
+          
           range = { 
             min: Math.round(Math.min(compMin, finalEstimate * 0.9)),
             max: Math.round(Math.max(compMax, finalEstimate * 1.1))
           };
           
+          console.log(`Valuation Range: £${range.min.toLocaleString()} - £${range.max.toLocaleString()}`);
+          
           explainability = {
             ...explainability,
             method: 'Blended: 70% comparable sales + 30% HPI baseline',
-            blendedResult: finalEstimate
+            blendedResult: finalEstimate,
+            comparableAverage: compAverage,
+            hpiComponent: hpiComponent,
+            compComponent: compComponent
           };
         }
       }
@@ -969,7 +1000,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           min: Math.round(finalEstimate * (1 - rangeFactor)),
           max: Math.round(finalEstimate * (1 + rangeFactor))
         };
+        
+        console.log('--- HPI-ONLY CALCULATION ---');
+        console.log(`Market Volatility: ${volatility.toFixed(1)}% YoY`);
+        console.log(`Range Factor: ±${(rangeFactor * 100).toFixed(1)}%`);
+        console.log(`Final Range: £${range.min.toLocaleString()} - £${range.max.toLocaleString()}`);
       }
+      
+      console.log('=== CALCULATION COMPLETE ===');
 
       // Calculate confidence score (0-5, mapped to Low/Med/High)
       let confidenceScore = 0;
@@ -1124,8 +1162,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hpiAreaCode: hpi.areaCode,
           hpiDataDate: hpi.date,
           postcodeMapped: `${postcodePrefix} → ${hpi.regionName} (${hpi.areaCode})`
+        },
+        // Add calculation debugging information
+        calculationDetails: {
+          hpiBasePrice,
+          hpiAdjustedValue,
+          hpiUpliftFactor,
+          finalEstimate,
+          method,
+          autoDetectedPurchase: !!(purchasePrice && !requestPurchasePrice),
+          inputPurchasePrice: requestPurchasePrice,
+          detectedPurchasePrice: purchasePrice,
+          comparablesCount: comparables.length,
+          explainability
         }
       };
+
+      // Log complete valuation summary for validation
+      console.log('=== FINAL VALUATION SUMMARY ===');
+      console.log(`Final Estimate: £${Math.round(finalEstimate).toLocaleString()}`);
+      console.log(`Method: ${method}`);
+      console.log(`Range: £${range.min.toLocaleString()} - £${range.max.toLocaleString()}`);
+      console.log(`Purchase Auto-Detected: ${!!(purchasePrice && !requestPurchasePrice)}`);
+      console.log(`Confidence: ${confidence}`);
+      console.log('================================');
 
       // Cache the result
       valuationCache.set(cacheKey, {
