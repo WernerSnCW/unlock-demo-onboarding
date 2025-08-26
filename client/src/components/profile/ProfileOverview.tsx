@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { StatCard } from '@/components/shared/StatCard';
 import { Donut } from '@/components/shared/Donut';
-import { usePortfolioStore } from '@/state/portfolioStore';
+import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 import { formatGBP, formatPct, getGainColor, CHART_COLORS } from '@/utils/formatters';
 
 interface ProfileOverviewProps {
@@ -19,7 +19,7 @@ interface ProfileOverviewProps {
 }
 
 export function ProfileOverview({ profile, className = '' }: ProfileOverviewProps) {
-  const { positions, getTotalValue, getTotalGainLoss } = usePortfolioStore();
+  const { positions, getTotalValue, getTotalGainLoss } = usePortfolioStoreDB();
   
   const portfolioValue = getTotalValue();
   const { gainAbs, gainPct } = getTotalGainLoss();

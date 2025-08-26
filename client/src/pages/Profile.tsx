@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { User, PieChart, Settings, Bell, Shield, Upload, Link, FileText, Plus } from 'lucide-react';
 import Header from '../components/Header';
@@ -12,11 +12,11 @@ import { PortfolioAnalytics } from '@/components/profile/PortfolioAnalytics';
 import { PortfolioTable } from '@/components/profile/PortfolioTable';
 import { PortfolioUploader } from '@/components/profile/PortfolioUploader';
 import { AnalystOpinionsPanel } from '@/components/profile/AnalystOpinionsPanel';
-import { usePortfolioStore } from '@/state/portfolioStore';
+import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 
 export default function Profile() {
   const [location] = useLocation();
-  const { positions } = usePortfolioStore();
+  const { positions, setCurrentInvestor, currentInvestorId } = usePortfolioStoreDB();
   
   // Determine initial tab from URL
   const getInitialTab = () => {
@@ -25,6 +25,13 @@ export default function Profile() {
   };
   
   const [activeTab, setActiveTab] = useState(getInitialTab());
+
+  // Initialize portfolio data for demo investor when component mounts
+  useEffect(() => {
+    if (!currentInvestorId) {
+      setCurrentInvestor('demo-1755866735025');
+    }
+  }, [currentInvestorId, setCurrentInvestor]);
 
   const OverviewTab = () => (
     <ProfileOverview profile={DEFAULT_PROFILE} />
