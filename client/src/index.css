@@ -17,16 +17,16 @@
   --card: #FFFFFF;
   --card-foreground: #1F2937;
 
-  --primary: #5193B3;
+  --primary: #10A957;
   --primary-foreground: #ffffff;
 
-  --secondary: #62C4C3;
+  --secondary: #13683B;
   --secondary-foreground: #ffffff;
 
   --accent: #F8D49B;
   --accent-foreground: #1A1A1A;
   --neutral-bg-alt: #f8fafc;
-  --brand-accent-bg: #5193B3;
+  --brand-accent-bg: #FE9239;
 
   --muted: #F3F4F6;
   --muted-foreground: #64748B;
@@ -37,7 +37,7 @@
   --success: #10B981;
   --success-foreground: #ffffff;
 
-  --warning: #F59E0B;
+  --warning: #FE9239;
   --warning-foreground: #1A1A1A;
 
   --info: #3B82F6;
