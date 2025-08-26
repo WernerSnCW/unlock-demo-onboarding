@@ -141,7 +141,9 @@ export class DatabaseStorage implements IStorage {
           ticketMinGbp: prefs.ticketMinGbp,
           ticketMaxGbp: prefs.ticketMaxGbp,
           regions: prefs.regions,
-          focusSectors: prefs.focusSectors
+          focusSectors: prefs.focusSectors,
+          existingInvestments: prefs.existingInvestments,
+          investmentInterests: prefs.investmentInterests
         }
       })
       .returning();
