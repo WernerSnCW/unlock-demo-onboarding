@@ -705,6 +705,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced Property Valuation with PPD Comparables + HPI Baseline
+  // In-memory cache for valuations (in production, use Redis or database)
+  const valuationCache = new Map();
+
+  // Generate a deterministic cache key
+  function getCacheKey(postcode: string, propertyType?: string, purchasePrice?: number, purchaseDate?: string) {
+    const key = `${postcode}|${propertyType || 'ANY'}|${purchasePrice || 'NO_PRICE'}|${purchaseDate || 'NO_DATE'}`;
+    return key.toUpperCase();
+  }
+
   app.post('/api/property-valuation', async (req, res) => {
     try {
       const { 
@@ -721,6 +730,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!postcode) {
         return res.status(400).json({ message: 'Postcode is required for valuation' });
+      }
+
+      // Check cache first (cache for 1 hour)
+      const cacheKey = getCacheKey(postcode, propertyType, purchasePrice, purchaseDate);
+      const cached = valuationCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < 60 * 60 * 1000) {
+        console.log('Returning cached valuation for:', cacheKey);
+        return res.json(cached.data);
       }
 
       // Step 1: Get HPI baseline for the region
@@ -1042,6 +1059,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           postcodeMapped: `${postcodePrefix} → ${hpi.regionName} (${hpi.areaCode})`
         }
       };
+
+      // Cache the result
+      valuationCache.set(cacheKey, {
+        data: enhancedValuation,
+        timestamp: Date.now()
+      });
 
       res.json(enhancedValuation);
     } catch (error) {

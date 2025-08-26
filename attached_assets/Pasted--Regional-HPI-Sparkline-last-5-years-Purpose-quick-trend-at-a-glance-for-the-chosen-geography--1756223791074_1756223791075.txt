@@ -1,0 +1,82 @@
+) Regional HPI Sparkline (last 5 years)
+
+Purpose: quick trend at a glance for the chosen geography.
+Data: Date, IndexSA (fallback to Index).
+Transform: filter last 60 months; normalise date to YYYY-MM.
+Axes: X = Date (month), Y = Index (2015=100).
+Extras:
+
+Highlight last 12 months with a subtle band.
+
+Annotation at latest point: +{12m%Change}% YoY.
+
+Tooltip: Date, IndexSA, 1m%Change, 12m%Change.
+
+2) Property-Type Comparison Lines
+
+Purpose: show how the chosen type performs vs others.
+Data: DetachedIndex, SemiDetachedIndex, TerracedIndex, FlatIndex.
+Transform: last 36–60 months.
+Axes: X = Date, Y = Index (2015=100).
+Legend: Detached / Semi / Terraced / Flat.
+Callout: Emphasise the user’s property type line (thicker stroke).
+Insight chip: “Since {start}, {Type} +X% vs All +Y%”.
+
+3) YoY Change Bars (market pulse)
+
+Purpose: show momentum/volatility quickly.
+Data: 12m%Change.
+Transform: last 24 months.
+Chart: vertical bar chart of monthly YoY %.
+Reference line: 0%.
+Colour rule: positive above 0, negative below 0 (or single colour with up/down arrows if you keep a mono palette).
+Label: “Regional prices +X.X% YoY (latest month)”.
+
+4) Average Price vs Index (dual view)
+
+Purpose: marry “money” and “index” for stakeholders.
+Data: AveragePrice and IndexSA.
+Chart: two small panels side-by-side:
+
+Panel A (line): AveragePrice (£) over time.
+
+Panel B (line): IndexSA (2015=100) over time.
+Notes: helps explain why you use index for uplift and price for context.
+
+5) Cohort Split (optional mini-chart)
+
+Purpose: flavour for narrative if relevant.
+Pick one:
+
+Cash vs Mortgage: CashIndex vs MortgageIndex
+
+FTB vs FOO: FTBIndex vs FOOIndex
+
+New vs Old: NewIndex vs OldIndex
+Window: last 24–36 months.
+Copy example: “First-time buyer segment lagging former owner-occupiers by ~1.2% over 12 months.”
+
+6) Confidence Helper (not a chart, tiny badge)
+
+Use HPI fields to compute a simple confidence badge shown above the charts:
+
++1 if using type-specific index
+
++1 if latest SalesVolume ≥ 5-year median
+
++1 if |12m%Change| < 10%
+
++1 if purchase month matched within ±1 month
+
++1 if geography match is exact
+Map: 0–1 Low, 2–3 Medium, 4–5 High.
+
+Placement in your report
+
+Put Sparkline beside the Estimated Value (hero).
+
+Put Type Comparison below as the “why”.
+
+Add YoY Bars in a right-hand column as “Market pulse”.
+
+Keep Average Price vs Index in an expandable “Method” section if space is tight.
