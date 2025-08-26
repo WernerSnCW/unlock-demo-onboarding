@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useInvestor } from '../contexts/InvestorContext';
 import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
@@ -10,6 +10,7 @@ function PropertyValuationComponent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState('');
   const [selectedPropertyData, setSelectedPropertyData] = useState<any>(null);
   const [valuationMethod, setValuationMethod] = useState('comparable');
@@ -22,10 +23,29 @@ function PropertyValuationComponent() {
     enabled: !!selectedInvestor?.userId,
   });
 
-  const handlePropertySearch = async () => {
-    if (!searchQuery.trim()) return;
+  // Debounced search effect for incremental search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handlePropertySearch(searchQuery);
+      } else {
+        setSearchResults([]);
+        setHasSearched(false);
+      }
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const handlePropertySearch = async (query: string = searchQuery) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
+      return;
+    }
     
     setIsSearching(true);
+    setHasSearched(true);
     try {
       // Search real property data from our UK property database
       const response = await fetch('/api/property-search', {
@@ -34,7 +54,7 @@ function PropertyValuationComponent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          query: searchQuery.trim().toUpperCase(),
+          query: query.trim().toUpperCase(),
           limit: 10
         }),
       });
@@ -141,27 +161,14 @@ function PropertyValuationComponent() {
                 placeholder="Search by address or postcode (e.g., '123 Main Street' or 'SW1A 1AA')"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handlePropertySearch())}
                 className="flex-1 px-3 py-2 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--input)] text-[var(--card-foreground)] focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--primary)]"
               />
-              <button
-                type="button"
-                onClick={handlePropertySearch}
-                disabled={!searchQuery.trim() || isSearching}
-                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary)]/90 disabled:opacity-50 text-[var(--primary-foreground)] rounded-[var(--radius-sm)] transition-colors flex items-center gap-2"
-              >
-                {isSearching ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin"></i>
-                    Searching...
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-search"></i>
-                    Search
-                  </>
-                )}
-              </button>
+              {isSearching && (
+                <div className="px-4 py-2 text-[var(--muted-foreground)] flex items-center gap-2">
+                  <i className="fas fa-spinner fa-spin"></i>
+                  Searching...
+                </div>
+              )}
             </div>
           </div>
 
@@ -275,8 +282,8 @@ function PropertyValuationComponent() {
               </div>
             )}
 
-            {/* Search Fallback Message */}
-            {searchQuery && searchResults.length === 0 && !isSearching && !selectedPropertyData && (
+            {/* Search Fallback Message - only show after search has completed */}
+            {hasSearched && searchQuery && searchResults.length === 0 && !isSearching && !selectedPropertyData && (
               <div className="p-3 border border-[var(--warning)] bg-[var(--warning)]/10 rounded-[var(--radius-sm)]">
                 <div className="text-sm text-[var(--warning-foreground)]">
                   <div className="font-medium mb-1">No specific properties found for "{searchQuery}"</div>
