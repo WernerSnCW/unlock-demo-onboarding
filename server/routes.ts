@@ -302,29 +302,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/properties', async (req, res) => {
     try {
-      const validatedData = insertPropertySchema.parse(req.body);
+      console.log('Incoming property data:', req.body);
+      
+      // Separate property data from ownership data
+      const {
+        userId, ownershipType, sharePct, acquisitionDate, 
+        acquisitionPriceGbp, acquisitionCostsGbp, isPrimaryResidence,
+        ...propertyData
+      } = req.body;
+      
+      console.log('Property data only:', propertyData);
+      const validatedData = insertPropertySchema.parse(propertyData);
       const property = await storage.createProperty(validatedData);
       
       // Create ownership record if provided
-      if (req.body.userId && req.body.sharePct) {
+      if (userId && sharePct) {
         await storage.createPropertyOwnership({
           propertyId: property.id,
-          userId: req.body.userId,
-          ownershipType: req.body.ownershipType || 'direct',
-          sharePct: req.body.sharePct,
-          acquisitionDate: req.body.acquisitionDate,
-          acquisitionPriceGbp: req.body.acquisitionPriceGbp,
-          acquisitionCostsGbp: req.body.acquisitionCostsGbp,
-          isPrimaryResidence: req.body.isPrimaryResidence || false
+          userId: userId,
+          ownershipType: ownershipType || 'direct',
+          sharePct: sharePct,
+          acquisitionDate: acquisitionDate,
+          acquisitionPriceGbp: acquisitionPriceGbp,
+          acquisitionCostsGbp: acquisitionCostsGbp,
+          isPrimaryResidence: isPrimaryResidence || false
         });
       }
       
       res.status(201).json(property);
     } catch (error) {
+      console.error('Property creation error:', error);
       if (error instanceof Error && error.name === 'ZodError') {
         return res.status(400).json({ message: 'Invalid data', errors: error });
       }
-      res.status(500).json({ message: 'Failed to create property' });
+      res.status(500).json({ message: 'Failed to create property', error: error instanceof Error ? error.message : String(error) });
     }
   });
 
