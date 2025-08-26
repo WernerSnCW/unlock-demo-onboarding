@@ -120,7 +120,7 @@ interface DemoInvestor {
 
 export default function AccountSettings() {
   const { toast } = useToast();
-  const { setCurrentInvestor } = usePortfolioStoreDB();
+  const { setCurrentInvestor, positions: portfolioPositions, isLoading: portfolioLoading } = usePortfolioStoreDB();
   const { selectedInvestor, setSelectedInvestor } = useInvestor();
   const [activeTab, setActiveTab] = useState('preferences');
   
@@ -1330,10 +1330,7 @@ export default function AccountSettings() {
     </div>
   );
 
-  const renderPortfolioHoldingsTab = () => {
-    const { positions, isLoading } = usePortfolioStoreDB();
-    
-    return (
+  const renderPortfolioHoldingsTab = () => (
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -1386,12 +1383,12 @@ export default function AccountSettings() {
           {/* Holdings List */}
           <div className="space-y-3">
             <h4 className="font-medium text-gray-900 dark:text-gray-100">Current Holdings</h4>
-            {isLoading ? (
+            {portfolioLoading ? (
               <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
                 <p className="text-sm text-gray-600 dark:text-gray-400">Loading portfolio holdings...</p>
               </div>
-            ) : positions.length > 0 ? (
-              positions.map((position) => {
+            ) : portfolioPositions.length > 0 ? (
+              portfolioPositions.map((position) => {
                 const currentValue = position.quantity * position.price;
                 const costBasis = position.quantity * position.avgCost;
                 const gainLoss = currentValue - costBasis;
@@ -1442,7 +1439,6 @@ export default function AccountSettings() {
       </Card>
     </div>
   );
-};
 
   // Render Properties tab
   const renderPropertiesTab = () => (
