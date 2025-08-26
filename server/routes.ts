@@ -1014,8 +1014,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trendData = trendQuery.map(row => ({
         date: row.date,
         index: parseFloat(row.indexSa || row.index || '100'),
-        yoyChange: parseFloat(row.yearlyChangePercent || '0')
+        yoyChange: parseFloat(row.yearlyChangePercent || '0'),
+        averagePrice: parseFloat(row.averagePrice || '0'),
+        detachedIndex: parseFloat(row.detachedIndex || '0'),
+        semiDetachedIndex: parseFloat(row.semiDetachedIndex || '0'),
+        terracedIndex: parseFloat(row.terracedIndex || '0'),
+        flatIndex: parseFloat(row.flatIndex || '0'),
+        monthlyChange: parseFloat(row.monthlyChangePercent || '0'),
+        salesVolume: parseFloat(row.salesVolume?.toString() || '0')
       }));
+
+      // Calculate confidence score for charts
+      let chartConfidenceScore = 0;
+      if (propertyType && ['detached', 'semi-detached', 'terraced', 'flat'].includes(propertyType.toLowerCase())) {
+        chartConfidenceScore += 1;
+      }
+      if (trendData.length > 0) {
+        const salesVolumes = trendData.map(d => d.salesVolume).filter(v => v > 0);
+        if (salesVolumes.length > 0) {
+          const medianSales = salesVolumes.sort((a, b) => a - b)[Math.floor(salesVolumes.length / 2)];
+          if (trendData[0].salesVolume >= medianSales) chartConfidenceScore += 1;
+        }
+      }
+      if (Math.abs(parseFloat(hpi.yearlyChangePercent || '0')) < 10) chartConfidenceScore += 1;
+      if (purchaseDate) chartConfidenceScore += 1;
+      chartConfidenceScore += 1; // geography match simplified
+
+      const chartConfidence = chartConfidenceScore <= 1 ? 'Low' : chartConfidenceScore <= 3 ? 'Medium' : 'High';
 
       const enhancedValuation = {
         valuation: {
@@ -1029,7 +1054,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           geography: hpi.regionName,
           yoyChange: yoyChange,
           series: propertyType || 'All Types',
-          data: trendData
+          data: trendData,
+          chartConfidence,
+          chartConfidenceScore
         },
         comparables: formattedComparables,
         purchase: purchasePrice && purchaseDate ? {

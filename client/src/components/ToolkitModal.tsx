@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useInvestor } from '../contexts/InvestorContext';
 import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
 import PitchDeckAnalyser from './PitchDeckAnalyser';
+import PropertyCharts from './PropertyCharts';
 
 function PropertyValuationComponent() {
   const { selectedInvestor } = useInvestor();
@@ -494,14 +495,14 @@ function PropertyValuationComponent() {
 
 
 
-          {/* Market Trend & HPI Analysis */}
+          {/* Market Analysis Charts */}
           <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
             <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
               <i className="fas fa-chart-line"></i>
               Market Analysis & HPI Data
             </h5>
             
-            <div className="space-y-3">
+            <div className="space-y-4">
               {/* HPI Region Mapping */}
               <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-3">
                 <div className="text-sm font-medium text-[var(--card-foreground)] mb-1">HPI Region Mapping</div>
@@ -513,19 +514,17 @@ function PropertyValuationComponent() {
                 </div>
               </div>
               
-              {/* Market Performance */}
-              <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-3">
-                <div className="text-sm font-medium text-[var(--card-foreground)] mb-1">Market Performance</div>
-                <div className="text-lg font-semibold text-[var(--card-foreground)]">
-                  {valuationResult.trend?.yoyChange >= 0 ? '+' : ''}{valuationResult.trend?.yoyChange?.toFixed(1) || 'N/A'}% YoY
-                </div>
-                <div className="text-sm text-[var(--muted-foreground)]">
-                  {valuationResult.trend?.geography || 'Regional Market'} • {valuationResult.trend?.series || 'All Types'}
-                </div>
-                <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                  UK House Price Index • Official HM Land Registry Data
-                </div>
-              </div>
+              {/* Interactive Charts */}
+              {valuationResult.trend?.data && (
+                <PropertyCharts 
+                  trendData={valuationResult.trend.data}
+                  propertyType={valuationResult.metadata?.propertyType}
+                  geography={valuationResult.trend.geography}
+                  yoyChange={valuationResult.trend.yoyChange}
+                  chartConfidence={valuationResult.trend.chartConfidence}
+                  chartConfidenceScore={valuationResult.trend.chartConfidenceScore}
+                />
+              )}
             </div>
           </div>
 
