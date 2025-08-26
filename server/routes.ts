@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db } from "./db";
-import { and, like, eq, gte, desc } from "drizzle-orm";
+import { and, like, eq, gte, desc, sql } from "drizzle-orm";
 import { 
   insertInvestorSchema, 
   insertInvestorPreferencesSchema, 
@@ -639,87 +639,194 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/uk-hpi/valuation-estimate', async (req, res) => {
+  // Enhanced Property Valuation with PPD Comparables + HPI Baseline
+  app.post('/api/property-valuation', async (req, res) => {
     try {
-      const { regionName, propertyType, postcode } = req.query;
+      const { 
+        postcode, 
+        propertyType, 
+        paon, 
+        saon, 
+        street, 
+        purchasePrice, 
+        purchaseDate,
+        bedrooms,
+        propertyId 
+      } = req.body;
       
-      if (!regionName && !postcode) {
-        return res.status(400).json({ message: 'Region name or postcode required' });
+      if (!postcode) {
+        return res.status(400).json({ message: 'Postcode is required for valuation' });
       }
+
+      console.log('Valuation request:', { postcode, propertyType, purchasePrice, purchaseDate });
       
-      let whereCondition;
-      if (postcode) {
-        // Try to match region by postcode prefix - simplified approach
-        const postcodePrefix = (postcode as string).split(' ')[0];
-        whereCondition = like(ukHpi.regionName, `%${postcodePrefix}%`);
-      } else {
-        whereCondition = like(ukHpi.regionName, `%${regionName}%`);
-      }
-      
-      const latestData = await db.select()
+      // Step 1: Get HPI baseline for the region
+      const postcodePrefix = postcode.split(' ')[0];
+      const hpiData = await db.select()
         .from(ukHpi)
-        .where(whereCondition)
+        .where(like(ukHpi.regionName, `%${postcodePrefix}%`))
         .orderBy(desc(ukHpi.date))
         .limit(1);
-      
-      if (latestData.length === 0) {
-        return res.status(404).json({ message: 'No market data found for location' });
+
+      if (hpiData.length === 0) {
+        return res.status(404).json({ message: 'No HPI data found for this location' });
       }
+
+      const hpi = hpiData[0];
+      let hpiBasePrice = parseFloat(hpi.averagePrice || '0');
       
-      const data = latestData[0];
-      let basePrice = parseFloat(data.averagePrice || '0');
-      
-      // Adjust price based on property type
+      // Get property-type-specific HPI price if available
       if (propertyType) {
         switch (propertyType.toLowerCase()) {
           case 'detached':
-            basePrice = parseFloat(data.detachedPrice || data.averagePrice || '0');
+            hpiBasePrice = parseFloat(hpi.detachedPrice || hpi.averagePrice || '0');
             break;
           case 'semi-detached':
-            basePrice = parseFloat(data.semiDetachedPrice || data.averagePrice || '0');
+            hpiBasePrice = parseFloat(hpi.semiDetachedPrice || hpi.averagePrice || '0');
             break;
           case 'terraced':
-            basePrice = parseFloat(data.terracedPrice || data.averagePrice || '0');
+            hpiBasePrice = parseFloat(hpi.terracedPrice || hpi.averagePrice || '0');
             break;
           case 'flat':
           case 'apartment':
-            basePrice = parseFloat(data.flatPrice || data.averagePrice || '0');
+            hpiBasePrice = parseFloat(hpi.flatPrice || hpi.averagePrice || '0');
             break;
-          default:
-            basePrice = parseFloat(data.averagePrice || '0');
         }
       }
+
+      // Step 2: Calculate HPI uplift if purchase data is available
+      let hpiAdjustedValue = hpiBasePrice;
+      let hpiUpliftFactor = 1;
       
-      // Calculate confidence range (±10% for estimation)
-      const lowerEstimate = Math.round(basePrice * 0.9);
-      const upperEstimate = Math.round(basePrice * 1.1);
+      if (purchasePrice && purchaseDate) {
+        try {
+          const purchasePriceNum = parseFloat(purchasePrice.toString());
+          const purchaseDateTime = new Date(purchaseDate);
+          
+          // Get HPI data for purchase period (closest available)
+          const historicalHpi = await db.select()
+            .from(ukHpi)
+            .where(
+              and(
+                like(ukHpi.regionName, `%${postcodePrefix}%`),
+                gte(ukHpi.date, purchaseDateTime.toISOString().split('T')[0])
+              )
+            )
+            .orderBy(ukHpi.date)
+            .limit(1);
+
+          if (historicalHpi.length > 0) {
+            const historicalPrice = parseFloat(historicalHpi[0].averagePrice || '0');
+            if (historicalPrice > 0) {
+              hpiUpliftFactor = hpiBasePrice / historicalPrice;
+              hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
+            }
+          }
+        } catch (error) {
+          console.error('Error calculating HPI uplift:', error);
+        }
+      }
+
+      // Step 3: Find PPD comparables (last 12-24 months)
+      const cutoffDate = new Date();
+      cutoffDate.setMonth(cutoffDate.getMonth() - 18); // 18 months for wider search
       
-      const valuation = {
-        estimatedValue: {
-          lower: lowerEstimate,
-          upper: upperEstimate,
-          average: Math.round(basePrice)
-        },
-        marketData: {
-          regionName: data.regionName,
-          averagePrice: parseFloat(data.averagePrice || '0'),
-          monthlyChange: parseFloat(data.monthlyChangePercent || '0'),
-          yearlyChange: parseFloat(data.yearlyChangePercent || '0'),
-          salesVolume: data.salesVolume,
-          date: data.date
-        },
-        propertyTypeData: propertyType ? {
-          type: propertyType,
-          averagePrice: basePrice,
-          monthlyChange: getPropertyTypeChange(data, propertyType),
-          yearlyChange: getPropertyTypeYearlyChange(data, propertyType)
-        } : null
+      const comparables = await db.select()
+        .from(propertyPriceData)
+        .where(
+          and(
+            like(propertyPriceData.postcode, `${postcodePrefix}%`),
+            gte(propertyPriceData.dateOfTransfer, cutoffDate.toISOString().split('T')[0]),
+            propertyType ? eq(propertyPriceData.propertyType, propertyType.charAt(0).toUpperCase()) : sql`1=1`
+          )
+        )
+        .orderBy(desc(propertyPriceData.dateOfTransfer))
+        .limit(10);
+
+      console.log(`Found ${comparables.length} comparable sales`);
+
+      // Step 4: Compute valuation based on available data
+      let finalEstimate = hpiAdjustedValue;
+      let method = 'HPI_ONLY';
+      let range = { min: 0, max: 0 };
+      let explainability = {
+        hpiBaseline: hpiBasePrice,
+        hpiUpliftFactor: hpiUpliftFactor,
+        purchasePrice: purchasePrice || null,
+        comparablesFound: comparables.length,
+        method: 'HPI baseline calculation'
       };
-      
+
+      // If we have comparables, blend with HPI
+      if (comparables.length >= 2) {
+        const compPrices = comparables
+          .map(c => parseFloat(c.price || '0'))
+          .filter(price => price > 0)
+          .sort((a, b) => a - b);
+
+        if (compPrices.length >= 2) {
+          // Remove outliers (bottom and top 10%)
+          const start = Math.floor(compPrices.length * 0.1);
+          const end = Math.ceil(compPrices.length * 0.9);
+          const trimmedPrices = compPrices.slice(start, end);
+          
+          const compAverage = trimmedPrices.reduce((sum, price) => sum + price, 0) / trimmedPrices.length;
+          const compMin = Math.min(...trimmedPrices);
+          const compMax = Math.max(...trimmedPrices);
+
+          // Blend HPI and comparables (70% comps, 30% HPI)
+          finalEstimate = Math.round(compAverage * 0.7 + hpiAdjustedValue * 0.3);
+          method = 'HPI_PLUS_COMPS';
+          range = { 
+            min: Math.round(Math.min(compMin, finalEstimate * 0.9)),
+            max: Math.round(Math.max(compMax, finalEstimate * 1.1))
+          };
+          
+          explainability = {
+            ...explainability,
+            method: 'Blended: 70% comparable sales + 30% HPI baseline',
+            comparableAverage: Math.round(compAverage),
+            comparableRange: { min: compMin, max: compMax },
+            blendedResult: finalEstimate
+          };
+        }
+      }
+
+      // Ensure we have a reasonable range for HPI_ONLY
+      if (method === 'HPI_ONLY') {
+        range = {
+          min: Math.round(finalEstimate * 0.85),
+          max: Math.round(finalEstimate * 1.15)
+        };
+      }
+
+      const valuation = {
+        estimate: Math.round(finalEstimate),
+        method,
+        range,
+        comps: comparables.slice(0, 5).map(comp => ({
+          price: parseFloat(comp.price || '0'),
+          date: comp.dateOfTransfer,
+          postcode: comp.postcode,
+          propertyType: comp.propertyType,
+          newBuild: comp.newBuild === 'Y',
+          tenure: comp.tenure,
+          address: `${comp.paon || ''} ${comp.street || ''}`.trim()
+        })),
+        explainability,
+        hpiData: {
+          regionName: hpi.regionName,
+          averagePrice: hpiBasePrice,
+          monthlyChange: parseFloat(hpi.monthlyChangePercent || '0'),
+          yearlyChange: parseFloat(hpi.yearlyChangePercent || '0'),
+          date: hpi.date
+        }
+      };
+
       res.json(valuation);
     } catch (error) {
-      console.error('Valuation estimate error:', error);
-      res.status(500).json({ message: 'Failed to generate valuation estimate' });
+      console.error('Property valuation error:', error);
+      res.status(500).json({ message: 'Failed to generate property valuation' });
     }
   });
 
