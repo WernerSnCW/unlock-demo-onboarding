@@ -1673,7 +1673,10 @@ export default function AccountSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <Form {...propertyForm}>
-            <form onSubmit={propertyForm.handleSubmit((data) => createPropertyMutation.mutate(data))} className="space-y-4">
+            <form onSubmit={propertyForm.handleSubmit((data) => {
+              console.log('Property form data:', data);
+              createPropertyMutation.mutate(data);
+            })} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={propertyForm.control}
@@ -1795,7 +1798,7 @@ export default function AccountSettings() {
                           {...field} 
                           type="number" 
                           min="0" 
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          onChange={(e) => field.onChange(e.target.value)}
                           data-testid="input-bedrooms" 
                         />
                       </FormControl>
@@ -1828,7 +1831,7 @@ export default function AccountSettings() {
                           type="number" 
                           min="1800" 
                           max="2030"
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          onChange={(e) => field.onChange(e.target.value)}
                           data-testid="input-year-built" 
                         />
                       </FormControl>
