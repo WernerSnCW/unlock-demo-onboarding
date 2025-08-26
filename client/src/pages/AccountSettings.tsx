@@ -65,7 +65,7 @@ const portfolioAccountSchema = z.object({
 
 const portfolioHoldingSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
-  accountId: z.string().optional(),
+  accountId: z.string().min(1, 'Please select an account for this holding'),
   assetType: z.string().optional(),
   provider: z.string().optional(),
   sourceRef: z.string().optional(),
@@ -315,6 +315,7 @@ export default function AccountSettings() {
 
   // Create simplified schema for portfolio holdings form
   const holdingFormSchema = z.object({
+    accountId: z.string().min(1, 'Please select an account for this holding'),
     assetType: z.string().min(1, 'Asset type is required'),
     symbol: z.string().min(1, 'Symbol is required'),
     name: z.string().min(1, 'Name is required'),
@@ -329,6 +330,7 @@ export default function AccountSettings() {
   const holdingForm = useForm<HoldingFormData>({
     resolver: zodResolver(holdingFormSchema),
     defaultValues: {
+      accountId: '',
       assetType: '',
       symbol: '',
       name: '',
@@ -465,6 +467,7 @@ export default function AccountSettings() {
       });
 
       holdingForm.reset({
+        accountId: '',
         assetType: '',
         symbol: '',
         name: '',
@@ -799,6 +802,7 @@ export default function AccountSettings() {
         meta: {
           assetType: data.assetType,
           provider: data.provider || 'Manual',
+          accountId: data.accountId,
         }
       };
 
@@ -811,6 +815,7 @@ export default function AccountSettings() {
 
       // Reset the form
       holdingForm.reset({
+        accountId: '',
         assetType: '',
         symbol: '',
         name: '',
@@ -1773,6 +1778,38 @@ export default function AccountSettings() {
           <Form {...holdingForm}>
             <form onSubmit={holdingForm.handleSubmit(handleAddHolding)} className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="space-y-4">
+                {/* Account Selection - Required */}
+                <FormField
+                  control={holdingForm.control}
+                  name="accountId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-red-600 dark:text-red-400">Account (Required) *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-holding-account">
+                            <SelectValue placeholder="Select account for this holding" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {portfolioAccountsData && portfolioAccountsData.length > 0 ? (
+                            portfolioAccountsData.map((account: any) => (
+                              <SelectItem key={account.id} value={account.id}>
+                                {account.provider && account.accountType 
+                                  ? `${account.provider} - ${account.accountType}`
+                                  : account.provider || account.accountType || `Account ${account.id.slice(0, 8)}`
+                                }
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="" disabled>No accounts available - add one first</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={holdingForm.control}
