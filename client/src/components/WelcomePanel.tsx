@@ -24,6 +24,9 @@ interface Profile {
   badges: string[];
   // Plan
   currentPlan: "free" | "premium";
+  // Investor Preferences
+  existingInvestments?: string[];
+  regions?: string[];
 }
 
 interface WelcomePanelProps {
@@ -105,9 +108,27 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
 
       {/* Profile Tags with Trust Signals */}
       <div className="flex flex-wrap gap-2 mb-5">
+        {/* Investor Type */}
         <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-white" style={{ backgroundColor: '#5193B3' }}>
           {profile.investorType?.charAt(0).toUpperCase() + profile.investorType?.slice(1)} Investor
         </span>
+        
+        {/* Existing Investments */}
+        {profile.existingInvestments && profile.existingInvestments.length > 0 && (
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+            {profile.existingInvestments[0]}
+            {profile.existingInvestments.length > 1 && ` +${profile.existingInvestments.length - 1}`}
+          </span>
+        )}
+        
+        {/* Regions */}
+        {profile.regions && profile.regions.length > 0 && (
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+            {profile.regions[0]}
+            {profile.regions.length > 1 && ` +${profile.regions.length - 1}`}
+          </span>
+        )}
+        
         <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
           {profile.riskProfile?.charAt(0).toUpperCase() + profile.riskProfile?.slice(1)} Risk
         </span>

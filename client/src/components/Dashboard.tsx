@@ -11,6 +11,7 @@ import ToolModal from './ToolModal';
 import DDSnapshotHero from './DDSnapshotHero';
 import { RequestsMiniPanel } from './due/RequestsMiniPanel';
 import { useInvestor } from '../contexts/InvestorContext';
+import { useQuery } from '@tanstack/react-query';
 
 // Mock data imports
 import onboardingProfileData from '../mocks/onboardingProfile.json';
@@ -40,6 +41,9 @@ interface Profile {
   badges: string[];
   // Plan
   currentPlan: "free" | "premium";
+  // Investor Preferences
+  existingInvestments?: string[];
+  regions?: string[];
 }
 
 export default function Dashboard() {
@@ -58,13 +62,21 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Fetch investor preferences if investor is selected
+  const { data: investorPreferences } = useQuery({
+    queryKey: ['/api/investors', selectedInvestor?.userId, 'preferences'],
+    enabled: !!selectedInvestor?.userId,
+  });
+
   // Create profile from selected investor or use default
   const currentProfile = selectedInvestor ? {
     ...profile,
     firstName: selectedInvestor.name.split(' ')[0],
     lastName: selectedInvestor.name.split(' ').slice(1).join(' ') || '',
     email: `${selectedInvestor.name.toLowerCase().replace(/\s+/g, '.')}@demo.com`,
-    investorType: selectedInvestor.investorType?.toLowerCase() as "angel" | "syndicate" | "advisor" | "other" || 'angel'
+    investorType: selectedInvestor.investorType?.toLowerCase() as "angel" | "syndicate" | "advisor" | "other" || 'angel',
+    existingInvestments: investorPreferences?.existingInvestments || [],
+    regions: investorPreferences?.regions || []
   } : profile;
 
   const handlePreferencesChange = ({ newsletterFrequency, whatsappAlerts }: { 
