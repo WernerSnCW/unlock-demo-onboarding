@@ -457,33 +457,65 @@ function PropertyValuationComponent() {
             <div className="p-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30">
               <h5 className="font-medium text-[var(--primary)] mb-3 flex items-center gap-2">
                 <i className="fas fa-calendar-alt"></i>
-                Change Since Purchase
+                Performance Since Purchase
               </h5>
-              <div className="text-lg font-semibold text-[var(--primary)]">
-                {valuationResult.purchase.changeSincePurchase >= 0 ? '↑' : '↓'} £{Math.abs(valuationResult.purchase.changeSincePurchase)?.toLocaleString()} 
-                ({((valuationResult.purchase.changeSincePurchase / valuationResult.purchase.originalPrice) * 100).toFixed(1)}%)
+              
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                  <div className="text-sm text-[var(--muted-foreground)]">Original Purchase</div>
+                  <div className="font-semibold text-[var(--card-foreground)]">£{valuationResult.purchase.originalPrice?.toLocaleString()}</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">{valuationResult.purchase.purchaseMonth}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[var(--muted-foreground)]">Current Estimate</div>
+                  <div className="font-semibold text-[var(--card-foreground)]">£{(valuationResult.valuation?.estimate || valuationResult.estimate)?.toLocaleString()}</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">{valuationResult.purchase.yearsOwned} years owned</div>
+                </div>
               </div>
-              <div className="text-sm text-[var(--muted-foreground)]">
-                Since {new Date(valuationResult.purchase.purchaseDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+              
+              <div className="text-center py-2 border-t border-[var(--primary)]/20">
+                <div className="text-lg font-semibold text-[var(--primary)]">
+                  {valuationResult.purchase.changeSincePurchase >= 0 ? '↑' : '↓'} £{Math.abs(valuationResult.purchase.changeSincePurchase)?.toLocaleString()} 
+                  ({(valuationResult.purchase.changePercent || ((valuationResult.purchase.changeSincePurchase / valuationResult.purchase.originalPrice) * 100)).toFixed(1)}%)
+                </div>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  Total gain/loss • {(((valuationResult.purchase.changePercent || 0) / valuationResult.purchase.yearsOwned).toFixed(1))}% per year
+                </div>
               </div>
             </div>
           )}
 
-          {/* Market Trend */}
+          {/* Market Trend & HPI Analysis */}
           <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
             <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
               <i className="fas fa-chart-line"></i>
-              Market Trend
+              Market Analysis & HPI Data
             </h5>
-            <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
-              <div className="text-sm text-[var(--muted-foreground)] mb-2">
-                {valuationResult.trend?.geography || 'Regional Market'} • {valuationResult.trend?.series || 'All Types'}
+            
+            <div className="space-y-3">
+              {/* HPI Region Mapping */}
+              <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-3">
+                <div className="text-sm font-medium text-[var(--card-foreground)] mb-1">HPI Region Mapping</div>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  {valuationResult.metadata?.postcodeMapped || `${valuationResult.metadata?.postcodeSector} → ${valuationResult.trend?.geography}`}
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                  Area Code: {valuationResult.metadata?.hpiAreaCode} • Data from {valuationResult.metadata?.hpiDataDate ? new Date(valuationResult.metadata.hpiDataDate).toLocaleDateString() : 'Latest available'}
+                </div>
               </div>
-              <div className="text-lg font-semibold text-[var(--card-foreground)]">
-                {valuationResult.trend?.yoyChange >= 0 ? '+' : ''}{valuationResult.trend?.yoyChange?.toFixed(1) || 'N/A'}% YoY
-              </div>
-              <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                5-year HPI trend • Last 12 months highlighted
+              
+              {/* Market Performance */}
+              <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-3">
+                <div className="text-sm font-medium text-[var(--card-foreground)] mb-1">Market Performance</div>
+                <div className="text-lg font-semibold text-[var(--card-foreground)]">
+                  {valuationResult.trend?.yoyChange >= 0 ? '+' : ''}{valuationResult.trend?.yoyChange?.toFixed(1) || 'N/A'}% YoY
+                </div>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  {valuationResult.trend?.geography || 'Regional Market'} • {valuationResult.trend?.series || 'All Types'}
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                  UK House Price Index • Official HM Land Registry Data
+                </div>
               </div>
             </div>
           </div>

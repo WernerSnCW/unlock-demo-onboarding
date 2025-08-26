@@ -912,8 +912,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           explainability = {
             ...explainability,
             method: 'Blended: 70% comparable sales + 30% HPI baseline',
-            comparableAverage: Math.round(compAverage),
-            comparableRange: { min: compMin, max: compMax },
             blendedResult: finalEstimate
           };
         }
@@ -921,7 +919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Ensure we have a reasonable range for HPI_ONLY
       if (method === 'HPI_ONLY') {
-        const volatility = Math.abs(parseFloat(hpi.twelveMonthPercentChange || '0'));
+        const volatility = Math.abs(parseFloat(hpi.yearlyChangePercent || '0'));
         const rangeFactor = volatility > 10 ? 0.10 : 0.075; // ±10% if volatile, ±7.5% otherwise
         range = {
           min: Math.round(finalEstimate * (1 - rangeFactor)),
@@ -951,13 +949,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (comparables.length >= 5) confidenceScore += 1;
       
       // +1 if sales volume is healthy (simplified)
-      if (parseFloat(hpi.salesVolume || '0') > 100) confidenceScore += 1;
+      if (parseFloat(hpi.salesVolume?.toString() || '0') > 100) confidenceScore += 1;
       
       const confidence = confidenceScore <= 1 ? 'Low' : confidenceScore <= 3 ? 'Medium' : 'High';
       
       // Generate drivers (3-5 bullet points)
       const drivers = [];
-      const yoyChange = parseFloat(hpi.twelveMonthPercentChange || '0');
+      const yoyChange = parseFloat(hpi.yearlyChangePercent || '0');
       drivers.push(`Regional prices ${yoyChange >= 0 ? '+' : ''}${yoyChange.toFixed(1)}% YoY (${hpi.regionName})`);
       
       if (propertyType) {
@@ -981,7 +979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Format comparables for response (max 5)
       const formattedComparables = comparables.slice(0, 5).map(comp => ({
-        address: `${comp.primaryAddressableName || comp.paon || ''} ${comp.saon || ''} ${comp.street || ''}`.trim(),
+        address: `${comp.primaryAddressableName || ''} ${comp.secondaryAddressableName || ''} ${comp.street || ''}`.trim(),
         date: comp.dateOfTransfer,
         price: parseFloat(comp.price || '0'),
         distance: '< 0.5 miles', // Simplified for demo
@@ -999,7 +997,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trendData = trendQuery.map(row => ({
         date: row.date,
         index: parseFloat(row.indexSa || row.index || '100'),
-        yoyChange: parseFloat(row.twelveMonthPercentChange || '0')
+        yoyChange: parseFloat(row.yearlyChangePercent || '0')
       }));
 
       const enhancedValuation = {
@@ -1020,8 +1018,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         purchase: purchasePrice && purchaseDate ? {
           originalPrice: parseFloat(purchasePrice.toString()),
           purchaseDate,
+          purchaseYear: new Date(purchaseDate).getFullYear(),
+          purchaseMonth: new Date(purchaseDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
           upliftFactor: hpiUpliftFactor,
-          changeSincePurchase: finalEstimate - parseFloat(purchasePrice.toString())
+          changeSincePurchase: finalEstimate - parseFloat(purchasePrice.toString()),
+          changePercent: ((finalEstimate - parseFloat(purchasePrice.toString())) / parseFloat(purchasePrice.toString())) * 100,
+          yearsOwned: Math.round((Date.now() - new Date(purchaseDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25) * 10) / 10
         } : null,
         notes: [
           method === 'HPI_ONLY' ? 'Valuation based on regional HPI trends only' : 'Valuation blends local comparable sales with regional HPI data',
@@ -1033,7 +1035,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           propertyType: propertyType || 'Unknown',
           postcodeSector: postcodePrefix,
           timestamp: new Date().toISOString(),
-          methodBadge: method === 'HPI_PLUS_COMPS' ? 'HPI + Comparables' : 'HPI Only'
+          methodBadge: method === 'HPI_PLUS_COMPS' ? 'HPI + Comparables' : 'HPI Only',
+          hpiRegion: hpi.regionName,
+          hpiAreaCode: hpi.areaCode,
+          hpiDataDate: hpi.date,
+          postcodeMapped: `${postcodePrefix} → ${hpi.regionName} (${hpi.areaCode})`
         }
       };
 
