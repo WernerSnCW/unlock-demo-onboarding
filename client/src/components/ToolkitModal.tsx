@@ -6,7 +6,7 @@ import PitchDeckAnalyser from './PitchDeckAnalyser';
 
 function PropertyValuationComponent() {
   const { selectedInvestor } = useInvestor();
-  const [searchMode, setSearchMode] = useState<'saved' | 'search'>('saved');
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -64,11 +64,8 @@ function PropertyValuationComponent() {
       let propertyDetails = null;
       
       if (selectedProperty) {
-        if (searchMode === 'saved') {
-          propertyDetails = properties.find((p: any) => p.id === selectedProperty);
-        } else {
-          propertyDetails = selectedPropertyData;
-        }
+        // Use the stored property data, or find it in saved properties
+        propertyDetails = selectedPropertyData || properties.find((p: any) => p.id === selectedProperty);
       }
 
       // Prepare comprehensive valuation request
@@ -130,161 +127,51 @@ function PropertyValuationComponent() {
         <p className="text-gray-600 dark:text-gray-300">Professional real estate valuation using comparable sales and market data.</p>
       </div>
       
-      <form className="space-y-4">
+      <form className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
             Select Property *
           </label>
-          <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden mb-3">
-            <button
-              type="button"
-              onClick={() => {
-                setSearchMode('saved');
-                setSearchQuery('');
-                setSearchResults([]);
-                setSelectedProperty('');
-                setSelectedPropertyData(null);
-              }}
-              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                searchMode === 'saved'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <i className="fas fa-bookmark mr-2"></i>
-              My Properties
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchMode('search');
-                setSelectedProperty('');
-                setSelectedPropertyData(null);
-              }}
-              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                searchMode === 'search'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <i className="fas fa-search mr-2"></i>
-              Search Property
-            </button>
+          
+          {/* Property Search */}
+          <div className="mb-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Search by address or postcode (e.g., '123 Main Street' or 'SW1A 1AA')"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handlePropertySearch())}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              />
+              <button
+                type="button"
+                onClick={handlePropertySearch}
+                disabled={!searchQuery.trim() || isSearching}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center gap-2"
+              >
+                {isSearching ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-search"></i>
+                    Search
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
-          {searchMode === 'saved' ? (
-            <div className="space-y-3">
-              {Array.isArray(properties) && properties.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3">
-                  {properties.map((property: any) => (
-                    <button
-                      key={property.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedProperty(property.id);
-                        setSelectedPropertyData(property);
-                      }}
-                      className={`p-4 border rounded-lg text-left transition-all hover:shadow-md ${
-                        selectedProperty === property.id
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">
-                            {property.addressLine1}
-                            {property.addressLine2 && `, ${property.addressLine2}`}
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                            {property.city} {property.postcode}
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                            <span className="flex items-center gap-1">
-                              <i className="fas fa-home"></i>
-                              {property.type || 'Property'}
-                            </span>
-                            {property.bedrooms && (
-                              <span className="flex items-center gap-1">
-                                <i className="fas fa-bed"></i>
-                                {property.bedrooms} bed
-                              </span>
-                            )}
-                            {property.epcRating && (
-                              <span className="flex items-center gap-1">
-                                <i className="fas fa-leaf"></i>
-                                EPC {property.epcRating}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className={`w-4 h-4 rounded-full border-2 ${
-                            selectedProperty === property.id
-                              ? 'border-blue-500 bg-blue-500'
-                              : 'border-gray-300 dark:border-gray-600'
-                          }`}>
-                            {selectedProperty === property.id && (
-                              <i className="fas fa-check text-white text-xs leading-none"></i>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                    <i className="fas fa-home text-2xl text-gray-400"></i>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Properties Found</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {selectedInvestor ? 'No properties are associated with this investor.' : 'Please select an investor first.'}
-                  </p>
-                  <button 
-                    type="button"
-                    onClick={() => setSearchMode('search')}
-                    className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
-                  >
-                    Search for a property →
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter address or postcode (e.g., '123 Main Street' or 'SW1A 1AA')"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handlePropertySearch())}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-                <button
-                  type="button"
-                  onClick={handlePropertySearch}
-                  disabled={!searchQuery.trim() || isSearching}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center gap-2"
-                >
-                  {isSearching ? (
-                    <>
-                      <i className="fas fa-spinner fa-spin"></i>
-                      Searching...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-search"></i>
-                      Search
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {searchResults.length > 0 && (
-                <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-40 overflow-y-auto">
+          {/* Property Grid - Combined My Properties and Search Results */}
+          <div className="space-y-4">
+            {/* Search Results */}
+            {searchResults.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Search Results</h4>
+                <div className="grid grid-cols-2 gap-3">
                   {searchResults.map((property) => (
                     <button
                       key={property.id}
@@ -294,54 +181,112 @@ function PropertyValuationComponent() {
                         setSelectedPropertyData(property);
                         setSearchResults([]);
                       }}
-                      className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                      className={`p-3 border rounded-lg text-left transition-all hover:shadow-sm ${
+                        selectedProperty === property.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                      }`}
                     >
-                      <div className="font-medium text-gray-900 dark:text-gray-100">{property.address}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {property.type} • {property.postcode} • £{property.price?.toLocaleString()} ({property.date})
+                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 truncate">
+                        {property.address}
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        {property.type} • {property.postcode}
+                      </div>
+                      <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        £{property.price?.toLocaleString()} ({property.date})
                       </div>
                     </button>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {selectedPropertyData && searchMode === 'search' && (
-                <div className="p-4 border border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium text-green-900 dark:text-green-100 mb-1">
-                        Selected: {selectedPropertyData.address}
-                      </div>
-                      <div className="text-sm text-green-700 dark:text-green-300">
-                        {selectedPropertyData.type} • {selectedPropertyData.postcode} • £{selectedPropertyData.price?.toLocaleString()} ({selectedPropertyData.date})
-                      </div>
+            {/* Selected Property Display */}
+            {selectedPropertyData && (
+              <div className="p-3 border border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="font-medium text-green-900 dark:text-green-100 text-sm mb-1">
+                      ✓ Selected: {selectedPropertyData.address || selectedPropertyData.addressLine1}
                     </div>
+                    <div className="text-xs text-green-700 dark:text-green-300">
+                      {selectedPropertyData.type} • {selectedPropertyData.postcode}
+                      {selectedPropertyData.price && ` • £${selectedPropertyData.price.toLocaleString()}`}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProperty('');
+                      setSelectedPropertyData(null);
+                    }}
+                    className="ml-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* My Properties */}
+            {Array.isArray(properties) && properties.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">My Properties</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {properties.map((property: any) => (
                     <button
+                      key={property.id}
                       type="button"
                       onClick={() => {
-                        setSelectedProperty('');
-                        setSelectedPropertyData(null);
+                        setSelectedProperty(property.id);
+                        setSelectedPropertyData(property);
                       }}
-                      className="ml-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                      className={`p-3 border rounded-lg text-left transition-all hover:shadow-sm ${
+                        selectedProperty === property.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                      }`}
                     >
-                      <i className="fas fa-times"></i>
+                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 truncate">
+                        {property.addressLine1}
+                        {property.addressLine2 && `, ${property.addressLine2}`}
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        {property.city} {property.postcode}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>{property.type || 'Property'}</span>
+                        {property.bedrooms && <span>• {property.bedrooms} bed</span>}
+                      </div>
                     </button>
-                  </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {searchQuery && searchResults.length === 0 && !isSearching && !selectedPropertyData && (
-                <div className="p-4 border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                    <div className="font-medium mb-1">No specific properties found for "{searchQuery}"</div>
-                    <div className="text-yellow-700 dark:text-yellow-300">
-                      Don't worry! We'll use the postcode area data to provide an accurate valuation based on comparable sales in the {searchQuery.toUpperCase()} area.
-                    </div>
+            {/* No Properties State */}
+            {!Array.isArray(properties) || (properties.length === 0 && searchResults.length === 0 && !selectedPropertyData) && (
+              <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                <i className="fas fa-home text-2xl mb-2"></i>
+                <p className="text-sm">
+                  {selectedInvestor ? 'No saved properties. Use search above to find properties.' : 'Please select an investor first.'}
+                </p>
+              </div>
+            )}
+
+            {/* Search Fallback Message */}
+            {searchQuery && searchResults.length === 0 && !isSearching && !selectedPropertyData && (
+              <div className="p-3 border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <div className="font-medium mb-1">No specific properties found for "{searchQuery}"</div>
+                  <div className="text-yellow-700 dark:text-yellow-300">
+                    We'll use postcode area data for an accurate valuation based on comparable sales in the {searchQuery.toUpperCase()} area.
                   </div>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
         
         <div>
