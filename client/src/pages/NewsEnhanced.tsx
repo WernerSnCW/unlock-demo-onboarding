@@ -40,6 +40,8 @@ interface UserPreferences {
   eisSeisEnabled: boolean;
   dedupe: boolean;
   hideLowValue: boolean;
+  existingInvestments: string[];
+  investmentInterests: string[];
 }
 
 export default function NewsEnhanced() {
@@ -57,7 +59,9 @@ export default function NewsEnhanced() {
     riskAppetite: ['medium'],
     eisSeisEnabled: true,
     dedupe: true,
-    hideLowValue: true
+    hideLowValue: true,
+    existingInvestments: ['Public Equity', 'Angel Investing'],
+    investmentInterests: ['Seed Stage Startups', 'Technology Sector']
   });
 
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
@@ -82,7 +86,9 @@ export default function NewsEnhanced() {
     riskAppetite: ['medium'],
     eisSeisEnabled: true,
     dedupe: true,
-    hideLowValue: true
+    hideLowValue: true,
+    existingInvestments: ['Public Equity', 'Angel Investing'],
+    investmentInterests: ['Seed Stage Startups', 'Technology Sector']
   };
 
   // Enhanced filtering with deduplication and smart filtering

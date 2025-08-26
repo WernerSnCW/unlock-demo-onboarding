@@ -88,17 +88,19 @@ export default function PreferencesPanel({
   };
 
   const toggleSector = (sector: string) => {
-    const newSectors = preferences.sectors.includes(sector) 
-      ? preferences.sectors.filter(s => s !== sector)
-      : [...preferences.sectors, sector];
+    const currentSectors = preferences.sectors || [];
+    const newSectors = currentSectors.includes(sector) 
+      ? currentSectors.filter(s => s !== sector)
+      : [...currentSectors, sector];
     onUpdatePreferences({ ...preferences, sectors: newSectors });
     showUpdateToast();
   };
 
   const toggleRiskLevel = (risk: 'low' | 'medium' | 'high') => {
-    const newRiskAppetite = preferences.riskAppetite.includes(risk)
-      ? preferences.riskAppetite.filter(r => r !== risk)
-      : [...preferences.riskAppetite, risk];
+    const currentRisk = preferences.riskAppetite || [];
+    const newRiskAppetite = currentRisk.includes(risk)
+      ? currentRisk.filter(r => r !== risk)
+      : [...currentRisk, risk];
     onUpdatePreferences({ ...preferences, riskAppetite: newRiskAppetite });
     showUpdateToast();
   };
@@ -109,41 +111,46 @@ export default function PreferencesPanel({
   };
 
   const toggleRegion = (region: string) => {
-    const newRegions = preferences.regions.includes(region)
-      ? preferences.regions.filter(r => r !== region)
-      : [...preferences.regions, region];
+    const currentRegions = preferences.regions || [];
+    const newRegions = currentRegions.includes(region)
+      ? currentRegions.filter(r => r !== region)
+      : [...currentRegions, region];
     onUpdatePreferences({ ...preferences, regions: newRegions });
     showUpdateToast();
   };
 
   const toggleTopic = (topic: string) => {
-    const newTopics = preferences.topics.includes(topic)
-      ? preferences.topics.filter(t => t !== topic)
-      : [...preferences.topics, topic];
+    const currentTopics = preferences.topics || [];
+    const newTopics = currentTopics.includes(topic)
+      ? currentTopics.filter(t => t !== topic)
+      : [...currentTopics, topic];
     onUpdatePreferences({ ...preferences, topics: newTopics });
     showUpdateToast();
   };
 
   const toggleTicker = (ticker: string) => {
-    const newTickers = preferences.tickers.includes(ticker)
-      ? preferences.tickers.filter(t => t !== ticker)
-      : [...preferences.tickers, ticker];
+    const currentTickers = preferences.tickers || [];
+    const newTickers = currentTickers.includes(ticker)
+      ? currentTickers.filter(t => t !== ticker)
+      : [...currentTickers, ticker];
     onUpdatePreferences({ ...preferences, tickers: newTickers });
     showUpdateToast();
   };
 
   const toggleIncludeSource = (source: string) => {
-    const newSources = preferences.includeSources.includes(source)
-      ? preferences.includeSources.filter(s => s !== source)
-      : [...preferences.includeSources, source];
+    const currentSources = preferences.includeSources || [];
+    const newSources = currentSources.includes(source)
+      ? currentSources.filter(s => s !== source)
+      : [...currentSources, source];
     onUpdatePreferences({ ...preferences, includeSources: newSources });
     showUpdateToast();
   };
 
   const toggleExcludeSource = (source: string) => {
-    const newSources = preferences.excludeSources.includes(source)
-      ? preferences.excludeSources.filter(s => s !== source)
-      : [...preferences.excludeSources, source];
+    const currentExcludeSources = preferences.excludeSources || [];
+    const newSources = currentExcludeSources.includes(source)
+      ? currentExcludeSources.filter(s => s !== source)
+      : [...currentExcludeSources, source];
     onUpdatePreferences({ ...preferences, excludeSources: newSources });
     showUpdateToast();
   };
@@ -159,17 +166,19 @@ export default function PreferencesPanel({
   };
 
   const toggleExistingInvestment = (investment: string) => {
-    const newInvestments = preferences.existingInvestments.includes(investment)
-      ? preferences.existingInvestments.filter(i => i !== investment)
-      : [...preferences.existingInvestments, investment];
+    const currentInvestments = preferences.existingInvestments || [];
+    const newInvestments = currentInvestments.includes(investment)
+      ? currentInvestments.filter(i => i !== investment)
+      : [...currentInvestments, investment];
     onUpdatePreferences({ ...preferences, existingInvestments: newInvestments });
     showUpdateToast();
   };
 
   const toggleInvestmentInterest = (interest: string) => {
-    const newInterests = preferences.investmentInterests.includes(interest)
-      ? preferences.investmentInterests.filter(i => i !== interest)
-      : [...preferences.investmentInterests, interest];
+    const currentInterests = preferences.investmentInterests || [];
+    const newInterests = currentInterests.includes(interest)
+      ? currentInterests.filter(i => i !== interest)
+      : [...currentInterests, interest];
     onUpdatePreferences({ ...preferences, investmentInterests: newInterests });
     showUpdateToast();
   };
@@ -250,13 +259,13 @@ export default function PreferencesPanel({
               key={sector}
               onClick={() => toggleSector(sector)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.sectors.includes(sector)
+                (preferences.sectors || []).includes(sector)
                   ? 'bg-[var(--secondary)] text-[var(--secondary-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
               }`}
-              aria-pressed={preferences.sectors.includes(sector)}
+              aria-pressed={(preferences.sectors || []).includes(sector)}
             >
-              <i className={`fas ${preferences.sectors.includes(sector) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.sectors || []).includes(sector) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {sector}
             </button>
           ))}
@@ -272,13 +281,13 @@ export default function PreferencesPanel({
               key={risk.id}
               onClick={() => toggleRiskLevel(risk.id as 'low' | 'medium' | 'high')}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.riskAppetite.includes(risk.id as 'low' | 'medium' | 'high')
+                (preferences.riskAppetite || []).includes(risk.id as 'low' | 'medium' | 'high')
                   ? risk.color
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
               }`}
-              aria-pressed={preferences.riskAppetite.includes(risk.id as 'low' | 'medium' | 'high')}
+              aria-pressed={(preferences.riskAppetite || []).includes(risk.id as 'low' | 'medium' | 'high')}
             >
-              <i className={`fas ${preferences.riskAppetite.includes(risk.id as 'low' | 'medium' | 'high') ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.riskAppetite || []).includes(risk.id as 'low' | 'medium' | 'high') ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {risk.label}
             </button>
           ))}
@@ -295,13 +304,13 @@ export default function PreferencesPanel({
               key={investment}
               onClick={() => toggleExistingInvestment(investment)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.existingInvestments.includes(investment)
+                (preferences.existingInvestments || []).includes(investment)
                   ? 'bg-[var(--info)] text-[var(--info-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--info)] hover:text-[var(--info-foreground)]'
               }`}
-              aria-pressed={preferences.existingInvestments.includes(investment)}
+              aria-pressed={(preferences.existingInvestments || []).includes(investment)}
             >
-              <i className={`fas ${preferences.existingInvestments.includes(investment) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.existingInvestments || []).includes(investment) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {investment}
             </button>
           ))}
@@ -318,13 +327,13 @@ export default function PreferencesPanel({
               key={interest}
               onClick={() => toggleInvestmentInterest(interest)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.investmentInterests.includes(interest)
+                (preferences.investmentInterests || []).includes(interest)
                   ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)]'
               }`}
-              aria-pressed={preferences.investmentInterests.includes(interest)}
+              aria-pressed={(preferences.investmentInterests || []).includes(interest)}
             >
-              <i className={`fas ${preferences.investmentInterests.includes(interest) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.investmentInterests || []).includes(interest) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {interest}
             </button>
           ))}
@@ -365,13 +374,13 @@ export default function PreferencesPanel({
               key={ticker}
               onClick={() => toggleTicker(ticker)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.tickers.includes(ticker)
+                (preferences.tickers || []).includes(ticker)
                   ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
               }`}
-              aria-pressed={preferences.tickers.includes(ticker)}
+              aria-pressed={(preferences.tickers || []).includes(ticker)}
             >
-              <i className={`fas ${preferences.tickers.includes(ticker) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.tickers || []).includes(ticker) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {ticker}
             </button>
           ))}
@@ -387,13 +396,13 @@ export default function PreferencesPanel({
               key={region}
               onClick={() => toggleRegion(region)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.regions.includes(region)
+                (preferences.regions || []).includes(region)
                   ? 'bg-[var(--secondary)] text-[var(--secondary-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
               }`}
-              aria-pressed={preferences.regions.includes(region)}
+              aria-pressed={(preferences.regions || []).includes(region)}
             >
-              <i className={`fas ${preferences.regions.includes(region) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.regions || []).includes(region) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {region}
             </button>
           ))}
@@ -409,13 +418,13 @@ export default function PreferencesPanel({
               key={topic}
               onClick={() => toggleTopic(topic)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.topics.includes(topic)
+                (preferences.topics || []).includes(topic)
                   ? 'bg-[var(--accent)] text-[var(--accent-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]'
               }`}
-              aria-pressed={preferences.topics.includes(topic)}
+              aria-pressed={(preferences.topics || []).includes(topic)}
             >
-              <i className={`fas ${preferences.topics.includes(topic) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.topics || []).includes(topic) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {topic}
             </button>
           ))}
@@ -431,13 +440,13 @@ export default function PreferencesPanel({
               key={source}
               onClick={() => toggleIncludeSource(source)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.includeSources.includes(source)
+                (preferences.includeSources || []).includes(source)
                   ? 'bg-[var(--success)] text-[var(--success-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--success)] hover:text-[var(--success-foreground)]'
               }`}
-              aria-pressed={preferences.includeSources.includes(source)}
+              aria-pressed={(preferences.includeSources || []).includes(source)}
             >
-              <i className={`fas ${preferences.includeSources.includes(source) ? 'fa-plus-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.includeSources || []).includes(source) ? 'fa-plus-circle' : 'fa-circle'} text-xs`}></i>
               {source}
             </button>
           ))}
@@ -453,13 +462,13 @@ export default function PreferencesPanel({
               key={source}
               onClick={() => toggleExcludeSource(source)}
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                preferences.excludeSources.includes(source)
+                (preferences.excludeSources || []).includes(source)
                   ? 'bg-[var(--destructive)] text-[var(--destructive-foreground)]'
                   : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--destructive)] hover:text-[var(--destructive-foreground)]'
               }`}
-              aria-pressed={preferences.excludeSources.includes(source)}
+              aria-pressed={(preferences.excludeSources || []).includes(source)}
             >
-              <i className={`fas ${preferences.excludeSources.includes(source) ? 'fa-minus-circle' : 'fa-circle'} text-xs`}></i>
+              <i className={`fas ${(preferences.excludeSources || []).includes(source) ? 'fa-minus-circle' : 'fa-circle'} text-xs`}></i>
               {source}
             </button>
           ))}
