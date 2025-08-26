@@ -81,9 +81,9 @@ export const properties = pgTable("properties", {
   latitude: numeric("latitude"),
   longitude: numeric("longitude"),
   propertyType: text("property_type"), // 'residential','btL','commercial','industrial','land','mixed'
-  bedrooms: integer("bedrooms"),
+  bedrooms: text("bedrooms"),
   floorAreaSqm: numeric("floor_area_sqm"),
-  yearBuilt: integer("year_built"),
+  yearBuilt: text("year_built"),
   epcRating: text("epc_rating"), // 'A'..'G' if known
   createdAt: timestamp("created_at").default(sql`now()`),
   updatedAt: timestamp("updated_at").default(sql`now()`),
