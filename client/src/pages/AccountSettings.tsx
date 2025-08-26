@@ -2500,12 +2500,29 @@ export default function AccountSettings() {
                 });
                 return;
               }
-              const submissionData = {
+              
+              // Convert empty strings to null for optional fields
+              const cleanedData = {
                 ...data,
-                userId: selectedInvestorId
+                userId: selectedInvestorId,
+                description: data.description || null,
+                investmentDateUk: data.investmentDateUk || null,
+                maturityDateUk: data.maturityDateUk || null,
+                investmentAmountGbp: data.investmentAmountGbp || null,
+                currentValueGbp: data.currentValueGbp || null,
+                targetReturnPct: data.targetReturnPct || null,
+                actualReturnPct: data.actualReturnPct || null,
+                riskRating: data.riskRating || null,
+                liquidityPeriod: data.liquidityPeriod || null,
+                minimumInvestment: data.minimumInvestment || null,
+                fees: data.fees || null,
+                taxWrapperType: data.taxWrapperType || null,
+                documentsUrl: data.documentsUrl || null,
+                notes: data.notes || null,
               };
-              console.log('Submitting with userId:', submissionData);
-              createAlternativeInvestmentMutation.mutate(submissionData);
+              
+              console.log('Submitting cleaned data:', cleanedData);
+              createAlternativeInvestmentMutation.mutate(cleanedData);
             })} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField

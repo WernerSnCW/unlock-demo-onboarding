@@ -316,14 +316,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/alternatives', async (req, res) => {
     try {
+      console.log('Received alternative investment data:', req.body);
       const validatedData = insertAlternativeInvestmentSchema.parse(req.body);
+      console.log('Validated data:', validatedData);
       const investment = await storage.createAlternativeInvestment(validatedData);
+      console.log('Created investment:', investment);
       res.status(201).json(investment);
     } catch (error) {
+      console.error('Alternative investment creation error:', error);
       if (error instanceof Error && error.name === 'ZodError') {
+        console.error('Zod validation error details:', error);
         return res.status(400).json({ message: 'Invalid data', errors: error });
       }
-      res.status(500).json({ message: 'Failed to create alternative investment' });
+      res.status(500).json({ message: 'Failed to create alternative investment', error: error instanceof Error ? error.message : String(error) });
     }
   });
 
