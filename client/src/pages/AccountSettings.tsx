@@ -699,7 +699,9 @@ export default function AccountSettings() {
                   {[
                     'Public Equity', 'Private Equity', 'Venture Capital', 'Angel Investing',
                     'Real Estate', 'Cryptocurrency', 'Bonds', 'REITs', 'Hedge Funds',
-                    'Commodities', 'Art & Collectibles', 'Peer-to-Peer Lending'
+                    'Commodities', 'Fine Art', 'Collectibles', 'Whisky & Spirits', 'Wine',
+                    'Classic Cars', 'Watches', 'Peer-to-Peer Lending', 'Infrastructure',
+                    'Forestry & Timberland', 'Precious Metals'
                   ].map((investment) => (
                     <div key={investment} className="flex items-center space-x-2">
                       <Checkbox 
@@ -726,8 +728,11 @@ export default function AccountSettings() {
                   {[
                     'Seed Stage Startups', 'Growth Stage Companies', 'Pre-IPO Opportunities',
                     'ESG/Impact Investing', 'Technology Sector', 'Healthcare & Biotech',
-                    'Green Energy', 'Emerging Markets', 'Alternative Assets', 'Property Development',
-                    'Fintech Innovation', 'AI & Machine Learning'
+                    'Green Energy', 'Emerging Markets', 'Property Development',
+                    'Fintech Innovation', 'AI & Machine Learning', 'Whisky & Spirits Casks',
+                    'Fine Wine Investment', 'Classic Car Collecting', 'Luxury Watches',
+                    'Contemporary Art', 'Rare Collectibles', 'Infrastructure Projects',
+                    'Forestry & Timber', 'Precious Metals Trading', 'Cryptocurrency Trading'
                   ].map((interest) => (
                     <div key={interest} className="flex items-center space-x-2">
                       <Checkbox 
