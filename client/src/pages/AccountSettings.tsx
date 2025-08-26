@@ -876,12 +876,25 @@ export default function AccountSettings() {
   // Alternative investment mutations
   const createAlternativeInvestmentMutation = useMutation({
     mutationFn: async (data: AlternativeInvestmentFormData) => {
-      return apiRequest('/api/alternatives', {
+      console.log('Submitting alternative investment data:', data);
+      const response = await fetch('/api/alternatives', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Alternative investment creation failed:', errorData);
+        throw new Error(`Failed to create alternative investment: ${response.status}`);
+      }
+      
+      return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (newInvestment) => {
+      console.log('Alternative investment created successfully:', newInvestment);
       queryClient.invalidateQueries({ queryKey: ['/api/alternatives', selectedInvestorId] });
       alternativeInvestmentForm.reset({
         userId: selectedInvestorId || '',
@@ -908,10 +921,11 @@ export default function AccountSettings() {
         description: 'Alternative investment has been added successfully.',
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Alternative investment creation error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to add alternative investment.',
+        description: `Failed to add alternative investment: ${error.message}`,
         variant: 'destructive',
       });
     }
@@ -2476,7 +2490,22 @@ export default function AccountSettings() {
         <CardContent className="space-y-6">
           <Form {...alternativeInvestmentForm}>
             <form onSubmit={alternativeInvestmentForm.handleSubmit((data) => {
-              createAlternativeInvestmentMutation.mutate(data);
+              console.log('Form submitted with data:', data);
+              if (!selectedInvestorId) {
+                console.error('No investor selected');
+                toast({
+                  title: 'Error',
+                  description: 'Please select an investor first.',
+                  variant: 'destructive',
+                });
+                return;
+              }
+              const submissionData = {
+                ...data,
+                userId: selectedInvestorId
+              };
+              console.log('Submitting with userId:', submissionData);
+              createAlternativeInvestmentMutation.mutate(submissionData);
             })} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
