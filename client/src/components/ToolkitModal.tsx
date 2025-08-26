@@ -13,8 +13,6 @@ function PropertyValuationComponent() {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState('');
   const [selectedPropertyData, setSelectedPropertyData] = useState<any>(null);
-  const [valuationMethod, setValuationMethod] = useState('comparable');
-  const [marketConditions, setMarketConditions] = useState('current');
   const [isGeneratingValuation, setIsGeneratingValuation] = useState(false);
   const [valuationResult, setValuationResult] = useState<any>(null);
 
@@ -98,7 +96,9 @@ function PropertyValuationComponent() {
         purchasePrice: propertyDetails?.purchasePrice,
         purchaseDate: propertyDetails?.purchaseDate,
         bedrooms: propertyDetails?.bedrooms,
-        propertyId: propertyDetails?.id
+        propertyId: propertyDetails?.id,
+        valuationMethod: 'comparable',
+        marketConditions: 'current'
       };
 
       const response = await fetch('/api/property-valuation', {
@@ -214,10 +214,10 @@ function PropertyValuationComponent() {
               <div className="p-3 border border-[var(--success)] bg-[var(--success)]/10 rounded-[var(--radius-sm)]">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="font-medium text-[var(--success)] text-sm mb-1">
+                    <div className="font-medium text-[var(--card-foreground)] text-sm mb-1">
                       ✓ Selected: {selectedPropertyData.address || selectedPropertyData.addressLine1}
                     </div>
-                    <div className="text-xs text-[var(--success)]/80">
+                    <div className="text-xs text-[var(--muted-foreground)]">
                       {selectedPropertyData.type} • {selectedPropertyData.postcode}
                       {selectedPropertyData.price && ` • £${selectedPropertyData.price.toLocaleString()}`}
                     </div>
@@ -228,7 +228,7 @@ function PropertyValuationComponent() {
                       setSelectedProperty('');
                       setSelectedPropertyData(null);
                     }}
-                    className="ml-2 text-[var(--success)] hover:text-[var(--success)]/80 transition-colors"
+                    className="ml-2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] transition-colors"
                   >
                     <i className="fas fa-times"></i>
                   </button>
@@ -296,37 +296,7 @@ function PropertyValuationComponent() {
           </div>
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
-            Valuation Method
-          </label>
-          <select 
-            value={valuationMethod}
-            onChange={(e) => setValuationMethod(e.target.value)}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--input)] text-[var(--card-foreground)] focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--primary)]"
-          >
-            <option value="comparable">Comparable sales analysis</option>
-            <option value="rental">Rental yield analysis</option>
-            <option value="cost">Replacement cost method</option>
-          </select>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
-            Market Conditions
-          </label>
-          <select 
-            value={marketConditions}
-            onChange={(e) => setMarketConditions(e.target.value)}
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--input)] text-[var(--card-foreground)] focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--primary)]"
-          >
-            <option value="current">Current market</option>
-            <option value="rising">Rising market</option>
-            <option value="declining">Declining market</option>
-          </select>
-        </div>
-        
-        <div className="pt-4">
+        <div className="pt-6">
           <button
             type="button"
             onClick={handleGenerateValuation}
