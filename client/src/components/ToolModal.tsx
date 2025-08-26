@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
+import { useInvestor } from '../contexts/InvestorContext';
 
 interface ToolModalProps {
   isOpen: boolean;
@@ -62,6 +64,36 @@ const toolDetails: Record<string, {
       { label: 'Analysis Depth', placeholder: 'Standard report' },
       { label: 'Focus Areas', placeholder: 'Select key areas...' }
     ]
+  },
+  property_valuation: {
+    name: 'Property Valuation',
+    description: 'Professional real estate valuation using comparable sales and market data.',
+    icon: 'fas fa-home',
+    inputs: [
+      { label: 'Select Property', placeholder: 'Choose property to value...' },
+      { label: 'Valuation Method', placeholder: 'Comparable sales analysis' },
+      { label: 'Market Conditions', placeholder: 'Current market' }
+    ]
+  },
+  art_valuation: {
+    name: 'Art Valuation',
+    description: 'Fine art and collectibles appraisal with auction data and expert insights.',
+    icon: 'fas fa-palette',
+    inputs: [
+      { label: 'Artwork Type', placeholder: 'Select artwork category...' },
+      { label: 'Artist/Creator', placeholder: 'Enter artist name...' },
+      { label: 'Condition', placeholder: 'Excellent' }
+    ]
+  },
+  whisky_valuation: {
+    name: 'Whisky Valuation',
+    description: 'Rare whisky and cask investment valuation with market trends analysis.',
+    icon: 'fas fa-wine-bottle',
+    inputs: [
+      { label: 'Whisky Type', placeholder: 'Single malt, blend, cask...' },
+      { label: 'Distillery', placeholder: 'Enter distillery name...' },
+      { label: 'Age/Vintage', placeholder: 'Enter age or vintage year...' }
+    ]
   }
 };
 
@@ -74,6 +106,146 @@ function ChartStub() {
       <p className="text-sm text-[var(--muted-foreground)]">
         Interactive charts and analysis will appear here
       </p>
+    </div>
+  );
+}
+
+function PropertyValuationForm() {
+  const { selectedInvestor } = useInvestor();
+  const [selectedProperty, setSelectedProperty] = useState<string>('');
+  
+  const { data: properties, isLoading: propertiesLoading } = useQuery({
+    queryKey: ['/api/properties', selectedInvestor?.userId],
+    enabled: !!selectedInvestor?.userId,
+  });
+
+  if (propertiesLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[var(--card-foreground)]">
+            Select Property
+          </label>
+          <div className="w-full h-10 bg-[var(--muted)] rounded-[var(--radius-sm)] animate-pulse"></div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[var(--card-foreground)]">
+            Valuation Method
+          </label>
+          <div className="w-full h-10 bg-[var(--muted)] rounded-[var(--radius-sm)] animate-pulse"></div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[var(--card-foreground)]">
+            Market Conditions
+          </label>
+          <div className="w-full h-10 bg-[var(--muted)] rounded-[var(--radius-sm)] animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!properties || properties.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <div className="w-16 h-16 mx-auto mb-4 bg-[var(--muted)] rounded-full flex items-center justify-center">
+          <i className="fas fa-home text-2xl text-[var(--muted-foreground)]"></i>
+        </div>
+        <h3 className="text-lg font-medium text-[var(--card-foreground)] mb-2">No Properties Found</h3>
+        <p className="text-sm text-[var(--muted-foreground)] mb-4">
+          {selectedInvestor ? 'No properties are associated with this investor.' : 'Please select an investor first.'}
+        </p>
+        <button className="text-[var(--accent)] text-sm font-medium hover:underline">
+          Add Property →
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Property Selection */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-[var(--card-foreground)]">
+          Select Property
+        </label>
+        <select
+          value={selectedProperty}
+          onChange={(e) => setSelectedProperty(e.target.value)}
+          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+        >
+          <option value="">Choose property to value...</option>
+          {properties.map((property: any) => (
+            <option key={property.id} value={property.id}>
+              {property.addressLine1}{property.addressLine2 ? `, ${property.addressLine2}` : ''}, {property.city} {property.postcode}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Show property details if selected */}
+      {selectedProperty && (
+        <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+          {(() => {
+            const property = properties.find((p: any) => p.id === selectedProperty);
+            if (!property) return null;
+            
+            return (
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-[var(--muted-foreground)]">Type:</span>
+                  <span className="ml-2 text-[var(--card-foreground)] capitalize">
+                    {property.propertyType || 'Not specified'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[var(--muted-foreground)]">Bedrooms:</span>
+                  <span className="ml-2 text-[var(--card-foreground)]">
+                    {property.bedrooms || 'Not specified'}
+                  </span>
+                </div>
+                {property.yearBuilt && (
+                  <div>
+                    <span className="text-[var(--muted-foreground)]">Year Built:</span>
+                    <span className="ml-2 text-[var(--card-foreground)]">{property.yearBuilt}</span>
+                  </div>
+                )}
+                {property.epcRating && (
+                  <div>
+                    <span className="text-[var(--muted-foreground)]">EPC Rating:</span>
+                    <span className="ml-2 text-[var(--card-foreground)]">{property.epcRating}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Valuation Method */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-[var(--card-foreground)]">
+          Valuation Method
+        </label>
+        <select
+          disabled
+          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <option>Comparable sales analysis</option>
+        </select>
+      </div>
+
+      {/* Market Conditions */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-[var(--card-foreground)]">
+          Market Conditions
+        </label>
+        <select
+          disabled
+          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <option>Current market</option>
+        </select>
+      </div>
     </div>
   );
 }
@@ -163,25 +335,35 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Input Fields */}
-              <div className="space-y-4">
-                {tool.inputs.map((input, index) => (
-                  <div key={index} className="space-y-2">
-                    <label className="text-sm font-medium text-[var(--card-foreground)]">
-                      {input.label}
-                    </label>
-                    <input
-                      type={input.type || 'text'}
-                      placeholder={input.placeholder}
-                      disabled
-                      className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
+              {/* Special handling for property valuation */}
+              {toolId === 'property_valuation' || toolId === 'property-valuation' ? (
+                <>
+                  <PropertyValuationForm />
+                  <ChartStub />
+                </>
+              ) : (
+                <>
+                  {/* Input Fields */}
+                  <div className="space-y-4">
+                    {tool.inputs.map((input, index) => (
+                      <div key={index} className="space-y-2">
+                        <label className="text-sm font-medium text-[var(--card-foreground)]">
+                          {input.label}
+                        </label>
+                        <input
+                          type={input.type || 'text'}
+                          placeholder={input.placeholder}
+                          disabled
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              {/* Chart Stub */}
-              <ChartStub />
+                  {/* Chart Stub */}
+                  <ChartStub />
+                </>
+              )}
 
               {/* Premium Teaser */}
               <div className="bg-gradient-to-r from-[var(--primary)]/10 to-[var(--accent)]/10 border border-[var(--primary)]/20 rounded-[var(--radius-sm)] p-4">
