@@ -10,6 +10,7 @@ import MiniDock from './MiniDock';
 import ToolModal from './ToolModal';
 import DDSnapshotHero from './DDSnapshotHero';
 import { RequestsMiniPanel } from './due/RequestsMiniPanel';
+import { useInvestor } from '../contexts/InvestorContext';
 
 // Mock data imports
 import onboardingProfileData from '../mocks/onboardingProfile.json';
@@ -42,6 +43,7 @@ interface Profile {
 }
 
 export default function Dashboard() {
+  const { selectedInvestor } = useInvestor();
   const [profile, setProfile] = useState(onboardingProfileData as Profile);
   const [newsItems] = useState(newsFeedData);
   const [companies] = useState(watchlistData);
@@ -55,6 +57,15 @@ export default function Dashboard() {
     const timer = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Create profile from selected investor or use default
+  const currentProfile = selectedInvestor ? {
+    ...profile,
+    firstName: selectedInvestor.name.split(' ')[0],
+    lastName: selectedInvestor.name.split(' ').slice(1).join(' ') || '',
+    email: `${selectedInvestor.name.toLowerCase().replace(/\s+/g, '.')}@demo.com`,
+    investorType: selectedInvestor.investorType?.toLowerCase() as "angel" | "syndicate" | "advisor" | "other" || 'angel'
+  } : profile;
 
   const handlePreferencesChange = ({ newsletterFrequency, whatsappAlerts }: { 
     newsletterFrequency: string; 
@@ -179,7 +190,7 @@ export default function Dashboard() {
           {/* Left Column - "Your World" */}
           <div className="order-1 space-y-6">
             <WelcomePanel 
-              profile={profile} 
+              profile={currentProfile} 
               onChangePreferences={handlePreferencesChange}
               onEditSectors={() => console.log('Edit sectors clicked')}
               onUpgrade={() => console.log('Upgrade clicked')}
