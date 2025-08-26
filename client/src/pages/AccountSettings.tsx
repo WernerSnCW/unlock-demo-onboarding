@@ -1330,19 +1330,22 @@ export default function AccountSettings() {
     </div>
   );
 
-  const renderPortfolioHoldingsTab = () => (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PieChart className="h-5 w-5" />
-            Portfolio Holdings
-          </CardTitle>
-          <CardDescription>
-            Add demo investments and positions for this investor's portfolio.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+  const renderPortfolioHoldingsTab = () => {
+    const { positions, isLoading } = usePortfolioStoreDB();
+    
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PieChart className="h-5 w-5" />
+              Portfolio Holdings
+            </CardTitle>
+            <CardDescription>
+              Add demo investments and positions for this investor's portfolio.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
           {/* Add Holding Form */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div className="space-y-4">
@@ -1382,67 +1385,64 @@ export default function AccountSettings() {
 
           {/* Holdings List */}
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Holdings</h4>
-            {/* Sample holdings for demo */}
-            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Apple Inc</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">AAPL • Equity</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">50</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">£7,500</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
-                      <p className="font-medium text-green-600">£9,200</p>
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">Current Holdings</h4>
+            {isLoading ? (
+              <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Loading portfolio holdings...</p>
+              </div>
+            ) : positions.length > 0 ? (
+              positions.map((position) => {
+                const currentValue = position.quantity * position.price;
+                const costBasis = position.quantity * position.avgCost;
+                const gainLoss = currentValue - costBasis;
+                const gainLossColor = gainLoss >= 0 ? 'text-green-600' : 'text-red-600';
+                
+                return (
+                  <div key={position.id} className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <h5 className="font-medium text-gray-900 dark:text-gray-100">{position.name}</h5>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{position.ticker} • {position.meta?.assetType || 'Equity'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{position.quantity}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">£{costBasis.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
+                            <p className={`font-medium ${gainLossColor}`}>£{currentValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        data-testid={`button-delete-holding-${position.id}`}
+                        onClick={() => {/* TODO: Implement delete */}}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                </div>
-                <Button variant="destructive" size="sm" data-testid="button-delete-holding-1">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                );
+              })
+            ) : (
+              <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                <p className="text-sm text-gray-600 dark:text-gray-400">No portfolio holdings yet. Add one above to get started.</p>
               </div>
-            </div>
-            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <h5 className="font-medium text-gray-900 dark:text-gray-100">Vanguard FTSE 100</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">VUKE • Fund</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">200</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Cost Basis</p>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">£15,000</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
-                      <p className="font-medium text-green-600">£16,800</p>
-                    </div>
-                  </div>
-                </div>
-                <Button variant="destructive" size="sm" data-testid="button-delete-holding-2">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
     </div>
   );
+};
 
   // Render Properties tab
   const renderPropertiesTab = () => (
