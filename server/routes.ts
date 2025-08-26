@@ -1024,6 +1024,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         salesVolume: parseFloat(row.salesVolume?.toString() || '0')
       }));
 
+      // Debug: Log the first data point to understand what's available
+      if (trendData.length > 0) {
+        console.log('HPI trend data sample:', {
+          region: hpi.regionName,
+          samplePoint: trendData[0],
+          totalPoints: trendData.length,
+          hasDetachedData: trendData.some(d => d.detachedIndex > 0),
+          hasAveragePrice: trendData.some(d => d.averagePrice > 0)
+        });
+      }
+
       // Calculate confidence score for charts
       let chartConfidenceScore = 0;
       if (propertyType && ['detached', 'semi-detached', 'terraced', 'flat'].includes(propertyType.toLowerCase())) {

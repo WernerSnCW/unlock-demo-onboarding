@@ -75,6 +75,23 @@ export const PropertyTypeComparison: React.FC<{ data: ChartData[]; userPropertyT
   const last36Months = data.slice(0, 36).reverse();
   const userType = userPropertyType?.toLowerCase();
   
+  // Check if we have property type data
+  const hasPropertyTypeData = last36Months.some(d => 
+    d.detachedIndex > 0 || d.semiDetachedIndex > 0 || d.terracedIndex > 0 || d.flatIndex > 0
+  );
+
+  if (!hasPropertyTypeData) {
+    return (
+      <div className="h-48 flex items-center justify-center bg-[var(--muted)]/50 rounded-[var(--radius-sm)]">
+        <div className="text-center text-[var(--muted-foreground)]">
+          <i className="fas fa-info-circle text-lg mb-2"></i>
+          <p className="text-sm">Property type breakdown not available for this region</p>
+          <p className="text-xs">Using overall regional index instead</p>
+        </div>
+      </div>
+    );
+  }
+  
   const getTypeKey = (type: string) => {
     switch (type) {
       case 'detached': return 'detachedIndex';
@@ -173,41 +190,68 @@ export const MarketPulseBars: React.FC<{ data: ChartData[]; currentYoY: number }
 export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) => {
   const last36Months = data.slice(0, 36).reverse();
   
+  // Check if we have price data
+  const hasPriceData = last36Months.some(d => d.averagePrice > 0);
+  const hasIndexData = last36Months.some(d => d.index > 0);
+
+  if (!hasPriceData && !hasIndexData) {
+    return (
+      <div className="h-32 flex items-center justify-center bg-[var(--muted)]/50 rounded-[var(--radius-sm)]">
+        <div className="text-center text-[var(--muted-foreground)]">
+          <i className="fas fa-info-circle text-lg mb-2"></i>
+          <p className="text-sm">Price and index data not available for detailed analysis</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="grid grid-cols-2 gap-4 h-32">
       <div>
         <h6 className="text-xs font-medium text-[var(--card-foreground)] mb-1">Average Price (£)</h6>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={last36Months}>
-            <XAxis dataKey="date" hide />
-            <YAxis hide />
-            <Tooltip content={<CustomTooltip />} />
-            <Line 
-              type="monotone" 
-              dataKey="averagePrice" 
-              stroke="var(--primary)" 
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {hasPriceData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={last36Months}>
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+              <Tooltip content={<CustomTooltip />} />
+              <Line 
+                type="monotone" 
+                dataKey="averagePrice" 
+                stroke="var(--primary)" 
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full flex items-center justify-center bg-[var(--muted)]/30 rounded">
+            <span className="text-xs text-[var(--muted-foreground)]">No price data</span>
+          </div>
+        )}
       </div>
       <div>
         <h6 className="text-xs font-medium text-[var(--card-foreground)] mb-1">Index (2015=100)</h6>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={last36Months}>
-            <XAxis dataKey="date" hide />
-            <YAxis hide />
-            <Tooltip content={<CustomTooltip />} />
-            <Line 
-              type="monotone" 
-              dataKey="index" 
-              stroke="var(--secondary)" 
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {hasIndexData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={last36Months}>
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+              <Tooltip content={<CustomTooltip />} />
+              <Line 
+                type="monotone" 
+                dataKey="index" 
+                stroke="var(--secondary)" 
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full flex items-center justify-center bg-[var(--muted)]/30 rounded">
+            <span className="text-xs text-[var(--muted-foreground)]">No index data</span>
+          </div>
+        )}
       </div>
     </div>
   );

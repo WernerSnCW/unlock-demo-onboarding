@@ -189,9 +189,9 @@ function PropertyValuationComponent() {
               <div>
                 <h4 className="text-sm font-medium text-[var(--card-foreground)] mb-2">Search Results</h4>
                 <div className="grid grid-cols-2 gap-3">
-                  {searchResults.map((property) => (
+                  {searchResults.map((property, index) => (
                     <button
-                      key={property.id}
+                      key={`${property.id}-${index}`}
                       type="button"
                       onClick={() => {
                         setSelectedProperty(property.id);
