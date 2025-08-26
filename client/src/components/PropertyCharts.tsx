@@ -23,7 +23,7 @@ interface PropertyChartsProps {
   chartConfidenceScore: number;
   valuation?: {
     estimate: number;
-    range: string;
+    range: string | { min: number; max: number };
   };
   purchase?: {
     originalPrice: number;
@@ -272,30 +272,38 @@ export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) =>
 
 // 5. Valuation Range Chart
 export const ValuationRangeChart: React.FC<{ 
-  valuation: { estimate: number; range: string }; 
+  valuation: { estimate: number; range: string | { min: number; max: number } }; 
   purchase?: { originalPrice: number; purchaseDate: string } | null;
   geography: string;
 }> = ({ valuation, purchase, geography }) => {
-  // Parse the range string (e.g., "£254,859 - £387,500")
-  const parseRange = (rangeStr: string | any) => {
-    // Ensure we have a string to work with
-    const rangeString = typeof rangeStr === 'string' ? rangeStr : String(rangeStr || '');
-    
-    const matches = rangeString.match(/£([\d,]+)\s*-\s*£([\d,]+)/);
-    if (matches) {
+  // Parse the range - it can be a string or object
+  const parseRange = (rangeData: string | { min: number; max: number } | any) => {
+    // If it's already an object with min/max, use it directly
+    if (typeof rangeData === 'object' && rangeData !== null && 'min' in rangeData && 'max' in rangeData) {
       return {
-        min: parseInt(matches[1].replace(/,/g, '')),
-        max: parseInt(matches[2].replace(/,/g, ''))
+        min: Number(rangeData.min),
+        max: Number(rangeData.max)
       };
     }
     
-    // Try parsing numbers directly if no £ symbols
-    const numberMatches = rangeString.match(/([\d,]+)\s*-\s*([\d,]+)/);
-    if (numberMatches) {
-      return {
-        min: parseInt(numberMatches[1].replace(/,/g, '')),
-        max: parseInt(numberMatches[2].replace(/,/g, ''))
-      };
+    // If it's a string, parse it
+    if (typeof rangeData === 'string') {
+      const matches = rangeData.match(/£([\d,]+)\s*-\s*£([\d,]+)/);
+      if (matches) {
+        return {
+          min: parseInt(matches[1].replace(/,/g, '')),
+          max: parseInt(matches[2].replace(/,/g, ''))
+        };
+      }
+      
+      // Try parsing numbers directly if no £ symbols
+      const numberMatches = rangeData.match(/([\d,]+)\s*-\s*([\d,]+)/);
+      if (numberMatches) {
+        return {
+          min: parseInt(numberMatches[1].replace(/,/g, '')),
+          max: parseInt(numberMatches[2].replace(/,/g, ''))
+        };
+      }
     }
     
     // Fallback: estimate ±15%
