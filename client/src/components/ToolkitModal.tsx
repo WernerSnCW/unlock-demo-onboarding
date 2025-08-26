@@ -120,16 +120,16 @@ function PropertyValuationComponent() {
   return (
     <div className="p-6">
       <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i className="fas fa-home text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+        <div className="w-16 h-16 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i className="fas fa-home text-2xl text-[var(--primary)]" aria-hidden="true"></i>
         </div>
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Property Valuation</h3>
-        <p className="text-gray-600 dark:text-gray-300">Professional real estate valuation using comparable sales and market data.</p>
+        <h3 className="text-xl font-semibold text-[var(--card-foreground)] mb-2">Property Valuation</h3>
+        <p className="text-[var(--muted-foreground)]">Professional real estate valuation using comparable sales and market data.</p>
       </div>
       
       <form className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
+          <label className="block text-sm font-medium text-[var(--card-foreground)] mb-3">
             Select Property *
           </label>
           
@@ -142,13 +142,13 @@ function PropertyValuationComponent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handlePropertySearch())}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="flex-1 px-3 py-2 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--input)] text-[var(--card-foreground)] focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--primary)]"
               />
               <button
                 type="button"
                 onClick={handlePropertySearch}
                 disabled={!searchQuery.trim() || isSearching}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary)]/90 disabled:opacity-50 text-[var(--primary-foreground)] rounded-[var(--radius-sm)] transition-colors flex items-center gap-2"
               >
                 {isSearching ? (
                   <>
@@ -170,7 +170,7 @@ function PropertyValuationComponent() {
             {/* Search Results */}
             {searchResults.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Search Results</h4>
+                <h4 className="text-sm font-medium text-[var(--card-foreground)] mb-2">Search Results</h4>
                 <div className="grid grid-cols-2 gap-3">
                   {searchResults.map((property) => (
                     <button
@@ -181,19 +181,19 @@ function PropertyValuationComponent() {
                         setSelectedPropertyData(property);
                         setSearchResults([]);
                       }}
-                      className={`p-3 border rounded-lg text-left transition-all hover:shadow-sm ${
+                      className={`p-3 border rounded-[var(--radius-sm)] text-left transition-all hover:shadow-[var(--shadow-sm)] hover:-translate-y-0.5 ${
                         selectedProperty === property.id
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/10'
+                          : 'border-[var(--border)] bg-[var(--card)] hover:bg-[var(--muted)]'
                       }`}
                     >
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 truncate">
+                      <div className="font-medium text-[var(--card-foreground)] text-sm mb-1 truncate">
                         {property.address}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                      <div className="text-xs text-[var(--muted-foreground)]">
                         {property.type} • {property.postcode}
                       </div>
-                      <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      <div className="text-xs text-[var(--success)] mt-1">
                         £{property.price?.toLocaleString()} ({property.date})
                       </div>
                     </button>
@@ -204,13 +204,13 @@ function PropertyValuationComponent() {
 
             {/* Selected Property Display */}
             {selectedPropertyData && (
-              <div className="p-3 border border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="p-3 border border-[var(--success)] bg-[var(--success)]/10 rounded-[var(--radius-sm)]">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="font-medium text-green-900 dark:text-green-100 text-sm mb-1">
+                    <div className="font-medium text-[var(--success)] text-sm mb-1">
                       ✓ Selected: {selectedPropertyData.address || selectedPropertyData.addressLine1}
                     </div>
-                    <div className="text-xs text-green-700 dark:text-green-300">
+                    <div className="text-xs text-[var(--success)]/80">
                       {selectedPropertyData.type} • {selectedPropertyData.postcode}
                       {selectedPropertyData.price && ` • £${selectedPropertyData.price.toLocaleString()}`}
                     </div>
@@ -221,7 +221,7 @@ function PropertyValuationComponent() {
                       setSelectedProperty('');
                       setSelectedPropertyData(null);
                     }}
-                    className="ml-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                    className="ml-2 text-[var(--success)] hover:text-[var(--success)]/80 transition-colors"
                   >
                     <i className="fas fa-times"></i>
                   </button>
@@ -232,7 +232,7 @@ function PropertyValuationComponent() {
             {/* My Properties */}
             {Array.isArray(properties) && properties.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">My Properties</h4>
+                <h4 className="text-sm font-medium text-[var(--card-foreground)] mb-2">My Properties</h4>
                 <div className="grid grid-cols-2 gap-3">
                   {properties.map((property: any) => (
                     <button
@@ -242,20 +242,20 @@ function PropertyValuationComponent() {
                         setSelectedProperty(property.id);
                         setSelectedPropertyData(property);
                       }}
-                      className={`p-3 border rounded-lg text-left transition-all hover:shadow-sm ${
+                      className={`p-3 border rounded-[var(--radius-sm)] text-left transition-all hover:shadow-[var(--shadow-sm)] hover:-translate-y-0.5 ${
                         selectedProperty === property.id
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/10'
+                          : 'border-[var(--border)] bg-[var(--card)] hover:bg-[var(--muted)]'
                       }`}
                     >
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1 truncate">
+                      <div className="font-medium text-[var(--card-foreground)] text-sm mb-1 truncate">
                         {property.addressLine1}
                         {property.addressLine2 && `, ${property.addressLine2}`}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                      <div className="text-xs text-[var(--muted-foreground)]">
                         {property.city} {property.postcode}
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)] mt-1">
                         <span>{property.type || 'Property'}</span>
                         {property.bedrooms && <span>• {property.bedrooms} bed</span>}
                       </div>
@@ -267,7 +267,7 @@ function PropertyValuationComponent() {
 
             {/* No Properties State */}
             {!Array.isArray(properties) || (properties.length === 0 && searchResults.length === 0 && !selectedPropertyData) && (
-              <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-6 text-[var(--muted-foreground)]">
                 <i className="fas fa-home text-2xl mb-2"></i>
                 <p className="text-sm">
                   {selectedInvestor ? 'No saved properties. Use search above to find properties.' : 'Please select an investor first.'}
@@ -277,10 +277,10 @@ function PropertyValuationComponent() {
 
             {/* Search Fallback Message */}
             {searchQuery && searchResults.length === 0 && !isSearching && !selectedPropertyData && (
-              <div className="p-3 border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <div className="text-sm text-yellow-800 dark:text-yellow-200">
+              <div className="p-3 border border-[var(--warning)] bg-[var(--warning)]/10 rounded-[var(--radius-sm)]">
+                <div className="text-sm text-[var(--warning-foreground)]">
                   <div className="font-medium mb-1">No specific properties found for "{searchQuery}"</div>
-                  <div className="text-yellow-700 dark:text-yellow-300">
+                  <div className="text-[var(--warning-foreground)]/80">
                     We'll use postcode area data for an accurate valuation based on comparable sales in the {searchQuery.toUpperCase()} area.
                   </div>
                 </div>
@@ -290,13 +290,13 @@ function PropertyValuationComponent() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+          <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
             Valuation Method
           </label>
           <select 
             value={valuationMethod}
             onChange={(e) => setValuationMethod(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--input)] text-[var(--card-foreground)] focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--primary)]"
           >
             <option value="comparable">Comparable sales analysis</option>
             <option value="rental">Rental yield analysis</option>
@@ -305,13 +305,13 @@ function PropertyValuationComponent() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+          <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
             Market Conditions
           </label>
           <select 
             value={marketConditions}
             onChange={(e) => setMarketConditions(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--input)] text-[var(--card-foreground)] focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--primary)]"
           >
             <option value="current">Current market</option>
             <option value="rising">Rising market</option>
@@ -324,7 +324,7 @@ function PropertyValuationComponent() {
             type="button"
             onClick={handleGenerateValuation}
             disabled={(!selectedProperty && !searchQuery.trim()) || isGeneratingValuation}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 disabled:opacity-50 disabled:cursor-not-allowed text-[var(--primary-foreground)] font-medium py-2 px-4 rounded-[var(--radius-sm)] transition-colors flex items-center justify-center gap-2"
           >
             {isGeneratingValuation ? (
               <>
@@ -344,38 +344,38 @@ function PropertyValuationComponent() {
       {valuationResult && (
         <div className="mt-6 space-y-4">
           {/* Valuation Summary */}
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+          <div className="p-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30" style={{ boxShadow: 'var(--shadow-sm)' }}>
+            <h4 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
               <i className="fas fa-home"></i>
               Property Valuation Report
               <span className={`ml-auto px-2 py-1 text-xs rounded-full ${
                 valuationResult.method === 'HPI_PLUS_COMPS' 
-                  ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
-                  : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                  ? 'bg-[var(--success)]/20 text-[var(--success)]' 
+                  : 'bg-[var(--warning)]/20 text-[var(--warning)]'
               }`}>
                 {valuationResult.method === 'HPI_PLUS_COMPS' ? 'WITH COMPARABLES' : 'HPI BASELINE'}
               </span>
             </h4>
             <div className="text-center mb-4">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-3xl font-bold text-[var(--primary)]">
                 £{valuationResult.estimate.toLocaleString()}
               </div>
-              <div className="text-lg text-gray-600 dark:text-gray-300">
+              <div className="text-lg text-[var(--muted-foreground)]">
                 Range: £{valuationResult.range.min.toLocaleString()} - £{valuationResult.range.max.toLocaleString()}
               </div>
             </div>
           </div>
 
           {/* Explainability */}
-          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <h5 className="font-medium text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+          <div className="p-4 bg-[var(--muted)] rounded-[var(--radius-sm)]">
+            <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
               <i className="fas fa-calculator"></i>
               Valuation Methodology
             </h5>
             <div className="text-sm space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Method:</span>
-                <span className="font-medium">{valuationResult.explainability.method}</span>
+                <span className="text-[var(--muted-foreground)]">Method:</span>
+                <span className="font-medium text-[var(--card-foreground)]">{valuationResult.explainability.method}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">HPI Baseline:</span>
@@ -408,21 +408,21 @@ function PropertyValuationComponent() {
 
           {/* Comparable Sales */}
           {valuationResult.comps && valuationResult.comps.length > 0 && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <h5 className="font-medium text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
+            <div className="p-4 bg-[var(--success)]/10 rounded-[var(--radius-sm)] border border-[var(--success)]/30">
+              <h5 className="font-medium text-[var(--success)] mb-3 flex items-center gap-2">
                 <i className="fas fa-chart-bar"></i>
                 Recent Comparable Sales ({valuationResult.comps.length})
               </h5>
               <div className="space-y-3">
                 {valuationResult.comps.map((comp, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded border">
+                  <div key={index} className="flex justify-between items-center p-3 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="font-medium text-[var(--card-foreground)]">
                         {comp.address || comp.postcode}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[var(--muted-foreground)]">
                         {comp.propertyType} • {comp.tenure} • {comp.date}
-                        {comp.newBuild && <span className="ml-2 px-1 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">New Build</span>}
+                        {comp.newBuild && <span className="ml-2 px-1 py-0.5 bg-[var(--info)]/20 text-[var(--info)] text-xs rounded">New Build</span>}
                       </div>
                     </div>
                     <div className="text-right">
