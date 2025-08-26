@@ -200,7 +200,7 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
 
       {/* Investment Activity Snapshot */}
       <div className="mb-5">
-        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Investment Activity</h3>
+        <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--card-foreground)' }}>Investment Activity</h3>
         <div className="grid grid-cols-3 gap-3">
           <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
             <div className="flex items-center justify-center mb-1">
@@ -229,7 +229,7 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
       {/* Portfolio Mix */}
       {selectedInvestorId && totalValue > 0 && (
         <div className="mb-5">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-medium mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
             <PieChart className="h-4 w-4" />
             Portfolio Mix
           </h3>
@@ -315,10 +315,11 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
       {/* Quick Preferences & Controls */}
       <div className="mb-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Quick Controls</h3>
+          <h3 className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>Quick Controls</h3>
           <button 
             onClick={onEditSectors}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1"
+            className="text-xs font-medium flex items-center gap-1 hover:opacity-75 transition-opacity"
+            style={{ color: 'var(--info)' }}
           >
             <Edit3 className="h-3 w-3" />
             Edit Sectors
@@ -332,24 +333,22 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
               <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>Email Alerts</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
                 {profile.newsletterFrequency?.charAt(0).toUpperCase() + profile.newsletterFrequency?.slice(1)}
               </span>
-              <div className="w-6 h-3 bg-green-500 rounded-full relative">
+              <div className="w-6 h-3 rounded-full relative" style={{ backgroundColor: 'var(--success)' }}>
                 <div className="absolute top-0.5 w-2 h-2 bg-white rounded-full translate-x-3"></div>
               </div>
             </div>
           </div>
 
           {/* WhatsApp Alerts */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
             <div className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">WhatsApp Alerts</span>
+              <MessageCircle className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+              <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>WhatsApp Alerts</span>
             </div>
-            <div className={`w-6 h-3 rounded-full relative transition-colors ${
-              profile.whatsappAlerts ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
-            }`}>
+            <div className="w-6 h-3 rounded-full relative transition-colors" style={{ backgroundColor: profile.whatsappAlerts ? 'var(--success)' : 'var(--border)' }}>
               <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-transform ${
                 profile.whatsappAlerts ? 'translate-x-3' : 'translate-x-0.5'
               }`}></div>
@@ -360,43 +359,44 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
 
       {/* Engagement Nudges */}
       <div className="mb-5">
-        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">For You</h3>
+        <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--card-foreground)' }}>For You</h3>
         <div className="space-y-2">
-          <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <Pin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm text-blue-700 dark:text-blue-300">2 new reports available in Fintech</span>
+          <div className="flex items-center gap-2 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+            <Pin className="h-4 w-4" style={{ color: 'var(--info)' }} />
+            <span className="text-sm" style={{ color: 'var(--info)' }}>2 new reports available in Fintech</span>
           </div>
-          <div className="flex items-center gap-2 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
-            <Zap className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            <span className="text-sm text-purple-700 dark:text-purple-300">Join 1 new syndicate in your sectors</span>
+          <div className="flex items-center gap-2 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
+            <Zap className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+            <span className="text-sm" style={{ color: 'var(--primary)' }}>Join 1 new syndicate in your sectors</span>
           </div>
         </div>
       </div>
 
       {/* Plan & Upgrade Visibility */}
-      <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div className="p-4 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Crown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <Crown className="h-4 w-4" style={{ color: 'var(--info)' }} />
+            <span className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>
               {profile.currentPlan?.charAt(0).toUpperCase() + profile.currentPlan?.slice(1)} Plan
             </span>
           </div>
           {profile.currentPlan === 'free' && (
             <button 
               onClick={onUpgrade}
-              className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1.5 rounded-md font-medium hover:opacity-90 transition-opacity"
+              className="text-xs px-3 py-1.5 rounded-md font-medium hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
               Upgrade
             </button>
           )}
         </div>
         {profile.currentPlan === 'free' ? (
-          <p className="text-xs text-blue-700 dark:text-blue-300">
+          <p className="text-xs" style={{ color: 'var(--info)' }}>
             Upgrade to unlock analyst insights & syndicate builder
           </p>
         ) : (
-          <p className="text-xs text-green-700 dark:text-green-300">
+          <p className="text-xs" style={{ color: 'var(--success)' }}>
             Full access to all premium features
           </p>
         )}
