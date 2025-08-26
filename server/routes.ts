@@ -728,12 +728,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Extract just the letter part for better matching (e.g., SW1A -> SW1, M16 -> M16)
       const postcodeArea = postcodePrefix.match(/^[A-Z]+\d*/)?.[0] || postcodePrefix;
       
+      console.log(`Valuation request: postcode=${postcode}, prefix=${postcodePrefix}, area=${postcodeArea}`);
+      
       // Try multiple matching strategies for HPI data
       let hpiData = await db.select()
         .from(ukHpi)
         .where(like(ukHpi.regionName, `%${postcodePrefix}%`))
         .orderBy(desc(ukHpi.date))
         .limit(1);
+        
+      console.log(`Direct postcode lookup found ${hpiData.length} results`);
       
       // If no direct postcode match, try broader region matches
       if (hpiData.length === 0) {
@@ -777,21 +781,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         const regionName = postcodeToRegion[postcodeArea];
+        console.log(`Mapped ${postcodeArea} to region: ${regionName}`);
         if (regionName) {
           hpiData = await db.select()
             .from(ukHpi)
             .where(eq(ukHpi.regionName, regionName))
             .orderBy(desc(ukHpi.date))
             .limit(1);
+          console.log(`Region lookup for '${regionName}' found ${hpiData.length} results`);
         }
         
         // Fallback to generic London if no specific match
         if (hpiData.length === 0 && (postcodeArea.startsWith('E') || postcodeArea.startsWith('N') || postcodeArea.startsWith('NW') || postcodeArea.startsWith('SE') || postcodeArea.startsWith('SW') || postcodeArea.startsWith('W') || postcodeArea.startsWith('EC') || postcodeArea.startsWith('WC'))) {
+          console.log(`Trying London fallback for ${postcodeArea}`);
           hpiData = await db.select()
             .from(ukHpi)
             .where(eq(ukHpi.regionName, 'London'))
             .orderBy(desc(ukHpi.date))
             .limit(1);
+          console.log(`London fallback found ${hpiData.length} results`);
         }
       }
 
