@@ -48,6 +48,27 @@ const tools: Tool[] = [
     caption: 'Due diligence',
     icon: 'fas fa-file-alt',
     category: 'analysis'
+  },
+  {
+    id: 'property_valuation',
+    name: 'Property Valuation',
+    caption: 'Real estate pricing',
+    icon: 'fas fa-home',
+    category: 'analysis'
+  },
+  {
+    id: 'art_valuation',
+    name: 'Art Valuation',
+    caption: 'Fine art appraisal',
+    icon: 'fas fa-palette',
+    category: 'analysis'
+  },
+  {
+    id: 'whisky_valuation',
+    name: 'Whisky Valuation',
+    caption: 'Cask investments',
+    icon: 'fas fa-wine-bottle',
+    category: 'analysis'
   }
 ];
 

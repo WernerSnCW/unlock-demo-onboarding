@@ -98,6 +98,39 @@ export default function Toolkit() {
       isLocked: true,
       isPremium: true
     },
+    {
+      id: 'property-valuation',
+      category: 'analysis',
+      icon: 'fas fa-home',
+      iconColor: 'text-[#5193B3]',
+      title: 'Property Valuation',
+      description: 'Professional real estate valuation using comparable sales and market data.',
+      actionText: 'Value Property',
+      isLocked: false,
+      isPremium: false
+    },
+    {
+      id: 'art-valuation',
+      category: 'analysis',
+      icon: 'fas fa-palette',
+      iconColor: 'text-[#62C4C3]',
+      title: 'Art Valuation',
+      description: 'Fine art and collectibles appraisal with auction data and expert insights.',
+      actionText: 'Appraise Artwork',
+      isLocked: false,
+      isPremium: false
+    },
+    {
+      id: 'whisky-valuation',
+      category: 'analysis',
+      icon: 'fas fa-wine-bottle',
+      iconColor: 'text-[#F8D49B]',
+      title: 'Whisky Valuation',
+      description: 'Rare whisky and cask investment valuation with market trends analysis.',
+      actionText: 'Value Cask',
+      isLocked: false,
+      isPremium: false
+    },
     
     // Investor Utilities
     {
