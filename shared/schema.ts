@@ -44,6 +44,9 @@ export const portfolioAccounts = pgTable("portfolio_accounts", {
   currency: text("currency").default("GBP"),
   connected: boolean("connected").default(false),
   connectedAt: timestamp("connected_at"),
+  currentBalanceGbp: numeric("current_balance_gbp"), // Current total balance in GBP
+  cashBalanceGbp: numeric("cash_balance_gbp"), // Available cash balance in GBP
+  lastUpdated: timestamp("last_updated").default(sql`now()`),
 });
 
 export const portfolioHoldings = pgTable("portfolio_holdings", {

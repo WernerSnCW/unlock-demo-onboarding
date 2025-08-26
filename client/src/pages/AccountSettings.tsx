@@ -56,6 +56,8 @@ const portfolioAccountSchema = z.object({
   accountType: z.string().optional(),
   currency: z.string().optional(),
   connected: z.boolean().optional(),
+  currentBalanceGbp: z.string().optional(),
+  cashBalanceGbp: z.string().optional(),
 });
 
 const portfolioHoldingSchema = z.object({
@@ -287,6 +289,8 @@ export default function AccountSettings() {
         accountType: '',
         currency: 'GBP',
         connected: false,
+        currentBalanceGbp: '',
+        cashBalanceGbp: '',
       });
       
       propertyForm.reset({
@@ -547,6 +551,8 @@ export default function AccountSettings() {
       accountType: '',
       currency: 'GBP',
       connected: false,
+      currentBalanceGbp: '',
+      cashBalanceGbp: '',
     },
   });
 
@@ -1167,63 +1173,96 @@ export default function AccountSettings() {
         <CardContent className="space-y-4">
           {/* Add Account Form */}
           <Form {...portfolioAccountForm}>
-            <form onSubmit={portfolioAccountForm.handleSubmit(handleAddPortfolioAccount)} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <FormField
-                control={portfolioAccountForm.control}
-                name="provider"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input {...field} placeholder="Provider (e.g., HL, AJ Bell)" data-testid="input-account-provider" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={portfolioAccountForm.control}
-                name="accountType"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value}>
+            <form onSubmit={portfolioAccountForm.handleSubmit(handleAddPortfolioAccount)} className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <FormField
+                  control={portfolioAccountForm.control}
+                  name="provider"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Provider</FormLabel>
                       <FormControl>
-                        <SelectTrigger data-testid="select-account-type">
-                          <SelectValue placeholder="Account Type" />
-                        </SelectTrigger>
+                        <Input {...field} placeholder="e.g., HL, AJ Bell" data-testid="input-account-provider" />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="brokerage">Brokerage</SelectItem>
-                        <SelectItem value="cash">Cash</SelectItem>
-                        <SelectItem value="private">Private</SelectItem>
-                        <SelectItem value="pension">Pension</SelectItem>
-                        <SelectItem value="isa">ISA</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={portfolioAccountForm.control}
-                name="currency"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={portfolioAccountForm.control}
+                  name="accountType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-account-type">
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="brokerage">Brokerage</SelectItem>
+                          <SelectItem value="cash">Cash</SelectItem>
+                          <SelectItem value="private">Private</SelectItem>
+                          <SelectItem value="pension">Pension</SelectItem>
+                          <SelectItem value="isa">ISA</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={portfolioAccountForm.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Currency</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-currency">
+                            <SelectValue placeholder="Currency" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={portfolioAccountForm.control}
+                  name="currentBalanceGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Balance (GBP)</FormLabel>
                       <FormControl>
-                        <SelectTrigger data-testid="select-currency">
-                          <SelectValue placeholder="Currency" />
-                        </SelectTrigger>
+                        <Input {...field} placeholder="0.00" type="number" step="0.01" data-testid="input-current-balance" />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="GBP">GBP</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={portfolioAccountForm.control}
+                  name="cashBalanceGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cash Balance (GBP)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="0.00" type="number" step="0.01" data-testid="input-cash-balance" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <Button type="submit" data-testid="button-add-account" disabled={createPortfolioAccountMutation.isPending}>
                 <Plus className="h-4 w-4 mr-2" />
                 {createPortfolioAccountMutation.isPending ? 'Adding...' : 'Add Account'}
@@ -1243,6 +1282,13 @@ export default function AccountSettings() {
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {account.accountType} Account • {account.currency} • {account.connected ? 'Connected' : 'Not Connected'}
                       </p>
+                      {(account.currentBalanceGbp || account.cashBalanceGbp) && (
+                        <div className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                          {account.currentBalanceGbp && <span>Balance: £{parseFloat(account.currentBalanceGbp).toLocaleString()}</span>}
+                          {account.currentBalanceGbp && account.cashBalanceGbp && <span className="mx-2">•</span>}
+                          {account.cashBalanceGbp && <span>Cash: £{parseFloat(account.cashBalanceGbp).toLocaleString()}</span>}
+                        </div>
+                      )}
                     </div>
                     <Button 
                       variant="destructive" 
