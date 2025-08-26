@@ -704,6 +704,35 @@ export default function AccountSettings() {
     enabled: !!selectedInvestorId,
   });
 
+  // Property deletion mutation
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      const response = await fetch(`/api/properties/${propertyId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.ok;
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Property deleted successfully'
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', selectedInvestorId] });
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete property'
+      });
+    },
+  });
+
   const createPortfolioAccountMutation = useMutation({
     mutationFn: async (data: PortfolioAccountFormData) => {
       if (!selectedInvestorId) throw new Error('No investor selected');
@@ -2067,13 +2096,12 @@ export default function AccountSettings() {
                     <Button 
                       variant="destructive" 
                       size="sm" 
+                      disabled={deletePropertyMutation.isPending}
                       data-testid={`button-delete-property-${property.id}`}
                       onClick={() => {
-                        // TODO: Implement delete property functionality
-                        toast({
-                          title: 'Not Implemented',
-                          description: 'Property deletion is not yet implemented.',
-                        });
+                        if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+                          deletePropertyMutation.mutate(property.id);
+                        }
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
