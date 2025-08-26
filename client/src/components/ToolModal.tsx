@@ -75,6 +75,16 @@ const toolDetails: Record<string, {
       { label: 'Market Conditions', placeholder: 'Current market' }
     ]
   },
+  'property-valuation': {
+    name: 'Property Valuation',
+    description: 'Professional real estate valuation using comparable sales and market data.',
+    icon: 'fas fa-home',
+    inputs: [
+      { label: 'Select Property', placeholder: 'Choose property to value...' },
+      { label: 'Valuation Method', placeholder: 'Comparable sales analysis' },
+      { label: 'Market Conditions', placeholder: 'Current market' }
+    ]
+  },
   art_valuation: {
     name: 'Art Valuation',
     description: 'Fine art and collectibles appraisal with auction data and expert insights.',
