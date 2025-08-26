@@ -2,6 +2,151 @@ import { useState } from 'react';
 import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
 import PitchDeckAnalyser from './PitchDeckAnalyser';
 
+function PropertyValuationComponent() {
+  const [searchMode, setSearchMode] = useState<'saved' | 'search'>('saved');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState('');
+
+  const handlePropertySearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setIsSearching(true);
+    try {
+      // Simulate property search - in real app this would call your property search API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock search results
+      const mockResults = [
+        { id: 'search1', address: `${searchQuery}, Manchester`, postcode: 'M1 1AA', type: 'Flat', bedrooms: 2 },
+        { id: 'search2', address: `${searchQuery} Apartments, Manchester`, postcode: 'M1 1AB', type: 'Flat', bedrooms: 1 },
+        { id: 'search3', address: `${searchQuery} House, Manchester`, postcode: 'M1 1AC', type: 'House', bedrooms: 3 }
+      ];
+      
+      setSearchResults(mockResults);
+    } catch (error) {
+      console.error('Property search failed:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i className="fas fa-home text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Property Valuation</h3>
+        <p className="text-gray-600 dark:text-gray-300">Professional real estate valuation using comparable sales and market data.</p>
+      </div>
+      
+      <form className="space-y-4">
+        {/* Property Selection Mode Toggle */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Select Property *
+          </label>
+          <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden mb-3">
+            <button
+              type="button"
+              onClick={() => setSearchMode('saved')}
+              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                searchMode === 'saved'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              <i className="fas fa-bookmark mr-2"></i>
+              My Properties
+            </button>
+            <button
+              type="button"
+              onClick={() => setSearchMode('search')}
+              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                searchMode === 'search'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              <i className="fas fa-search mr-2"></i>
+              Search Property
+            </button>
+          </div>
+
+          {searchMode === 'saved' ? (
+            <select 
+              value={selectedProperty}
+              onChange={(e) => setSelectedProperty(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value="">Choose from your saved properties...</option>
+              <option value="property1">456 Test Avenue, Manchester M1 1AA</option>
+              <option value="property2">199 Galvanis Street, 1953 Lee Towers, London 3029 AD</option>
+            </select>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter address or postcode (e.g., '123 Main Street' or 'SW1A 1AA')"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handlePropertySearch())}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+                <button
+                  type="button"
+                  onClick={handlePropertySearch}
+                  disabled={!searchQuery.trim() || isSearching}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center gap-2"
+                >
+                  {isSearching ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i>
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-search"></i>
+                      Search
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Search Results */}
+              {searchResults.length > 0 && (
+                <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-40 overflow-y-auto">
+                  {searchResults.map((property) => (
+                    <button
+                      key={property.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedProperty(property.id);
+                        setSearchResults([]);
+                      }}
+                      className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                    >
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{property.address}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {property.type} • {property.bedrooms} bed • {property.postcode}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {searchQuery && searchResults.length === 0 && !isSearching && (
+                <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+                  No properties found. Try a different search term.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
 interface ToolkitModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -129,84 +274,7 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         );
         
       case 'property-valuation':
-        return (
-          <div className="p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-home text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Property Valuation</h3>
-              <p className="text-gray-600 dark:text-gray-300">Professional real estate valuation using comparable sales and market data.</p>
-            </div>
-            
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Select Property *
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-                  <option value="">Choose property to value...</option>
-                  <option value="property1">456 Test Avenue, Manchester M1 1AA</option>
-                  <option value="property2">199 Galvanis Street, 1953 Lee Towers, London 3029 AD</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Valuation Method
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-                  <option value="comparable">Comparable sales analysis</option>
-                  <option value="rental">Rental yield analysis</option>
-                  <option value="cost">Replacement cost method</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Market Conditions
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-                  <option value="current">Current market</option>
-                  <option value="rising">Rising market</option>
-                  <option value="declining">Declining market</option>
-                </select>
-              </div>
-              
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Generate Valuation Report
-                </button>
-              </div>
-            </form>
-            
-            {/* Results Preview */}
-            <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <h4 className="font-medium text-gray-800 dark:text-gray-100 mb-3">Live Market Data Preview</h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Estimated Value:</span>
-                  <div className="font-semibold text-lg text-blue-600 dark:text-blue-400">£285,000 - £315,000</div>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Comparable Sales:</span>
-                  <div className="font-semibold text-green-600 dark:text-green-400">12 properties found</div>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Price per sq ft:</span>
-                  <div className="font-semibold">£425/sq ft</div>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Market trend:</span>
-                  <div className="font-semibold text-orange-600 dark:text-orange-400">+2.1% (3 months)</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <PropertyValuationComponent />;
         
       default:
         return (
