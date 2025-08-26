@@ -658,10 +658,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Postcode is required for valuation' });
       }
 
-      console.log('Valuation request:', { postcode, propertyType, purchasePrice, purchaseDate });
-      
       // Step 1: Get HPI baseline for the region
       const postcodePrefix = postcode.split(' ')[0];
+      // Extract just the letter part for better matching (e.g., SW1A -> SW1, M16 -> M16)
+      const postcodeArea = postcodePrefix.match(/^[A-Z]+\d*/)?.[0] || postcodePrefix;
       
       // Try multiple matching strategies for HPI data
       let hpiData = await db.select()
@@ -672,21 +672,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If no direct postcode match, try broader region matches
       if (hpiData.length === 0) {
-        // Map postcode areas to known HPI regions
+        // More precise postcode area to HPI region mapping
         const postcodeToRegion: Record<string, string> = {
-          'M1': 'Manchester', 'M2': 'Manchester', 'M3': 'Manchester', 'M4': 'Manchester',
-          'M8': 'Manchester', 'M9': 'Manchester', 'M11': 'Manchester', 'M12': 'Manchester',
-          'M13': 'Manchester', 'M14': 'Manchester', 'M15': 'Manchester', 'M16': 'Manchester',
-          'M17': 'Manchester', 'M18': 'Manchester', 'M19': 'Manchester', 'M20': 'Manchester',
-          'M21': 'Manchester', 'M22': 'Manchester', 'M23': 'Manchester', 'M24': 'Manchester',
-          'M25': 'Manchester', 'M27': 'Manchester', 'M28': 'Manchester', 'M29': 'Manchester',
-          'M30': 'Manchester', 'M31': 'Manchester', 'M32': 'Manchester', 'M33': 'Manchester',
-          'M34': 'Manchester', 'M35': 'Manchester', 'M38': 'Manchester', 'M40': 'Manchester',
-          'M41': 'Manchester', 'M43': 'Manchester', 'M44': 'Manchester', 'M45': 'Manchester',
-          'M46': 'Manchester', 'M90': 'Manchester'
+          // London postcodes - Central
+          'EC1': 'City of London', 'EC2': 'City of London', 'EC3': 'City of London', 'EC4': 'City of London',
+          'WC1': 'Inner London', 'WC2': 'Inner London',
+          'W1': 'City of Westminster', 'SW1': 'City of Westminster',
+          
+          // London postcodes - Inner London
+          'E1': 'Tower Hamlets', 'E2': 'Tower Hamlets', 'E3': 'Tower Hamlets',
+          'N1': 'Inner London', 'N7': 'Inner London', 'N19': 'Inner London',
+          'NW1': 'Inner London', 'NW3': 'Inner London', 'NW5': 'Inner London', 'NW6': 'Inner London', 'NW8': 'Inner London',
+          'SE1': 'Inner London', 'SE11': 'Inner London', 'SE17': 'Inner London',
+          'SW3': 'Inner London', 'SW5': 'Inner London', 'SW6': 'Inner London', 'SW7': 'Inner London', 'SW10': 'Inner London',
+          'W2': 'Inner London', 'W8': 'Inner London', 'W9': 'Inner London', 'W10': 'Inner London', 'W11': 'Inner London', 'W14': 'Inner London',
+          
+          // London postcodes - Outer London  
+          'E4': 'Outer London', 'E6': 'Outer London', 'E7': 'Outer London', 'E8': 'Outer London', 'E9': 'Outer London',
+          'E10': 'Outer London', 'E11': 'Outer London', 'E12': 'Outer London', 'E13': 'Outer London', 'E14': 'Outer London', 'E15': 'Outer London', 'E16': 'Outer London', 'E17': 'Outer London', 'E18': 'Outer London',
+          'N2': 'Outer London', 'N3': 'Outer London', 'N4': 'Outer London', 'N5': 'Outer London', 'N6': 'Outer London', 'N8': 'Outer London', 'N9': 'Outer London', 'N10': 'Outer London', 'N11': 'Outer London', 'N12': 'Outer London', 'N13': 'Outer London', 'N14': 'Outer London', 'N15': 'Outer London', 'N16': 'Outer London', 'N17': 'Outer London', 'N18': 'Outer London', 'N20': 'Outer London', 'N21': 'Outer London', 'N22': 'Outer London',
+          'NW2': 'Outer London', 'NW4': 'Outer London', 'NW7': 'Outer London', 'NW9': 'Outer London', 'NW10': 'Outer London', 'NW11': 'Outer London',
+          'SE2': 'Outer London', 'SE3': 'Outer London', 'SE4': 'Outer London', 'SE5': 'Outer London', 'SE6': 'Outer London', 'SE7': 'Outer London', 'SE8': 'Outer London', 'SE9': 'Outer London', 'SE10': 'Outer London', 'SE12': 'Outer London', 'SE13': 'Outer London', 'SE14': 'Outer London', 'SE15': 'Outer London', 'SE16': 'Outer London', 'SE18': 'Outer London', 'SE19': 'Outer London', 'SE20': 'Outer London', 'SE21': 'Outer London', 'SE22': 'Outer London', 'SE23': 'Outer London', 'SE24': 'Outer London', 'SE25': 'Outer London', 'SE26': 'Outer London', 'SE27': 'Outer London', 'SE28': 'Outer London',
+          'SW2': 'Outer London', 'SW4': 'Outer London', 'SW8': 'Outer London', 'SW9': 'Outer London', 'SW11': 'Outer London', 'SW12': 'Outer London', 'SW13': 'Outer London', 'SW14': 'Outer London', 'SW15': 'Outer London', 'SW16': 'Outer London', 'SW17': 'Outer London', 'SW18': 'Outer London', 'SW19': 'Outer London', 'SW20': 'Outer London',
+          'W3': 'Outer London', 'W4': 'Outer London', 'W5': 'Outer London', 'W6': 'Outer London', 'W7': 'Outer London', 'W12': 'Outer London', 'W13': 'Outer London',
+          
+          // Manchester postcodes
+          'M1': 'Manchester', 'M2': 'Manchester', 'M3': 'Manchester', 'M4': 'Manchester', 'M15': 'Manchester', 'M60': 'Manchester',
+          
+          // Greater Manchester (surrounding areas)
+          'M5': 'Greater Manchester', 'M6': 'Greater Manchester', 'M7': 'Greater Manchester', 'M8': 'Greater Manchester', 'M9': 'Greater Manchester', 'M10': 'Greater Manchester',
+          'M11': 'Greater Manchester', 'M12': 'Greater Manchester', 'M13': 'Greater Manchester', 'M14': 'Greater Manchester', 'M16': 'Greater Manchester', 'M17': 'Greater Manchester', 'M18': 'Greater Manchester', 'M19': 'Greater Manchester', 'M20': 'Greater Manchester',
+          'M21': 'Greater Manchester', 'M22': 'Greater Manchester', 'M23': 'Greater Manchester', 'M24': 'Greater Manchester', 'M25': 'Greater Manchester', 'M26': 'Greater Manchester', 'M27': 'Greater Manchester', 'M28': 'Greater Manchester', 'M29': 'Greater Manchester', 'M30': 'Greater Manchester',
+          'M31': 'Greater Manchester', 'M32': 'Greater Manchester', 'M33': 'Greater Manchester', 'M34': 'Greater Manchester', 'M35': 'Greater Manchester', 'M38': 'Greater Manchester', 'M40': 'Greater Manchester', 'M41': 'Greater Manchester', 'M43': 'Greater Manchester', 'M44': 'Greater Manchester', 'M45': 'Greater Manchester', 'M46': 'Greater Manchester', 'M90': 'Greater Manchester',
+          
+          // Birmingham
+          'B1': 'Birmingham', 'B2': 'Birmingham', 'B3': 'Birmingham', 'B4': 'Birmingham', 'B5': 'Birmingham', 'B6': 'Birmingham', 'B7': 'Birmingham', 'B8': 'Birmingham', 'B9': 'Birmingham', 'B10': 'Birmingham',
+          'B11': 'Birmingham', 'B12': 'Birmingham', 'B13': 'Birmingham', 'B14': 'Birmingham', 'B15': 'Birmingham', 'B16': 'Birmingham', 'B17': 'Birmingham', 'B18': 'Birmingham', 'B19': 'Birmingham', 'B20': 'Birmingham',
+          'B21': 'Birmingham', 'B23': 'Birmingham', 'B24': 'Birmingham', 'B25': 'Birmingham', 'B26': 'Birmingham', 'B27': 'Birmingham', 'B28': 'Birmingham', 'B29': 'Birmingham', 'B30': 'Birmingham', 'B31': 'Birmingham', 'B32': 'Birmingham', 'B33': 'Birmingham', 'B34': 'Birmingham', 'B35': 'Birmingham', 'B36': 'Birmingham', 'B37': 'Birmingham', 'B38': 'Birmingham', 'B40': 'Birmingham', 'B42': 'Birmingham', 'B43': 'Birmingham', 'B44': 'Birmingham', 'B45': 'Birmingham', 'B46': 'Birmingham', 'B47': 'Birmingham', 'B48': 'Birmingham'
         };
         
-        const regionName = postcodeToRegion[postcodePrefix];
+        const regionName = postcodeToRegion[postcodeArea];
         if (regionName) {
           hpiData = await db.select()
             .from(ukHpi)
@@ -695,11 +720,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .limit(1);
         }
         
-        // If still no match, try Greater Manchester
-        if (hpiData.length === 0) {
+        // Fallback to generic London if no specific match
+        if (hpiData.length === 0 && (postcodeArea.startsWith('E') || postcodeArea.startsWith('N') || postcodeArea.startsWith('NW') || postcodeArea.startsWith('SE') || postcodeArea.startsWith('SW') || postcodeArea.startsWith('W') || postcodeArea.startsWith('EC') || postcodeArea.startsWith('WC'))) {
           hpiData = await db.select()
             .from(ukHpi)
-            .where(eq(ukHpi.regionName, 'Greater Manchester'))
+            .where(eq(ukHpi.regionName, 'London'))
             .orderBy(desc(ukHpi.date))
             .limit(1);
         }
