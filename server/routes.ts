@@ -722,14 +722,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paon, 
         saon, 
         street, 
-        purchasePrice, 
-        purchaseDate,
+        purchasePrice: requestPurchasePrice, 
+        purchaseDate: requestPurchaseDate,
         bedrooms,
         propertyId 
       } = req.body;
       
       if (!postcode) {
         return res.status(400).json({ message: 'Postcode is required for valuation' });
+      }
+
+      // Start with provided purchase data, then try to find it from property price data if missing
+      let purchasePrice = requestPurchasePrice;
+      let purchaseDate = requestPurchaseDate;
+      
+      // If no purchase price provided but we have a property selected, try to find it in property price data
+      if (!purchasePrice && propertyId) {
+        try {
+          // Find the most recent transaction for this postcode that could be this property
+          const recentTransactions = await db.select()
+            .from(propertyPriceData)
+            .where(eq(propertyPriceData.postcode, postcode))
+            .orderBy(desc(propertyPriceData.dateOfTransfer))
+            .limit(10);
+          
+          if (recentTransactions.length > 0) {
+            // Use the most recent transaction as the likely purchase price
+            const mostRecentTransaction = recentTransactions[0];
+            purchasePrice = parseFloat(mostRecentTransaction.price || '0');
+            purchaseDate = mostRecentTransaction.dateOfTransfer;
+            
+            console.log(`Auto-detected purchase data for ${postcode}: £${purchasePrice.toLocaleString()} on ${purchaseDate}`);
+          }
+        } catch (error) {
+          console.log('Error fetching property transaction data:', error);
+        }
       }
 
       // Check cache first (cache for 1 hour)
