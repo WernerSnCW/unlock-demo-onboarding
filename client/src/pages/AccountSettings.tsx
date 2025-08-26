@@ -225,7 +225,17 @@ export default function AccountSettings() {
         investorType: investor.investorType,
       });
       
-      // Note: preferences form will be populated by the useEffect above when preferencesData loads
+      // Clear preferences form immediately when switching investors
+      preferencesForm.reset({
+        userId: investorId,
+        riskBand: '',
+        ticketMinGbp: '',
+        ticketMaxGbp: '',
+        regions: [],
+        focusSectors: [],
+        existingInvestments: [],
+        investmentInterests: [],
+      });
       
       taxProfileForm.reset({
         userId: investorId,
