@@ -68,24 +68,32 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
 
   const getBadgeColor = (badge: string) => {
     switch (badge) {
-      case 'Active Contributor': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      case 'Early Adopter': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+      case 'Active Contributor': return 'text-[var(--info-foreground)]';
+      case 'Early Adopter': return 'text-[var(--primary-foreground)]';
+      default: return 'text-[var(--muted-foreground)]';
+    }
+  };
+
+  const getBadgeBackground = (badge: string) => {
+    switch (badge) {
+      case 'Active Contributor': return 'var(--info)';
+      case 'Early Adopter': return 'var(--primary)';
+      default: return 'var(--muted)';
     }
   };
 
   // Fetch portfolio data
-  const { data: portfolioHoldings = [] } = useQuery({
+  const { data: portfolioHoldings = [] } = useQuery<any[]>({
     queryKey: ['/api/investors', selectedInvestorId, 'portfolio-holdings'],
     enabled: !!selectedInvestorId,
   });
 
-  const { data: properties = [] } = useQuery({
+  const { data: properties = [] } = useQuery<any[]>({
     queryKey: ['/api/properties', selectedInvestorId],
     enabled: !!selectedInvestorId,
   });
 
-  const { data: alternatives = [] } = useQuery({
+  const { data: alternatives = [] } = useQuery<any[]>({
     queryKey: ['/api/alternatives', selectedInvestorId],
     enabled: !!selectedInvestorId,
   });
@@ -149,27 +157,27 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
       {/* Profile Tags with Trust Signals */}
       <div className="flex flex-wrap gap-2 mb-5">
         {/* Investor Type */}
-        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-white" style={{ backgroundColor: '#5193B3' }}>
+        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--secondary)', color: 'var(--secondary-foreground)' }}>
           {profile.investorType?.charAt(0).toUpperCase() + profile.investorType?.slice(1)} Investor
         </span>
         
         {/* Existing Investments - Show up to 3 */}
         {profile.existingInvestments && profile.existingInvestments.length > 0 && 
           profile.existingInvestments.slice(0, 3).map((investment, index) => (
-            <span key={index} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+            <span key={index} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
               {investment}
             </span>
           ))
         }
         {profile.existingInvestments && profile.existingInvestments.length > 3 && (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
             +{profile.existingInvestments.length - 3} more
           </span>
         )}
         
         {/* Regions */}
         {profile.regions && profile.regions.length > 0 && (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
             {profile.regions[0]}
             {profile.regions.length > 1 && ` +${profile.regions.length - 1}`}
           </span>
@@ -181,7 +189,7 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
         <div className="mb-5">
           <div className="flex flex-wrap gap-2">
             {profile.badges.map((badge, index) => (
-              <span key={index} className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${getBadgeColor(badge)}`}>
+              <span key={index} className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${getBadgeColor(badge)}`} style={{ backgroundColor: getBadgeBackground(badge) }}>
                 {getBadgeIcon(badge)}
                 {badge}
               </span>
@@ -194,26 +202,26 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
       <div className="mb-5">
         <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Investment Activity</h3>
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
             <div className="flex items-center justify-center mb-1">
-              <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <Eye className="h-4 w-4" style={{ color: 'var(--info)' }} />
             </div>
-            <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">{profile.reportsViewed}</div>
-            <div className="text-xs text-blue-600 dark:text-blue-400">Reports this month</div>
+            <div className="text-lg font-semibold" style={{ color: 'var(--info)' }}>{profile.reportsViewed}</div>
+            <div className="text-xs" style={{ color: 'var(--info)' }}>Reports this month</div>
           </div>
-          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
             <div className="flex items-center justify-center mb-1">
-              <HelpCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <HelpCircle className="h-4 w-4" style={{ color: 'var(--success)' }} />
             </div>
-            <div className="text-lg font-semibold text-green-600 dark:text-green-400">{profile.questionsAsked}</div>
-            <div className="text-xs text-green-600 dark:text-green-400">Questions asked</div>
+            <div className="text-lg font-semibold" style={{ color: 'var(--success)' }}>{profile.questionsAsked}</div>
+            <div className="text-xs" style={{ color: 'var(--success)' }}>Questions asked</div>
           </div>
-          <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
             <div className="flex items-center justify-center mb-1">
-              <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <Users className="h-4 w-4" style={{ color: 'var(--primary)' }} />
             </div>
-            <div className="text-lg font-semibold text-purple-600 dark:text-purple-400">{profile.syndicatesJoined}</div>
-            <div className="text-xs text-purple-600 dark:text-purple-400">Syndicates joined</div>
+            <div className="text-lg font-semibold" style={{ color: 'var(--primary)' }}>{profile.syndicatesJoined}</div>
+            <div className="text-xs" style={{ color: 'var(--primary)' }}>Syndicates joined</div>
           </div>
         </div>
       </div>
@@ -225,10 +233,10 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
             <PieChart className="h-4 w-4" />
             Portfolio Mix
           </h3>
-          <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Total Portfolio Value</span>
-              <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(totalValue)}</span>
+              <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Total Portfolio Value</span>
+              <span className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>{formatCurrency(totalValue)}</span>
             </div>
             
             <div className="space-y-3">
@@ -236,12 +244,12 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
               {portfolioValue > 0 && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Securities</span>
+                    <Briefcase className="h-4 w-4" style={{ color: 'var(--info)' }} />
+                    <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>Securities</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(portfolioValue)}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{((portfolioValue / totalValue) * 100).toFixed(0)}%</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>{formatCurrency(portfolioValue)}</div>
+                    <div className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{((portfolioValue / totalValue) * 100).toFixed(0)}%</div>
                   </div>
                 </div>
               )}
@@ -250,12 +258,12 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
               {propertyValue > 0 && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Home className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Property</span>
+                    <Home className="h-4 w-4" style={{ color: 'var(--success)' }} />
+                    <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>Property</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(propertyValue)}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{((propertyValue / totalValue) * 100).toFixed(0)}%</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>{formatCurrency(propertyValue)}</div>
+                    <div className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{((propertyValue / totalValue) * 100).toFixed(0)}%</div>
                   </div>
                 </div>
               )}
@@ -264,40 +272,40 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
               {alternativeValue > 0 && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Alternatives</span>
+                    <Star className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+                    <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>Alternatives</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(alternativeValue)}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{((alternativeValue / totalValue) * 100).toFixed(0)}%</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>{formatCurrency(alternativeValue)}</div>
+                    <div className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{((alternativeValue / totalValue) * 100).toFixed(0)}%</div>
                   </div>
                 </div>
               )}
             </div>
             
             {/* Visual bar representation */}
-            <div className="mt-3 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex">
+            <div className="mt-3 h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: 'var(--border)' }}>
               {portfolioValue > 0 && (
                 <div 
-                  className="bg-blue-500 h-full" 
-                  style={{ width: `${(portfolioValue / totalValue) * 100}%` }}
+                  className="h-full" 
+                  style={{ width: `${(portfolioValue / totalValue) * 100}%`, backgroundColor: 'var(--info)' }}
                 />
               )}
               {propertyValue > 0 && (
                 <div 
-                  className="bg-green-500 h-full" 
-                  style={{ width: `${(propertyValue / totalValue) * 100}%` }}
+                  className="h-full" 
+                  style={{ width: `${(propertyValue / totalValue) * 100}%`, backgroundColor: 'var(--success)' }}
                 />
               )}
               {alternativeValue > 0 && (
                 <div 
-                  className="bg-purple-500 h-full" 
-                  style={{ width: `${(alternativeValue / totalValue) * 100}%` }}
+                  className="h-full" 
+                  style={{ width: `${(alternativeValue / totalValue) * 100}%`, backgroundColor: 'var(--primary)' }}
                 />
               )}
             </div>
             
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <div className="text-xs mt-2" style={{ color: 'var(--muted-foreground)' }}>
               Updated: {new Date().toLocaleDateString()}
             </div>
           </div>
@@ -318,10 +326,10 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
         </div>
         <div className="space-y-2">
           {/* Email Alerts Toggle */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Email Alerts</span>
+              <Bell className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+              <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>Email Alerts</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 dark:text-gray-400">

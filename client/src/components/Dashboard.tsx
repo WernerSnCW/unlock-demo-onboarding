@@ -63,18 +63,22 @@ export default function Dashboard() {
   }, []);
 
   // Fetch investor preferences if investor is selected
-  const { data: investorPreferences } = useQuery({
+  const { data: investorPreferences } = useQuery<{
+    existingInvestments?: string[];
+    regions?: string[];
+  }>({
     queryKey: ['/api/investors', selectedInvestor?.userId, 'preferences'],
     enabled: !!selectedInvestor?.userId,
   });
 
   // Create profile from selected investor or use default
-  const currentProfile = selectedInvestor ? {
+  const currentProfile: Profile = selectedInvestor ? {
     ...profile,
     firstName: selectedInvestor.name.split(' ')[0],
     lastName: selectedInvestor.name.split(' ').slice(1).join(' ') || '',
     email: `${selectedInvestor.name.toLowerCase().replace(/\s+/g, '.')}@demo.com`,
     investorType: selectedInvestor.investorType?.toLowerCase() as "angel" | "syndicate" | "advisor" | "other" || 'angel',
+    profilePicture: profile.profilePicture || undefined,
     existingInvestments: investorPreferences?.existingInvestments || [],
     regions: investorPreferences?.regions || []
   } : profile;
