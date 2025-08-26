@@ -520,6 +520,7 @@ export default function AccountSettings() {
   // Properties mutations
   const createPropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
+      console.log('Sending property data to API:', data);
       const response = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -527,10 +528,14 @@ export default function AccountSettings() {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
       }
       
-      return response.json();
+      const result = await response.json();
+      console.log('API Success Response:', result);
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -540,11 +545,12 @@ export default function AccountSettings() {
       queryClient.invalidateQueries({ queryKey: ['/api/properties', selectedInvestorId] });
       propertyForm.reset();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Property creation failed:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to add property'
+        description: `Failed to add property: ${error.message}`
       });
     },
   });
