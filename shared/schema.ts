@@ -37,7 +37,7 @@ export const taxProfile = pgTable("tax_profile", {
 
 export const portfolioAccounts = pgTable("portfolio_accounts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => investors.userId, { onDelete: "cascade" }),
   provider: text("provider"), // 'Moneyhub','Plaid','Manual','Coinbase','IBKR'...
   providerAccountId: text("provider_account_id"),
   accountType: text("account_type"), // 'brokerage','cash','private'
@@ -48,7 +48,7 @@ export const portfolioAccounts = pgTable("portfolio_accounts", {
 
 export const portfolioHoldings = pgTable("portfolio_holdings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => investors.userId, { onDelete: "cascade" }),
   accountId: varchar("account_id").references(() => portfolioAccounts.id, { onDelete: "set null" }),
   assetType: text("asset_type"), // 'equity','fund','crypto','private','other'
   provider: text("provider"),

@@ -220,7 +220,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePortfolioAccount(accountId: string): Promise<boolean> {
     const result = await db.delete(portfolioAccounts).where(eq(portfolioAccounts.id, accountId));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Portfolio Holdings methods
@@ -253,7 +253,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePortfolioHolding(holdingId: string): Promise<boolean> {
     const result = await db.delete(portfolioHoldings).where(eq(portfolioHoldings.id, holdingId));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
   
   // Property methods
