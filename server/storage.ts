@@ -5,6 +5,7 @@ import {
   type TaxProfile, type InsertTaxProfile,
   type PortfolioAccount, type InsertPortfolioAccount,
   type PortfolioHolding, type InsertPortfolioHolding,
+  type AlternativeInvestment, type InsertAlternativeInvestment,
   type Property, type InsertProperty,
   type PropertyOwnership, type InsertPropertyOwnership,
   type PropertyLoan, type InsertPropertyLoan,
@@ -12,7 +13,7 @@ import {
   type PropertyLease, type InsertPropertyLease,
   type PropertyCashflow, type InsertPropertyCashflow,
   users, investors, investorPreferences, taxProfile,
-  portfolioAccounts, portfolioHoldings,
+  portfolioAccounts, portfolioHoldings, alternativeInvestments,
   properties, propertyOwnerships, propertyLoans, 
   propertyValuations, propertyLeases, propertyCashflows
 } from "@shared/schema";
@@ -56,6 +57,13 @@ export interface IStorage {
   updatePortfolioHolding(holdingId: string, holding: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined>;
   deletePortfolioHolding(holdingId: string): Promise<boolean>;
   
+  // Alternative Investment methods
+  getAllAlternativeInvestments(userId: string): Promise<AlternativeInvestment[]>;
+  getAlternativeInvestment(investmentId: string): Promise<AlternativeInvestment | undefined>;
+  createAlternativeInvestment(investment: InsertAlternativeInvestment): Promise<AlternativeInvestment>;
+  updateAlternativeInvestment(investmentId: string, investment: Partial<InsertAlternativeInvestment>): Promise<AlternativeInvestment | undefined>;
+  deleteAlternativeInvestment(investmentId: string): Promise<boolean>;
+
   // Property methods
   getAllProperties(userId: string): Promise<Property[]>;
   getProperty(propertyId: string): Promise<Property | undefined>;
@@ -253,6 +261,39 @@ export class DatabaseStorage implements IStorage {
 
   async deletePortfolioHolding(holdingId: string): Promise<boolean> {
     const result = await db.delete(portfolioHoldings).where(eq(portfolioHoldings.id, holdingId));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Alternative Investment methods
+  async getAllAlternativeInvestments(userId: string): Promise<AlternativeInvestment[]> {
+    const investments = await db.select().from(alternativeInvestments).where(eq(alternativeInvestments.userId, userId));
+    return investments;
+  }
+
+  async getAlternativeInvestment(investmentId: string): Promise<AlternativeInvestment | undefined> {
+    const [investment] = await db.select().from(alternativeInvestments).where(eq(alternativeInvestments.id, investmentId));
+    return investment || undefined;
+  }
+
+  async createAlternativeInvestment(investment: InsertAlternativeInvestment): Promise<AlternativeInvestment> {
+    const [newInvestment] = await db
+      .insert(alternativeInvestments)
+      .values(investment)
+      .returning();
+    return newInvestment;
+  }
+
+  async updateAlternativeInvestment(investmentId: string, investment: Partial<InsertAlternativeInvestment>): Promise<AlternativeInvestment | undefined> {
+    const [updated] = await db
+      .update(alternativeInvestments)
+      .set(investment)
+      .where(eq(alternativeInvestments.id, investmentId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteAlternativeInvestment(investmentId: string): Promise<boolean> {
+    const result = await db.delete(alternativeInvestments).where(eq(alternativeInvestments.id, investmentId));
     return (result.rowCount ?? 0) > 0;
   }
   

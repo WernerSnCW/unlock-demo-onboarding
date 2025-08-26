@@ -89,6 +89,31 @@ export const properties = pgTable("properties", {
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
+// Alternative Investments Table
+export const alternativeInvestments = pgTable("alternative_investments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => investors.userId, { onDelete: "cascade" }),
+  investmentType: text("investment_type"), // 'private_equity','venture_capital','hedge_fund','real_estate_fund','commodities','collectibles','cryptocurrency','art','wine','other'
+  name: text("name").notNull(),
+  description: text("description"),
+  investmentDateUk: text("investment_date_uk"), // DD/MM/YYYY format
+  maturityDateUk: text("maturity_date_uk"), // DD/MM/YYYY format  
+  investmentAmountGbp: numeric("investment_amount_gbp"),
+  currentValueGbp: numeric("current_value_gbp"),
+  targetReturnPct: numeric("target_return_pct"),
+  actualReturnPct: numeric("actual_return_pct"),
+  riskRating: text("risk_rating"), // 'low','medium','high','very_high'
+  liquidityPeriod: text("liquidity_period"), // 'immediate','1_month','3_months','6_months','1_year','2_years','5_years','illiquid'
+  minimumInvestment: numeric("minimum_investment"),
+  fees: text("fees"), // Description of fee structure
+  taxWrapperEligible: boolean("tax_wrapper_eligible").default(false), // EIS/SEIS eligible
+  taxWrapperType: text("tax_wrapper_type"), // 'EIS','SEIS','VCT','none'
+  documentsUrl: text("documents_url"), // Link to investment documents
+  notes: text("notes"),
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
 export const propertyOwnerships = pgTable("property_ownerships", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   propertyId: varchar("property_id"),
@@ -178,6 +203,12 @@ export const insertPortfolioHoldingSchema = createInsertSchema(portfolioHoldings
   lastPricedAt: true,
 });
 
+export const insertAlternativeInvestmentSchema = createInsertSchema(alternativeInvestments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Property schemas
 export const insertPropertySchema = createInsertSchema(properties).omit({
   id: true,
@@ -220,6 +251,8 @@ export type PortfolioAccount = typeof portfolioAccounts.$inferSelect;
 export type InsertPortfolioAccount = z.infer<typeof insertPortfolioAccountSchema>;
 export type PortfolioHolding = typeof portfolioHoldings.$inferSelect;
 export type InsertPortfolioHolding = z.infer<typeof insertPortfolioHoldingSchema>;
+export type AlternativeInvestment = typeof alternativeInvestments.$inferSelect;
+export type InsertAlternativeInvestment = z.infer<typeof insertAlternativeInvestmentSchema>;
 
 // Property types
 export type Property = typeof properties.$inferSelect;

@@ -7,6 +7,7 @@ import {
   insertTaxProfileSchema,
   insertPortfolioAccountSchema,
   insertPortfolioHoldingSchema,
+  insertAlternativeInvestmentSchema,
   insertPropertySchema,
   insertPropertyOwnershipSchema,
   insertPropertyLoanSchema,
@@ -286,6 +287,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: 'Failed to delete portfolio holding' });
+    }
+  });
+
+  // Alternative Investment routes
+  app.get('/api/alternatives/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const investments = await storage.getAllAlternativeInvestments(userId);
+      res.json(investments);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch alternative investments' });
+    }
+  });
+
+  app.get('/api/alternatives/investment/:investmentId', async (req, res) => {
+    try {
+      const { investmentId } = req.params;
+      const investment = await storage.getAlternativeInvestment(investmentId);
+      if (!investment) {
+        return res.status(404).json({ message: 'Alternative investment not found' });
+      }
+      res.json(investment);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch alternative investment' });
+    }
+  });
+
+  app.post('/api/alternatives', async (req, res) => {
+    try {
+      const validatedData = insertAlternativeInvestmentSchema.parse(req.body);
+      const investment = await storage.createAlternativeInvestment(validatedData);
+      res.status(201).json(investment);
+    } catch (error) {
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to create alternative investment' });
+    }
+  });
+
+  app.put('/api/alternatives/:investmentId', async (req, res) => {
+    try {
+      const { investmentId } = req.params;
+      const partialData = req.body;
+      const investment = await storage.updateAlternativeInvestment(investmentId, partialData);
+      if (!investment) {
+        return res.status(404).json({ message: 'Alternative investment not found' });
+      }
+      res.json(investment);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update alternative investment' });
+    }
+  });
+
+  app.delete('/api/alternatives/:investmentId', async (req, res) => {
+    try {
+      const { investmentId } = req.params;
+      const deleted = await storage.deleteAlternativeInvestment(investmentId);
+      if (!deleted) {
+        return res.status(404).json({ message: 'Alternative investment not found' });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete alternative investment' });
     }
   });
 

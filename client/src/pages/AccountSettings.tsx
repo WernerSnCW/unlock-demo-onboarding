@@ -22,6 +22,7 @@ import type {
   InsertInvestor, InsertInvestorPreferences, InsertTaxProfile,
   InsertPortfolioAccount, InsertPortfolioHolding,
   PortfolioAccount, PortfolioHolding,
+  AlternativeInvestment, InsertAlternativeInvestment,
   InsertProperty, Property
 } from '@shared/schema';
 
@@ -102,11 +103,33 @@ const propertySchema = z.object({
   isPrimaryResidence: z.boolean().default(false),
 });
 
+const alternativeInvestmentSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  investmentType: z.string().min(1, 'Investment type is required'),
+  name: z.string().min(1, 'Investment name is required'),
+  description: z.string().optional(),
+  investmentDateUk: z.string().optional(),
+  maturityDateUk: z.string().optional(),
+  investmentAmountGbp: z.string().optional(),
+  currentValueGbp: z.string().optional(),
+  targetReturnPct: z.string().optional(),
+  actualReturnPct: z.string().optional(),
+  riskRating: z.string().optional(),
+  liquidityPeriod: z.string().optional(),
+  minimumInvestment: z.string().optional(),
+  fees: z.string().optional(),
+  taxWrapperEligible: z.boolean().default(false),
+  taxWrapperType: z.string().optional(),
+  documentsUrl: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 type InvestorFormData = z.infer<typeof investorSchema>;
 type PreferencesFormData = z.infer<typeof preferencesSchema>;
 type TaxProfileFormData = z.infer<typeof taxProfileSchema>;
 type PortfolioAccountFormData = z.infer<typeof portfolioAccountSchema>;
 type PortfolioHoldingFormData = z.infer<typeof portfolioHoldingSchema>;
+type AlternativeInvestmentFormData = z.infer<typeof alternativeInvestmentSchema>;
 type PropertyFormData = z.infer<typeof propertySchema>;
 
 interface DemoInvestor {
@@ -791,6 +814,16 @@ export default function AccountSettings() {
     queryFn: () => {
       if (!selectedInvestorId) return [];
       return fetch(`/api/properties/${selectedInvestorId}`).then(res => res.json());
+    },
+    enabled: !!selectedInvestorId,
+  });
+
+  // Load alternative investments for selected investor
+  const { data: alternativesData, isLoading: alternativesLoading } = useQuery({
+    queryKey: ['/api/alternatives', selectedInvestorId],
+    queryFn: () => {
+      if (!selectedInvestorId) return [];
+      return fetch(`/api/alternatives/${selectedInvestorId}`).then(res => res.json());
     },
     enabled: !!selectedInvestorId,
   });
@@ -2316,6 +2349,41 @@ export default function AccountSettings() {
     </div>
   );
 
+  // Render Alternatives tab
+  const renderAlternativesTab = () => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Alternative Investments
+          </CardTitle>
+          <CardDescription>
+            Manage alternative investment holdings including private equity, venture capital, real estate funds, and other non-traditional investments.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              Alternative Investments Coming Soon
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Track private equity, venture capital, hedge funds, real estate funds, commodities, and other alternative investments.
+            </p>
+            <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+              <p>• Private Equity & Venture Capital</p>
+              <p>• Hedge Funds & Real Estate Funds</p>
+              <p>• Commodities & Collectibles</p>
+              <p>• Cryptocurrency & Digital Assets</p>
+              <p>• Tax Wrapper Eligible Investments (EIS/SEIS/VCT)</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -2336,7 +2404,7 @@ export default function AccountSettings() {
           {/* Configuration Tabs */}
           {selectedInvestorId && (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
+              <TabsList className="grid w-full grid-cols-6 mb-8 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600">
                 <TabsTrigger 
                   value="preferences" 
                   className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
@@ -2370,6 +2438,14 @@ export default function AccountSettings() {
                   Holdings
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="alternatives" 
+                  className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
+                  data-testid="tab-alternatives"
+                >
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Alternatives
+                </TabsTrigger>
+                <TabsTrigger 
                   value="properties" 
                   className="data-[state=active]:bg-[var(--primary)] data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 rounded-xl"
                   data-testid="tab-properties"
@@ -2393,6 +2469,10 @@ export default function AccountSettings() {
 
               <TabsContent value="portfolio-holdings">
                 {renderPortfolioHoldingsTab()}
+              </TabsContent>
+
+              <TabsContent value="alternatives">
+                {renderAlternativesTab()}
               </TabsContent>
 
               <TabsContent value="properties">
