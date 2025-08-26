@@ -307,60 +307,66 @@ export const ValuationRangeChart: React.FC<{
 
   const range = parseRange(valuation.range);
   
-  // Create chart data
-  const chartData = [
-    {
-      name: 'Market Range',
-      min: range.min,
-      max: range.max,
-      estimate: valuation.estimate,
-      purchase: purchase?.originalPrice || null
-    }
-  ];
+  // Calculate positions as percentages
+  const estimatePosition = ((valuation.estimate - range.min) / (range.max - range.min)) * 100;
+  const purchasePosition = purchase ? ((purchase.originalPrice - range.min) / (range.max - range.min)) * 100 : null;
 
   return (
     <div className="h-32 min-h-0">
-      <div className="mb-2">
+      <div className="mb-3">
         <h6 className="text-sm font-medium text-[var(--card-foreground)]">Valuation Analysis</h6>
         <p className="text-xs text-[var(--muted-foreground)]">
           Current estimate vs {purchase ? 'purchase price &' : ''} market range
         </p>
       </div>
-      <ResponsiveContainer width="100%" height={90} minWidth={0} minHeight={0}>
-        <ComposedChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-          <YAxis hide />
-          <Tooltip 
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                const data = payload[0].payload;
-                return (
-                  <div className="bg-[var(--card)] p-3 rounded-[var(--radius-sm)] border border-[var(--border)] shadow-lg">
-                    <p className="font-medium text-[var(--card-foreground)] mb-1">Valuation Breakdown</p>
-                    <p className="text-sm text-[var(--success)]">Estimate: £{data.estimate.toLocaleString()}</p>
-                    <p className="text-sm text-[var(--muted-foreground)]">Range: £{data.min.toLocaleString()} - £{data.max.toLocaleString()}</p>
-                    {data.purchase && (
-                      <p className="text-sm text-[var(--primary)]">Purchase: £{data.purchase.toLocaleString()}</p>
-                    )}
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-          {/* Market range area */}
-          <Bar dataKey="min" fill="var(--muted)" opacity={0.3} />
-          <Bar dataKey="max" fill="var(--muted)" opacity={0.3} />
-          {/* Current estimate line */}
-          <ReferenceLine y={valuation.estimate} stroke="var(--success)" strokeWidth={3} strokeDasharray="0" />
-          {/* Purchase price line if available */}
+      
+      {/* Horizontal bar chart */}
+      <div className="space-y-3">
+        {/* Market range bar */}
+        <div className="relative">
+          <div className="h-6 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] relative overflow-hidden">
+            {/* Market range background */}
+            <div className="h-full bg-[var(--primary)]/20 rounded-[var(--radius-sm)]"></div>
+            
+            {/* Current estimate marker */}
+            <div 
+              className="absolute top-0 bottom-0 w-0.5 bg-[var(--success)]"
+              style={{ left: `${Math.max(0, Math.min(100, estimatePosition))}%` }}
+            >
+              <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-[var(--success)]"></div>
+            </div>
+            
+            {/* Purchase price marker if available */}
+            {purchase && purchasePosition !== null && (
+              <div 
+                className="absolute top-0 bottom-0 w-0.5 bg-[var(--primary)]"
+                style={{ left: `${Math.max(0, Math.min(100, purchasePosition))}%` }}
+              >
+                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-[var(--primary)]"></div>
+              </div>
+            )}
+          </div>
+          
+          {/* Range labels */}
+          <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
+            <span>£{range.min.toLocaleString()}</span>
+            <span>£{range.max.toLocaleString()}</span>
+          </div>
+        </div>
+        
+        {/* Legend */}
+        <div className="flex flex-wrap gap-4 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-0.5 bg-[var(--success)]"></div>
+            <span className="text-[var(--card-foreground)]">Estimate: £{valuation.estimate.toLocaleString()}</span>
+          </div>
           {purchase && (
-            <ReferenceLine y={purchase.originalPrice} stroke="var(--primary)" strokeWidth={2} strokeDasharray="5 5" />
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-0.5 bg-[var(--primary)]"></div>
+              <span className="text-[var(--card-foreground)]">Purchase: £{purchase.originalPrice.toLocaleString()}</span>
+            </div>
           )}
-        </ComposedChart>
-      </ResponsiveContainer>
-      <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
-        <span>Range: £{range.min.toLocaleString()} - £{range.max.toLocaleString()}</span>
-        {purchase && <span>Purchase: £{purchase.originalPrice.toLocaleString()}</span>}
+        </div>
       </div>
     </div>
   );
