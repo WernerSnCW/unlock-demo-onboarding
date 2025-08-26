@@ -367,6 +367,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Property sub-resource routes
+  app.get('/api/properties/:propertyId/ownerships', async (req, res) => {
+    try {
+      const { propertyId } = req.params;
+      const ownerships = await storage.getPropertyOwnerships(propertyId);
+      res.json(ownerships);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch property ownerships' });
+    }
+  });
+
   app.get('/api/properties/:propertyId/loans', async (req, res) => {
     try {
       const { propertyId } = req.params;

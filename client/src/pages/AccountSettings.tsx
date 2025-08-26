@@ -119,6 +119,77 @@ interface DemoInvestor {
   portfolioHoldings?: PortfolioHolding[];
 }
 
+// Component to display property ownership information
+function PropertyOwnershipView({ propertyId }: { propertyId: string }) {
+  const { data: ownershipData, isLoading } = useQuery({
+    queryKey: ['/api/properties', propertyId, 'ownerships'],
+    queryFn: () => fetch(`/api/properties/${propertyId}/ownerships`).then(res => res.json()),
+  });
+
+  if (isLoading) {
+    return (
+      <div>
+        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Ownership & Investment</h4>
+        <div className="space-y-2 text-sm">
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 rounded"></div>
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 rounded w-3/4"></div>
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
+  const ownership = ownershipData?.[0]; // Assume first ownership record
+
+  return (
+    <div>
+      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Ownership & Investment</h4>
+      <div className="space-y-2 text-sm">
+        {ownership ? (
+          <>
+            <div>
+              <span className="font-medium text-gray-600 dark:text-gray-400">Ownership Type:</span>
+              <p className="text-gray-900 dark:text-gray-100 capitalize">{ownership.ownershipType}</p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600 dark:text-gray-400">Share:</span>
+              <p className="text-gray-900 dark:text-gray-100">{ownership.sharePct}%</p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600 dark:text-gray-400">Acquisition Date:</span>
+              <p className="text-gray-900 dark:text-gray-100">
+                {ownership.acquisitionDate ? new Date(ownership.acquisitionDate).toLocaleDateString('en-GB') : 'Not specified'}
+              </p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600 dark:text-gray-400">Purchase Price:</span>
+              <p className="text-gray-900 dark:text-gray-100">
+                {ownership.acquisitionPriceGbp ? `£${Number(ownership.acquisitionPriceGbp).toLocaleString()}` : 'Not specified'}
+              </p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600 dark:text-gray-400">Purchase Costs:</span>
+              <p className="text-gray-900 dark:text-gray-100">
+                {ownership.acquisitionCostsGbp ? `£${Number(ownership.acquisitionCostsGbp).toLocaleString()}` : 'Not specified'}
+              </p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600 dark:text-gray-400">Primary Residence:</span>
+              <p className="text-gray-900 dark:text-gray-100">
+                {ownership.isPrimaryResidence ? 'Yes' : 'No'}
+              </p>
+            </div>
+          </>
+        ) : (
+          <div>
+            <p className="text-gray-600 dark:text-gray-400">No ownership information available</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AccountSettings() {
   const { toast } = useToast();
   const { setCurrentInvestor, positions: portfolioPositions, isLoading: portfolioLoading, addPosition } = usePortfolioStoreDB();
@@ -723,6 +794,12 @@ export default function AccountSettings() {
     },
     enabled: !!selectedInvestorId,
   });
+
+  // Property ownership query - fetch ownership data for a specific property
+  const getPropertyOwnership = async (propertyId: string) => {
+    const response = await fetch(`/api/properties/${propertyId}/ownerships`);
+    return response.json();
+  };
 
   // Property deletion mutation
   const deletePropertyMutation = useMutation({
@@ -2124,14 +2201,14 @@ export default function AccountSettings() {
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle>Property Details</DialogTitle>
                             <DialogDescription>
                               Complete information for {property.addressLine1}
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                               <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Address Information</h4>
                               <div className="space-y-2 text-sm">
@@ -2207,6 +2284,7 @@ export default function AccountSettings() {
                                 </div>
                               </div>
                             </div>
+                            <PropertyOwnershipView propertyId={property.id} />
                           </div>
                         </DialogContent>
                       </Dialog>
