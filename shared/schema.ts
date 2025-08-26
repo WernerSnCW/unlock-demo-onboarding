@@ -289,3 +289,69 @@ export type PropertyLease = typeof propertyLeases.$inferSelect;
 export type InsertPropertyLease = z.infer<typeof insertPropertyLeaseSchema>;
 export type PropertyCashflow = typeof propertyCashflows.$inferSelect;
 export type InsertPropertyCashflow = z.infer<typeof insertPropertyCashflowSchema>;
+
+// UK House Price Index data for property valuations
+export const ukHpi = pgTable("uk_hpi", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  date: text("date").notNull(), // Format: DD/MM/YYYY
+  regionName: text("region_name").notNull(),
+  areaCode: text("area_code").notNull(),
+  averagePrice: numeric("average_price"),
+  index: numeric("index"),
+  indexSa: numeric("index_sa"), // Seasonally adjusted
+  monthlyChangePercent: numeric("monthly_change_percent"), // 1m%Change
+  yearlyChangePercent: numeric("yearly_change_percent"), // 12m%Change
+  averagePriceSa: numeric("average_price_sa"),
+  salesVolume: integer("sales_volume"),
+  detachedPrice: numeric("detached_price"),
+  detachedIndex: numeric("detached_index"),
+  detachedMonthlyChange: numeric("detached_monthly_change"),
+  detachedYearlyChange: numeric("detached_yearly_change"),
+  semiDetachedPrice: numeric("semi_detached_price"),
+  semiDetachedIndex: numeric("semi_detached_index"),
+  semiDetachedMonthlyChange: numeric("semi_detached_monthly_change"),
+  semiDetachedYearlyChange: numeric("semi_detached_yearly_change"),
+  terracedPrice: numeric("terraced_price"),
+  terracedIndex: numeric("terraced_index"),
+  terracedMonthlyChange: numeric("terraced_monthly_change"),
+  terracedYearlyChange: numeric("terraced_yearly_change"),
+  flatPrice: numeric("flat_price"),
+  flatIndex: numeric("flat_index"),
+  flatMonthlyChange: numeric("flat_monthly_change"),
+  flatYearlyChange: numeric("flat_yearly_change"),
+  cashPrice: numeric("cash_price"),
+  cashIndex: numeric("cash_index"),
+  cashMonthlyChange: numeric("cash_monthly_change"),
+  cashYearlyChange: numeric("cash_yearly_change"),
+  cashSalesVolume: integer("cash_sales_volume"),
+  mortgagePrice: numeric("mortgage_price"),
+  mortgageIndex: numeric("mortgage_index"),
+  mortgageMonthlyChange: numeric("mortgage_monthly_change"),
+  mortgageYearlyChange: numeric("mortgage_yearly_change"),
+  mortgageSalesVolume: integer("mortgage_sales_volume"),
+  ftbPrice: numeric("ftb_price"), // First Time Buyer
+  ftbIndex: numeric("ftb_index"),
+  ftbMonthlyChange: numeric("ftb_monthly_change"),
+  ftbYearlyChange: numeric("ftb_yearly_change"),
+  fooPrice: numeric("foo_price"), // Former Owner Occupier
+  fooIndex: numeric("foo_index"),
+  fooMonthlyChange: numeric("foo_monthly_change"),
+  fooYearlyChange: numeric("foo_yearly_change"),
+  newPrice: numeric("new_price"),
+  newIndex: numeric("new_index"),
+  newMonthlyChange: numeric("new_monthly_change"),
+  newYearlyChange: numeric("new_yearly_change"),
+  newSalesVolume: integer("new_sales_volume"),
+  oldPrice: numeric("old_price"),
+  oldIndex: numeric("old_index"),
+  oldMonthlyChange: numeric("old_monthly_change"),
+  oldYearlyChange: numeric("old_yearly_change"),
+  oldSalesVolume: integer("old_sales_volume"),
+});
+
+export const insertUkHpiSchema = createInsertSchema(ukHpi).omit({
+  id: true,
+});
+
+export type UkHpi = typeof ukHpi.$inferSelect;
+export type InsertUkHpi = z.infer<typeof insertUkHpiSchema>;

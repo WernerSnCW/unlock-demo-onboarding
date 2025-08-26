@@ -16,8 +16,42 @@ import {
   insertPropertyValuationSchema,
   insertPropertyLeaseSchema,
   insertPropertyCashflowSchema,
-  propertyPriceData
+  propertyPriceData,
+  ukHpi
 } from "@shared/schema";
+
+// Helper functions for UK HPI data
+function getPropertyTypeChange(data: any, propertyType: string): number {
+  switch (propertyType.toLowerCase()) {
+    case 'detached':
+      return parseFloat(data.detachedMonthlyChange || '0');
+    case 'semi-detached':
+      return parseFloat(data.semiDetachedMonthlyChange || '0');
+    case 'terraced':
+      return parseFloat(data.terracedMonthlyChange || '0');
+    case 'flat':
+    case 'apartment':
+      return parseFloat(data.flatMonthlyChange || '0');
+    default:
+      return parseFloat(data.monthlyChangePercent || '0');
+  }
+}
+
+function getPropertyTypeYearlyChange(data: any, propertyType: string): number {
+  switch (propertyType.toLowerCase()) {
+    case 'detached':
+      return parseFloat(data.detachedYearlyChange || '0');
+    case 'semi-detached':
+      return parseFloat(data.semiDetachedYearlyChange || '0');
+    case 'terraced':
+      return parseFloat(data.terracedYearlyChange || '0');
+    case 'flat':
+    case 'apartment':
+      return parseFloat(data.flatYearlyChange || '0');
+    default:
+      return parseFloat(data.yearlyChangePercent || '0');
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Investor routes
@@ -553,6 +587,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(lease);
     } catch (error) {
       res.status(500).json({ message: 'Failed to create property lease' });
+    }
+  });
+
+  // UK HPI Data Routes for property valuations
+  app.get('/api/uk-hpi/regions', async (req, res) => {
+    try {
+      const regions = await db.selectDistinct({ regionName: ukHpi.regionName, areaCode: ukHpi.areaCode })
+        .from(ukHpi)
+        .orderBy(ukHpi.regionName);
+      res.json(regions);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch UK regions' });
+    }
+  });
+
+  app.get('/api/uk-hpi/region/:areaCode/latest', async (req, res) => {
+    try {
+      const { areaCode } = req.params;
+      const latestData = await db.select()
+        .from(ukHpi)
+        .where(eq(ukHpi.areaCode, areaCode))
+        .orderBy(desc(ukHpi.date))
+        .limit(1);
+      
+      if (latestData.length === 0) {
+        return res.status(404).json({ message: 'No data found for region' });
+      }
+      
+      res.json(latestData[0]);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch latest UK HPI data' });
+    }
+  });
+
+  app.get('/api/uk-hpi/region/:areaCode/trends', async (req, res) => {
+    try {
+      const { areaCode } = req.params;
+      const { months = '12' } = req.query;
+      
+      // Get the last X months of data for trend analysis
+      const trendsData = await db.select()
+        .from(ukHpi)
+        .where(eq(ukHpi.areaCode, areaCode))
+        .orderBy(desc(ukHpi.date))
+        .limit(parseInt(months as string));
+      
+      res.json(trendsData.reverse()); // Return chronological order
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch UK HPI trends' });
+    }
+  });
+
+  app.get('/api/uk-hpi/valuation-estimate', async (req, res) => {
+    try {
+      const { regionName, propertyType, postcode } = req.query;
+      
+      if (!regionName && !postcode) {
+        return res.status(400).json({ message: 'Region name or postcode required' });
+      }
+      
+      let whereCondition;
+      if (postcode) {
+        // Try to match region by postcode prefix - simplified approach
+        const postcodePrefix = (postcode as string).split(' ')[0];
+        whereCondition = like(ukHpi.regionName, `%${postcodePrefix}%`);
+      } else {
+        whereCondition = like(ukHpi.regionName, `%${regionName}%`);
+      }
+      
+      const latestData = await db.select()
+        .from(ukHpi)
+        .where(whereCondition)
+        .orderBy(desc(ukHpi.date))
+        .limit(1);
+      
+      if (latestData.length === 0) {
+        return res.status(404).json({ message: 'No market data found for location' });
+      }
+      
+      const data = latestData[0];
+      let basePrice = parseFloat(data.averagePrice || '0');
+      
+      // Adjust price based on property type
+      if (propertyType) {
+        switch (propertyType.toLowerCase()) {
+          case 'detached':
+            basePrice = parseFloat(data.detachedPrice || data.averagePrice || '0');
+            break;
+          case 'semi-detached':
+            basePrice = parseFloat(data.semiDetachedPrice || data.averagePrice || '0');
+            break;
+          case 'terraced':
+            basePrice = parseFloat(data.terracedPrice || data.averagePrice || '0');
+            break;
+          case 'flat':
+          case 'apartment':
+            basePrice = parseFloat(data.flatPrice || data.averagePrice || '0');
+            break;
+          default:
+            basePrice = parseFloat(data.averagePrice || '0');
+        }
+      }
+      
+      // Calculate confidence range (±10% for estimation)
+      const lowerEstimate = Math.round(basePrice * 0.9);
+      const upperEstimate = Math.round(basePrice * 1.1);
+      
+      const valuation = {
+        estimatedValue: {
+          lower: lowerEstimate,
+          upper: upperEstimate,
+          average: Math.round(basePrice)
+        },
+        marketData: {
+          regionName: data.regionName,
+          averagePrice: parseFloat(data.averagePrice || '0'),
+          monthlyChange: parseFloat(data.monthlyChangePercent || '0'),
+          yearlyChange: parseFloat(data.yearlyChangePercent || '0'),
+          salesVolume: data.salesVolume,
+          date: data.date
+        },
+        propertyTypeData: propertyType ? {
+          type: propertyType,
+          averagePrice: basePrice,
+          monthlyChange: getPropertyTypeChange(data, propertyType),
+          yearlyChange: getPropertyTypeYearlyChange(data, propertyType)
+        } : null
+      };
+      
+      res.json(valuation);
+    } catch (error) {
+      console.error('Valuation estimate error:', error);
+      res.status(500).json({ message: 'Failed to generate valuation estimate' });
     }
   });
 
