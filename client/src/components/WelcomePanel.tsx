@@ -113,11 +113,17 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
           {profile.investorType?.charAt(0).toUpperCase() + profile.investorType?.slice(1)} Investor
         </span>
         
-        {/* Existing Investments */}
-        {profile.existingInvestments && profile.existingInvestments.length > 0 && (
+        {/* Existing Investments - Show up to 3 */}
+        {profile.existingInvestments && profile.existingInvestments.length > 0 && 
+          profile.existingInvestments.slice(0, 3).map((investment, index) => (
+            <span key={index} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+              {investment}
+            </span>
+          ))
+        }
+        {profile.existingInvestments && profile.existingInvestments.length > 3 && (
           <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-            {profile.existingInvestments[0]}
-            {profile.existingInvestments.length > 1 && ` +${profile.existingInvestments.length - 1}`}
+            +{profile.existingInvestments.length - 3} more
           </span>
         )}
         
@@ -128,18 +134,6 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
             {profile.regions.length > 1 && ` +${profile.regions.length - 1}`}
           </span>
         )}
-        
-        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-          {profile.riskProfile?.charAt(0).toUpperCase() + profile.riskProfile?.slice(1)} Risk
-        </span>
-        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-          {profile.sectors?.[0]}
-        </span>
-        {/* Reputation Score */}
-        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: '#62C4C3', color: 'white' }}>
-          <TrendingUp className="h-3 w-3" />
-          Rep: {profile.reputationScore}
-        </span>
       </div>
 
       {/* Badges */}
