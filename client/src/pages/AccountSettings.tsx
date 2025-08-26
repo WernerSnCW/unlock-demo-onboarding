@@ -149,7 +149,7 @@ export default function AccountSettings() {
   const investorForm = useForm<InvestorFormData>({
     resolver: zodResolver(investorSchema),
     defaultValues: {
-      userId: selectedInvestorId,
+      userId: selectedInvestorId || '',
       name: '',
       investorType: '',
     },
@@ -158,7 +158,7 @@ export default function AccountSettings() {
   const preferencesForm = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
     defaultValues: {
-      userId: selectedInvestorId,
+      userId: selectedInvestorId || '',
       riskBand: '',
       ticketMinGbp: '',
       ticketMaxGbp: '',
@@ -172,7 +172,7 @@ export default function AccountSettings() {
   const taxProfileForm = useForm<TaxProfileFormData>({
     resolver: zodResolver(taxProfileSchema),
     defaultValues: {
-      userId: selectedInvestorId,
+      userId: selectedInvestorId || '',
       country: '',
       interests: [],
     },
@@ -342,7 +342,6 @@ export default function AccountSettings() {
     
     updateInvestorMutation.mutate({
       userId: selectedInvestorId,
-      name: data.name,
       investorType: data.investorType || 'Angel',
     });
   };
@@ -378,8 +377,9 @@ export default function AccountSettings() {
   // Properties mutations
   const createPropertyMutation = useMutation({
     mutationFn: (data: PropertyFormData) => {
-      return apiRequest('/api/properties', {
+      return fetch('/api/properties', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
     },
@@ -404,7 +404,7 @@ export default function AccountSettings() {
   const savePreferencesMutation = useMutation({
     mutationFn: async (data: PreferencesFormData) => {
       if (!selectedInvestorId) throw new Error('No investor selected');
-      return apiRequest(`/api/investors/${selectedInvestorId}/preferences`, {
+      return fetch(`/api/investors/${selectedInvestorId}/preferences`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -433,7 +433,7 @@ export default function AccountSettings() {
   const saveTaxProfileMutation = useMutation({
     mutationFn: async (data: TaxProfileFormData) => {
       if (!selectedInvestorId) throw new Error('No investor selected');
-      return apiRequest(`/api/investors/${selectedInvestorId}/tax-profile`, {
+      return fetch(`/api/investors/${selectedInvestorId}/tax-profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -695,28 +695,43 @@ export default function AccountSettings() {
                 <FormDescription>
                   Select the types of investments you currently hold
                 </FormDescription>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {[
-                    'Public Equity', 'Private Equity', 'Venture Capital', 'Angel Investing',
-                    'Real Estate', 'Cryptocurrency', 'Bonds', 'REITs', 'Hedge Funds',
-                    'Commodities', 'Fine Art', 'Collectibles', 'Whisky & Spirits', 'Wine',
-                    'Classic Cars', 'Watches', 'Peer-to-Peer Lending', 'Infrastructure',
-                    'Forestry & Timberland', 'Precious Metals'
-                  ].map((investment) => (
-                    <div key={investment} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={investment}
-                        data-testid={`checkbox-investment-${investment.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
-                      />
-                      <label 
-                        htmlFor={investment}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {investment}
-                      </label>
+                <FormField
+                  control={preferencesForm.control}
+                  name="existingInvestments"
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {[
+                        'Public Equity', 'Private Equity', 'Venture Capital', 'Angel Investing',
+                        'Real Estate', 'Cryptocurrency', 'Bonds', 'REITs', 'Hedge Funds',
+                        'Commodities', 'Fine Art', 'Collectibles', 'Whisky & Spirits', 'Wine',
+                        'Classic Cars', 'Watches', 'Peer-to-Peer Lending', 'Infrastructure',
+                        'Forestry & Timberland', 'Precious Metals'
+                      ].map((investment) => (
+                        <div key={investment} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={investment}
+                            checked={field.value?.includes(investment) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, investment]);
+                              } else {
+                                field.onChange(current.filter((item: string) => item !== investment));
+                              }
+                            }}
+                            data-testid={`checkbox-investment-${investment.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
+                          />
+                          <label 
+                            htmlFor={investment}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {investment}
+                          </label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                />
               </FormItem>
 
               <FormItem>
@@ -724,30 +739,45 @@ export default function AccountSettings() {
                 <FormDescription>
                   Select the types of investments you're interested in exploring
                 </FormDescription>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {[
-                    'Seed Stage Startups', 'Growth Stage Companies', 'Pre-IPO Opportunities',
-                    'ESG/Impact Investing', 'Technology Sector', 'Healthcare & Biotech',
-                    'Green Energy', 'Emerging Markets', 'Property Development',
-                    'Fintech Innovation', 'AI & Machine Learning', 'Whisky & Spirits Casks',
-                    'Fine Wine Investment', 'Classic Car Collecting', 'Luxury Watches',
-                    'Contemporary Art', 'Rare Collectibles', 'Infrastructure Projects',
-                    'Forestry & Timber', 'Precious Metals Trading', 'Cryptocurrency Trading'
-                  ].map((interest) => (
-                    <div key={interest} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={interest}
-                        data-testid={`checkbox-interest-${interest.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
-                      />
-                      <label 
-                        htmlFor={interest}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {interest}
-                      </label>
+                <FormField
+                  control={preferencesForm.control}
+                  name="investmentInterests"
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {[
+                        'Seed Stage Startups', 'Growth Stage Companies', 'Pre-IPO Opportunities',
+                        'ESG/Impact Investing', 'Technology Sector', 'Healthcare & Biotech',
+                        'Green Energy', 'Emerging Markets', 'Property Development',
+                        'Fintech Innovation', 'AI & Machine Learning', 'Whisky & Spirits Casks',
+                        'Fine Wine Investment', 'Classic Car Collecting', 'Luxury Watches',
+                        'Contemporary Art', 'Rare Collectibles', 'Infrastructure Projects',
+                        'Forestry & Timber', 'Precious Metals Trading', 'Cryptocurrency Trading'
+                      ].map((interest) => (
+                        <div key={interest} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={interest}
+                            checked={field.value?.includes(interest) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, interest]);
+                              } else {
+                                field.onChange(current.filter((item: string) => item !== interest));
+                              }
+                            }}
+                            data-testid={`checkbox-interest-${interest.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
+                          />
+                          <label 
+                            htmlFor={interest}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {interest}
+                          </label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                />
               </FormItem>
 
               <Button 
