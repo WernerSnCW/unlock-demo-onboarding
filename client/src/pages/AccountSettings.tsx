@@ -569,7 +569,6 @@ export default function AccountSettings() {
   const createPortfolioAccountMutation = useMutation({
     mutationFn: async (data: PortfolioAccountFormData) => {
       if (!selectedInvestorId) throw new Error('No investor selected');
-      console.log('Submitting portfolio account data:', data);
       const response = await fetch(`/api/investors/${selectedInvestorId}/portfolio-accounts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -582,8 +581,7 @@ export default function AccountSettings() {
       
       return response.json();
     },
-    onSuccess: (data) => {
-      console.log('Account creation successful:', data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/investors', selectedInvestorId, 'portfolio-accounts'] });
       portfolioAccountForm.reset({
         userId: selectedInvestorId || '',
@@ -599,8 +597,7 @@ export default function AccountSettings() {
         description: 'Portfolio account has been added successfully.',
       });
     },
-    onError: (error) => {
-      console.error('Account creation failed:', error);
+    onError: () => {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -632,8 +629,6 @@ export default function AccountSettings() {
   });
 
   const handleAddPortfolioAccount = (data: PortfolioAccountFormData) => {
-    console.log('Form submitted with data:', data);
-    console.log('Form state errors:', portfolioAccountForm.formState.errors);
     createPortfolioAccountMutation.mutate(data);
   };
 
