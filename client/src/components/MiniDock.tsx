@@ -17,7 +17,8 @@ const tools: Tool[] = [
   { id: 'eis_allowance', name: 'EIS Allowance', icon: 'fas fa-calculator' },
   { id: 'risk_profiler', name: 'Risk Profiler', icon: 'fas fa-chart-line' },
   { id: 'sector_insights', name: 'Sector Insights', icon: 'fas fa-industry' },
-  { id: 'dd_snapshot', name: 'DD Snapshot', icon: 'fas fa-file-alt' }
+  { id: 'dd_snapshot', name: 'DD Snapshot', icon: 'fas fa-file-alt' },
+  { id: 'property_valuation', name: 'Property Valuation', icon: 'fas fa-home' }
 ];
 
 export default function MiniDock({ onToolOpen, isVisible, onToggle }: MiniDockProps) {

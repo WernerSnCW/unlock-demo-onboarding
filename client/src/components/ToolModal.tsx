@@ -436,7 +436,7 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
           ) : (
             <div className="space-y-6">
               {/* Special handling for property valuation */}
-              {toolId === 'property_valuation' || toolId === 'property-valuation' ? (
+              {(toolId === 'property_valuation' || toolId === 'property-valuation') ? (
                 <>
                   <PropertyValuationForm />
                   <ChartStub />
