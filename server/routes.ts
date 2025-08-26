@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db } from "./db";
-import { and, like, eq, gte, desc, sql } from "drizzle-orm";
+import { and, like, eq, gte, desc, sql, or } from "drizzle-orm";
 import { 
   insertInvestorSchema, 
   insertInvestorPreferencesSchema, 
@@ -636,6 +636,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(trendsData.reverse()); // Return chronological order
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch UK HPI trends' });
+    }
+  });
+
+  // Real Property Search using UK Property Database
+  app.post('/api/property-search', async (req, res) => {
+    try {
+      const { query, limit = 10 } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: 'Search query is required' });
+      }
+      
+      const searchTerm = query.trim().toUpperCase();
+      
+      // Search by postcode or address in our real property database
+      const properties = await db.select({
+        id: propertyPriceData.transactionId,
+        postcode: propertyPriceData.postcode,
+        address: sql<string>`CONCAT(
+          ${propertyPriceData.primaryAddressableName}, 
+          CASE WHEN ${propertyPriceData.secondaryAddressableName} IS NOT NULL 
+            THEN CONCAT(' ', ${propertyPriceData.secondaryAddressableName}) 
+            ELSE '' 
+          END,
+          CASE WHEN ${propertyPriceData.street} IS NOT NULL 
+            THEN CONCAT(', ', ${propertyPriceData.street}) 
+            ELSE '' 
+          END
+        )`,
+        propertyType: propertyPriceData.propertyType,
+        price: propertyPriceData.price,
+        dateOfTransfer: propertyPriceData.dateOfTransfer,
+        newBuild: propertyPriceData.oldNew,
+        tenure: propertyPriceData.duration
+      })
+      .from(propertyPriceData)
+      .where(
+        or(
+          like(propertyPriceData.postcode, `%${searchTerm}%`),
+          like(propertyPriceData.street, `%${searchTerm}%`),
+          like(propertyPriceData.primaryAddressableName, `%${searchTerm}%`)
+        )
+      )
+      .orderBy(desc(propertyPriceData.dateOfTransfer))
+      .limit(parseInt(limit.toString()));
+
+      // Transform the results for the frontend
+      const searchResults = properties.map((property, index) => ({
+        id: `real-${property.id || index}`,
+        address: property.address,
+        postcode: property.postcode,
+        type: property.propertyType === 'F' ? 'Flat' : 
+              property.propertyType === 'D' ? 'Detached' :
+              property.propertyType === 'S' ? 'Semi-detached' :
+              property.propertyType === 'T' ? 'Terraced' : 'Other',
+        price: parseFloat(property.price || '0'),
+        date: property.dateOfTransfer,
+        newBuild: property.newBuild === 'Y',
+        tenure: property.tenure === 'F' ? 'Freehold' : 'Leasehold'
+      }));
+      
+      res.json(searchResults);
+    } catch (error) {
+      console.error('Property search error:', error);
+      res.status(500).json({ message: 'Property search failed' });
     }
   });
 

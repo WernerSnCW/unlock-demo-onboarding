@@ -26,19 +26,28 @@ function PropertyValuationComponent() {
     
     setIsSearching(true);
     try {
-      // In a real implementation, this would search actual property data
-      // For now, we'll simulate finding properties that can be valued using UK HPI data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Search real property data from our UK property database
+      const response = await fetch('/api/property-search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          query: searchQuery.trim().toUpperCase(),
+          limit: 10
+        }),
+      });
       
-      const mockResults = [
-        { id: 'search1', address: `${searchQuery}, Manchester`, postcode: 'M1 1AA', type: 'Flat', bedrooms: 2 },
-        { id: 'search2', address: `${searchQuery} Apartments, Manchester`, postcode: 'M1 1AB', type: 'Flat', bedrooms: 1 },
-        { id: 'search3', address: `${searchQuery} House, Manchester`, postcode: 'M1 1AC', type: 'House', bedrooms: 3 }
-      ];
-      
-      setSearchResults(mockResults);
+      if (response.ok) {
+        const results = await response.json();
+        setSearchResults(results);
+      } else {
+        console.error('Property search failed');
+        setSearchResults([]);
+      }
     } catch (error) {
       console.error('Property search failed:', error);
+      setSearchResults([]);
     } finally {
       setIsSearching(false);
     }
