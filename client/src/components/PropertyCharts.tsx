@@ -320,58 +320,89 @@ export const ValuationRangeChart: React.FC<{
   const purchasePosition = purchase ? ((purchase.originalPrice - range.min) / (range.max - range.min)) * 100 : null;
 
   return (
-    <div className="h-32 min-h-0">
-      <div className="mb-3">
-        <h6 className="text-sm font-medium text-[var(--card-foreground)]">Valuation Analysis</h6>
+    <div className="h-40 min-h-0">
+      <div className="mb-4">
+        <h6 className="text-sm font-medium text-[var(--card-foreground)]">Market Range Analysis</h6>
         <p className="text-xs text-[var(--muted-foreground)]">
-          Current estimate vs {purchase ? 'purchase price &' : ''} market range
+          Valuation estimate positioned within market range{purchase ? ' vs original purchase price' : ''}
         </p>
       </div>
       
       {/* Horizontal bar chart */}
-      <div className="space-y-3">
-        {/* Market range bar */}
-        <div className="relative">
-          <div className="h-6 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] relative overflow-hidden">
-            {/* Market range background */}
-            <div className="h-full bg-[var(--primary)]/20 rounded-[var(--radius-sm)]"></div>
-            
-            {/* Current estimate marker */}
-            <div 
-              className="absolute top-0 bottom-0 w-0.5 bg-[var(--success)]"
-              style={{ left: `${Math.max(0, Math.min(100, estimatePosition))}%` }}
-            >
-              <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-[var(--success)]"></div>
+      <div className="space-y-4">
+        {/* Market range bar with scale */}
+        <div className="relative bg-gray-100 dark:bg-gray-800 h-12 rounded-lg overflow-hidden border">
+          {/* Market range gradient background */}
+          <div className="h-full bg-gradient-to-r from-red-200 via-yellow-200 to-green-200 dark:from-red-900/50 dark:via-yellow-900/50 dark:to-green-900/50"></div>
+          
+          {/* Current estimate marker */}
+          <div 
+            className="absolute top-0 bottom-0 w-1 bg-green-600 shadow-lg"
+            style={{ left: `${Math.max(1, Math.min(99, estimatePosition))}%` }}
+          >
+            {/* Estimate label above */}
+            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap font-medium">
+              £{valuation.estimate.toLocaleString()}
             </div>
-            
-            {/* Purchase price marker if available */}
-            {purchase && purchasePosition !== null && (
-              <div 
-                className="absolute top-0 bottom-0 w-0.5 bg-[var(--primary)]"
-                style={{ left: `${Math.max(0, Math.min(100, purchasePosition))}%` }}
-              >
-                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-[var(--primary)]"></div>
-              </div>
-            )}
+            {/* Arrow pointing down */}
+            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-green-600"></div>
           </div>
           
-          {/* Range labels */}
-          <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
-            <span>£{range.min.toLocaleString()}</span>
-            <span>£{range.max.toLocaleString()}</span>
+          {/* Purchase price marker if available */}
+          {purchase && purchasePosition !== null && (
+            <div 
+              className="absolute top-0 bottom-0 w-1 bg-blue-600 shadow-lg"
+              style={{ left: `${Math.max(1, Math.min(99, purchasePosition))}%` }}
+            >
+              {/* Purchase label above */}
+              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap font-medium">
+                £{purchase.originalPrice.toLocaleString()}
+              </div>
+              {/* Arrow pointing down */}
+              <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-blue-600"></div>
+            </div>
+          )}
+          
+          {/* Range scale at bottom */}
+          <div className="absolute bottom-1 left-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+            £{range.min.toLocaleString()}
+          </div>
+          <div className="absolute bottom-1 right-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+            £{range.max.toLocaleString()}
           </div>
         </div>
         
-        {/* Legend */}
-        <div className="flex flex-wrap gap-4 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-0.5 bg-[var(--success)]"></div>
-            <span className="text-[var(--card-foreground)]">Estimate: £{valuation.estimate.toLocaleString()}</span>
+        {/* Summary and legend */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-[var(--card-foreground)] font-medium">Current Estimate:</span>
+            <span className="text-green-600 font-bold">£{valuation.estimate.toLocaleString()}</span>
           </div>
+          
           {purchase && (
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-0.5 bg-[var(--primary)]"></div>
-              <span className="text-[var(--card-foreground)]">Purchase: £{purchase.originalPrice.toLocaleString()}</span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-[var(--card-foreground)] font-medium">Purchase Price:</span>
+              <span className="text-blue-600 font-bold">£{purchase.originalPrice.toLocaleString()}</span>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center text-sm border-t pt-2">
+            <span className="text-[var(--muted-foreground)]">Market Range:</span>
+            <span className="text-[var(--card-foreground)] font-medium">
+              £{range.min.toLocaleString()} - £{range.max.toLocaleString()}
+            </span>
+          </div>
+          
+          {purchase && (
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[var(--muted-foreground)]">Change vs Purchase:</span>
+              <span className={`font-medium ${
+                valuation.estimate > purchase.originalPrice ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {valuation.estimate > purchase.originalPrice ? '+' : ''}
+                £{(valuation.estimate - purchase.originalPrice).toLocaleString()}
+                ({(((valuation.estimate - purchase.originalPrice) / purchase.originalPrice) * 100).toFixed(1)}%)
+              </span>
             </div>
           )}
         </div>
