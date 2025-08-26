@@ -87,14 +87,14 @@ const propertySchema = z.object({
   latitude: z.string().optional(),
   longitude: z.string().optional(),
   propertyType: z.string().optional(),
-  bedrooms: z.number().optional(),
+  bedrooms: z.string().optional(),
   floorAreaSqm: z.string().optional(),
-  yearBuilt: z.number().optional(),
+  yearBuilt: z.string().optional(),
   epcRating: z.string().optional(),
   // Ownership fields
   userId: z.string().min(1, 'User ID is required'),
   ownershipType: z.string().default('direct'),
-  sharePct: z.number().min(1).max(100),
+  sharePct: z.number().min(0).max(100).default(100),
   acquisitionDate: z.string().optional(),
   acquisitionPriceGbp: z.string().optional(),
   acquisitionCostsGbp: z.string().optional(),
@@ -166,7 +166,7 @@ export default function AccountSettings() {
   // Update local state when data loads from API
   useEffect(() => {
     if (investorsData?.length > 0) {
-      const formattedInvestors = investorsData.map((inv: { userId: string; name: string; investorType: string }) => ({
+      const formattedInvestors = investorsData.map((inv: any) => ({
         userId: inv.userId,
         name: inv.name,
         investorType: inv.investorType,
@@ -325,8 +325,27 @@ export default function AccountSettings() {
       });
       
       propertyForm.reset({
-        ...propertyForm.getValues(),
+        uprn: '',
+        titleNumber: '',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        postcode: '',
+        country: 'UK',
+        latitude: '',
+        longitude: '',
+        propertyType: 'residential',
+        bedrooms: '',
+        floorAreaSqm: '',
+        yearBuilt: '',
+        epcRating: '',
         userId: investorId,
+        ownershipType: 'direct',
+        sharePct: 100,
+        acquisitionDate: '',
+        acquisitionPriceGbp: '',
+        acquisitionCostsGbp: '',
+        isPrimaryResidence: false,
       });
 
       holdingForm.reset({
@@ -484,9 +503,9 @@ export default function AccountSettings() {
       latitude: '',
       longitude: '',
       propertyType: 'residential',
-      bedrooms: undefined,
+      bedrooms: '',
       floorAreaSqm: '',
-      yearBuilt: undefined,
+      yearBuilt: '',
       epcRating: '',
       userId: selectedInvestorId || '',
       ownershipType: 'direct',
@@ -500,12 +519,18 @@ export default function AccountSettings() {
 
   // Properties mutations
   const createPropertyMutation = useMutation({
-    mutationFn: (data: PropertyFormData) => {
-      return fetch('/api/properties', {
+    mutationFn: async (data: PropertyFormData) => {
+      const response = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -604,6 +629,8 @@ export default function AccountSettings() {
       const position = {
         name: data.name,
         ticker: data.symbol,
+        market: 'LSE',
+        currency: 'GBP',
         quantity: quantity,
         avgCost: costBasisPerShare,
         price: currentPrice,
