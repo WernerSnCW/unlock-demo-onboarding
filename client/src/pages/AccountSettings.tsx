@@ -143,13 +143,26 @@ export default function AccountSettings() {
     enabled: !!selectedInvestorId,
   });
 
+  // Load tax profile for selected investor
+  const { data: taxProfileData } = useQuery({
+    queryKey: ['/api/investors', selectedInvestorId, 'tax-profile'],
+    queryFn: () => {
+      if (!selectedInvestorId) return null;
+      return fetch(`/api/investors/${selectedInvestorId}/tax-profile`).then(res => {
+        if (res.ok) return res.json();
+        return null; // Return null if tax profile doesn't exist yet
+      });
+    },
+    enabled: !!selectedInvestorId,
+  });
+
   // Local state for demo investors
   const [demoInvestors, setDemoInvestors] = useState<DemoInvestor[]>([]);
 
   // Update local state when data loads from API
   useEffect(() => {
     if (investorsData?.length > 0) {
-      const formattedInvestors = investorsData.map((inv: any) => ({
+      const formattedInvestors = investorsData.map((inv: { userId: string; name: string; investorType: string }) => ({
         userId: inv.userId,
         name: inv.name,
         investorType: inv.investorType,
@@ -157,8 +170,14 @@ export default function AccountSettings() {
         country: undefined
       }));
       setDemoInvestors(formattedInvestors);
+      
+      // Auto-select demo investor if none selected and demo investor exists
+      if (!selectedInvestor && formattedInvestors.length > 0) {
+        const demoInvestor = formattedInvestors.find(inv => inv.userId.includes('demo-1755866735025')) || formattedInvestors[0];
+        handleInvestorSelect(demoInvestor.userId);
+      }
     }
-  }, [investorsData]);
+  }, [investorsData, selectedInvestor]);
 
   // Form instances
   const investorForm = useForm<InvestorFormData>({
@@ -210,6 +229,19 @@ export default function AccountSettings() {
       });
     }
   }, [preferencesData, selectedInvestorId, preferencesForm]);
+
+  // Update tax profile form when data loads
+  useEffect(() => {
+    if (taxProfileData && selectedInvestorId) {
+      taxProfileForm.reset({
+        userId: selectedInvestorId,
+        country: taxProfileData.country || '',
+        interests: taxProfileData.interests || [],
+        annualEarningsGbp: taxProfileData.annualEarningsGbp || '',
+        cgtAllowanceGbp: taxProfileData.cgtAllowanceGbp || '',
+      });
+    }
+  }, [taxProfileData, selectedInvestorId, taxProfileForm]);
 
   // Load investor data when selected
   const handleInvestorSelect = (investorId: string) => {
@@ -478,6 +510,7 @@ export default function AccountSettings() {
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/investors', selectedInvestorId, 'tax-profile'] });
       toast({
         title: 'Tax Profile Updated',
         description: 'Tax profile information has been saved successfully.',
@@ -1237,7 +1270,7 @@ export default function AccountSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <Form {...propertyForm}>
-            <form onSubmit={propertyForm.handleSubmit(createPropertyMutation.mutate)} className="space-y-4">
+            <form onSubmit={propertyForm.handleSubmit((data) => createPropertyMutation.mutate(data))} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={propertyForm.control}
