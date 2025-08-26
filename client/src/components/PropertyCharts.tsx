@@ -43,12 +43,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 // 1. Regional HPI Sparkline
 export const RegionalSparkline: React.FC<{ data: ChartData[]; yoyChange: number }> = ({ data, yoyChange }) => {
   const last60Months = data.slice(0, 60).reverse();
-  const last12Months = last60Months.slice(-12);
   
   return (
-    <div className="h-32 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={last60Months}>
+    <div className="h-32 w-full min-h-0">
+      <ResponsiveContainer width="100%" height={120} minWidth={0} minHeight={0}>
+        <LineChart data={last60Months} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
           <XAxis dataKey="date" hide />
           <YAxis hide />
           <Tooltip content={<CustomTooltip />} />
@@ -59,8 +58,6 @@ export const RegionalSparkline: React.FC<{ data: ChartData[]; yoyChange: number 
             strokeWidth={2}
             dot={false}
           />
-          {/* Highlight last 12 months */}
-          <ReferenceLine x={last12Months[0]?.date} stroke="var(--primary)" strokeOpacity={0.3} />
         </LineChart>
       </ResponsiveContainer>
       <div className="text-xs text-center mt-1 text-[var(--muted-foreground)]">
@@ -105,7 +102,7 @@ export const PropertyTypeComparison: React.FC<{ data: ChartData[]; userPropertyT
   const userTypeKey = userType ? getTypeKey(userType) : 'index';
   
   return (
-    <div className="h-48">
+    <div className="h-48 min-h-0">
       <div className="mb-2 flex items-center justify-between">
         <h6 className="text-sm font-medium text-[var(--card-foreground)]">Property Type Performance</h6>
         {userType && (
@@ -114,8 +111,8 @@ export const PropertyTypeComparison: React.FC<{ data: ChartData[]; userPropertyT
           </span>
         )}
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={last36Months}>
+      <ResponsiveContainer width="100%" height={170} minWidth={0} minHeight={0}>
+        <LineChart data={last36Months} margin={{ top: 5, right: 30, left: 5, bottom: 35 }}>
           <XAxis dataKey="date" tick={{ fontSize: 10 }} />
           <YAxis tick={{ fontSize: 10 }} />
           <Tooltip content={<CustomTooltip />} />
@@ -163,15 +160,15 @@ export const MarketPulseBars: React.FC<{ data: ChartData[]; currentYoY: number }
   const last24Months = data.slice(0, 24).reverse();
   
   return (
-    <div className="h-32">
+    <div className="h-32 min-h-0">
       <div className="mb-2">
         <h6 className="text-sm font-medium text-[var(--card-foreground)]">Market Pulse</h6>
         <p className="text-xs text-[var(--muted-foreground)]">
           Regional prices {currentYoY >= 0 ? '+' : ''}{currentYoY.toFixed(1)}% YoY
         </p>
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={last24Months}>
+      <ResponsiveContainer width="100%" height={90} minWidth={0} minHeight={0}>
+        <BarChart data={last24Months} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
           <XAxis dataKey="date" hide />
           <YAxis hide />
           <Tooltip content={<CustomTooltip />} />
@@ -206,12 +203,12 @@ export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) =>
   }
   
   return (
-    <div className="grid grid-cols-2 gap-4 h-32">
+    <div className="grid grid-cols-2 gap-4 h-32 min-h-0">
       <div>
         <h6 className="text-xs font-medium text-[var(--card-foreground)] mb-1">Average Price (£)</h6>
         {hasPriceData ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={last36Months}>
+          <ResponsiveContainer width="100%" height={100} minWidth={0} minHeight={0}>
+            <LineChart data={last36Months} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
               <XAxis dataKey="date" hide />
               <YAxis hide />
               <Tooltip content={<CustomTooltip />} />
@@ -225,7 +222,7 @@ export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) =>
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-full flex items-center justify-center bg-[var(--muted)]/30 rounded">
+          <div className="h-[100px] flex items-center justify-center bg-[var(--muted)]/30 rounded">
             <span className="text-xs text-[var(--muted-foreground)]">No price data</span>
           </div>
         )}
@@ -233,8 +230,8 @@ export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) =>
       <div>
         <h6 className="text-xs font-medium text-[var(--card-foreground)] mb-1">Index (2015=100)</h6>
         {hasIndexData ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={last36Months}>
+          <ResponsiveContainer width="100%" height={100} minWidth={0} minHeight={0}>
+            <LineChart data={last36Months} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
               <XAxis dataKey="date" hide />
               <YAxis hide />
               <Tooltip content={<CustomTooltip />} />
@@ -248,7 +245,7 @@ export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) =>
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-full flex items-center justify-center bg-[var(--muted)]/30 rounded">
+          <div className="h-[100px] flex items-center justify-center bg-[var(--muted)]/30 rounded">
             <span className="text-xs text-[var(--muted-foreground)]">No index data</span>
           </div>
         )}
@@ -292,16 +289,16 @@ const PropertyCharts: React.FC<PropertyChartsProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-full overflow-hidden">
       {/* Confidence Badge */}
       <div className="flex justify-center">
         <ConfidenceBadge confidence={chartConfidence} score={chartConfidenceScore} />
       </div>
 
       {/* Main Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
         {/* Regional Sparkline */}
-        <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+        <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">
           <h5 className="font-medium text-[var(--card-foreground)] mb-2 text-sm">
             Regional HPI Trend - {geography}
           </h5>
@@ -309,18 +306,18 @@ const PropertyCharts: React.FC<PropertyChartsProps> = ({
         </div>
 
         {/* Market Pulse */}
-        <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+        <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">
           <MarketPulseBars data={trendData} currentYoY={yoyChange} />
         </div>
       </div>
 
       {/* Property Type Comparison */}
-      <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+      <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">
         <PropertyTypeComparison data={trendData} userPropertyType={propertyType} />
       </div>
 
       {/* Dual Price/Index View */}
-      <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+      <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)] min-h-0">
         <h5 className="font-medium text-[var(--card-foreground)] mb-2 text-sm">
           Price vs Index Analysis
         </h5>
