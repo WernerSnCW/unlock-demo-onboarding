@@ -1820,7 +1820,7 @@ export default function AccountSettings() {
                               </SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="" disabled>No accounts available - add one first</SelectItem>
+                            <SelectItem value="no-accounts" disabled>No accounts available - add one first</SelectItem>
                           )}
                         </SelectContent>
                       </Select>
