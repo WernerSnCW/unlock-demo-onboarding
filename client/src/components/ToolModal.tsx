@@ -250,7 +250,7 @@ function PropertyValuationForm() {
   const { selectedInvestor } = useInvestor();
   const [selectedProperty, setSelectedProperty] = useState<string>('');
   
-  const { data: properties, isLoading: propertiesLoading } = useQuery({
+  const { data: properties = [], isLoading: propertiesLoading } = useQuery({
     queryKey: ['/api/properties', selectedInvestor?.userId],
     enabled: !!selectedInvestor?.userId,
   });
@@ -280,7 +280,7 @@ function PropertyValuationForm() {
     );
   }
 
-  if (!properties || properties.length === 0) {
+  if (!properties || !Array.isArray(properties) || properties.length === 0) {
     return (
       <div className="text-center py-8">
         <div className="w-16 h-16 mx-auto mb-4 bg-[var(--muted)] rounded-full flex items-center justify-center">
@@ -310,7 +310,7 @@ function PropertyValuationForm() {
           className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
         >
           <option value="">Choose property to value...</option>
-          {properties.map((property: any) => (
+          {Array.isArray(properties) && properties.map((property: any) => (
             <option key={property.id} value={property.id}>
               {property.addressLine1}{property.addressLine2 ? `, ${property.addressLine2}` : ''}, {property.city} {property.postcode}
             </option>
@@ -319,7 +319,7 @@ function PropertyValuationForm() {
       </div>
 
       {/* Show property details and valuation if selected */}
-      {selectedProperty && <PropertyValuationDetails propertyId={selectedProperty} properties={properties} />}
+      {selectedProperty && Array.isArray(properties) && <PropertyValuationDetails propertyId={selectedProperty} properties={properties} />}
 
       {/* Valuation Method */}
       <div className="space-y-2">
