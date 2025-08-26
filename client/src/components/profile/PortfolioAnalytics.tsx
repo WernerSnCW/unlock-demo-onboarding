@@ -2,7 +2,7 @@ import { TrendingUp, PieChart, AlertTriangle, Target, DollarSign, Hash } from 'l
 import { StatCard } from '@/components/shared/StatCard';
 import { Donut } from '@/components/shared/Donut';
 import { MiniSpark } from '@/components/shared/MiniSpark';
-import { usePortfolioStore } from '@/state/portfolioStore';
+import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 import { formatGBP, formatPct, CHART_COLORS } from '@/utils/formatters';
 
 interface PortfolioAnalyticsProps {
@@ -17,7 +17,7 @@ export function PortfolioAnalytics({ className = '' }: PortfolioAnalyticsProps) 
     getSectorExposure, 
     getCountryExposure, 
     getRiskFlags 
-  } = usePortfolioStore();
+  } = usePortfolioStoreDB();
 
   const totalValue = getTotalValue();
   const { gainAbs, gainPct } = getTotalGainLoss();

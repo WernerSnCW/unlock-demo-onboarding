@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import type { 
   InsertInvestor, InsertInvestorPreferences, InsertTaxProfile,
@@ -119,6 +120,7 @@ interface DemoInvestor {
 
 export default function AccountSettings() {
   const { toast } = useToast();
+  const { setCurrentInvestor } = usePortfolioStoreDB();
   const { selectedInvestor, setSelectedInvestor } = useInvestor();
   const [activeTab, setActiveTab] = useState('preferences');
   
@@ -255,6 +257,9 @@ export default function AccountSettings() {
         name: investor.name,
         investorType: investor.investorType
       });
+      
+      // Initialize portfolio holdings for this investor
+      setCurrentInvestor(investorId);
       
       // Reset forms with investor data
       investorForm.reset({

@@ -8,7 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { usePortfolioStore, Position, calculateMarketValue, calculateGain, formatCurrency } from '@/state/portfolioStore';
+import { usePortfolioStoreDB, Position } from '@/state/portfolioStoreDB';
+import { calculateMarketValue, calculateGain, formatCurrency } from '@/state/portfolioStore';
 import { useOpinionsStore } from '@/state/opinionsStore';
 import { formatGBP, formatPct, formatPrice, getGainColor } from '@/utils/formatters';
 import { AnalystOpinionsPanel } from './AnalystOpinionsPanel';
@@ -21,7 +22,7 @@ type SortField = 'ticker' | 'name' | 'marketValue' | 'gainPct' | 'sector' | 'cou
 type SortDirection = 'asc' | 'desc';
 
 export function PortfolioTable({ className = '' }: PortfolioTableProps) {
-  const { positions, removePosition } = usePortfolioStore();
+  const { positions, removePosition } = usePortfolioStoreDB();
   const { getByTickers } = useOpinionsStore();
   
   const [sortField, setSortField] = useState<SortField>('marketValue');

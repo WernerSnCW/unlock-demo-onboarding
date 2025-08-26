@@ -3,7 +3,7 @@ import { Upload, FileText, Check, X, AlertCircle, Download } from 'lucide-react'
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { FileDrop } from '@/components/shared/FileDrop';
-import { usePortfolioStore, Position } from '@/state/portfolioStore';
+import { usePortfolioStoreDB, Position } from '@/state/portfolioStoreDB';
 import { formatGBP } from '@/utils/formatters';
 
 interface ColumnMapping {
@@ -28,7 +28,7 @@ interface PortfolioUploaderProps {
 }
 
 export function PortfolioUploader({ onUploadComplete, className = '' }: PortfolioUploaderProps) {
-  const { setPositions, positions } = usePortfolioStore();
+  const { positions } = usePortfolioStoreDB();
   
   const [uploadStep, setUploadStep] = useState<'drop' | 'mapping' | 'validation' | 'complete'>('drop');
   const [parsedData, setParsedData] = useState<any[]>([]);
