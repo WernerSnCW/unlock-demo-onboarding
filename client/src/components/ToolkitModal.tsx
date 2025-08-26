@@ -392,6 +392,46 @@ function PropertyValuationComponent() {
             </div>
           </div>
 
+          {/* Purchase Comparison - PROMINENT SECTION */}
+          {valuationResult.purchase && (
+            <div className="p-6 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-[var(--radius-sm)] border-2 border-[var(--primary)]/40" style={{ boxShadow: 'var(--shadow-md)' }}>
+              <div className="text-center mb-4">
+                <h5 className="text-xl font-bold text-[var(--primary)] mb-2 flex items-center justify-center gap-2">
+                  <i className="fas fa-chart-line"></i>
+                  PURCHASE COMPARISON
+                </h5>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  Compare current value with your original purchase
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-6 mb-4">
+                <div className="text-center p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+                  <div className="text-sm text-[var(--muted-foreground)] mb-1">ORIGINAL PURCHASE</div>
+                  <div className="text-2xl font-bold text-[var(--card-foreground)]">£{valuationResult.purchase.originalPrice?.toLocaleString()}</div>
+                  <div className="text-sm text-[var(--muted-foreground)]">{valuationResult.purchase.purchaseMonth}</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">{valuationResult.purchase.yearsOwned} years ago</div>
+                </div>
+                <div className="text-center p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+                  <div className="text-sm text-[var(--muted-foreground)] mb-1">CURRENT ESTIMATE</div>
+                  <div className="text-2xl font-bold text-[var(--primary)]">£{(valuationResult.valuation?.estimate || valuationResult.estimate)?.toLocaleString()}</div>
+                  <div className="text-sm text-[var(--muted-foreground)]">Today</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">Latest valuation</div>
+                </div>
+              </div>
+              
+              <div className="text-center py-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30">
+                <div className="text-2xl font-bold text-[var(--primary)] mb-1">
+                  {valuationResult.purchase.changeSincePurchase >= 0 ? '↑' : '↓'} £{Math.abs(valuationResult.purchase.changeSincePurchase)?.toLocaleString()} 
+                  ({(valuationResult.purchase.changePercent || ((valuationResult.purchase.changeSincePurchase / valuationResult.purchase.originalPrice) * 100)).toFixed(1)}%)
+                </div>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  <strong>Total {valuationResult.purchase.changeSincePurchase >= 0 ? 'Gain' : 'Loss'}</strong> • {(((valuationResult.purchase.changePercent || 0) / valuationResult.purchase.yearsOwned).toFixed(1))}% annual return
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Drivers (Why this value?) */}
           <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
             <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
@@ -452,38 +492,7 @@ function PropertyValuationComponent() {
             )}
           </div>
 
-          {/* Purchase Comparison */}
-          {valuationResult.purchase && (
-            <div className="p-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30">
-              <h5 className="font-medium text-[var(--primary)] mb-3 flex items-center gap-2">
-                <i className="fas fa-calendar-alt"></i>
-                Performance Since Purchase
-              </h5>
-              
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div>
-                  <div className="text-sm text-[var(--muted-foreground)]">Original Purchase</div>
-                  <div className="font-semibold text-[var(--card-foreground)]">£{valuationResult.purchase.originalPrice?.toLocaleString()}</div>
-                  <div className="text-xs text-[var(--muted-foreground)]">{valuationResult.purchase.purchaseMonth}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-[var(--muted-foreground)]">Current Estimate</div>
-                  <div className="font-semibold text-[var(--card-foreground)]">£{(valuationResult.valuation?.estimate || valuationResult.estimate)?.toLocaleString()}</div>
-                  <div className="text-xs text-[var(--muted-foreground)]">{valuationResult.purchase.yearsOwned} years owned</div>
-                </div>
-              </div>
-              
-              <div className="text-center py-2 border-t border-[var(--primary)]/20">
-                <div className="text-lg font-semibold text-[var(--primary)]">
-                  {valuationResult.purchase.changeSincePurchase >= 0 ? '↑' : '↓'} £{Math.abs(valuationResult.purchase.changeSincePurchase)?.toLocaleString()} 
-                  ({(valuationResult.purchase.changePercent || ((valuationResult.purchase.changeSincePurchase / valuationResult.purchase.originalPrice) * 100)).toFixed(1)}%)
-                </div>
-                <div className="text-sm text-[var(--muted-foreground)]">
-                  Total gain/loss • {(((valuationResult.purchase.changePercent || 0) / valuationResult.purchase.yearsOwned).toFixed(1))}% per year
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Market Trend & HPI Analysis */}
           <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
