@@ -569,21 +569,38 @@ export default function AccountSettings() {
   const createPortfolioAccountMutation = useMutation({
     mutationFn: async (data: PortfolioAccountFormData) => {
       if (!selectedInvestorId) throw new Error('No investor selected');
-      return fetch(`/api/investors/${selectedInvestorId}/portfolio-accounts`, {
+      console.log('Submitting portfolio account data:', data);
+      const response = await fetch(`/api/investors/${selectedInvestorId}/portfolio-accounts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Account creation successful:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/investors', selectedInvestorId, 'portfolio-accounts'] });
-      portfolioAccountForm.reset();
+      portfolioAccountForm.reset({
+        userId: selectedInvestorId || '',
+        provider: '',
+        accountType: '',
+        currency: 'GBP',
+        connected: false,
+        currentBalanceGbp: '',
+        cashBalanceGbp: '',
+      });
       toast({
         title: 'Account Added',
         description: 'Portfolio account has been added successfully.',
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Account creation failed:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -615,6 +632,8 @@ export default function AccountSettings() {
   });
 
   const handleAddPortfolioAccount = (data: PortfolioAccountFormData) => {
+    console.log('Form submitted with data:', data);
+    console.log('Form state errors:', portfolioAccountForm.formState.errors);
     createPortfolioAccountMutation.mutate(data);
   };
 
