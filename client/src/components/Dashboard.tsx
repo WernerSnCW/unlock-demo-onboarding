@@ -202,7 +202,8 @@ export default function Dashboard() {
           {/* Left Column - "Your World" */}
           <div className="order-1 space-y-6">
             <WelcomePanel 
-              profile={currentProfile} 
+              profile={currentProfile}
+              selectedInvestorId={selectedInvestor?.userId}
               onChangePreferences={handlePreferencesChange}
               onEditSectors={() => console.log('Edit sectors clicked')}
               onUpgrade={() => console.log('Upgrade clicked')}

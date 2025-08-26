@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { User, Settings, Mail, MessageCircle, TrendingUp, Eye, HelpCircle, Users, Crown, Star, Award, Edit3, Bell, PinIcon as Pin, Zap } from 'lucide-react';
+import { User, Settings, Mail, MessageCircle, TrendingUp, Eye, HelpCircle, Users, Crown, Star, Award, Edit3, Bell, PinIcon as Pin, Zap, PieChart, Home, Briefcase } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 interface Profile {
   firstName: string;
@@ -31,12 +32,13 @@ interface Profile {
 
 interface WelcomePanelProps {
   profile?: Profile;
+  selectedInvestorId?: string;
   onChangePreferences?: (preferences: { newsletterFrequency: string; whatsappAlerts: boolean }) => void;
   onEditSectors?: () => void;
   onUpgrade?: () => void;
 }
 
-export default function WelcomePanel({ profile, onChangePreferences, onEditSectors, onUpgrade }: WelcomePanelProps) {
+export default function WelcomePanel({ profile, selectedInvestorId, onChangePreferences, onEditSectors, onUpgrade }: WelcomePanelProps) {
   if (!profile) {
     return (
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4 text-center" style={{ boxShadow: 'var(--shadow-sm)' }}>
@@ -69,6 +71,44 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
       case 'Active Contributor': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
       case 'Early Adopter': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
       default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+    }
+  };
+
+  // Fetch portfolio data
+  const { data: portfolioHoldings = [] } = useQuery({
+    queryKey: ['/api/investors', selectedInvestorId, 'portfolio-holdings'],
+    enabled: !!selectedInvestorId,
+  });
+
+  const { data: properties = [] } = useQuery({
+    queryKey: ['/api/properties', selectedInvestorId],
+    enabled: !!selectedInvestorId,
+  });
+
+  const { data: alternatives = [] } = useQuery({
+    queryKey: ['/api/alternatives', selectedInvestorId],
+    enabled: !!selectedInvestorId,
+  });
+
+  // Calculate portfolio mix
+  const portfolioValue = portfolioHoldings.reduce((sum: number, holding: any) => 
+    sum + parseFloat(holding.currentValueGbp || '0'), 0);
+  
+  const propertyValue = properties.reduce((sum: number, property: any) => 
+    sum + parseFloat(property.currentValueGbp || '0'), 0);
+  
+  const alternativeValue = alternatives.reduce((sum: number, alt: any) => 
+    sum + parseFloat(alt.currentValueGbp || '0'), 0);
+
+  const totalValue = portfolioValue + propertyValue + alternativeValue;
+
+  const formatCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `£${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+      return `£${(value / 1000).toFixed(0)}K`;
+    } else {
+      return `£${value.toFixed(0)}`;
     }
   };
 
@@ -178,28 +218,88 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
         </div>
       </div>
 
-      {/* Portfolio Summary */}
-      {profile.totalHoldingsValue && (
+      {/* Portfolio Mix */}
+      {selectedInvestorId && totalValue > 0 && (
         <div className="mb-5">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Portfolio Summary</h3>
+          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+            <PieChart className="h-4 w-4" />
+            Portfolio Mix
+          </h3>
           <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Total Holdings</span>
-              <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{profile.totalHoldingsValue}</span>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Total Portfolio Value</span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(totalValue)}</span>
             </div>
-            {profile.topSector && (
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Top Sector</span>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {profile.topSector.name} {profile.topSector.percentage}%
-                </span>
-              </div>
-            )}
-            {profile.portfolioLastUpdated && (
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Last updated: {profile.portfolioLastUpdated}
-              </div>
-            )}
+            
+            <div className="space-y-3">
+              {/* Portfolio Holdings */}
+              {portfolioValue > 0 && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Securities</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(portfolioValue)}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{((portfolioValue / totalValue) * 100).toFixed(0)}%</div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Property Portfolio */}
+              {propertyValue > 0 && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Home className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Property</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(propertyValue)}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{((propertyValue / totalValue) * 100).toFixed(0)}%</div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Alternative Investments */}
+              {alternativeValue > 0 && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Alternatives</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(alternativeValue)}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{((alternativeValue / totalValue) * 100).toFixed(0)}%</div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Visual bar representation */}
+            <div className="mt-3 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex">
+              {portfolioValue > 0 && (
+                <div 
+                  className="bg-blue-500 h-full" 
+                  style={{ width: `${(portfolioValue / totalValue) * 100}%` }}
+                />
+              )}
+              {propertyValue > 0 && (
+                <div 
+                  className="bg-green-500 h-full" 
+                  style={{ width: `${(propertyValue / totalValue) * 100}%` }}
+                />
+              )}
+              {alternativeValue > 0 && (
+                <div 
+                  className="bg-purple-500 h-full" 
+                  style={{ width: `${(alternativeValue / totalValue) * 100}%` }}
+                />
+              )}
+            </div>
+            
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Updated: {new Date().toLocaleDateString()}
+            </div>
           </div>
         </div>
       )}
