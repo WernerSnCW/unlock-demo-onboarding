@@ -45,6 +45,8 @@ const taxProfileSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   country: z.string().optional(),
   interests: z.array(z.string()).optional(),
+  annualEarningsGbp: z.string().optional(),
+  cgtAllowanceGbp: z.string().optional(),
 });
 
 const portfolioAccountSchema = z.object({
@@ -188,6 +190,8 @@ export default function AccountSettings() {
       userId: selectedInvestorId || '',
       country: '',
       interests: [],
+      annualEarningsGbp: '',
+      cgtAllowanceGbp: '',
     },
   });
 
@@ -241,6 +245,8 @@ export default function AccountSettings() {
         userId: investorId,
         country: investor.country || '',
         interests: [],
+        annualEarningsGbp: '',
+        cgtAllowanceGbp: '',
       });
       propertyForm.reset({
         ...propertyForm.getValues(),
@@ -927,27 +933,88 @@ export default function AccountSettings() {
                 )}
               />
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={taxProfileForm.control}
+                  name="annualEarningsGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Annual Earnings (GBP)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 150000"
+                          {...field}
+                          data-testid="input-annual-earnings"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Total annual earnings before tax
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={taxProfileForm.control}
+                  name="cgtAllowanceGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CGT Allowance (GBP)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 6000"
+                          {...field}
+                          data-testid="input-cgt-allowance"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Annual Capital Gains Tax allowance
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormItem>
                 <FormLabel>Tax Schemes of Interest</FormLabel>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['EIS', 'SEIS', 'VCT', 'CGT Relief', 'Pension Scheme', 'ISA'].map((scheme) => (
-                    <div key={scheme} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={scheme}
-                        data-testid={`checkbox-tax-${scheme.toLowerCase().replace(' ', '-')}`}
-                      />
-                      <label 
-                        htmlFor={scheme}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {scheme}
-                      </label>
-                    </div>
-                  ))}
-                </div>
                 <FormDescription>
                   Select tax schemes that are relevant for this investor profile.
                 </FormDescription>
+                <FormField
+                  control={taxProfileForm.control}
+                  name="interests"
+                  render={({ field }) => (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {['EIS', 'SEIS', 'VCT', 'CGT Relief', 'Pension Scheme', 'ISA'].map((scheme) => (
+                        <div key={scheme} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={scheme}
+                            checked={field.value?.includes(scheme) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, scheme]);
+                              } else {
+                                field.onChange(current.filter((item: string) => item !== scheme));
+                              }
+                            }}
+                            data-testid={`checkbox-tax-${scheme.toLowerCase().replace(' ', '-')}`}
+                          />
+                          <label 
+                            htmlFor={scheme}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {scheme}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                />
               </FormItem>
 
               <Button 

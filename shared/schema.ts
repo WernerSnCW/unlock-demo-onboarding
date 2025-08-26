@@ -31,6 +31,8 @@ export const taxProfile = pgTable("tax_profile", {
   userId: varchar("user_id").primaryKey(),
   country: text("country"),
   interests: text("interests").array(), // e.g., ['EIS','SEIS']
+  annualEarningsGbp: numeric("annual_earnings_gbp"), // Annual earnings in GBP
+  cgtAllowanceGbp: numeric("cgt_allowance_gbp"), // Capital Gains Tax allowance in GBP
 });
 
 export const portfolioAccounts = pgTable("portfolio_accounts", {
