@@ -933,9 +933,17 @@ export default function AccountSettings() {
 
   const deleteAlternativeInvestmentMutation = useMutation({
     mutationFn: async (investmentId: string) => {
-      return apiRequest(`/api/alternatives/${investmentId}`, {
+      const response = await fetch(`/api/alternatives/${investmentId}`, {
         method: 'DELETE',
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete alternative investment failed:', errorText);
+        throw new Error(`Failed to delete alternative investment: ${response.status}`);
+      }
+      
+      return response.ok;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/alternatives', selectedInvestorId] });
@@ -944,10 +952,11 @@ export default function AccountSettings() {
         description: 'Alternative investment has been deleted successfully.',
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Delete alternative investment error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete alternative investment.',
+        description: `Failed to delete alternative investment: ${error.message}`,
         variant: 'destructive',
       });
     }
@@ -2501,24 +2510,24 @@ export default function AccountSettings() {
                 return;
               }
               
-              // Convert empty strings to null for optional fields
+              // Convert empty strings to undefined for optional fields
               const cleanedData = {
                 ...data,
                 userId: selectedInvestorId,
-                description: data.description || null,
-                investmentDateUk: data.investmentDateUk || null,
-                maturityDateUk: data.maturityDateUk || null,
-                investmentAmountGbp: data.investmentAmountGbp || null,
-                currentValueGbp: data.currentValueGbp || null,
-                targetReturnPct: data.targetReturnPct || null,
-                actualReturnPct: data.actualReturnPct || null,
-                riskRating: data.riskRating || null,
-                liquidityPeriod: data.liquidityPeriod || null,
-                minimumInvestment: data.minimumInvestment || null,
-                fees: data.fees || null,
-                taxWrapperType: data.taxWrapperType || null,
-                documentsUrl: data.documentsUrl || null,
-                notes: data.notes || null,
+                description: data.description || undefined,
+                investmentDateUk: data.investmentDateUk || undefined,
+                maturityDateUk: data.maturityDateUk || undefined,
+                investmentAmountGbp: data.investmentAmountGbp || undefined,
+                currentValueGbp: data.currentValueGbp || undefined,
+                targetReturnPct: data.targetReturnPct || undefined,
+                actualReturnPct: data.actualReturnPct || undefined,
+                riskRating: data.riskRating || undefined,
+                liquidityPeriod: data.liquidityPeriod || undefined,
+                minimumInvestment: data.minimumInvestment || undefined,
+                fees: data.fees || undefined,
+                taxWrapperType: data.taxWrapperType || undefined,
+                documentsUrl: data.documentsUrl || undefined,
+                notes: data.notes || undefined,
               };
               
               console.log('Submitting cleaned data:', cleanedData);
@@ -2812,7 +2821,7 @@ export default function AccountSettings() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Loading alternative investments...</p>
               </div>
             ) : alternativesData && alternativesData.length > 0 ? (
-              alternativesData.map((investment: AlternativeInvestment) => {
+              alternativesData.map((investment: any) => {
                 const investmentAmount = parseFloat(investment.investmentAmountGbp || '0');
                 const currentValue = parseFloat(investment.currentValueGbp || '0');
                 const returnValue = currentValue - investmentAmount;
