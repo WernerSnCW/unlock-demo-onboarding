@@ -280,6 +280,15 @@ export default function AccountSettings() {
         annualEarningsGbp: '',
         cgtAllowanceGbp: '',
       });
+
+      portfolioAccountForm.reset({
+        userId: investorId,
+        provider: '',
+        accountType: '',
+        currency: 'GBP',
+        connected: false,
+      });
+      
       propertyForm.reset({
         ...propertyForm.getValues(),
         userId: investorId,
@@ -527,6 +536,84 @@ export default function AccountSettings() {
 
   const handleSaveTaxProfile = (data: TaxProfileFormData) => {
     saveTaxProfileMutation.mutate(data);
+  };
+
+  // Portfolio Account form
+  const portfolioAccountForm = useForm<PortfolioAccountFormData>({
+    resolver: zodResolver(portfolioAccountSchema),
+    defaultValues: {
+      userId: selectedInvestorId || '',
+      provider: '',
+      accountType: '',
+      currency: 'GBP',
+      connected: false,
+    },
+  });
+
+  // Portfolio Account mutations
+  const { data: portfolioAccountsData } = useQuery({
+    queryKey: ['/api/investors', selectedInvestorId, 'portfolio-accounts'],
+    queryFn: () => {
+      if (!selectedInvestorId) return [];
+      return fetch(`/api/investors/${selectedInvestorId}/portfolio-accounts`).then(res => res.json());
+    },
+    enabled: !!selectedInvestorId,
+  });
+
+  const createPortfolioAccountMutation = useMutation({
+    mutationFn: async (data: PortfolioAccountFormData) => {
+      if (!selectedInvestorId) throw new Error('No investor selected');
+      return fetch(`/api/investors/${selectedInvestorId}/portfolio-accounts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/investors', selectedInvestorId, 'portfolio-accounts'] });
+      portfolioAccountForm.reset();
+      toast({
+        title: 'Account Added',
+        description: 'Portfolio account has been added successfully.',
+      });
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add portfolio account. Please try again.',
+      });
+    }
+  });
+
+  const deletePortfolioAccountMutation = useMutation({
+    mutationFn: async (accountId: string) => {
+      return fetch(`/api/portfolio-accounts/${accountId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/investors', selectedInvestorId, 'portfolio-accounts'] });
+      toast({
+        title: 'Account Deleted',
+        description: 'Portfolio account has been deleted successfully.',
+      });
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete portfolio account.',
+      });
+    }
+  });
+
+  const handleAddPortfolioAccount = (data: PortfolioAccountFormData) => {
+    createPortfolioAccountMutation.mutate(data);
+  };
+
+  const handleDeletePortfolioAccount = (accountId: string) => {
+    deletePortfolioAccountMutation.mutate(accountId);
   };
 
   const renderInvestorManagement = () => (
@@ -1079,62 +1166,99 @@ export default function AccountSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Add Account Form */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <Input placeholder="Provider (e.g., HL, AJ Bell)" data-testid="input-account-provider" />
-            <Select>
-              <SelectTrigger data-testid="select-account-type">
-                <SelectValue placeholder="Account Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="brokerage">Brokerage</SelectItem>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="private">Private</SelectItem>
-                <SelectItem value="pension">Pension</SelectItem>
-                <SelectItem value="isa">ISA</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger data-testid="select-currency">
-                <SelectValue placeholder="Currency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="GBP">GBP</SelectItem>
-                <SelectItem value="USD">USD</SelectItem>
-                <SelectItem value="EUR">EUR</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button data-testid="button-add-account">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Account
-            </Button>
-          </div>
+          <Form {...portfolioAccountForm}>
+            <form onSubmit={portfolioAccountForm.handleSubmit(handleAddPortfolioAccount)} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <FormField
+                control={portfolioAccountForm.control}
+                name="provider"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input {...field} placeholder="Provider (e.g., HL, AJ Bell)" data-testid="input-account-provider" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={portfolioAccountForm.control}
+                name="accountType"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-account-type">
+                          <SelectValue placeholder="Account Type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="brokerage">Brokerage</SelectItem>
+                        <SelectItem value="cash">Cash</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                        <SelectItem value="pension">Pension</SelectItem>
+                        <SelectItem value="isa">ISA</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={portfolioAccountForm.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-currency">
+                          <SelectValue placeholder="Currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="GBP">GBP</SelectItem>
+                        <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="EUR">EUR</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" data-testid="button-add-account" disabled={createPortfolioAccountMutation.isPending}>
+                <Plus className="h-4 w-4 mr-2" />
+                {createPortfolioAccountMutation.isPending ? 'Adding...' : 'Add Account'}
+              </Button>
+            </form>
+          </Form>
 
           {/* Accounts List */}
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100">Demo Accounts</h4>
-            {/* Sample accounts for demo */}
-            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h5 className="font-medium text-gray-900 dark:text-gray-100">Hargreaves Lansdown</h5>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Brokerage Account • GBP • Connected</p>
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">Portfolio Accounts</h4>
+            {portfolioAccountsData && portfolioAccountsData.length > 0 ? (
+              portfolioAccountsData.map((account: any) => (
+                <div key={account.id} className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-gray-100">{account.provider}</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {account.accountType} Account • {account.currency} • {account.connected ? 'Connected' : 'Not Connected'}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      data-testid={`button-delete-account-${account.id}`}
+                      onClick={() => handleDeletePortfolioAccount(account.id)}
+                      disabled={deletePortfolioAccountMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <Button variant="destructive" size="sm" data-testid="button-delete-account-1">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h5 className="font-medium text-gray-900 dark:text-gray-100">Cash ISA</h5>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">ISA Account • GBP • Connected</p>
-                </div>
-                <Button variant="destructive" size="sm" data-testid="button-delete-account-2">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-600 dark:text-gray-400">No portfolio accounts yet. Add one above to get started.</p>
+            )}
           </div>
         </CardContent>
       </Card>

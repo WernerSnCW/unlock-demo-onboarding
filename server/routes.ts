@@ -5,6 +5,8 @@ import {
   insertInvestorSchema, 
   insertInvestorPreferencesSchema, 
   insertTaxProfileSchema,
+  insertPortfolioAccountSchema,
+  insertPortfolioHoldingSchema,
   insertPropertySchema,
   insertPropertyOwnershipSchema,
   insertPropertyLoanSchema,
@@ -174,6 +176,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch investor data' });
+    }
+  });
+
+  // Portfolio Account routes
+  app.get('/api/investors/:userId/portfolio-accounts', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const accounts = await storage.getAllPortfolioAccounts(userId);
+      res.json(accounts);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch portfolio accounts' });
+    }
+  });
+
+  app.post('/api/investors/:userId/portfolio-accounts', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const validatedData = insertPortfolioAccountSchema.parse({
+        ...req.body,
+        userId
+      });
+      const account = await storage.createPortfolioAccount(validatedData);
+      res.status(201).json(account);
+    } catch (error) {
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to create portfolio account' });
+    }
+  });
+
+  app.put('/api/portfolio-accounts/:accountId', async (req, res) => {
+    try {
+      const { accountId } = req.params;
+      const partialData = req.body;
+      const account = await storage.updatePortfolioAccount(accountId, partialData);
+      if (!account) {
+        return res.status(404).json({ message: 'Portfolio account not found' });
+      }
+      res.json(account);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update portfolio account' });
+    }
+  });
+
+  app.delete('/api/portfolio-accounts/:accountId', async (req, res) => {
+    try {
+      const { accountId } = req.params;
+      const deleted = await storage.deletePortfolioAccount(accountId);
+      if (!deleted) {
+        return res.status(404).json({ message: 'Portfolio account not found' });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete portfolio account' });
+    }
+  });
+
+  // Portfolio Holdings routes
+  app.get('/api/investors/:userId/portfolio-holdings', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const holdings = await storage.getAllPortfolioHoldings(userId);
+      res.json(holdings);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch portfolio holdings' });
+    }
+  });
+
+  app.post('/api/investors/:userId/portfolio-holdings', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const validatedData = insertPortfolioHoldingSchema.parse({
+        ...req.body,
+        userId
+      });
+      const holding = await storage.createPortfolioHolding(validatedData);
+      res.status(201).json(holding);
+    } catch (error) {
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to create portfolio holding' });
+    }
+  });
+
+  app.put('/api/portfolio-holdings/:holdingId', async (req, res) => {
+    try {
+      const { holdingId } = req.params;
+      const partialData = req.body;
+      const holding = await storage.updatePortfolioHolding(holdingId, partialData);
+      if (!holding) {
+        return res.status(404).json({ message: 'Portfolio holding not found' });
+      }
+      res.json(holding);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update portfolio holding' });
+    }
+  });
+
+  app.delete('/api/portfolio-holdings/:holdingId', async (req, res) => {
+    try {
+      const { holdingId } = req.params;
+      const deleted = await storage.deletePortfolioHolding(holdingId);
+      if (!deleted) {
+        return res.status(404).json({ message: 'Portfolio holding not found' });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete portfolio holding' });
     }
   });
 

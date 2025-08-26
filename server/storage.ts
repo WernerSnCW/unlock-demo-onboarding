@@ -3,6 +3,8 @@ import {
   type Investor, type InsertInvestor,
   type InvestorPreferences, type InsertInvestorPreferences,
   type TaxProfile, type InsertTaxProfile,
+  type PortfolioAccount, type InsertPortfolioAccount,
+  type PortfolioHolding, type InsertPortfolioHolding,
   type Property, type InsertProperty,
   type PropertyOwnership, type InsertPropertyOwnership,
   type PropertyLoan, type InsertPropertyLoan,
@@ -10,6 +12,7 @@ import {
   type PropertyLease, type InsertPropertyLease,
   type PropertyCashflow, type InsertPropertyCashflow,
   users, investors, investorPreferences, taxProfile,
+  portfolioAccounts, portfolioHoldings,
   properties, propertyOwnerships, propertyLoans, 
   propertyValuations, propertyLeases, propertyCashflows
 } from "@shared/schema";
@@ -38,6 +41,20 @@ export interface IStorage {
   // Tax Profile methods
   getTaxProfile(userId: string): Promise<TaxProfile | undefined>;
   upsertTaxProfile(profile: InsertTaxProfile): Promise<TaxProfile>;
+  
+  // Portfolio Account methods
+  getAllPortfolioAccounts(userId: string): Promise<PortfolioAccount[]>;
+  getPortfolioAccount(accountId: string): Promise<PortfolioAccount | undefined>;
+  createPortfolioAccount(account: InsertPortfolioAccount): Promise<PortfolioAccount>;
+  updatePortfolioAccount(accountId: string, account: Partial<InsertPortfolioAccount>): Promise<PortfolioAccount | undefined>;
+  deletePortfolioAccount(accountId: string): Promise<boolean>;
+  
+  // Portfolio Holdings methods
+  getAllPortfolioHoldings(userId: string): Promise<PortfolioHolding[]>;
+  getPortfolioHolding(holdingId: string): Promise<PortfolioHolding | undefined>;
+  createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding>;
+  updatePortfolioHolding(holdingId: string, holding: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined>;
+  deletePortfolioHolding(holdingId: string): Promise<boolean>;
   
   // Property methods
   getAllProperties(userId: string): Promise<Property[]>;
@@ -171,6 +188,72 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return upserted;
+  }
+
+  // Portfolio Account methods
+  async getAllPortfolioAccounts(userId: string): Promise<PortfolioAccount[]> {
+    const accounts = await db.select().from(portfolioAccounts).where(eq(portfolioAccounts.userId, userId));
+    return accounts;
+  }
+
+  async getPortfolioAccount(accountId: string): Promise<PortfolioAccount | undefined> {
+    const [account] = await db.select().from(portfolioAccounts).where(eq(portfolioAccounts.id, accountId));
+    return account || undefined;
+  }
+
+  async createPortfolioAccount(account: InsertPortfolioAccount): Promise<PortfolioAccount> {
+    const [newAccount] = await db
+      .insert(portfolioAccounts)
+      .values(account)
+      .returning();
+    return newAccount;
+  }
+
+  async updatePortfolioAccount(accountId: string, account: Partial<InsertPortfolioAccount>): Promise<PortfolioAccount | undefined> {
+    const [updated] = await db
+      .update(portfolioAccounts)
+      .set(account)
+      .where(eq(portfolioAccounts.id, accountId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deletePortfolioAccount(accountId: string): Promise<boolean> {
+    const result = await db.delete(portfolioAccounts).where(eq(portfolioAccounts.id, accountId));
+    return result.rowCount > 0;
+  }
+
+  // Portfolio Holdings methods
+  async getAllPortfolioHoldings(userId: string): Promise<PortfolioHolding[]> {
+    const holdings = await db.select().from(portfolioHoldings).where(eq(portfolioHoldings.userId, userId));
+    return holdings;
+  }
+
+  async getPortfolioHolding(holdingId: string): Promise<PortfolioHolding | undefined> {
+    const [holding] = await db.select().from(portfolioHoldings).where(eq(portfolioHoldings.id, holdingId));
+    return holding || undefined;
+  }
+
+  async createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding> {
+    const [newHolding] = await db
+      .insert(portfolioHoldings)
+      .values(holding)
+      .returning();
+    return newHolding;
+  }
+
+  async updatePortfolioHolding(holdingId: string, holding: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined> {
+    const [updated] = await db
+      .update(portfolioHoldings)
+      .set(holding)
+      .where(eq(portfolioHoldings.id, holdingId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deletePortfolioHolding(holdingId: string): Promise<boolean> {
+    const result = await db.delete(portfolioHoldings).where(eq(portfolioHoldings.id, holdingId));
+    return result.rowCount > 0;
   }
   
   // Property methods
