@@ -22,27 +22,27 @@ export default function ToolCard({
   const getCardTheme = () => {
     if (isPremium && !isLocked) {
       return {
-        background: 'bg-gradient-to-br from-blue-50 via-white to-teal-50 dark:from-blue-900/30 dark:via-gray-800 dark:to-teal-900/30',
-        border: 'border-[#5193B3]/30 dark:border-[#5193B3]/50',
-        hoverBorder: 'hover:border-[#5193B3] dark:hover:border-[#62C4C3]',
-        shadow: 'hover:shadow-xl hover:shadow-[#5193B3]/20 dark:hover:shadow-[#62C4C3]/20'
+        background: 'bg-gradient-to-br from-[var(--primary)]/5 via-[var(--card)] to-[var(--secondary)]/5',
+        border: 'border-[var(--primary)]/30',
+        hoverBorder: 'hover:border-[var(--primary)]',
+        shadow: 'hover:shadow-xl hover:shadow-[var(--primary)]/20'
       };
     }
     
     if (isLocked) {
       return {
-        background: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900',
-        border: 'border-gray-300 dark:border-gray-600',
+        background: 'bg-gradient-to-br from-[var(--muted)] to-[var(--muted)]/50',
+        border: 'border-[var(--border)]',
         hoverBorder: '',
-        shadow: 'hover:shadow-md'
+        shadow: ''
       };
     }
     
     return {
-      background: 'bg-gradient-to-br from-white via-blue-50/30 to-teal-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-teal-900/20',
-      border: 'border-gray-200 dark:border-gray-700',
-      hoverBorder: 'hover:border-[#5193B3]/60 dark:hover:border-[#62C4C3]/60',
-      shadow: 'hover:shadow-lg hover:shadow-blue-100 dark:hover:shadow-blue-900/50'
+      background: 'bg-gradient-to-br from-[var(--card)] via-[var(--primary)]/5 to-[var(--secondary)]/5',
+      border: 'border-[var(--border)]',
+      hoverBorder: 'hover:border-[var(--primary)]/60',
+      shadow: 'hover:shadow-lg hover:shadow-[var(--primary)]/10'
     };
   };
 
@@ -50,7 +50,7 @@ export default function ToolCard({
 
   return (
     <div className={`
-      ${theme.background} rounded-xl border ${theme.border} 
+      ${theme.background} rounded-[var(--radius-lg)] border ${theme.border} 
       p-6 transition-all duration-300 relative group
       ${!isLocked ? `${theme.hoverBorder} ${theme.shadow} hover:-translate-y-1` : 'opacity-75'}
     `}>
@@ -58,7 +58,7 @@ export default function ToolCard({
       {/* Premium Badge for Premium Tools or Locked Tools */}
       {(isPremium || isLocked) && (
         <div className="absolute -top-2 -right-2 z-10">
-          <span className="inline-block bg-gradient-to-r from-[#F8D49B] to-[#62C4C3] text-gray-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+          <span className="inline-block bg-gradient-to-r from-[var(--accent)] to-[var(--primary)] text-[var(--accent-foreground)] px-3 py-1 rounded-full text-xs font-bold" style={{ boxShadow: 'var(--shadow-md)' }}>
             <i className="fas fa-crown mr-1" aria-hidden="true"></i>
             PRO
           </span>
@@ -71,17 +71,17 @@ export default function ToolCard({
         {/* Icon with Brand Colors */}
         <div className="mb-4">
           <div className={`
-            w-14 h-14 rounded-xl flex items-center justify-center relative overflow-hidden
+            w-14 h-14 rounded-[var(--radius-lg)] flex items-center justify-center relative overflow-hidden
             ${(isPremium || isLocked)
-              ? 'bg-gradient-to-br from-[#5193B3] to-[#62C4C3] shadow-lg' 
-              : 'bg-gradient-to-br from-[#5193B3]/10 to-[#62C4C3]/10 border border-[#5193B3]/20 dark:border-[#62C4C3]/20'
+              ? 'bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)]' 
+              : 'bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/20'
             }
-          `}>
+          `} style={(isPremium || isLocked) ? { boxShadow: 'var(--shadow-md)' } : {}}>
             <i className={`
               ${icon} text-2xl transition-transform duration-200 group-hover:scale-110
               ${(isPremium || isLocked)
                 ? 'text-white' 
-                : iconColor || 'text-[#5193B3] dark:text-[#62C4C3]'
+                : iconColor || 'text-[var(--primary)]'
               }
             `} aria-hidden="true"></i>
             
@@ -96,15 +96,15 @@ export default function ToolCard({
         <h3 className={`
           text-lg font-semibold mb-2 transition-colors duration-200
           ${(isPremium || isLocked)
-            ? 'text-[#5193B3] dark:text-[#62C4C3]' 
-            : 'text-gray-800 dark:text-gray-100 group-hover:text-[#5193B3] dark:group-hover:text-[#62C4C3]'
+            ? 'text-[var(--primary)]' 
+            : 'text-[var(--card-foreground)] group-hover:text-[var(--primary)]'
           }
         `}>
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 flex-1 leading-relaxed">
+        <p className="text-sm text-[var(--muted-foreground)] mb-6 flex-1 leading-relaxed">
           {description}
         </p>
 
@@ -113,14 +113,14 @@ export default function ToolCard({
           onClick={onClick}
           disabled={isLocked}
           className={`
-            w-full py-3 px-4 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2
+            w-full py-3 px-4 rounded-[var(--radius-lg)] text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2
             ${isLocked 
-              ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' 
+              ? 'bg-[var(--muted)] text-[var(--muted-foreground)] cursor-not-allowed' 
               : (isPremium || isLocked)
-                ? 'bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                : 'bg-[#5193B3] hover:bg-[#4A85A3] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
+                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:opacity-90 text-[var(--primary-foreground)] transform hover:-translate-y-0.5'
+                : 'bg-[var(--primary)] hover:opacity-90 text-[var(--primary-foreground)] transform hover:-translate-y-0.5'
             }
-          `}
+          `} style={!isLocked ? { boxShadow: 'var(--shadow-md)' } : {}}
         >
           {isLocked ? (
             <>

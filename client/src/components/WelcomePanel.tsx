@@ -70,7 +70,7 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
       {/* Header with Profile Picture and Name */}
       <div className="flex items-center gap-4 mb-5">
         <div className="relative">
@@ -78,25 +78,25 @@ export default function WelcomePanel({ profile, onChangePreferences, onEditSecto
             <img 
               src={profile.profilePicture} 
               alt={`${profile.firstName}'s profile`}
-              className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+              className="w-12 h-12 rounded-full object-cover border-2 border-[var(--border)]"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center">
-              <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)]/10 to-[var(--primary)]/20 border-2 border-[var(--border)] flex items-center justify-center">
+              <User className="h-6 w-6 text-[var(--primary)]" />
             </div>
           )}
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[var(--success)] rounded-full border-2 border-[var(--card)]"></div>
         </div>
         <div className="flex-1">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
             Welcome back, {profile.firstName}.
           </h2>
           {profile.email && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">{profile.email}</p>
+            <p className="text-sm text-[var(--muted-foreground)]">{profile.email}</p>
           )}
         </div>
         <button 
-          className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+          className="p-2 text-[var(--muted-foreground)] hover:text-[var(--primary)] rounded-[var(--radius-sm)] hover:bg-[var(--muted)] transition-colors"
           disabled
         >
           <Settings className="h-4 w-4" />

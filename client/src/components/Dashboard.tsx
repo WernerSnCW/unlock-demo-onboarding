@@ -25,7 +25,7 @@ interface Profile {
   riskProfile: "low" | "medium" | "high";
   newsletterFrequency: "daily" | "weekly" | "monthly";
   whatsappAlerts: boolean;
-  profilePicture?: string;
+  profilePicture?: string | null;
   // Investment Activity
   reportsViewed: number;
   questionsAsked: number;

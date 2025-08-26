@@ -87,27 +87,27 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   const isTrending = business.community.questions.length >= 15;
   
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden shadow-sm">
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
       {/* Header with integrated badges */}
       <div className="flex items-start gap-4 mb-4">
         {/* Company Logo/Avatar */}
-        <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-[#5193B3] to-[#62C4C3] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+        <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-[var(--radius-lg)] flex items-center justify-center text-[var(--primary-foreground)] font-bold text-lg" style={{ boxShadow: 'var(--shadow-md)' }}>
           {getCompanyInitials(business.name)}
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0 pr-2">
-              <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate">{business.name}</h3>
+              <h3 className="font-semibold text-lg text-[var(--card-foreground)] truncate">{business.name}</h3>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {business.verified ? (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs rounded-md">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] text-xs rounded-[var(--radius-sm)]">
                   <i className="fas fa-check-circle" aria-hidden="true"></i>
                   Verified
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--muted)] text-[var(--muted-foreground)] text-xs rounded-[var(--radius-sm)]">
                   <i className="fas fa-exclamation-triangle" aria-hidden="true"></i>
                   Unverified
                 </span>
@@ -131,7 +131,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
           
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-sm rounded-lg">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--info)]/10 text-[var(--info)] text-sm rounded-[var(--radius-md)]">
               <span className="text-base">{getSectorIcon(business.sector)}</span>
               {business.sector}
             </span>
@@ -140,7 +140,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
               {business.risk} Risk
             </span>
             {business.eligibility.EIS && (
-              <span className="px-3 py-1 bg-[#5193B3]/10 text-[#5193B3] dark:bg-[#5193B3]/20 dark:text-[#5193B3] text-sm rounded-lg">
+              <span className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] text-sm rounded-[var(--radius-md)]">
                 EIS
               </span>
             )}

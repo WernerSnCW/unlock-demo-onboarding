@@ -44,6 +44,12 @@ export default {
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)", 
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
         chart: {
           "1": "var(--chart-1)",
           "2": "var(--chart-2)",
