@@ -1,13 +1,35 @@
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { db } from '../server/db';
 import { propertyPriceData } from '../shared/schema';
 
-async function importPropertyData() {
+async function importPropertyData(csvFilePath?: string) {
   console.log('Starting property price data import...');
   
   try {
-    // Read the CSV file
-    const csvData = readFileSync('./attached_assets/pp-2025_1756214748156.csv', 'utf-8');
+    let csvData: string;
+    
+    if (csvFilePath) {
+      // Import specific file
+      console.log(`Importing from: ${csvFilePath}`);
+      csvData = readFileSync(csvFilePath, 'utf-8');
+    } else {
+      // Auto-detect CSV files in attached_assets
+      const files = readdirSync('./attached_assets')
+        .filter(file => file.endsWith('.csv') && file.includes('pp-'));
+      
+      if (files.length === 0) {
+        console.log('No property price CSV files found in attached_assets/');
+        return;
+      }
+      
+      console.log(`Found ${files.length} property price CSV files:`);
+      files.forEach(file => console.log(`  - ${file}`));
+      
+      // Use the most recent file (by name)
+      const latestFile = files.sort().reverse()[0];
+      console.log(`Using latest file: ${latestFile}`);
+      csvData = readFileSync(`./attached_assets/${latestFile}`, 'utf-8');
+    }
     const lines = csvData.trim().split('\n');
     
     console.log(`Found ${lines.length} records to import`);
@@ -76,8 +98,12 @@ async function importPropertyData() {
   }
 }
 
+// Get command line arguments
+const args = process.argv.slice(2);
+const csvFilePath = args[0]; // Optional: specify a specific CSV file path
+
 // Run the import
-importPropertyData().then(() => {
+importPropertyData(csvFilePath).then(() => {
   console.log('Import process completed');
   process.exit(0);
 }).catch((error) => {
