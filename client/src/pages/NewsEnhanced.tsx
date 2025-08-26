@@ -60,7 +60,7 @@ export default function NewsEnhanced() {
     eisSeisEnabled: true,
     dedupe: true,
     hideLowValue: true,
-    existingInvestments: ['Public Equity', 'Angel Investing'],
+    existingInvestments: ['Public Equity', 'Angel Investing', 'Whisky & Spirits'],
     investmentInterests: ['Seed Stage Startups', 'Technology Sector']
   });
 
@@ -87,7 +87,7 @@ export default function NewsEnhanced() {
     eisSeisEnabled: true,
     dedupe: true,
     hideLowValue: true,
-    existingInvestments: ['Public Equity', 'Angel Investing'],
+    existingInvestments: ['Public Equity', 'Angel Investing', 'Whisky & Spirits'],
     investmentInterests: ['Seed Stage Startups', 'Technology Sector']
   };
 

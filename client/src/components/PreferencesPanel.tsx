@@ -34,7 +34,9 @@ const availableSources = ['Reuters', 'LSE RNS', 'GOV.UK', 'FT', 'TechCrunch', 'B
 const investmentTypes = [
   'Public Equity', 'Private Equity', 'Venture Capital', 'Angel Investing', 
   'Real Estate', 'Cryptocurrency', 'Bonds', 'REITs', 'Hedge Funds',
-  'Commodities', 'Art & Collectibles', 'Peer-to-Peer Lending'
+  'Commodities', 'Fine Art', 'Collectibles', 'Whisky & Spirits', 'Wine',
+  'Classic Cars', 'Watches', 'Peer-to-Peer Lending', 'Infrastructure',
+  'Forestry & Timberland', 'Precious Metals'
 ];
 
 const investmentInterestTypes = [
