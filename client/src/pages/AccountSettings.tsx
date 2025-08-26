@@ -120,7 +120,7 @@ interface DemoInvestor {
 
 export default function AccountSettings() {
   const { toast } = useToast();
-  const { setCurrentInvestor, positions: portfolioPositions, isLoading: portfolioLoading } = usePortfolioStoreDB();
+  const { setCurrentInvestor, positions: portfolioPositions, isLoading: portfolioLoading, addPosition } = usePortfolioStoreDB();
   const { selectedInvestor, setSelectedInvestor } = useInvestor();
   const [activeTab, setActiveTab] = useState('preferences');
   
@@ -218,6 +218,32 @@ export default function AccountSettings() {
     },
   });
 
+  // Create simplified schema for portfolio holdings form
+  const holdingFormSchema = z.object({
+    assetType: z.string().min(1, 'Asset type is required'),
+    symbol: z.string().min(1, 'Symbol is required'),
+    name: z.string().min(1, 'Name is required'),
+    quantity: z.string().min(1, 'Quantity is required'),
+    costBasisGbp: z.string().min(1, 'Cost basis is required'),
+    currentPriceGbp: z.string().min(1, 'Current price is required'),
+    provider: z.string().optional(),
+  });
+
+  type HoldingFormData = z.infer<typeof holdingFormSchema>;
+
+  const holdingForm = useForm<HoldingFormData>({
+    resolver: zodResolver(holdingFormSchema),
+    defaultValues: {
+      assetType: '',
+      symbol: '',
+      name: '',
+      quantity: '',
+      costBasisGbp: '',
+      currentPriceGbp: '',
+      provider: 'Manual',
+    },
+  });
+
   // Update preferences form when data loads
   useEffect(() => {
     if (preferencesData && selectedInvestorId) {
@@ -301,6 +327,16 @@ export default function AccountSettings() {
       propertyForm.reset({
         ...propertyForm.getValues(),
         userId: investorId,
+      });
+
+      holdingForm.reset({
+        assetType: '',
+        symbol: '',
+        name: '',
+        quantity: '',
+        costBasisGbp: '',
+        currentPriceGbp: '',
+        provider: 'Manual',
       });
     }
   };
@@ -545,6 +581,66 @@ export default function AccountSettings() {
 
   const handleSaveTaxProfile = (data: TaxProfileFormData) => {
     saveTaxProfileMutation.mutate(data);
+  };
+
+  // Handle adding portfolio holding
+  const handleAddHolding = async (data: HoldingFormData) => {
+    if (!selectedInvestorId) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please select an investor first.',
+      });
+      return;
+    }
+
+    try {
+      // Calculate values
+      const quantity = parseFloat(data.quantity);
+      const costBasisPerShare = parseFloat(data.costBasisGbp) / quantity;
+      const currentPrice = parseFloat(data.currentPriceGbp);
+
+      // Create position object in the format expected by addPosition
+      const position = {
+        name: data.name,
+        ticker: data.symbol,
+        quantity: quantity,
+        avgCost: costBasisPerShare,
+        price: currentPrice,
+        sector: 'Unknown',
+        country: 'UK',
+        asOf: new Date().toISOString().split('T')[0],
+        meta: {
+          assetType: data.assetType,
+          provider: data.provider || 'Manual',
+        }
+      };
+
+      await addPosition(position);
+      
+      toast({
+        title: 'Success',
+        description: 'Portfolio holding added successfully.',
+      });
+
+      // Reset the form
+      holdingForm.reset({
+        assetType: '',
+        symbol: '',
+        name: '',
+        quantity: '',
+        costBasisGbp: '',
+        currentPriceGbp: '',
+        provider: 'Manual',
+      });
+    } catch (error) {
+      console.error('Error adding holding:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add portfolio holding. Please try again.',
+      });
+    }
   };
 
   // Portfolio Account form
@@ -1344,41 +1440,126 @@ export default function AccountSettings() {
           </CardHeader>
           <CardContent className="space-y-4">
           {/* Add Holding Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Select>
-                  <SelectTrigger data-testid="select-asset-type">
-                    <SelectValue placeholder="Asset Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="equity">Equity</SelectItem>
-                    <SelectItem value="fund">Fund</SelectItem>
-                    <SelectItem value="crypto">Crypto</SelectItem>
-                    <SelectItem value="private">Private</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input placeholder="Symbol (e.g., AAPL)" data-testid="input-symbol" />
+          <Form {...holdingForm}>
+            <form onSubmit={holdingForm.handleSubmit(handleAddHolding)} className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={holdingForm.control}
+                    name="assetType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger data-testid="select-asset-type">
+                              <SelectValue placeholder="Asset Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="equity">Equity</SelectItem>
+                              <SelectItem value="fund">Fund</SelectItem>
+                              <SelectItem value="crypto">Crypto</SelectItem>
+                              <SelectItem value="private">Private</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={holdingForm.control}
+                    name="symbol"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} placeholder="Symbol (e.g., AAPL)" data-testid="input-symbol" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={holdingForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} placeholder="Company/Asset Name" data-testid="input-asset-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={holdingForm.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} placeholder="Quantity" data-testid="input-quantity" type="number" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={holdingForm.control}
+                    name="costBasisGbp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} placeholder="Total Cost Basis (GBP)" data-testid="input-cost-basis" type="number" step="0.01" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-              <Input placeholder="Company/Asset Name" data-testid="input-asset-name" />
-              <div className="grid grid-cols-2 gap-4">
-                <Input placeholder="Quantity" data-testid="input-quantity" />
-                <Input placeholder="Cost Basis (GBP)" data-testid="input-cost-basis" />
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={holdingForm.control}
+                    name="currentPriceGbp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} placeholder="Current Price (GBP)" data-testid="input-current-price" type="number" step="0.01" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Value: £{holdingForm.watch('quantity') && holdingForm.watch('currentPriceGbp') 
+                        ? (parseFloat(holdingForm.watch('quantity') || '0') * parseFloat(holdingForm.watch('currentPriceGbp') || '0')).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : '0.00'}
+                    </span>
+                  </div>
+                </div>
+                <FormField
+                  control={holdingForm.control}
+                  name="provider"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input {...field} placeholder="Provider" data-testid="input-holding-provider" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" data-testid="button-add-holding" disabled={holdingForm.formState.isSubmitting}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {holdingForm.formState.isSubmitting ? 'Adding...' : 'Add Holding'}
+                </Button>
               </div>
-            </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Input placeholder="Current Price (GBP)" data-testid="input-current-price" />
-                <Input placeholder="Current Value (GBP)" data-testid="input-current-value" />
-              </div>
-              <Input placeholder="Provider" data-testid="input-holding-provider" />
-              <Button className="w-full" data-testid="button-add-holding">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Holding
-              </Button>
-            </div>
-          </div>
+            </form>
+          </Form>
 
           {/* Holdings List */}
           <div className="space-y-3">
