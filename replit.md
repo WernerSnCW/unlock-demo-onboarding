@@ -2,7 +2,7 @@
 
 This project is "Unlock Free Version" - a business due diligence platform prototype built with React, TypeScript, and Express.js. The application provides investment due diligence snapshots using entirely mock data but appears fully functional. It features a split-screen premium dashboard with "Your World" (personalized content) on the left and "The Market" (curated news & insights) on the right, plus a comprehensive Investor Toolkit workspace. The platform includes enhanced account settings with comprehensive investment preferences including existing investment holdings and investment interests. The design uses explicit Tailwind classes for reliable text visibility and consistent theming across light/dark modes with a calm, professional fintech aesthetic.
 
-**Recent Completion (Aug 26, 2025):** Full database-backed portfolio holdings and property portfolio systems are now operational with complete CRUD functionality and proper form validation.
+**Recent Completion (Aug 26, 2025):** Full database-backed portfolio holdings, property portfolio, and alternative investments systems are now operational with complete CRUD functionality and comprehensive form validation. The alternatives tab includes advanced features like tax wrapper eligibility (EIS/SEIS/VCT), risk ratings, and real-time return calculations.
 
 # User Preferences
 

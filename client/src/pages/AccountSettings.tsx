@@ -443,6 +443,27 @@ export default function AccountSettings() {
         isPrimaryResidence: false,
       });
 
+      alternativeInvestmentForm.reset({
+        userId: investorId,
+        investmentType: '',
+        name: '',
+        description: '',
+        investmentDateUk: '',
+        maturityDateUk: '',
+        investmentAmountGbp: '',
+        currentValueGbp: '',
+        targetReturnPct: '',
+        actualReturnPct: '',
+        riskRating: '',
+        liquidityPeriod: '',
+        minimumInvestment: '',
+        fees: '',
+        taxWrapperEligible: false,
+        taxWrapperType: '',
+        documentsUrl: '',
+        notes: '',
+      });
+
       holdingForm.reset({
         assetType: '',
         symbol: '',
@@ -609,6 +630,30 @@ export default function AccountSettings() {
       acquisitionPriceGbp: '',
       acquisitionCostsGbp: '',
       isPrimaryResidence: false,
+    },
+  });
+
+  const alternativeInvestmentForm = useForm<AlternativeInvestmentFormData>({
+    resolver: zodResolver(alternativeInvestmentSchema),
+    defaultValues: {
+      userId: selectedInvestorId || '',
+      investmentType: '',
+      name: '',
+      description: '',
+      investmentDateUk: '',
+      maturityDateUk: '',
+      investmentAmountGbp: '',
+      currentValueGbp: '',
+      targetReturnPct: '',
+      actualReturnPct: '',
+      riskRating: '',
+      liquidityPeriod: '',
+      minimumInvestment: '',
+      fees: '',
+      taxWrapperEligible: false,
+      taxWrapperType: '',
+      documentsUrl: '',
+      notes: '',
     },
   });
 
@@ -826,6 +871,72 @@ export default function AccountSettings() {
       return fetch(`/api/alternatives/${selectedInvestorId}`).then(res => res.json());
     },
     enabled: !!selectedInvestorId,
+  });
+
+  // Alternative investment mutations
+  const createAlternativeInvestmentMutation = useMutation({
+    mutationFn: async (data: AlternativeInvestmentFormData) => {
+      return apiRequest('/api/alternatives', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/alternatives', selectedInvestorId] });
+      alternativeInvestmentForm.reset({
+        userId: selectedInvestorId || '',
+        investmentType: '',
+        name: '',
+        description: '',
+        investmentDateUk: '',
+        maturityDateUk: '',
+        investmentAmountGbp: '',
+        currentValueGbp: '',
+        targetReturnPct: '',
+        actualReturnPct: '',
+        riskRating: '',
+        liquidityPeriod: '',
+        minimumInvestment: '',
+        fees: '',
+        taxWrapperEligible: false,
+        taxWrapperType: '',
+        documentsUrl: '',
+        notes: '',
+      });
+      toast({
+        title: 'Investment Added',
+        description: 'Alternative investment has been added successfully.',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to add alternative investment.',
+        variant: 'destructive',
+      });
+    }
+  });
+
+  const deleteAlternativeInvestmentMutation = useMutation({
+    mutationFn: async (investmentId: string) => {
+      return apiRequest(`/api/alternatives/${investmentId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/alternatives', selectedInvestorId] });
+      toast({
+        title: 'Investment Deleted',
+        description: 'Alternative investment has been deleted successfully.',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete alternative investment.',
+        variant: 'destructive',
+      });
+    }
   });
 
   // Property ownership query - fetch ownership data for a specific property
@@ -2359,25 +2470,365 @@ export default function AccountSettings() {
             Alternative Investments
           </CardTitle>
           <CardDescription>
-            Manage alternative investment holdings including private equity, venture capital, real estate funds, and other non-traditional investments.
+            Track private equity, venture capital, hedge funds, real estate funds, commodities, and other non-traditional investments.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Alternative Investments Coming Soon
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Track private equity, venture capital, hedge funds, real estate funds, commodities, and other alternative investments.
-            </p>
-            <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-              <p>• Private Equity & Venture Capital</p>
-              <p>• Hedge Funds & Real Estate Funds</p>
-              <p>• Commodities & Collectibles</p>
-              <p>• Cryptocurrency & Digital Assets</p>
-              <p>• Tax Wrapper Eligible Investments (EIS/SEIS/VCT)</p>
-            </div>
+        <CardContent className="space-y-6">
+          <Form {...alternativeInvestmentForm}>
+            <form onSubmit={alternativeInvestmentForm.handleSubmit((data) => {
+              createAlternativeInvestmentMutation.mutate(data);
+            })} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="investmentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Investment Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-investment-type">
+                            <SelectValue placeholder="Select investment type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="private-equity">Private Equity</SelectItem>
+                          <SelectItem value="venture-capital">Venture Capital</SelectItem>
+                          <SelectItem value="hedge-fund">Hedge Fund</SelectItem>
+                          <SelectItem value="real-estate-fund">Real Estate Fund</SelectItem>
+                          <SelectItem value="commodity">Commodity</SelectItem>
+                          <SelectItem value="cryptocurrency">Cryptocurrency</SelectItem>
+                          <SelectItem value="collectible">Collectible</SelectItem>
+                          <SelectItem value="eis">EIS Investment</SelectItem>
+                          <SelectItem value="seis">SEIS Investment</SelectItem>
+                          <SelectItem value="vct">VCT Investment</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Investment Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Acme Venture Capital Fund III" data-testid="input-investment-name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="investmentAmountGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Investment Amount (GBP)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="50000" data-testid="input-investment-amount" />
+                      </FormControl>
+                      <FormDescription>
+                        Amount invested in GBP
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="currentValueGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Value (GBP)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="75000" data-testid="input-current-value" />
+                      </FormControl>
+                      <FormDescription>
+                        Current estimated value in GBP
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="investmentDateUk"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Investment Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" data-testid="input-investment-date" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="maturityDateUk"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maturity Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" data-testid="input-maturity-date" />
+                      </FormControl>
+                      <FormDescription>
+                        Expected exit or maturity date
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="targetReturnPct"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Return (%)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="15.5" data-testid="input-target-return" />
+                      </FormControl>
+                      <FormDescription>
+                        Expected annual return percentage
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="riskRating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Risk Rating</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-risk-rating">
+                            <SelectValue placeholder="Select risk level" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="low">Low Risk</SelectItem>
+                          <SelectItem value="medium">Medium Risk</SelectItem>
+                          <SelectItem value="high">High Risk</SelectItem>
+                          <SelectItem value="very-high">Very High Risk</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="liquidityPeriod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Liquidity Period</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="5 years" data-testid="input-liquidity-period" />
+                      </FormControl>
+                      <FormDescription>
+                        How long before funds can be withdrawn
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="fees"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fees</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="2% management fee + 20% performance fee" data-testid="input-fees" />
+                      </FormControl>
+                      <FormDescription>
+                        Management and performance fees
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={alternativeInvestmentForm.control}
+                  name="taxWrapperEligible"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          data-testid="checkbox-tax-wrapper-eligible"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          Tax Wrapper Eligible
+                        </FormLabel>
+                        <FormDescription>
+                          Eligible for EIS, SEIS, VCT or other tax relief
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                {alternativeInvestmentForm.watch('taxWrapperEligible') && (
+                  <FormField
+                    control={alternativeInvestmentForm.control}
+                    name="taxWrapperType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax Wrapper Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-tax-wrapper-type">
+                              <SelectValue placeholder="Select tax wrapper" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="eis">EIS (Enterprise Investment Scheme)</SelectItem>
+                            <SelectItem value="seis">SEIS (Seed Enterprise Investment Scheme)</SelectItem>
+                            <SelectItem value="vct">VCT (Venture Capital Trust)</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              <FormField
+                control={alternativeInvestmentForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Technology-focused venture capital fund targeting Series A investments" data-testid="input-description" />
+                    </FormControl>
+                    <FormDescription>
+                      Brief description of the investment
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={alternativeInvestmentForm.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Additional notes about this investment" data-testid="input-notes" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button 
+                type="submit" 
+                disabled={createAlternativeInvestmentMutation.isPending}
+                data-testid="button-add-alternative-investment"
+              >
+                {createAlternativeInvestmentMutation.isPending ? (
+                  'Adding Investment...'
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Alternative Investment
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+
+          {/* Alternative Investments List */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Current Alternative Investments</h3>
+            {alternativesLoading ? (
+              <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Loading alternative investments...</p>
+              </div>
+            ) : alternativesData && alternativesData.length > 0 ? (
+              alternativesData.map((investment: AlternativeInvestment) => {
+                const investmentAmount = parseFloat(investment.investmentAmountGbp || '0');
+                const currentValue = parseFloat(investment.currentValueGbp || '0');
+                const returnValue = currentValue - investmentAmount;
+                const returnPct = investmentAmount > 0 ? ((returnValue / investmentAmount) * 100) : 0;
+                const returnColor = returnValue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+
+                return (
+                  <div key={investment.id} className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <h5 className="font-medium text-gray-900 dark:text-gray-100">{investment.name}</h5>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{investment.investmentType} • {investment.riskRating || 'No rating'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Investment Amount</p>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">£{investmentAmount.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Current Value</p>
+                            <p className={`font-medium ${returnColor}`}>£{currentValue.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Return</p>
+                            <p className={`font-medium ${returnColor}`}>
+                              {returnValue >= 0 ? '+' : ''}£{returnValue.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} 
+                              ({returnPct >= 0 ? '+' : ''}{returnPct.toFixed(1)}%)
+                            </p>
+                          </div>
+                        </div>
+                        {investment.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{investment.description}</p>
+                        )}
+                        {investment.taxWrapperEligible && investment.taxWrapperType && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 mt-2">
+                            {investment.taxWrapperType.toUpperCase()} Eligible
+                          </span>
+                        )}
+                      </div>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        disabled={deleteAlternativeInvestmentMutation.isPending}
+                        data-testid={`button-delete-alternative-${investment.id}`}
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this alternative investment? This action cannot be undone.')) {
+                            deleteAlternativeInvestmentMutation.mutate(investment.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border">
+                <p className="text-sm text-gray-600 dark:text-gray-400">No alternative investments yet. Add one above to get started.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
