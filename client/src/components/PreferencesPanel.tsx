@@ -18,6 +18,8 @@ interface PreferencesPanelProps {
     eisSeisEnabled: boolean;
     dedupe: boolean;
     hideLowValue: boolean;
+    existingInvestments: string[];
+    investmentInterests: string[];
   };
   onUpdatePreferences: (preferences: any) => void;
   onResetPreferences: () => void;
@@ -28,6 +30,19 @@ const availableRegions = ['UK', 'EU', 'US', 'Asia'];
 const availableTopics = ['M&A', 'Rates', 'Filings', 'EIS/SEIS', 'Regulatory', 'Funding'];
 const availableTickers = ['VOD.L', 'BARC.L', 'LLOY.L', 'BP.L', 'SHEL.L'];
 const availableSources = ['Reuters', 'LSE RNS', 'GOV.UK', 'FT', 'TechCrunch', 'Bloomberg'];
+
+const investmentTypes = [
+  'Public Equity', 'Private Equity', 'Venture Capital', 'Angel Investing', 
+  'Real Estate', 'Cryptocurrency', 'Bonds', 'REITs', 'Hedge Funds',
+  'Commodities', 'Art & Collectibles', 'Peer-to-Peer Lending'
+];
+
+const investmentInterestTypes = [
+  'Seed Stage Startups', 'Growth Stage Companies', 'Pre-IPO Opportunities',
+  'ESG/Impact Investing', 'Technology Sector', 'Healthcare & Biotech',
+  'Green Energy', 'Emerging Markets', 'Alternative Assets', 'Property Development',
+  'Fintech Innovation', 'AI & Machine Learning'
+];
 
 const riskLevels = [
   { id: 'low', label: 'Low', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
@@ -143,6 +158,22 @@ export default function PreferencesPanel({
     showUpdateToast();
   };
 
+  const toggleExistingInvestment = (investment: string) => {
+    const newInvestments = preferences.existingInvestments.includes(investment)
+      ? preferences.existingInvestments.filter(i => i !== investment)
+      : [...preferences.existingInvestments, investment];
+    onUpdatePreferences({ ...preferences, existingInvestments: newInvestments });
+    showUpdateToast();
+  };
+
+  const toggleInvestmentInterest = (interest: string) => {
+    const newInterests = preferences.investmentInterests.includes(interest)
+      ? preferences.investmentInterests.filter(i => i !== interest)
+      : [...preferences.investmentInterests, interest];
+    onUpdatePreferences({ ...preferences, investmentInterests: newInterests });
+    showUpdateToast();
+  };
+
   return (
     <div className="space-y-6" data-preferences-panel>
       
@@ -249,6 +280,52 @@ export default function PreferencesPanel({
             >
               <i className={`fas ${preferences.riskAppetite.includes(risk.id as 'low' | 'medium' | 'high') ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
               {risk.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Current Investment Holdings */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Current Investment Holdings</h3>
+        <p className="text-sm text-[var(--muted-foreground)] mb-4">Select the types of investments you currently hold</p>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Current investment holdings">
+          {investmentTypes.map((investment) => (
+            <button
+              key={investment}
+              onClick={() => toggleExistingInvestment(investment)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.existingInvestments.includes(investment)
+                  ? 'bg-[var(--info)] text-[var(--info-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--info)] hover:text-[var(--info-foreground)]'
+              }`}
+              aria-pressed={preferences.existingInvestments.includes(investment)}
+            >
+              <i className={`fas ${preferences.existingInvestments.includes(investment) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              {investment}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Investment Interests */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
+        <h3 className="font-semibold text-[var(--card-foreground)] mb-4">Investment Interests</h3>
+        <p className="text-sm text-[var(--muted-foreground)] mb-4">Select the types of investments you're interested in exploring</p>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Investment interests">
+          {investmentInterestTypes.map((interest) => (
+            <button
+              key={interest}
+              onClick={() => toggleInvestmentInterest(interest)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                preferences.investmentInterests.includes(interest)
+                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                  : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)]'
+              }`}
+              aria-pressed={preferences.investmentInterests.includes(interest)}
+            >
+              <i className={`fas ${preferences.investmentInterests.includes(interest) ? 'fa-check-circle' : 'fa-circle'} text-xs`}></i>
+              {interest}
             </button>
           ))}
         </div>

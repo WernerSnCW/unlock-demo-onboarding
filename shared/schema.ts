@@ -23,6 +23,8 @@ export const investorPreferences = pgTable("investor_preferences", {
   ticketMaxGbp: numeric("ticket_max_gbp"),
   regions: text("regions").array(),
   focusSectors: integer("focus_sectors").array(), // FK -> sectors(id)
+  existingInvestments: text("existing_investments").array(), // Types of investments they currently have
+  investmentInterests: text("investment_interests").array(), // Types of investments they're interested in
 });
 
 export const taxProfile = pgTable("tax_profile", {

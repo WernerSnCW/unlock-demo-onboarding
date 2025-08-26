@@ -37,6 +37,8 @@ const preferencesSchema = z.object({
   ticketMaxGbp: z.string().optional(),
   regions: z.array(z.string()).optional(),
   focusSectors: z.array(z.number()).optional(),
+  existingInvestments: z.array(z.string()).optional(),
+  investmentInterests: z.array(z.string()).optional(),
 });
 
 const taxProfileSchema = z.object({
@@ -162,6 +164,8 @@ export default function AccountSettings() {
       ticketMaxGbp: '',
       regions: [],
       focusSectors: [],
+      existingInvestments: [],
+      investmentInterests: [],
     },
   });
 
@@ -198,6 +202,8 @@ export default function AccountSettings() {
         ticketMaxGbp: '',
         regions: [],
         focusSectors: [],
+        existingInvestments: [],
+        investmentInterests: [],
       });
       taxProfileForm.reset({
         userId: investorId,
@@ -678,6 +684,61 @@ export default function AccountSettings() {
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         {region}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </FormItem>
+
+              <FormItem>
+                <FormLabel>Current Investment Holdings</FormLabel>
+                <FormDescription>
+                  Select the types of investments you currently hold
+                </FormDescription>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[
+                    'Public Equity', 'Private Equity', 'Venture Capital', 'Angel Investing',
+                    'Real Estate', 'Cryptocurrency', 'Bonds', 'REITs', 'Hedge Funds',
+                    'Commodities', 'Art & Collectibles', 'Peer-to-Peer Lending'
+                  ].map((investment) => (
+                    <div key={investment} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={investment}
+                        data-testid={`checkbox-investment-${investment.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
+                      />
+                      <label 
+                        htmlFor={investment}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {investment}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </FormItem>
+
+              <FormItem>
+                <FormLabel>Investment Interests</FormLabel>
+                <FormDescription>
+                  Select the types of investments you're interested in exploring
+                </FormDescription>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[
+                    'Seed Stage Startups', 'Growth Stage Companies', 'Pre-IPO Opportunities',
+                    'ESG/Impact Investing', 'Technology Sector', 'Healthcare & Biotech',
+                    'Green Energy', 'Emerging Markets', 'Alternative Assets', 'Property Development',
+                    'Fintech Innovation', 'AI & Machine Learning'
+                  ].map((interest) => (
+                    <div key={interest} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={interest}
+                        data-testid={`checkbox-interest-${interest.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}`}
+                      />
+                      <label 
+                        htmlFor={interest}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {interest}
                       </label>
                     </div>
                   ))}

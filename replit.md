@@ -1,6 +1,6 @@
 # Overview
 
-This project is "Unlock Free Version" - a business due diligence platform prototype built with React, TypeScript, and Express.js. The application provides investment due diligence snapshots using entirely mock data but appears fully functional. It features a split-screen premium dashboard with "Your World" (personalized content) on the left and "The Market" (curated news & insights) on the right, plus a comprehensive Investor Toolkit workspace. The design uses explicit Tailwind classes for reliable text visibility and consistent theming across light/dark modes with a calm, professional fintech aesthetic.
+This project is "Unlock Free Version" - a business due diligence platform prototype built with React, TypeScript, and Express.js. The application provides investment due diligence snapshots using entirely mock data but appears fully functional. It features a split-screen premium dashboard with "Your World" (personalized content) on the left and "The Market" (curated news & insights) on the right, plus a comprehensive Investor Toolkit workspace. The platform includes enhanced account settings with comprehensive investment preferences including existing investment holdings and investment interests. The design uses explicit Tailwind classes for reliable text visibility and consistent theming across light/dark modes with a calm, professional fintech aesthetic.
 
 # User Preferences
 
@@ -33,10 +33,11 @@ Preferred communication style: Simple, everyday language.
 - **ORM**: Drizzle ORM for type-safe database operations and schema management
 - **Schema**: Shared TypeScript schemas between frontend and backend using Zod for validation
 - **Migrations**: Drizzle Kit for database migrations and schema synchronization
+- **Investment Preferences**: Enhanced investor preferences schema with existingInvestments and investmentInterests arrays
 
 ## Project Structure
 - **Monorepo Design**: Client, server, and shared code organized in separate directories
-- **Component Library**: Specialized business components (WelcomePanel, NewsFeed, AlertsPreferences, NewsletterControls, Watchlist, UpgradeCard, ToolCard, ToolkitModal, SimpleAllowanceCalculator)
+- **Component Library**: Specialized business components (WelcomePanel, NewsFeed, AlertsPreferences, NewsletterControls, Watchlist, UpgradeCard, ToolCard, ToolkitModal, SimpleAllowanceCalculator, enhanced PreferencesPanel with investment preferences)
 - **Mock Data System**: JSON files in /src/mocks/ providing realistic business data
 - **Theme Architecture**: CSS custom properties in index.css for global color management
 - **Split-Screen Layout**: Desktop (2-col equal), Tablet (2-col with wider right), Mobile (1-col stacked: Welcome → Alerts → Newsletter → News → Watchlist → Upgrade)
