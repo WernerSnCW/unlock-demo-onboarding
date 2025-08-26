@@ -113,13 +113,22 @@ function PropertyValuationComponent() {
         const result = await response.json();
         setValuationResult(result);
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred' }));
         console.error('Valuation failed:', errorData.message);
-        setValuationResult(null);
+        // Show error to user
+        setValuationResult({
+          error: true,
+          message: errorData.message || 'Valuation failed - no HPI data available for this location',
+          postcode: valuationRequest.postcode
+        });
       }
     } catch (error) {
       console.error('Valuation generation failed:', error);
-      setValuationResult(null);
+      setValuationResult({
+        error: true,
+        message: 'Unable to connect to valuation service',
+        postcode: valuationRequest.postcode
+      });
     } finally {
       setIsGeneratingValuation(false);
     }
@@ -320,6 +329,25 @@ function PropertyValuationComponent() {
       
       {valuationResult && (
         <div className="mt-6 space-y-4">
+          {/* Error Display */}
+          {valuationResult.error && (
+            <div className="p-4 bg-[var(--destructive)]/10 rounded-[var(--radius-sm)] border border-[var(--destructive)]/30">
+              <h4 className="font-semibold text-[var(--destructive)] mb-2 flex items-center gap-2">
+                <i className="fas fa-exclamation-triangle"></i>
+                Valuation Not Available
+              </h4>
+              <p className="text-sm text-[var(--destructive)]/80 mb-2">
+                {valuationResult.message}
+              </p>
+              <p className="text-xs text-[var(--muted-foreground)]">
+                Postcode: {valuationResult.postcode} • Try a different location or check back later
+              </p>
+            </div>
+          )}
+          
+          {/* Normal Valuation Results */}
+          {!valuationResult.error && (
+            <>
           {/* Valuation Summary */}
           <div className="p-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30" style={{ boxShadow: 'var(--shadow-sm)' }}>
             <h4 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
@@ -455,6 +483,8 @@ function PropertyValuationComponent() {
                 : 'This valuation uses HPI baseline calculation. Adding recent sale data to your property profile will improve accuracy.'}
             </p>
           </div>
+            </>
+          )}
         </div>
       )}
     </div>
