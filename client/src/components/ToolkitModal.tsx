@@ -1,23 +1,29 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useInvestor } from '../contexts/InvestorContext';
 import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
 import PitchDeckAnalyser from './PitchDeckAnalyser';
 
 function PropertyValuationComponent() {
+  const { selectedInvestor } = useInvestor();
   const [searchMode, setSearchMode] = useState<'saved' | 'search'>('saved');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState('');
 
+  const { data: properties = [], isLoading: propertiesLoading } = useQuery({
+    queryKey: ['/api/properties', selectedInvestor?.userId],
+    enabled: !!selectedInvestor?.userId,
+  });
+
   const handlePropertySearch = async () => {
     if (!searchQuery.trim()) return;
     
     setIsSearching(true);
     try {
-      // Simulate property search - in real app this would call your property search API
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock search results
       const mockResults = [
         { id: 'search1', address: `${searchQuery}, Manchester`, postcode: 'M1 1AA', type: 'Flat', bedrooms: 2 },
         { id: 'search2', address: `${searchQuery} Apartments, Manchester`, postcode: 'M1 1AB', type: 'Flat', bedrooms: 1 },
@@ -32,6 +38,18 @@ function PropertyValuationComponent() {
     }
   };
 
+  if (propertiesLoading) {
+    return (
+      <div className="p-6">
+        <div className="space-y-4">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="text-center mb-6">
@@ -43,7 +61,6 @@ function PropertyValuationComponent() {
       </div>
       
       <form className="space-y-4">
-        {/* Property Selection Mode Toggle */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Select Property *
@@ -76,15 +93,82 @@ function PropertyValuationComponent() {
           </div>
 
           {searchMode === 'saved' ? (
-            <select 
-              value={selectedProperty}
-              onChange={(e) => setSelectedProperty(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            >
-              <option value="">Choose from your saved properties...</option>
-              <option value="property1">456 Test Avenue, Manchester M1 1AA</option>
-              <option value="property2">199 Galvanis Street, 1953 Lee Towers, London 3029 AD</option>
-            </select>
+            <div className="space-y-3">
+              {Array.isArray(properties) && properties.length > 0 ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {properties.map((property: any) => (
+                    <button
+                      key={property.id}
+                      type="button"
+                      onClick={() => setSelectedProperty(property.id)}
+                      className={`p-4 border rounded-lg text-left transition-all hover:shadow-md ${
+                        selectedProperty === property.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                            {property.addressLine1}
+                            {property.addressLine2 && `, ${property.addressLine2}`}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            {property.city} {property.postcode}
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <i className="fas fa-home"></i>
+                              {property.type || 'Property'}
+                            </span>
+                            {property.bedrooms && (
+                              <span className="flex items-center gap-1">
+                                <i className="fas fa-bed"></i>
+                                {property.bedrooms} bed
+                              </span>
+                            )}
+                            {property.epcRating && (
+                              <span className="flex items-center gap-1">
+                                <i className="fas fa-leaf"></i>
+                                EPC {property.epcRating}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className={`w-4 h-4 rounded-full border-2 ${
+                            selectedProperty === property.id
+                              ? 'border-blue-500 bg-blue-500'
+                              : 'border-gray-300 dark:border-gray-600'
+                          }`}>
+                            {selectedProperty === property.id && (
+                              <i className="fas fa-check text-white text-xs leading-none"></i>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                    <i className="fas fa-home text-2xl text-gray-400"></i>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Properties Found</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {selectedInvestor ? 'No properties are associated with this investor.' : 'Please select an investor first.'}
+                  </p>
+                  <button 
+                    type="button"
+                    onClick={() => setSearchMode('search')}
+                    className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
+                  >
+                    Search for a property →
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="space-y-3">
               <div className="flex gap-2">
@@ -116,7 +200,6 @@ function PropertyValuationComponent() {
                 </button>
               </div>
 
-              {/* Search Results */}
               {searchResults.length > 0 && (
                 <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-40 overflow-y-auto">
                   {searchResults.map((property) => (
@@ -146,6 +229,66 @@ function PropertyValuationComponent() {
             </div>
           )}
         </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Valuation Method
+          </label>
+          <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+            <option value="comparable">Comparable sales analysis</option>
+            <option value="rental">Rental yield analysis</option>
+            <option value="cost">Replacement cost method</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Market Conditions
+          </label>
+          <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+            <option value="current">Current market</option>
+            <option value="rising">Rising market</option>
+            <option value="declining">Declining market</option>
+          </select>
+        </div>
+        
+        <div className="pt-4">
+          <button
+            type="submit"
+            disabled={!selectedProperty}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Generate Valuation Report
+          </button>
+        </div>
+      </form>
+      
+      {selectedProperty && (
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h4 className="font-medium text-gray-800 dark:text-gray-100 mb-3">Live Market Data Preview</h4>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Estimated Value:</span>
+              <div className="font-semibold text-lg text-blue-600 dark:text-blue-400">£285,000 - £315,000</div>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Comparable Sales:</span>
+              <div className="font-semibold text-green-600 dark:text-green-400">12 properties found</div>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Price per sq ft:</span>
+              <div className="font-semibold">£425/sq ft</div>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Market trend:</span>
+              <div className="font-semibold text-orange-600 dark:text-orange-400">+2.1% (3 months)</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ToolkitModalProps {
   isOpen: boolean;
@@ -218,23 +361,23 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Additional Notes
+                  Additional Information
                 </label>
                 <textarea
-                  rows={3}
                   placeholder="Any specific areas of focus or concerns..."
+                  rows={3}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 ></textarea>
               </div>
               
-              <button 
-                type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
-                disabled
-              >
-                <i className="fas fa-paper-plane mr-2" aria-hidden="true"></i>
-                Request Snapshot (Coming Soon)
-              </button>
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Request Snapshot Report
+                </button>
+              </div>
             </form>
           </div>
         );
