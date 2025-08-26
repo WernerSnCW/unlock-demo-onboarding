@@ -662,11 +662,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Step 1: Get HPI baseline for the region
       const postcodePrefix = postcode.split(' ')[0];
-      const hpiData = await db.select()
+      
+      // Try multiple matching strategies for HPI data
+      let hpiData = await db.select()
         .from(ukHpi)
         .where(like(ukHpi.regionName, `%${postcodePrefix}%`))
         .orderBy(desc(ukHpi.date))
         .limit(1);
+      
+      // If no direct postcode match, try broader region matches
+      if (hpiData.length === 0) {
+        // Map postcode areas to known HPI regions
+        const postcodeToRegion: Record<string, string> = {
+          'M1': 'Manchester', 'M2': 'Manchester', 'M3': 'Manchester', 'M4': 'Manchester',
+          'M8': 'Manchester', 'M9': 'Manchester', 'M11': 'Manchester', 'M12': 'Manchester',
+          'M13': 'Manchester', 'M14': 'Manchester', 'M15': 'Manchester', 'M16': 'Manchester',
+          'M17': 'Manchester', 'M18': 'Manchester', 'M19': 'Manchester', 'M20': 'Manchester',
+          'M21': 'Manchester', 'M22': 'Manchester', 'M23': 'Manchester', 'M24': 'Manchester',
+          'M25': 'Manchester', 'M27': 'Manchester', 'M28': 'Manchester', 'M29': 'Manchester',
+          'M30': 'Manchester', 'M31': 'Manchester', 'M32': 'Manchester', 'M33': 'Manchester',
+          'M34': 'Manchester', 'M35': 'Manchester', 'M38': 'Manchester', 'M40': 'Manchester',
+          'M41': 'Manchester', 'M43': 'Manchester', 'M44': 'Manchester', 'M45': 'Manchester',
+          'M46': 'Manchester', 'M90': 'Manchester'
+        };
+        
+        const regionName = postcodeToRegion[postcodePrefix];
+        if (regionName) {
+          hpiData = await db.select()
+            .from(ukHpi)
+            .where(eq(ukHpi.regionName, regionName))
+            .orderBy(desc(ukHpi.date))
+            .limit(1);
+        }
+        
+        // If still no match, try Greater Manchester
+        if (hpiData.length === 0) {
+          hpiData = await db.select()
+            .from(ukHpi)
+            .where(eq(ukHpi.regionName, 'Greater Manchester'))
+            .orderBy(desc(ukHpi.date))
+            .limit(1);
+        }
+      }
 
       if (hpiData.length === 0) {
         return res.status(404).json({ message: 'No HPI data found for this location' });
@@ -809,9 +846,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           date: comp.dateOfTransfer,
           postcode: comp.postcode,
           propertyType: comp.propertyType,
-          newBuild: comp.newBuild === 'Y',
-          tenure: comp.tenure,
-          address: `${comp.paon || ''} ${comp.street || ''}`.trim()
+          newBuild: comp.oldNew === 'Y',
+          tenure: comp.duration,
+          address: `${comp.primaryAddressableName || ''} ${comp.street || ''}`.trim()
         })),
         explainability,
         hpiData: {
