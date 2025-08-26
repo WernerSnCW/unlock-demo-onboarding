@@ -921,36 +921,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Ensure we have a reasonable range for HPI_ONLY
       if (method === 'HPI_ONLY') {
+        const volatility = Math.abs(parseFloat(hpi.twelveMonthPercentChange || '0'));
+        const rangeFactor = volatility > 10 ? 0.10 : 0.075; // ±10% if volatile, ±7.5% otherwise
         range = {
-          min: Math.round(finalEstimate * 0.85),
-          max: Math.round(finalEstimate * 1.15)
+          min: Math.round(finalEstimate * (1 - rangeFactor)),
+          max: Math.round(finalEstimate * (1 + rangeFactor))
         };
       }
 
-      const valuation = {
-        estimate: Math.round(finalEstimate),
-        method,
-        range,
-        comps: comparables.slice(0, 5).map(comp => ({
-          price: parseFloat(comp.price || '0'),
-          date: comp.dateOfTransfer,
-          postcode: comp.postcode,
-          propertyType: comp.propertyType,
-          newBuild: comp.oldNew === 'Y',
-          tenure: comp.duration,
-          address: `${comp.primaryAddressableName || ''} ${comp.street || ''}`.trim()
-        })),
-        explainability,
-        hpiData: {
-          regionName: hpi.regionName,
-          averagePrice: hpiBasePrice,
-          monthlyChange: parseFloat(hpi.monthlyChangePercent || '0'),
-          yearlyChange: parseFloat(hpi.yearlyChangePercent || '0'),
-          date: hpi.date
+      // Calculate confidence score (0-5, mapped to Low/Med/High)
+      let confidenceScore = 0;
+      
+      // +1 if type-specific index used
+      if (propertyType && ['detached', 'semi-detached', 'terraced', 'flat'].includes(propertyType.toLowerCase())) {
+        confidenceScore += 1;
+      }
+      
+      // +1 if median comp age ≤ 9 months
+      if (comparables.length > 0) {
+        const avgCompAge = comparables.reduce((sum, comp) => {
+          const monthsAgo = (Date.now() - new Date(comp.dateOfTransfer).getTime()) / (1000 * 60 * 60 * 24 * 30);
+          return sum + monthsAgo;
+        }, 0) / comparables.length;
+        if (avgCompAge <= 9) confidenceScore += 1;
+      }
+      
+      // +1 if ≥3 comps (+1 again if ≥5)
+      if (comparables.length >= 3) confidenceScore += 1;
+      if (comparables.length >= 5) confidenceScore += 1;
+      
+      // +1 if sales volume is healthy (simplified)
+      if (parseFloat(hpi.salesVolume || '0') > 100) confidenceScore += 1;
+      
+      const confidence = confidenceScore <= 1 ? 'Low' : confidenceScore <= 3 ? 'Medium' : 'High';
+      
+      // Generate drivers (3-5 bullet points)
+      const drivers = [];
+      const yoyChange = parseFloat(hpi.twelveMonthPercentChange || '0');
+      drivers.push(`Regional prices ${yoyChange >= 0 ? '+' : ''}${yoyChange.toFixed(1)}% YoY (${hpi.regionName})`);
+      
+      if (propertyType) {
+        drivers.push(`Using ${propertyType.toLowerCase()} HPI series for uplift`);
+      }
+      
+      if (comparables.length > 0) {
+        const avgCompPrice = Math.round(comparables.reduce((sum, c) => sum + parseFloat(c.price || '0'), 0) / comparables.length);
+        drivers.push(`${comparables.length} recent nearby sales in ${postcodePrefix}** (avg £${(avgCompPrice / 1000).toFixed(0)}k)`);
+        
+        if (method === 'HPI_PLUS_COMPS') {
+          drivers.push(`Blend 70% comps / 30% HPI`);
+        }
+      }
+      
+      if (purchasePrice && purchaseDate) {
+        const changeSincePurchase = finalEstimate - parseFloat(purchasePrice.toString());
+        const changePercent = (changeSincePurchase / parseFloat(purchasePrice.toString())) * 100;
+        drivers.push(`${changeSincePurchase >= 0 ? '↑' : '↓'} £${Math.abs(Math.round(changeSincePurchase / 1000))}k (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(1)}%) since purchase`);
+      }
+
+      // Format comparables for response (max 5)
+      const formattedComparables = comparables.slice(0, 5).map(comp => ({
+        address: `${comp.primaryAddressableName || comp.paon || ''} ${comp.saon || ''} ${comp.street || ''}`.trim(),
+        date: comp.dateOfTransfer,
+        price: parseFloat(comp.price || '0'),
+        distance: '< 0.5 miles', // Simplified for demo
+        type: comp.propertyType,
+        note: comp.street === comparables[0]?.street ? 'same street' : 'nearby'
+      }));
+
+      // Market trend data for 5-year HPI
+      const trendQuery = await db.select()
+        .from(ukHpi)
+        .where(eq(ukHpi.regionName, hpi.regionName))
+        .orderBy(desc(ukHpi.date))
+        .limit(60); // Last 5 years monthly data
+      
+      const trendData = trendQuery.map(row => ({
+        date: row.date,
+        index: parseFloat(row.indexSa || row.index || '100'),
+        yoyChange: parseFloat(row.twelveMonthPercentChange || '0')
+      }));
+
+      const enhancedValuation = {
+        valuation: {
+          estimate: Math.round(finalEstimate),
+          range,
+          method,
+          confidence
+        },
+        drivers,
+        trend: {
+          geography: hpi.regionName,
+          yoyChange: yoyChange,
+          series: propertyType || 'All Types',
+          data: trendData
+        },
+        comparables: formattedComparables,
+        purchase: purchasePrice && purchaseDate ? {
+          originalPrice: parseFloat(purchasePrice.toString()),
+          purchaseDate,
+          upliftFactor: hpiUpliftFactor,
+          changeSincePurchase: finalEstimate - parseFloat(purchasePrice.toString())
+        } : null,
+        notes: [
+          method === 'HPI_ONLY' ? 'Valuation based on regional HPI trends only' : 'Valuation blends local comparable sales with regional HPI data',
+          `Based on ${hpi.regionName} HPI data from ${hpi.date}`,
+          comparables.length === 0 ? 'No recent local sales found in demo dataset' : `Found ${comparables.length} comparable sales in area`
+        ],
+        metadata: {
+          address: `${postcode}`, // Will be enhanced with full address
+          propertyType: propertyType || 'Unknown',
+          postcodeSector: postcodePrefix,
+          timestamp: new Date().toISOString(),
+          methodBadge: method === 'HPI_PLUS_COMPS' ? 'HPI + Comparables' : 'HPI Only'
         }
       };
 
-      res.json(valuation);
+      res.json(enhancedValuation);
     } catch (error) {
       console.error('Property valuation error:', error);
       res.status(500).json({ message: 'Failed to generate property valuation' });

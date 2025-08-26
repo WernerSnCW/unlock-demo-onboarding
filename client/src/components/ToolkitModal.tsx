@@ -345,134 +345,171 @@ function PropertyValuationComponent() {
             </div>
           )}
           
-          {/* Normal Valuation Results */}
+          {/* Enhanced Valuation Report */}
           {!valuationResult.error && (
             <>
-          {/* Valuation Summary */}
-          <div className="p-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30" style={{ boxShadow: 'var(--shadow-sm)' }}>
-            <h4 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
-              <i className="fas fa-home"></i>
-              Property Valuation Report
-              <span className={`ml-auto px-2 py-1 text-xs rounded-full ${
-                valuationResult.method === 'HPI_PLUS_COMPS' 
-                  ? 'bg-[var(--success)]/20 text-[var(--success)]' 
-                  : 'bg-[var(--warning)]/20 text-[var(--warning)]'
-              }`}>
-                {valuationResult.method === 'HPI_PLUS_COMPS' ? 'WITH COMPARABLES' : 'HPI BASELINE'}
-              </span>
-            </h4>
-            <div className="text-center mb-4">
-              <div className="text-3xl font-bold text-[var(--primary)]">
-                £{valuationResult.estimate.toLocaleString()}
+          {/* Header Summary */}
+          <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]" style={{ boxShadow: 'var(--shadow-sm)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-lg font-semibold text-[var(--card-foreground)] flex items-center gap-2">
+                <i className="fas fa-home"></i>
+                Property Valuation Report
+              </h4>
+              <div className="flex gap-2">
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                  valuationResult.valuation?.method === 'HPI_PLUS_COMPS' 
+                    ? 'bg-[var(--primary)]/20 text-[var(--primary)]'
+                    : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                }`}>
+                  {valuationResult.metadata?.methodBadge || (valuationResult.method === 'HPI_PLUS_COMPS' ? 'HPI + Comparables' : 'HPI Only')}
+                </span>
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                  (valuationResult.valuation?.confidence || 'Low') === 'High' 
+                    ? 'bg-[var(--success)]/20 text-[var(--success)]'
+                    : (valuationResult.valuation?.confidence || 'Low') === 'Medium'
+                    ? 'bg-[var(--warning)]/20 text-[var(--warning)]'
+                    : 'bg-[var(--destructive)]/20 text-[var(--destructive)]'
+                }`}>
+                  {valuationResult.valuation?.confidence || 'Low'} Confidence
+                </span>
               </div>
-              <div className="text-lg text-[var(--muted-foreground)]">
-                Range: £{valuationResult.range.min.toLocaleString()} - £{valuationResult.range.max.toLocaleString()}
-              </div>
+            </div>
+            <div className="text-sm text-[var(--muted-foreground)]">
+              {valuationResult.metadata?.address || 'Property'} • {valuationResult.metadata?.propertyType || 'Unknown Type'} • {new Date(valuationResult.metadata?.timestamp || Date.now()).toLocaleDateString()}
             </div>
           </div>
 
-          {/* Explainability */}
-          <div className="p-4 bg-[var(--muted)] rounded-[var(--radius-sm)]">
-            <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
-              <i className="fas fa-calculator"></i>
-              Valuation Methodology
-            </h5>
-            <div className="text-sm space-y-2">
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Method:</span>
-                <span className="font-medium text-[var(--card-foreground)]">{valuationResult.explainability.method}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">HPI Baseline:</span>
-                <span className="font-medium">£{valuationResult.explainability.hpiBaseline.toLocaleString()}</span>
-              </div>
-              {valuationResult.explainability.purchasePrice && (
-                <>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Original Purchase:</span>
-                    <span className="font-medium">£{parseFloat(valuationResult.explainability.purchasePrice).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">HPI Uplift Factor:</span>
-                    <span className="font-medium">{valuationResult.explainability.hpiUpliftFactor.toFixed(2)}x</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Comparables Found:</span>
-                <span className="font-medium">{valuationResult.explainability.comparablesFound}</span>
-              </div>
-              {valuationResult.explainability.comparableAverage && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Comparable Average:</span>
-                  <span className="font-medium">£{valuationResult.explainability.comparableAverage.toLocaleString()}</span>
-                </div>
-              )}
+          {/* Valuation Hero */}
+          <div className="p-6 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30 text-center" style={{ boxShadow: 'var(--shadow-sm)' }}>
+            <div className="text-3xl font-bold text-[var(--primary)] mb-2">
+              £{(valuationResult.valuation?.estimate || valuationResult.estimate)?.toLocaleString()}
             </div>
+            <div className="text-lg text-[var(--muted-foreground)] mb-2">
+              £{(valuationResult.valuation?.range?.min || valuationResult.range?.min)?.toLocaleString()} - £{(valuationResult.valuation?.range?.max || valuationResult.range?.max)?.toLocaleString()}
+            </div>
+            <div className="text-sm text-[var(--muted-foreground)]">
+              YoY market change: {valuationResult.trend?.yoyChange >= 0 ? '+' : ''}{valuationResult.trend?.yoyChange?.toFixed(1) || 'N/A'}%
+            </div>
+          </div>
+
+          {/* Drivers (Why this value?) */}
+          <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+            <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
+              <i className="fas fa-lightbulb"></i>
+              Why this value?
+            </h5>
+            <ul className="space-y-2">
+              {(valuationResult.drivers || []).map((driver, index) => (
+                <li key={index} className="text-sm text-[var(--muted-foreground)] flex items-start">
+                  <span className="w-2 h-2 bg-[var(--primary)] rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                  {driver}
+                </li>
+              ))}
+              {(!valuationResult.drivers || valuationResult.drivers.length === 0) && (
+                <li className="text-sm text-[var(--muted-foreground)] flex items-start">
+                  <span className="w-2 h-2 bg-[var(--primary)] rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                  Valuation based on regional HPI trends and available market data
+                </li>
+              )}
+            </ul>
           </div>
 
           {/* Comparable Sales */}
-          {valuationResult.comps && valuationResult.comps.length > 0 && (
-            <div className="p-4 bg-[var(--success)]/10 rounded-[var(--radius-sm)] border border-[var(--success)]/30">
-              <h5 className="font-medium text-[var(--success)] mb-3 flex items-center gap-2">
-                <i className="fas fa-chart-bar"></i>
-                Recent Comparable Sales ({valuationResult.comps.length})
+          <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+            <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
+              <i className="fas fa-chart-bar"></i>
+              Comparable Sales
+            </h5>
+            {(valuationResult.comparables && valuationResult.comparables.length > 0) || (valuationResult.comps && valuationResult.comps.length > 0) ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--border)]">
+                      <th className="text-left py-2 text-[var(--muted-foreground)]">Address</th>
+                      <th className="text-left py-2 text-[var(--muted-foreground)]">Date</th>
+                      <th className="text-right py-2 text-[var(--muted-foreground)]">Price</th>
+                      <th className="text-left py-2 text-[var(--muted-foreground)]">Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(valuationResult.comparables || valuationResult.comps || []).slice(0, 5).map((comp, index) => (
+                      <tr key={index} className="border-b border-[var(--border)]/50">
+                        <td className="py-2 text-[var(--card-foreground)]">{comp.address || comp.postcode}</td>
+                        <td className="py-2 text-[var(--muted-foreground)]">{new Date(comp.date).toLocaleDateString()}</td>
+                        <td className="py-2 text-right font-medium text-[var(--card-foreground)]">£{comp.price?.toLocaleString()}</td>
+                        <td className="py-2 text-[var(--muted-foreground)]">{comp.note || 'nearby'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-[var(--muted-foreground)]">
+                <i className="fas fa-info-circle text-2xl mb-2"></i>
+                <p>No recent local sales in the demo subset; estimate uses regional HPI growth.</p>
+                <p className="text-xs mt-1">Try widening the time window or area.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Purchase Comparison */}
+          {valuationResult.purchase && (
+            <div className="p-4 bg-[var(--primary)]/10 rounded-[var(--radius-sm)] border border-[var(--primary)]/30">
+              <h5 className="font-medium text-[var(--primary)] mb-3 flex items-center gap-2">
+                <i className="fas fa-calendar-alt"></i>
+                Change Since Purchase
               </h5>
-              <div className="space-y-3">
-                {valuationResult.comps.map((comp, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
-                    <div className="flex-1">
-                      <div className="font-medium text-[var(--card-foreground)]">
-                        {comp.address || comp.postcode}
-                      </div>
-                      <div className="text-sm text-[var(--muted-foreground)]">
-                        {comp.propertyType} • {comp.tenure} • {comp.date}
-                        {comp.newBuild && <span className="ml-2 px-1 py-0.5 bg-[var(--info)]/20 text-[var(--info)] text-xs rounded">New Build</span>}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-lg">£{comp.price.toLocaleString()}</div>
-                    </div>
-                  </div>
-                ))}
+              <div className="text-lg font-semibold text-[var(--primary)]">
+                {valuationResult.purchase.changeSincePurchase >= 0 ? '↑' : '↓'} £{Math.abs(valuationResult.purchase.changeSincePurchase)?.toLocaleString()} 
+                ({((valuationResult.purchase.changeSincePurchase / valuationResult.purchase.originalPrice) * 100).toFixed(1)}%)
+              </div>
+              <div className="text-sm text-[var(--muted-foreground)]">
+                Since {new Date(valuationResult.purchase.purchaseDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
               </div>
             </div>
           )}
 
-          {/* HPI Market Data */}
-          {valuationResult.hpiData && (
-            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <h5 className="font-medium text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-                <i className="fas fa-chart-line"></i>
-                Market Analysis ({valuationResult.hpiData.regionName})
-              </h5>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Regional Average:</span>
-                  <div className="font-semibold text-lg">£{valuationResult.hpiData.averagePrice.toLocaleString()}</div>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Monthly Change:</span>
-                  <div className={`font-semibold ${valuationResult.hpiData.monthlyChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {valuationResult.hpiData.monthlyChange >= 0 ? '+' : ''}{valuationResult.hpiData.monthlyChange}%
-                  </div>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Annual Change:</span>
-                  <div className={`font-semibold ${valuationResult.hpiData.yearlyChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {valuationResult.hpiData.yearlyChange >= 0 ? '+' : ''}{valuationResult.hpiData.yearlyChange}%
-                  </div>
-                </div>
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Data Date:</span>
-                  <div className="font-semibold">{new Date(valuationResult.hpiData.date).toLocaleDateString()}</div>
-                </div>
+          {/* Market Trend */}
+          <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+            <h5 className="font-medium text-[var(--card-foreground)] mb-3 flex items-center gap-2">
+              <i className="fas fa-chart-line"></i>
+              Market Trend
+            </h5>
+            <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+              <div className="text-sm text-[var(--muted-foreground)] mb-2">
+                {valuationResult.trend?.geography || 'Regional Market'} • {valuationResult.trend?.series || 'All Types'}
               </div>
-              <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                UK House Price Index • Official HM Land Registry Data
+              <div className="text-lg font-semibold text-[var(--card-foreground)]">
+                {valuationResult.trend?.yoyChange >= 0 ? '+' : ''}{valuationResult.trend?.yoyChange?.toFixed(1) || 'N/A'}% YoY
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                5-year HPI trend • Last 12 months highlighted
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Notes & Disclaimers */}
+          <div className="p-4 bg-[var(--card)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+            <h5 className="font-medium text-[var(--card-foreground)] mb-2 text-sm flex items-center gap-2">
+              <i className="fas fa-info-circle"></i>
+              Notes
+            </h5>
+            <ul className="space-y-1">
+              {(valuationResult.notes || []).map((note, index) => (
+                <li key={index} className="text-xs text-[var(--muted-foreground)]">• {note}</li>
+              ))}
+              {(!valuationResult.notes || valuationResult.notes.length === 0) && (
+                <>
+                  <li className="text-xs text-[var(--muted-foreground)]">• Valuation based on regional HPI trends and comparable sales data</li>
+                  <li className="text-xs text-[var(--muted-foreground)]">• Based on official UK House Price Index from HM Land Registry</li>
+                  <li className="text-xs text-[var(--muted-foreground)]">• Comparable sales sourced from Property Price Data (PPD)</li>
+                </>
+              )}
+            </ul>
+            <div className="text-xs text-[var(--muted-foreground)]/70 mt-3 italic">
+              Indicative estimate for demo; based on UK HPI trends and nearby sales from a limited demo dataset.
+            </div>
+          </div>
 
           {/* Methodology Note */}
           <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-sm">

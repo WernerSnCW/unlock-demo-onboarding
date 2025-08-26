@@ -1,0 +1,185 @@
+Cloudworkz — Improved Property Valuation Report (Demo)
+Objective
+
+Transform the single number output into a credible, explainable mini-report that investors can trust at a glance and explore for detail. Support two modes:
+
+HPI Only (no local comps found in demo data)
+
+HPI + Comparables (when PPD comps are available)
+
+Report Structure (screen + export-ready)
+
+Header Summary
+
+Property address (from selection or manual search)
+
+Badges: Method (HPI Only / HPI + Comps), Confidence (Low/Med/High)
+
+Meta: Property type, postcode sector/district, valuation timestamp
+
+Valuation Hero
+
+Estimated Value (big)
+
+Range band (min–max)
+
+Change since purchase (if purchase price/date provided): £ and %
+
+YoY market change (from HPI: 12m%Change)
+
+Drivers (Why this value?)
+Show 3–5 short bullets, e.g.:
+
+“Regional prices +4.2% YoY (West Midlands)”
+
+“Using semi-detached HPI series for uplift”
+
+“3 recent nearby sales in SY2 6** (avg £318k)”
+
+“Blend 60% comps / 40% HPI”
+
+Comparables (if available)
+Compact table (max 5 rows):
+
+Address | Date | Price | Distance | Type | Note (e.g., “same street”, “most recent”)
+
+If no comps: Empty-state message
+
+“No recent local sales in the demo subset; estimate uses regional HPI growth.”
+
+Market Trend Micro-Chart
+
+5-year HPI sparkline for the chosen geography/series
+
+Last 12 months highlighted; tooltip shows Index, MoM, YoY
+
+Sensitivity & Scenarios
+Buttons: −5% / Base / +5% / +10%
+
+On click, update displayed value and (optionally) portfolio allocation cards
+
+Portfolio Impact (optional)
+If mortgage balance captured: show Net Equity and allocation update
+
+Disclaimers & Export
+
+Short disclaimer (demo, indicative only, data sources)
+
+Export: PDF one-pager of the report section (same layout)
+
+Data Inputs (no new providers required)
+
+From UI / profile: postcode, property type (D/S/T/F), optional street/PAON, purchase price, purchase date, mortgage balance
+
+From HPI file: Index/IndexSA, property-type indices (Detached/Semi/Terraced/Flat), 12m%Change, AveragePrice, SalesVolume
+
+From PPD subset: price, date, postcode, property type, address fields
+
+Calculation Rules (deterministic, demo-safe)
+
+Series choice
+
+If property type known → use matching type index (Detached/Semi/Terraced/Flat)
+
+Else → use IndexSA (fallback to Index if SA missing)
+
+HPI baseline
+
+uplift = latest_index / purchase_month_index
+
+hpi_estimate = purchase_price × uplift
+
+If purchase data missing → still allow report; omit “Change since purchase”
+
+Comps (if present)
+
+Filter to last 24 months; expand to 36 if <3 results
+
+Match on postcode sector/district and property type
+
+Trim outliers (IQR) and compute weighted average (recency + proximity weighting)
+
+Blend:
+
+≥3 comps → estimate = 0.6 × comp_avg + 0.4 × hpi_estimate
+
+1–2 comps → estimate = 0.5 × comp_avg + 0.5 × hpi_estimate
+
+0 comps → HPI only
+
+Range band
+
+With comps → 10th–90th percentile of comp prices (after trimming)
+
+HPI only → ±7.5% around the estimate (widen to ±10% if YoY volatility > 10%)
+
+Confidence badge (Low/Med/High)
+Score 0–5; map 0–1 Low, 2–3 Med, 4–5 High:
+
++1 type-specific index used
+
++1 median comp age ≤ 9 months
+
++1 ≥3 comps (add +1 again if ≥5)
+
++1 ≥50% comps within 0.5 miles
+
++1 SalesVolume (HPI latest) ≥ 5-year median for region
+
+API Contract (no code, shapes only)
+
+Request (example)
+
+postcode (required), propertyType (required), optional street/paon, optional purchasePrice/purchaseDate
+
+Response
+
+valuation: estimate (GBP), range (min/max), method (“HPI_ONLY” | “HPI_PLUS_COMPS”), confidence
+
+drivers[]: 3–5 strings
+
+trend: geo, yoy, series (for sparkline)
+
+comps[]: up to 5 items (address, date, price, distance, type, weight)
+
+purchase: echo inputs + computed uplift
+
+notes[]: method/fallback notes
+
+(Ensure graceful response even when comps/HPI lookups fail; always return a report with clear messages.)
+
+UX Copy (UK English)
+
+Method badge: HPI + Comparables / HPI Only
+
+Confidence: Low / Medium / High
+
+Empty comps: “Try widening the time window or area.”
+
+YoY chip: “Regional prices +X.X% YoY”
+
+Change since purchase: “↑ £N (M%) since {MMM YYYY}”
+
+Disclaimer: “Indicative estimate for demo; based on UK HPI trends and nearby sales from a limited demo dataset.”
+
+Interactions & Micro-animations
+
+On Generate Valuation Report, pulse the report card (ACID ripple cue)
+
+When sensitivity buttons are clicked, smoothly tween the value and range
+
+When method changes (e.g., comps found), briefly highlight the badge
+
+Acceptance Criteria
+
+Report renders with method, estimate, range, drivers, and trend every time
+
+Confidence displayed with deterministic rules above
+
+If no comps, method shows HPI Only with appropriate range + message
+
+If comps exist, table shows up to 5 comps with distance and dates
+
+Export to PDF generates a single-page summary mirroring on-screen layout
+
+All currency in GBP, UK number formatting, and UK spelling
