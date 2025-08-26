@@ -42,7 +42,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 // 1. Regional HPI Sparkline
 export const RegionalSparkline: React.FC<{ data: ChartData[]; yoyChange: number }> = ({ data, yoyChange }) => {
-  const last60Months = data.slice(0, 60).reverse();
+  // Sort data by date and take the last 60 months chronologically
+  const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const last60Months = sortedData.slice(-60); // Take the most recent 60 months
   
   return (
     <div className="h-32 w-full min-h-0">
@@ -69,7 +71,9 @@ export const RegionalSparkline: React.FC<{ data: ChartData[]; yoyChange: number 
 
 // 2. Property Type Comparison
 export const PropertyTypeComparison: React.FC<{ data: ChartData[]; userPropertyType?: string }> = ({ data, userPropertyType }) => {
-  const last36Months = data.slice(0, 36).reverse();
+  // Sort data by date and take the last 36 months chronologically
+  const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const last36Months = sortedData.slice(-36);
   const userType = userPropertyType?.toLowerCase();
   
   // Check if we have property type data
@@ -157,7 +161,9 @@ export const PropertyTypeComparison: React.FC<{ data: ChartData[]; userPropertyT
 
 // 3. YoY Change Bars (Market Pulse)
 export const MarketPulseBars: React.FC<{ data: ChartData[]; currentYoY: number }> = ({ data, currentYoY }) => {
-  const last24Months = data.slice(0, 24).reverse();
+  // Sort data by date and take the last 24 months chronologically
+  const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const last24Months = sortedData.slice(-24);
   
   return (
     <div className="h-32 min-h-0">
@@ -185,7 +191,9 @@ export const MarketPulseBars: React.FC<{ data: ChartData[]; currentYoY: number }
 
 // 4. Average Price vs Index (Dual View)
 export const DualPriceIndexView: React.FC<{ data: ChartData[] }> = ({ data }) => {
-  const last36Months = data.slice(0, 36).reverse();
+  // Sort data by date and take the last 36 months chronologically
+  const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const last36Months = sortedData.slice(-36);
   
   // Check if we have price data
   const hasPriceData = last36Months.some(d => d.averagePrice > 0);
