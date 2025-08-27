@@ -203,7 +203,27 @@ export class PitchDeckAnalyzer {
     stated_pre_money?: number;
     stated_post_money?: number;
   }> {
-    const slidesText = slides.join('\n\n');
+    // For funding extraction, focus on likely slides with funding info
+    // Look for slides containing keywords like "ask", "funding", "raise", "equity", "valuation"
+    const fundingKeywords = ['ask', 'funding', 'raise', 'equity', 'valuation', 'investment', 'terms', 'money', 'capital'];
+    
+    const relevantSlides = slides.filter(slide => {
+      const lowerSlide = slide.toLowerCase();
+      return fundingKeywords.some(keyword => lowerSlide.includes(keyword));
+    });
+    
+    console.log(`Filtering for funding extraction: ${slides.length} total slides -> ${relevantSlides.length} relevant slides`);
+    
+    // Use relevant slides first, fallback to all slides if none found, but limit total size
+    const slidesToAnalyze = relevantSlides.length > 0 ? relevantSlides : slides;
+    let slidesText = slidesToAnalyze.join('\n\n');
+    
+    // Limit to reasonable token size
+    const maxChars = 50000; // Smaller limit for focused funding extraction
+    if (slidesText.length > maxChars) {
+      console.log(`Funding text too long (${slidesText.length} chars), truncating to ${maxChars} chars`);
+      slidesText = slidesText.substring(0, maxChars);
+    }
     
     const prompt = `Analyze this pitch deck text and find ONLY the funding ask details. Look for:
 - How much money they are raising (raise_amount)
@@ -252,9 +272,18 @@ Output ONLY JSON with the funding details (use null if not found):
     geography: string
   ): Promise<ExtractedData> {
     
-    const slidesText = slides.map((slide, index) => 
+    // Token management: limit to ~100K characters (~25K tokens) to stay within GPT-4o limits
+    const maxChars = 100000;
+    let slidesText = slides.map((slide, index) => 
       `[Slide ${index + 1}]\nText: ${slide}\n`
     ).join('\n');
+    
+    if (slidesText.length > maxChars) {
+      console.log(`Text too long (${slidesText.length} chars), truncating to ${maxChars} chars`);
+      slidesText = slidesText.substring(0, maxChars) + '\n\n[TRUNCATED - processing first portion of deck]';
+    }
+    
+    console.log(`Sending ${slidesText.length} characters to LLM for extraction`);
 
     const systemPrompt = `You extract sections and KPIs from a startup pitch deck. Output STRICT JSON only. Be thorough and flexible in finding financial details - look for funding asks, equity stakes, and valuations in any format or phrasing. Don't guess numbers; if absent, use null. Standardise currencies (GBP/USD/EUR) and numbers (e.g., "£250k" → 250000). Map each slide to one of the known sections when possible.`;
 
