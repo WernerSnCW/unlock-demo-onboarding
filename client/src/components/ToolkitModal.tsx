@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useInvestor } from '../contexts/InvestorContext';
-import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
+import { SimpleAllowanceCalculator } from './SimpleAllowanceCalculator-new';
 import PitchDeckAnalyser from './PitchDeckAnalyser';
 import PropertyCharts from './PropertyCharts';
 
