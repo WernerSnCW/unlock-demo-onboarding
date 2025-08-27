@@ -96,244 +96,397 @@ function WebsiteFactCheckerComponent() {
 
   if (results) {
     return (
-      <div className="p-6">
-        {/* Header with results summary */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Fact Check Results</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Analyzed: <a href={results.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">{results.url}</a>
-              </p>
-            </div>
-            <button
-              onClick={() => setResults(null)}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-              data-testid="button-new-analysis"
-            >
-              New Analysis
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            {['Verified', 'Partially verified', 'Contradicted', 'Unverifiable'].map(verdict => {
-              const count = results.claims.filter((c: any) => c.verdict === verdict).length;
-              return (
-                <div key={verdict} className={`p-3 rounded-lg border ${getVerdictColor(verdict)}`}>
-                  <div className="text-2xl font-bold">{count}</div>
-                  <div className="text-xs font-medium">{verdict}</div>
+      <div className="p-8">
+        {/* Animated Header with gradient background */}
+        <div className="relative mb-8 p-6 rounded-2xl bg-gradient-to-br from-[var(--primary)] via-[var(--secondary)] to-[var(--brand-accent-bg)] text-white shadow-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <i className="fas fa-shield-check text-2xl text-white animate-pulse" aria-hidden="true"></i>
                 </div>
-              );
-            })}
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Fact Check Complete</h3>
+                  <p className="text-white/90 text-sm">
+                    <i className="fas fa-globe mr-1" aria-hidden="true"></i>
+                    <a href={results.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {new URL(results.url).hostname}
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setResults(null)}
+                className="bg-white/20 hover:bg-white/30 text-white font-medium px-6 py-2 rounded-xl backdrop-blur-sm transition-all duration-200 hover:scale-105"
+                data-testid="button-new-analysis"
+              >
+                <i className="fas fa-plus mr-2" aria-hidden="true"></i>
+                New Analysis
+              </button>
+            </div>
+            
+            {/* Animated Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { verdict: 'Verified', icon: 'fas fa-check-circle', color: 'bg-green-500' },
+                { verdict: 'Partially verified', icon: 'fas fa-exclamation-triangle', color: 'bg-yellow-500' },
+                { verdict: 'Contradicted', icon: 'fas fa-times-circle', color: 'bg-red-500' },
+                { verdict: 'Unverifiable', icon: 'fas fa-question-circle', color: 'bg-gray-500' }
+              ].map(({ verdict, icon, color }) => {
+                const count = results.claims.filter((c: any) => c.verdict === verdict).length;
+                return (
+                  <div key={verdict} className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/30 transition-all duration-200">
+                    <div className={`w-8 h-8 ${color} rounded-full flex items-center justify-center mx-auto mb-2`}>
+                      <i className={`${icon} text-white text-sm`} aria-hidden="true"></i>
+                    </div>
+                    <div className="text-3xl font-bold text-white mb-1">{count}</div>
+                    <div className="text-xs text-white/80 font-medium">{verdict}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Claims table */}
-        <div className="space-y-4 max-h-96 overflow-y-auto">
+        {/* Enhanced Claims Display */}
+        <div className="space-y-6 max-h-[500px] overflow-y-auto scrollbar-hide">
           {results.claims.map((claim: any, index: number) => (
-            <div key={claim.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <div className="flex items-start justify-between mb-3">
+            <div key={claim.id} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <div className="flex items-start gap-4">
+                {/* Verdict Icon */}
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${getVerdictColor(claim.verdict)}`}>
+                  <i className={`${getVerdictIcon(claim.verdict)} text-lg`} aria-hidden="true"></i>
+                </div>
+                
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                  {/* Claim Type & Verdict */}
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <span className="text-xs font-semibold text-[var(--muted-foreground)] bg-[var(--muted)] px-3 py-1 rounded-full">
                       {claim.type}
                     </span>
-                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getVerdictColor(claim.verdict)}`}>
-                      <i className={`${getVerdictIcon(claim.verdict)} text-xs`} aria-hidden="true"></i>
-                      {claim.verdict}
+                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${getVerdictColor(claim.verdict)}`}>
+                      <span>{claim.verdict}</span>
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Confidence: {Math.round(claim.confidence * 100)}%
+                    <div className="flex items-center gap-1 text-sm text-[var(--muted-foreground)]">
+                      <i className="fas fa-chart-line text-xs" aria-hidden="true"></i>
+                      <span className="font-medium">{Math.round(claim.confidence * 100)}% confidence</span>
                     </div>
                   </div>
-                  <p className="text-gray-800 dark:text-gray-200 font-medium mb-2">{claim.text}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{claim.rationale}</p>
-                </div>
-              </div>
-              
-              {/* Evidence details */}
-              {(claim.evidence.newsapi.length > 0 || claim.evidence.companies_house) && (
-                <details className="mt-3">
-                  <summary className="cursor-pointer text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                    View Evidence ({claim.evidence.newsapi.length} news articles{claim.evidence.companies_house ? ', Companies House data' : ''})
-                  </summary>
-                  <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    {/* News articles */}
-                    {claim.evidence.newsapi.length > 0 && (
-                      <div className="mb-3">
-                        <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">News Sources:</h5>
-                        <div className="space-y-2">
-                          {claim.evidence.newsapi.slice(0, 3).map((article: any, i: number) => (
-                            <div key={i} className="text-sm">
-                              <a href={article.url} target="_blank" rel="noopener noreferrer" 
-                                 className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-                                {article.title}
-                              </a>
-                              <div className="text-gray-600 dark:text-gray-400 text-xs">
-                                {article.source} • {article.publishedAt}
+                  
+                  {/* Claim Text */}
+                  <p className="text-[var(--foreground)] font-medium text-lg mb-3 leading-relaxed">{claim.text}</p>
+                  
+                  {/* Rationale */}
+                  <div className="bg-[var(--muted)] rounded-xl p-4 mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <i className="fas fa-brain text-[var(--primary)]" aria-hidden="true"></i>
+                      <span className="font-semibold text-[var(--foreground)] text-sm">Analysis</span>
+                    </div>
+                    <p className="text-[var(--muted-foreground)] text-sm leading-relaxed">{claim.rationale}</p>
+                  </div>
+                  
+                  {/* Evidence Section */}
+                  {(claim.evidence.newsapi.length > 0 || claim.evidence.companies_house) && (
+                    <details className="group">
+                      <summary className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-[var(--primary)] hover:text-[var(--secondary)] transition-colors p-3 bg-[var(--primary)]/5 rounded-xl">
+                        <i className="fas fa-folder-open group-open:rotate-12 transition-transform duration-200" aria-hidden="true"></i>
+                        <span>View Evidence</span>
+                        <span className="text-xs bg-[var(--primary)] text-[var(--primary-foreground)] px-2 py-1 rounded-full">
+                          {claim.evidence.newsapi.length} sources{claim.evidence.companies_house ? ' + official data' : ''}
+                        </span>
+                        <i className="fas fa-chevron-down group-open:rotate-180 transition-transform duration-200 ml-auto" aria-hidden="true"></i>
+                      </summary>
+                      
+                      <div className="mt-4 p-4 bg-gradient-to-br from-[var(--muted)]/50 to-[var(--muted)]/20 rounded-xl border border-[var(--border)]">
+                        {/* News Evidence */}
+                        {claim.evidence.newsapi.length > 0 && (
+                          <div className="mb-4">
+                            <h5 className="flex items-center gap-2 font-semibold text-[var(--foreground)] mb-3">
+                              <i className="fas fa-newspaper text-[var(--primary)]" aria-hidden="true"></i>
+                              News Sources
+                            </h5>
+                            <div className="space-y-3">
+                              {claim.evidence.newsapi.slice(0, 3).map((article: any, i: number) => (
+                                <div key={i} className="bg-[var(--card)] p-3 rounded-lg border border-[var(--border)] hover:shadow-md transition-shadow">
+                                  <a href={article.url} target="_blank" rel="noopener noreferrer" 
+                                     className="text-[var(--primary)] hover:text-[var(--secondary)] font-medium text-sm hover:underline transition-colors">
+                                    {article.title}
+                                  </a>
+                                  <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)] mt-1">
+                                    <i className="fas fa-building text-xs" aria-hidden="true"></i>
+                                    <span>{article.source}</span>
+                                    <span>•</span>
+                                    <i className="fas fa-calendar text-xs" aria-hidden="true"></i>
+                                    <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Companies House Evidence */}
+                        {claim.evidence.companies_house && (
+                          <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <h5 className="flex items-center gap-2 font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                              <i className="fas fa-landmark text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+                              Companies House Verification
+                            </h5>
+                            <div className="text-sm text-blue-700 dark:text-blue-300">
+                              <div className="flex items-center gap-2">
+                                <i className="fas fa-shield-alt text-xs" aria-hidden="true"></i>
+                                <span>Company #{claim.evidence.companies_house.company_number} verified against official UK records</span>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    
-                    {/* Companies House data */}
-                    {claim.evidence.companies_house && (
-                      <div>
-                        <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Companies House:</h5>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          Company #{claim.evidence.companies_house.company_number} verified against official records
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </details>
-              )}
+                    </details>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>
         
-        <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
-          Analysis completed: {new Date(results.extracted_on).toLocaleString()}
+        {/* Enhanced Footer */}
+        <div className="mt-8 p-4 bg-gradient-to-r from-[var(--muted)]/50 to-[var(--muted)]/20 rounded-xl text-center">
+          <div className="flex items-center justify-center gap-2 text-sm text-[var(--muted-foreground)]">
+            <i className="fas fa-clock text-[var(--primary)]" aria-hidden="true"></i>
+            <span>Analysis completed: {new Date(results.extracted_on).toLocaleString()}</span>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i className="fas fa-shield-alt text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+    <div className="p-8">
+      {/* Enhanced Hero Section */}
+      <div className="text-center mb-10 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)]/10 to-[var(--brand-accent-bg)]/10 rounded-3xl blur-3xl"></div>
+        <div className="relative">
+          <div className="w-20 h-20 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl animate-bounce">
+            <i className="fas fa-shield-alt text-3xl text-white" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-3xl font-bold text-[var(--foreground)] mb-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+            Website Fact Checker
+          </h3>
+          <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto leading-relaxed">
+            Verify website claims using advanced AI analysis, real-time news sources, and official government records.
+          </p>
         </div>
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Website Fact Checker</h3>
-        <p className="text-gray-600 dark:text-gray-300">Verify website claims using AI analysis, news sources, and official records.</p>
       </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div className="mb-8 p-5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-l-4 border-red-500 rounded-xl shadow-lg animate-pulse">
           <div className="flex items-center">
-            <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 mr-2" aria-hidden="true"></i>
-            <span className="text-red-800 dark:text-red-200">{error}</span>
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <i className="fas fa-exclamation-triangle text-white text-sm" aria-hidden="true"></i>
+            </div>
+            <span className="ml-3 text-red-800 dark:text-red-200 font-medium">{error}</span>
           </div>
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* URL Input Section */}
+        <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
+          <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
+            <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+              <i className="fas fa-globe text-white text-sm" aria-hidden="true"></i>
+            </div>
             Website URL *
           </label>
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            data-testid="input-website-url"
-            required
-          />
+          <div className="relative">
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com/page-to-verify"
+              className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] text-lg placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 pl-12"
+              data-testid="input-website-url"
+              required
+            />
+            <i className="fas fa-link absolute left-4 top-5 text-[var(--muted-foreground)]" aria-hidden="true"></i>
+          </div>
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-            Specific Claims to Verify (Optional)
+        {/* Claims Section */}
+        <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
+          <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
+            <div className="w-8 h-8 bg-[var(--secondary)] rounded-lg flex items-center justify-center">
+              <i className="fas fa-bullseye text-white text-sm" aria-hidden="true"></i>
+            </div>
+            Specific Claims to Verify
+            <span className="text-sm font-normal text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-full">Optional</span>
           </label>
           <textarea
-            rows={3}
+            rows={4}
             value={specificClaims}
             onChange={(e) => setSpecificClaims(e.target.value)}
-            placeholder="e.g., Company revenue figures, user statistics, award claims..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"
+            placeholder="e.g., 'Revenue increased by 300%', 'Winner of Best Startup 2024', 'Over 1 million active users'..."
+            className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent transition-all duration-200 resize-none"
             data-testid="textarea-claims"
           />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+        {/* Settings Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
+            <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
+              <div className="w-8 h-8 bg-[var(--brand-accent-bg)] rounded-lg flex items-center justify-center">
+                <i className="fas fa-list-ol text-white text-sm" aria-hidden="true"></i>
+              </div>
               Max Claims to Extract
             </label>
             <select 
               value={maxClaims}
               onChange={(e) => setMaxClaims(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--brand-accent-bg)] focus:border-transparent transition-all duration-200"
             >
-              <option value={10}>10 claims</option>
-              <option value={25}>25 claims</option>
-              <option value={50}>50 claims</option>
+              <option value={10}>🎯 10 claims - Quick scan</option>
+              <option value={25}>📊 25 claims - Standard analysis</option>
+              <option value={50}>🔍 50 claims - Deep investigation</option>
             </select>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+          <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
+            <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
+              <div className="w-8 h-8 bg-[var(--info)] rounded-lg flex items-center justify-center">
+                <i className="fas fa-clock text-white text-sm" aria-hidden="true"></i>
+              </div>
               News Search Window
             </label>
             <select 
               value={newsTimeWindow}
               onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--info)] focus:border-transparent transition-all duration-200"
             >
-              <option value={6}>6 months</option>
-              <option value={12}>12 months</option>
-              <option value={24}>24 months</option>
-              <option value={36}>36 months</option>
+              <option value={6}>📅 6 months - Recent news</option>
+              <option value={12}>📆 12 months - Standard range</option>
+              <option value={24}>🗓️ 24 months - Extended search</option>
+              <option value={36}>📚 36 months - Comprehensive history</option>
             </select>
           </div>
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-            Focus Areas (Optional)
+        {/* Focus Areas Section */}
+        <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
+          <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-6">
+            <div className="w-8 h-8 bg-[var(--warning)] rounded-lg flex items-center justify-center">
+              <i className="fas fa-crosshairs text-white text-sm" aria-hidden="true"></i>
+            </div>
+            Focus Areas
+            <span className="text-sm font-normal text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-full">Optional</span>
           </label>
-          <div className="grid grid-cols-2 gap-2">
-            {focusAreas.map((area) => (
-              <label key={area} className="flex items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {focusAreas.map((area, index) => (
+              <label key={area} className="group flex items-center p-3 rounded-xl bg-[var(--muted)]/30 hover:bg-[var(--primary)]/10 transition-all duration-200 cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={selectedFocusAreas.includes(area)}
                   onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
-                  className="mr-2 text-blue-600"
+                  className="mr-4 w-4 h-4 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
                   data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">{area}</span>
+                <div className="flex items-center gap-2">
+                  <i className={`fas ${
+                    ['fa-dollar-sign', 'fa-users', 'fa-trophy', 'fa-building', 'fa-cogs', 'fa-user-tie'][index]
+                  } text-[var(--primary)] text-sm`} aria-hidden="true"></i>
+                  <span className="font-medium text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">{area}</span>
+                </div>
               </label>
             ))}
           </div>
         </div>
         
-        <button
-          type="submit"
-          disabled={isAnalyzing}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
-          data-testid="button-analyze-website"
-        >
-          {isAnalyzing ? (
-            <>
-              <i className="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>
-              Analyzing Website...
-            </>
-          ) : (
-            <>
-              <i className="fas fa-search mr-2" aria-hidden="true"></i>
-              Analyze Website
-            </>
-          )}
-        </button>
+        {/* Submit Button */}
+        <div className="relative">
+          <button
+            type="submit"
+            disabled={isAnalyzing}
+            className="w-full bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--brand-accent-bg)] hover:from-[var(--secondary)] hover:via-[var(--brand-accent-bg)] hover:to-[var(--primary)] disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl flex items-center justify-center text-lg relative overflow-hidden"
+            data-testid="button-analyze-website"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+            {isAnalyzing ? (
+              <>
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                <span className="animate-pulse">Analyzing Website...</span>
+              </>
+            ) : (
+              <>
+                <i className="fas fa-rocket mr-3 text-xl" aria-hidden="true"></i>
+                <span>Start Fact Check Analysis</span>
+              </>
+            )}
+          </button>
+        </div>
       </form>
       
-      <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-        <div className="flex items-start">
-          <i className="fas fa-info-circle text-amber-600 dark:text-amber-400 mt-0.5 mr-2" aria-hidden="true"></i>
-          <div className="text-sm">
-            <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">How it works:</p>
-            <ul className="text-amber-700 dark:text-amber-300 space-y-1">
-              <li>• Extracts factual claims from website content using AI</li>
-              <li>• Cross-references with news sources via NewsAPI</li>
-              <li>• Verifies UK company information via Companies House</li>
-              <li>• Provides confidence ratings and detailed reasoning</li>
-            </ul>
+      {/* Enhanced Info Section */}
+      <div className="mt-10 bg-gradient-to-r from-[var(--warning)]/10 via-[var(--accent)]/20 to-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-2xl p-8 shadow-lg">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] rounded-xl flex items-center justify-center flex-shrink-0">
+            <i className="fas fa-magic text-white text-lg animate-pulse" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
+              How Our AI Fact Checker Works
+              <i className="fas fa-cog animate-spin text-[var(--primary)]" aria-hidden="true"></i>
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-brain text-white text-sm" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-[var(--foreground)] mb-1">AI Claim Extraction</h5>
+                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                      Advanced GPT-5 model identifies and extracts factual claims from website content
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[var(--secondary)] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-newspaper text-white text-sm" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-[var(--foreground)] mb-1">News Cross-Reference</h5>
+                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                      Real-time verification against thousands of reputable news sources via NewsAPI
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[var(--brand-accent-bg)] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-landmark text-white text-sm" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-[var(--foreground)] mb-1">Official Record Check</h5>
+                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                      Direct verification with UK Companies House for business information
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-[var(--info)] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-chart-line text-white text-sm" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-[var(--foreground)] mb-1">Confidence Scoring</h5>
+                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                      Statistical confidence ratings with detailed reasoning for each verdict
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
