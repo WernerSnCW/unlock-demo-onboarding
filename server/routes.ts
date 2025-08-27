@@ -1344,6 +1344,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Pitch Deck Analyzer endpoint
+  app.post('/api/analyse-pitch-deck', async (req, res) => {
+    try {
+      const { PitchDeckAnalyzer, upload } = await import('./services/pitchDeckAnalyzer');
+      
+      // Use multer middleware for file upload handling
+      upload.single('file')(req, res, async (err) => {
+        if (err) {
+          return res.status(400).json({ message: err.message });
+        }
+
+        if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const { sector = 'General', stage = 'Seed', geography = 'United Kingdom' } = req.body;
+
+        const result = await PitchDeckAnalyzer.analyzePitchDeck(
+          req.file.buffer,
+          req.file.originalname,
+          sector,
+          stage,
+          geography
+        );
+
+        res.json(result);
+      });
+    } catch (error) {
+      console.error('Pitch deck analysis failed:', error);
+      res.status(500).json({ 
+        message: 'Pitch deck analysis failed', 
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

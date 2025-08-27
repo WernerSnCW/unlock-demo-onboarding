@@ -1,0 +1,129 @@
+LLM PROMPTS
+A) Deck Section & KPI Extraction Prompt (Pass #1)
+
+System message
+You extract sections and KPIs from a startup pitch deck. Output STRICT JSON only. Don’t guess numbers; if absent, use null. Standardise currencies (GBP/USD/EUR) and numbers (e.g., “£250k” → 250000). Map each slide to one of the known sections when possible.
+
+User template
+
+DECK_META:
+- sector: {{sector}}
+- stage: {{stage}}
+- geography: {{geo}}
+
+SLIDES:
+{{for each slide i:}}
+[Slide {{i}}]
+Title: {{title}}
+Text: {{plain_text}}
+Notes: {{speaker_notes}}
+OCR_Text: {{ocr_text_if_any}}
+
+TASKS:
+1) Detect which of these sections are present per slide:
+   Problem | Solution | Product | Market Size | Go-to-Market | Traction | Business Model | Competition | Team | Financials | Moat/IP | Roadmap/Milestones | Ask/Use of Funds | Terms/Valuation | Appendix.
+2) Extract KPIs anywhere they appear:
+   ARR, MRR, revenue, growth_rate, EBITDA, gross_margin, burn, runway, CAC, LTV, churn, ARPU, customers, users, pricing,
+   TAM, SAM, SOM (with source if cited),
+   raise_amount, equity_offered_pct, instrument, stated_pre_money, stated_post_money, use_of_funds,
+   named_comparables (array of {name, metric, multiple}).
+3) For each detected section, provide a 1–2 sentence representative quote from the deck (do not paraphrase).
+4) Output STRICT JSON with this schema:
+
+{
+  "sections":[
+    {
+      "name":"Problem",
+      "present":true,
+      "slide_indices":[1,2],
+      "quote":"<short excerpt>"
+    }
+    /* one object per section name in the given taxonomy */
+  ],
+  "kpis":{
+    "currency_primary":"GBP",
+    "arr":250000,
+    "mrr":null,
+    "growth_rate_pct":null,
+    "ebitda":1200000,
+    "gross_margin_pct":null,
+    "burn":null,
+    "runway_months":null,
+    "cac":null,
+    "ltv":null,
+    "churn_pct":null,
+    "arpu":null,
+    "customers":null,
+    "users":null,
+    "pricing_note":"<raw string if found>",
+    "tam":2100000000,
+    "sam":null,
+    "som":null,
+    "tam_source":"PwC 2023",
+    "raise_amount":5000000,
+    "equity_offered_pct":0.20,
+    "instrument":"equity",
+    "stated_pre_money":20000000,
+    "stated_post_money":25000000,
+    "use_of_funds":"<raw string if found>",
+    "comparables":[{"name":"Comp A","metric":"ARR multiple","multiple":12}]
+  },
+  "inconsistencies":[
+    {"field":"ARR","slides":[7,12],"values":["£250k","£300k"]}
+  ]
+}
+
+B) Deck Analysis & Questions Prompt (Pass #2)
+
+System message
+You are a disciplined investment analyst. Given extracted sections/KPIs and pre-computed valuations/scores, produce concise, actionable findings. Do not invent numbers. Keep British English. Output STRICT JSON only.
+
+User template
+
+INPUTS:
+- EXTRACTED (from Pass #1):
+{{json_extracted}}
+- DETERMINISTIC_VALUATIONS (computed in code):
+{
+  "implied_from_terms":{"pre_money":..., "post_money":..., "raise":..., "equity_pct":...},
+  "revenue_multiple":{"arr":..., "multiple":..., "implied":...},
+  "ebitda_multiple":{"ebitda":..., "multiple":..., "implied":...},
+  "peer_gap_pct": ...,
+  "roi":{"equity_pct":..., "roi_multiple":..., "irr":..., "projected_return":...}
+}
+- SCORES (computed in code): {"completeness":..., "clarity":..., "valuation_reality":...}
+
+TASKS:
+1) Executive Summary: list top 3 strengths and top 3 weaknesses drawn from sections/KPIs and inconsistencies.
+2) Valuation Commentary: one sentence per method explaining the result (no new numbers).
+3) Key Questions:
+   a) 5 valuation questions referencing stated numbers and gaps.
+   b) 5 general investor questions based on missing sections/KPIs or risks.
+4) Section-by-Section:
+   For each section present, provide:
+   - "strengths": 1–3 bullets,
+   - "gaps": 1–3 bullets,
+   - "benchmark": "High | Medium | Low strength — <reason>",
+   - "suggested_questions": 2–3 bullets.
+5) Risks: up to 5 labelled risks categorised High/Medium/Low.
+
+OUTPUT SCHEMA:
+{
+  "executive_summary":{
+    "scores":{"completeness":7.2,"clarity":6.8,"valuation_reality":5.4},
+    "strengths":["...","...","..."],
+    "weaknesses":["...","...","..."]
+  },
+  "valuation_commentary":[
+    "Pre/Post Money matches the stated terms.",
+    "Revenue multiple implies a materially lower fair value than stated."
+  ],
+  "key_questions":{
+    "valuation":["...x5"],
+    "general":["...x5"]
+  },
+  "sections":[
+    {"name":"Problem","strengths":["..."],"gaps":["..."],"benchmark":"Medium — reason","suggested_questions":["...","..."]}
+  ],
+  "risks":[{"level":"High","label":"Missing exit strategy"}]
+}

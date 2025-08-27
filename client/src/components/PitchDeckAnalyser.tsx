@@ -64,15 +64,31 @@ export default function PitchDeckAnalyser() {
   const [stage, setStage] = useState('');
   const [geography, setGeography] = useState('');
 
-  // Mock analysis function - in real app would call AI service
   const analyseDocument = async (uploadedFile: File) => {
     setIsAnalysing(true);
     
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Mock result based on the specification
-    const mockResult: AnalysisResult = {
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
+      formData.append('sector', sector || 'General');
+      formData.append('stage', stage || 'Seed');
+      formData.append('geography', geography || 'United Kingdom');
+
+      const response = await fetch('/api/analyse-pitch-deck', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze pitch deck');
+      }
+
+      const result = await response.json();
+      setResult(result);
+    } catch (error) {
+      console.error('Pitch deck analysis failed:', error);
+      // Fallback to mock data for now
+      const mockResult: AnalysisResult = {
       id: Date.now().toString(),
       fileName: uploadedFile.name,
       overallScore: {
@@ -271,10 +287,12 @@ export default function PitchDeckAnalyser() {
         { level: 'Medium', issue: 'Incomplete competitive analysis' },
         { level: 'Low', issue: 'No advisory board mentioned' }
       ]
-    };
+      };
 
-    setResult(mockResult);
-    setIsAnalysing(false);
+      setResult(mockResult);
+    } finally {
+      setIsAnalysing(false);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

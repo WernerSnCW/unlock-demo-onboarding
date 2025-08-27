@@ -1,0 +1,281 @@
+1) What the tool does (end-to-end)
+
+Ingest deck (PDF or PPTX), extract all slide text (incl. speaker notes). Run OCR for image-only slides.
+
+Detect sections & parse KPIs with LLM pass #1 (Claim/Section Extraction).
+
+Score deck quality (completeness, clarity, valuation reality) using deterministic rubrics.
+
+Run deterministic valuations from extracted KPIs: pre/post money from ask, revenue multiple, EBITDA multiple, simple ROI/IRR scenario.
+
+Compare fair value(s) to any stated valuation in the deck.
+
+Generate investor questions (valuation + general) and section-by-section analysis with strengths, gaps, benchmarks, and risks via LLM pass #2, guided by the deterministic outputs.
+
+Render report in the layout shown in your screenshots.
+
+Determinism rule: All numbers (multiples, fair values, differences, ROI, IRR, scores) are computed in code from explicit rules below. The LLM may summarise and wordsmith but must not invent numbers.
+
+2) Inputs
+
+File: .pdf or .pptx (single deck).
+
+Optional selectors: Sector, Stage, Geography (used to choose default benchmark multiples).
+
+Advanced (optional): Override benchmark table, exit assumptions (years to exit, exit multiple).
+
+3) Outputs (UI + JSON)
+UI blocks
+
+Executive Summary
+
+Scores: Completeness (/10), Clarity (/10), Valuation Reality (/10)
+
+Top strengths (≤3) / Key weaknesses (≤3)
+
+Valuation Analysis
+
+Tiles: Pre-Money, Post-Money, Over/Under-valuation vs peers (±%)
+
+Table: Method | Basis Used | Implied Value | Deck Value (if any) | Commentary
+
+Sub-cards: Revenue Multiple Analysis, EBITDA Multiple Analysis, Investor ROI Projection (equity %, ROI multiple, IRR, projected return)
+
+Key Valuation Questions (5)
+
+Key Investor Questions (5)
+
+Section-by-Section Analysis (for every detected section)
+
+Extracted content (short quote), Strengths, Areas for improvement, Benchmark assessment, Suggested questions
+
+Risk Indicators (High/Medium/Low with short labels)
+
+Programmatic JSON schema
+{
+  "file":"<name>",
+  "meta":{"sector":"FinTech","stage":"Pre-Seed","geo":"United Kingdom"},
+  "scores":{"completeness":7.2,"clarity":6.8,"valuation_reality":5.4},
+  "valuation":{
+    "stated":{"pre_money":20000000,"post_money":25000000,"currency":"GBP"},
+    "implied_from_terms":{"raise":5000000,"equity_pct":0.20,"pre_money":20000000,"post_money":25000000},
+    "revenue_multiple":{"arr":250000,"multiple":10,"implied":2500000},
+    "ebitda_multiple":{"ebitda":1200000,"multiple":12,"implied":14400000},
+    "peer_gap_pct":0.35
+  },
+  "sections":[
+    {
+      "name":"Problem",
+      "present":true,
+      "extracted_quote":"SMEs lose £50bn annually due to ...",
+      "strengths":["Quantified pain point (PwC)"],
+      "gaps":["No primary validation"],
+      "benchmark":"Medium strength — third-party data only",
+      "questions":[
+        "How did you validate the £50bn with actual SMEs?"
+      ]
+    }
+  ],
+  "questions":{
+    "valuation":[ "...5 items..." ],
+    "general":[ "...5 items..." ]
+  },
+  "risks":[
+    {"level":"High","label":"Missing exit strategy"},
+    {"level":"Medium","label":"Optimistic financial projections"}
+  ]
+}
+
+4) Slide ingestion & extraction (components)
+
+File loader: accept PDF/PPTX; extract text, tables, and speaker notes.
+
+OCR: run on slides with little/no text (threshold by char count).
+
+Normalisation: remove boilerplate, de-duplicate, keep per-slide blocks with slide index, title, bullets.
+
+Currency & number parser: capture values with symbols (€, £, $) and units (MRR, ARR, EBITDA, CAGR, TAM/SAM/SOM, CAC, LTV, churn %, gross margin %, customers/users, pricing, raise, equity offered).
+
+5) Section detection (taxonomy)
+
+Use this fixed set (more may be “Not present”):
+Problem | Solution | Product | Market Size | Go-to-Market | Traction | Business Model | Competition | Team | Financials | Moat/IP | Roadmap/Milestones | Ask/Use of Funds | Terms/Valuation | Appendix
+
+Detection is via LLM pass #1 with keywords + semantics; output a boolean present, slide indices, and the best 1–2 line quote for each section (to show in UI).
+
+6) KPI extraction (must-catch items)
+
+From any slide, pull:
+
+Fin/metrics: ARR, MRR, revenue, growth rate (YoY/MoM), EBITDA, gross margin, burn, runway, CAC, LTV, churn/retention, ARPU, customers/users, pricing, pipeline.
+
+Market: TAM/SAM/SOM (value + source), target segment.
+
+Round terms: amount raising, equity offered %, instrument, any stated valuation (pre/post), use of funds.
+
+Comparables: names, multiples if shown.
+Record: {name, value, unit, currency, source_slide} with ISO numbers (e.g., 250000 not “£250k”); keep raw strings too.
+
+7) Deterministic valuations (do in code)
+7.1 Implied from terms
+
+If round raise = R and equity offered = e (0–1):
+
+post_money = R / e
+
+pre_money = post_money - R
+If deck gives pre/post, compute deltas (sanity check): delta_pre = |stated_pre - pre_money| / pre_money.
+
+7.2 Revenue multiple (ARR)
+
+If only MRR provided, ARR = MRR * 12.
+
+Choose a benchmark multiple M_rev from the table below (by stage first, then sector). Allow override in UI.
+
+implied_value = ARR * M_rev.
+
+Default benchmark table (editable)
+
+Stage	SaaS/Tech default	FinTech	HealthTech	Consumer	DeepTech
+Pre-Seed	6×–10×	8×–12×	6×–10×	4×–8×	6×–10×
+Seed	8×–12×	10×–14×	8×–12×	6×–10×	8×–12×
+Series A	10×–16×	12×–18×	10×–16×	8×–12×	10×–16×
+
+Pick the mid-point of the chosen band as the default M_rev. (No randomness.)
+
+7.3 EBITDA multiple
+
+Use only if EBITDA ≥ 0.
+
+Select M_ebitda by stage/sector (default 8×–14×; use mid-point).
+
+implied_value = EBITDA * M_ebitda.
+
+7.4 ROI / IRR projection (5-year default)
+
+Investor equity after round: e.
+
+Exit value: exit = exit_revenue * exit_multiple (defaults editable; e.g., exit_multiple = M_rev at Series-A scale).
+
+Return £: return_to_investor = e * exit.
+
+ROI multiple: roi = return_to_investor / R.
+
+IRR: irr = roi^(1/years) - 1.
+Show sensitivity for ±20% on exit revenue.
+
+7.5 Peer gap
+
+Let fair_values = {implied_from_terms.pre, revenue_multiple.implied, ebitda_multiple.implied (if any)}.
+Compute fair_value_baseline = median(fair_values) and show
+peer_gap_pct = (stated_pre - fair_value_baseline) / fair_value_baseline.
+
+8) Deck quality scoring (deterministic)
+8.1 Completeness (/10)
+
+Check presence of required sections and KPIs. Start at 10 and subtract:
+
+Missing Problem, Solution, Market, Business Model, Competition, Team, Financials, Ask/Terms → −1 each (min 0).
+
+Missing any of: ARR/MRR or traction, TAM/SAM/SOM, Go-to-Market, Use of Funds → −0.5 each.
+
+8.2 Clarity (/10)
+
+From LLM pass #2, map text quality to integers (deterministic rubric):
+
+Jargon density high → −1
+
+Inconsistent numbers across slides → −1
+
+Unlabelled charts or missing sources → −1
+
+Ambiguous pricing/segment → −1
+
+Typos/formatting issues materially affecting comprehension → −0.5
+Clamp 0–10.
+
+8.3 Valuation Reality (/10)
+
+Start at 10. Subtract according to overvaluation vs baseline:
+
+Gap ≤ 10%: −0
+
+10–25%: −2
+
+25–50%: −4
+
+50%: −6
+If no valuation provided and terms unclear: set to 5 by default (insufficient evidence).
+
+9) Question generation (templates → filled deterministically)
+9.1 Valuation questions (pick 5)
+
+“Which methodology underpins your £{stated_pre} pre-money?”
+
+“How do you reconcile our ARR multiple implied value £{rev_implied} with your £{stated_pre}?”
+
+“What assumptions drive your EBITDA £{ebitda} and justify {M_ebitda}×?”
+
+“Which comparables and periods were used for your benchmark multiples?”
+
+“If exit is £{exit}, what milestones de-risk that path in {years} years?”
+
+9.2 General investor questions (triggered by gaps)
+
+Missing CAC/LTV → ask for cohort methodology, payback period.
+
+Missing Competition → ask for named direct substitutes and switching costs.
+
+Missing GTM → ask channel mix, cost per channel, sales cycle.
+
+Missing Team → ask role coverage gaps and hiring plan.
+
+Missing Use of Funds → ask runway and allocation by function.
+
+10) Section-by-section analysis (LLM-assisted, rubric-guided)
+
+For each detected section:
+
+Extracted content: one short, representative quote.
+
+Strengths: 1–3 bullets mapped from rubric matches (e.g., quantified pain point with cited source).
+
+Areas for improvement: 1–3 bullets mapped from rubric misses.
+
+Benchmark assessment: “High/Medium/Low strength — reason”.
+
+Suggested questions: 2–3 targeted, using the question library.
+
+11) Risk indicators
+
+Flag using deterministic rules:
+
+High: No exit strategy; no financials; legal/compliance red flags; inconsistent terms.
+
+Medium: Optimistic projections without drivers; incomplete competitive analysis; negative unit economics.
+
+Low: Cosmetic issues; lack of advisory board; minor data gaps.
+
+12) Environment & setup (Replit)
+
+OCR available (Tesseract or cloud OCR).
+
+LLM: model with JSON mode and 128k context. Temperature 0–0.2 (low).
+
+Config: SECTOR, STAGE, GEO, BENCHMARK_MULTIPLIERS (editable JSON), DEFAULT_EXIT_YEARS (5).
+
+Persistence (optional): tables deck_runs, sections, kpis, valuations, scores, questions, risks.
+
+Determinism checks: after LLM extraction, validate numeric ranges; if conflicts across slides, mark inconsistent_numbers=true for Clarity penalty.
+
+13) Acceptance criteria (MVP)
+
+Correctly identifies ≥80% of sections present.
+
+Extracts key KPIs (raise, equity, ARR/MRR, TAM/SAM/SOM) when they exist.
+
+Produces pre/post-money from terms and at least one additional valuation method.
+
+Generates 5 valuation and 5 general questions, all specific to extracted numbers.
+
+Section-by-section cards render with strengths, gaps, benchmark label, and 2–3 questions each.
