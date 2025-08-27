@@ -769,47 +769,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Step 1: Get HPI baseline for the region
       const postcodePrefix = postcode.split(' ')[0];
-      // Extract just the letter part for better matching (e.g., SW1A -> SW1, M16 -> M16)
-      const postcodeArea = postcodePrefix.match(/^[A-Z]+\d*/)?.[0] || postcodePrefix;
+      const postcodeArea = postcodePrefix.match(/^[A-Z]+/)?.[0] || postcodePrefix.substring(0, 2);
       
       console.log(`Valuation request: postcode=${postcode}, prefix=${postcodePrefix}, area=${postcodeArea}`);
       
-      // Strategy 1: Try exact postcode area match (e.g., "SY2" -> regions containing "SY")
-      let hpiData = await db.select()
-        .from(ukHpi)
-        .where(like(ukHpi.regionName, `%${postcodeArea}%`))
-        .orderBy(desc(ukHpi.date))
-        .limit(1);
+      // Proper postcode to HPI region mapping
+      function getHpiRegionForPostcode(postcodePrefix: string): string[] {
+        const area = postcodePrefix.substring(0, 2).toUpperCase();
         
-      console.log(`Postcode area lookup (${postcodeArea}) found ${hpiData.length} results`);
-      
-      // Strategy 2: Try broader prefix match (e.g., "SY" from "SY2")
-      if (hpiData.length === 0) {
-        const broadPrefix = postcodeArea.substring(0, 2);
-        console.log(`Trying broader prefix lookup for: ${broadPrefix}`);
-        hpiData = await db.select()
-          .from(ukHpi)
-          .where(like(ukHpi.regionName, `%${broadPrefix}%`))
-          .orderBy(desc(ukHpi.date))
-          .limit(1);
-        console.log(`Broader prefix lookup found ${hpiData.length} results`);
+        // Define proper UK postcode area to HPI region mappings
+        const postcodeMap: Record<string, string[]> = {
+          // London postcodes
+          'E1': ['London'], 'E2': ['London'], 'E3': ['London'], 'E4': ['London'], 'E5': ['London'],
+          'EC': ['London'], 'N1': ['London'], 'N2': ['London'], 'N3': ['London'], 'N4': ['London'],
+          'NW': ['London'], 'SE': ['London'], 'SW': ['London'], 'W1': ['London'], 'WC': ['London'],
+          
+          // Essex postcodes
+          'SS': ['Essex', 'Basildon'], 'CM': ['Essex'], 'CO': ['Essex'], 'RM': ['Essex'],
+          
+          // Kent postcodes  
+          'TN': ['Kent'], 'CT': ['Kent'], 'DA': ['Kent'], 'ME': ['Kent'], 'BR': ['Kent'],
+          
+          // Manchester/Greater Manchester
+          'M1': ['Manchester', 'Greater Manchester'], 'M2': ['Manchester', 'Greater Manchester'],
+          
+          // Other major areas
+          'B1': ['Birmingham'], 'B2': ['Birmingham'], 'LS': ['Leeds'], 'S1': ['Sheffield'],
+          'OX': ['Oxfordshire'], 'CB': ['Cambridgeshire'], 'RG': ['Reading', 'Berkshire']
+        };
+        
+        return postcodeMap[area] || postcodeMap[postcodePrefix.substring(0, 1)] || [];
       }
       
-      // Strategy 3: Try finding regions that might contain this postcode area
-      if (hpiData.length === 0) {
-        console.log(`Trying fuzzy region match for: ${postcodePrefix}`);
-        // Look for any region that might be related to the postcode
+      const possibleRegions = getHpiRegionForPostcode(postcodePrefix);
+      let hpiData: any[] = [];
+      
+      // Try each possible region
+      for (const region of possibleRegions) {
         hpiData = await db.select()
           .from(ukHpi)
-          .where(
-            or(
-              like(ukHpi.regionName, `%${postcodePrefix}%`),
-              like(ukHpi.regionName, `%${postcodeArea.substring(0, 1)}%`)
-            )
-          )
+          .where(eq(ukHpi.regionName, region))
           .orderBy(desc(ukHpi.date))
           .limit(1);
-        console.log(`Fuzzy region match found ${hpiData.length} results`);
+          
+        if (hpiData.length > 0) {
+          console.log(`Found HPI data for ${postcodePrefix} → ${region}`);
+          break;
+        }
+      }
+      
+      console.log(`Postcode mapping: ${postcodePrefix} → [${possibleRegions.join(', ')}], found: ${hpiData.length > 0 ? hpiData[0].regionName : 'none'}`);
+      
+      // Fallback to broader area search if no exact match
+      if (hpiData.length === 0 && possibleRegions.length > 0) {
+        console.log(`Trying fuzzy match for regions: ${possibleRegions.join(', ')}`);
+        for (const region of possibleRegions) {
+          hpiData = await db.select()
+            .from(ukHpi)
+            .where(like(ukHpi.regionName, `%${region}%`))
+            .orderBy(desc(ukHpi.date))
+            .limit(1);
+            
+          if (hpiData.length > 0) {
+            console.log(`Fuzzy match found: ${region} → ${hpiData[0].regionName}`);
+            break;
+          }
+        }
       }
       
       // Strategy 4: London fallback for London postcodes
