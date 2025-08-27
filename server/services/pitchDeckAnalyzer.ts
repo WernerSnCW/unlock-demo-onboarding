@@ -1,70 +1,53 @@
 import OpenAI from 'openai';
 import multer from 'multer';
 
-// Safe PDF parsing function that handles the library issues
+// Reliable PDF parsing using pdfjs-dist
 async function safePdfParse(buffer: Buffer) {
   try {
-    // Use dynamic import which works better in ES module environment
-    const { default: pdfParse } = await import('pdf-parse');
-    console.log('PDF parsing with real library - buffer size:', buffer.length);
-    const result = await pdfParse(buffer);
-    console.log('PDF parsing successful - extracted text length:', result.text.length);
-    return result;
-  } catch (error: any) {
-    console.warn('pdf-parse failed, falling back to mock text extraction:', error.message);
-    // Return mock data structure matching pdf-parse output
+    console.log('Attempting PDF parsing with pdfjs-dist - buffer size:', buffer.length);
+    
+    // Import pdfjs-dist
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    
+    // Load the PDF document
+    const loadingTask = pdfjsLib.getDocument({
+      data: new Uint8Array(buffer),
+      verbosity: 0 // Suppress console logs
+    });
+    
+    const pdfDocument = await loadingTask.promise;
+    const numPages = pdfDocument.numPages;
+    console.log('PDF loaded successfully. Pages:', numPages);
+    
+    let fullText = '';
+    
+    // Extract text from each page
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      const page = await pdfDocument.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      
+      // Combine all text items from the page
+      const pageText = textContent.items
+        .filter(item => 'str' in item)
+        .map(item => (item as any).str)
+        .join(' ');
+      
+      fullText += pageText + '\n\n';
+    }
+    
+    console.log('PDF parsing successful - extracted text length:', fullText.length);
+    console.log('PDF text preview:', fullText.substring(0, 300));
+    
     return {
-      text: `TechFlow Solutions - Series A Pitch Deck
-
-Problem Statement:
-Small and medium enterprises lose £50bn annually due to inefficient invoice reconciliation processes and manual data entry errors. Current solutions are fragmented and require significant technical expertise.
-
-Solution:
-AI-powered reconciliation platform that reduces invoice processing time by 70% through automated matching and error detection algorithms. Our proprietary machine learning models achieve 95% accuracy.
-
-Market Size:
-Total Addressable Market: £2.1B
-Serviceable Available Market: £650M  
-Growing at 15% CAGR driven by digital transformation trends.
-
-Business Model:
-SaaS subscription model with tiered pricing:
-- Starter: £99/month (up to 500 invoices)
-- Professional: £299/month (up to 2,500 invoices)  
-- Enterprise: £899/month (unlimited)
-
-Current Monthly Recurring Revenue: £125,000
-Annual Recurring Revenue: £1.5M
-Customer Acquisition Cost: £2,400
-Lifetime Value: £12,800
-Monthly Growth Rate: 8%
-Gross Margin: 82%
-
-Financial Projections:
-Year 1: £1.8M ARR
-Year 2: £4.2M ARR  
-Year 3: £8.7M ARR
-EBITDA by Year 3: £2.1M
-
-Team:
-CEO: Sarah Chen - Former VP Engineering at Sage, 12 years fintech
-CTO: Mark Williams - Ex-senior engineer at Xero, AI/ML expertise
-CFO: David Kumar - Former finance director at FreeAgent
-
-Funding Ask:
-Seeking £5M Series A for 20% equity (£25M pre-money valuation)
-Use of funds: 40% product development, 35% sales & marketing, 15% team expansion, 10% working capital
-
-Key Metrics:
-- 850 active customers
-- 15% month-over-month growth
-- 12-month runway at current burn
-- Net Revenue Retention: 118%`,
-      numpages: 12,
+      text: fullText,
+      numpages: numPages,
       info: {},
       metadata: {},
       version: '1.0.0'
     };
+  } catch (error: any) {
+    console.error('PDF parsing failed with error:', error.message);
+    throw new Error(`Failed to parse PDF: ${error.message}`);
   }
 }
 
