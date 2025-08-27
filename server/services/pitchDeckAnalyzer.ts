@@ -264,7 +264,7 @@ TASKS:
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-5', // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        model: 'gpt-4o', // Using GPT-4o for reliable JSON responses in KPI extraction
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -497,7 +497,7 @@ OUTPUT SCHEMA:
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-5', // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        model: 'gpt-4o', // Using GPT-4o for reliable JSON responses in analysis generation
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
