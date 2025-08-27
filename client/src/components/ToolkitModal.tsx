@@ -51,18 +51,25 @@ function WebsiteFactCheckerComponent() {
       return;
     }
 
+    // Auto-fix URL format if missing protocol
+    let finalUrl = trimmedUrl;
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      finalUrl = 'https://' + trimmedUrl;
+      console.log('Auto-added https:// protocol:', finalUrl); // Debug log
+    }
+
     // Validate URL format
     try {
-      const urlObj = new URL(trimmedUrl);
+      const urlObj = new URL(finalUrl);
       if (!['http:', 'https:'].includes(urlObj.protocol)) {
         console.log('Invalid protocol:', urlObj.protocol); // Debug log
         setError('Please enter a valid HTTP or HTTPS URL');
         return;
       }
-      console.log('URL validation passed'); // Debug log
+      console.log('URL validation passed:', finalUrl); // Debug log
     } catch (urlError) {
       console.log('URL validation failed:', urlError); // Debug log
-      setError('Please enter a valid URL (e.g., https://example.com)');
+      setError('Please enter a valid URL (e.g., example.com or https://example.com)');
       return;
     }
 
@@ -72,7 +79,7 @@ function WebsiteFactCheckerComponent() {
 
     try {
       const requestBody = {
-        url: trimmedUrl,
+        url: finalUrl,
         options: {
           maxClaims,
           newsTimeWindow,
@@ -335,10 +342,10 @@ function WebsiteFactCheckerComponent() {
           </label>
           <div className="relative">
             <input
-              type="url"
+              type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/page-to-verify"
+              placeholder="example.com or https://example.com"
               className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] text-lg placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 pl-12"
               data-testid="input-website-url"
               required
