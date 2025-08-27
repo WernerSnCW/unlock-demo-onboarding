@@ -510,20 +510,20 @@ export default function SimpleAllowanceCalculator() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Applied to Previous Year</div>
-                  <div className="text-[var(--muted-foreground)]">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Applied to Previous Year</div>
+                  <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Applied to This Year</div>
-                  <div className="text-[var(--muted-foreground)]">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Applied to This Year</div>
+                  <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Allowance Remaining (Prev)</div>
-                  <div className="text-[var(--muted-foreground)]">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Allowance Remaining (Prev)</div>
+                  <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
                 </div>
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Allowance Remaining (This)</div>
-                  <div className="text-[var(--muted-foreground)]">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Allowance Remaining (This)</div>
+                  <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
                 </div>
               </div>
               
@@ -563,33 +563,33 @@ export default function SimpleAllowanceCalculator() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Applied to Previous Year</div>
-                  <div className="text-[var(--muted-foreground)]">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Applied to Previous Year</div>
+                  <div className="text-gray-700 dark:text-gray-300">
                     {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
                   </div>
-                  <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} • KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                   </div>
                 </div>
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Applied to This Year</div>
-                  <div className="text-[var(--muted-foreground)]">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Applied to This Year</div>
+                  <div className="text-gray-700 dark:text-gray-300">
                     {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
                   </div>
-                  <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} • KIC: {formatCurrency(result.eis.kicAppliedToThis)}
                   </div>
                 </div>
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Remaining Allowances (Prev)</div>
-                  <div className="text-[var(--muted-foreground)]">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Remaining Allowances (Prev)</div>
+                  <div className="text-gray-700 dark:text-gray-300">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
                 <div>
-                  <div className="font-medium text-[var(--card-foreground)]">Remaining Allowances (This)</div>
-                  <div className="text-[var(--muted-foreground)]">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Remaining Allowances (This)</div>
+                  <div className="text-gray-700 dark:text-gray-300">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.this)}
                   </div>
