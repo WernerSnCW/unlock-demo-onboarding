@@ -1285,6 +1285,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Art Valuation Configuration
+  app.get('/api/art-valuation-config', async (req, res) => {
+    try {
+      const appUrl = process.env.ART_VALUATION_APP_URL;
+      if (appUrl) {
+        res.json({ appUrl });
+      } else {
+        res.status(404).json({ message: 'Art valuation app URL not configured' });
+      }
+    } catch (error) {
+      console.error('Failed to get art valuation config:', error);
+      res.status(500).json({ message: 'Failed to get configuration' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

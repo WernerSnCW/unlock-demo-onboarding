@@ -572,21 +572,11 @@ function PropertyValuationComponent() {
 
 function ArtValuationComponent() {
   const [appUrl, setAppUrl] = useState('');
-  const [isValidUrl, setIsValidUrl] = useState(false);
   const [isAppLoaded, setIsAppLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  const [embedMode, setEmbedMode] = useState<'iframe' | 'navigate'>('iframe');
+  const [configError, setConfigError] = useState(false);
 
-  // Validate URL and auto-detect Replit URLs
-  const validateUrl = (url: string) => {
-    try {
-      new URL(url);
-      return url.startsWith('http://') || url.startsWith('https://');
-    } catch {
-      return false;
-    }
-  };
-
+  // Auto-detect Replit URLs
   const isReplitUrl = (url: string) => {
     return url.includes('replit.com') || url.includes('replit.app');
   };
@@ -600,22 +590,40 @@ function ArtValuationComponent() {
     return url;
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value;
-    setAppUrl(url);
-    setIsValidUrl(validateUrl(url));
-    setLoadingError(false);
-  };
+  // Fetch configured app URL from server
+  useEffect(() => {
+    const fetchAppConfig = async () => {
+      try {
+        const response = await fetch('/api/art-valuation-config');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.appUrl) {
+            setAppUrl(data.appUrl);
+            setConfigError(false);
+          } else {
+            setConfigError(true);
+          }
+        } else {
+          setConfigError(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch art valuation config:', error);
+        setConfigError(true);
+      }
+    };
+
+    fetchAppConfig();
+  }, []);
 
   const handleLoadApp = () => {
-    if (isValidUrl) {
+    if (appUrl) {
       setIsAppLoaded(true);
       setLoadingError(false);
     }
   };
 
   const handleNavigateToApp = () => {
-    if (isValidUrl) {
+    if (appUrl) {
       window.open(appUrl, '_blank');
     }
   };
@@ -623,6 +631,47 @@ function ArtValuationComponent() {
   const handleIframeError = () => {
     setLoadingError(true);
   };
+
+  if (configError) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-exclamation-triangle text-2xl text-red-600 dark:text-red-400" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Configuration Required</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            The art valuation app URL is not configured. Please set the ART_VALUATION_APP_URL environment variable.
+          </p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+            <p className="font-medium mb-2">To configure:</p>
+            <ol className="list-decimal list-inside space-y-1 text-blue-700 dark:text-blue-300">
+              <li>Go to the Secrets tab in your Replit workspace</li>
+              <li>Add a new secret: ART_VALUATION_APP_URL</li>
+              <li>Set the value to your art valuation app URL</li>
+              <li>Refresh this page</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!appUrl) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-spinner fa-spin text-2xl text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Loading Configuration</h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            Fetching art valuation app configuration...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAppLoaded) {
     return (
@@ -633,57 +682,31 @@ function ArtValuationComponent() {
           </div>
           <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Art Valuation Tool</h3>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            Connect to your art valuation app. Choose your preferred integration method below.
+            Ready to connect to your configured art valuation app.
           </p>
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-              App URL
-            </label>
-            <input
-              type="url"
-              value={appUrl}
-              onChange={handleUrlChange}
-              placeholder="https://replit.com/t/xlr8/repls/ArtValueScanUnlockTool"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              data-testid="input-app-url"
-            />
-            {appUrl && !isValidUrl && (
-              <p className="text-red-500 text-sm mt-1">Please enter a valid URL starting with http:// or https://</p>
-            )}
-            {appUrl && isValidUrl && isReplitUrl(appUrl) && (
-              <p className="text-green-600 text-sm mt-1">
-                <i className="fas fa-check-circle mr-1"></i>
-                Replit app detected - will use optimized embedding
-              </p>
-            )}
-          </div>
-
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-            <div className="flex items-start">
-              <i className="fas fa-lightbulb text-green-600 dark:text-green-400 mt-0.5 mr-3"></i>
-              <div className="text-sm text-green-800 dark:text-green-200">
-                <p className="font-medium mb-2">Best Options for Replit Apps:</p>
-                <ul className="list-disc list-inside space-y-1 text-green-700 dark:text-green-300">
-                  <li><strong>Deploy first:</strong> Use Replit Deployments, then embed the .replit.app URL</li>
-                  <li><strong>Direct navigation:</strong> Open in new tab for full functionality</li>
-                  <li><strong>Embed with params:</strong> Try adding ?embed=true to Replit URLs</li>
-                </ul>
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <i className="fas fa-globe mr-2"></i>
+              <span className="font-medium">Configured App:</span>
             </div>
+            <div className="text-gray-800 dark:text-gray-200 break-all">
+              {appUrl}
+            </div>
+            {isReplitUrl(appUrl) && (
+              <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                <i className="fas fa-check-circle mr-1"></i>
+                Replit app detected - will use optimized embedding with ?embed=true
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button
               onClick={handleNavigateToApp}
-              disabled={!isValidUrl}
-              className={`py-3 px-4 rounded-lg font-medium transition-colors ${
-                isValidUrl
-                  ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                  : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-              }`}
+              className="py-3 px-4 rounded-lg font-medium transition-colors bg-purple-600 hover:bg-purple-700 text-white"
               data-testid="button-navigate-to-app"
             >
               <i className="fas fa-external-link-alt mr-2"></i>
@@ -692,12 +715,7 @@ function ArtValuationComponent() {
             
             <button
               onClick={handleLoadApp}
-              disabled={!isValidUrl}
-              className={`py-3 px-4 rounded-lg font-medium transition-colors border-2 ${
-                isValidUrl
-                  ? 'border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                  : 'border-gray-300 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-              }`}
+              className="py-3 px-4 rounded-lg font-medium transition-colors border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
               data-testid="button-try-embed"
             >
               <i className="fas fa-code mr-2"></i>
