@@ -175,7 +175,7 @@ export default function SnapshotReport() {
     },
     {
       id: 'management',
-      title: 'Management',
+      title: 'Directors and Key Personnel',
       data: reportData?.snapshot?.detailedAssessment?.management || { score: 89, status: 'Strong' },
       icon: 'fas fa-users',
       description: 'Leadership experience, team quality, and management capability assessment'

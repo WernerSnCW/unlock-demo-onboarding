@@ -344,9 +344,9 @@ export default function BusinessProfile() {
                   </div>
                 </div>
 
-                {/* Management */}
+                {/* Directors and Key Personnel */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Management:</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Directors and Key Personnel:</span>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
                       {getStarRating(business.snapshot.detailedAssessment?.management?.score || 85)}
