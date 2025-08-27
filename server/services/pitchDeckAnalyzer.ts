@@ -615,7 +615,7 @@ OUTPUT SCHEMA:
         overallScore: {
           completeness: scores.completeness,
           clarity: scores.clarity,
-          valuation_reality: scores.valuation_reality
+          valuationPlausibility: scores.valuation_reality
         },
         executiveSummary: {
           topStrengths: analysis.executive_summary.strengths,
