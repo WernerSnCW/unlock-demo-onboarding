@@ -570,6 +570,167 @@ function PropertyValuationComponent() {
   );
 }
 
+function ArtValuationComponent() {
+  const [appUrl, setAppUrl] = useState('');
+  const [isValidUrl, setIsValidUrl] = useState(false);
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
+
+  // Validate URL
+  const validateUrl = (url: string) => {
+    try {
+      new URL(url);
+      return url.startsWith('http://') || url.startsWith('https://');
+    } catch {
+      return false;
+    }
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setAppUrl(url);
+    setIsValidUrl(validateUrl(url));
+    setLoadingError(false);
+  };
+
+  const handleLoadApp = () => {
+    if (isValidUrl) {
+      setIsAppLoaded(true);
+      setLoadingError(false);
+    }
+  };
+
+  const handleIframeError = () => {
+    setLoadingError(true);
+  };
+
+  if (!isAppLoaded) {
+    return (
+      <div className="p-6">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-palette text-2xl text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Art Valuation Tool</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Connect your external art valuation app to embed it directly within this platform.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              App URL
+            </label>
+            <input
+              type="url"
+              value={appUrl}
+              onChange={handleUrlChange}
+              placeholder="https://your-art-valuation-app.com"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              data-testid="input-app-url"
+            />
+            {appUrl && !isValidUrl && (
+              <p className="text-red-500 text-sm mt-1">Please enter a valid URL starting with http:// or https://</p>
+            )}
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <div className="flex items-start">
+              <i className="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5 mr-3"></i>
+              <div className="text-sm text-blue-800 dark:text-blue-200">
+                <p className="font-medium mb-1">How to connect your app:</p>
+                <ul className="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300">
+                  <li>Enter the full URL of your art valuation application</li>
+                  <li>Make sure your app allows iframe embedding (X-Frame-Options)</li>
+                  <li>Your app will load directly inside this modal</li>
+                  <li>All interactions will happen within the embedded frame</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleLoadApp}
+            disabled={!isValidUrl}
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+              isValidUrl
+                ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            }`}
+            data-testid="button-load-app"
+          >
+            <i className="fas fa-external-link-alt mr-2"></i>
+            Load Art Valuation App
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full">
+      {/* App Controls */}
+      <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <i className="fas fa-globe mr-2"></i>
+          <span className="truncate max-w-md">{appUrl}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => window.open(appUrl, '_blank')}
+            className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+            title="Open in new tab"
+            data-testid="button-open-external"
+          >
+            <i className="fas fa-external-link-alt"></i>
+          </button>
+          <button
+            onClick={() => setIsAppLoaded(false)}
+            className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            title="Change app URL"
+            data-testid="button-change-url"
+          >
+            <i className="fas fa-edit"></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Embedded App */}
+      <div className="relative h-[calc(80vh-120px)]">
+        {loadingError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+            <div className="text-center">
+              <i className="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+              <p className="text-gray-700 dark:text-gray-300 mb-2">Unable to load the external app</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                The app may not allow iframe embedding or the URL might be incorrect.
+              </p>
+              <button
+                onClick={() => setIsAppLoaded(false)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
+                data-testid="button-try-different-url"
+              >
+                Try Different URL
+              </button>
+            </div>
+          </div>
+        )}
+        
+        <iframe
+          src={appUrl}
+          className="w-full h-full border-0"
+          title="Art Valuation App"
+          onError={handleIframeError}
+          onLoad={() => setLoadingError(false)}
+          sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups"
+          data-testid="iframe-art-valuation-app"
+        />
+      </div>
+    </div>
+  );
+}
+
 interface ToolkitModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -698,6 +859,9 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         
       case 'property-valuation':
         return <PropertyValuationComponent />;
+
+      case 'art-valuation':
+        return <ArtValuationComponent />;
         
       default:
         return (
