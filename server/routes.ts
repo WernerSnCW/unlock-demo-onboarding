@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db } from "./db";
-import { and, like, eq, gte, desc, sql, or } from "drizzle-orm";
+import { and, like, eq, gte, lte, desc, sql, or } from "drizzle-orm";
 import { 
   insertInvestorSchema, 
   insertInvestorPreferencesSchema, 
@@ -868,29 +868,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Step 2: Calculate HPI uplift if purchase data is available
       let hpiAdjustedValue = hpiBasePrice;
       let hpiUpliftFactor = 1;
+      let usesPurchaseData = false;
       
       if (purchasePrice && purchaseDate) {
         try {
           const purchasePriceNum = parseFloat(purchasePrice.toString());
           const purchaseDateTime = new Date(purchaseDate);
           
-          // Get HPI data for purchase period (closest available)
-          const historicalHpi = await db.select()
-            .from(ukHpi)
-            .where(
-              and(
-                like(ukHpi.regionName, `%${postcodePrefix}%`),
-                gte(ukHpi.date, purchaseDateTime.toISOString().split('T')[0])
+          // Validate date is reasonable (not more than 1 month in the future to account for processing delays)
+          const futureThreshold = new Date();
+          futureThreshold.setMonth(futureThreshold.getMonth() + 1);
+          
+          if (purchaseDateTime > futureThreshold) {
+            console.log(`Warning: Purchase date ${purchaseDate} is too far in the future, ignoring HPI uplift calculation`);
+          } else {
+            // Get HPI data for purchase period (closest available before or at purchase date)
+            const historicalHpi = await db.select()
+              .from(ukHpi)
+              .where(
+                and(
+                  eq(ukHpi.regionName, hpi.regionName),
+                  lte(ukHpi.date, purchaseDateTime.toISOString().split('T')[0])
+                )
               )
-            )
-            .orderBy(ukHpi.date)
-            .limit(1);
+              .orderBy(desc(ukHpi.date))
+              .limit(1);
 
-          if (historicalHpi.length > 0) {
-            const historicalPrice = parseFloat(historicalHpi[0].averagePrice || '0');
-            if (historicalPrice > 0) {
-              hpiUpliftFactor = hpiBasePrice / historicalPrice;
-              hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
+            if (historicalHpi.length > 0) {
+              const historicalPrice = parseFloat(historicalHpi[0].averagePrice || '0');
+              if (historicalPrice > 0 && hpiBasePrice > 0) {
+                hpiUpliftFactor = hpiBasePrice / historicalPrice;
+                hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
+                usesPurchaseData = true;
+                
+                console.log(`Historical HPI (${historicalHpi[0].date}): £${historicalPrice.toLocaleString()}`);
+                console.log(`Current HPI (${hpi.date}): £${hpiBasePrice.toLocaleString()}`);
+                console.log(`HPI Uplift: ${((hpiUpliftFactor - 1) * 100).toFixed(2)}%`);
+              }
             }
           }
         } catch (error) {
@@ -942,7 +956,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         method: 'HPI baseline calculation'
       };
 
-      // If we have comparables, blend with HPI
+      // If we have comparables, use different logic based on whether we have purchase data
       if (comparables.length >= 2) {
         const compPrices = comparables
           .map(c => parseFloat(c.price || '0'))
@@ -959,35 +973,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const compMin = Math.min(...trimmedPrices);
           const compMax = Math.max(...trimmedPrices);
 
-          // Blend HPI and comparables (70% comps, 30% HPI)
-          const compComponent = compAverage * 0.7;
-          const hpiComponent = hpiAdjustedValue * 0.3;
-          finalEstimate = Math.round(compComponent + hpiComponent);
-          method = 'HPI_PLUS_COMPS';
-          
-          // Validation logging for blended calculation
-          console.log('--- BLENDED CALCULATION ---');
-          console.log(`Raw Comparable Prices: [${compPrices.map(p => '£' + p.toLocaleString()).join(', ')}]`);
-          console.log(`Trimmed Prices (${start}-${end}): [${trimmedPrices.map(p => '£' + p.toLocaleString()).join(', ')}]`);
-          console.log(`Comparable Average: £${compAverage.toLocaleString()}`);
-          console.log(`Comparable Component (70%): £${compComponent.toLocaleString()}`);
-          console.log(`HPI Component (30%): £${hpiComponent.toLocaleString()}`);
-          console.log(`Final Blended Estimate: £${finalEstimate.toLocaleString()}`);
-          
-          range = { 
-            min: Math.round(Math.min(compMin, finalEstimate * 0.9)),
-            max: Math.round(Math.max(compMax, finalEstimate * 1.1))
-          };
+          if (usesPurchaseData) {
+            // When we have purchase data with HPI uplift, use that as primary estimate
+            // Only validate against comparables for reasonableness
+            finalEstimate = Math.round(hpiAdjustedValue);
+            method = 'PURCHASE_HPI_ADJUSTED';
+            
+            // Range based on comparables spread around our HPI-adjusted estimate
+            const compSpread = compMax - compMin;
+            const rangeFactor = Math.min(0.15, compSpread / (2 * compAverage)); // Max ±15%
+            range = {
+              min: Math.round(Math.max(compMin, finalEstimate * (1 - rangeFactor))),
+              max: Math.round(Math.min(compMax, finalEstimate * (1 + rangeFactor)))
+            };
+            
+            console.log('--- PURCHASE + HPI CALCULATION ---');
+            console.log(`Purchase Price HPI-Adjusted: £${finalEstimate.toLocaleString()}`);
+            console.log(`Comparable Range: £${compMin.toLocaleString()} - £${compMax.toLocaleString()}`);
+            console.log(`Comparable Average: £${compAverage.toLocaleString()}`);
+            console.log(`Final Range: £${range.min.toLocaleString()} - £${range.max.toLocaleString()}`);
+            
+          } else {
+            // No purchase data, blend HPI regional baseline with local comparables
+            const compComponent = compAverage * 0.7;
+            const hpiComponent = hpiBasePrice * 0.3;
+            finalEstimate = Math.round(compComponent + hpiComponent);
+            method = 'HPI_PLUS_COMPS';
+            
+            range = { 
+              min: Math.round(Math.min(compMin, finalEstimate * 0.9)),
+              max: Math.round(Math.max(compMax, finalEstimate * 1.1))
+            };
+            
+            console.log('--- BLENDED CALCULATION ---');
+            console.log(`Raw Comparable Prices: [${compPrices.map(p => '£' + p.toLocaleString()).join(', ')}]`);
+            console.log(`Trimmed Prices (${start}-${end}): [${trimmedPrices.map(p => '£' + p.toLocaleString()).join(', ')}]`);
+            console.log(`Comparable Average: £${compAverage.toLocaleString()}`);
+            console.log(`Comparable Component (70%): £${compComponent.toLocaleString()}`);
+            console.log(`HPI Baseline Component (30%): £${hpiComponent.toLocaleString()}`);
+            console.log(`Final Blended Estimate: £${finalEstimate.toLocaleString()}`);
+          }
           
           console.log(`Valuation Range: £${range.min.toLocaleString()} - £${range.max.toLocaleString()}`);
           
           explainability = {
             ...explainability,
-            method: 'Blended: 70% comparable sales + 30% HPI baseline',
+            method: usesPurchaseData ? 'Purchase price adjusted by HPI growth' : 'Blended: 70% comparable sales + 30% HPI baseline',
             blendedResult: finalEstimate,
             comparableAverage: compAverage,
-            hpiComponent: hpiComponent,
-            compComponent: compComponent
+            usesPurchaseData: usesPurchaseData
           };
         }
       }
