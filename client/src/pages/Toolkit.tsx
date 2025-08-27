@@ -164,6 +164,17 @@ export default function Toolkit() {
       actionText: 'View History',
       isLocked: true,
       isPremium: true
+    },
+    {
+      id: 'website-fact-checker',
+      category: 'utilities',
+      icon: 'fas fa-shield-alt',
+      iconColor: 'text-[#5193B3]',
+      title: 'Website Fact Checker',
+      description: 'Verify website claims and information accuracy using AI-powered analysis.',
+      actionText: 'Check Website',
+      isLocked: false,
+      isPremium: false
     }
   ];
 

@@ -1210,6 +1210,94 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
 
       case 'whisky-valuation':
         return <WhiskyValuationComponent />;
+
+      case 'website-fact-checker':
+        return (
+          <div className="p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fas fa-shield-alt text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Website Fact Checker</h3>
+              <p className="text-gray-600 dark:text-gray-300">Verify website claims and information accuracy using AI analysis.</p>
+            </div>
+            
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  Website URL *
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://example.com"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  data-testid="input-website-url"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  Specific Claims to Verify (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g., Company revenue figures, user statistics, award claims..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"
+                  data-testid="textarea-claims"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  Focus Areas
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    'Financial Claims',
+                    'Customer Numbers',
+                    'Awards & Recognition',
+                    'Company History',
+                    'Product Features',
+                    'Team Credentials'
+                  ].map((area, index) => (
+                    <label key={index} className="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        className="mr-2 text-blue-600"
+                        data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{area}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                data-testid="button-analyze-website"
+              >
+                <i className="fas fa-search mr-2" aria-hidden="true"></i>
+                Analyze Website
+              </button>
+            </form>
+            
+            <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <div className="flex items-start">
+                <i className="fas fa-info-circle text-amber-600 dark:text-amber-400 mt-0.5 mr-2" aria-hidden="true"></i>
+                <div className="text-sm">
+                  <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">How it works:</p>
+                  <ul className="text-amber-700 dark:text-amber-300 space-y-1">
+                    <li>• Scrapes publicly available information from the website</li>
+                    <li>• Cross-references claims with external sources and databases</li>
+                    <li>• Identifies potential red flags or inconsistencies</li>
+                    <li>• Provides confidence ratings for key claims</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
         
       default:
         return (
