@@ -397,7 +397,7 @@ function WebsiteFactCheckerComponent() {
         <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* News Time Window */}
-            <div>
+            <div className="flex flex-col h-full">
               <label className="flex items-center gap-3 text-base font-semibold text-[var(--foreground)] mb-3">
                 <div className="w-7 h-7 bg-[var(--info)] rounded-lg flex items-center justify-center">
                   <i className="fas fa-clock text-white text-sm" aria-hidden="true"></i>
@@ -407,7 +407,7 @@ function WebsiteFactCheckerComponent() {
               <select 
                 value={newsTimeWindow}
                 onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
-                className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] text-lg focus:ring-2 focus:ring-[var(--info)] focus:border-transparent transition-all duration-200"
+                className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] text-lg focus:ring-2 focus:ring-[var(--info)] focus:border-transparent transition-all duration-200 flex-1"
               >
                 <option value={6}>📅 6 months - Recent</option>
                 <option value={12}>📆 12 months - Standard</option>
@@ -417,14 +417,17 @@ function WebsiteFactCheckerComponent() {
             </div>
 
             {/* Focus Areas - Enhanced Collapsible */}
-            <div>
-              <details className="group bg-[var(--muted)]/20 rounded-xl p-4 border border-[var(--border)]/50">
-                <summary className="cursor-pointer flex items-center gap-3 text-base font-semibold text-[var(--foreground)] mb-3">
-                  <div className="w-7 h-7 bg-[var(--warning)] rounded-lg flex items-center justify-center">
-                    <i className="fas fa-crosshairs text-white text-sm" aria-hidden="true"></i>
-                  </div>
-                  <span>Focus Areas</span>
-                  <span className="text-sm text-[var(--muted-foreground)] bg-[var(--muted)] px-3 py-1 rounded-full">Optional</span>
+            <div className="flex flex-col h-full">
+              <label className="flex items-center gap-3 text-base font-semibold text-[var(--foreground)] mb-3">
+                <div className="w-7 h-7 bg-[var(--warning)] rounded-lg flex items-center justify-center">
+                  <i className="fas fa-crosshairs text-white text-sm" aria-hidden="true"></i>
+                </div>
+                Focus Areas
+                <span className="text-sm text-[var(--muted-foreground)] bg-[var(--muted)] px-3 py-1 rounded-full">Optional</span>
+              </label>
+              <details className="group bg-[var(--muted)]/20 rounded-xl p-4 border border-[var(--border)]/50 flex-1">
+                <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-3">
+                  <span>Click to select focus areas</span>
                   <i className="fas fa-chevron-down group-open:rotate-180 transition-transform duration-200 ml-auto" aria-hidden="true"></i>
                 </summary>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -455,7 +458,7 @@ function WebsiteFactCheckerComponent() {
         <button
           type="submit"
           disabled={isAnalyzing}
-          className="w-full bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--brand-accent-bg)] hover:from-[var(--secondary)] hover:via-[var(--brand-accent-bg)] hover:to-[var(--primary)] disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl flex items-center justify-center text-lg relative overflow-hidden"
+          className="w-full bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--brand-accent-bg)] hover:from-[var(--secondary)] hover:via-[var(--brand-accent-bg)] hover:to-[var(--primary)] disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3.5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl flex items-center justify-center text-lg relative overflow-hidden"
           data-testid="button-analyze-website"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
