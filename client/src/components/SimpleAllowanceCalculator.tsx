@@ -530,7 +530,7 @@ export default function SimpleAllowanceCalculator() {
               </div>
               
               {result.seis.unusedPotentialLost > 0 && (
-                <div className="text-sm text-[var(--warning)] bg-[var(--warning)]/10 p-3 rounded-[var(--radius-sm)]">
+                <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
                   <strong>Potential Lost:</strong> {formatCurrency(result.seis.unusedPotentialLost)} relief lost due to insufficient liability
                 </div>
               )}
@@ -538,21 +538,21 @@ export default function SimpleAllowanceCalculator() {
               {/* SEIS Usage Progress Bars */}
               <div className="space-y-3">
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Previous Year Usage</span>
-                    <span>{result.progress.seisUsagePrev.toFixed(1)}%</span>
+                  <div className="flex justify-between text-sm mb-1" style={{ color: '#1F2937' }}>
+                    <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year Usage</span>
+                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.seisUsagePrev.toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-[var(--muted)] rounded-full h-2">
-                    <div className="bg-[var(--primary)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsagePrev, 100)}%` }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsagePrev, 100)}%`, backgroundColor: '#13683B' }}></div>
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>This Year Usage</span>
-                    <span>{result.progress.seisUsageThis.toFixed(1)}%</span>
+                  <div className="flex justify-between text-sm mb-1" style={{ color: '#1F2937' }}>
+                    <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year Usage</span>
+                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.seisUsageThis.toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-[var(--muted)] rounded-full h-2">
-                    <div className="bg-[var(--primary)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsageThis, 100)}%` }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsageThis, 100)}%`, backgroundColor: '#13683B' }}></div>
                   </div>
                 </div>
               </div>
@@ -561,9 +561,7 @@ export default function SimpleAllowanceCalculator() {
 
           {/* EIS Breakdown */}
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-            <div className="bg-red-600 text-white p-2 mb-4 rounded text-center font-bold">
-              🔧 EIS SECTION UPDATED - SHOULD BE GREEN 🔧
-            </div>
+
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -602,7 +600,7 @@ export default function SimpleAllowanceCalculator() {
               </div>
               
               {result.eis.unusedPotentialLost > 0 && (
-                <div className="text-sm text-[var(--warning)] bg-[var(--warning)]/10 p-3 rounded-[var(--radius-sm)]">
+                <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
                   <strong>Potential Lost:</strong> {formatCurrency(result.eis.unusedPotentialLost)} relief lost due to insufficient liability
                 </div>
               )}
@@ -611,38 +609,38 @@ export default function SimpleAllowanceCalculator() {
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Previous Year - Any Band (£1m)</span>
-                    <span>{result.progress.eisUsageRegularPrev.toFixed(1)}%</span>
+                    <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year - Any Band (£1m)</span>
+                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageRegularPrev.toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-[var(--muted)] rounded-full h-2">
-                    <div className="bg-[var(--secondary)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularPrev, 100)}%` }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Previous Year - Total (£2m)</span>
-                    <span>{result.progress.eisUsageKICPrev.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--muted)] rounded-full h-2">
-                    <div className="bg-[var(--secondary)]/70 h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICPrev, 100)}%` }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularPrev, 100)}%`, backgroundColor: '#10B981' }}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>This Year - Any Band (£1m)</span>
-                    <span>{result.progress.eisUsageRegularThis.toFixed(1)}%</span>
+                    <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year - Total (£2m)</span>
+                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageKICPrev.toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-[var(--muted)] rounded-full h-2">
-                    <div className="bg-[var(--secondary)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularThis, 100)}%` }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICPrev, 100)}%`, backgroundColor: '#10B981', opacity: '0.7' }}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>This Year - Total (£2m)</span>
-                    <span>{result.progress.eisUsageKICThis.toFixed(1)}%</span>
+                    <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year - Any Band (£1m)</span>
+                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageRegularThis.toFixed(1)}%</span>
                   </div>
-                  <div className="w-full bg-[var(--muted)] rounded-full h-2">
-                    <div className="bg-[var(--secondary)]/70 h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICThis, 100)}%` }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularThis, 100)}%`, backgroundColor: '#10B981' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year - Total (£2m)</span>
+                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageKICThis.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICThis, 100)}%`, backgroundColor: '#10B981', opacity: '0.7' }}></div>
                   </div>
                 </div>
               </div>
