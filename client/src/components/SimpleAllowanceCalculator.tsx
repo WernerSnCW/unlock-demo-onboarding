@@ -561,6 +561,9 @@ export default function SimpleAllowanceCalculator() {
 
           {/* EIS Breakdown */}
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+            <div className="bg-red-600 text-white p-2 mb-4 rounded text-center font-bold">
+              🔧 EIS SECTION UPDATED - SHOULD BE GREEN 🔧
+            </div>
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
