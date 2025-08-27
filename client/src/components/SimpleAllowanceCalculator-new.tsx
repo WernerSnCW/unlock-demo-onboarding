@@ -144,7 +144,7 @@ export function SimpleAllowanceCalculator() {
         {/* SEIS Column */}
         <div className="space-y-6">
           {/* SEIS Inputs */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 h-[400px]">
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Investments (50% Relief)</h3>
             <div className="space-y-4">
               <div>
@@ -191,7 +191,7 @@ export function SimpleAllowanceCalculator() {
           </div>
 
           {/* SEIS Results */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 min-h-[500px]">
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown</h3>
             <div className="space-y-3">
               <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
@@ -244,7 +244,7 @@ export function SimpleAllowanceCalculator() {
         {/* EIS Column */}
         <div className="space-y-6">
           {/* EIS Inputs */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 h-[400px]">
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Investments (30% Relief)</h3>
             <div className="space-y-4">
               <div>
@@ -303,7 +303,7 @@ export function SimpleAllowanceCalculator() {
           </div>
 
           {/* EIS Results */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 min-h-[500px]">
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown</h3>
             <div className="space-y-3">
               <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
