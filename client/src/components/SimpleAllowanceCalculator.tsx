@@ -236,6 +236,11 @@ export default function SimpleAllowanceCalculator() {
 
   return (
     <div className="p-6 bg-[var(--background)] space-y-6">
+      {/* TESTING BANNER - REMOVE AFTER CONFIRMING */}
+      <div className="bg-red-500 text-white p-2 rounded text-center font-bold">
+        ⚠️ UPDATED VERSION LOADED - CACHE CLEARED ⚠️
+      </div>
+      
       {/* Header with Help Button */}
       <div className="flex justify-between items-center">
         <div>
