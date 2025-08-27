@@ -511,21 +511,21 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown (50% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#1E3A8A', color: '#FFFFFF', borderColor: '#1E40AF' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Applied to Previous Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to Previous Year</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
                 </div>
-                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#1E3A8A', color: '#FFFFFF', borderColor: '#1E40AF' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Applied to This Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to This Year</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
                 </div>
-                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#1E3A8A', color: '#FFFFFF', borderColor: '#1E40AF' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Allowance Remaining (Prev)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (Prev)</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
                 </div>
-                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#1E3A8A', color: '#FFFFFF', borderColor: '#1E40AF' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Allowance Remaining (This)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>{formatCurrency(result.seis.allowanceRemainingThis)}</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (This)</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingThis)}</div>
                 </div>
               </div>
               
@@ -567,34 +567,34 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#16A34A', color: '#FFFFFF', borderColor: '#15803D' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Applied to Previous Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to Previous Year</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
                   </div>
-                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#FFFFFF', marginTop: '4px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#ffffff', marginTop: '4px' }}>
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} • KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                   </div>
                 </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#16A34A', color: '#FFFFFF', borderColor: '#15803D' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Applied to This Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to This Year</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
                   </div>
-                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#FFFFFF', marginTop: '4px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#ffffff', marginTop: '4px' }}>
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} • KIC: {formatCurrency(result.eis.kicAppliedToThis)}
                   </div>
                 </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#16A34A', color: '#FFFFFF', borderColor: '#15803D' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Remaining Allowances (Prev)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining Allowances (Prev)</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#16A34A', color: '#FFFFFF', borderColor: '#15803D' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#FFFFFF' }}>Remaining Allowances (This)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFF' }}>
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining Allowances (This)</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.this)}
                   </div>
