@@ -2,12 +2,35 @@ import { useState, useMemo } from 'react';
 import { Calculator } from 'lucide-react';
 import { calculateSEISEIS } from './SEISEISCalculation';
 
-// Help icon component
+// Tooltip component for help functionality
+function Tooltip({ children, content }: { children: React.ReactNode; content: string }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[var(--card-foreground)] text-[var(--card)] text-xs rounded-[var(--radius-sm)] z-10 shadow-lg max-w-sm min-w-48 w-max">
+          <div className="whitespace-normal text-center">{content}</div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[var(--card-foreground)]"></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Help icon with tooltip
 function HelpIcon({ tooltip }: { tooltip: string }) {
   return (
-    <span className="ml-1 text-[var(--muted-foreground)] text-xs cursor-help" title={tooltip}>
-      ℹ️
-    </span>
+    <Tooltip content={tooltip}>
+      <i className="fas fa-info-circle text-[var(--muted-foreground)] hover:text-[var(--info)] ml-1 text-sm"></i>
+    </Tooltip>
   );
 }
 
