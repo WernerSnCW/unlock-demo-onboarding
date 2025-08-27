@@ -180,13 +180,7 @@ export default function SnapshotReport() {
       icon: 'fas fa-users',
       description: 'Leadership experience, team quality, and management capability assessment'
     },
-    {
-      id: 'marketing',
-      title: 'Marketing & Brand Management',
-      data: reportData?.snapshot?.detailedAssessment?.marketing || { score: 82, status: 'Good' },
-      icon: 'fas fa-bullhorn',
-      description: 'Market presence, brand strength, and marketing strategy effectiveness'
-    },
+
     {
       id: 'claimsManagement',
       title: 'Claims Management',
