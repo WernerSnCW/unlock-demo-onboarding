@@ -73,10 +73,12 @@ export function SimpleAllowanceCalculator() {
       seisThisYear: inputs.seisThisYear,
       seisUsedPrevYear: inputs.seisUsedPrevYear,
       seisCarryBackRequested: inputs.seisCarryBackRequested,
-      eisTotalThisYear: inputs.eisTotalThisYear,
-      kicAmount: inputs.kicAmount,
+      eisThisYearTotal: inputs.eisTotalThisYear,
+      eisThisYearKIC: inputs.kicAmount,
       eisUsedPrevYear: inputs.eisUsedPrevYear,
       eisCarryBackRequested: inputs.eisCarryBackRequested,
+      prioritySEISFirst: true,
+      autoOptimize: true,
     });
   }, [inputs]);
 
