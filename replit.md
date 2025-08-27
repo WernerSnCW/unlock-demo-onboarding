@@ -4,6 +4,8 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 
 **Recent Completion (Aug 26, 2025):** Full database-backed portfolio holdings, property portfolio, and alternative investments systems are now operational with complete CRUD functionality and comprehensive form validation. The alternatives tab includes advanced features like tax wrapper eligibility (EIS/SEIS/VCT), risk ratings, and real-time return calculations.
 
+**Recent Addition (Aug 27, 2025):** Integrated external valuation tools with secure environment-based configuration. Art and whisky valuation tools now automatically load configured app URLs from environment secrets (ART_VALUATION_APP_URL, WHISKY_VALUATION_APP_URL) with proper error handling and Replit-optimized embedding support.
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

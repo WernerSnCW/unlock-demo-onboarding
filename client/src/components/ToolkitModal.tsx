@@ -821,6 +821,257 @@ function ArtValuationComponent() {
   );
 }
 
+function WhiskyValuationComponent() {
+  const [appUrl, setAppUrl] = useState('');
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
+  const [configError, setConfigError] = useState(false);
+
+  // Auto-detect Replit URLs
+  const isReplitUrl = (url: string) => {
+    return url.includes('replit.com') || url.includes('replit.app');
+  };
+
+  const getEmbedUrl = (url: string) => {
+    if (isReplitUrl(url)) {
+      // Add Replit embed parameters
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}embed=true&theme=light`;
+    }
+    return url;
+  };
+
+  // Fetch configured app URL from server
+  useEffect(() => {
+    const fetchAppConfig = async () => {
+      try {
+        const response = await fetch('/api/whisky-valuation-config');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.appUrl) {
+            setAppUrl(data.appUrl);
+            setConfigError(false);
+          } else {
+            setConfigError(true);
+          }
+        } else {
+          setConfigError(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch whisky valuation config:', error);
+        setConfigError(true);
+      }
+    };
+
+    fetchAppConfig();
+  }, []);
+
+  const handleLoadApp = () => {
+    if (appUrl) {
+      setIsAppLoaded(true);
+      setLoadingError(false);
+    }
+  };
+
+  const handleNavigateToApp = () => {
+    if (appUrl) {
+      window.open(appUrl, '_blank');
+    }
+  };
+
+  const handleIframeError = () => {
+    setLoadingError(true);
+  };
+
+  if (configError) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-exclamation-triangle text-2xl text-red-600 dark:text-red-400" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Configuration Required</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            The whisky valuation app URL is not configured. Please set the WHISKY_VALUATION_APP_URL environment variable.
+          </p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+            <p className="font-medium mb-2">To configure:</p>
+            <ol className="list-decimal list-inside space-y-1 text-blue-700 dark:text-blue-300">
+              <li>Go to the Secrets tab in your Replit workspace</li>
+              <li>Add a new secret: WHISKY_VALUATION_APP_URL</li>
+              <li>Set the value to your whisky valuation app URL</li>
+              <li>Refresh this page</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!appUrl) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-spinner fa-spin text-2xl text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Loading Configuration</h3>
+          <p className="text-gray-600 dark:text-gray-300">
+            Fetching whisky valuation app configuration...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAppLoaded) {
+    return (
+      <div className="p-6">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-glass-whiskey text-2xl text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Whisky Valuation Tool</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Ready to connect to your configured whisky valuation app.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <i className="fas fa-globe mr-2"></i>
+              <span className="font-medium">Configured App:</span>
+            </div>
+            <div className="text-gray-800 dark:text-gray-200 break-all">
+              {appUrl}
+            </div>
+            {isReplitUrl(appUrl) && (
+              <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                <i className="fas fa-check-circle mr-1"></i>
+                Replit app detected - will use optimized embedding with ?embed=true
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button
+              onClick={handleNavigateToApp}
+              className="py-3 px-4 rounded-lg font-medium transition-colors bg-amber-600 hover:bg-amber-700 text-white"
+              data-testid="button-navigate-to-app"
+            >
+              <i className="fas fa-external-link-alt mr-2"></i>
+              Open in New Tab
+            </button>
+            
+            <button
+              onClick={handleLoadApp}
+              className="py-3 px-4 rounded-lg font-medium transition-colors border-2 border-amber-600 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+              data-testid="button-try-embed"
+            >
+              <i className="fas fa-code mr-2"></i>
+              Try Embed
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full">
+      {/* App Controls */}
+      <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <i className="fas fa-globe mr-2"></i>
+          <span className="truncate max-w-md" title={getEmbedUrl(appUrl)}>
+            {isReplitUrl(appUrl) ? getEmbedUrl(appUrl) : appUrl}
+          </span>
+          {isReplitUrl(appUrl) && (
+            <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+              +embed
+            </span>
+          )}
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => window.open(appUrl, '_blank')}
+            className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+            title="Open in new tab"
+            data-testid="button-open-external"
+          >
+            <i className="fas fa-external-link-alt"></i>
+          </button>
+          <button
+            onClick={() => setIsAppLoaded(false)}
+            className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            title="Change app URL"
+            data-testid="button-change-url"
+          >
+            <i className="fas fa-edit"></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Embedded App */}
+      <div className="relative h-[calc(80vh-120px)]">
+        {loadingError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800 p-6">
+            <div className="text-center max-w-md">
+              <i className="fas fa-shield-alt text-4xl text-yellow-500 mb-4"></i>
+              <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                App Cannot Be Embedded
+              </h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                This app has security settings that prevent iframe embedding (X-Frame-Options). 
+                Replit apps typically have this restriction enabled by default.
+              </p>
+              
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4 text-left">
+                <h5 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Solutions:</h5>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <li>• Deploy your app to a custom domain</li>
+                  <li>• Use Replit Deployments with iframe support</li>
+                  <li>• Host on platforms like Vercel, Netlify, or Heroku</li>
+                  <li>• Configure your app to allow iframe embedding</li>
+                </ul>
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => window.open(appUrl, '_blank')}
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg flex-1"
+                  data-testid="button-open-new-tab"
+                >
+                  <i className="fas fa-external-link-alt mr-2"></i>
+                  Open in New Tab
+                </button>
+                <button
+                  onClick={() => setIsAppLoaded(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex-1"
+                  data-testid="button-try-different-url"
+                >
+                  Try Different URL
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <iframe
+          src={getEmbedUrl(appUrl)}
+          className="w-full h-full border-0"
+          title="Whisky Valuation App"
+          onError={handleIframeError}
+          onLoad={() => setLoadingError(false)}
+          sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups"
+          data-testid="iframe-whisky-valuation-app"
+        />
+      </div>
+    </div>
+  );
+}
+
 interface ToolkitModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -952,6 +1203,9 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
 
       case 'art-valuation':
         return <ArtValuationComponent />;
+
+      case 'whisky-valuation':
+        return <WhiskyValuationComponent />;
         
       default:
         return (
