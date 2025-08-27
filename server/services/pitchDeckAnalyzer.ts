@@ -201,11 +201,15 @@ ${slidesText}
 TASKS:
 1) Detect which of these sections are present per slide:
    ${SECTION_TAXONOMY.join(' | ')}.
-2) Extract KPIs anywhere they appear:
-   ARR, MRR, revenue, growth_rate, EBITDA, gross_margin, burn, runway, CAC, LTV, churn, ARPU, customers, users, pricing,
-   TAM, SAM, SOM (with source if cited),
-   raise_amount, equity_offered_pct, instrument, stated_pre_money, stated_post_money, use_of_funds,
-   named_comparables (array of {name, metric, multiple}).
+2) Extract KPIs anywhere they appear (be very thorough, look for various phrasings):
+   - Revenue metrics: ARR, MRR, revenue, growth_rate
+   - Profitability: EBITDA, gross_margin, burn, runway  
+   - Unit economics: CAC, LTV, churn, ARPU
+   - Scale metrics: customers, users, pricing
+   - Market sizing: TAM, SAM, SOM (with source if cited)
+   - FUNDING DETAILS (search carefully): raise_amount (seeking £X, raising $X, funding ask), equity_offered_pct (for X% equity, X% stake), stated_pre_money (£X pre-money, valued at £X), stated_post_money, use_of_funds
+   - Look for phrases like "seeking £X for Y%", "raising £X", "funding ask of £X", "pre-money valuation", "equity stake"
+   - named_comparables (array of {name, metric, multiple})
 3) For each detected section, provide a 1–2 sentence representative quote from the deck (do not paraphrase).
 4) Output STRICT JSON with this schema:
 
@@ -600,6 +604,12 @@ OUTPUT SCHEMA:
       // Extract sections and KPIs (LLM Pass #1)
       const extracted = await this.extractSectionsAndKPIs(slides, sector, stage, geography);
       console.log('LLM extraction complete. KPIs found:', Object.keys(extracted.kpis).filter(k => extracted.kpis[k] !== null));
+      console.log('Critical KPIs:', {
+        raise_amount: extracted.kpis.raise_amount,
+        equity_offered_pct: extracted.kpis.equity_offered_pct,
+        stated_pre_money: extracted.kpis.stated_pre_money,
+        stated_post_money: extracted.kpis.stated_post_money
+      });
       
       // Compute deterministic valuations
       const valuations = this.computeDeterministicValuations(extracted, stage, sector);
