@@ -564,14 +564,12 @@ export default function SimpleAllowanceCalculator() {
 
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
+              {/* Top Row - Applied Amounts */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to Previous Year</div>
                   <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
-                  </div>
-                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#ffffff', marginTop: '4px' }}>
-                    Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} • KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                   </div>
                 </div>
                 <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
@@ -579,22 +577,42 @@ export default function SimpleAllowanceCalculator() {
                   <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
                   </div>
-                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#ffffff', marginTop: '4px' }}>
-                    Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} • KIC: {formatCurrency(result.eis.kicAppliedToThis)}
-                  </div>
                 </div>
+              </div>
+              
+              {/* Bottom Row - Remaining Allowances */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining Allowances (Prev)</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (Prev)</div>
                   <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
                 <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining Allowances (This)</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (This)</div>
                   <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.this)}
+                  </div>
+                </div>
+              </div>
+              
+              {/* EIS Detail Breakdown */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="text-sm" style={{ color: '#1F2937' }}>
+                  <div className="font-semibold mb-2" style={{ color: '#1F2937' }}>EIS Investment Breakdown:</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div style={{ color: '#1F2937', fontWeight: '600' }}>Previous Year:</div>
+                      <div style={{ color: '#1F2937' }}>Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)}</div>
+                      <div style={{ color: '#1F2937' }}>KIC: {formatCurrency(result.eis.kicAppliedToPrev)}</div>
+                    </div>
+                    <div>
+                      <div style={{ color: '#1F2937', fontWeight: '600' }}>This Year:</div>
+                      <div style={{ color: '#1F2937' }}>Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)}</div>
+                      <div style={{ color: '#1F2937' }}>KIC: {formatCurrency(result.eis.kicAppliedToThis)}</div>
+                    </div>
                   </div>
                 </div>
               </div>
