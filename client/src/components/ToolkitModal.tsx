@@ -36,40 +36,74 @@ function WebsiteFactCheckerComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!url.trim()) {
-      setError('Please enter a valid URL');
+    console.log('Form submitted, URL value:', url); // Debug log
+    
+    // Clear any previous errors
+    setError(null);
+    
+    // Validate URL
+    const trimmedUrl = url.trim();
+    console.log('Trimmed URL:', trimmedUrl); // Debug log
+    
+    if (!trimmedUrl) {
+      console.log('Empty URL detected'); // Debug log
+      setError('Please enter a website URL');
       return;
     }
 
+    // Validate URL format
+    try {
+      const urlObj = new URL(trimmedUrl);
+      if (!['http:', 'https:'].includes(urlObj.protocol)) {
+        console.log('Invalid protocol:', urlObj.protocol); // Debug log
+        setError('Please enter a valid HTTP or HTTPS URL');
+        return;
+      }
+      console.log('URL validation passed'); // Debug log
+    } catch (urlError) {
+      console.log('URL validation failed:', urlError); // Debug log
+      setError('Please enter a valid URL (e.g., https://example.com)');
+      return;
+    }
+
+    console.log('Starting fact check analysis...'); // Debug log
     setIsAnalyzing(true);
-    setError(null);
     setResults(null);
 
     try {
+      const requestBody = {
+        url: trimmedUrl,
+        options: {
+          maxClaims,
+          newsTimeWindow,
+          focusAreas: selectedFocusAreas,
+          specificClaims: specificClaims.trim() || undefined
+        }
+      };
+      
+      console.log('Request body:', requestBody); // Debug log
+
       const response = await fetch('/api/fact-check', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          url: url.trim(),
-          options: {
-            maxClaims,
-            newsTimeWindow,
-            focusAreas: selectedFocusAreas,
-            specificClaims: specificClaims.trim() || undefined
-          }
-        })
+        body: JSON.stringify(requestBody)
       });
+
+      console.log('Response status:', response.status); // Debug log
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('Error response:', errorData); // Debug log
         throw new Error(errorData.message || 'Fact checking failed');
       }
 
       const result = await response.json();
+      console.log('Success! Result:', result); // Debug log
       setResults(result);
     } catch (err: any) {
+      console.error('Fact checking error:', err);
       setError(err.message || 'An error occurred during fact checking');
     } finally {
       setIsAnalyzing(false);
