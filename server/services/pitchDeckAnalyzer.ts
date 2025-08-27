@@ -177,6 +177,54 @@ export class PitchDeckAnalyzer {
     return cleanPages;
   }
 
+  static async extractFundingDetails(slides: string[]): Promise<{
+    raise_amount?: number;
+    equity_offered_pct?: number;
+    stated_pre_money?: number;
+    stated_post_money?: number;
+  }> {
+    const slidesText = slides.join('\n\n');
+    
+    const prompt = `Analyze this pitch deck text and find ONLY the funding ask details. Look for:
+- How much money they are raising (raise_amount)
+- What equity percentage they are offering (equity_offered_pct)  
+- Any stated pre-money or post-money valuations
+
+Be extremely thorough - check for phrases like:
+- "seeking £X", "raising £X", "funding ask of £X"
+- "for X% equity", "X% stake", "giving X%"
+- "pre-money valuation", "valued at £X", "company worth £X"
+
+Text to analyze:
+${slidesText}
+
+Output ONLY JSON with the funding details (use null if not found):
+{
+  "raise_amount": <number or null>,
+  "equity_offered_pct": <decimal like 0.20 for 20% or null>,
+  "stated_pre_money": <number or null>,
+  "stated_post_money": <number or null>
+}`;
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: "You extract funding details from pitch decks. Output only valid JSON." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || '{}');
+      return result;
+    } catch (error) {
+      console.error('Error in funding extraction:', error);
+      return {};
+    }
+  }
+
   static async extractSectionsAndKPIs(
     slides: string[], 
     sector: string, 
@@ -615,6 +663,17 @@ OUTPUT SCHEMA:
         stated_post_money: extracted.kpis.stated_post_money
       });
       console.log('First 1000 chars of extracted text:', slides[0]?.substring(0, 1000));
+      
+      // If no funding details found, do a second more targeted extraction
+      if (!extracted.kpis.raise_amount && !extracted.kpis.equity_offered_pct && !extracted.kpis.stated_pre_money) {
+        console.log('No funding details found in first pass, doing targeted extraction...');
+        const fundingExtraction = await this.extractFundingDetails(slides);
+        console.log('Funding extraction result:', fundingExtraction);
+        if (fundingExtraction.raise_amount) extracted.kpis.raise_amount = fundingExtraction.raise_amount;
+        if (fundingExtraction.equity_offered_pct) extracted.kpis.equity_offered_pct = fundingExtraction.equity_offered_pct;
+        if (fundingExtraction.stated_pre_money) extracted.kpis.stated_pre_money = fundingExtraction.stated_pre_money;
+        if (fundingExtraction.stated_post_money) extracted.kpis.stated_post_money = fundingExtraction.stated_post_money;
+      }
       
       // Compute deterministic valuations
       const valuations = this.computeDeterministicValuations(extracted, stage, sector);
