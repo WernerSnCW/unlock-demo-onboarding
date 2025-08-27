@@ -357,18 +357,6 @@ export default function BusinessProfile() {
                   </div>
                 </div>
 
-                {/* Marketing & Brand Management */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management:</span>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {getStarRating(business.snapshot.detailedAssessment?.marketing?.score || 75)}
-                    </div>
-                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).bgColor}`}>
-                      <i className={`${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).icon} ${getVerificationLevel(business.snapshot.detailedAssessment?.marketing?.score || 75).color}`} aria-hidden="true"></i>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Claims Management */}
                 <div className="flex items-center justify-between">
