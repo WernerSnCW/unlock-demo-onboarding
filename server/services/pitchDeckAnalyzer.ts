@@ -170,10 +170,30 @@ export class PitchDeckAnalyzer {
   static async extractTextFromPDF(buffer: Buffer): Promise<string[]> {
     const data = await safePdfParse(buffer);
     console.log('Extracted PDF text preview:', data.text.substring(0, 500));
-    // Split by pages - simplified approach
-    const pages = data.text.split('\f'); // Form feed character typically separates pages in PDF text
-    const cleanPages = pages.map((page: string) => page.trim()).filter((page: string) => page.length > 0);
+    console.log('Total extracted text length:', data.text.length);
+    
+    // Try multiple page splitting methods
+    let pages = data.text.split('\f'); // Form feed character
+    if (pages.length === 1) {
+      // Try splitting on page breaks or slide indicators
+      pages = data.text.split(/\n\s*(?:Page|Slide)\s+\d+/i);
+    }
+    if (pages.length === 1) {
+      // Try splitting on large gaps or section breaks
+      pages = data.text.split(/\n\s*\n\s*\n/);
+    }
+    if (pages.length === 1) {
+      // As last resort, split into chunks of reasonable size
+      const chunkSize = Math.max(1000, Math.floor(data.text.length / 10));
+      pages = [];
+      for (let i = 0; i < data.text.length; i += chunkSize) {
+        pages.push(data.text.substring(i, i + chunkSize));
+      }
+    }
+    
+    const cleanPages = pages.map((page: string) => page.trim()).filter((page: string) => page.length > 20);
     console.log('Number of pages extracted:', cleanPages.length);
+    console.log('Page lengths:', cleanPages.map(p => p.length));
     return cleanPages;
   }
 
