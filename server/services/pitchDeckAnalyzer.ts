@@ -1,11 +1,15 @@
 import OpenAI from 'openai';
-import pdf from 'pdf-parse';
 import multer from 'multer';
 
-// Type declaration for pdf-parse
-declare module 'pdf-parse' {
-  function parse(buffer: Buffer): Promise<{ text: string; numpages: number; info: any; metadata: any; version: string; }>;
-  export = parse;
+// Dynamic import for pdf-parse to avoid initialization issues
+let pdfParse: any = null;
+
+async function getPdfParse() {
+  if (!pdfParse) {
+    pdfParse = await import('pdf-parse');
+    return pdfParse.default || pdfParse;
+  }
+  return pdfParse;
 }
 
 // Initialize OpenAI client
@@ -125,7 +129,8 @@ interface AnalysisResult {
 export class PitchDeckAnalyzer {
   
   static async extractTextFromPDF(buffer: Buffer): Promise<string[]> {
-    const data = await pdf(buffer);
+    const pdfParseFunc = await getPdfParse();
+    const data = await pdfParseFunc(buffer);
     // Split by pages - simplified approach
     const pages = data.text.split('\f'); // Form feed character typically separates pages in PDF text
     return pages.map((page: string) => page.trim()).filter((page: string) => page.length > 0);
