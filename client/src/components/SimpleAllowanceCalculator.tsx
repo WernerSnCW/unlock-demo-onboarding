@@ -506,164 +506,135 @@ export default function SimpleAllowanceCalculator() {
             </div>
           </div>
 
-          {/* SEIS Breakdown */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-            <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown (50% Relief)</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to Previous Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
-                </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to This Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
-                </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (Prev)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
-                </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (This)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingThis)}</div>
-                </div>
-              </div>
-              
-              {result.seis.unusedPotentialLost > 0 && (
-                <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
-                  <strong>Potential Lost:</strong> {formatCurrency(result.seis.unusedPotentialLost)} relief lost due to insufficient liability
-                </div>
-              )}
-
-              {/* SEIS Usage Progress Bars */}
+          {/* Side-by-Side SEIS and EIS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* SEIS Column */}
+            <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+              <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS (50% Relief)</h3>
               <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1" style={{ color: '#1F2937' }}>
-                    <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year Usage</span>
-                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.seisUsagePrev.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsagePrev, 100)}%`, backgroundColor: '#13683B' }}></div>
-                  </div>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Previous Year Applied</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToPrev)}</span>
                 </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1" style={{ color: '#1F2937' }}>
-                    <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year Usage</span>
-                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.seisUsageThis.toFixed(1)}%</span>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>This Year Applied</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToThis)}</span>
+                </div>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (Previous)</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingPrev)}</span>
+                </div>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (This Year)</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingThis)}</span>
+                </div>
+                
+                {result.seis.unusedPotentialLost > 0 && (
+                  <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
+                    <strong>Potential Lost:</strong> {formatCurrency(result.seis.unusedPotentialLost)} relief lost due to insufficient liability
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsageThis, 100)}%`, backgroundColor: '#13683B' }}></div>
+                )}
+
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1" style={{ color: '#1F2937' }}>
+                      <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year Usage</span>
+                      <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.seisUsagePrev.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsagePrev, 100)}%`, backgroundColor: '#13683B' }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1" style={{ color: '#1F2937' }}>
+                      <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year Usage</span>
+                      <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.seisUsageThis.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsageThis, 100)}%`, backgroundColor: '#13683B' }}></div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* EIS Breakdown */}
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
-
-            <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
-            <div className="space-y-4">
-              {/* Top Row - Applied Amounts */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to Previous Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
-                    {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
-                  </div>
+            {/* EIS Column */}
+            <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+              <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS (30% Relief)</h3>
+              <div className="space-y-3">
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Previous Year Applied</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.eis.appliedToPrev)}</span>
                 </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Applied to This Year</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
-                    {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
-                  </div>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>This Year Applied</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.eis.appliedToThis)}</span>
                 </div>
-              </div>
-              
-              {/* Bottom Row - Remaining Allowances */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (Prev)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (Previous)</span>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff', textAlign: 'right' }}>
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
-                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Allowance Remaining (This)</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>
+                <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (This Year)</span>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff', textAlign: 'right' }}>
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.this)}
                   </div>
                 </div>
-              </div>
-              
-              {/* EIS Detail Breakdown */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <div className="text-sm" style={{ color: '#1F2937' }}>
-                  <div className="font-semibold mb-2" style={{ color: '#1F2937' }}>EIS Investment Breakdown:</div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div style={{ color: '#1F2937', fontWeight: '600' }}>Previous Year:</div>
-                      <div style={{ color: '#1F2937' }}>Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)}</div>
-                      <div style={{ color: '#1F2937' }}>KIC: {formatCurrency(result.eis.kicAppliedToPrev)}</div>
-                    </div>
-                    <div>
-                      <div style={{ color: '#1F2937', fontWeight: '600' }}>This Year:</div>
-                      <div style={{ color: '#1F2937' }}>Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)}</div>
-                      <div style={{ color: '#1F2937' }}>KIC: {formatCurrency(result.eis.kicAppliedToThis)}</div>
+                
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="text-sm" style={{ color: '#1F2937' }}>
+                    <div className="font-semibold mb-2" style={{ color: '#1F2937' }}>Investment Breakdown:</div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div style={{ color: '#1F2937', fontWeight: '600' }}>Previous Year:</div>
+                        <div style={{ color: '#1F2937' }}>Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)}</div>
+                        <div style={{ color: '#1F2937' }}>KIC: {formatCurrency(result.eis.kicAppliedToPrev)}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#1F2937', fontWeight: '600' }}>This Year:</div>
+                        <div style={{ color: '#1F2937' }}>Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)}</div>
+                        <div style={{ color: '#1F2937' }}>KIC: {formatCurrency(result.eis.kicAppliedToThis)}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              {result.eis.unusedPotentialLost > 0 && (
-                <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
-                  <strong>Potential Lost:</strong> {formatCurrency(result.eis.unusedPotentialLost)} relief lost due to insufficient liability
-                </div>
-              )}
+                
+                {result.eis.unusedPotentialLost > 0 && (
+                  <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
+                    <strong>Potential Lost:</strong> {formatCurrency(result.eis.unusedPotentialLost)} relief lost due to insufficient liability
+                  </div>
+                )}
 
-              {/* EIS Usage Progress Bars */}
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year - Any Band (£1m)</span>
-                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageRegularPrev.toFixed(1)}%</span>
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year - Any Band (£1m)</span>
+                      <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageRegularPrev.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularPrev, 100)}%`, backgroundColor: '#10B981' }}></div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularPrev, 100)}%`, backgroundColor: '#10B981' }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span style={{ color: '#1F2937', fontWeight: '500' }}>Previous Year - Total (£2m)</span>
-                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageKICPrev.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICPrev, 100)}%`, backgroundColor: '#10B981', opacity: '0.7' }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year - Any Band (£1m)</span>
-                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageRegularThis.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularThis, 100)}%`, backgroundColor: '#10B981' }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year - Total (£2m)</span>
-                    <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageKICThis.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICThis, 100)}%`, backgroundColor: '#10B981', opacity: '0.7' }}></div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span style={{ color: '#1F2937', fontWeight: '500' }}>This Year - Any Band (£1m)</span>
+                      <span style={{ color: '#1F2937', fontWeight: '600' }}>{result.progress.eisUsageRegularThis.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularThis, 100)}%`, backgroundColor: '#10B981' }}></div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+
 
           {/* Optimization Suggestions */}
           {result.suggestions.length > 0 && (
