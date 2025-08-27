@@ -303,231 +303,193 @@ function WebsiteFactCheckerComponent() {
   }
 
   return (
-    <div className="p-8">
-      {/* Enhanced Hero Section */}
-      <div className="text-center mb-10 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)]/10 to-[var(--brand-accent-bg)]/10 rounded-3xl blur-3xl"></div>
-        <div className="relative">
-          <div className="w-20 h-20 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl animate-bounce">
-            <i className="fas fa-shield-alt text-3xl text-white" aria-hidden="true"></i>
-          </div>
-          <h3 className="text-3xl font-bold text-[var(--foreground)] mb-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
-            Website Fact Checker
-          </h3>
-          <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto leading-relaxed">
-            Verify website claims using advanced AI analysis, real-time news sources, and official government records.
-          </p>
+    <div className="p-6">
+      {/* Compact Hero Section */}
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <i className="fas fa-shield-alt text-2xl text-white" aria-hidden="true"></i>
         </div>
+        <h3 className="text-2xl font-bold text-[var(--foreground)] mb-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+          Website Fact Checker
+        </h3>
+        <p className="text-sm text-[var(--muted-foreground)]">
+          AI-powered verification using news sources and official records
+        </p>
       </div>
 
       {error && (
-        <div className="mb-8 p-5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-l-4 border-red-500 rounded-xl shadow-lg animate-pulse">
+        <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-l-4 border-red-500 rounded-lg">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-              <i className="fas fa-exclamation-triangle text-white text-sm" aria-hidden="true"></i>
-            </div>
-            <span className="ml-3 text-red-800 dark:text-red-200 font-medium">{error}</span>
+            <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 mr-2 text-sm" aria-hidden="true"></i>
+            <span className="text-red-800 dark:text-red-200 text-sm font-medium">{error}</span>
           </div>
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* URL Input Section */}
-        <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
-          <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
-            <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
-              <i className="fas fa-globe text-white text-sm" aria-hidden="true"></i>
-            </div>
-            Website URL *
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="example.com or https://example.com"
-              className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] text-lg placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 pl-12"
-              data-testid="input-website-url"
-              required
-            />
-            <i className="fas fa-link absolute left-4 top-5 text-[var(--muted-foreground)]" aria-hidden="true"></i>
-          </div>
-        </div>
-        
-        {/* Claims Section */}
-        <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
-          <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
-            <div className="w-8 h-8 bg-[var(--secondary)] rounded-lg flex items-center justify-center">
-              <i className="fas fa-bullseye text-white text-sm" aria-hidden="true"></i>
-            </div>
-            Specific Claims to Verify
-            <span className="text-sm font-normal text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-full">Optional</span>
-          </label>
-          <textarea
-            rows={4}
-            value={specificClaims}
-            onChange={(e) => setSpecificClaims(e.target.value)}
-            placeholder="e.g., 'Revenue increased by 300%', 'Winner of Best Startup 2024', 'Over 1 million active users'..."
-            className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent transition-all duration-200 resize-none"
-            data-testid="textarea-claims"
-          />
-        </div>
-        
-        {/* Settings Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
-            <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
-              <div className="w-8 h-8 bg-[var(--brand-accent-bg)] rounded-lg flex items-center justify-center">
-                <i className="fas fa-list-ol text-white text-sm" aria-hidden="true"></i>
-              </div>
-              Max Claims to Extract
-            </label>
-            <select 
-              value={maxClaims}
-              onChange={(e) => setMaxClaims(Number(e.target.value))}
-              className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--brand-accent-bg)] focus:border-transparent transition-all duration-200"
-            >
-              <option value={10}>🎯 10 claims - Quick scan</option>
-              <option value={25}>📊 25 claims - Standard analysis</option>
-              <option value={50}>🔍 50 claims - Deep investigation</option>
-            </select>
-          </div>
-          
-          <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
-            <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-4">
-              <div className="w-8 h-8 bg-[var(--info)] rounded-lg flex items-center justify-center">
-                <i className="fas fa-clock text-white text-sm" aria-hidden="true"></i>
-              </div>
-              News Search Window
-            </label>
-            <select 
-              value={newsTimeWindow}
-              onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
-              className="w-full px-5 py-4 border border-[var(--border)] rounded-xl bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--info)] focus:border-transparent transition-all duration-200"
-            >
-              <option value={6}>📅 6 months - Recent news</option>
-              <option value={12}>📆 12 months - Standard range</option>
-              <option value={24}>🗓️ 24 months - Extended search</option>
-              <option value={36}>📚 36 months - Comprehensive history</option>
-            </select>
-          </div>
-        </div>
-        
-        {/* Focus Areas Section */}
-        <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 p-6 rounded-2xl border border-[var(--border)] shadow-lg">
-          <label className="flex items-center gap-3 text-lg font-semibold text-[var(--foreground)] mb-6">
-            <div className="w-8 h-8 bg-[var(--warning)] rounded-lg flex items-center justify-center">
-              <i className="fas fa-crosshairs text-white text-sm" aria-hidden="true"></i>
-            </div>
-            Focus Areas
-            <span className="text-sm font-normal text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-full">Optional</span>
-          </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {focusAreas.map((area, index) => (
-              <label key={area} className="group flex items-center p-3 rounded-xl bg-[var(--muted)]/30 hover:bg-[var(--primary)]/10 transition-all duration-200 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={selectedFocusAreas.includes(area)}
-                  onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
-                  className="mr-4 w-4 h-4 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
-                  data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                />
-                <div className="flex items-center gap-2">
-                  <i className={`fas ${
-                    ['fa-dollar-sign', 'fa-users', 'fa-trophy', 'fa-building', 'fa-cogs', 'fa-user-tie'][index]
-                  } text-[var(--primary)] text-sm`} aria-hidden="true"></i>
-                  <span className="font-medium text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">{area}</span>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Combined Input Section */}
+        <div className="bg-[var(--card)] p-5 rounded-xl border border-[var(--border)] shadow-md">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* URL Input */}
+            <div className="lg:col-span-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)] mb-2">
+                <div className="w-6 h-6 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+                  <i className="fas fa-globe text-white text-xs" aria-hidden="true"></i>
                 </div>
+                Website URL *
               </label>
-            ))}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="example.com or https://example.com"
+                  className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 pl-10"
+                  data-testid="input-website-url"
+                  required
+                />
+                <i className="fas fa-link absolute left-3 top-3.5 text-[var(--muted-foreground)] text-sm" aria-hidden="true"></i>
+              </div>
+            </div>
+
+            {/* Claims Limit */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)] mb-2">
+                <div className="w-6 h-6 bg-[var(--brand-accent-bg)] rounded-lg flex items-center justify-center">
+                  <i className="fas fa-list-ol text-white text-xs" aria-hidden="true"></i>
+                </div>
+                Claims Limit
+              </label>
+              <select 
+                value={maxClaims}
+                onChange={(e) => setMaxClaims(Number(e.target.value))}
+                className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--brand-accent-bg)] focus:border-transparent transition-all duration-200"
+              >
+                <option value={10}>10 claims</option>
+                <option value={25}>25 claims</option>
+                <option value={50}>50 claims</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Specific Claims - Collapsible */}
+          <details className="mt-4 group">
+            <summary className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-[var(--foreground)] mb-2">
+              <div className="w-6 h-6 bg-[var(--secondary)] rounded-lg flex items-center justify-center">
+                <i className="fas fa-bullseye text-white text-xs" aria-hidden="true"></i>
+              </div>
+              <span>Specific Claims</span>
+              <span className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-full">Optional</span>
+              <i className="fas fa-chevron-down group-open:rotate-180 transition-transform duration-200 ml-auto text-xs" aria-hidden="true"></i>
+            </summary>
+            <textarea
+              rows={3}
+              value={specificClaims}
+              onChange={(e) => setSpecificClaims(e.target.value)}
+              placeholder="e.g., 'Revenue increased by 300%', 'Winner of Best Startup 2024'..."
+              className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--secondary)] focus:border-transparent transition-all duration-200 resize-none mt-2"
+              data-testid="textarea-claims"
+            />
+          </details>
+        </div>
+        
+        {/* Settings Row */}
+        <div className="bg-[var(--card)] p-5 rounded-xl border border-[var(--border)] shadow-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)] mb-2">
+                <div className="w-6 h-6 bg-[var(--info)] rounded-lg flex items-center justify-center">
+                  <i className="fas fa-clock text-white text-xs" aria-hidden="true"></i>
+                </div>
+                News Time Window
+              </label>
+              <select 
+                value={newsTimeWindow}
+                onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
+                className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--info)] focus:border-transparent transition-all duration-200"
+              >
+                <option value={6}>6 months</option>
+                <option value={12}>12 months</option>
+                <option value={24}>24 months</option>
+                <option value={36}>36 months</option>
+              </select>
+            </div>
+
+            {/* Focus Areas - Collapsible */}
+            <div>
+              <details className="group">
+                <summary className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-[var(--foreground)] mb-2">
+                  <div className="w-6 h-6 bg-[var(--warning)] rounded-lg flex items-center justify-center">
+                    <i className="fas fa-crosshairs text-white text-xs" aria-hidden="true"></i>
+                  </div>
+                  <span>Focus Areas</span>
+                  <span className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded-full">Optional</span>
+                  <i className="fas fa-chevron-down group-open:rotate-180 transition-transform duration-200 ml-auto text-xs" aria-hidden="true"></i>
+                </summary>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {focusAreas.map((area, index) => (
+                    <label key={area} className="flex items-center p-2 rounded-lg bg-[var(--muted)]/30 hover:bg-[var(--primary)]/10 transition-all duration-200 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedFocusAreas.includes(area)}
+                        onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
+                        className="mr-2 w-3 h-3 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
+                        data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                      />
+                      <span className="text-xs font-medium text-[var(--foreground)]">{area}</span>
+                    </label>
+                  ))}
+                </div>
+              </details>
+            </div>
           </div>
         </div>
         
         {/* Submit Button */}
-        <div className="relative">
-          <button
-            type="submit"
-            disabled={isAnalyzing}
-            className="w-full bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--brand-accent-bg)] hover:from-[var(--secondary)] hover:via-[var(--brand-accent-bg)] hover:to-[var(--primary)] disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl flex items-center justify-center text-lg relative overflow-hidden"
-            data-testid="button-analyze-website"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            {isAnalyzing ? (
-              <>
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-                <span className="animate-pulse">Analyzing Website...</span>
-              </>
-            ) : (
-              <>
-                <i className="fas fa-rocket mr-3 text-xl" aria-hidden="true"></i>
-                <span>Start Fact Check Analysis</span>
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isAnalyzing}
+          className="w-full bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--brand-accent-bg)] hover:from-[var(--secondary)] hover:via-[var(--brand-accent-bg)] hover:to-[var(--primary)] disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl flex items-center justify-center text-base relative overflow-hidden"
+          data-testid="button-analyze-website"
+        >
+          {isAnalyzing ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              <span>Analyzing...</span>
+            </>
+          ) : (
+            <>
+              <i className="fas fa-rocket mr-2" aria-hidden="true"></i>
+              <span>Start Fact Check Analysis</span>
+            </>
+          )}
+        </button>
       </form>
       
-      {/* Enhanced Info Section */}
-      <div className="mt-10 bg-gradient-to-r from-[var(--warning)]/10 via-[var(--accent)]/20 to-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-2xl p-8 shadow-lg">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] rounded-xl flex items-center justify-center flex-shrink-0">
-            <i className="fas fa-magic text-white text-lg animate-pulse" aria-hidden="true"></i>
+      {/* Compact Info Section */}
+      <div className="mt-6 bg-gradient-to-r from-[var(--warning)]/10 via-[var(--accent)]/20 to-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-xl p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] rounded-lg flex items-center justify-center flex-shrink-0">
+            <i className="fas fa-info text-white text-sm" aria-hidden="true"></i>
           </div>
-          <div>
-            <h4 className="text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
-              How Our AI Fact Checker Works
-              <i className="fas fa-cog animate-spin text-[var(--primary)]" aria-hidden="true"></i>
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-brain text-white text-sm" aria-hidden="true"></i>
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-[var(--foreground)] mb-1">AI Claim Extraction</h5>
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                      Advanced GPT-5 model identifies and extracts factual claims from website content
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[var(--secondary)] rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-newspaper text-white text-sm" aria-hidden="true"></i>
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-[var(--foreground)] mb-1">News Cross-Reference</h5>
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                      Real-time verification against thousands of reputable news sources via NewsAPI
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[var(--brand-accent-bg)] rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-landmark text-white text-sm" aria-hidden="true"></i>
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-[var(--foreground)] mb-1">Official Record Check</h5>
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                      Direct verification with UK Companies House for business information
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-[var(--info)] rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i className="fas fa-chart-line text-white text-sm" aria-hidden="true"></i>
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-[var(--foreground)] mb-1">Confidence Scoring</h5>
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                      Statistical confidence ratings with detailed reasoning for each verdict
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <h4 className="text-base font-bold text-[var(--foreground)]">How It Works</h4>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <i className="fas fa-brain text-[var(--primary)]" aria-hidden="true"></i>
+            <span className="text-[var(--muted-foreground)]">AI Analysis</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <i className="fas fa-newspaper text-[var(--secondary)]" aria-hidden="true"></i>
+            <span className="text-[var(--muted-foreground)]">News Sources</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <i className="fas fa-landmark text-[var(--brand-accent-bg)]" aria-hidden="true"></i>
+            <span className="text-[var(--muted-foreground)]">Official Records</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <i className="fas fa-chart-line text-[var(--info)]" aria-hidden="true"></i>
+            <span className="text-[var(--muted-foreground)]">Confidence Scores</span>
           </div>
         </div>
       </div>
