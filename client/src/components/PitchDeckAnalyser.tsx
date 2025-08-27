@@ -339,58 +339,67 @@ export default function PitchDeckAnalyser() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-[var(--background)] min-h-screen">
       
       {/* Header */}
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#5193B3] to-[#62C4C3] rounded-2xl mb-4 shadow-lg">
-          <i className="fas fa-file-powerpoint text-2xl text-white" aria-hidden="true"></i>
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl mb-4 shadow-lg">
+          <i className="fas fa-file-powerpoint text-2xl text-[var(--primary-foreground)]" aria-hidden="true"></i>
         </div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#5193B3] to-[#62C4C3] bg-clip-text text-transparent mb-3">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent mb-3">
           Pitch Deck Analyser
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
           Upload your startup pitch deck to get detailed analysis, investor questions, and valuation benchmarking
         </p>
       </div>
 
       {/* Upload Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
-          <i className="fas fa-upload text-[#5193B3]" aria-hidden="true"></i>
+      <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-md)]">
+        <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-6 flex items-center gap-2">
+          <i className="fas fa-upload text-[var(--primary)]" aria-hidden="true"></i>
           Upload Pitch Deck
         </h2>
 
         {/* File Upload */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-[var(--foreground)] mb-2 flex items-center gap-2">
+            <i className="fas fa-file text-[var(--primary)]" aria-hidden="true"></i>
             Select PDF or PowerPoint file
           </label>
           <input
             type="file"
             accept=".pdf,.ppt,.pptx"
             onChange={handleFileUpload}
-            className="block w-full text-sm text-gray-500 dark:text-gray-400
+            className="block w-full text-sm text-[var(--muted-foreground)]
               file:mr-4 file:py-2 file:px-4
-              file:rounded-lg file:border-0
+              file:rounded-[var(--radius-md)] file:border-0
               file:text-sm file:font-medium
-              file:bg-[#5193B3] file:text-white
-              hover:file:bg-[#4A85A3] file:cursor-pointer
-              border border-gray-300 dark:border-gray-600 rounded-lg p-3
-              bg-gray-50 dark:bg-gray-700"
+              file:bg-[var(--primary)] file:text-[var(--primary-foreground)]
+              hover:file:bg-[var(--secondary)] file:cursor-pointer
+              border border-[var(--border)] rounded-[var(--radius-md)] p-3
+              bg-[var(--input)] focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent
+              transition-all duration-200"
+            data-testid="file-upload-input"
           />
         </div>
 
         {/* Optional Context */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Sector (Optional)
+            <label className="block text-sm font-medium text-[var(--foreground)] mb-2 flex items-center gap-2">
+              <i className="fas fa-building text-[var(--primary)]" aria-hidden="true"></i>
+              Sector
+              <span className="text-[var(--muted-foreground)] text-xs">(optional)</span>
             </label>
             <select
               value={sector}
               onChange={(e) => setSector(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-md)] 
+                bg-[var(--input)] text-[var(--foreground)]
+                focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent
+                transition-all duration-200"
+              data-testid="sector-select"
             >
               <option value="">Select sector</option>
               <option value="fintech">FinTech</option>
@@ -402,13 +411,19 @@ export default function PitchDeckAnalyser() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Stage (Optional)
+            <label className="block text-sm font-medium text-[var(--foreground)] mb-2 flex items-center gap-2">
+              <i className="fas fa-chart-line text-[var(--primary)]" aria-hidden="true"></i>
+              Stage
+              <span className="text-[var(--muted-foreground)] text-xs">(optional)</span>
             </label>
             <select
               value={stage}
               onChange={(e) => setStage(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-md)] 
+                bg-[var(--input)] text-[var(--foreground)]
+                focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent
+                transition-all duration-200"
+              data-testid="stage-select"
             >
               <option value="">Select stage</option>
               <option value="pre-seed">Pre-Seed</option>
@@ -418,13 +433,19 @@ export default function PitchDeckAnalyser() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Geography (Optional)
+            <label className="block text-sm font-medium text-[var(--foreground)] mb-2 flex items-center gap-2">
+              <i className="fas fa-globe text-[var(--primary)]" aria-hidden="true"></i>
+              Geography
+              <span className="text-[var(--muted-foreground)] text-xs">(optional)</span>
             </label>
             <select
               value={geography}
               onChange={(e) => setGeography(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[var(--border)] rounded-[var(--radius-md)] 
+                bg-[var(--input)] text-[var(--foreground)]
+                focus:ring-2 focus:ring-[var(--ring)] focus:border-transparent
+                transition-all duration-200"
+              data-testid="geography-select"
             >
               <option value="">Select region</option>
               <option value="uk">United Kingdom</option>
@@ -439,7 +460,14 @@ export default function PitchDeckAnalyser() {
         <button
           onClick={() => file && analyseDocument(file)}
           disabled={!file || isAnalysing}
-          className="w-full bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] 
+            hover:from-[var(--secondary)] hover:to-[var(--primary)] 
+            text-[var(--primary-foreground)] font-semibold py-3 px-6 
+            rounded-[var(--radius-lg)] transition-all duration-200 
+            disabled:opacity-50 disabled:cursor-not-allowed 
+            flex items-center justify-center gap-2 shadow-[var(--shadow-md)]
+            hover:shadow-[var(--shadow-lg)]"
+          data-testid="analyze-button"
         >
           {isAnalysing ? (
             <>
@@ -460,46 +488,46 @@ export default function PitchDeckAnalyser() {
         <div className="space-y-8">
           
           {/* Executive Summary */}
-          <div className="bg-gradient-to-br from-[#5193B3]/5 via-white to-[#62C4C3]/5 dark:from-[#5193B3]/10 dark:via-gray-800 dark:to-[#62C4C3]/10 rounded-xl border border-[#5193B3]/20 dark:border-[#62C4C3]/20 p-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-3">
-              <i className="fas fa-chart-bar text-[#5193B3]" aria-hidden="true"></i>
+          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-lg)]">
+            <h2 className="text-2xl font-bold text-[var(--card-foreground)] mb-6 flex items-center gap-3">
+              <i className="fas fa-chart-bar text-[var(--primary)]" aria-hidden="true"></i>
               Executive Summary
             </h2>
 
             {/* Overall Scores */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#5193B3] mb-1">
+              <div className="text-center p-4 rounded-[var(--radius-md)] bg-[var(--muted)] border border-[var(--border)]">
+                <div className="text-3xl font-bold text-[var(--primary)] mb-1">
                   {result.overallScore.completeness}/10
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Completeness</div>
+                <div className="text-sm text-[var(--muted-foreground)]">Completeness</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#62C4C3] mb-1">
+              <div className="text-center p-4 rounded-[var(--radius-md)] bg-[var(--muted)] border border-[var(--border)]">
+                <div className="text-3xl font-bold text-[var(--secondary)] mb-1">
                   {result.overallScore.clarity}/10
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Clarity</div>
+                <div className="text-sm text-[var(--muted-foreground)]">Clarity</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#F8D49B] mb-1">
+              <div className="text-center p-4 rounded-[var(--radius-md)] bg-[var(--muted)] border border-[var(--border)]">
+                <div className="text-3xl font-bold text-[var(--accent-foreground)] mb-1">
                   {result.overallScore.valuationPlausibility}/10
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Valuation Reality</div>
+                <div className="text-sm text-[var(--muted-foreground)]">Valuation Reality</div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Strengths */}
               <div>
-                <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-[var(--success)] mb-3 flex items-center gap-2">
                   <i className="fas fa-thumbs-up" aria-hidden="true"></i>
                   Top Strengths
                 </h3>
                 <ul className="space-y-2">
                   {result.executiveSummary.topStrengths.map((strength, index) => (
                     <li key={index} className="flex items-start gap-2 text-sm">
-                      <i className="fas fa-check text-green-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
-                      <span className="text-gray-700 dark:text-gray-300">{strength}</span>
+                      <i className="fas fa-check text-[var(--success)] mt-1 flex-shrink-0" aria-hidden="true"></i>
+                      <span className="text-[var(--foreground)]">{strength}</span>
                     </li>
                   ))}
                 </ul>
@@ -507,15 +535,15 @@ export default function PitchDeckAnalyser() {
 
               {/* Weaknesses */}
               <div>
-                <h3 className="text-lg font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-[var(--destructive)] mb-3 flex items-center gap-2">
                   <i className="fas fa-exclamation-triangle" aria-hidden="true"></i>
                   Key Weaknesses
                 </h3>
                 <ul className="space-y-2">
                   {result.executiveSummary.topWeaknesses.map((weakness, index) => (
                     <li key={index} className="flex items-start gap-2 text-sm">
-                      <i className="fas fa-times text-red-600 mt-1 flex-shrink-0" aria-hidden="true"></i>
-                      <span className="text-gray-700 dark:text-gray-300">{weakness}</span>
+                      <i className="fas fa-times text-[var(--destructive)] mt-1 flex-shrink-0" aria-hidden="true"></i>
+                      <span className="text-[var(--foreground)]">{weakness}</span>
                     </li>
                   ))}
                 </ul>
@@ -524,28 +552,28 @@ export default function PitchDeckAnalyser() {
           </div>
 
           {/* Valuation Analysis */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-3">
-              <i className="fas fa-pound-sign text-[#5193B3]" aria-hidden="true"></i>
+          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-lg)]">
+            <h2 className="text-2xl font-bold text-[var(--card-foreground)] mb-6 flex items-center gap-3">
+              <i className="fas fa-pound-sign text-[var(--primary)]" aria-hidden="true"></i>
               Valuation Analysis
             </h2>
 
             {/* Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-[#5193B3] mb-1">
+              <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                <div className="text-2xl font-bold text-[var(--primary)] mb-1">
                   {formatCurrency(result.valuation.declared)}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Pre-Money Valuation</div>
+                <div className="text-sm text-[var(--muted-foreground)]">Pre-Money Valuation</div>
               </div>
-              <div className="text-center p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-[#62C4C3] mb-1">
+              <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                <div className="text-2xl font-bold text-[var(--secondary)] mb-1">
                   {formatCurrency(result.valuation.methods.postMoney)}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Post-Money Valuation</div>
+                <div className="text-sm text-[var(--muted-foreground)]">Post-Money Valuation</div>
               </div>
-              <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
+              <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                <div className="text-lg font-medium text-[var(--foreground)]">
                   {result.valuation.assessment}
                 </div>
               </div>
@@ -553,49 +581,49 @@ export default function PitchDeckAnalyser() {
 
             {/* Benchmarking Table */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <i className="fas fa-table text-[#5193B3]" aria-hidden="true"></i>
+              <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4 flex items-center gap-2">
+                <i className="fas fa-table text-[var(--primary)]" aria-hidden="true"></i>
                 Valuation Methods Comparison
               </h3>
               <div className="overflow-x-auto">
-                <table className="w-full border border-gray-200 dark:border-gray-600 rounded-lg">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                <table className="w-full border border-[var(--border)] rounded-[var(--radius-md)]">
+                  <thead className="bg-[var(--muted)]">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Method</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Basis Used</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Implied Value</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Deck Value</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">Commentary</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] border-b border-[var(--border)]">Method</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] border-b border-[var(--border)]">Basis Used</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] border-b border-[var(--border)]">Implied Value</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] border-b border-[var(--border)]">Deck Value</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] border-b border-[var(--border)]">Commentary</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800">
-                    <tr className="border-b border-gray-100 dark:border-gray-700">
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">Pre/Post Money</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">£5m ask for 20%</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre, {formatCurrency(result.valuation.methods.postMoney)} post</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
-                      <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400">Matches stated figures</td>
+                  <tbody className="bg-[var(--card)]">
+                    <tr className="border-b border-[var(--border)]">
+                      <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">Pre/Post Money</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">£5m ask for 20%</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre, {formatCurrency(result.valuation.methods.postMoney)} post</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
+                      <td className="px-4 py-3 text-sm text-[var(--success)]">Matches stated figures</td>
                     </tr>
-                    <tr className="border-b border-gray-100 dark:border-gray-700">
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">Revenue Multiple</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.revenueMultiple.arr)} ARR × {result.valuation.methods.revenueMultiple.multiple}x</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
-                      <td className="px-4 py-3 text-sm text-red-600 dark:text-red-400">Overvalued vs ARR benchmark</td>
+                    <tr className="border-b border-[var(--border)]">
+                      <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">Revenue Multiple</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.arr)} ARR × {result.valuation.methods.revenueMultiple.multiple}x</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
+                      <td className="px-4 py-3 text-sm text-[var(--destructive)]">Overvalued vs ARR benchmark</td>
                     </tr>
-                    <tr className="border-b border-gray-100 dark:border-gray-700">
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">EBITDA Multiple</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)} EBITDA × {result.valuation.methods.ebitdaMultiple.multiple}x</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
-                      <td className="px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400">Premium pricing applied</td>
+                    <tr className="border-b border-[var(--border)]">
+                      <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">EBITDA Multiple</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)} EBITDA × {result.valuation.methods.ebitdaMultiple.multiple}x</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
+                      <td className="px-4 py-3 text-sm text-[var(--warning)]">Premium pricing applied</td>
                     </tr>
                     <tr>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">ROI Projection</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">Exit {formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{result.valuation.methods.roiProjection.roiMultiple}× return ({result.valuation.methods.roiProjection.equityStake}% stake)</td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">N/A</td>
-                      <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400">Attractive if growth targets hit</td>
+                      <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">ROI Projection</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">Exit {formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{result.valuation.methods.roiProjection.roiMultiple}× return ({result.valuation.methods.roiProjection.equityStake}% stake)</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">N/A</td>
+                      <td className="px-4 py-3 text-sm text-[var(--success)]">Attractive if growth targets hit</td>
                     </tr>
                   </tbody>
                 </table>
@@ -604,93 +632,93 @@ export default function PitchDeckAnalyser() {
 
             {/* Method Details */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <i className="fas fa-chart-line text-[#5193B3] text-sm" aria-hidden="true"></i>
+              <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                <h4 className="font-semibold text-[var(--card-foreground)] mb-3 flex items-center gap-2">
+                  <i className="fas fa-chart-line text-[var(--primary)] text-sm" aria-hidden="true"></i>
                   Revenue Multiple Analysis
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Current ARR:</span>
-                    <span className="font-medium text-gray-800 dark:text-gray-100">{formatCurrency(result.valuation.methods.revenueMultiple.arr)}</span>
+                    <span className="text-[var(--muted-foreground)]">Current ARR:</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.arr)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Industry Multiple:</span>
-                    <span className="font-medium text-gray-800 dark:text-gray-100">{result.valuation.methods.revenueMultiple.multiple}×</span>
+                    <span className="text-[var(--muted-foreground)]">Industry Multiple:</span>
+                    <span className="font-medium text-[var(--foreground)]">{result.valuation.methods.revenueMultiple.multiple}×</span>
                   </div>
-                  <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
-                    <span className="text-gray-600 dark:text-gray-300">Fair Value:</span>
-                    <span className="font-bold text-[#5193B3]">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</span>
+                  <div className="flex justify-between border-t border-[var(--border)] pt-2">
+                    <span className="text-[var(--muted-foreground)]">Fair Value:</span>
+                    <span className="font-bold text-[var(--primary)]">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</span>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Most common for SaaS/tech startups. Focuses on recurring revenue potential.</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-2">Most common for SaaS/tech startups. Focuses on recurring revenue potential.</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <i className="fas fa-chart-bar text-[#62C4C3] text-sm" aria-hidden="true"></i>
+              <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                <h4 className="font-semibold text-[var(--card-foreground)] mb-3 flex items-center gap-2">
+                  <i className="fas fa-chart-bar text-[var(--secondary)] text-sm" aria-hidden="true"></i>
                   EBITDA Multiple Analysis
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Forecasted EBITDA (Y3):</span>
-                    <span className="font-medium text-gray-800 dark:text-gray-100">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)}</span>
+                    <span className="text-[var(--muted-foreground)]">Forecasted EBITDA (Y3):</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Industry Multiple:</span>
-                    <span className="font-medium text-gray-800 dark:text-gray-100">{result.valuation.methods.ebitdaMultiple.multiple}×</span>
+                    <span className="text-[var(--muted-foreground)]">Industry Multiple:</span>
+                    <span className="font-medium text-[var(--foreground)]">{result.valuation.methods.ebitdaMultiple.multiple}×</span>
                   </div>
-                  <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
-                    <span className="text-gray-600 dark:text-gray-300">Implied Value:</span>
-                    <span className="font-bold text-[#62C4C3]">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</span>
+                  <div className="flex justify-between border-t border-[var(--border)] pt-2">
+                    <span className="text-[var(--muted-foreground)]">Implied Value:</span>
+                    <span className="font-bold text-[var(--secondary)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</span>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Useful for later-stage businesses. Reflects profitability and efficiency.</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-2">Useful for later-stage businesses. Reflects profitability and efficiency.</p>
                 </div>
               </div>
             </div>
 
             {/* ROI Analysis */}
-            <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg mb-8">
-              <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-                <i className="fas fa-trophy text-[#F8D49B] text-sm" aria-hidden="true"></i>
+            <div className="p-6 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-[var(--radius-lg)] mb-8 border border-[var(--border)]">
+              <h4 className="font-semibold text-[var(--accent-foreground)] mb-4 flex items-center gap-2">
+                <i className="fas fa-trophy text-[var(--accent-foreground)] text-sm" aria-hidden="true"></i>
                 Investor ROI Projection
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[#F8D49B] mb-1">{result.valuation.methods.roiProjection.equityStake}%</div>
-                  <div className="text-gray-600 dark:text-gray-400">Equity Stake</div>
+                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">{result.valuation.methods.roiProjection.equityStake}%</div>
+                  <div className="text-[var(--accent-foreground)] opacity-80">Equity Stake</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[#F8D49B] mb-1">{result.valuation.methods.roiProjection.roiMultiple}×</div>
-                  <div className="text-gray-600 dark:text-gray-400">ROI Multiple</div>
+                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">{result.valuation.methods.roiProjection.roiMultiple}×</div>
+                  <div className="text-[var(--accent-foreground)] opacity-80">ROI Multiple</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[#F8D49B] mb-1">{result.valuation.methods.roiProjection.irr}%</div>
-                  <div className="text-gray-600 dark:text-gray-400">IRR (5 years)</div>
+                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">{result.valuation.methods.roiProjection.irr}%</div>
+                  <div className="text-[var(--accent-foreground)] opacity-80">IRR (5 years)</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-[#F8D49B] mb-1">{formatCurrency(result.valuation.methods.roiProjection.investorReturn)}</div>
-                  <div className="text-gray-600 dark:text-gray-400">Projected Return</div>
+                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                  <div className="text-lg font-bold text-[var(--accent-foreground)] mb-1">{formatCurrency(result.valuation.methods.roiProjection.investorReturn)}</div>
+                  <div className="text-[var(--accent-foreground)] opacity-80">Projected Return</div>
                 </div>
               </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3 text-center">
+              <p className="text-xs text-[var(--accent-foreground)] mt-4 text-center opacity-90">
                 Above VC target hurdle (~25–30%), but depends heavily on hitting ARR forecast and achieving {formatCurrency(result.valuation.methods.roiProjection.projectedExit)} exit.
               </p>
             </div>
 
             {/* Valuation Questions */}
             <div>
-              <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-                <i className="fas fa-question-circle text-[#5193B3] text-sm" aria-hidden="true"></i>
+              <h4 className="font-semibold text-[var(--card-foreground)] mb-3 flex items-center gap-2">
+                <i className="fas fa-question-circle text-[var(--primary)] text-sm" aria-hidden="true"></i>
                 Key Valuation Questions
               </h4>
               <div className="space-y-2">
                 {result.valuation.suggestedQuestions.map((question, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded">
-                    <span className="inline-flex items-center justify-center w-5 h-5 bg-[#5193B3] text-white text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
+                  <div key={index} className="flex items-start gap-3 p-3 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                    <span className="inline-flex items-center justify-center w-5 h-5 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
                       {index + 1}
                     </span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{question}</span>
+                    <span className="text-sm text-[var(--foreground)]">{question}</span>
                   </div>
                 ))}
               </div>
@@ -698,50 +726,50 @@ export default function PitchDeckAnalyser() {
           </div>
 
           {/* Investor Questions */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-3">
-              <i className="fas fa-question-circle text-[#5193B3]" aria-hidden="true"></i>
+          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-lg)]">
+            <h2 className="text-2xl font-bold text-[var(--card-foreground)] mb-6 flex items-center gap-3">
+              <i className="fas fa-question-circle text-[var(--primary)]" aria-hidden="true"></i>
               Key Investor Questions
             </h2>
 
             <div className="space-y-3">
               {result.executiveSummary.investorQuestions.map((question, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-[#5193B3] text-white text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
+                <div key={index} className="flex items-start gap-3 p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
                     {index + 1}
                   </span>
-                  <span className="text-gray-700 dark:text-gray-300">{question}</span>
+                  <span className="text-[var(--foreground)]">{question}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Section Analysis */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-3">
-              <i className="fas fa-list-check text-[#5193B3]" aria-hidden="true"></i>
+          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-lg)]">
+            <h2 className="text-2xl font-bold text-[var(--card-foreground)] mb-6 flex items-center gap-3">
+              <i className="fas fa-list-check text-[var(--primary)]" aria-hidden="true"></i>
               Section-by-Section Analysis
             </h2>
 
             <div className="space-y-6">
               {result.sections.map((section, index) => (
-                <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-6">
+                <div key={index} className="border border-[var(--border)] rounded-[var(--radius-lg)] p-6 bg-[var(--muted)] shadow-[var(--shadow)]">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                    <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
                       {section.name}
                     </h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(section.status)} bg-gray-100 dark:bg-gray-700`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(section.status)} bg-[var(--background)] border border-[var(--border)]`}>
                       {section.status}
                     </span>
                   </div>
 
                   {/* Extracted Content */}
-                  <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-[#5193B3]">
-                    <h4 className="font-medium text-[#5193B3] mb-2 text-sm flex items-center gap-2">
+                  <div className="mb-6 p-4 bg-[var(--primary)]/10 rounded-[var(--radius-md)] border-l-4 border-[var(--primary)]">
+                    <h4 className="font-medium text-[var(--primary)] mb-2 text-sm flex items-center gap-2">
                       <i className="fas fa-quote-left text-xs" aria-hidden="true"></i>
                       Extracted Content
                     </h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                    <p className="text-sm text-[var(--foreground)] italic">
                       "{section.extracted}"
                     </p>
                   </div>
@@ -750,14 +778,14 @@ export default function PitchDeckAnalyser() {
                     {/* Strengths */}
                     {section.strengths.length > 0 && (
                       <div>
-                        <h4 className="font-medium text-green-700 dark:text-green-400 mb-2 text-sm flex items-center gap-2">
+                        <h4 className="font-medium text-[var(--success)] mb-2 text-sm flex items-center gap-2">
                           <i className="fas fa-thumbs-up text-xs" aria-hidden="true"></i>
                           Strengths
                         </h4>
                         <ul className="space-y-2">
                           {section.strengths.map((strength, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
-                              <i className="fas fa-check text-green-600 mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
+                            <li key={idx} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                              <i className="fas fa-check text-[var(--success)] mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
                               {strength}
                             </li>
                           ))}
@@ -768,14 +796,14 @@ export default function PitchDeckAnalyser() {
                     {/* Weaknesses */}
                     {section.weaknesses.length > 0 && (
                       <div>
-                        <h4 className="font-medium text-red-700 dark:text-red-400 mb-2 text-sm flex items-center gap-2">
+                        <h4 className="font-medium text-[var(--destructive)] mb-2 text-sm flex items-center gap-2">
                           <i className="fas fa-exclamation-triangle text-xs" aria-hidden="true"></i>
                           Areas for Improvement
                         </h4>
                         <ul className="space-y-2">
                           {section.weaknesses.map((weakness, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
-                              <i className="fas fa-times text-red-600 mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
+                            <li key={idx} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                              <i className="fas fa-times text-[var(--destructive)] mt-1 flex-shrink-0 text-xs" aria-hidden="true"></i>
                               {weakness}
                             </li>
                           ))}
@@ -785,8 +813,8 @@ export default function PitchDeckAnalyser() {
                   </div>
 
                   {/* Benchmark */}
-                  <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-1 text-sm flex items-center gap-2">
+                  <div className="mb-4 p-3 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                    <h4 className="font-medium text-[var(--card-foreground)] mb-1 text-sm flex items-center gap-2">
                       <i className="fas fa-chart-bar text-xs" aria-hidden="true"></i>
                       Benchmark Assessment
                     </h4>
@@ -797,18 +825,18 @@ export default function PitchDeckAnalyser() {
 
                   {/* Questions */}
                   {section.questions.length > 0 && (
-                    <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
-                      <h4 className="font-medium text-[#5193B3] mb-3 text-sm flex items-center gap-2">
+                    <div className="pt-4 border-t border-[var(--border)]">
+                      <h4 className="font-medium text-[var(--primary)] mb-3 text-sm flex items-center gap-2">
                         <i className="fas fa-question-circle text-xs" aria-hidden="true"></i>
                         Suggested Investor Questions
                       </h4>
                       <div className="space-y-2">
                         {section.questions.map((question, idx) => (
-                          <div key={idx} className="flex items-start gap-3 p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                            <span className="inline-flex items-center justify-center w-5 h-5 bg-[#5193B3] text-white text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
+                          <div key={idx} className="flex items-start gap-3 p-2 bg-[var(--background)] border border-[var(--border)] rounded-[var(--radius-md)]">
+                            <span className="inline-flex items-center justify-center w-5 h-5 bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-medium rounded-full flex-shrink-0 mt-0.5">
                               {idx + 1}
                             </span>
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{question}</span>
+                            <span className="text-sm text-[var(--foreground)]">{question}</span>
                           </div>
                         ))}
                       </div>
@@ -820,31 +848,31 @@ export default function PitchDeckAnalyser() {
           </div>
 
           {/* Risk Flags */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-3">
-              <i className="fas fa-flag text-[#5193B3]" aria-hidden="true"></i>
+          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-lg)]">
+            <h2 className="text-2xl font-bold text-[var(--card-foreground)] mb-6 flex items-center gap-3">
+              <i className="fas fa-flag text-[var(--primary)]" aria-hidden="true"></i>
               Risk Indicators
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {result.riskFlags.map((risk, index) => (
-                <div key={index} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                <div key={index} className="p-4 border border-[var(--border)] bg-[var(--muted)] rounded-[var(--radius-md)]">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(risk.level)} bg-gray-100 dark:bg-gray-700`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(risk.level)} bg-[var(--background)] border border-[var(--border)]`}>
                       {risk.level} Risk
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{risk.issue}</p>
+                  <p className="text-sm text-[var(--foreground)]">{risk.issue}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Export Options */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Export Analysis</h3>
+          <div className="bg-[var(--muted)] rounded-[var(--radius-lg)] p-6 text-center border border-[var(--border)]">
+            <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">Export Analysis</h3>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-[#5193B3] hover:bg-[#4A85A3] text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+              <button className="bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-[var(--primary-foreground)] font-medium py-2 px-6 rounded-[var(--radius-md)] transition-colors flex items-center justify-center gap-2">
                 <i className="fas fa-download" aria-hidden="true"></i>
                 Download PDF Report
               </button>
