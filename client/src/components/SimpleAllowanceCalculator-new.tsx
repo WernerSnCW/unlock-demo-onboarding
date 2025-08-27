@@ -107,7 +107,7 @@ export function SimpleAllowanceCalculator() {
             <select
               value={inputs.taxYear}
               onChange={(e) => updateInput('taxYear', e.target.value)}
-              className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+              className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
             >
               <option value="2024/25">2024/25</option>
               <option value="2025/26">2025/26</option>
@@ -122,7 +122,7 @@ export function SimpleAllowanceCalculator() {
               type="number"
               value={inputs.incomeTaxLiabilityPrevYear}
               onChange={(e) => updateInput('incomeTaxLiabilityPrevYear', Number(e.target.value))}
-              className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+              className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
             />
           </div>
           <div>
@@ -134,7 +134,7 @@ export function SimpleAllowanceCalculator() {
               type="number"
               value={inputs.incomeTaxLiabilityThisYear}
               onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
-              className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+              className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
             />
           </div>
         </div>
@@ -158,7 +158,7 @@ export function SimpleAllowanceCalculator() {
                   type="number"
                   value={inputs.seisThisYear}
                   onChange={(e) => updateInput('seisThisYear', Number(e.target.value))}
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
               <div>
@@ -170,7 +170,7 @@ export function SimpleAllowanceCalculator() {
                   type="number"
                   value={inputs.seisUsedPrevYear}
                   onChange={(e) => updateInput('seisUsedPrevYear', Number(e.target.value))}
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
               <div>
@@ -186,7 +186,7 @@ export function SimpleAllowanceCalculator() {
                     updateInput('seisCarryBackRequested', value === 'auto' ? 'auto' : Number(value) || 0);
                   }}
                   placeholder="auto or amount"
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ export function SimpleAllowanceCalculator() {
                   type="number"
                   value={inputs.eisTotalThisYear}
                   onChange={(e) => updateInput('eisTotalThisYear', Number(e.target.value))}
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
               <div>
@@ -270,7 +270,7 @@ export function SimpleAllowanceCalculator() {
                   type="number"
                   value={inputs.kicAmount}
                   onChange={(e) => updateInput('kicAmount', Number(e.target.value))}
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
               <div>
@@ -282,7 +282,7 @@ export function SimpleAllowanceCalculator() {
                   type="number"
                   value={inputs.eisUsedPrevYear}
                   onChange={(e) => updateInput('eisUsedPrevYear', Number(e.target.value))}
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
               <div>
@@ -298,7 +298,7 @@ export function SimpleAllowanceCalculator() {
                     updateInput('eisCarryBackRequested', value === 'auto' ? 'auto' : Number(value) || 0);
                   }}
                   placeholder="auto or amount"
-                  className="w-full p-3 border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+                  className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
                 />
               </div>
             </div>
