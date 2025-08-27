@@ -639,13 +639,20 @@ function ArtValuationComponent() {
             <div className="flex items-start">
               <i className="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5 mr-3"></i>
               <div className="text-sm text-blue-800 dark:text-blue-200">
-                <p className="font-medium mb-1">How to connect your app:</p>
-                <ul className="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300">
+                <p className="font-medium mb-2">How to connect your app:</p>
+                <ul className="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300 mb-3">
                   <li>Enter the full URL of your art valuation application</li>
                   <li>Make sure your app allows iframe embedding (X-Frame-Options)</li>
                   <li>Your app will load directly inside this modal</li>
                   <li>All interactions will happen within the embedded frame</li>
                 </ul>
+                <div className="bg-white dark:bg-gray-800 p-3 rounded border">
+                  <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">⚠️ Common Issues:</p>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    Replit development URLs (replit.com/t/...) usually block iframe embedding. 
+                    Try deployed versions or apps hosted on custom domains.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -699,20 +706,44 @@ function ArtValuationComponent() {
       {/* Embedded App */}
       <div className="relative h-[calc(80vh-120px)]">
         {loadingError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-            <div className="text-center">
-              <i className="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
-              <p className="text-gray-700 dark:text-gray-300 mb-2">Unable to load the external app</p>
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800 p-6">
+            <div className="text-center max-w-md">
+              <i className="fas fa-shield-alt text-4xl text-yellow-500 mb-4"></i>
+              <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                App Cannot Be Embedded
+              </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                The app may not allow iframe embedding or the URL might be incorrect.
+                This app has security settings that prevent iframe embedding (X-Frame-Options). 
+                Replit apps typically have this restriction enabled by default.
               </p>
-              <button
-                onClick={() => setIsAppLoaded(false)}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
-                data-testid="button-try-different-url"
-              >
-                Try Different URL
-              </button>
+              
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4 text-left">
+                <h5 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Solutions:</h5>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <li>• Deploy your app to a custom domain</li>
+                  <li>• Use Replit Deployments with iframe support</li>
+                  <li>• Host on platforms like Vercel, Netlify, or Heroku</li>
+                  <li>• Configure your app to allow iframe embedding</li>
+                </ul>
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => window.open(appUrl, '_blank')}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex-1"
+                  data-testid="button-open-new-tab"
+                >
+                  <i className="fas fa-external-link-alt mr-2"></i>
+                  Open in New Tab
+                </button>
+                <button
+                  onClick={() => setIsAppLoaded(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex-1"
+                  data-testid="button-try-different-url"
+                >
+                  Try Different URL
+                </button>
+              </div>
             </div>
           </div>
         )}
