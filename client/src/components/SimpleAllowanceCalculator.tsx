@@ -1,5 +1,165 @@
 import { useState, useEffect } from 'react';
 
+// Tooltip component for help functionality
+function Tooltip({ children, content }: { children: React.ReactNode; content: string }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-[var(--card-foreground)] text-[var(--card)] text-xs rounded-[var(--radius-sm)] whitespace-nowrap z-10 shadow-lg max-w-xs">
+          {content}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[var(--card-foreground)]"></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Help icon with tooltip
+function HelpIcon({ tooltip }: { tooltip: string }) {
+  return (
+    <Tooltip content={tooltip}>
+      <i className="fas fa-question-circle text-[var(--muted-foreground)] hover:text-[var(--info)] ml-1 text-sm"></i>
+    </Tooltip>
+  );
+}
+
+// User Guide Component
+function UserGuide({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-[var(--card)] rounded-[var(--radius-lg)] p-6 max-w-4xl max-h-[80vh] overflow-y-auto m-4 shadow-xl">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-[var(--card-foreground)]">SEIS/EIS Calculator User Guide</h2>
+          <button
+            onClick={onClose}
+            className="text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] text-xl"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div className="space-y-6 text-[var(--card-foreground)]">
+          <section>
+            <h3 className="text-lg font-semibold text-[var(--primary)] mb-3">Getting Started</h3>
+            <p className="mb-3">This calculator helps you optimize your SEIS (Seed Enterprise Investment Scheme) and EIS (Enterprise Investment Scheme) tax relief claims.</p>
+            <div className="bg-[var(--info)]/10 p-4 rounded-[var(--radius-sm)] border border-[var(--info)]/30">
+              <p className="text-sm"><strong>Key Feature:</strong> Use "Auto Optimize" to automatically calculate the best allocation of carry-back relief between tax years to maximize your total tax relief.</p>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-semibold text-[var(--primary)] mb-3">How to Use</h3>
+            <ol className="list-decimal list-inside space-y-2 text-sm">
+              <li><strong>General Information:</strong> Enter your income tax liability for both this year and previous year (before any reliefs)</li>
+              <li><strong>SEIS Section:</strong> Enter your SEIS investments and any previous year usage</li>
+              <li><strong>EIS Section:</strong> Enter your EIS investments, including Knowledge-Intensive Companies (KIC) amounts</li>
+              <li><strong>Optimization:</strong> Enable "Auto Optimize" for automatic carry-back calculations, or manually specify amounts</li>
+              <li><strong>Results:</strong> Review the breakdown showing optimal relief allocation and remaining allowances</li>
+            </ol>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-semibold text-[var(--warning)] mb-3">SEIS (Seed Enterprise Investment Scheme)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-semibold">Key Details:</h4>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Tax relief rate: <strong>50%</strong></li>
+                  <li>Annual investment cap: <strong>£200,000</strong></li>
+                  <li>Higher priority than EIS</li>
+                  <li>Can carry back to previous tax year</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold">Eligible Companies:</h4>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Early-stage companies</li>
+                  <li>Less than 2 years old</li>
+                  <li>Fewer than 25 employees</li>
+                  <li>Assets under £200,000</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-semibold text-[var(--success)] mb-3">EIS (Enterprise Investment Scheme)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-semibold">Key Details:</h4>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Tax relief rate: <strong>30%</strong></li>
+                  <li>Regular cap: <strong>£1,000,000</strong></li>
+                  <li>KIC additional cap: <strong>+£1,000,000</strong></li>
+                  <li>Can carry back to previous tax year</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold">Knowledge-Intensive Companies (KIC):</h4>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Higher investment limits</li>
+                  <li>R&D focused businesses</li>
+                  <li>20% of workforce in R&D</li>
+                  <li>10% of costs on R&D</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-semibold text-[var(--info)] mb-3">Tax Year Rules</h3>
+            <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-sm)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h4 className="font-semibold mb-2">Carry Back Rules:</h4>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>Can carry back relief to previous tax year</li>
+                    <li>Must be claimed by 31st January deadline</li>
+                    <li>Useful when previous year had higher tax liability</li>
+                    <li>SEIS typically carried back first</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Optimization Strategy:</h4>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>Maximize relief against highest tax liability</li>
+                    <li>Consider available allowances in each year</li>
+                    <li>Use SEIS before EIS (higher rate)</li>
+                    <li>Don't waste unused allowances</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-semibold text-[var(--destructive)] mb-3">Important Notes</h3>
+            <div className="bg-[var(--destructive)]/10 p-4 rounded-[var(--radius-sm)] border border-[var(--destructive)]/30">
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li><strong>Professional Advice:</strong> This calculator is for estimation only. Always consult a qualified tax advisor</li>
+                <li><strong>Deadlines:</strong> Tax relief claims must be made by 31st January following the end of the relevant tax year</li>
+                <li><strong>Risk Capital:</strong> SEIS/EIS investments carry significant risk - you may lose your capital</li>
+                <li><strong>Qualifying Investments:</strong> Ensure your investments qualify for the relief schemes</li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Constants for allowances and rates
 const SEIS_RATE = 0.50;
 const SEIS_CAP = 200_000;
@@ -258,6 +418,7 @@ export default function SimpleAllowanceCalculator() {
   const taxYear = `${currentYear}/${(currentYear + 1).toString().slice(-2)}`;
   const prevTaxYear = `${currentYear - 1}/${currentYear.toString().slice(-2)}`;
   
+  const [showUserGuide, setShowUserGuide] = useState(false);
   const [inputs, setInputs] = useState<SEISEISInputs>({
     taxYear,
     incomeTaxLiabilityThisYear: 50000,
@@ -289,6 +450,24 @@ export default function SimpleAllowanceCalculator() {
 
   return (
     <div className="p-6 bg-[var(--background)] space-y-6">
+      {/* Header with Help Button */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-[var(--card-foreground)]">SEIS/EIS Allowance Calculator</h2>
+          <p className="text-[var(--muted-foreground)] text-sm mt-1">Optimize your tax relief across SEIS and EIS investments</p>
+        </div>
+        <button
+          onClick={() => setShowUserGuide(true)}
+          className="bg-[var(--info)] text-[var(--info-foreground)] px-4 py-2 rounded-[var(--radius-sm)] hover:bg-[var(--info)]/90 transition-colors flex items-center gap-2"
+        >
+          <i className="fas fa-question-circle"></i>
+          User Guide
+        </button>
+      </div>
+
+      {/* User Guide Modal */}
+      <UserGuide isOpen={showUserGuide} onClose={() => setShowUserGuide(false)} />
+
       {/* Validation Errors */}
       {result.validationErrors.length > 0 && (
         <div className="bg-[var(--destructive)]/10 border border-[var(--destructive)]/30 rounded-[var(--radius-sm)] p-4">
@@ -309,24 +488,30 @@ export default function SimpleAllowanceCalculator() {
             <p className="text-sm text-[var(--card-foreground)]">This year: {taxYear} • Previous year: {prevTaxYear}</p>
           </div>
           <div className="flex gap-2">
-            <label className="flex items-center text-sm text-[var(--card-foreground)]">
-              <input
-                type="checkbox"
-                checked={inputs.autoOptimize}
-                onChange={(e) => updateInput('autoOptimize', e.target.checked)}
-                className="mr-2"
-              />
-              Auto Optimize
-            </label>
-            <label className="flex items-center text-sm text-[var(--card-foreground)]">
-              <input
-                type="checkbox"
-                checked={inputs.prioritySEISFirst}
-                onChange={(e) => updateInput('prioritySEISFirst', e.target.checked)}
-                className="mr-2"
-              />
-              SEIS Priority
-            </label>
+            <Tooltip content="Automatically calculates the optimal carry-back amounts to maximize total tax relief across both tax years">
+              <label className="flex items-center text-sm text-[var(--card-foreground)] cursor-help">
+                <input
+                  type="checkbox"
+                  checked={inputs.autoOptimize}
+                  onChange={(e) => updateInput('autoOptimize', e.target.checked)}
+                  className="mr-2"
+                />
+                Auto Optimize
+                <i className="fas fa-question-circle text-[var(--muted-foreground)] ml-1 text-xs"></i>
+              </label>
+            </Tooltip>
+            <Tooltip content="When enabled, SEIS relief is applied before EIS relief due to its higher rate (50% vs 30%). Generally recommended.">
+              <label className="flex items-center text-sm text-[var(--card-foreground)] cursor-help">
+                <input
+                  type="checkbox"
+                  checked={inputs.prioritySEISFirst}
+                  onChange={(e) => updateInput('prioritySEISFirst', e.target.checked)}
+                  className="mr-2"
+                />
+                SEIS Priority
+                <i className="fas fa-question-circle text-[var(--muted-foreground)] ml-1 text-xs"></i>
+              </label>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -340,8 +525,9 @@ export default function SimpleAllowanceCalculator() {
             <h4 className="font-semibold text-[var(--card-foreground)] mb-4">A. General Information</h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1 flex items-center">
                   Income Tax Liability This Year (£)
+                  <HelpIcon tooltip="Your total income tax liability for the current tax year BEFORE any reliefs are applied. This is what you owe before SEIS/EIS relief." />
                 </label>
                 <input
                   type="number"
@@ -429,8 +615,9 @@ export default function SimpleAllowanceCalculator() {
             </h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1 flex items-center">
                   SEIS Subscribed This Year (£)
+                  <HelpIcon tooltip="Amount invested in qualifying SEIS companies this tax year. Maximum £200,000 per year with 50% tax relief." />
                 </label>
                 <input
                   type="number"
@@ -521,8 +708,9 @@ export default function SimpleAllowanceCalculator() {
             </h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1 flex items-center">
                   EIS Subscribed This Year - Total (£)
+                  <HelpIcon tooltip="Total amount invested in qualifying EIS companies this tax year. Maximum £1m regular companies + £1m Knowledge-Intensive Companies with 30% tax relief." />
                 </label>
                 <input
                   type="number"
@@ -535,8 +723,9 @@ export default function SimpleAllowanceCalculator() {
                 <p className="text-xs text-[var(--muted-foreground)] mt-1">Annual cap: £1m regular + £1m KIC • Rate: 30%</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1 flex items-center">
                   ...of which is Knowledge-Intensive Companies (KIC) (£)
+                  <HelpIcon tooltip="Amount invested in Knowledge-Intensive Companies (subset of total EIS). KIC companies have higher investment limits and focus on R&D activities." />
                 </label>
                 <input
                   type="number"
