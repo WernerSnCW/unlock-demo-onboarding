@@ -327,8 +327,15 @@ TASKS:
       };
     }
 
-    // Revenue multiple
-    const arr = kpis.arr || (kpis.mrr ? kpis.mrr * 12 : null);
+    // Revenue multiple - works for both SaaS (ARR) and service businesses (estimated revenue)
+    let arr = kpis.arr || (kpis.mrr ? kpis.mrr * 12 : null);
+    
+    // For service businesses without ARR, estimate revenue from pre-money valuation
+    if (!arr && kpis.stated_pre_money && benchmarks?.revenue) {
+      const typicalMultiple = (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
+      arr = Math.round(kpis.stated_pre_money / typicalMultiple);
+    }
+    
     if (arr && benchmarks?.revenue) {
       const multiple = (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
       results.revenue_multiple = {
@@ -336,6 +343,7 @@ TASKS:
         multiple,
         implied: Math.round(arr * multiple)
       };
+      console.log('Revenue multiple calculation:', { arr, multiple, implied: arr * multiple });
     }
 
     // EBITDA multiple  
