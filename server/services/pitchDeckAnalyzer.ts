@@ -348,21 +348,41 @@ TASKS:
       };
     }
 
-    // ROI/IRR projection (5-year default)
-    if (kpis.raise_amount && kpis.equity_offered_pct && arr) {
-      const exitMultiple = benchmarks?.revenue ? (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2 * 1.5 : 15;
-      const projectedExitRevenue = arr * 10; // Assumed 10x revenue growth over 5 years
-      const exitValue = projectedExitRevenue * exitMultiple;
-      const returnToInvestor = kpis.equity_offered_pct * exitValue;
-      const roiMultiple = returnToInvestor / kpis.raise_amount;
-      const irr = Math.pow(roiMultiple, 1/5) - 1;
+    // ROI/IRR projection (5-year default) - works for both SaaS and service businesses
+    if (kpis.raise_amount && kpis.equity_offered_pct) {
+      // For service businesses without ARR, estimate based on pre-money valuation
+      let estimatedCurrentRevenue = arr;
+      if (!estimatedCurrentRevenue && kpis.stated_pre_money) {
+        // Estimate revenue as pre-money / typical revenue multiple for the sector
+        const typicalMultiple = benchmarks?.revenue ? (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2 : 5;
+        estimatedCurrentRevenue = kpis.stated_pre_money / typicalMultiple;
+      }
       
-      results.roi = {
-        equity_pct: kpis.equity_offered_pct,
-        roi_multiple: Math.round(roiMultiple * 100) / 100,
-        irr: Math.round(irr * 100),
-        projected_return: Math.round(returnToInvestor)
-      };
+      if (estimatedCurrentRevenue) {
+        const exitMultiple = benchmarks?.revenue ? (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2 * 1.2 : 8;
+        const projectedExitRevenue = estimatedCurrentRevenue * 5; // Assumed 5x revenue growth over 5 years for service business
+        const exitValue = projectedExitRevenue * exitMultiple;
+        const returnToInvestor = kpis.equity_offered_pct * exitValue;
+        const roiMultiple = returnToInvestor / kpis.raise_amount;
+        const irr = Math.pow(roiMultiple, 1/5) - 1;
+        
+        results.roi = {
+          equity_pct: kpis.equity_offered_pct,
+          roi_multiple: Math.round(roiMultiple * 100) / 100,
+          irr: Math.round(irr * 100),
+          projected_return: Math.round(returnToInvestor)
+        };
+        
+        console.log('ROI calculation inputs:', {
+          estimatedCurrentRevenue,
+          exitMultiple,
+          projectedExitRevenue,
+          exitValue,
+          returnToInvestor,
+          roiMultiple,
+          irr
+        });
+      }
     }
 
     // Peer gap calculation
@@ -575,6 +595,7 @@ OUTPUT SCHEMA:
       
       // Compute deterministic valuations
       const valuations = this.computeDeterministicValuations(extracted, stage, sector);
+      console.log('Computed valuations:', JSON.stringify(valuations, null, 2));
       
       // Compute scores
       const scores = this.computeScores(extracted, valuations);
