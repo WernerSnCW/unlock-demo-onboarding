@@ -306,10 +306,10 @@ export default function SimpleAllowanceCalculator() {
         <div className="flex justify-between items-center">
           <div>
             <h3 className="font-medium text-[var(--info)]">Tax Year Context</h3>
-            <p className="text-sm text-[var(--info)]/80">This year: {taxYear} • Previous year: {prevTaxYear}</p>
+            <p className="text-sm text-[var(--card-foreground)]">This year: {taxYear} • Previous year: {prevTaxYear}</p>
           </div>
           <div className="flex gap-2">
-            <label className="flex items-center text-sm text-[var(--foreground)]">
+            <label className="flex items-center text-sm text-[var(--card-foreground)]">
               <input
                 type="checkbox"
                 checked={inputs.autoOptimize}
@@ -318,7 +318,7 @@ export default function SimpleAllowanceCalculator() {
               />
               Auto Optimize
             </label>
-            <label className="flex items-center text-sm text-[var(--foreground)]">
+            <label className="flex items-center text-sm text-[var(--card-foreground)]">
               <input
                 type="checkbox"
                 checked={inputs.prioritySEISFirst}
@@ -671,11 +671,11 @@ export default function SimpleAllowanceCalculator() {
           {result.suggestions.length > 0 && (
             <div className="bg-[var(--info)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--info)]/30">
               <h4 className="font-semibold text-[var(--info)] mb-2">Optimization Suggestions</h4>
-              <ul className="text-sm text-[var(--info)]/80 space-y-1">
+              <ul className="text-sm text-[var(--card-foreground)] space-y-1">
                 {result.suggestions.map((suggestion, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <i className="fas fa-lightbulb text-[var(--warning)] mt-0.5"></i>
-                    {suggestion}
+                    <span>{suggestion}</span>
                   </li>
                 ))}
               </ul>
