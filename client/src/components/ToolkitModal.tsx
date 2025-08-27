@@ -575,8 +575,9 @@ function ArtValuationComponent() {
   const [isValidUrl, setIsValidUrl] = useState(false);
   const [isAppLoaded, setIsAppLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
+  const [embedMode, setEmbedMode] = useState<'iframe' | 'navigate'>('iframe');
 
-  // Validate URL
+  // Validate URL and auto-detect Replit URLs
   const validateUrl = (url: string) => {
     try {
       new URL(url);
@@ -584,6 +585,19 @@ function ArtValuationComponent() {
     } catch {
       return false;
     }
+  };
+
+  const isReplitUrl = (url: string) => {
+    return url.includes('replit.com') || url.includes('replit.app');
+  };
+
+  const getEmbedUrl = (url: string) => {
+    if (isReplitUrl(url)) {
+      // Add Replit embed parameters
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}embed=true&theme=light`;
+    }
+    return url;
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -600,6 +614,12 @@ function ArtValuationComponent() {
     }
   };
 
+  const handleNavigateToApp = () => {
+    if (isValidUrl) {
+      window.open(appUrl, '_blank');
+    }
+  };
+
   const handleIframeError = () => {
     setLoadingError(true);
   };
@@ -613,7 +633,7 @@ function ArtValuationComponent() {
           </div>
           <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Art Valuation Tool</h3>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            Connect your external art valuation app to embed it directly within this platform.
+            Connect to your art valuation app. Choose your preferred integration method below.
           </p>
         </div>
 
@@ -626,50 +646,64 @@ function ArtValuationComponent() {
               type="url"
               value={appUrl}
               onChange={handleUrlChange}
-              placeholder="https://your-art-valuation-app.com"
+              placeholder="https://replit.com/t/xlr8/repls/ArtValueScanUnlockTool"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               data-testid="input-app-url"
             />
             {appUrl && !isValidUrl && (
               <p className="text-red-500 text-sm mt-1">Please enter a valid URL starting with http:// or https://</p>
             )}
+            {appUrl && isValidUrl && isReplitUrl(appUrl) && (
+              <p className="text-green-600 text-sm mt-1">
+                <i className="fas fa-check-circle mr-1"></i>
+                Replit app detected - will use optimized embedding
+              </p>
+            )}
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
             <div className="flex items-start">
-              <i className="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-0.5 mr-3"></i>
-              <div className="text-sm text-blue-800 dark:text-blue-200">
-                <p className="font-medium mb-2">How to connect your app:</p>
-                <ul className="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300 mb-3">
-                  <li>Enter the full URL of your art valuation application</li>
-                  <li>Make sure your app allows iframe embedding (X-Frame-Options)</li>
-                  <li>Your app will load directly inside this modal</li>
-                  <li>All interactions will happen within the embedded frame</li>
+              <i className="fas fa-lightbulb text-green-600 dark:text-green-400 mt-0.5 mr-3"></i>
+              <div className="text-sm text-green-800 dark:text-green-200">
+                <p className="font-medium mb-2">Best Options for Replit Apps:</p>
+                <ul className="list-disc list-inside space-y-1 text-green-700 dark:text-green-300">
+                  <li><strong>Deploy first:</strong> Use Replit Deployments, then embed the .replit.app URL</li>
+                  <li><strong>Direct navigation:</strong> Open in new tab for full functionality</li>
+                  <li><strong>Embed with params:</strong> Try adding ?embed=true to Replit URLs</li>
                 </ul>
-                <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                  <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">⚠️ Common Issues:</p>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Replit development URLs (replit.com/t/...) usually block iframe embedding. 
-                    Try deployed versions or apps hosted on custom domains.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
 
-          <button
-            onClick={handleLoadApp}
-            disabled={!isValidUrl}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-              isValidUrl
-                ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
-            data-testid="button-load-app"
-          >
-            <i className="fas fa-external-link-alt mr-2"></i>
-            Load Art Valuation App
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button
+              onClick={handleNavigateToApp}
+              disabled={!isValidUrl}
+              className={`py-3 px-4 rounded-lg font-medium transition-colors ${
+                isValidUrl
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                  : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              }`}
+              data-testid="button-navigate-to-app"
+            >
+              <i className="fas fa-external-link-alt mr-2"></i>
+              Open in New Tab
+            </button>
+            
+            <button
+              onClick={handleLoadApp}
+              disabled={!isValidUrl}
+              className={`py-3 px-4 rounded-lg font-medium transition-colors border-2 ${
+                isValidUrl
+                  ? 'border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                  : 'border-gray-300 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              }`}
+              data-testid="button-try-embed"
+            >
+              <i className="fas fa-code mr-2"></i>
+              Try Embed
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -681,7 +715,14 @@ function ArtValuationComponent() {
       <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
           <i className="fas fa-globe mr-2"></i>
-          <span className="truncate max-w-md">{appUrl}</span>
+          <span className="truncate max-w-md" title={getEmbedUrl(appUrl)}>
+            {isReplitUrl(appUrl) ? getEmbedUrl(appUrl) : appUrl}
+          </span>
+          {isReplitUrl(appUrl) && (
+            <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+              +embed
+            </span>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -749,7 +790,7 @@ function ArtValuationComponent() {
         )}
         
         <iframe
-          src={appUrl}
+          src={getEmbedUrl(appUrl)}
           className="w-full h-full border-0"
           title="Art Valuation App"
           onError={handleIframeError}
