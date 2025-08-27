@@ -509,21 +509,21 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown (50% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Applied to Previous Year</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
+                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Applied to Previous Year</div>
+                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Applied to This Year</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
+                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Applied to This Year</div>
+                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Allowance Remaining (Prev)</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
+                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Allowance Remaining (Prev)</div>
+                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Allowance Remaining (This)</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
+                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Allowance Remaining (This)</div>
+                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
                 </div>
               </div>
               
@@ -562,34 +562,34 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Applied to Previous Year</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">
+                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Applied to Previous Year</div>
+                  <div className="text-black text-sm font-semibold">
                     {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
                   </div>
-                  <div className="text-xs text-gray-700 dark:text-gray-300 mt-1">
+                  <div className="text-xs text-black font-medium mt-1">
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} • KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                   </div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Applied to This Year</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">
+                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Applied to This Year</div>
+                  <div className="text-black text-sm font-semibold">
                     {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
                   </div>
-                  <div className="text-xs text-gray-700 dark:text-gray-300 mt-1">
+                  <div className="text-xs text-black font-medium mt-1">
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} • KIC: {formatCurrency(result.eis.kicAppliedToThis)}
                   </div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Remaining Allowances (Prev)</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">
+                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Remaining Allowances (Prev)</div>
+                  <div className="text-black text-sm font-semibold">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-semibold text-gray-900 dark:text-white text-sm">Remaining Allowances (This)</div>
-                  <div className="text-gray-800 dark:text-gray-200 text-sm font-medium">
+                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
+                  <div className="font-bold text-black text-sm">Remaining Allowances (This)</div>
+                  <div className="text-black text-sm font-semibold">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.this)}
                   </div>
