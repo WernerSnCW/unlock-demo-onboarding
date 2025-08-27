@@ -319,91 +319,114 @@ function WebsiteFactCheckerComponent() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* URL Input */}
         <div>
-          <label htmlFor="url" className="block text-sm font-medium text-[var(--foreground)] mb-2">
+          <label htmlFor="url" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
+            <i className="fas fa-globe text-[var(--primary)]" aria-hidden="true"></i>
             Website URL *
           </label>
-          <input
-            id="url"
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Enter website URL (e.g., example.com)"
-            className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
-            data-testid="input-website-url"
-            required
-          />
+          <div className="relative">
+            <input
+              id="url"
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Enter website URL (e.g., example.com)"
+              className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
+              data-testid="input-website-url"
+              required
+            />
+            <i className="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
+          </div>
         </div>
 
         {/* Settings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="maxClaims" className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label htmlFor="maxClaims" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
+              <i className="fas fa-list-ol text-[var(--secondary)]" aria-hidden="true"></i>
               Claims to Extract
             </label>
-            <select
-              id="maxClaims"
-              value={maxClaims}
-              onChange={(e) => setMaxClaims(Number(e.target.value))}
-              className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
-            >
-              <option value={10}>10 claims</option>
-              <option value={25}>25 claims</option>
-              <option value={50}>50 claims</option>
-            </select>
+            <div className="relative">
+              <select
+                id="maxClaims"
+                value={maxClaims}
+                onChange={(e) => setMaxClaims(Number(e.target.value))}
+                className="w-full pl-10 pr-8 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors appearance-none"
+              >
+                <option value={10}>10 claims</option>
+                <option value={25}>25 claims</option>
+                <option value={50}>50 claims</option>
+              </select>
+              <i className="fas fa-hashtag absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
+              <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none" aria-hidden="true"></i>
+            </div>
           </div>
 
           <div>
-            <label htmlFor="newsTimeWindow" className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label htmlFor="newsTimeWindow" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
+              <i className="fas fa-clock text-[var(--brand-accent-bg)]" aria-hidden="true"></i>
               News Search Period
             </label>
-            <select
-              id="newsTimeWindow"
-              value={newsTimeWindow}
-              onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
-              className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
-            >
-              <option value={6}>6 months</option>
-              <option value={12}>12 months</option>
-              <option value={24}>24 months</option>
-              <option value={36}>36 months</option>
-            </select>
+            <div className="relative">
+              <select
+                id="newsTimeWindow"
+                value={newsTimeWindow}
+                onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
+                className="w-full pl-10 pr-8 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors appearance-none"
+              >
+                <option value={6}>6 months</option>
+                <option value={12}>12 months</option>
+                <option value={24}>24 months</option>
+                <option value={36}>36 months</option>
+              </select>
+              <i className="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
+              <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none" aria-hidden="true"></i>
+            </div>
           </div>
         </div>
 
         {/* Specific Claims */}
         <div>
-          <label htmlFor="specificClaims" className="block text-sm font-medium text-[var(--foreground)] mb-2">
+          <label htmlFor="specificClaims" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
+            <i className="fas fa-bullseye text-[var(--warning)]" aria-hidden="true"></i>
             Specific Claims <span className="text-[var(--muted-foreground)]">(optional)</span>
           </label>
-          <textarea
-            id="specificClaims"
-            rows={3}
-            value={specificClaims}
-            onChange={(e) => setSpecificClaims(e.target.value)}
-            placeholder="Enter specific claims to verify (e.g., 'Revenue increased by 300%')"
-            className="w-full px-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors resize-none"
-            data-testid="textarea-claims"
-          />
+          <div className="relative">
+            <textarea
+              id="specificClaims"
+              rows={3}
+              value={specificClaims}
+              onChange={(e) => setSpecificClaims(e.target.value)}
+              placeholder="Enter specific claims to verify (e.g., 'Revenue increased by 300%')"
+              className="w-full pl-10 pr-4 pt-3 pb-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors resize-none"
+              data-testid="textarea-claims"
+            />
+            <i className="fas fa-quote-left absolute left-3 top-3 text-[var(--muted-foreground)]" aria-hidden="true"></i>
+          </div>
         </div>
 
         {/* Focus Areas */}
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-3">
+            <i className="fas fa-crosshairs text-[var(--info)]" aria-hidden="true"></i>
             Focus Areas <span className="text-[var(--muted-foreground)]">(optional)</span>
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {focusAreas.map((area) => (
-              <label key={area} className="flex items-center p-3 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)]/50 cursor-pointer transition-colors">
-                <input
-                  type="checkbox"
-                  checked={selectedFocusAreas.includes(area)}
-                  onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
-                  className="mr-3 h-4 w-4 text-[var(--primary)] border-[var(--border)] rounded focus:ring-[var(--primary)]"
-                  data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                />
-                <span className="text-sm text-[var(--foreground)]">{area}</span>
-              </label>
-            ))}
+            {focusAreas.map((area, index) => {
+              const icons = ['fa-dollar-sign', 'fa-history', 'fa-users', 'fa-cog', 'fa-trophy', 'fa-user-tie'];
+              return (
+                <label key={area} className="flex items-center p-3 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)]/50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={selectedFocusAreas.includes(area)}
+                    onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
+                    className="mr-3 h-4 w-4 text-[var(--primary)] border-[var(--border)] rounded focus:ring-[var(--primary)]"
+                    data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                  />
+                  <i className={`fas ${icons[index]} text-[var(--primary)] mr-2`} aria-hidden="true"></i>
+                  <span className="text-sm text-[var(--foreground)]">{area}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
 
@@ -421,10 +444,14 @@ function WebsiteFactCheckerComponent() {
           {isAnalyzing ? (
             <>
               <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin mr-3"></div>
+              <i className="fas fa-search mr-2" aria-hidden="true"></i>
               <span className="text-white">Analyzing Website...</span>
             </>
           ) : (
-            'Start Analysis'
+            <>
+              <i className="fas fa-shield-alt mr-2" aria-hidden="true"></i>
+              Start Analysis
+            </>
           )}
         </button>
       </form>
