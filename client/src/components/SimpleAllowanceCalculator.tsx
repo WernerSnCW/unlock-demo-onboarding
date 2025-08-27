@@ -1,441 +1,694 @@
 import { useState, useEffect } from 'react';
-import { calcAllowance, formatCurrency, formatPercentage, AllowanceInputs } from '../utils/calculators';
+
+// Constants for allowances and rates
+const SEIS_RATE = 0.50;
+const SEIS_CAP = 200_000;
+const EIS_RATE = 0.30;
+const EIS_CAP_REGULAR = 1_000_000;
+const EIS_CAP_WITH_KIC = 2_000_000;
+
+interface SEISEISInputs {
+  // Tax year context
+  taxYear: string;
+  
+  // Income tax liability (before reliefs)
+  incomeTaxLiabilityThisYear: number;
+  incomeTaxLiabilityPrevYear: number;
+  
+  // Other reliefs (optional)
+  otherReliefsThisYear: number;
+  otherReliefsPrevYear: number;
+  
+  // SEIS section
+  seisThisYear: number;
+  seisCarryBackRequested: number | 'auto';
+  seisUsedPrevYear: number;
+  
+  // EIS section
+  eisThisYearTotal: number;
+  eisThisYearKIC: number;
+  eisCarryBackRequested: number | 'auto';
+  eisUsedPrevYear: number;
+  
+  // Options
+  prioritySEISFirst: boolean;
+  autoOptimize: boolean;
+}
+
+interface SEISEISResult {
+  // Headline summary
+  totalRelief: number;
+  reliefThisYear: number;
+  reliefPrevYear: number;
+  effectiveNetCost: number;
+  
+  // SEIS breakdown
+  seis: {
+    appliedToPrev: number;
+    appliedToThis: number;
+    reliefPrev: number;
+    reliefThis: number;
+    allowanceRemainingPrev: number;
+    allowanceRemainingThis: number;
+    unusedPotentialLost: number;
+  };
+  
+  // EIS breakdown  
+  eis: {
+    appliedToPrev: number;
+    appliedToThis: number;
+    reliefPrev: number;
+    reliefThis: number;
+    allowanceRemainingRegular: { prev: number; this: number };
+    allowanceRemainingKIC: { prev: number; this: number };
+    unusedPotentialLost: number;
+    kicAppliedToPrev: number;
+    kicAppliedToThis: number;
+    nonKicAppliedToPrev: number;
+    nonKicAppliedToThis: number;
+  };
+  
+  // Progress tracking
+  progress: {
+    seisUsagePrev: number;
+    seisUsageThis: number;
+    eisUsageRegularPrev: number;
+    eisUsageRegularThis: number;
+    eisUsageKICPrev: number;
+    eisUsageKICThis: number;
+  };
+  
+  // Optimization suggestions
+  suggestions: string[];
+  validationErrors: string[];
+}
+
+function calculateSEISEIS(inputs: SEISEISInputs): SEISEISResult {
+  const errors: string[] = [];
+  const suggestions: string[] = [];
+  
+  // Validation
+  if (inputs.incomeTaxLiabilityThisYear < 0) errors.push("Income tax liability cannot be negative");
+  if (inputs.incomeTaxLiabilityPrevYear < 0) errors.push("Previous year income tax liability cannot be negative");
+  if (inputs.seisThisYear < 0) errors.push("SEIS investment cannot be negative");
+  if (inputs.eisThisYearTotal < 0) errors.push("EIS investment cannot be negative");
+  if (inputs.eisThisYearKIC > inputs.eisThisYearTotal) errors.push("KIC amount cannot exceed total EIS investment");
+  
+  // Step A — SEIS allocation
+  const seisPrevCapAvail = Math.max(0, SEIS_CAP - inputs.seisUsedPrevYear);
+  
+  let seisToPrev: number;
+  if (inputs.autoOptimize || inputs.seisCarryBackRequested === 'auto') {
+    // Auto optimize: maximize use of previous year liability
+    seisToPrev = Math.min(inputs.seisThisYear, seisPrevCapAvail);
+  } else {
+    seisToPrev = Math.min(
+      typeof inputs.seisCarryBackRequested === 'number' ? inputs.seisCarryBackRequested : 0,
+      inputs.seisThisYear,
+      seisPrevCapAvail
+    );
+  }
+  
+  const seisToThis = Math.min(inputs.seisThisYear - seisToPrev, SEIS_CAP);
+  
+  const seisReliefPrevPotential = SEIS_RATE * seisToPrev;
+  const seisReliefThisPotential = SEIS_RATE * seisToThis;
+  
+  // Step B — EIS allocation (with KIC rule)
+  const eisNonKICThis = inputs.eisThisYearTotal - inputs.eisThisYearKIC;
+  
+  // Carry-back to previous year (greedy, KIC-aware and optimal)
+  const nonKIC_to_prev = Math.min(eisNonKICThis, Math.max(0, EIS_CAP_REGULAR - inputs.eisUsedPrevYear));
+  
+  const kicBandCapacityPrev = Math.max(0, EIS_CAP_WITH_KIC - (inputs.eisUsedPrevYear + nonKIC_to_prev));
+  const KIC_to_prev_raw = Math.min(inputs.eisThisYearKIC, kicBandCapacityPrev);
+  
+  let eisToPrev: number;
+  if (inputs.autoOptimize || inputs.eisCarryBackRequested === 'auto') {
+    eisToPrev = nonKIC_to_prev + KIC_to_prev_raw;
+  } else {
+    eisToPrev = Math.min(
+      typeof inputs.eisCarryBackRequested === 'number' ? inputs.eisCarryBackRequested : 0,
+      nonKIC_to_prev + KIC_to_prev_raw
+    );
+  }
+  
+  let nonKIC_to_prev_final: number;
+  let KIC_to_prev_final: number;
+  
+  if (eisToPrev < nonKIC_to_prev) {
+    nonKIC_to_prev_final = eisToPrev;
+    KIC_to_prev_final = 0;
+  } else {
+    nonKIC_to_prev_final = nonKIC_to_prev;
+    KIC_to_prev_final = eisToPrev - nonKIC_to_prev;
+  }
+  
+  // Apply in this year
+  const nonKIC_rem = eisNonKICThis - nonKIC_to_prev_final;
+  const KIC_rem = inputs.eisThisYearKIC - KIC_to_prev_final;
+  const nonKIC_to_this = Math.min(nonKIC_rem, EIS_CAP_REGULAR);
+  const KIC_to_this = Math.min(KIC_rem, EIS_CAP_WITH_KIC - nonKIC_to_this);
+  
+  const eisReliefPrevPotential = EIS_RATE * eisToPrev;
+  const eisReliefThisPotential = EIS_RATE * (nonKIC_to_this + KIC_to_this);
+  
+  // Step C — Enforce per-year income-tax liability caps
+  const liabPrev = Math.max(0, inputs.incomeTaxLiabilityPrevYear - inputs.otherReliefsPrevYear);
+  const liabThis = Math.max(0, inputs.incomeTaxLiabilityThisYear - inputs.otherReliefsThisYear);
+  
+  // Priority rule: SEIS first (50%), then EIS (30%)
+  let seisReliefPrev: number, eisReliefPrev: number, seisReliefThis: number, eisReliefThis: number;
+  
+  if (inputs.prioritySEISFirst) {
+    seisReliefPrev = Math.min(seisReliefPrevPotential, liabPrev);
+    const liabPrevRem = liabPrev - seisReliefPrev;
+    eisReliefPrev = Math.min(eisReliefPrevPotential, liabPrevRem);
+    
+    seisReliefThis = Math.min(seisReliefThisPotential, liabThis);
+    const liabThisRem = liabThis - seisReliefThis;
+    eisReliefThis = Math.min(eisReliefThisPotential, liabThisRem);
+  } else {
+    // EIS first priority
+    eisReliefPrev = Math.min(eisReliefPrevPotential, liabPrev);
+    const liabPrevRem = liabPrev - eisReliefPrev;
+    seisReliefPrev = Math.min(seisReliefPrevPotential, liabPrevRem);
+    
+    eisReliefThis = Math.min(eisReliefThisPotential, liabThis);
+    const liabThisRem = liabThis - eisReliefThis;
+    seisReliefThis = Math.min(seisReliefThisPotential, liabThisRem);
+  }
+  
+  // Calculate totals and remaining allowances
+  const totalRelief = seisReliefPrev + eisReliefPrev + seisReliefThis + eisReliefThis;
+  const effectiveNetCost = inputs.seisThisYear + inputs.eisThisYearTotal - totalRelief;
+  
+  // SEIS allowances remaining
+  const seisAllowanceRemainingPrev = SEIS_CAP - (inputs.seisUsedPrevYear + seisToPrev);
+  const seisAllowanceRemainingThis = SEIS_CAP - seisToThis;
+  
+  // EIS allowances remaining
+  const eisUsedPrevTotal = inputs.eisUsedPrevYear + nonKIC_to_prev_final + KIC_to_prev_final;
+  const eisUsedThisTotal = nonKIC_to_this + KIC_to_this;
+  
+  const eisAllowanceRegularPrev = Math.max(0, EIS_CAP_REGULAR - eisUsedPrevTotal);
+  const eisAllowanceKICPrev = Math.max(0, EIS_CAP_WITH_KIC - eisUsedPrevTotal);
+  const eisAllowanceRegularThis = Math.max(0, EIS_CAP_REGULAR - eisUsedThisTotal);
+  const eisAllowanceKICThis = Math.max(0, EIS_CAP_WITH_KIC - eisUsedThisTotal);
+  
+  // Calculate unused potential lost
+  const seisUnusedLost = (seisReliefPrevPotential - seisReliefPrev) + (seisReliefThisPotential - seisReliefThis);
+  const eisUnusedLost = (eisReliefPrevPotential - eisReliefPrev) + (eisReliefThisPotential - eisReliefThis);
+  
+  // Generate optimization suggestions
+  if (inputs.autoOptimize) {
+    suggestions.push(`Auto-optimized: Carry back £${seisToPrev.toLocaleString()} SEIS and £${eisToPrev.toLocaleString()} EIS to maximize relief`);
+  }
+  
+  if (seisUnusedLost > 0 || eisUnusedLost > 0) {
+    suggestions.push(`£${(seisUnusedLost + eisUnusedLost).toLocaleString()} of potential relief lost due to insufficient income tax liability`);
+  }
+  
+  return {
+    totalRelief,
+    reliefThisYear: seisReliefThis + eisReliefThis,
+    reliefPrevYear: seisReliefPrev + eisReliefPrev,
+    effectiveNetCost,
+    
+    seis: {
+      appliedToPrev: seisToPrev,
+      appliedToThis: seisToThis,
+      reliefPrev: seisReliefPrev,
+      reliefThis: seisReliefThis,
+      allowanceRemainingPrev: seisAllowanceRemainingPrev,
+      allowanceRemainingThis: seisAllowanceRemainingThis,
+      unusedPotentialLost: seisUnusedLost
+    },
+    
+    eis: {
+      appliedToPrev: eisToPrev,
+      appliedToThis: nonKIC_to_this + KIC_to_this,
+      reliefPrev: eisReliefPrev,
+      reliefThis: eisReliefThis,
+      allowanceRemainingRegular: { prev: eisAllowanceRegularPrev, this: eisAllowanceRegularThis },
+      allowanceRemainingKIC: { prev: eisAllowanceKICPrev, this: eisAllowanceKICThis },
+      unusedPotentialLost: eisUnusedLost,
+      kicAppliedToPrev: KIC_to_prev_final,
+      kicAppliedToThis: KIC_to_this,
+      nonKicAppliedToPrev: nonKIC_to_prev_final,
+      nonKicAppliedToThis: nonKIC_to_this
+    },
+    
+    progress: {
+      seisUsagePrev: ((inputs.seisUsedPrevYear + seisToPrev) / SEIS_CAP) * 100,
+      seisUsageThis: (seisToThis / SEIS_CAP) * 100,
+      eisUsageRegularPrev: (Math.min(eisUsedPrevTotal, EIS_CAP_REGULAR) / EIS_CAP_REGULAR) * 100,
+      eisUsageRegularThis: (Math.min(eisUsedThisTotal, EIS_CAP_REGULAR) / EIS_CAP_REGULAR) * 100,
+      eisUsageKICPrev: (Math.max(0, eisUsedPrevTotal - EIS_CAP_REGULAR) / EIS_CAP_REGULAR) * 100,
+      eisUsageKICThis: (Math.max(0, eisUsedThisTotal - EIS_CAP_REGULAR) / EIS_CAP_REGULAR) * 100
+    },
+    
+    suggestions,
+    validationErrors: errors
+  };
+}
 
 export default function SimpleAllowanceCalculator() {
-  const [inputs, setInputs] = useState<AllowanceInputs>({
-    scheme: 'EIS',
-    isKIC: false,
-    investmentThisYear: 50000,
-    incomeTaxLiabilityThisYear: 25000,
-    investmentPrevYear: 0,
-    carryBackFromThisYear: 0,
-    incomeTaxLiabilityPrevYear: 15000,
-    investorLimitUsedPrevYear: false
+  const currentYear = new Date().getFullYear();
+  const taxYear = `${currentYear}/${(currentYear + 1).toString().slice(-2)}`;
+  const prevTaxYear = `${currentYear - 1}/${currentYear.toString().slice(-2)}`;
+  
+  const [inputs, setInputs] = useState<SEISEISInputs>({
+    taxYear,
+    incomeTaxLiabilityThisYear: 50000,
+    incomeTaxLiabilityPrevYear: 45000,
+    otherReliefsThisYear: 0,
+    otherReliefsPrevYear: 0,
+    seisThisYear: 100000,
+    seisCarryBackRequested: 'auto',
+    seisUsedPrevYear: 0,
+    eisThisYearTotal: 500000,
+    eisThisYearKIC: 200000,
+    eisCarryBackRequested: 'auto',
+    eisUsedPrevYear: 0,
+    prioritySEISFirst: true,
+    autoOptimize: true
   });
 
-  const [result, setResult] = useState(calcAllowance(inputs));
+  const [result, setResult] = useState(calculateSEISEIS(inputs));
 
   useEffect(() => {
-    setResult(calcAllowance(inputs));
+    setResult(calculateSEISEIS(inputs));
   }, [inputs]);
 
-  const updateInput = (field: keyof AllowanceInputs, value: any) => {
+  const updateInput = (field: keyof SEISEISInputs, value: any) => {
     setInputs(prev => ({ ...prev, [field]: value }));
   };
 
+  const formatCurrency = (amount: number) => `£${amount.toLocaleString()}`;
+
   return (
-    <div className="p-6 bg-white dark:bg-gray-900">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Left Column - Inputs */}
-        <div className="space-y-6">
-          
-          {/* Scheme Selection */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">
-              Scheme
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="scheme"
-                  value="EIS"
-                  checked={inputs.scheme === 'EIS'}
-                  onChange={(e) => updateInput('scheme', e.target.value as 'EIS' | 'SEIS')}
-                  className="mr-2 accent-[#5193B3]"
-                />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">EIS</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="scheme"
-                  value="SEIS"
-                  checked={inputs.scheme === 'SEIS'}
-                  onChange={(e) => updateInput('scheme', e.target.value as 'EIS' | 'SEIS')}
-                  className="mr-2 accent-[#5193B3]"
-                />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">SEIS</span>
-              </label>
-            </div>
-
-            {inputs.scheme === 'EIS' && (
-              <div className="mt-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={inputs.isKIC}
-                    onChange={(e) => updateInput('isKIC', e.target.checked)}
-                    className="mr-2 accent-[#5193B3]"
-                  />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Knowledge-Intensive Company (KIC)</span>
-                </label>
-              </div>
-            )}
-          </div>
-
-          {/* This Tax Year */}
-          <div>
-            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3">This Tax Year</h4>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Investment Amount (£)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="100"
-                  value={inputs.investmentThisYear}
-                  onChange={(e) => updateInput('investmentThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Income Tax Liability (£)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="100"
-                  value={inputs.incomeTaxLiabilityThisYear}
-                  onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Previous Tax Year */}
-          <div>
-            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3">Previous Tax Year</h4>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Investment Made Last Year (£)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="100"
-                  value={inputs.investmentPrevYear}
-                  onChange={(e) => updateInput('investmentPrevYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Carry Back From This Year (£)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="100"
-                  value={inputs.carryBackFromThisYear}
-                  onChange={(e) => updateInput('carryBackFromThisYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  Income Tax Liability Last Year (£)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="100"
-                  value={inputs.incomeTaxLiabilityPrevYear}
-                  onChange={(e) => updateInput('incomeTaxLiabilityPrevYear', Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-[#5193B3] focus:ring-1 focus:ring-[#5193B3]"
-                />
-              </div>
-              <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={inputs.investorLimitUsedPrevYear}
-                    onChange={(e) => updateInput('investorLimitUsedPrevYear', e.target.checked)}
-                    className="mr-2 accent-[#5193B3]"
-                  />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Investor limit used in previous year</span>
-                </label>
-              </div>
-            </div>
-          </div>
+    <div className="p-6 bg-[var(--background)] space-y-6">
+      {/* Validation Errors */}
+      {result.validationErrors.length > 0 && (
+        <div className="bg-[var(--destructive)]/10 border border-[var(--destructive)]/30 rounded-[var(--radius-sm)] p-4">
+          <h4 className="font-medium text-[var(--destructive)] mb-2">Validation Errors</h4>
+          <ul className="text-sm text-[var(--destructive)]/80 list-disc list-inside">
+            {result.validationErrors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        {/* Right Column - Results */}
-        <div className="space-y-6">
-          
-          {/* Headline Result Card */}
-          <div className="bg-gradient-to-br from-[#5193B3]/10 to-[#62C4C3]/10 dark:from-[#5193B3]/20 dark:to-[#62C4C3]/20 rounded-lg p-6 border border-[#5193B3]/30 dark:border-[#5193B3]/50">
-            <div className="text-center mb-4">
-              <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Tax Relief</h4>
-              <div className="text-3xl font-bold" style={{ color: '#5193B3' }}>
-                {formatCurrency(result.totalRelief)}
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Net cost: <span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(result.effectiveNetCost)}</span>
-              </p>
-            </div>
-            
-            <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="text-center">
-                  <div className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(result.reliefThis)}</div>
-                  <div className="text-gray-500 dark:text-gray-400">This Year</div>
-                </div>
-                <div className="text-center border-l border-gray-200 dark:border-gray-600">
-                  <div className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(result.reliefPrev)}</div>
-                  <div className="text-gray-500 dark:text-gray-400">Carry-back</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Summary Details */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-              <i className="fas fa-list-ul text-sm text-blue-600" aria-hidden="true"></i>
-              Calculation Summary
-            </h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Investment amount:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(inputs.investmentThisYear)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Relief rate:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{formatPercentage(result.rate * 100, 0)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Tax liability this year:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(inputs.incomeTaxLiabilityThisYear)}</span>
-              </div>
-              <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
-                <span className="text-gray-600 dark:text-gray-300">Effective rate of return:</span>
-                <span className="font-medium text-green-600 dark:text-green-400">
-                  {formatPercentage((result.totalRelief / inputs.investmentThisYear) * 100, 1)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Breakdown */}
+      {/* Tax Year Context */}
+      <div className="bg-[var(--info)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--info)]/30">
+        <div className="flex justify-between items-center">
           <div>
-            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3">Breakdown</h4>
-            <div className="grid grid-cols-2 gap-4">
-              
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <h5 className="font-medium text-gray-800 dark:text-gray-100 mb-2">This Year</h5>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Subscription applied:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.eligibleForThis)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Relief rate:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatPercentage(result.rate * 100, 0)}</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span className="text-gray-700 dark:text-gray-200">Relief amount:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.reliefThis)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Remaining allowance:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.allowanceLeftThis)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <h5 className="font-medium text-gray-800 dark:text-gray-100 mb-2">Carried Back</h5>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Subscription applied:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.eligibleForPrev)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Relief rate:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatPercentage(result.rate * 100, 0)}</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span className="text-gray-700 dark:text-gray-200">Relief amount:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.reliefPrev)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Remaining allowance:</span>
-                    <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.allowanceLeftPrev)}</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+            <h3 className="font-medium text-[var(--info)]">Tax Year Context</h3>
+            <p className="text-sm text-[var(--info)]/80">This year: {taxYear} • Previous year: {prevTaxYear}</p>
           </div>
-
-          {/* Allowance Usage */}
-          <div>
-            <h4 className="text-md font-semibold text-gray-800 dark:text-gray-100 mb-3">Allowance Usage</h4>
-            <div className="space-y-2">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600 dark:text-gray-300">{inputs.scheme === 'EIS' ? 'EIS' : 'SEIS'}</span>
-                  <span className="text-gray-900 dark:text-gray-100">{formatCurrency(result.eligibleForThis)} / {formatCurrency(result.limitThis)}</span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-[#5193B3] h-2 rounded-full transition-all duration-300" 
-                    style={{ width: `${Math.min((result.eligibleForThis / result.limitThis) * 100, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                className="bg-[#5193B3] hover:bg-[#4A7FA0] text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
-                onClick={() => {
-                  // Recalculate with current inputs
-                  setResult(calcAllowance(inputs));
-                }}
-              >
-                <i className="fas fa-calculator text-sm" aria-hidden="true"></i>
-                Recalculate
-              </button>
-              
-              <button
-                className="bg-[#62C4C3] hover:bg-[#56B3B2] text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
-                onClick={() => {
-                  const reportData = {
-                    timestamp: new Date().toLocaleString(),
-                    inputs,
-                    results: result
-                  };
-                  
-                  // Create and download report
-                  const dataStr = JSON.stringify(reportData, null, 2);
-                  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                  const url = URL.createObjectURL(dataBlob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `allowance-calculation-${new Date().toISOString().split('T')[0]}.json`;
-                  link.click();
-                  URL.revokeObjectURL(url);
-                }}
-              >
-                <i className="fas fa-download text-sm" aria-hidden="true"></i>
-                Export
-              </button>
-            </div>
-            
-            <button
-              className="w-full bg-[#F8D49B] hover:bg-[#F5CE85] text-gray-800 font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({
-                    title: 'EIS/SEIS Allowance Calculation',
-                    text: `Total Relief: ${formatCurrency(result.totalRelief)} | Net Cost: ${formatCurrency(result.effectiveNetCost)}`,
-                    url: window.location.href
-                  });
-                } else {
-                  // Fallback to clipboard
-                  const shareText = `EIS/SEIS Calculation Results:
-Investment: ${formatCurrency(inputs.investmentThisYear)}
-Total Relief: ${formatCurrency(result.totalRelief)}
-Net Cost: ${formatCurrency(result.effectiveNetCost)}
-Rate: ${formatPercentage(result.rate * 100, 0)}`;
-                  navigator.clipboard.writeText(shareText);
-                  // Could add a toast notification here
-                }
-              }}
-            >
-              <i className="fas fa-share text-sm" aria-hidden="true"></i>
-              Share Results
-            </button>
-          </div>
-
-          {/* Badges */}
-          <div className="flex gap-2 flex-wrap pt-4 border-t border-gray-200 dark:border-gray-700">
-            <span className="inline-block bg-[#5193B3]/10 text-[#5193B3] px-3 py-1 rounded-full text-xs font-medium">
-              {inputs.scheme}
-            </span>
-            {inputs.isKIC && (
-              <span className="inline-block bg-[#62C4C3]/10 text-[#62C4C3] px-3 py-1 rounded-full text-xs font-medium">
-                KIC
-              </span>
-            )}
-            <span className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
-              Rate: {formatPercentage(result.rate * 100, 0)}
-            </span>
-            <span className="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded-full text-xs font-medium">
-              <i className="fas fa-clock mr-1" aria-hidden="true"></i>
-              2024/25
-            </span>
+          <div className="flex gap-2">
+            <label className="flex items-center text-sm text-[var(--foreground)]">
+              <input
+                type="checkbox"
+                checked={inputs.autoOptimize}
+                onChange={(e) => updateInput('autoOptimize', e.target.checked)}
+                className="mr-2"
+              />
+              Auto Optimize
+            </label>
+            <label className="flex items-center text-sm text-[var(--foreground)]">
+              <input
+                type="checkbox"
+                checked={inputs.prioritySEISFirst}
+                onChange={(e) => updateInput('prioritySEISFirst', e.target.checked)}
+                className="mr-2"
+              />
+              SEIS Priority
+            </label>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Footnote & Actions */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <div className="flex gap-2">
-            <button
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
-              onClick={() => {
-                // Reset to default values
-                setInputs({
-                  scheme: 'EIS',
-                  isKIC: false,
-                  investmentThisYear: 50000,
-                  incomeTaxLiabilityThisYear: 25000,
-                  investmentPrevYear: 0,
-                  carryBackFromThisYear: 0,
-                  incomeTaxLiabilityPrevYear: 15000,
-                  investorLimitUsedPrevYear: false
-                });
-              }}
-            >
-              <i className="fas fa-redo text-xs" aria-hidden="true"></i>
-              Reset
-            </button>
-            
-            <button
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2"
-              onClick={() => {
-                // Save to localStorage
-                const savedData = {
-                  inputs,
-                  result,
-                  timestamp: new Date().toISOString(),
-                  name: `EIS/SEIS Calculation - ${new Date().toLocaleDateString()}`
-                };
-                const existing = JSON.parse(localStorage.getItem('saved-calculations') || '[]');
-                existing.unshift(savedData);
-                localStorage.setItem('saved-calculations', JSON.stringify(existing.slice(0, 10))); // Keep last 10
-                // Could add toast notification here
-              }}
-            >
-              <i className="fas fa-bookmark text-xs" aria-hidden="true"></i>
-              Save
-            </button>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Input Section */}
+        <div className="space-y-6">
           
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
-            Last updated: {new Date().toLocaleTimeString()}
+          {/* General Section */}
+          <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+            <h4 className="font-semibold text-[var(--card-foreground)] mb-4">A. General Information</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  Income Tax Liability This Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.incomeTaxLiabilityThisYear}
+                  onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  Income Tax Liability Previous Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.incomeTaxLiabilityPrevYear}
+                  onChange={(e) => updateInput('incomeTaxLiabilityPrevYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  Other Reliefs This Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.otherReliefsThisYear}
+                  onChange={(e) => updateInput('otherReliefsThisYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  Other Reliefs Previous Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.otherReliefsPrevYear}
+                  onChange={(e) => updateInput('otherReliefsPrevYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SEIS Section */}
+          <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30">
+            <h4 className="font-semibold text-[var(--warning)] mb-4 flex items-center gap-2">
+              <i className="fas fa-star"></i>
+              B. SEIS Section
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  SEIS Subscribed This Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.seisThisYear}
+                  onChange={(e) => updateInput('seisThisYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+                <p className="text-xs text-[var(--muted-foreground)] mt-1">Annual cap: £200,000 • Rate: 50%</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  Carry Back to Previous Year
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={inputs.seisCarryBackRequested === 'auto' ? 0 : inputs.seisCarryBackRequested}
+                    onChange={(e) => updateInput('seisCarryBackRequested', Number(e.target.value))}
+                    disabled={inputs.autoOptimize}
+                    className="flex-1 px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] disabled:opacity-50 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                  />
+                  {inputs.autoOptimize && (
+                    <span className="px-3 py-2 bg-[var(--success)]/20 text-[var(--success)] text-sm rounded-[var(--radius-sm)]">Auto</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  SEIS Already Used Last Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.seisUsedPrevYear}
+                  onChange={(e) => updateInput('seisUsedPrevYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* EIS Section */}
+          <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30">
+            <h4 className="font-semibold text-[var(--success)] mb-4 flex items-center gap-2">
+              <i className="fas fa-building"></i>
+              C. EIS Section
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  EIS Subscribed This Year - Total (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.eisThisYearTotal}
+                  onChange={(e) => updateInput('eisThisYearTotal', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+                <p className="text-xs text-[var(--muted-foreground)] mt-1">Annual cap: £1m regular + £1m KIC • Rate: 30%</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  ...of which is Knowledge-Intensive Companies (KIC) (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.eisThisYearKIC}
+                  onChange={(e) => updateInput('eisThisYearKIC', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  Carry Back to Previous Year
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={inputs.eisCarryBackRequested === 'auto' ? 0 : inputs.eisCarryBackRequested}
+                    onChange={(e) => updateInput('eisCarryBackRequested', Number(e.target.value))}
+                    disabled={inputs.autoOptimize}
+                    className="flex-1 px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] disabled:opacity-50 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                  />
+                  {inputs.autoOptimize && (
+                    <span className="px-3 py-2 bg-[var(--success)]/20 text-[var(--success)] text-sm rounded-[var(--radius-sm)]">Auto</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+                  EIS Already Used Last Year (£)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={inputs.eisUsedPrevYear}
+                  onChange={(e) => updateInput('eisUsedPrevYear', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--card-foreground)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                />
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
-          <div className="flex items-start gap-2">
-            <i className="fas fa-info-circle text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
-            <div className="text-xs text-yellow-800 dark:text-yellow-200">
-              <strong>Important:</strong> Based on 2024/25 tax year rates and limits. Subject to income tax liability and scheme rules. 
-              Results are illustrative only and do not constitute financial advice. Always consult a qualified advisor for investment decisions.
+
+        {/* Results Section */}
+        <div className="space-y-6">
+          
+          {/* Headline Summary */}
+          <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] p-6" style={{ boxShadow: 'var(--shadow-md)' }}>
+            <h3 className="text-xl font-bold mb-4">Total Relief Summary</h3>
+            <div className="text-center">
+              <div className="text-4xl font-bold mb-2">{formatCurrency(result.totalRelief)}</div>
+              <div className="text-[var(--primary-foreground)]/80 mb-4">Total Tax Relief</div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-3">
+                  <div className="font-semibold">{formatCurrency(result.reliefThisYear)}</div>
+                  <div className="text-[var(--primary-foreground)]/80">Relief This Year</div>
+                </div>
+                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-3">
+                  <div className="font-semibold">{formatCurrency(result.reliefPrevYear)}</div>
+                  <div className="text-[var(--primary-foreground)]/80">Carried Back</div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-[var(--primary-foreground)]/30">
+                <div className="text-lg font-semibold">Effective Net Cost: {formatCurrency(result.effectiveNetCost)}</div>
+                <div className="text-sm text-[var(--primary-foreground)]/80">After income tax relief</div>
+              </div>
+            </div>
+          </div>
+
+          {/* SEIS Breakdown */}
+          <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30">
+            <h4 className="font-semibold text-[var(--warning)] mb-3 flex items-center gap-2">
+              <i className="fas fa-star"></i>
+              SEIS Breakdown
+            </h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-[var(--muted-foreground)]">Applied to Previous Year</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToPrev)}</div>
+                <div className="text-[var(--warning)]">Relief: {formatCurrency(result.seis.reliefPrev)}</div>
+              </div>
+              <div>
+                <div className="text-[var(--muted-foreground)]">Applied to This Year</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToThis)}</div>
+                <div className="text-[var(--warning)]">Relief: {formatCurrency(result.seis.reliefThis)}</div>
+              </div>
+              <div>
+                <div className="text-[var(--muted-foreground)]">Allowance Remaining (Prev)</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
+              </div>
+              <div>
+                <div className="text-[var(--muted-foreground)]">Allowance Remaining (This)</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
+              </div>
+            </div>
+            {result.seis.unusedPotentialLost > 0 && (
+              <div className="mt-3 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
+                Unused potential lost: {formatCurrency(result.seis.unusedPotentialLost)}
+              </div>
+            )}
+          </div>
+
+          {/* EIS Breakdown */}
+          <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30">
+            <h4 className="font-semibold text-[var(--success)] mb-3 flex items-center gap-2">
+              <i className="fas fa-building"></i>
+              EIS Breakdown
+            </h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-[var(--muted-foreground)]">Applied to Previous Year</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.eis.appliedToPrev)}</div>
+                <div className="text-[var(--success)]">Relief: {formatCurrency(result.eis.reliefPrev)}</div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} | KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
+                </div>
+              </div>
+              <div>
+                <div className="text-[var(--muted-foreground)]">Applied to This Year</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.eis.appliedToThis)}</div>
+                <div className="text-[var(--success)]">Relief: {formatCurrency(result.eis.reliefThis)}</div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} | KIC: {formatCurrency(result.eis.kicAppliedToThis)}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="text-xs">
+                <div className="text-[var(--muted-foreground)]">Allowance Remaining (Previous Year)</div>
+                <div className="text-[var(--card-foreground)]">Up to £1m (any): {formatCurrency(result.eis.allowanceRemainingRegular.prev)}</div>
+                <div className="text-[var(--card-foreground)]">KIC-only band to £2m: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}</div>
+              </div>
+              <div className="text-xs">
+                <div className="text-[var(--muted-foreground)]">Allowance Remaining (This Year)</div>
+                <div className="text-[var(--card-foreground)]">Up to £1m (any): {formatCurrency(result.eis.allowanceRemainingRegular.this)}</div>
+                <div className="text-[var(--card-foreground)]">KIC-only band to £2m: {formatCurrency(result.eis.allowanceRemainingKIC.this)}</div>
+              </div>
+            </div>
+            {result.eis.unusedPotentialLost > 0 && (
+              <div className="mt-3 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
+                Unused potential lost: {formatCurrency(result.eis.unusedPotentialLost)}
+              </div>
+            )}
+          </div>
+
+          {/* Progress Bars */}
+          <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
+            <h4 className="font-semibold text-[var(--card-foreground)] mb-3">Usage Progress</h4>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-sm mb-1 text-[var(--card-foreground)]">
+                  <span>SEIS Previous Year</span>
+                  <span>{result.progress.seisUsagePrev.toFixed(1)}%</span>
+                </div>
+                <div className="w-full bg-[var(--border)] rounded-full h-2">
+                  <div className="bg-[var(--warning)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsagePrev, 100)}%` }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1 text-[var(--card-foreground)]">
+                  <span>SEIS This Year</span>
+                  <span>{result.progress.seisUsageThis.toFixed(1)}%</span>
+                </div>
+                <div className="w-full bg-[var(--border)] rounded-full h-2">
+                  <div className="bg-[var(--warning)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.seisUsageThis, 100)}%` }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1 text-[var(--card-foreground)]">
+                  <span>EIS Regular (Previous)</span>
+                  <span>{result.progress.eisUsageRegularPrev.toFixed(1)}%</span>
+                </div>
+                <div className="w-full bg-[var(--border)] rounded-full h-2">
+                  <div className="bg-[var(--success)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageRegularPrev, 100)}%` }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1 text-[var(--card-foreground)]">
+                  <span>EIS KIC Band (Previous)</span>
+                  <span>{result.progress.eisUsageKICPrev.toFixed(1)}%</span>
+                </div>
+                <div className="w-full bg-[var(--border)] rounded-full h-2">
+                  <div className="bg-[var(--secondary)] h-2 rounded-full" style={{ width: `${Math.min(result.progress.eisUsageKICPrev, 100)}%` }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Suggestions */}
+          {result.suggestions.length > 0 && (
+            <div className="bg-[var(--info)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--info)]/30">
+              <h4 className="font-semibold text-[var(--info)] mb-2">Optimization Suggestions</h4>
+              <ul className="text-sm text-[var(--info)]/80 space-y-1">
+                {result.suggestions.map((suggestion, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <i className="fas fa-lightbulb text-[var(--warning)] mt-0.5"></i>
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Scope Note */}
+          <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4 border border-[var(--border)]">
+            <h4 className="font-semibold text-[var(--card-foreground)] mb-2">Important Notes</h4>
+            <div className="text-sm text-[var(--muted-foreground)] space-y-1">
+              <p>• This tool models income tax relief only under SEIS/EIS schemes</p>
+              <p>• No carry-forward of unused relief; relief in each year cannot exceed that year's income tax liability</p>
+              <p>• Does not model CGT deferral (EIS), CGT reduction/reinvestment (SEIS), or loss relief</p>
+              <p>• SEIS rate: 50% up to £200k annually | EIS rate: 30% up to £1m + £1m KIC annually</p>
             </div>
           </div>
         </div>
