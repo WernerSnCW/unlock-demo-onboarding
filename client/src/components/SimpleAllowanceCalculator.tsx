@@ -509,19 +509,19 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown (50% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[60px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Applied to Previous Year</div>
                   <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
                 </div>
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[60px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Applied to This Year</div>
                   <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
                 </div>
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[60px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Allowance Remaining (Prev)</div>
                   <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
                 </div>
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[60px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Allowance Remaining (This)</div>
                   <div className="text-gray-700 dark:text-gray-300">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
                 </div>
@@ -562,7 +562,7 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[80px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Applied to Previous Year</div>
                   <div className="text-gray-700 dark:text-gray-300">
                     {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
@@ -571,7 +571,7 @@ export default function SimpleAllowanceCalculator() {
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} • KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                   </div>
                 </div>
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[80px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Applied to This Year</div>
                   <div className="text-gray-700 dark:text-gray-300">
                     {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
@@ -580,14 +580,14 @@ export default function SimpleAllowanceCalculator() {
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} • KIC: {formatCurrency(result.eis.kicAppliedToThis)}
                   </div>
                 </div>
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[80px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Remaining Allowances (Prev)</div>
                   <div className="text-gray-700 dark:text-gray-300">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
-                <div>
+                <div className="p-3 bg-[var(--muted)]/30 rounded-[var(--radius-sm)] min-h-[80px] flex flex-col justify-between">
                   <div className="font-medium text-gray-900 dark:text-gray-100">Remaining Allowances (This)</div>
                   <div className="text-gray-700 dark:text-gray-300">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
