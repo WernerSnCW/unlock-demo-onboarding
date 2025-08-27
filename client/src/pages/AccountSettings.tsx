@@ -571,19 +571,29 @@ export default function AccountSettings() {
 
   // Save investor mutation
   const updateInvestorMutation = useMutation({
-    mutationFn: async (data: { userId: string; investorType: string }) => {
+    mutationFn: async (data: { userId: string; name: string; investorType: string }) => {
       return fetch(`/api/investors/${data.userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ investorType: data.investorType }),
+        body: JSON.stringify({ 
+          name: data.name,
+          investorType: data.investorType 
+        }),
       });
     },
     onSuccess: (_, data) => {
       setDemoInvestors(prev => prev.map(inv => 
         inv.userId === data.userId 
-          ? { ...inv, investorType: data.investorType }
+          ? { ...inv, name: data.name, investorType: data.investorType }
           : inv
       ));
+      
+      // Update the global context with the new name
+      setSelectedInvestor(prev => prev ? {
+        ...prev,
+        name: data.name,
+        investorType: data.investorType
+      } : null);
       
       toast({
         title: 'Investor Updated',
@@ -604,6 +614,7 @@ export default function AccountSettings() {
     
     updateInvestorMutation.mutate({
       userId: selectedInvestorId,
+      name: data.name || '',
       investorType: data.investorType || 'Angel',
     });
   };
