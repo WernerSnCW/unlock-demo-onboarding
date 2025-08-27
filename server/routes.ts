@@ -882,28 +882,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (purchaseDateTime > futureThreshold) {
             console.log(`Warning: Purchase date ${purchaseDate} is too far in the future, ignoring HPI uplift calculation`);
           } else {
-            // Get HPI data for purchase period (closest available before or at purchase date)
-            const historicalHpi = await db.select()
-              .from(ukHpi)
-              .where(
-                and(
-                  eq(ukHpi.regionName, hpi.regionName),
-                  lte(ukHpi.date, purchaseDateTime.toISOString().split('T')[0])
+            // For recent purchases (less than 2 years), use minimal HPI adjustment
+            const monthsSincePurchase = (Date.now() - purchaseDateTime.getTime()) / (1000 * 60 * 60 * 24 * 30);
+            
+            if (monthsSincePurchase < 24) {
+              // For recent purchases, apply modest market adjustment (typically 2-5% annually)
+              const annualGrowthRate = parseFloat(hpi.yearlyChangePercent || '2') / 100;
+              const yearsElapsed = monthsSincePurchase / 12;
+              hpiUpliftFactor = 1 + (annualGrowthRate * yearsElapsed);
+              hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
+              usesPurchaseData = true;
+              
+              console.log(`Recent Purchase Analysis:`);
+              console.log(`Purchase Date: ${purchaseDate} (${monthsSincePurchase.toFixed(1)} months ago)`);
+              console.log(`Regional YoY Growth: ${(annualGrowthRate * 100).toFixed(1)}%`);
+              console.log(`Modest Uplift Applied: ${((hpiUpliftFactor - 1) * 100).toFixed(2)}%`);
+              console.log(`Purchase Price: £${purchasePriceNum.toLocaleString()}`);
+              console.log(`Adjusted Value: £${hpiAdjustedValue.toLocaleString()}`);
+            } else {
+              // For older purchases, use full HPI historical comparison
+              const historicalHpi = await db.select()
+                .from(ukHpi)
+                .where(
+                  and(
+                    eq(ukHpi.regionName, hpi.regionName),
+                    lte(ukHpi.date, purchaseDateTime.toISOString().split('T')[0])
+                  )
                 )
-              )
-              .orderBy(desc(ukHpi.date))
-              .limit(1);
+                .orderBy(desc(ukHpi.date))
+                .limit(1);
 
-            if (historicalHpi.length > 0) {
-              const historicalPrice = parseFloat(historicalHpi[0].averagePrice || '0');
-              if (historicalPrice > 0 && hpiBasePrice > 0) {
-                hpiUpliftFactor = hpiBasePrice / historicalPrice;
-                hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
-                usesPurchaseData = true;
-                
-                console.log(`Historical HPI (${historicalHpi[0].date}): £${historicalPrice.toLocaleString()}`);
-                console.log(`Current HPI (${hpi.date}): £${hpiBasePrice.toLocaleString()}`);
-                console.log(`HPI Uplift: ${((hpiUpliftFactor - 1) * 100).toFixed(2)}%`);
+              if (historicalHpi.length > 0) {
+                const historicalPrice = parseFloat(historicalHpi[0].averagePrice || '0');
+                if (historicalPrice > 0 && hpiBasePrice > 0) {
+                  hpiUpliftFactor = hpiBasePrice / historicalPrice;
+                  hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
+                  usesPurchaseData = true;
+                  
+                  console.log(`Historical HPI (${historicalHpi[0].date}): £${historicalPrice.toLocaleString()}`);
+                  console.log(`Current HPI (${hpi.date}): £${hpiBasePrice.toLocaleString()}`);
+                  console.log(`HPI Uplift: ${((hpiUpliftFactor - 1) * 100).toFixed(2)}%`);
+                }
               }
             }
           }
@@ -979,13 +998,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             finalEstimate = Math.round(hpiAdjustedValue);
             method = 'PURCHASE_HPI_ADJUSTED';
             
-            // Range based on comparables spread around our HPI-adjusted estimate
-            const compSpread = compMax - compMin;
-            const rangeFactor = Math.min(0.15, compSpread / (2 * compAverage)); // Max ±15%
+            // Range based on reasonable spread around estimate
+            const rangeFactor = 0.10; // ±10% around our estimate
             range = {
-              min: Math.round(Math.max(compMin, finalEstimate * (1 - rangeFactor))),
-              max: Math.round(Math.min(compMax, finalEstimate * (1 + rangeFactor)))
+              min: Math.round(finalEstimate * (1 - rangeFactor)),
+              max: Math.round(finalEstimate * (1 + rangeFactor))
             };
+            
+            // Ensure range makes logical sense (min < max)
+            if (range.min >= range.max) {
+              range = {
+                min: Math.round(finalEstimate * 0.9),
+                max: Math.round(finalEstimate * 1.1)
+              };
+            }
             
             console.log('--- PURCHASE + HPI CALCULATION ---');
             console.log(`Purchase Price HPI-Adjusted: £${finalEstimate.toLocaleString()}`);
