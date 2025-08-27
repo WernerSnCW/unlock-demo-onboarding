@@ -239,8 +239,8 @@ export default function SimpleAllowanceCalculator() {
       {/* Header with Help Button */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--card-foreground)]">SEIS/EIS Allowance Calculator</h2>
-          <p className="text-[var(--muted-foreground)] text-sm mt-1">Optimize your tax relief across SEIS and EIS investments</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">SEIS/EIS Calculator - FIXED VERSION</h2>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Optimize your tax relief across SEIS and EIS investments</p>
         </div>
         <button
           onClick={() => setShowUserGuide(true)}
