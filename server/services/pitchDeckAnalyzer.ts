@@ -578,6 +578,11 @@ OUTPUT SCHEMA:
       
       // Compute scores
       const scores = this.computeScores(extracted, valuations);
+      console.log('Computed scores:', scores);
+      console.log('Valuations for scoring:', {
+        peer_gap_pct: valuations.peer_gap_pct,
+        stated_pre_money: extracted.kpis.stated_pre_money
+      });
       
       // Generate analysis (LLM Pass #2)
       const analysis = await this.generateAnalysis(extracted, valuations, scores);
@@ -586,7 +591,11 @@ OUTPUT SCHEMA:
       const result = {
         id: Date.now().toString(),
         fileName,
-        overallScore: scores,
+        overallScore: {
+          completeness: scores.completeness,
+          clarity: scores.clarity,
+          valuation_reality: scores.valuation_reality
+        },
         executiveSummary: {
           topStrengths: analysis.executive_summary.strengths,
           topWeaknesses: analysis.executive_summary.weaknesses,
