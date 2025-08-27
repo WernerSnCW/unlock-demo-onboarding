@@ -5,6 +5,342 @@ import { SimpleAllowanceCalculator } from './SimpleAllowanceCalculator-new';
 import PitchDeckAnalyser from './PitchDeckAnalyser';
 import PropertyCharts from './PropertyCharts';
 
+// Website Fact Checker Component
+function WebsiteFactCheckerComponent() {
+  const [url, setUrl] = useState('');
+  const [specificClaims, setSpecificClaims] = useState('');
+  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
+  const [maxClaims, setMaxClaims] = useState(25);
+  const [newsTimeWindow, setNewsTimeWindow] = useState(24);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [results, setResults] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const focusAreas = [
+    'Financial Claims',
+    'Customer Numbers',
+    'Awards & Recognition',
+    'Company History',
+    'Product Features',
+    'Team Credentials'
+  ];
+
+  const handleFocusAreaChange = (area: string, checked: boolean) => {
+    if (checked) {
+      setSelectedFocusAreas([...selectedFocusAreas, area]);
+    } else {
+      setSelectedFocusAreas(selectedFocusAreas.filter(a => a !== area));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!url.trim()) {
+      setError('Please enter a valid URL');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setError(null);
+    setResults(null);
+
+    try {
+      const response = await fetch('/api/fact-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: url.trim(),
+          options: {
+            maxClaims,
+            newsTimeWindow,
+            focusAreas: selectedFocusAreas,
+            specificClaims: specificClaims.trim() || undefined
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Fact checking failed');
+      }
+
+      const result = await response.json();
+      setResults(result);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during fact checking');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const getVerdictColor = (verdict: string) => {
+    switch (verdict) {
+      case 'Verified': return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20';
+      case 'Partially verified': return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20';
+      case 'Contradicted': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20';
+      default: return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800';
+    }
+  };
+
+  const getVerdictIcon = (verdict: string) => {
+    switch (verdict) {
+      case 'Verified': return 'fas fa-check-circle';
+      case 'Partially verified': return 'fas fa-exclamation-triangle';
+      case 'Contradicted': return 'fas fa-times-circle';
+      default: return 'fas fa-question-circle';
+    }
+  };
+
+  if (results) {
+    return (
+      <div className="p-6">
+        {/* Header with results summary */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Fact Check Results</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Analyzed: <a href={results.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">{results.url}</a>
+              </p>
+            </div>
+            <button
+              onClick={() => setResults(null)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+              data-testid="button-new-analysis"
+            >
+              New Analysis
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            {['Verified', 'Partially verified', 'Contradicted', 'Unverifiable'].map(verdict => {
+              const count = results.claims.filter((c: any) => c.verdict === verdict).length;
+              return (
+                <div key={verdict} className={`p-3 rounded-lg border ${getVerdictColor(verdict)}`}>
+                  <div className="text-2xl font-bold">{count}</div>
+                  <div className="text-xs font-medium">{verdict}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Claims table */}
+        <div className="space-y-4 max-h-96 overflow-y-auto">
+          {results.claims.map((claim: any, index: number) => (
+            <div key={claim.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                      {claim.type}
+                    </span>
+                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getVerdictColor(claim.verdict)}`}>
+                      <i className={`${getVerdictIcon(claim.verdict)} text-xs`} aria-hidden="true"></i>
+                      {claim.verdict}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Confidence: {Math.round(claim.confidence * 100)}%
+                    </div>
+                  </div>
+                  <p className="text-gray-800 dark:text-gray-200 font-medium mb-2">{claim.text}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{claim.rationale}</p>
+                </div>
+              </div>
+              
+              {/* Evidence details */}
+              {(claim.evidence.newsapi.length > 0 || claim.evidence.companies_house) && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    View Evidence ({claim.evidence.newsapi.length} news articles{claim.evidence.companies_house ? ', Companies House data' : ''})
+                  </summary>
+                  <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    {/* News articles */}
+                    {claim.evidence.newsapi.length > 0 && (
+                      <div className="mb-3">
+                        <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">News Sources:</h5>
+                        <div className="space-y-2">
+                          {claim.evidence.newsapi.slice(0, 3).map((article: any, i: number) => (
+                            <div key={i} className="text-sm">
+                              <a href={article.url} target="_blank" rel="noopener noreferrer" 
+                                 className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                                {article.title}
+                              </a>
+                              <div className="text-gray-600 dark:text-gray-400 text-xs">
+                                {article.source} • {article.publishedAt}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Companies House data */}
+                    {claim.evidence.companies_house && (
+                      <div>
+                        <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Companies House:</h5>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          Company #{claim.evidence.companies_house.company_number} verified against official records
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </details>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
+          Analysis completed: {new Date(results.extracted_on).toLocaleString()}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i className="fas fa-shield-alt text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Website Fact Checker</h3>
+        <p className="text-gray-600 dark:text-gray-300">Verify website claims using AI analysis, news sources, and official records.</p>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-center">
+            <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 mr-2" aria-hidden="true"></i>
+            <span className="text-red-800 dark:text-red-200">{error}</span>
+          </div>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Website URL *
+          </label>
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            data-testid="input-website-url"
+            required
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Specific Claims to Verify (Optional)
+          </label>
+          <textarea
+            rows={3}
+            value={specificClaims}
+            onChange={(e) => setSpecificClaims(e.target.value)}
+            placeholder="e.g., Company revenue figures, user statistics, award claims..."
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"
+            data-testid="textarea-claims"
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              Max Claims to Extract
+            </label>
+            <select 
+              value={maxClaims}
+              onChange={(e) => setMaxClaims(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value={10}>10 claims</option>
+              <option value={25}>25 claims</option>
+              <option value={50}>50 claims</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              News Search Window
+            </label>
+            <select 
+              value={newsTimeWindow}
+              onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value={6}>6 months</option>
+              <option value={12}>12 months</option>
+              <option value={24}>24 months</option>
+              <option value={36}>36 months</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Focus Areas (Optional)
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {focusAreas.map((area) => (
+              <label key={area} className="flex items-center">
+                <input 
+                  type="checkbox" 
+                  checked={selectedFocusAreas.includes(area)}
+                  onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
+                  className="mr-2 text-blue-600"
+                  data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{area}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        
+        <button
+          type="submit"
+          disabled={isAnalyzing}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+          data-testid="button-analyze-website"
+        >
+          {isAnalyzing ? (
+            <>
+              <i className="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>
+              Analyzing Website...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-search mr-2" aria-hidden="true"></i>
+              Analyze Website
+            </>
+          )}
+        </button>
+      </form>
+      
+      <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+        <div className="flex items-start">
+          <i className="fas fa-info-circle text-amber-600 dark:text-amber-400 mt-0.5 mr-2" aria-hidden="true"></i>
+          <div className="text-sm">
+            <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">How it works:</p>
+            <ul className="text-amber-700 dark:text-amber-300 space-y-1">
+              <li>• Extracts factual claims from website content using AI</li>
+              <li>• Cross-references with news sources via NewsAPI</li>
+              <li>• Verifies UK company information via Companies House</li>
+              <li>• Provides confidence ratings and detailed reasoning</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PropertyValuationComponent() {
   const { selectedInvestor } = useInvestor();
 
@@ -1212,92 +1548,7 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         return <WhiskyValuationComponent />;
 
       case 'website-fact-checker':
-        return (
-          <div className="p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-shield-alt text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Website Fact Checker</h3>
-              <p className="text-gray-600 dark:text-gray-300">Verify website claims and information accuracy using AI analysis.</p>
-            </div>
-            
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Website URL *
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://example.com"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  data-testid="input-website-url"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Specific Claims to Verify (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="e.g., Company revenue figures, user statistics, award claims..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"
-                  data-testid="textarea-claims"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  Focus Areas
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    'Financial Claims',
-                    'Customer Numbers',
-                    'Awards & Recognition',
-                    'Company History',
-                    'Product Features',
-                    'Team Credentials'
-                  ].map((area, index) => (
-                    <label key={index} className="flex items-center">
-                      <input 
-                        type="checkbox" 
-                        className="mr-2 text-blue-600"
-                        data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{area}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                data-testid="button-analyze-website"
-              >
-                <i className="fas fa-search mr-2" aria-hidden="true"></i>
-                Analyze Website
-              </button>
-            </form>
-            
-            <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <div className="flex items-start">
-                <i className="fas fa-info-circle text-amber-600 dark:text-amber-400 mt-0.5 mr-2" aria-hidden="true"></i>
-                <div className="text-sm">
-                  <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">How it works:</p>
-                  <ul className="text-amber-700 dark:text-amber-300 space-y-1">
-                    <li>• Scrapes publicly available information from the website</li>
-                    <li>• Cross-references claims with external sources and databases</li>
-                    <li>• Identifies potential red flags or inconsistencies</li>
-                    <li>• Provides confidence ratings for key claims</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <WebsiteFactCheckerComponent />;
         
       default:
         return (

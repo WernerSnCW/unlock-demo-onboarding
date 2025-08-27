@@ -1,0 +1,212 @@
+Website Fact-Checking Tool — Build Spec (Replit, no code)
+1) What the tool does (end-to-end)
+
+Fetch page → extract text from a user-supplied URL (respect robots.txt, handle JS-rendered pages).
+
+Identify and normalise claims from the extracted text (LLM pass #1).
+
+Fetch evidence for each claim from:
+
+NewsAPI (/v2/everything, optionally /v2/top-headlines) for reputable coverage. 
+News API
++1
+
+Companies House (search → company profile, officers, status, SIC, incorporation date) to verify UK company facts. 
+developer-specs.company-information.service.gov.uk
+Developer Hub
+
+LLM knowledge (as background context only; must never be the sole basis for “Verified”).
+
+Score each claim: Verified | Partially verified | Contradicted | Unverifiable + confidence (0–1).
+
+Render report: one row per claim with the decision, supporting sources, and reasoning.
+
+Notes on the external APIs
+• NewsAPI: /v2/everything for full-text article search; /v2/top-headlines for current headlines. API key in header or query string; watch plan limits. 
+News API
++2
+News API
++2
+
+• Companies House: Public Data API; Basic Auth with API key as the username (password blank). Use /search/companies then /company/{company_number} and related endpoints. Sandbox exists for test. 
+Developer Hub
++1
+developer-specs.company-information.service.gov.uk
+
+2) Architecture (modules & responsibilities)
+
+PageFetcher: Headless browser fallback for CSR pages; otherwise simple HTTP GET. Throttle; respect robots.txt.
+
+Extractor: Use a boilerplate remover (readability-style) + de-dupe + language detect (en focus) + collect metadata (title, canonical URL, publish date if available).
+
+ClaimMiner (LLM pass #1): Runs the Claim Extraction Prompt (below). Emits structured JSON claims.
+
+Entity Resolver: Map organisation/person/place strings to normalised entities. For UK companies, attempt Companies House disambiguation (by exact name, postcode, or domain in text).
+
+EvidenceFetcher:
+
+News: Build queries per claim (organisation, key terms, time window from text), call NewsAPI, store top N hits with titles, URLs, dates, and snippets. 
+News API
+
+Companies House: If a company claim is detected, call /search/companies to get a company_number, then fetch /company/{company_number} and related as needed (status, incorporation date, registered office, SIC, officers). 
+developer-specs.company-information.service.gov.uk
+
+Verifier (LLM pass #2): Given a single claim and the collated evidence (articles + CH JSON), produce a verdict, confidence, and rationale (using the Verification Prompt below).
+
+ReportBuilder: Aggregates results and renders UI.
+
+3) Inputs
+
+URL (required)
+
+Options (optional):
+
+Crawl depth (default 0 → single page)
+
+Max claims (default 25)
+
+News time window (default 24 months; overrideable per claim type)
+
+Markets focus (e.g., country=gb for headlines queries)
+
+Language filter (en default)
+
+4) Outputs (UI & JSON)
+
+UI table columns
+
+Claim ID
+
+Claim text (atomic, verifiable)
+
+Claim type (Entity fact | Event/time | Quantity/metric | Financial | Award/ranking | Capability/feature | Promise/forecast)
+
+Evidence sources (linked; NewsAPI article titles & CH endpoints pinged)
+
+Verdict (Verified | Partially verified | Contradicted | Unverifiable)
+
+Confidence (0–1)
+
+Rationale (2–4 lines)
+
+Programmatic JSON schema
+
+{
+  "url": "https://example.com",
+  "extracted_on": "2025-08-27T10:00:00Z",
+  "claims": [
+    {
+      "id": "c_0001",
+      "type": "Entity fact",
+      "text": "Acme Ltd was incorporated in 2019 and is registered in London.",
+      "entities": [{"kind":"company","name":"ACME LTD","jurisdiction":"GB"}],
+      "evidence": {
+        "newsapi": [
+          {"title":"...","source":"BBC","url":"...","publishedAt":"2024-11-12"},
+          {"title":"...","source":"FT","url":"...","publishedAt":"2023-06-01"}
+        ],
+        "companies_house": {
+          "company_number":"01234567",
+          "profile_endpoint":"/company/01234567",
+          "fields_checked":["date_of_creation","registered_office_address","registered_office_is_in_dispute"]
+        }
+      },
+      "verdict": "Verified",
+      "confidence": 0.86,
+      "rationale": "CH profile shows creation date 2019-04-12 and ROA London; multiple independent articles reference London HQ.",
+      "notes": []
+    }
+  ]
+}
+
+5) Claim selection rules (what’s “in scope”)
+
+Include verifiable factual claims, e.g.:
+
+Dates, counts, amounts (“raised £5m in June 2024”)
+
+Company facts (status, incorporation date, registered address, directors)
+
+Concrete capabilities/coverage (“available in 120 countries”)
+
+Rankings/awards (“winner of 2023 Queen’s Award”)
+
+Market share & performance metrics
+
+Promises/forecasts that reference measurable targets (mark as forecast)
+
+Exclude / mark as opinion (and usually skip):
+
+Pure puffery (“world-class”, “best-in-class”) without measurable anchor
+
+Vague claims without entities/units/timeframe
+
+6) Verification rubric (how to score)
+
+Verified: Matches Companies House (for company facts) OR ≥2 reputable independent NewsAPI sources in agreement; dates/entities match exactly; no credible contradictions found.
+
+Partially verified: Key parts supported but (a) some detail missing, (b) only 1 reputable source corroborates, or (c) timeframe/quantity differs within ±15%.
+
+Contradicted: Strong evidence from CH or ≥2 reputable sources indicates the claim is false/out-of-date.
+
+Unverifiable: No suitable public evidence found; or claim is opinion/ambiguous.
+
+Confidence (0–1): map from evidence quality/quantity/recency/consistency (e.g., CH hard match → +0.4; each independent reputable source, recent (<12m) → +0.15; minor mismatch −0.1; contradictions −0.3; cap 1.0).
+
+7) Data & persistence (optional but recommended)
+
+factcheck_runs (id, url, started_at, finished_at, status)
+
+claims (id, run_id, type, text, entities_json)
+
+evidence (id, claim_id, source_type, source_payload_json)
+
+verdicts (claim_id, verdict, confidence, rationale)
+
+8) External integration details
+
+NewsAPI
+
+Use /v2/everything for deep search (supports q, from, to, language, sources, sortBy, pageSize). 
+News API
+
+Use /v2/top-headlines if you need current UK headlines (country=gb). 
+News API
+
+Companies House
+
+Auth: HTTP Basic with API key as the username; password blank. 
+Developer Hub
+developer-specs.company-information.service.gov.uk
+
+Search: GET /search/companies?q={name}; choose best match (score, address, postcode). 
+developer-specs.company-information.service.gov.uk
+
+Profile: GET /company/{company_number} for status, date of creation, registered office, SIC, etc. (Public Data API). Sandbox/live environments available. 
+Developer Hub
++1
+
+9) Operational constraints & safeguards
+
+Respect robots.txt and Terms of Service.
+
+Rate limiting & caching: obey NewsAPI plan limits; cache CH lookups per company number. 
+News API
+
+Deduplicate near-identical claims; cluster by entity + predicate + time.
+
+Time normalisation: convert dates to ISO 8601; align article publish dates to UTC.
+
+Source quality: prefer established outlets in NewsAPI results; down-weight low-credibility domains.
+
+Safety: do not output personal data beyond what public sources provide; clearly label forecasts and marketing language.
+
+10) Acceptance criteria (MVP)
+
+Given a typical UK company “About” page, the tool extracts ≥10 atomic claims, resolves the primary company in CH, and returns verdicts for ≥70% of claims within one run.
+
+“Company status”, “incorporation date”, and “registered office town” claims are correctly verified against CH for that entity.
+
+News-based event claims show at least two corroborating articles when labelled Verified.
+
+The report renders a clear per-claim row with verdict, confidence, and links.

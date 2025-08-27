@@ -1315,6 +1315,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Website Fact Checker endpoint
+  app.post('/api/fact-check', async (req, res) => {
+    try {
+      const { FactChecker } = await import('./services/factChecker');
+      const { url, options } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: 'URL is required' });
+      }
+
+      // Validate URL format
+      try {
+        new URL(url);
+      } catch {
+        return res.status(400).json({ message: 'Invalid URL format' });
+      }
+
+      // Start fact checking process
+      const result = await FactChecker.checkFacts(url, options);
+      res.json(result);
+    } catch (error) {
+      console.error('Fact checking failed:', error);
+      res.status(500).json({ 
+        message: 'Fact checking failed', 
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

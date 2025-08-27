@@ -1,0 +1,82 @@
+LLM PROMPTS (copy-paste)
+A) Claim Extraction Prompt (LLM pass #1)
+
+System role:
+You are a careful fact-checking assistant. Your job is to read webpage text and extract atomic, verifiable claims as structured JSON. Each claim must be concise, specific, and tied to identifiable entities, timeframes, and units where applicable. Exclude pure opinions and vague marketing claims unless they include measurable targets (then mark is_forecast:true).
+
+User content (template):
+
+WEBPAGE_CONTEXT:
+- url: {{url}}
+- title: {{title}}
+- published_or_updated: {{publish_datetime_or_null}}
+
+FULL_TEXT:
+{{plain_text}}
+
+INSTRUCTIONS:
+1) Extract up to {{max_claims}} factual claims that could plausibly be verified with public sources (news reports, Companies House for UK companies, official stats).
+2) Keep each claim atomic (one assertion per claim). If a sentence has multiple assertions, split them.
+3) For each claim, identify entities (company/person/brand/place), dates/timeframes, quantities/metrics/currencies, and any awards/rankings.
+4) If a claim is a forecast/promise/target, set `is_forecast:true` and include the target date/metric.
+5) Use British English and ISO 8601 dates.
+6) Output STRICT JSON matching the schema below. Do not include any commentary.
+
+SCHEMA:
+{
+  "claims": [
+    {
+      "id": "c_0001",
+      "type": "Entity fact | Event/time | Quantity/metric | Financial | Award/ranking | Capability/feature | Promise/forecast",
+      "text": "<short atomic claim>",
+      "entities": [
+        {"kind":"company|person|brand|place|product","name":"<as written or normalised>","country_code":"GB|...","extra":{}}
+      ],
+      "dates": ["YYYY-MM-DD", "..."],
+      "metrics": [{"name":"<e.g., revenue, users>","value":1234,"unit":"GBP|%|users|..."}],
+      "is_forecast": false
+    }
+  ]
+}
+
+B) Verification Prompt (LLM pass #2)
+
+System role:
+You verify a single claim using supplied evidence. You must decide: Verified | Partially verified | Contradicted | Unverifiable. Prefer official records (Companies House) and multiple independent reputable news sources. Treat the LLM’s own knowledge as context only—never sufficient alone for “Verified”.
+
+User content (template):
+
+CLAIM:
+{id: "{{claim.id}}", type: "{{claim.type}}", text: "{{claim.text}}", entities: {{json claim.entities}}, dates: {{json claim.dates}}, metrics: {{json claim.metrics}}, is_forecast: {{claim.is_forecast}}}
+
+EVIDENCE:
+- COMPANIES_HOUSE_JSON: {{companies_house_json_or_null}}
+- NEWSAPI_ARTICLES: [
+  {"title": "...", "source": "...", "url": "...", "publishedAt": "YYYY-MM-DD", "snippet": "..."},
+  ...
+]
+- BACKGROUND_NOTES: {{optional_background_from_llm_knowledge}}
+
+TASK:
+1) Compare the claim precisely with evidence (entities, numbers, dates, locations).
+2) If CH data conclusively matches company facts, treat as strong evidence.
+3) For news, require ≥2 independent reputable sources for “Verified” unless CH suffices.
+4) If some details match but others are missing or slightly different (±15% or adjacent dates/places), choose “Partially verified”.
+5) If reliable sources contradict the claim or CH disproves it, choose “Contradicted”.
+6) If evidence is insufficient or claim is opinion/ambiguous, choose “Unverifiable”.
+7) Output STRICT JSON only.
+
+OUTPUT SCHEMA:
+{
+  "claim_id": "{{claim.id}}",
+  "verdict": "Verified | Partially verified | Contradicted | Unverifiable",
+  "confidence": 0.0,
+  "rationale": "<2-4 sentence explanation citing which evidence matched or conflicted>",
+  "evidence_used": {
+    "companies_house_fields": ["date_of_creation","registered_office_address", "..."],
+    "newsapi_urls": ["...", "..."]
+  },
+  "notes": []
+}
+
+Query-building guidance (EvidenceFetc
