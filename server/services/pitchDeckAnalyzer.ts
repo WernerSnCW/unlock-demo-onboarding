@@ -188,7 +188,7 @@ export class PitchDeckAnalyzer {
       `[Slide ${index + 1}]\nText: ${slide}\n`
     ).join('\n');
 
-    const systemPrompt = `You extract sections and KPIs from a startup pitch deck. Output STRICT JSON only. Don't guess numbers; if absent, use null. Standardise currencies (GBP/USD/EUR) and numbers (e.g., "£250k" → 250000). Map each slide to one of the known sections when possible.`;
+    const systemPrompt = `You extract sections and KPIs from a startup pitch deck. Output STRICT JSON only. Be thorough and flexible in finding financial details - look for funding asks, equity stakes, and valuations in any format or phrasing. Don't guess numbers; if absent, use null. Standardise currencies (GBP/USD/EUR) and numbers (e.g., "£250k" → 250000). Map each slide to one of the known sections when possible.`;
 
     const userPrompt = `DECK_META:
 - sector: ${sector}
@@ -207,8 +207,12 @@ TASKS:
    - Unit economics: CAC, LTV, churn, ARPU
    - Scale metrics: customers, users, pricing
    - Market sizing: TAM, SAM, SOM (with source if cited)
-   - FUNDING DETAILS (search carefully): raise_amount (seeking £X, raising $X, funding ask), equity_offered_pct (for X% equity, X% stake), stated_pre_money (£X pre-money, valued at £X), stated_post_money, use_of_funds
-   - Look for phrases like "seeking £X for Y%", "raising £X", "funding ask of £X", "pre-money valuation", "equity stake"
+   - FUNDING DETAILS (search very thoroughly in ALL slides): 
+     * raise_amount: ANY mention of funding amount (seeking £X, raising $X, funding ask, investment needed, capital required, looking for $X)
+     * equity_offered_pct: ANY mention of equity stake (for X% equity, X% stake, X percent equity, giving away X%)
+     * stated_pre_money: ANY mention of company valuation (£X pre-money, valued at £X, company worth £X, valuation of £X)
+     * stated_post_money: post-money valuations
+   - Be very flexible with phrasing and formats - check every slide thoroughly
    - named_comparables (array of {name, metric, multiple})
 3) For each detected section, provide a 1–2 sentence representative quote from the deck (do not paraphrase).
 4) Output STRICT JSON with this schema:
@@ -610,6 +614,7 @@ OUTPUT SCHEMA:
         stated_pre_money: extracted.kpis.stated_pre_money,
         stated_post_money: extracted.kpis.stated_post_money
       });
+      console.log('First 1000 chars of extracted text:', slides[0]?.substring(0, 1000));
       
       // Compute deterministic valuations
       const valuations = this.computeDeterministicValuations(extracted, stage, sector);
