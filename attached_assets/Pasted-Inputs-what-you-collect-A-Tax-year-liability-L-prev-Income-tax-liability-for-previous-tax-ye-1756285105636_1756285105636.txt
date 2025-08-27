@@ -1,0 +1,262 @@
+Inputs (what you collect)
+A) Tax-year & liability
+
+L_prev — Income tax liability for previous tax year (after any other income-tax reductions you choose to collect; if you don’t collect them, use the raw liability).
+
+L_this — Income tax liability for this tax year (same treatment).
+
+(Optional but recommended)
+
+O_prev, O_this — “Other income-tax reliefs” in prev/this year (VCT, etc.).
+Use L_prev := max(0, L_prev - O_prev), L_this := max(0, L_this - O_this).
+
+B) SEIS subscriptions
+
+S_this — SEIS subscribed this year (£).
+
+S_prev_used — SEIS already used in the previous year (£).
+
+(Optional)
+
+S_carry_req — If user wants to manually specify SEIS carry-back amount. (If omitted, you’ll auto-optimise.)
+
+C) EIS subscriptions
+
+E_this_total — EIS subscribed this year (all) (£).
+
+E_this_kic — of the above, amount in KICs (£).
+
+E_prev_used — EIS already used in the previous year (£).
+
+(Optional)
+
+E_carry_req — If user wants to manually specify EIS carry-back amount. (If omitted, auto-optimise.)
+
+Constants (per HMRC investor rules)
+
+SEIS: SEIS_RATE = 0.50, SEIS_CAP = 200,000 (per year).
+
+EIS: EIS_RATE = 0.30, EIS_CAP_ANY = 1,000,000, EIS_CAP_TOTAL = 2,000,000.
+Any amount over £1m in a year must be KIC-sourced.
+
+Define:
+E_this_non = max(0, E_this_total - E_this_kic).
+
+min(a,b,...) = smallest argument; max(a,b,...) = largest;
+ceil(x) = smallest integer ≥ x.
+
+All £ amounts are non-negative; clamp negative inputs to 0.
+
+Calculation sequence (deterministic maths)
+1) Compute per-year investor capacity
+
+SEIS
+
+S_cap_prev = max(0, SEIS_CAP - S_prev_used)
+
+S_cap_this = SEIS_CAP
+
+EIS – previous year
+
+Band to £1m (any): E_cap_prev_any = max(0, EIS_CAP_ANY - E_prev_used)
+
+Total to £2m: E_cap_prev_all = max(0, EIS_CAP_TOTAL - E_prev_used)
+
+KIC-only band (over £1m): E_cap_prev_kic_only = max(0, E_cap_prev_all - E_cap_prev_any)
+
+EIS – this year
+
+E_cap_this_any = EIS_CAP_ANY
+
+E_cap_this_all = EIS_CAP_TOTAL
+
+E_cap_this_kic_only = E_cap_this_all - E_cap_this_any
+
+2) Allocate to the previous year first (maximise relief there)
+2.1 SEIS → previous year
+
+If auto:
+
+S_to_prev = min(S_this, S_cap_prev, 2 * L_prev) (because 50% rate)
+If manual:
+
+S_to_prev = min(S_carry_req, S_this, S_cap_prev)
+
+Relief and remaining liability:
+
+SEIS_relief_prev = SEIS_RATE * S_to_prev
+
+L_prev_rem = max(0, L_prev - SEIS_relief_prev)
+
+2.2 EIS → previous year (respect bands)
+
+Amount of EIS needed to clear remaining liability:
+
+E_needed_prev = ceil(L_prev_rem / EIS_RATE)
+
+Allocate non-KIC first (fills the “any” band up to £1m):
+
+E_non_to_prev = min(E_this_non, E_cap_prev_any, E_needed_prev)
+
+Then allocate KIC in the KIC-only band (over £1m):
+
+E_kic_to_prev = min(E_this_kic, E_cap_prev_kic_only, max(0, E_needed_prev - E_non_to_prev))
+
+Totals and relief:
+
+E_to_prev = E_non_to_prev + E_kic_to_prev
+
+EIS_relief_prev = EIS_RATE * E_to_prev
+
+L_prev_final_rem = max(0, L_prev_rem - EIS_relief_prev)
+
+Remainders to carry into “this year”:
+
+S_rem = S_this - S_to_prev
+
+E_non_rem = E_this_non - E_non_to_prev
+
+E_kic_rem = E_this_kic - E_kic_to_prev
+
+3) Allocate to this year
+3.1 SEIS → this year
+
+S_to_this = min(S_rem, S_cap_this, 2 * L_this)
+
+SEIS_relief_this = SEIS_RATE * S_to_this
+
+L_this_rem = max(0, L_this - SEIS_relief_this)
+
+3.2 EIS → this year (respect bands)
+
+EIS needed to clear remaining liability this year:
+
+E_needed_this = ceil(L_this_rem / EIS_RATE)
+
+Allocate non-KIC to the £1m “any” band:
+
+E_non_to_this = min(E_non_rem, E_cap_this_any, E_needed_this)
+
+Allocate KIC in the KIC-only band (over £1m):
+
+E_kic_to_this = min(E_kic_rem, E_cap_this_all - E_non_to_this, max(0, E_needed_this - E_non_to_this))
+
+Totals and relief:
+
+E_to_this = E_non_to_this + E_kic_to_this
+
+EIS_relief_this = EIS_RATE * E_to_this
+
+L_this_final_rem = max(0, L_this_rem - EIS_relief_this)
+
+4) Totals, lost-potential and residual allowance
+4.1 Relief totals
+
+Relief_prev = SEIS_relief_prev + EIS_relief_prev
+
+Relief_this = SEIS_relief_this + EIS_relief_this
+
+Total_relief = Relief_prev + Relief_this
+
+4.2 “Potential relief lost due to insufficient liability” (per year, per scheme)
+
+Define how much could have been applied within investor caps if liability were unlimited:
+
+Previous year
+
+SEIS_potential_prev = SEIS_RATE * min(S_this, S_cap_prev)
+
+EIS_potential_prev = EIS_RATE * ( min(E_this_non, E_cap_prev_any) + min(E_this_kic, E_cap_prev_kic_only) )
+
+Lost (capable within rules but not usable due to liability):
+
+SEIS_lost_prev = max(0, SEIS_potential_prev - SEIS_relief_prev)
+
+EIS_lost_prev = max(0, EIS_potential_prev - EIS_relief_prev)
+
+This year
+
+SEIS_potential_this = SEIS_RATE * min(S_rem, S_cap_this) (or simply SEIS_CAP if you prefer “per-year capacity remaining” framing)
+
+EIS_potential_this = EIS_RATE * ( min(E_non_rem, E_cap_this_any) + min(E_kic_rem, E_cap_this_kic_only) )
+
+SEIS_lost_this = max(0, SEIS_potential_this - SEIS_relief_this)
+
+EIS_lost_this = max(0, EIS_potential_this - EIS_relief_this)
+
+4.3 Residual investor allowance (for progress bars)
+
+SEIS_allow_prev_left = max(0, SEIS_CAP - (S_prev_used + S_to_prev))
+
+SEIS_allow_this_left = max(0, SEIS_CAP - S_to_this)
+
+EIS_prev_any_left = max(0, E_cap_prev_any - E_non_to_prev)
+
+EIS_prev_total_left = max(0, E_cap_prev_all - (E_non_to_prev + E_kic_to_prev))
+
+EIS_this_any_left = max(0, E_cap_this_any - E_non_to_this)
+
+EIS_this_total_left = max(0, E_cap_this_all - (E_non_to_this + E_kic_to_this))
+
+4.4 Effective net cost (income-tax view only)
+
+Net_cost = (S_this + E_this_total) - Total_relief
+
+Outputs (what you display)
+Headline summary
+
+Total Tax Relief = Total_relief
+
+Relief This Year = Relief_this
+
+Relief Carried Back = Relief_prev
+
+Net Cost (after relief) = Net_cost
+
+Note: “Income-tax relief only; no carry-forward. Yearly relief cannot exceed that year’s income-tax liability.”
+
+SEIS card (per year)
+
+Applied to Previous Year = S_to_prev, Relief = SEIS_relief_prev, Allowance remaining (prev) = SEIS_allow_prev_left, Potential relief lost (prev) = SEIS_lost_prev
+
+Applied to This Year = S_to_this, Relief = SEIS_relief_this, Allowance remaining (this) = SEIS_allow_this_left, Potential relief lost (this) = SEIS_lost_this
+
+EIS card (per year, with bands)
+
+Applied to Previous Year
+
+Non-KIC: E_non_to_prev, KIC: E_kic_to_prev, Relief = EIS_relief_prev
+
+Remaining allowances (prev):
+
+Up to £1m (any) = EIS_prev_any_left
+
+KIC-only to £2m = EIS_prev_total_left
+
+Potential relief lost (prev) = EIS_lost_prev
+
+Applied to This Year
+
+Non-KIC: E_non_to_this, KIC: E_kic_to_this, Relief = EIS_relief_this
+
+Remaining allowances (this):
+
+Up to £1m (any) = EIS_this_any_left
+
+KIC-only to £2m = EIS_this_total_left
+
+Potential relief lost (this) = EIS_lost_this
+
+Usage progress bars
+
+SEIS: used/200,000 for previous year and for this year.
+
+EIS: two bars (or a segmented bar) per year:
+
+Any band used vs 1,000,000
+
+KIC-only band used vs 2,000,000 (cumulative total)
+
+Optimisation note (plain English)
+
+Short sentence explaining how carry-back/this-year allocations were chosen (e.g., “Filled previous year with SEIS first to exhaust liability; remaining relief applied this year with SEIS then EIS.”)
