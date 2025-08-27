@@ -436,16 +436,16 @@ function WebsiteFactCheckerComponent() {
           disabled={isAnalyzing}
           className={`w-full font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center ${
             isAnalyzing
-              ? 'bg-[var(--primary)]/70 cursor-not-allowed text-white'
+              ? 'bg-blue-600 cursor-not-allowed text-white shadow-lg'
               : 'bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white'
           }`}
           data-testid="button-analyze-website"
         >
           {isAnalyzing ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin mr-3"></div>
-              <i className="fas fa-search mr-2" aria-hidden="true"></i>
-              <span className="text-white">Analyzing Website...</span>
+              <div className="w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin mr-3"></div>
+              <i className="fas fa-search mr-2 text-white" aria-hidden="true"></i>
+              <span className="text-white font-semibold">Analyzing Website...</span>
             </>
           ) : (
             <>
@@ -454,6 +454,18 @@ function WebsiteFactCheckerComponent() {
             </>
           )}
         </button>
+        
+        {/* Additional Progress Feedback */}
+        {isAnalyzing && (
+          <div className="mt-4 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-blue-700 dark:text-blue-300 text-sm font-medium">
+                Processing your request...
+              </span>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );
