@@ -331,7 +331,7 @@ export default function SimpleAllowanceCalculator() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         
         {/* Input Section */}
         <div className="space-y-6">
@@ -524,100 +524,105 @@ export default function SimpleAllowanceCalculator() {
         {/* Results Section */}
         <div className="space-y-6">
           
-          {/* Headline Summary */}
-          <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] p-6" style={{ boxShadow: 'var(--shadow-md)' }}>
-            <h3 className="text-xl font-bold mb-4">Total Relief Summary</h3>
+          {/* Summary Card - Matches General Section Height */}
+          <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] p-4" style={{ boxShadow: 'var(--shadow-md)', minHeight: '200px' }}>
+            <h4 className="font-semibold text-[var(--primary-foreground)] mb-4 flex items-center gap-2">
+              <i className="fas fa-calculator"></i>
+              Total Relief Summary
+            </h4>
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2">{formatCurrency(result.totalRelief)}</div>
-              <div className="text-[var(--primary-foreground)]/80 mb-4">Total Tax Relief</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-3">
+              <div className="text-3xl font-bold mb-2">{formatCurrency(result.totalRelief)}</div>
+              <div className="text-[var(--primary-foreground)]/80 mb-3">Total Tax Relief</div>
+              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-2">
                   <div className="font-semibold">{formatCurrency(result.reliefThisYear)}</div>
                   <div className="text-[var(--primary-foreground)]/80">Relief This Year</div>
                 </div>
-                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-3">
+                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-2">
                   <div className="font-semibold">{formatCurrency(result.reliefPrevYear)}</div>
                   <div className="text-[var(--primary-foreground)]/80">Carried Back</div>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-[var(--primary-foreground)]/30">
-                <div className="text-lg font-semibold">Effective Net Cost: {formatCurrency(result.effectiveNetCost)}</div>
-                <div className="text-sm text-[var(--primary-foreground)]/80">After income tax relief</div>
+              <div className="pt-3 border-t border-[var(--primary-foreground)]/30">
+                <div className="text-base font-semibold">Net Cost: {formatCurrency(result.effectiveNetCost)}</div>
+                <div className="text-xs text-[var(--primary-foreground)]/80">After tax relief</div>
               </div>
             </div>
           </div>
 
-          {/* SEIS Breakdown */}
-          <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30">
-            <h4 className="font-semibold text-[var(--warning)] mb-3 flex items-center gap-2">
+          {/* SEIS Breakdown - Matches SEIS Section Height */}
+          <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30" style={{ minHeight: '200px' }}>
+            <h4 className="font-semibold text-[var(--warning)] mb-4 flex items-center gap-2">
               <i className="fas fa-star"></i>
               SEIS Breakdown
             </h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-sm mb-3">
               <div>
-                <div className="text-[var(--muted-foreground)]">Applied to Previous Year</div>
+                <div className="text-[var(--muted-foreground)] text-xs">Applied to Previous Year</div>
                 <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToPrev)}</div>
-                <div className="text-[var(--warning)]">Relief: {formatCurrency(result.seis.reliefPrev)}</div>
+                <div className="text-[var(--warning)] text-sm">Relief: {formatCurrency(result.seis.reliefPrev)}</div>
               </div>
               <div>
-                <div className="text-[var(--muted-foreground)]">Applied to This Year</div>
+                <div className="text-[var(--muted-foreground)] text-xs">Applied to This Year</div>
                 <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToThis)}</div>
-                <div className="text-[var(--warning)]">Relief: {formatCurrency(result.seis.reliefThis)}</div>
+                <div className="text-[var(--warning)] text-sm">Relief: {formatCurrency(result.seis.reliefThis)}</div>
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-[var(--muted-foreground)]">Allowance Remaining (Prev)</div>
+                <div className="text-[var(--muted-foreground)] text-xs">Allowance Remaining (Prev)</div>
                 <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
               </div>
               <div>
-                <div className="text-[var(--muted-foreground)]">Allowance Remaining (This)</div>
+                <div className="text-[var(--muted-foreground)] text-xs">Allowance Remaining (This)</div>
                 <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
               </div>
             </div>
             {result.seis.unusedPotentialLost > 0 && (
-              <div className="mt-3 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
+              <div className="mt-4 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
                 Unused potential lost: {formatCurrency(result.seis.unusedPotentialLost)}
               </div>
             )}
           </div>
 
-          {/* EIS Breakdown */}
-          <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30">
-            <h4 className="font-semibold text-[var(--success)] mb-3 flex items-center gap-2">
+          {/* EIS Breakdown - Matches EIS Section Height */}
+          <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30" style={{ minHeight: '250px' }}>
+            <h4 className="font-semibold text-[var(--success)] mb-4 flex items-center gap-2">
               <i className="fas fa-building"></i>
               EIS Breakdown
             </h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-sm mb-3">
               <div>
-                <div className="text-[var(--muted-foreground)]">Applied to Previous Year</div>
+                <div className="text-[var(--muted-foreground)] text-xs">Applied to Previous Year</div>
                 <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.eis.appliedToPrev)}</div>
-                <div className="text-[var(--success)]">Relief: {formatCurrency(result.eis.reliefPrev)}</div>
+                <div className="text-[var(--success)] text-sm">Relief: {formatCurrency(result.eis.reliefPrev)}</div>
                 <div className="text-xs text-[var(--muted-foreground)]">
                   Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} | KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                 </div>
               </div>
               <div>
-                <div className="text-[var(--muted-foreground)]">Applied to This Year</div>
+                <div className="text-[var(--muted-foreground)] text-xs">Applied to This Year</div>
                 <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.eis.appliedToThis)}</div>
-                <div className="text-[var(--success)]">Relief: {formatCurrency(result.eis.reliefThis)}</div>
+                <div className="text-[var(--success)] text-sm">Relief: {formatCurrency(result.eis.reliefThis)}</div>
                 <div className="text-xs text-[var(--muted-foreground)]">
                   Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} | KIC: {formatCurrency(result.eis.kicAppliedToThis)}
                 </div>
               </div>
             </div>
-            <div className="mt-3 space-y-2">
-              <div className="text-xs">
-                <div className="text-[var(--muted-foreground)]">Allowance Remaining (Previous Year)</div>
+            <div className="space-y-2 text-xs">
+              <div>
+                <div className="text-[var(--muted-foreground)]">Remaining Allowances (Previous Year)</div>
                 <div className="text-[var(--card-foreground)]">Up to £1m (any): {formatCurrency(result.eis.allowanceRemainingRegular.prev)}</div>
-                <div className="text-[var(--card-foreground)]">KIC-only band to £2m: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}</div>
+                <div className="text-[var(--card-foreground)]">KIC-only to £2m: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}</div>
               </div>
-              <div className="text-xs">
-                <div className="text-[var(--muted-foreground)]">Allowance Remaining (This Year)</div>
+              <div>
+                <div className="text-[var(--muted-foreground)]">Remaining Allowances (This Year)</div>
                 <div className="text-[var(--card-foreground)]">Up to £1m (any): {formatCurrency(result.eis.allowanceRemainingRegular.this)}</div>
-                <div className="text-[var(--card-foreground)]">KIC-only band to £2m: {formatCurrency(result.eis.allowanceRemainingKIC.this)}</div>
+                <div className="text-[var(--card-foreground)]">KIC-only to £2m: {formatCurrency(result.eis.allowanceRemainingKIC.this)}</div>
               </div>
             </div>
             {result.eis.unusedPotentialLost > 0 && (
-              <div className="mt-3 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
+              <div className="mt-4 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
                 Unused potential lost: {formatCurrency(result.eis.unusedPotentialLost)}
               </div>
             )}
