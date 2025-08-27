@@ -331,12 +331,11 @@ export default function SimpleAllowanceCalculator() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* Single Column Layout with Alternating Input/Result Pairs */}
+      <div className="space-y-8">
         
-        {/* Input Section */}
-        <div className="space-y-6">
-          
-          {/* General Section */}
+        {/* General Information & Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-4">
             <h4 className="font-semibold text-[var(--card-foreground)] mb-4">A. General Information</h4>
             <div className="grid grid-cols-2 gap-4">
@@ -395,7 +394,34 @@ export default function SimpleAllowanceCalculator() {
             </div>
           </div>
 
-          {/* SEIS Section */}
+          <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] p-4" style={{ boxShadow: 'var(--shadow-md)' }}>
+            <h4 className="font-semibold text-[var(--primary-foreground)] mb-4 flex items-center gap-2">
+              <i className="fas fa-calculator"></i>
+              Total Relief Summary
+            </h4>
+            <div className="text-center">
+              <div className="text-3xl font-bold mb-2">{formatCurrency(result.totalRelief)}</div>
+              <div className="text-[var(--primary-foreground)]/80 mb-3">Total Tax Relief</div>
+              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-2">
+                  <div className="font-semibold">{formatCurrency(result.reliefThisYear)}</div>
+                  <div className="text-[var(--primary-foreground)]/80">Relief This Year</div>
+                </div>
+                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-2">
+                  <div className="font-semibold">{formatCurrency(result.reliefPrevYear)}</div>
+                  <div className="text-[var(--primary-foreground)]/80">Carried Back</div>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-[var(--primary-foreground)]/30">
+                <div className="text-base font-semibold">Net Cost: {formatCurrency(result.effectiveNetCost)}</div>
+                <div className="text-xs text-[var(--primary-foreground)]/80">After tax relief</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SEIS Section & Breakdown */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30">
             <h4 className="font-semibold text-[var(--warning)] mb-4 flex items-center gap-2">
               <i className="fas fa-star"></i>
@@ -451,7 +477,43 @@ export default function SimpleAllowanceCalculator() {
             </div>
           </div>
 
-          {/* EIS Section */}
+          <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30">
+            <h4 className="font-semibold text-[var(--warning)] mb-4 flex items-center gap-2">
+              <i className="fas fa-star"></i>
+              SEIS Breakdown
+            </h4>
+            <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+              <div>
+                <div className="text-[var(--muted-foreground)] text-xs">Applied to Previous Year</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToPrev)}</div>
+                <div className="text-[var(--warning)] text-sm">Relief: {formatCurrency(result.seis.reliefPrev)}</div>
+              </div>
+              <div>
+                <div className="text-[var(--muted-foreground)] text-xs">Applied to This Year</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToThis)}</div>
+                <div className="text-[var(--warning)] text-sm">Relief: {formatCurrency(result.seis.reliefThis)}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <div className="text-[var(--muted-foreground)] text-xs">Allowance Remaining (Prev)</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
+              </div>
+              <div>
+                <div className="text-[var(--muted-foreground)] text-xs">Allowance Remaining (This)</div>
+                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
+              </div>
+            </div>
+            {result.seis.unusedPotentialLost > 0 && (
+              <div className="mt-4 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
+                Unused potential lost: {formatCurrency(result.seis.unusedPotentialLost)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* EIS Section & Breakdown */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30">
             <h4 className="font-semibold text-[var(--success)] mb-4 flex items-center gap-2">
               <i className="fas fa-building"></i>
@@ -519,74 +581,8 @@ export default function SimpleAllowanceCalculator() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Results Section */}
-        <div className="space-y-6">
-          
-          {/* Summary Card - Matches General Section Height */}
-          <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[var(--primary-foreground)] rounded-[var(--radius-sm)] p-4" style={{ boxShadow: 'var(--shadow-md)', minHeight: '200px' }}>
-            <h4 className="font-semibold text-[var(--primary-foreground)] mb-4 flex items-center gap-2">
-              <i className="fas fa-calculator"></i>
-              Total Relief Summary
-            </h4>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">{formatCurrency(result.totalRelief)}</div>
-              <div className="text-[var(--primary-foreground)]/80 mb-3">Total Tax Relief</div>
-              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-2">
-                  <div className="font-semibold">{formatCurrency(result.reliefThisYear)}</div>
-                  <div className="text-[var(--primary-foreground)]/80">Relief This Year</div>
-                </div>
-                <div className="bg-[var(--primary-foreground)]/20 rounded-[var(--radius-sm)] p-2">
-                  <div className="font-semibold">{formatCurrency(result.reliefPrevYear)}</div>
-                  <div className="text-[var(--primary-foreground)]/80">Carried Back</div>
-                </div>
-              </div>
-              <div className="pt-3 border-t border-[var(--primary-foreground)]/30">
-                <div className="text-base font-semibold">Net Cost: {formatCurrency(result.effectiveNetCost)}</div>
-                <div className="text-xs text-[var(--primary-foreground)]/80">After tax relief</div>
-              </div>
-            </div>
-          </div>
-
-          {/* SEIS Breakdown - Matches SEIS Section Height */}
-          <div className="bg-[var(--warning)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--warning)]/30" style={{ minHeight: '200px' }}>
-            <h4 className="font-semibold text-[var(--warning)] mb-4 flex items-center gap-2">
-              <i className="fas fa-star"></i>
-              SEIS Breakdown
-            </h4>
-            <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-              <div>
-                <div className="text-[var(--muted-foreground)] text-xs">Applied to Previous Year</div>
-                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToPrev)}</div>
-                <div className="text-[var(--warning)] text-sm">Relief: {formatCurrency(result.seis.reliefPrev)}</div>
-              </div>
-              <div>
-                <div className="text-[var(--muted-foreground)] text-xs">Applied to This Year</div>
-                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.appliedToThis)}</div>
-                <div className="text-[var(--warning)] text-sm">Relief: {formatCurrency(result.seis.reliefThis)}</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <div className="text-[var(--muted-foreground)] text-xs">Allowance Remaining (Prev)</div>
-                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
-              </div>
-              <div>
-                <div className="text-[var(--muted-foreground)] text-xs">Allowance Remaining (This)</div>
-                <div className="font-semibold text-[var(--card-foreground)]">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
-              </div>
-            </div>
-            {result.seis.unusedPotentialLost > 0 && (
-              <div className="mt-4 p-2 bg-[var(--destructive)]/10 text-[var(--destructive)] rounded-[var(--radius-sm)] text-sm">
-                Unused potential lost: {formatCurrency(result.seis.unusedPotentialLost)}
-              </div>
-            )}
-          </div>
-
-          {/* EIS Breakdown - Matches EIS Section Height */}
-          <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30" style={{ minHeight: '250px' }}>
+          <div className="bg-[var(--success)]/10 rounded-[var(--radius-sm)] p-4 border border-[var(--success)]/30">
             <h4 className="font-semibold text-[var(--success)] mb-4 flex items-center gap-2">
               <i className="fas fa-building"></i>
               EIS Breakdown
