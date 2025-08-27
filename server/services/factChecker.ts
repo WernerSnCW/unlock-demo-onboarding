@@ -188,18 +188,47 @@ SCHEMA:
 export class EvidenceFetcher {
   static async fetchNewsEvidence(claim: Claim, timeWindowMonths = 24): Promise<Evidence['newsapi']> {
     if (!process.env.NEWS_API_KEY) {
+      console.log('No NEWS_API_KEY found, skipping news evidence collection');
       return [];
     }
 
     try {
-      // Build query from entities and key terms
-      const entityNames = claim.entities.map(e => e.name).join(' OR ');
+      // Try the free tier endpoint first (top-headlines)
+      const entityNames = claim.entities.map(e => e.name);
+      const mainEntity = entityNames[0] || '';
+      
+      // For free tier, try top-headlines endpoint which is usually available
+      const headlinesParams = new URLSearchParams({
+        q: mainEntity,
+        language: 'en',
+        pageSize: '10',
+        apiKey: process.env.NEWS_API_KEY
+      });
+
+      const headlinesResponse = await fetch(`https://newsapi.org/v2/top-headlines?${headlinesParams}`);
+      
+      if (headlinesResponse.ok) {
+        const headlinesData = await headlinesResponse.json();
+        
+        if (headlinesData.status === 'ok' && headlinesData.articles) {
+          console.log(`Found ${headlinesData.articles.length} news articles via top-headlines`);
+          return headlinesData.articles.map((article: any) => ({
+            title: article.title,
+            source: article.source.name,
+            url: article.url,
+            publishedAt: article.publishedAt.split('T')[0],
+            snippet: article.description
+          }));
+        }
+      }
+
+      // If top-headlines failed, try everything endpoint (requires paid tier)
       const keyTerms = claim.text.split(' ').filter(word => 
         word.length > 3 && 
         !['the', 'and', 'was', 'were', 'has', 'have', 'will', 'been'].includes(word.toLowerCase())
-      ).slice(0, 5).join(' ');
+      ).slice(0, 3).join(' ');
       
-      const query = entityNames || keyTerms;
+      const query = mainEntity || keyTerms;
       const fromDate = new Date();
       fromDate.setMonth(fromDate.getMonth() - timeWindowMonths);
       
@@ -208,19 +237,38 @@ export class EvidenceFetcher {
         from: fromDate.toISOString().split('T')[0],
         language: 'en',
         sortBy: 'relevancy',
-        pageSize: '10',
+        pageSize: '5',
         apiKey: process.env.NEWS_API_KEY
       });
 
       const response = await fetch(`https://newsapi.org/v2/everything?${searchParams}`);
       
       if (!response.ok) {
-        console.error(`NewsAPI error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`NewsAPI error: ${response.status} - ${errorText}`);
+        
+        // Handle common NewsAPI issues
+        if (response.status === 426) {
+          console.error('NewsAPI 426: Free tier API key - upgrade required for /everything endpoint');
+        } else if (response.status === 401) {
+          console.error('NewsAPI 401: Invalid API key');
+        } else if (response.status === 429) {
+          console.error('NewsAPI 429: Rate limit exceeded');
+        }
+        
+        // Return empty array but don't fail the whole process
         return [];
       }
 
       const data = await response.json();
       
+      // Check for API-level errors
+      if (data.status === 'error') {
+        console.error(`NewsAPI API error: ${data.code} - ${data.message}`);
+        return [];
+      }
+      
+      console.log(`Found ${data.articles?.length || 0} news articles via everything endpoint`);
       return (data.articles || []).map((article: any) => ({
         title: article.title,
         source: article.source.name,
