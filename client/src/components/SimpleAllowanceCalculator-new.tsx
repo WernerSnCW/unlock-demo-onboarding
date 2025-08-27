@@ -35,6 +35,8 @@ interface CalculatorInputs {
   kicAmount: number;
   eisUsedPrevYear: number;
   eisCarryBackRequested: number | 'auto';
+  prioritySEISFirst: boolean;
+  autoOptimize: boolean;
 }
 
 const defaultInputs: CalculatorInputs = {
@@ -50,6 +52,8 @@ const defaultInputs: CalculatorInputs = {
   kicAmount: 200000,
   eisUsedPrevYear: 0,
   eisCarryBackRequested: 'auto',
+  prioritySEISFirst: true,
+  autoOptimize: true,
 };
 
 export function SimpleAllowanceCalculator() {
@@ -77,8 +81,8 @@ export function SimpleAllowanceCalculator() {
       eisThisYearKIC: inputs.kicAmount,
       eisUsedPrevYear: inputs.eisUsedPrevYear,
       eisCarryBackRequested: inputs.eisCarryBackRequested,
-      prioritySEISFirst: true,
-      autoOptimize: true,
+      prioritySEISFirst: inputs.prioritySEISFirst,
+      autoOptimize: inputs.autoOptimize,
     });
   }, [inputs]);
 
@@ -98,7 +102,7 @@ export function SimpleAllowanceCalculator() {
       {/* Tax Context - Shared at top */}
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
         <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">Tax Context</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
               Tax Year
@@ -136,6 +140,67 @@ export function SimpleAllowanceCalculator() {
               onChange={(e) => updateInput('incomeTaxLiabilityThisYear', Number(e.target.value))}
               className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
             />
+          </div>
+        </div>
+
+        {/* Other Reliefs Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
+              Other Reliefs (Previous Year)
+              <HelpIcon tooltip="Other income tax reliefs claimed in previous year (VCT, Gift Aid, etc.)" />
+            </label>
+            <input
+              type="number"
+              value={inputs.otherReliefsPrevYear}
+              onChange={(e) => updateInput('otherReliefsPrevYear', Number(e.target.value))}
+              className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--card-foreground)] mb-2">
+              Other Reliefs (This Year)
+              <HelpIcon tooltip="Other income tax reliefs claimed this year (VCT, Gift Aid, etc.)" />
+            </label>
+            <input
+              type="number"
+              value={inputs.otherReliefsThisYear}
+              onChange={(e) => updateInput('otherReliefsThisYear', Number(e.target.value))}
+              className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-sm)] bg-[var(--background)] text-[var(--card-foreground)]"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Optimization Settings */}
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
+        <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">Optimization Settings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              id="autoOptimize"
+              checked={inputs.autoOptimize}
+              onChange={(e) => updateInput('autoOptimize', e.target.checked)}
+              className="h-4 w-4 text-[var(--primary)] border-[var(--border)] rounded focus:ring-[var(--primary)]"
+            />
+            <label htmlFor="autoOptimize" className="text-sm font-medium text-[var(--card-foreground)]">
+              Auto Optimize Relief
+              <HelpIcon tooltip="Automatically optimize carry-back amounts to maximize total tax relief across both years" />
+            </label>
+          </div>
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              id="prioritySEIS"
+              checked={inputs.prioritySEISFirst}
+              onChange={(e) => updateInput('prioritySEISFirst', e.target.checked)}
+              className="h-4 w-4 text-[var(--primary)] border-[var(--border)] rounded focus:ring-[var(--primary)]"
+            />
+            <label htmlFor="prioritySEIS" className="text-sm font-medium text-[var(--card-foreground)]">
+              SEIS Priority
+              <HelpIcon tooltip="Apply SEIS relief before EIS (recommended for maximum benefit due to higher relief rate)" />
+            </label>
           </div>
         </div>
       </div>
