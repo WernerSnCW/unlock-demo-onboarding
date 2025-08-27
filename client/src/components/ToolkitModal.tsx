@@ -10,8 +10,8 @@ function WebsiteFactCheckerComponent() {
   const [url, setUrl] = useState('');
   const [specificClaims, setSpecificClaims] = useState('');
   const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
-  const [maxClaims, setMaxClaims] = useState(25);
-  const [newsTimeWindow, setNewsTimeWindow] = useState(24);
+  const [maxClaims, setMaxClaims] = useState(10);
+  const [newsTimeWindow, setNewsTimeWindow] = useState(6);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
