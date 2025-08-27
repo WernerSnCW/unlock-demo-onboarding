@@ -411,13 +411,17 @@ function WebsiteFactCheckerComponent() {
         <button
           type="submit"
           disabled={isAnalyzing}
-          className="w-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 disabled:bg-[var(--muted)] disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+          className={`w-full font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center ${
+            isAnalyzing
+              ? 'bg-[var(--primary)]/70 cursor-not-allowed text-white'
+              : 'bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white'
+          }`}
           data-testid="button-analyze-website"
         >
           {isAnalyzing ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
-              Analyzing...
+              <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin mr-3"></div>
+              <span className="text-white">Analyzing Website...</span>
             </>
           ) : (
             'Start Analysis'
