@@ -4,9 +4,12 @@ import multer from 'multer';
 // Safe PDF parsing function that handles the library issues
 async function safePdfParse(buffer: Buffer) {
   try {
-    // Try to require pdf-parse in a way that avoids test file issues
-    const pdfParse = require('pdf-parse');
-    return await pdfParse(buffer);
+    // Use dynamic import which works better in ES module environment
+    const { default: pdfParse } = await import('pdf-parse');
+    console.log('PDF parsing with real library - buffer size:', buffer.length);
+    const result = await pdfParse(buffer);
+    console.log('PDF parsing successful - extracted text length:', result.text.length);
+    return result;
   } catch (error: any) {
     console.warn('pdf-parse failed, falling back to mock text extraction:', error.message);
     // Return mock data structure matching pdf-parse output
@@ -183,9 +186,12 @@ export class PitchDeckAnalyzer {
   
   static async extractTextFromPDF(buffer: Buffer): Promise<string[]> {
     const data = await safePdfParse(buffer);
+    console.log('Extracted PDF text preview:', data.text.substring(0, 500));
     // Split by pages - simplified approach
     const pages = data.text.split('\f'); // Form feed character typically separates pages in PDF text
-    return pages.map((page: string) => page.trim()).filter((page: string) => page.length > 0);
+    const cleanPages = pages.map((page: string) => page.trim()).filter((page: string) => page.length > 0);
+    console.log('Number of pages extracted:', cleanPages.length);
+    return cleanPages;
   }
 
   static async extractSectionsAndKPIs(
@@ -576,10 +582,13 @@ OUTPUT SCHEMA:
   ) {
     try {
       // Extract text from PDF
+      console.log('Starting PDF text extraction for file:', fileName);
       const slides = await this.extractTextFromPDF(fileBuffer);
+      console.log('PDF extraction complete. Processing with LLM...');
       
       // Extract sections and KPIs (LLM Pass #1)
       const extracted = await this.extractSectionsAndKPIs(slides, sector, stage, geography);
+      console.log('LLM extraction complete. KPIs found:', Object.keys(extracted.kpis).filter(k => extracted.kpis[k] !== null));
       
       // Compute deterministic valuations
       const valuations = this.computeDeterministicValuations(extracted, stage, sector);
