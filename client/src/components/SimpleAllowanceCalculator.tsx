@@ -236,10 +236,7 @@ export default function SimpleAllowanceCalculator() {
 
   return (
     <div className="p-6 bg-[var(--background)] space-y-6">
-      {/* TESTING BANNER - REMOVE AFTER CONFIRMING */}
-      <div className="bg-red-500 text-white p-2 rounded text-center font-bold">
-        ⚠️ UPDATED VERSION LOADED - CACHE CLEARED ⚠️
-      </div>
+
       
       {/* Header with Help Button */}
       <div className="flex justify-between items-center">
@@ -514,21 +511,21 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown (50% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Applied to Previous Year</div>
-                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border" style={{ backgroundColor: 'var(--info)', color: 'var(--info-foreground)' }}>
+                  <div className="font-bold text-sm">Applied to Previous Year</div>
+                  <div className="text-sm font-semibold">{formatCurrency(result.seis.appliedToPrev)} → {formatCurrency(result.seis.reliefPrev)} relief</div>
                 </div>
-                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Applied to This Year</div>
-                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border" style={{ backgroundColor: 'var(--info)', color: 'var(--info-foreground)' }}>
+                  <div className="font-bold text-sm">Applied to This Year</div>
+                  <div className="text-sm font-semibold">{formatCurrency(result.seis.appliedToThis)} → {formatCurrency(result.seis.reliefThis)} relief</div>
                 </div>
-                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Allowance Remaining (Prev)</div>
-                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border" style={{ backgroundColor: 'var(--info)', color: 'var(--info-foreground)' }}>
+                  <div className="font-bold text-sm">Allowance Remaining (Prev)</div>
+                  <div className="text-sm font-semibold">{formatCurrency(result.seis.allowanceRemainingPrev)}</div>
                 </div>
-                <div className="p-4 bg-blue-50 border border-gray-300 rounded-lg h-20 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Allowance Remaining (This)</div>
-                  <div className="text-black text-sm font-semibold">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
+                <div className="p-4 rounded-lg h-20 flex flex-col justify-between border" style={{ backgroundColor: 'var(--info)', color: 'var(--info-foreground)' }}>
+                  <div className="font-bold text-sm">Allowance Remaining (This)</div>
+                  <div className="text-sm font-semibold">{formatCurrency(result.seis.allowanceRemainingThis)}</div>
                 </div>
               </div>
               
@@ -567,34 +564,34 @@ export default function SimpleAllowanceCalculator() {
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown (30% Relief)</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Applied to Previous Year</div>
-                  <div className="text-black text-sm font-semibold">
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
+                  <div className="font-bold text-sm">Applied to Previous Year</div>
+                  <div className="text-sm font-semibold">
                     {formatCurrency(result.eis.appliedToPrev)} → {formatCurrency(result.eis.reliefPrev)} relief
                   </div>
-                  <div className="text-xs text-black font-medium mt-1">
+                  <div className="text-xs font-medium mt-1">
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToPrev)} • KIC: {formatCurrency(result.eis.kicAppliedToPrev)}
                   </div>
                 </div>
-                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Applied to This Year</div>
-                  <div className="text-black text-sm font-semibold">
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
+                  <div className="font-bold text-sm">Applied to This Year</div>
+                  <div className="text-sm font-semibold">
                     {formatCurrency(result.eis.appliedToThis)} → {formatCurrency(result.eis.reliefThis)} relief
                   </div>
-                  <div className="text-xs text-black font-medium mt-1">
+                  <div className="text-xs font-medium mt-1">
                     Non-KIC: {formatCurrency(result.eis.nonKicAppliedToThis)} • KIC: {formatCurrency(result.eis.kicAppliedToThis)}
                   </div>
                 </div>
-                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Remaining Allowances (Prev)</div>
-                  <div className="text-black text-sm font-semibold">
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
+                  <div className="font-bold text-sm">Remaining Allowances (Prev)</div>
+                  <div className="text-sm font-semibold">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                   </div>
                 </div>
-                <div className="p-4 bg-green-50 border border-gray-300 rounded-lg h-24 flex flex-col justify-between">
-                  <div className="font-bold text-black text-sm">Remaining Allowances (This)</div>
-                  <div className="text-black text-sm font-semibold">
+                <div className="p-4 rounded-lg h-24 flex flex-col justify-between border" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
+                  <div className="font-bold text-sm">Remaining Allowances (This)</div>
+                  <div className="text-sm font-semibold">
                     Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
                     Total: {formatCurrency(result.eis.allowanceRemainingKIC.this)}
                   </div>
