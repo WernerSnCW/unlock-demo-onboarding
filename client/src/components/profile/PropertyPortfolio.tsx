@@ -268,13 +268,13 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="detached">Detached</SelectItem>
-                          <SelectItem value="semi-detached">Semi-detached</SelectItem>
-                          <SelectItem value="terraced">Terraced</SelectItem>
-                          <SelectItem value="flat">Flat</SelectItem>
-                          <SelectItem value="commercial">Commercial</SelectItem>
-                          <SelectItem value="land">Land</SelectItem>
+                        <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                          <SelectItem value="detached" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Detached</SelectItem>
+                          <SelectItem value="semi-detached" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Semi-detached</SelectItem>
+                          <SelectItem value="terraced" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Terraced</SelectItem>
+                          <SelectItem value="flat" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Flat</SelectItem>
+                          <SelectItem value="commercial" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Commercial</SelectItem>
+                          <SelectItem value="land" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Land</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -324,14 +324,14 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                             <SelectValue placeholder="Select rating" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="A">A</SelectItem>
-                          <SelectItem value="B">B</SelectItem>
-                          <SelectItem value="C">C</SelectItem>
-                          <SelectItem value="D">D</SelectItem>
-                          <SelectItem value="E">E</SelectItem>
-                          <SelectItem value="F">F</SelectItem>
-                          <SelectItem value="G">G</SelectItem>
+                        <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                          <SelectItem value="A" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">A</SelectItem>
+                          <SelectItem value="B" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">B</SelectItem>
+                          <SelectItem value="C" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">C</SelectItem>
+                          <SelectItem value="D" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">D</SelectItem>
+                          <SelectItem value="E" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">E</SelectItem>
+                          <SelectItem value="F" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">F</SelectItem>
+                          <SelectItem value="G" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">G</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -358,9 +358,9 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="direct">Direct</SelectItem>
-                          <SelectItem value="spv">SPV</SelectItem>
+                        <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                          <SelectItem value="direct" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Direct</SelectItem>
+                          <SelectItem value="spv" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">SPV</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
