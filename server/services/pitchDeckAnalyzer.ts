@@ -276,6 +276,14 @@ Specifically identify:
 
 Be extremely thorough: scan for both explicit numbers and implied values, across different phrasings and formats.
 
+CRITICAL: Look for IMPLIED or ESTIMATED valuations using phrases like:
+- "implied valuation ~£20.5m"
+- "company valued at approximately"
+- "estimated worth of"
+- "fair value of"
+- "market cap of"
+If found, treat these as stated_post_money values.
+
 Text to analyze:
 ${slidesText}
 
@@ -542,17 +550,28 @@ TASKS:
       };
     }
 
-    // Enhanced revenue multiple calculation with projected revenue data
+    // Enhanced revenue multiple calculation with flexible data sources
     let arr = kpis.arr || (kpis.mrr ? kpis.mrr * 12 : null);
     
-    // Try to extract projected ARR from other_financials if current ARR missing
+    // Try to extract ARR from other_financials with various patterns
     if (!arr && (kpis as any).other_financials) {
-      const arrMatches = (kpis as any).other_financials
-        .join(' ')
-        .match(/(\d+(?:\.\d+)?)\s*(?:M|m|million)?\s*ARR/i);
+      const financials = (kpis as any).other_financials.join(' ');
+      
+      // Look for ARR patterns
+      const arrMatches = financials.match(/([£$€]?\d+(?:\.\d+)?)\s*(?:M|m|million)?\s*ARR/i);
       if (arrMatches) {
-        const value = parseFloat(arrMatches[1]);
+        const value = parseFloat(arrMatches[1].replace(/[£$€]/g, ''));
         arr = value > 100 ? value : value * 1000000; // Handle M notation
+      }
+      
+      // Look for subscription income patterns as ARR proxy
+      if (!arr) {
+        const subMatches = financials.match(/Subscription Income[:\s]*([£$€]?\d+(?:,\d+)*)\s*Year 5/i);
+        if (subMatches) {
+          const value = parseFloat(subMatches[1].replace(/[£$€,]/g, ''));
+          arr = value; // This is already the annual figure
+          console.log("Using subscription income as ARR proxy:", arr);
+        }
       }
     }
 
@@ -656,12 +675,27 @@ TASKS:
       }
     }
 
-    // Enhanced implied valuation from post-money data
+    // Enhanced implied valuation from post-money data and pattern matching
     if (kpis.stated_post_money && !results.implied_from_terms) {
       results.implied_from_post_money = {
         post_money: kpis.stated_post_money,
         method: "stated_post_money"
       };
+    }
+    
+    // Extract implied valuation from other_financials if not in structured fields
+    if (!kpis.stated_post_money && !kpis.stated_pre_money && (kpis as any).other_financials) {
+      const financials = (kpis as any).other_financials.join(' ');
+      const impliedMatches = financials.match(/implied valuation[:\s~]*[£$€]?(\d+(?:\.\d+)?)\s*(?:M|m|million)?/i);
+      if (impliedMatches) {
+        const value = parseFloat(impliedMatches[1]);
+        const impliedValue = value > 100 ? value : value * 1000000; // Handle M notation
+        results.implied_from_text = {
+          post_money: impliedValue,
+          method: "pattern_extraction"
+        };
+        console.log("Extracted implied valuation from text:", impliedValue);
+      }
     }
 
     // Enhanced peer gap calculation using all available valuation data
@@ -673,8 +707,8 @@ TASKS:
     if (results.ebitda_multiple?.implied)
       fairValues.push(results.ebitda_multiple.implied);
 
-    // Compare against stated valuations (pre-money first, then post-money as backup)
-    const statedValuation = kpis.stated_pre_money || kpis.stated_post_money;
+    // Compare against stated valuations (pre-money first, then post-money, then extracted implied)
+    const statedValuation = kpis.stated_pre_money || kpis.stated_post_money || results.implied_from_text?.post_money;
     
     if (fairValues.length > 0 && statedValuation) {
       const fairValueBaseline = fairValues.sort((a, b) => a - b)[
