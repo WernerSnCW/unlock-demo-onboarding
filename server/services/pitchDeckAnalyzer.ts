@@ -1065,17 +1065,37 @@ OUTPUT SCHEMA:
         );
         const fundingExtraction = await extractFundingDetailsEnhanced(openai, slides);
         console.log("Funding extraction result:", fundingExtraction);
-        if (fundingExtraction.raise_amount)
+        // Only add funding details if they don't already exist and are not null
+        if (fundingExtraction.raise_amount && !extracted.kpis.raise_amount)
           extracted.kpis.raise_amount = fundingExtraction.raise_amount;
-        if (fundingExtraction.equity_offered_pct)
-          extracted.kpis.equity_offered_pct =
-            fundingExtraction.equity_offered_pct;
-        if (fundingExtraction.stated_pre_money)
+        if (fundingExtraction.equity_offered_pct && !extracted.kpis.equity_offered_pct)
+          extracted.kpis.equity_offered_pct = fundingExtraction.equity_offered_pct;
+        if (fundingExtraction.stated_pre_money && !extracted.kpis.stated_pre_money)
           extracted.kpis.stated_pre_money = fundingExtraction.stated_pre_money;
-        if (fundingExtraction.stated_post_money)
-          extracted.kpis.stated_post_money =
-            fundingExtraction.stated_post_money;
+        if (fundingExtraction.stated_post_money && !extracted.kpis.stated_post_money)
+          extracted.kpis.stated_post_money = fundingExtraction.stated_post_money;
+        
+        // Also merge other useful financial data that might have been missed
+        if (fundingExtraction.ebitda && !extracted.kpis.ebitda)
+          extracted.kpis.ebitda = fundingExtraction.ebitda;
+        if (fundingExtraction.arr && !extracted.kpis.arr)
+          extracted.kpis.arr = fundingExtraction.arr;
+        if (fundingExtraction.mrr && !extracted.kpis.mrr)
+          extracted.kpis.mrr = fundingExtraction.mrr;
       }
+
+      // Debug: log what KPIs we're passing to valuation engine
+      console.log("KPIs before valuation computation:", {
+        ebitda: extracted.kpis.ebitda,
+        arr: extracted.kpis.arr,
+        mrr: extracted.kpis.mrr,
+        discount_rate_pct: extracted.kpis.discount_rate_pct,
+        valuation_dcf_present: extracted.kpis.valuation_dcf_present,
+        stated_pre_money: extracted.kpis.stated_pre_money,
+        stated_post_money: extracted.kpis.stated_post_money,
+        raise_amount: extracted.kpis.raise_amount,
+        equity_offered_pct: extracted.kpis.equity_offered_pct
+      });
 
       // Compute deterministic valuations
       const valuations = await computeDeterministicValuationsEnhanced(
