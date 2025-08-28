@@ -5,7 +5,7 @@ import {
   getDiscountRate,
   computePVMultipleBlock,
   roundTo,
-} from "./valuation_config";
+} from "../valuation_config";
 
 /* ---------- Money & percent parsers (generic) ---------- */
 
@@ -31,24 +31,25 @@ const CURRENCY_MAP: Record<string, string> = {
   EUR: "EUR",
 };
 
+// NORMALISES EU comma decimals + units + currency
 export function parseMoney(raw: string): { value?: number; currency?: string } {
   if (!raw) return {};
-  let s = raw.trim().replace(/\s+/g, " ");
-  // EU decimal "1,2m" -> "1.2m"
+  let s = raw.trim()
+    .replace(/[~≈≃]/g, "")            // remove approx marks
+    .replace(/\s+/g, " ");             // normalise spaces
+  // turn 20,5m -> 20.5m  (but keep 20,000,000)
   s = s.replace(/(\d),(\d{1,2})(?=[^\d]|$)/g, "$1.$2");
 
-  const currMatch = s.match(/(GBP|EUR|USD|US\$|£|\$|€)/i);
-  const currency = currMatch
-    ? CURRENCY_MAP[currMatch[0].toUpperCase() as keyof typeof CURRENCY_MAP] ||
-      currMatch[0].replace(/[^A-Z]/g, "")
-    : undefined;
+  const currencyMatch = s.match(/(GBP|EUR|USD|US\$|£|\$|€)/i);
+  const currency = currencyMatch ? currencyMatch[0].toUpperCase().replace(/[^\w£$€]/g, "") : undefined;
 
-  const numMatch = s.match(/(\d{1,3}(?:[,.\s]\d{3})*|\d+(?:[.,]\d+)?)/);
+  const numMatch = s.match(/(\d{1,3}(?:[,\s]\d{3})+|\d+(?:[.,]\d+)?)/);
   if (!numMatch) return { currency };
   const num = parseFloat(numMatch[1].replace(/[,\s]/g, ""));
-  const unitMatch = s.match(/\b(k|K|m|M|mn|bn|Bn|b)\b/);
-  const unit = unitMatch ? UNIT_MAP[unitMatch[1]] : 1;
-  return { value: isNaN(num) ? undefined : num * unit, currency };
+  const unitMatch = s.match(/\b(k|m|mn|bn)\b/i);
+  const unit = unitMatch ? ({k:1e3,m:1e6,mn:1e6,bn:1e9} as any)[unitMatch[1].toLowerCase()] : 1;
+
+  return { value: Number.isFinite(num) ? num * unit : undefined, currency };
 }
 
 export function parsePercent(raw: string): number | undefined {
@@ -180,6 +181,7 @@ export function computeDeterministicValuationsEnhanced(
       rate,
     );
     if (blk) {
+      blk.base_label = "EBITDA";
       blk.implied_low = roundTo(
         blk.implied_low,
         ValuationConfig.roundToNearest,

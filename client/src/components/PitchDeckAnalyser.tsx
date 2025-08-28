@@ -23,7 +23,7 @@ interface AnalysisResult {
     benchmark: string;
   }[];
   valuation: {
-    declared: number;
+    declared: number | null;
     benchmarkMin: number;
     benchmarkMax: number;
     assessment: string;
@@ -31,12 +31,16 @@ interface AnalysisResult {
       preMoney: number;
       postMoney: number;
       revenueMultiple: {
-        arr: number;
+        base: number;
+        baseLabel: string;
+        horizonYears: number;
         multiple: number;
         impliedValue: number;
       };
       ebitdaMultiple: {
         ebitda: number;
+        baseLabel: string;
+        horizonYears: number;
         multiple: number;
         impliedValue: number;
       };
@@ -256,12 +260,16 @@ export default function PitchDeckAnalyser() {
           preMoney: 20000000,
           postMoney: 25000000,
           revenueMultiple: {
-            arr: 250000,
+            base: 250000,
+            baseLabel: "ARR",
+            horizonYears: 0,
             multiple: 10,
             impliedValue: 2500000
           },
           ebitdaMultiple: {
             ebitda: 1200000,
+            baseLabel: "EBITDA",
+            horizonYears: 0,
             multiple: 12,
             impliedValue: 14400000
           },
@@ -649,9 +657,12 @@ export default function PitchDeckAnalyser() {
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">Revenue Multiple</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
-                          const arr = result.valuation.methods.revenueMultiple.arr;
-                          if (!arr || arr === 0) return "ARR not specified";
-                          return `${formatCurrency(arr)} ARR × ${result.valuation.methods.revenueMultiple.multiple}x`;
+                          const base = result.valuation.methods.revenueMultiple.base;
+                          const baseLabel = result.valuation.methods.revenueMultiple.baseLabel || "Revenue";
+                          const horizonYears = result.valuation.methods.revenueMultiple.horizonYears ?? 0;
+                          const baseText = Number.isFinite(base) && base > 0 ? formatCurrency(base) : "not specified";
+                          const timeLabel = horizonYears > 0 ? ` (Year ${horizonYears})` : "";
+                          return `${baseText} ${baseLabel}${timeLabel} × ${result.valuation.methods.revenueMultiple.multiple}x`;
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
@@ -967,8 +978,19 @@ export default function PitchDeckAnalyser() {
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[var(--muted-foreground)]">Current ARR:</span>
-                    <span className="font-medium text-[var(--foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.arr)}</span>
+                    <span className="text-[var(--muted-foreground)]">
+                      {(() => {
+                        const baseLabel = result.valuation.methods.revenueMultiple.baseLabel || "Revenue";
+                        const horizonYears = result.valuation.methods.revenueMultiple.horizonYears ?? 0;
+                        return horizonYears > 0 ? `${baseLabel} (Year ${horizonYears}):` : `Current ${baseLabel}:`;
+                      })()}
+                    </span>
+                    <span className="font-medium text-[var(--foreground)]">
+                      {(() => {
+                        const base = result.valuation.methods.revenueMultiple.base;
+                        return Number.isFinite(base) && base > 0 ? formatCurrency(base) : "not specified";
+                      })()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--muted-foreground)]">Industry Multiple:</span>

@@ -9,7 +9,7 @@ import {
   parsePercent,
   type Benchmarks as EngineBenchmarks,
 } from "./valuation_engine";
-import { ValuationConfig } from "./valuation_config";
+import { ValuationConfig } from "../valuation_config";
 
 /* =========================================================
    Reliable PDF parsing using pdfjs-dist (unchanged)
@@ -720,7 +720,7 @@ OUTPUT SCHEMA:
             extracted.kpis.valuation_dcf_present ??
             extracted.kpis.stated_pre_money ??
             extracted.kpis.stated_post_money ??
-            0,
+            null,
           assessment:
             valuations.peer_gap_pct != null
               ? `Gap vs peers: ${Math.round(valuations.peer_gap_pct * 100)}%`
@@ -740,11 +740,14 @@ OUTPUT SCHEMA:
             revenueMultiple: {
               base: valuations.revenue_multiple?.base || 0, // ARR if present, else Revenue
               baseLabel: valuations.revenue_multiple?.base_label || "Revenue",
+              horizonYears: valuations.revenue_multiple?.horizon_years ?? 0,
               multiple: valuations.revenue_multiple?.multiple_mid || 0,
               impliedValue: valuations.revenue_multiple?.implied_mid || 0, // PV mid
             },
             ebitdaMultiple: {
               ebitda: valuations.ebitda_multiple?.base || 0,
+              baseLabel: valuations.ebitda_multiple?.base_label || "EBITDA",
+              horizonYears: valuations.ebitda_multiple?.horizon_years ?? 0,
               multiple: valuations.ebitda_multiple?.multiple_mid || 0,
               impliedValue: valuations.ebitda_multiple?.implied_mid || 0, // PV mid
             },
