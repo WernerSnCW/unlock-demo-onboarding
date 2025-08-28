@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Building, MapPin, Calendar, TrendingUp, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Building, MapPin, Calendar, TrendingUp, Plus, Eye, Edit, Trash2, RefreshCw, PoundSterling, Home, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { apiRequest } from '@/lib/queryClient';
 
 interface Property {
   id: string;
@@ -24,6 +25,39 @@ interface Property {
   updatedAt: string;
 }
 
+interface PropertyValuation {
+  estimate: number;
+  range: { min: number; max: number };
+  method: string;
+  confidence: string;
+  regionName: string;
+  hpiBaseline: number;
+  comparables: number;
+  explainability: {
+    hpiBaseline: number;
+    hpiUpliftFactor: number;
+    comparableAverage?: number;
+    methodUsed: string;
+    regionAccuracy: string;
+  };
+}
+
+interface PropertyPriceData {
+  postcode: string;
+  price: number;
+  dateOfTransfer: string;
+  propertyType: string;
+  address: string;
+}
+
+interface PropertyWithValuation extends Property {
+  acquisitionPriceGbp?: number;
+  acquisitionDate?: string;
+  valuation?: PropertyValuation;
+  marketComparable?: PropertyPriceData;
+  isValuationLoading?: boolean;
+}
+
 interface PropertyPortfolioProps {
   userId: string;
   className?: string;
@@ -31,12 +65,100 @@ interface PropertyPortfolioProps {
 
 export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioProps) {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [propertyValuations, setPropertyValuations] = useState<Record<string, PropertyWithValuation>>({});
+  const queryClient = useQueryClient();
 
   // Fetch properties for the user
   const { data: properties = [], isLoading, error } = useQuery<Property[]>({
     queryKey: ['/api/properties', userId],
     enabled: !!userId,
   });
+
+  // Mutation for refreshing property valuations
+  const refreshValuationMutation = useMutation({
+    mutationFn: async (property: Property) => {
+      if (!property.postcode) {
+        throw new Error('Property postcode is required for valuation');
+      }
+
+      // First check for property price data
+      const searchResponse = await apiRequest('/api/property-search', {
+        method: 'POST',
+        body: { query: property.postcode, limit: 5 }
+      });
+
+      // Get property valuation
+      const valuationResponse = await apiRequest('/api/property-valuation', {
+        method: 'POST',
+        body: { 
+          postcode: property.postcode, 
+          propertyType: property.propertyType?.toLowerCase() || 'detached'
+        }
+      });
+
+      return {
+        propertyId: property.id,
+        searchResults: searchResponse,
+        valuation: valuationResponse.valuation
+      };
+    },
+    onMutate: (property) => {
+      // Optimistically update loading state
+      setPropertyValuations(prev => ({
+        ...prev,
+        [property.id]: {
+          ...property,
+          isValuationLoading: true
+        }
+      }));
+    },
+    onSuccess: (data) => {
+      const property = properties.find(p => p.id === data.propertyId);
+      if (!property) return;
+
+      // Find best comparable (same postcode area and property type if possible)
+      const comparable = data.searchResults.find((result: any) => 
+        result.postcode?.startsWith(property.postcode?.split(' ')[0] || '') &&
+        result.type?.toLowerCase() === property.propertyType?.toLowerCase()
+      ) || data.searchResults[0];
+
+      setPropertyValuations(prev => ({
+        ...prev,
+        [data.propertyId]: {
+          ...property,
+          valuation: data.valuation,
+          marketComparable: comparable,
+          isValuationLoading: false
+        }
+      }));
+    },
+    onError: (error, property) => {
+      console.error('Valuation refresh failed:', error);
+      setPropertyValuations(prev => ({
+        ...prev,
+        [property.id]: {
+          ...property,
+          isValuationLoading: false
+        }
+      }));
+    }
+  });
+
+  // Merge properties with valuation data
+  const propertiesWithValuations: PropertyWithValuation[] = properties.map(property => ({
+    ...property,
+    ...propertyValuations[property.id]
+  }));
+
+  // Utility functions
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   const formatAddress = (property: Property) => {
     const parts = [
@@ -148,7 +270,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
 
       {/* Property Summary Stats */}
       {properties.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
@@ -156,6 +278,25 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total Properties</p>
                   <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">{properties.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <PoundSterling className="h-4 w-4 text-green-600" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Portfolio Value</p>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    {(() => {
+                      const totalValue = propertiesWithValuations
+                        .filter(p => p.valuation?.estimate)
+                        .reduce((sum, p) => sum + (p.valuation?.estimate || 0), 0);
+                      return totalValue > 0 ? formatCurrency(totalValue) : '—';
+                    })()}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -227,7 +368,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((property) => (
+          {propertiesWithValuations.map((property) => (
             <Card key={property.id} className="group hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -242,16 +383,28 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       </p>
                     </div>
                   </div>
-                  {property.epcRating && (
-                    <Badge className={getEpcColor(property.epcRating)}>
-                      EPC {property.epcRating}
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {property.epcRating && (
+                      <Badge className={getEpcColor(property.epcRating)}>
+                        EPC {property.epcRating}
+                      </Badge>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => refreshValuationMutation.mutate(property)}
+                      disabled={property.isValuationLoading || !property.postcode}
+                      data-testid={`button-refresh-valuation-${property.id}`}
+                      className="h-8 w-8 p-0"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               
               <CardContent className="pt-0">
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {/* Property Details */}
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {property.propertyType && (
@@ -286,6 +439,106 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         </p>
                       </div>
                     )}
+                  </div>
+
+                  {/* Valuation Section */}
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      Property Valuations
+                    </h4>
+                    
+                    <div className="space-y-2 text-sm">
+                      {/* User Purchase Price */}
+                      {property.acquisitionPriceGbp ? (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <Home className="h-3 w-3" />
+                            Purchase Price:
+                          </span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {formatCurrency(Number(property.acquisitionPriceGbp))}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <Home className="h-3 w-3" />
+                            Purchase Price:
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-500 italic">Not set</span>
+                        </div>
+                      )}
+
+                      {/* Market Comparable */}
+                      {property.marketComparable ? (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <TrendingUp className="h-3 w-3" />
+                            Market Comp:
+                          </span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {formatCurrency(property.marketComparable.price)}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <TrendingUp className="h-3 w-3" />
+                            Market Comp:
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-500 italic">
+                            {property.isValuationLoading ? 'Loading...' : 'Not found'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* AI Valuation */}
+                      {property.valuation ? (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <BarChart3 className="h-3 w-3" />
+                            AI Valuation:
+                          </span>
+                          <span className="font-medium text-green-600">
+                            {formatCurrency(property.valuation.estimate)}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <BarChart3 className="h-3 w-3" />
+                            AI Valuation:
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-500 italic">
+                            {property.isValuationLoading ? 'Loading...' : 'Click refresh'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Regional Average */}
+                      {property.valuation?.hpiBaseline && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            Area Average:
+                          </span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {formatCurrency(property.valuation.hpiBaseline)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Valuation Range */}
+                      {property.valuation?.range && (
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
+                          <span>Range:</span>
+                          <span>
+                            {formatCurrency(property.valuation.range.min)} - {formatCurrency(property.valuation.range.max)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Actions */}
