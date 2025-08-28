@@ -557,11 +557,12 @@ TASKS:
     if (!arr && (kpis as any).other_financials) {
       const financials = (kpis as any).other_financials.join(' ');
       
-      // Look for ARR patterns
-      const arrMatches = financials.match(/([£$€]?\d+(?:\.\d+)?)\s*(?:M|m|million)?\s*ARR/i);
+      // Look for ARR patterns - enhanced to catch "£5M+ ARR" patterns
+      const arrMatches = financials.match(/([£$€]?\d+(?:\.\d+)?)\s*(?:M\+?|m\+?|million)?\s*ARR/i);
       if (arrMatches) {
         const value = parseFloat(arrMatches[1].replace(/[£$€]/g, ''));
         arr = value > 100 ? value : value * 1000000; // Handle M notation
+        console.log("Found ARR pattern:", arr);
       }
       
       // Look for subscription income patterns as ARR proxy
@@ -573,6 +574,16 @@ TASKS:
           console.log("Using subscription income as ARR proxy:", arr);
         }
       }
+      
+      // Look for projected revenue patterns if still no ARR
+      if (!arr) {
+        const projectedMatches = financials.match(/Projected revenue[:\s]*([£$€]?\d+)[–-]([£$€]?\d+)M?\s*ARR\s*by\s*Year\s*5/i);
+        if (projectedMatches) {
+          const value = parseFloat(projectedMatches[2].replace(/[£$€]/g, ''));
+          arr = value > 100 ? value : value * 1000000; // Handle M notation
+          console.log("Using projected revenue as ARR:", arr);
+        }
+      }
     }
 
     // For service businesses without ARR, estimate revenue from pre-money valuation
@@ -582,9 +593,17 @@ TASKS:
       arr = Math.round(kpis.stated_pre_money / typicalMultiple);
     }
     
-    // Use projected revenue if current revenue unavailable
+    // Use projected revenue if current revenue unavailable - enhanced fallback
     if (!arr && (kpis as any).revenue_projected) {
       arr = (kpis as any).revenue_projected;
+      console.log("Using revenue_projected as ARR:", arr);
+    }
+    
+    // Final fallback: estimate ARR from stated valuation and typical multiples
+    if (!arr && kpis.stated_post_money && benchmarks?.revenue) {
+      const typicalMultiple = (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
+      arr = Math.round(kpis.stated_post_money / typicalMultiple);
+      console.log("Estimated ARR from post-money valuation:", arr);
     }
 
     if (arr && benchmarks?.revenue) {
@@ -1089,13 +1108,16 @@ OUTPUT SCHEMA:
           };
         }),
         valuation: {
-          declared: extracted.kpis.stated_pre_money || 0,
+          declared: extracted.kpis.stated_pre_money || extracted.kpis.stated_post_money || 0,
           benchmarkMin: valuations.revenue_multiple?.implied || 0,
           benchmarkMax: valuations.ebitda_multiple?.implied || 0,
           assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
           methods: {
-            preMoney: valuations.implied_from_terms?.pre_money || 0,
-            postMoney: valuations.implied_from_terms?.post_money || 0,
+            preMoney: valuations.implied_from_terms?.pre_money || extracted.kpis.stated_pre_money || 0,
+            postMoney: valuations.implied_from_terms?.post_money || 
+                      valuations.implied_from_post_money?.post_money || 
+                      valuations.implied_from_stated?.post_money || 
+                      extracted.kpis.stated_post_money || 0,
             revenueMultiple: {
               arr: valuations.revenue_multiple?.arr || 0,
               multiple: valuations.revenue_multiple?.multiple || 0,
@@ -1107,13 +1129,15 @@ OUTPUT SCHEMA:
               impliedValue: valuations.ebitda_multiple?.implied || 0,
             },
             roiProjection: {
-              equityStake: (valuations.roi?.equity_pct || 0) * 100,
-              projectedExit: valuations.roi?.projected_return || 0,
-              investorReturn: valuations.roi?.projected_return || 0,
-              roiMultiple: valuations.roi?.roi_multiple || 0,
-              irr: valuations.roi?.irr || 0,
+              equityStake: (valuations.roi?.equity_pct || valuations.roi_estimated?.equity_pct || 0) * 100,
+              projectedExit: valuations.roi?.projected_return || valuations.roi_estimated?.projected_return || 0,
+              investorReturn: valuations.roi?.projected_return || valuations.roi_estimated?.projected_return || 0,
+              roiMultiple: valuations.roi?.roi_multiple || valuations.roi_estimated?.roi_multiple || 0,
+              irr: valuations.roi?.irr || valuations.roi_estimated?.irr || 0,
             },
           },
+          // Include all computed valuation sources for frontend fallback
+          ...valuations,
           suggestedQuestions: analysis.key_questions.valuation,
         },
         riskFlags: analysis.risks,
