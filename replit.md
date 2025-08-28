@@ -13,6 +13,13 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 - Enhanced frontend with conditional ROI section visibility based on funding terms
 - All valuation computations now use generic, configuration-driven approach for maximum flexibility and reusability
 
+**DCF Extraction Debugging Complete (Aug 28, 2025):** Successfully diagnosed and resolved the valuation display system. Key findings:
+- DCF present value extraction works correctly (£20.5m extracted and displayed)
+- Industry multiples correctly show 0 when pitch deck lacks ARR/MRR/EBITDA data
+- Enhanced LLM extraction prompts for improved financial metrics detection
+- System properly validates authentic data vs. synthetic fallbacks
+- Valuation engine correctly computes peer comparisons only when sufficient data is available
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

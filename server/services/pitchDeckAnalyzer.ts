@@ -351,6 +351,7 @@ export class PitchDeckAnalyzer {
     console.log(
       `Sending ${slidesText.length} characters to LLM for extraction`,
     );
+    console.log("First 1000 chars of slides text:", slidesText.substring(0, 1000));
 
     const systemPrompt = `You extract sections and KPIs from a startup pitch deck. Output STRICT JSON only. Be thorough and flexible in finding financial details - look for funding asks, equity stakes, and valuations in any format or phrasing. Do not guess numbers; if absent, use null. Standardise currencies (GBP/USD/EUR) and numbers (e.g., "£250k" → 250000). Map each slide to one of the known sections when possible. Use British English for labels.`;
 
@@ -366,15 +367,15 @@ TASKS:
 1) Detect which of these sections are present per slide:
    ${SECTION_TAXONOMY.join(" | ")}.
 2) Extract KPIs anywhere they appear (be very thorough; consider various phrasings):
-   - Revenue metrics: ARR, MRR, revenue, growth_rate
+   - Revenue metrics: ARR, MRR, revenue, growth_rate, projected revenue, year 1/2/3 revenue
    - Profitability: EBITDA, gross_margin, burn, runway
    - Unit economics: CAC, LTV, churn, ARPU
    - Scale metrics: customers, users, pricing
    - Market sizing: TAM, SAM, SOM (with source if cited)
-   - FUNDING DETAILS (search across ALL slides):
-     * raise_amount (seeking/raising/ask/investment needed)
-     * equity_offered_pct (decimal)
-     * stated_pre_money / stated_post_money (valuations in any phrasing)
+   - FUNDING DETAILS (search across ALL slides, be very flexible with phrasing):
+     * raise_amount (seeking/raising/ask/investment needed/Series A/funding target)
+     * equity_offered_pct (percent equity/stake/ownership being offered - convert to decimal)
+     * stated_pre_money / stated_post_money (any valuation figures mentioned)
      * instrument and use_of_funds if stated
    - Valuation context:
      * valuation_dcf_present (if the deck states a present-value DCF)
@@ -654,6 +655,8 @@ OUTPUT SCHEMA:
         valuation_dcf_present: (extracted.kpis as any).valuation_dcf_present,
         stated_pre_money: extracted.kpis.stated_pre_money,
         stated_post_money: extracted.kpis.stated_post_money,
+        raise_amount: extracted.kpis.raise_amount,
+        equity_offered_pct: extracted.kpis.equity_offered_pct,
       });
 
       // Deterministic valuations — PV-aware and ARR/Revenue safe fallback
