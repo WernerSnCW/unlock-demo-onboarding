@@ -595,8 +595,11 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
   // Mutation for updating property acquisition price
   const updatePropertyPriceMutation = useMutation({
     mutationFn: async ({ propertyId, price, date }: { propertyId: string; price: number; date: string }) => {
-      const response = await apiRequest(`/api/properties/${propertyId}/ownership-price`, {
+      const response = await fetch(`/api/properties/${propertyId}/ownership-price`, {
         method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           acquisitionPriceGbp: price.toString(),
           acquisitionDate: date
