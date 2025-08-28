@@ -74,6 +74,32 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
     enabled: !!userId,
   });
 
+  // Mutation for deleting properties
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      const response = await fetch(`/api/properties/${propertyId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete property');
+      }
+      return propertyId;
+    },
+    onSuccess: (deletedPropertyId) => {
+      // Invalidate and refetch properties
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', userId] });
+      // Remove from local valuation state
+      setPropertyValuations(prev => {
+        const newState = { ...prev };
+        delete newState[deletedPropertyId];
+        return newState;
+      });
+    },
+    onError: (error) => {
+      console.error('Property deletion failed:', error);
+    }
+  });
+
   // Mutation for refreshing property valuations
   const refreshValuationMutation = useMutation({
     mutationFn: async (property: Property) => {
@@ -673,6 +699,12 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       variant="outline" 
                       size="sm" 
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+                          deletePropertyMutation.mutate(property.id);
+                        }
+                      }}
+                      disabled={deletePropertyMutation.isPending}
                       data-testid={`button-delete-property-${property.id}`}
                     >
                       <Trash2 className="h-3 w-3" />
