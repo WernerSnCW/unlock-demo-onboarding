@@ -564,7 +564,9 @@ export default function PitchDeckAnalyser() {
                 <div className="text-2xl font-bold text-[var(--primary)] mb-1">
                   {result.valuation.declared && result.valuation.declared > 0 ? formatCurrency(result.valuation.declared) : "Not specified"}
                 </div>
-                <div className="text-sm text-[var(--muted-foreground)]">Pre-Money Valuation</div>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  {(result.valuation as any).headlineLabel || "Valuation"}
+                </div>
               </div>
               <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
                 <div className="text-2xl font-bold text-[var(--secondary)] mb-1">
@@ -721,13 +723,16 @@ export default function PitchDeckAnalyser() {
                         })()
                       }</td>
                     </tr>
-                    <tr>
-                      <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">ROI Projection</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{result.valuation.methods.roiProjection.equityStake}% stake, {result.valuation.methods.roiProjection.roiMultiple}x return</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">5-7 year horizon</td>
-                      <td className="px-4 py-3 text-sm text-[var(--accent-foreground)]">{result.valuation.methods.roiProjection.irr}% IRR target</td>
-                    </tr>
+                    {/* ROI Projection Row - Only show if roiProjection exists */}
+                    {result.valuation.methods.roiProjection && (
+                      <tr>
+                        <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">ROI Projection</td>
+                        <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{result.valuation.methods.roiProjection.equityStake}% stake, {result.valuation.methods.roiProjection.roiMultiple}x return</td>
+                        <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
+                        <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">5-7 year horizon</td>
+                        <td className="px-4 py-3 text-sm text-[var(--accent-foreground)]">{result.valuation.methods.roiProjection.irr}% IRR target</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -1000,46 +1005,44 @@ export default function PitchDeckAnalyser() {
               </div>
             </div>
 
-            {/* ROI Analysis */}
-            <div className="p-6 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-[var(--radius-lg)] mb-8 border border-[var(--border)]">
-              <h4 className="font-semibold text-[var(--accent-foreground)] mb-4 flex items-center gap-2">
-                <i className="fas fa-trophy text-[var(--accent-foreground)] text-sm" aria-hidden="true"></i>
-                Investor ROI Projection
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
-                    {result.valuation.methods?.roiProjection?.equityStake ? 
-                     `${result.valuation.methods.roiProjection.equityStake}%` : '15%'}
+            {/* ROI Analysis - Only show if roiProjection exists */}
+            {result.valuation.methods.roiProjection && (
+              <div className="p-6 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-[var(--radius-lg)] mb-8 border border-[var(--border)]">
+                <h4 className="font-semibold text-[var(--accent-foreground)] mb-4 flex items-center gap-2">
+                  <i className="fas fa-trophy text-[var(--accent-foreground)] text-sm" aria-hidden="true"></i>
+                  Investor ROI Projection
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                  <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                    <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
+                      {result.valuation.methods.roiProjection.equityStake}%
+                    </div>
+                    <div className="text-[var(--accent-foreground)] opacity-80">Equity Stake</div>
                   </div>
-                  <div className="text-[var(--accent-foreground)] opacity-80">Equity Stake</div>
-                </div>
-                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
-                    {result.valuation.methods?.roiProjection?.roiMultiple ? 
-                     `${result.valuation.methods.roiProjection.roiMultiple}×` : '4×'}
+                  <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                    <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
+                      {result.valuation.methods.roiProjection.roiMultiple}×
+                    </div>
+                    <div className="text-[var(--accent-foreground)] opacity-80">ROI Multiple</div>
                   </div>
-                  <div className="text-[var(--accent-foreground)] opacity-80">ROI Multiple</div>
-                </div>
-                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
-                    {result.valuation.methods?.roiProjection?.irr ? 
-                     `${result.valuation.methods.roiProjection.irr}%` : '31%'}
+                  <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                    <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
+                      {result.valuation.methods.roiProjection.irr}%
+                    </div>
+                    <div className="text-[var(--accent-foreground)] opacity-80">IRR (5 years)</div>
                   </div>
-                  <div className="text-[var(--accent-foreground)] opacity-80">IRR (5 years)</div>
-                </div>
-                <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-lg font-bold text-[var(--accent-foreground)] mb-1">
-                    {result.valuation.methods?.roiProjection?.investorReturn ? 
-                     formatCurrency(result.valuation.methods.roiProjection.investorReturn) : '£20M'}
+                  <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
+                    <div className="text-lg font-bold text-[var(--accent-foreground)] mb-1">
+                      {formatCurrency(result.valuation.methods.roiProjection.investorReturn)}
+                    </div>
+                    <div className="text-[var(--accent-foreground)] opacity-80">Projected Return</div>
                   </div>
-                  <div className="text-[var(--accent-foreground)] opacity-80">Projected Return</div>
                 </div>
+                <p className="text-xs text-[var(--accent-foreground)] mt-4 text-center opacity-90">
+                  Above VC target hurdle (~25–30%), but depends heavily on hitting ARR forecast and achieving {formatCurrency(result.valuation.methods.roiProjection.projectedExit)} exit.
+                </p>
               </div>
-              <p className="text-xs text-[var(--accent-foreground)] mt-4 text-center opacity-90">
-                Above VC target hurdle (~25–30%), but depends heavily on hitting ARR forecast and achieving {result.valuation.methods?.roiProjection?.projectedExit ? formatCurrency(result.valuation.methods.roiProjection.projectedExit) : '£100M'} exit.
-              </p>
-            </div>
+            )}
 
             {/* Valuation Questions */}
             <div>

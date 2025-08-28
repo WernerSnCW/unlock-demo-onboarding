@@ -1,0 +1,231 @@
+1) Add a small config (no deck-specific values)
+
+Create src/valuation_config.ts:
+
+export const ValuationConfig = {
+  currencyPrimary: process.env.CURRENCY_PRIMARY || "GBP",
+  // If the deck provides a discount rate we use it; if not, we DON'T discount unless this default is set.
+  defaultDiscountRatePct: process.env.DEFAULT_DISCOUNT_RATE ?? null, // e.g. "0.25" or leave null
+  // Which peer basis to prefer when computing a single gap:
+  peerBasisOrder: ["revenue_multiple", "ebitda_multiple"], // reorder if you prefer
+  // UI behaviour
+  hideROIWithoutTerms: true,
+  labelWhenNoTerms: "Deck Valuation (PV)", // used for headline tile
+  // Rounding
+  roundToNearest: 1000, // round to nearest currency unit (e.g. 1,000)
+} as const;
+
+
+Nothing here encodes a specific deck; everything is overridable via env or props.
+
+2) Extend your KPI schema (generically)
+
+In your ExtractedData.kpis (no numbers hard-coded):
+
+discount_rate_pct?: number | null;        // decimal, if the deck mentions it
+exit_multiple?: number | null;            // if the deck mentions it
+valuation_dcf_present?: number | null;    // present-value DCF if stated
+arr_horizon_years?: number | null;        // 0=current, >0=future (e.g., 5)
+ebitda_horizon_years?: number | null;     // 0=current, >0=future (e.g., 5)
+
+3) Update Pass-1 prompt (generic keys only)
+
+In extractSectionsAndKPIs() add to TASKS:
+
+Also extract (use null if absent):
+- valuation_dcf_present (a present-value DCF figure stated anywhere)
+- discount_rate_pct (as decimal, e.g., 0.25)
+- exit_multiple (e.g., 8 if mentioned)
+- arr_horizon_years (0=current; else N inferred from “Year N”, “Y5”, “in N years”)
+- ebitda_horizon_years (same rule)
+
+
+Do not add any deck values; only ask for fields.
+
+4) Generic helpers (no constants baked in)
+
+Add to a utils file (or your analyzer file):
+
+export function discountToPresent(
+  futureValue: number,
+  years?: number | null,
+  rate?: number | null
+) {
+  if (!futureValue || !years || years <= 0 || !rate || rate <= 0) return Math.round(futureValue);
+  return Math.round(futureValue / Math.pow(1 + rate, years));
+}
+
+export function roundTo(value: number, step: number) {
+  if (!value || !step) return value;
+  return Math.round(value / step) * step;
+}
+
+5) Use PV (present value) for peer comparisons—generically
+
+Patch your computeDeterministicValuations(...) (or the enhanced version you adopted). Do not insert any numbers—use whatever the deck/extractor produced or the config default.
+
+import { ValuationConfig } from "./valuation_config";
+
+function getDiscountRate(kpis: ExtractedData["kpis"]): number | null {
+  if (typeof kpis.discount_rate_pct === "number") return kpis.discount_rate_pct;
+  if (ValuationConfig.defaultDiscountRatePct != null) {
+    const n = Number(ValuationConfig.defaultDiscountRatePct);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null; // no discounting unless the deck gives a rate or env provides default
+}
+
+function computePVMultipleBlock(base: number | null | undefined, multLow: number, multMid: number, multHigh: number, years: number, rate: number | null) {
+  if (!base) return null;
+  const fwdLow = Math.round(base * multLow);
+  const fwdMid = Math.round(base * multMid);
+  const fwdHigh = Math.round(base * multHigh);
+  const pvLow  = discountToPresent(fwdLow,  years, rate);
+  const pvMid  = discountToPresent(fwdMid,  years, rate);
+  const pvHigh = discountToPresent(fwdHigh, years, rate);
+  return {
+    base,
+    multiple_low: multLow,
+    multiple_mid: multMid,
+    multiple_high: multHigh,
+    implied_forward_low: fwdLow,
+    implied_forward_mid: fwdMid,
+    implied_forward_high: fwdHigh,
+    implied_low: pvLow,
+    implied_mid: pvMid,
+    implied_high: pvHigh,
+    horizon_years: years,
+    discounted: !!(rate && years > 0),
+  };
+}
+
+
+Where you already compute multiples:
+
+const rate = getDiscountRate(extracted.kpis);
+const arrYears = extracted.kpis.arr_horizon_years ?? 0;
+const eYears   = extracted.kpis.ebitda_horizon_years ?? 0;
+
+// Revenue band (you already have your own band logic)
+if (arr && benchmarks?.revenue) {
+  const multLow = benchmarks.revenue[0];
+  const multHigh = benchmarks.revenue[1];
+  const multMid = (multLow + multHigh) / 2;
+  results.revenue_multiple = computePVMultipleBlock(arr, multLow, multMid, multHigh, arrYears, rate);
+}
+
+// EBITDA band
+if (typeof kpis.ebitda === "number" && kpis.ebitda >= 0 && benchmarks?.ebitda) {
+  const eLow = benchmarks.ebitda[0];
+  const eHigh = benchmarks.ebitda[1];
+  const eMid = (eLow + eHigh) / 2;
+  results.ebitda_multiple = computePVMultipleBlock(kpis.ebitda, eLow, eMid, eHigh, eYears, rate);
+}
+
+
+Peer gap—generic PV comparison (no numbers baked in):
+
+// Choose first available PV mid per configuration
+const basePV = ValuationConfig.peerBasisOrder
+  .map((k) => (results as any)[k]?.implied_mid)
+  .find((v) => typeof v === "number");
+
+const deckPV = extracted.kpis.valuation_dcf_present
+  ?? extracted.kpis.stated_pre_money
+  ?? extracted.kpis.stated_post_money
+  ?? results.implied_from_terms?.post_money
+  ?? null;
+
+if (deckPV && basePV) {
+  results.peer_gap_pct = Math.round(((deckPV - basePV) / basePV) * 100) / 100;
+}
+
+
+Finish by rounding outputs generically:
+
+const step = ValuationConfig.roundToNearest;
+["revenue_multiple","ebitda_multiple"].forEach((key) => {
+  const blk = (results as any)[key];
+  if (blk) {
+    ["implied_low","implied_mid","implied_high"].forEach(f => blk[f] = roundTo(blk[f], step));
+  }
+});
+
+6) UI rules that don’t rely on deck-specific values
+
+In your analyzePitchDeck() result mapping (or in the UI):
+
+const hasTerms = !!(extracted.kpis.raise_amount && extracted.kpis.equity_offered_pct);
+const declaredPV = extracted.kpis.valuation_dcf_present
+                ?? extracted.kpis.stated_pre_money
+                ?? extracted.kpis.stated_post_money
+                ?? null;
+
+const headlineLabel = hasTerms ? "Pre-Money Valuation" : ValuationConfig.labelWhenNoTerms;
+
+result.valuation = {
+  declared: declaredPV ?? 0,
+  headlineLabel,
+  methods: {
+    preMoney: hasTerms ? (valuations.implied_from_terms?.pre_money || extracted.kpis.stated_pre_money || 0) : 0,
+    postMoney: hasTerms ? (valuations.implied_from_terms?.post_money
+            || valuations.implied_from_post_money?.post_money
+            || extracted.kpis.stated_post_money || 0) : 0,
+    revenueMultiple: {
+      impliedValue: valuations.revenue_multiple?.implied_mid || 0, // PV mid
+    },
+    ebitdaMultiple: {
+      impliedValue: valuations.ebitda_multiple?.implied_mid || 0,  // PV mid
+    },
+  },
+  // ...spread valuations if you need all fields
+};
+
+// ROI visibility
+if (ValuationConfig.hideROIWithoutTerms && !hasTerms) {
+  if (result.valuation.methods) (result.valuation.methods as any).roiProjection = undefined;
+  result.valuation.suggestedQuestions = (result.valuation.suggestedQuestions || []).concat(
+    ["No raise/equity terms found. Please provide: amount, instrument, and equity/valuation."]
+  );
+}
+
+
+No values are hard-coded; it just reacts to what the extractor found.
+
+7) Make extraction horizon-aware (generic prompt tweaks only)
+
+Add to your extraction prompts (both passes), without any figures:
+
+Detect phrases like: Year 1/2/3/4/5, Y1..Y5, in N years, by year N, 5-year, next N years, near ARR/EBITDA mentions → set arr_horizon_years / ebitda_horizon_years.
+
+Detect discount rate or WACC → set discount_rate_pct.
+
+Detect phrases DCF valuation, implied valuation → set valuation_dcf_present.
+
+This remains generic; no magic numbers.
+
+8) Guardrails for “calculate vs say it’s missing”
+
+Add a tiny policy function:
+
+export function hasEnoughForRevenuePV(k: ExtractedData["kpis"], res: any) {
+  const band = res?.revenue_multiple;
+  return !!(band?.implied_mid);
+}
+export function hasEnoughForEBITDAPV(k: ExtractedData["kpis"], res: any) {
+  const band = res?.ebitda_multiple;
+  return !!(band?.implied_mid);
+}
+
+
+When rendering sections/tables, if !hasEnough..., show “Not enough information”.
+
+9) Unit-testable acceptance (no data baked in)
+
+If no raise_amount or equity_offered_pct: ROI card hidden; tiles labelled with labelWhenNoTerms.
+
+If arr_horizon_years > 0 and a discount rate exists (from deck or env), revenue multiple produces PV fields; otherwise uses forward values.
+
+peer_gap_pct always compares PV deck (if present) to PV peer basis (according to peerBasisOrder).
+
+No placeholder values like £1 are ever rendered; missing values render as “Not specified”

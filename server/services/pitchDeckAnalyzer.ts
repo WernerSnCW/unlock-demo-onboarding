@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import multer from "multer";
 import { extractFundingDetailsEnhanced, computeDeterministicValuationsEnhanced } from "./valuation_engine";
+import { ValuationConfig, hasEnoughForRevenuePV, hasEnoughForEBITDAPV } from "../valuation_config";
 
 // Reliable PDF parsing using pdfjs-dist
 async function safePdfParse(buffer: Buffer) {
@@ -1157,39 +1158,20 @@ OUTPUT SCHEMA:
           };
         }),
         valuation: (() => {
-          // Compute flags and declared value
+          // Use generic configuration-driven approach
           const hasTerms = !!(extracted.kpis.raise_amount && extracted.kpis.equity_offered_pct);
-          
-          // Try to compute DCF present value if components available but explicit PV missing
-          let declaredPV = extracted.kpis.valuation_dcf_present ?? null;
-          
-          // If no explicit DCF PV but we have DCF components, try to compute an estimated DCF value
-          if (!declaredPV && extracted.kpis.discount_rate_pct && extracted.kpis.exit_multiple) {
-            // Estimate DCF using available revenue/EBITDA and discount rate
-            const arr = extracted.kpis.arr || (extracted.kpis.mrr ? extracted.kpis.mrr * 12 : null);
-            const discountRate = extracted.kpis.discount_rate_pct;
-            const horizonYears = extracted.kpis.arr_horizon_years || 5;
-            
-            if (arr && discountRate) {
-              // Simple DCF estimate: Future value discounted to present
-              const futureRevenue = arr * Math.pow(1.3, horizonYears); // Assume 30% growth
-              const futureValue = futureRevenue * extracted.kpis.exit_multiple;
-              declaredPV = Math.round(futureValue / Math.pow(1 + discountRate, horizonYears));
-              console.log(`Computed estimated DCF PV: £${declaredPV} (from ARR ${arr}, discount ${discountRate}, horizon ${horizonYears}y)`);
-            }
-          }
-          
-          // Only use a declared value if we have actual data, not zero/null fallbacks
-          const declaredValue = declaredPV 
-            ?? extracted.kpis.stated_pre_money 
-            ?? extracted.kpis.stated_post_money 
-            ?? (hasTerms ? valuations.implied_from_terms?.pre_money : null)
-            ?? null; // Changed from 0 to null to indicate missing data
+          const declaredPV = extracted.kpis.valuation_dcf_present
+                          ?? extracted.kpis.stated_pre_money
+                          ?? extracted.kpis.stated_post_money
+                          ?? null;
+
+          const headlineLabel = hasTerms ? "Pre-Money Valuation" : ValuationConfig.labelWhenNoTerms;
 
           return {
-            declared: declaredValue,
-            declaredPV: declaredPV, // Make the DCF PV available to frontend
-            declaredValue: declaredValue, // Also provide as declaredValue for frontend compatibility
+            declared: declaredPV ?? 0,
+            headlineLabel,
+            declaredPV: declaredPV,
+            declaredValue: declaredPV,
             benchmarkMin: valuations.revenue_multiple?.implied_mid || 0,
             benchmarkMax: valuations.ebitda_multiple?.implied_mid || 0,
             assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
@@ -1199,26 +1181,31 @@ OUTPUT SCHEMA:
                         valuations.implied_from_post_money?.post_money || 
                         extracted.kpis.stated_post_money || 0) : 0,
               revenueMultiple: {
-                arr: valuations.revenue_multiple?.arr || 0,
+                arr: valuations.revenue_multiple?.base || 0,
                 multiple: valuations.revenue_multiple?.multiple_mid || 0,
-                impliedValue: valuations.revenue_multiple?.implied_mid || 0, // PV
+                impliedValue: valuations.revenue_multiple?.implied_mid || 0, // PV mid
               },
               ebitdaMultiple: {
-                ebitda: valuations.ebitda_multiple?.ebitda || 0,
+                ebitda: valuations.ebitda_multiple?.base || 0,
                 multiple: valuations.ebitda_multiple?.multiple_mid || 0,
-                impliedValue: valuations.ebitda_multiple?.implied_mid || 0,  // PV
+                impliedValue: valuations.ebitda_multiple?.implied_mid || 0,  // PV mid
               },
-              roiProjection: {
-                equityStake: (valuations.roi_estimated?.equity_pct || 0) * 100,
-                projectedExit: valuations.roi_estimated?.exit_value_mid || 0,
-                investorReturn: valuations.roi_estimated?.investor_return_mid || 0,
-                roiMultiple: valuations.roi_estimated?.roi_multiple_mid || 0,
-                irr: valuations.roi_estimated?.irr_mid || 0,
-              },
+              // ROI visibility controlled by config
+              ...(ValuationConfig.hideROIWithoutTerms && !hasTerms ? {} : {
+                roiProjection: {
+                  equityStake: (valuations.roi_estimated?.equity_pct || 0) * 100,
+                  projectedExit: valuations.roi_estimated?.exit_value_mid || 0,
+                  investorReturn: valuations.roi_estimated?.investor_return_mid || 0,
+                  roiMultiple: valuations.roi_estimated?.roi_multiple_mid || 0,
+                  irr: valuations.roi_estimated?.irr_mid || 0,
+                },
+              }),
             },
             // Include all computed valuation sources for frontend fallback
             ...valuations,
-            suggestedQuestions: analysis.key_questions.valuation,
+            suggestedQuestions: (ValuationConfig.hideROIWithoutTerms && !hasTerms) 
+              ? [...(analysis.key_questions.valuation || []), "No raise/equity terms found. Please provide: amount, instrument, and equity/valuation."]
+              : analysis.key_questions.valuation,
             hasTerms,
           };
         })(),

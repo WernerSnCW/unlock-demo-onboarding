@@ -6,6 +6,13 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 
 **Recent Addition (Aug 27, 2025):** Integrated external valuation tools with secure environment-based configuration. Art and whisky valuation tools now automatically load configured app URLs from environment secrets (ART_VALUATION_APP_URL, WHISKY_VALUATION_APP_URL) with proper error handling and Replit-optimized embedding support.
 
+**Major Refactoring Complete (Aug 28, 2025):** Successfully implemented fully configurable and generic valuation system with all hard-coded values moved to `server/valuation_config.ts`. Key achievements:
+- Created reusable `computePVMultipleBlock()` function for present value calculations
+- Implemented generic `getDiscountRate()` logic with fallback to configurable defaults
+- Added configurable rounding, multiple ranges, and peer comparison ordering
+- Enhanced frontend with conditional ROI section visibility based on funding terms
+- All valuation computations now use generic, configuration-driven approach for maximum flexibility and reusability
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
