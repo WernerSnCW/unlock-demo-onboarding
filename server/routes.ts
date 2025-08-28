@@ -446,10 +446,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId } = req.params;
       const properties = await storage.getAllProperties(userId);
       
-      // Fetch latest valuation for each property
+      // Fetch latest valuation and purchase price for each property
       const propertiesWithValuations = await Promise.all(
         properties.map(async (property) => {
-          const latestValuation = await storage.getLatestPropertyValuation(property.id);
+          const [latestValuation, latestPurchasePrice] = await Promise.all([
+            storage.getLatestPropertyValuation(property.id),
+            storage.getLatestPurchasePrice(
+              property.postcode, 
+              property.primaryAddressableName || undefined, 
+              property.street || undefined
+            )
+          ]);
+          
           return {
             ...property,
             latestValuation: latestValuation ? {
@@ -466,7 +474,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               comparableAvgValueGbp: latestValuation.comparableAvgValueGbp,
               regionName: latestValuation.regionName,
               createdAt: latestValuation.createdAt
-            } : null
+            } : null,
+            latestPurchasePrice: latestPurchasePrice
           };
         })
       );

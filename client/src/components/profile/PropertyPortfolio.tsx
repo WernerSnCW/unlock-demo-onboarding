@@ -869,18 +869,36 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     </div>
                     
                     <div className="space-y-2 text-sm">
-                      {/* User Purchase Price */}
-                      {property.acquisitionPriceGbp ? (
+                      {/* Latest Purchase Price from Records */}
+                      {property.latestPurchasePrice ? (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <Home className="h-3 w-3" />
-                            Purchase Price:
+                            Latest Purchase:
                             <Tooltip>
                               <TooltipTrigger>
                                 <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>The original price you paid for this property</p>
+                                <p>Most recent purchase price from official HM Land Registry records</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {formatCurrency(property.latestPurchasePrice.price)}
+                          </span>
+                        </div>
+                      ) : property.acquisitionPriceGbp ? (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <Home className="h-3 w-3" />
+                            Your Purchase:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>The price you entered for this property</p>
                               </TooltipContent>
                             </Tooltip>
                           </span>
@@ -898,11 +916,11 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                                 <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>The original price you paid for this property</p>
+                                <p>No purchase price found in official records or user data</p>
                               </TooltipContent>
                             </Tooltip>
                           </span>
-                          <span className="text-gray-500 dark:text-gray-500 italic">Not set</span>
+                          <span className="text-gray-500 dark:text-gray-500 italic">Not found</span>
                         </div>
                       )}
 
@@ -1042,11 +1060,31 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         </div>
                       )}
                       
+                      {/* Purchase Date from Records */}
+                      {property.latestPurchasePrice?.dateOfTransfer && (
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
+                          <span className="flex items-center gap-1">
+                            Purchase Date:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Date of the most recent property transfer from official HM Land Registry records</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </span>
+                          <span>
+                            {new Date(property.latestPurchasePrice.dateOfTransfer).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Valuation Date */}
                       {property.latestValuation?.createdAt && (
                         <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
                           <span className="flex items-center gap-1">
-                            Last Updated:
+                            Valuation Updated:
                             <Tooltip>
                               <TooltipTrigger>
                                 <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />

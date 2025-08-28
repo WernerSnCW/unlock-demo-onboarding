@@ -15,10 +15,11 @@ import {
   users, investors, investorPreferences, taxProfile,
   portfolioAccounts, portfolioHoldings, alternativeInvestments,
   properties, propertyOwnerships, propertyLoans, 
-  propertyValuations, propertyLeases, propertyCashflows
+  propertyValuations, propertyLeases, propertyCashflows,
+  propertyPriceData
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -70,6 +71,7 @@ export interface IStorage {
   createProperty(property: InsertProperty): Promise<Property>;
   updateProperty(propertyId: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
   deleteProperty(propertyId: string): Promise<boolean>;
+  getLatestPurchasePrice(postcode: string, primaryAddressableName?: string, street?: string): Promise<{price: number, dateOfTransfer: string} | undefined>;
   
   // Property Ownership methods  
   getPropertyOwnerships(propertyId: string): Promise<PropertyOwnership[]>;
@@ -338,6 +340,44 @@ export class DatabaseStorage implements IStorage {
   async deleteProperty(propertyId: string): Promise<boolean> {
     const result = await db.delete(properties).where(eq(properties.id, propertyId));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async getLatestPurchasePrice(postcode: string, primaryAddressableName?: string, street?: string): Promise<{price: number, dateOfTransfer: string} | undefined> {
+    try {
+      // Build query conditions
+      const conditions = [eq(propertyPriceData.postcode, postcode)];
+      
+      if (primaryAddressableName) {
+        conditions.push(eq(propertyPriceData.primaryAddressableName, primaryAddressableName));
+      }
+      
+      if (street) {
+        conditions.push(eq(propertyPriceData.street, street));
+      }
+
+      // Get the latest transaction for this property
+      const [latestTransaction] = await db
+        .select({
+          price: propertyPriceData.price,
+          dateOfTransfer: propertyPriceData.dateOfTransfer
+        })
+        .from(propertyPriceData)
+        .where(conditions.length > 1 ? and(...conditions) : conditions[0])
+        .orderBy(desc(propertyPriceData.dateOfTransfer))
+        .limit(1);
+
+      if (latestTransaction) {
+        return {
+          price: Number(latestTransaction.price),
+          dateOfTransfer: latestTransaction.dateOfTransfer
+        };
+      }
+
+      return undefined;
+    } catch (error) {
+      console.error('Error fetching latest purchase price:', error);
+      return undefined;
+    }
   }
 
   // Property Ownership methods
