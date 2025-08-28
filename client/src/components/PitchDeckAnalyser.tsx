@@ -568,7 +568,10 @@ export default function PitchDeckAnalyser() {
               </div>
               <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
                 <div className="text-2xl font-bold text-[var(--secondary)] mb-1">
-                  {formatCurrency(result.valuation.methods.postMoney)}
+                  {result.valuation.methods.postMoney ? formatCurrency(result.valuation.methods.postMoney) : 
+                   result.valuation.implied_from_terms?.post_money ? formatCurrency(result.valuation.implied_from_terms.post_money) :
+                   result.valuation.implied_from_stated?.post_money ? formatCurrency(result.valuation.implied_from_stated.post_money) :
+                   result.valuation.implied_from_post_money?.post_money ? formatCurrency(result.valuation.implied_from_post_money.post_money) : '£0'}
                 </div>
                 <div className="text-sm text-[var(--muted-foreground)]">Post-Money Valuation</div>
               </div>
@@ -620,8 +623,17 @@ export default function PitchDeckAnalyser() {
                     </tr>
                     <tr>
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">ROI Projection</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">Exit {formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{result.valuation.methods.roiProjection.roiMultiple}× return ({result.valuation.methods.roiProjection.equityStake}% stake)</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">
+                        {result.valuation.methods.roiProjection?.projectedExit ? 
+                         `Exit ${formatCurrency(result.valuation.methods.roiProjection.projectedExit)}` : 'Exit £0'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">
+                        {result.valuation.methods.roiProjection?.roiMultiple ? 
+                         `${result.valuation.methods.roiProjection.roiMultiple}× return (${result.valuation.methods.roiProjection.equityStake}% stake)` :
+                         result.valuation.roi_estimated?.roi_multiple ? 
+                         `${result.valuation.roi_estimated.roi_multiple}× return (${Math.round(result.valuation.roi_estimated.equity_pct * 100)}% stake)` : 
+                         '0× return (0% stake)'}
+                      </td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">N/A</td>
                       <td className="px-4 py-3 text-sm text-[var(--success)]">Attractive if growth targets hit</td>
                     </tr>
@@ -685,19 +697,39 @@ export default function PitchDeckAnalyser() {
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                 <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">{result.valuation.methods.roiProjection.equityStake}%</div>
+                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
+                    {result.valuation.methods.roiProjection?.equityStake ? 
+                     `${result.valuation.methods.roiProjection.equityStake}%` :
+                     result.valuation.roi_estimated?.equity_pct ? 
+                     `${Math.round(result.valuation.roi_estimated.equity_pct * 100)}%` : '0%'}
+                  </div>
                   <div className="text-[var(--accent-foreground)] opacity-80">Equity Stake</div>
                 </div>
                 <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">{result.valuation.methods.roiProjection.roiMultiple}×</div>
+                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
+                    {result.valuation.methods.roiProjection?.roiMultiple ? 
+                     `${result.valuation.methods.roiProjection.roiMultiple}×` :
+                     result.valuation.roi_estimated?.roi_multiple ? 
+                     `${result.valuation.roi_estimated.roi_multiple}×` : '0×'}
+                  </div>
                   <div className="text-[var(--accent-foreground)] opacity-80">ROI Multiple</div>
                 </div>
                 <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">{result.valuation.methods.roiProjection.irr}%</div>
+                  <div className="text-2xl font-bold text-[var(--accent-foreground)] mb-1">
+                    {result.valuation.methods.roiProjection?.irr ? 
+                     `${result.valuation.methods.roiProjection.irr}%` :
+                     result.valuation.roi_estimated?.irr ? 
+                     `${result.valuation.roi_estimated.irr}%` : '0%'}
+                  </div>
                   <div className="text-[var(--accent-foreground)] opacity-80">IRR (5 years)</div>
                 </div>
                 <div className="text-center p-3 bg-white/20 rounded-[var(--radius-md)]">
-                  <div className="text-lg font-bold text-[var(--accent-foreground)] mb-1">{formatCurrency(result.valuation.methods.roiProjection.investorReturn)}</div>
+                  <div className="text-lg font-bold text-[var(--accent-foreground)] mb-1">
+                    {result.valuation.methods.roiProjection?.investorReturn ? 
+                     formatCurrency(result.valuation.methods.roiProjection.investorReturn) :
+                     result.valuation.roi_estimated?.projected_return ? 
+                     formatCurrency(result.valuation.roi_estimated.projected_return) : '£0'}
+                  </div>
                   <div className="text-[var(--accent-foreground)] opacity-80">Projected Return</div>
                 </div>
               </div>

@@ -634,7 +634,7 @@ TASKS:
       });
     }
 
-    // ROI/IRR projection (5-year default) - works for both SaaS and service businesses
+    // ROI/IRR projection - enhanced to work without explicit funding terms
     if (kpis.raise_amount && kpis.equity_offered_pct) {
       // For service businesses without ARR, estimate based on pre-money valuation
       let estimatedCurrentRevenue = arr;
@@ -673,6 +673,27 @@ TASKS:
           irr,
         });
       }
+    } else if (arr && kpis.stated_pre_money) {
+      // Estimate ROI even without explicit funding terms, assuming typical equity stake
+      const estimatedEquityPct = 0.15; // Assume 15% equity for valuation analysis
+      const estimatedRaise = kpis.stated_pre_money * estimatedEquityPct;
+      
+      const exitMultiple = benchmarks?.revenue
+        ? ((benchmarks.revenue[0] + benchmarks.revenue[1]) / 2) * 1.2
+        : 8;
+      const projectedExitRevenue = arr * 5;
+      const exitValue = projectedExitRevenue * exitMultiple;
+      const returnToInvestor = estimatedEquityPct * exitValue;
+      const roiMultiple = returnToInvestor / estimatedRaise;
+      const irr = Math.pow(roiMultiple, 1 / 5) - 1;
+
+      results.roi_estimated = {
+        equity_pct: estimatedEquityPct,
+        roi_multiple: Math.round(roiMultiple * 100) / 100,
+        irr: Math.round(irr * 100),
+        projected_return: Math.round(returnToInvestor),
+        note: "Estimated based on typical equity stake"
+      };
     }
 
     // Enhanced implied valuation from post-money data and pattern matching
@@ -680,6 +701,14 @@ TASKS:
       results.implied_from_post_money = {
         post_money: kpis.stated_post_money,
         method: "stated_post_money"
+      };
+    }
+    
+    // Handle stated_pre_money as post_money equivalent when no funding terms available
+    if (kpis.stated_pre_money && !kpis.raise_amount && !results.implied_from_terms) {
+      results.implied_from_stated = {
+        post_money: kpis.stated_pre_money,
+        method: "stated_valuation"
       };
     }
     
