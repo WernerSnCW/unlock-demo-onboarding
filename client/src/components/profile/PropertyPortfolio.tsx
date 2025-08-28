@@ -758,13 +758,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Start building your property portfolio by adding your first property.
             </p>
-            <Button 
-              data-testid="button-add-first-property"
-              className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Property
-            </Button>
+            <AddPropertyModal userId={userId} onSuccess={() => {}} />
           </CardContent>
         </Card>
       ) : (
