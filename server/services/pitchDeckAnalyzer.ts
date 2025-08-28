@@ -1139,10 +1139,30 @@ OUTPUT SCHEMA:
         valuation: (() => {
           // Compute flags and declared value
           const hasTerms = !!(extracted.kpis.raise_amount && extracted.kpis.equity_offered_pct);
-          const declaredPV = extracted.kpis.valuation_dcf_present ?? null;
+          
+          // Try to compute DCF present value if components available but explicit PV missing
+          let declaredPV = extracted.kpis.valuation_dcf_present ?? null;
+          
+          // If no explicit DCF PV but we have DCF components, try to compute an estimated DCF value
+          if (!declaredPV && extracted.kpis.discount_rate_pct && extracted.kpis.exit_multiple) {
+            // Estimate DCF using available revenue/EBITDA and discount rate
+            const arr = extracted.kpis.arr || (extracted.kpis.mrr ? extracted.kpis.mrr * 12 : null);
+            const discountRate = extracted.kpis.discount_rate_pct;
+            const horizonYears = extracted.kpis.arr_horizon_years || 5;
+            
+            if (arr && discountRate) {
+              // Simple DCF estimate: Future value discounted to present
+              const futureRevenue = arr * Math.pow(1.3, horizonYears); // Assume 30% growth
+              const futureValue = futureRevenue * extracted.kpis.exit_multiple;
+              declaredPV = Math.round(futureValue / Math.pow(1 + discountRate, horizonYears));
+              console.log(`Computed estimated DCF PV: £${declaredPV} (from ARR ${arr}, discount ${discountRate}, horizon ${horizonYears}y)`);
+            }
+          }
+          
           const declaredValue = declaredPV 
             ?? extracted.kpis.stated_pre_money 
             ?? extracted.kpis.stated_post_money 
+            ?? (hasTerms ? valuations.implied_from_terms?.pre_money : null)
             ?? 0;
 
           return {

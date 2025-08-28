@@ -617,8 +617,18 @@ export default function PitchDeckAnalyser() {
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
                           const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
-                          if ((result.valuation as any).declaredPV) return `${formatCurrency(declaredValue)} DCF PV`;
-                          return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                          const isDCF = (result.valuation as any).declaredPV !== null && (result.valuation as any).declaredPV !== undefined;
+                          
+                          if (isDCF && declaredValue > 0) {
+                            return `${formatCurrency(declaredValue)} DCF PV`;
+                          }
+                          
+                          const hasTerms = (result.valuation as any).hasTerms;
+                          if (hasTerms && result.valuation.methods.preMoney > 0) {
+                            return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                          }
+                          
+                          return "—";
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--success)]">{
@@ -635,15 +645,25 @@ export default function PitchDeckAnalyser() {
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
                           const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
-                          if ((result.valuation as any).declaredPV) return `${formatCurrency(declaredValue)} DCF PV`;
-                          return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                          const isDCF = (result.valuation as any).declaredPV !== null && (result.valuation as any).declaredPV !== undefined;
+                          
+                          if (isDCF && declaredValue > 0) {
+                            return `${formatCurrency(declaredValue)} DCF PV`;
+                          }
+                          
+                          const hasTerms = (result.valuation as any).hasTerms;
+                          if (hasTerms && result.valuation.methods.preMoney > 0) {
+                            return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                          }
+                          
+                          return "—";
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--destructive)]">{
                         (() => {
                           const basePV = result.valuation.methods.revenueMultiple.impliedValue;
                           const deckVal = (result.valuation as any).declaredValue || result.valuation.declared;
-                          if (!deckVal || !basePV) return "—";
+                          if (!deckVal || !basePV || deckVal <= 0 || basePV <= 0) return "—";
                           return deckVal < basePV ? "Undervalued vs ARR benchmark" : "Overvalued vs ARR benchmark";
                         })()
                       }</td>
@@ -655,15 +675,25 @@ export default function PitchDeckAnalyser() {
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
                           const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
-                          if ((result.valuation as any).declaredPV) return `${formatCurrency(declaredValue)} DCF PV`;
-                          return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                          const isDCF = (result.valuation as any).declaredPV !== null && (result.valuation as any).declaredPV !== undefined;
+                          
+                          if (isDCF && declaredValue > 0) {
+                            return `${formatCurrency(declaredValue)} DCF PV`;
+                          }
+                          
+                          const hasTerms = (result.valuation as any).hasTerms;
+                          if (hasTerms && result.valuation.methods.preMoney > 0) {
+                            return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                          }
+                          
+                          return "—";
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--warning)]">{
                         (() => {
                           const basePV = result.valuation.methods.ebitdaMultiple.impliedValue;
                           const deckVal = (result.valuation as any).declaredValue || result.valuation.declared;
-                          if (!deckVal || !basePV) return "—";
+                          if (!deckVal || !basePV || deckVal <= 0 || basePV <= 0) return "—";
                           return deckVal < basePV ? "Undervalued vs EBITDA benchmark" : "Premium pricing applied";
                         })()
                       }</td>
