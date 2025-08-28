@@ -88,6 +88,8 @@ export default function PitchDeckAnalyser() {
       }
 
       const result = await response.json();
+      console.log("API Response received:", result);
+      console.log("Declared valuation from API:", result?.valuation?.declared);
       setResult(result);
     } catch (error) {
       console.error('Pitch deck analysis failed:', error);
@@ -312,6 +314,7 @@ export default function PitchDeckAnalyser() {
   };
 
   const formatCurrency = (amount: number | null | undefined) => {
+    console.log("formatCurrency called with:", amount, typeof amount);
     if (amount == null || amount === 0) return "Not specified";
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',

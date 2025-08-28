@@ -645,6 +645,17 @@ OUTPUT SCHEMA:
         console.warn("Funding re-scan skipped:", e);
       }
 
+      // Debug KPIs before valuation computation
+      console.log("KPIs passed to valuation engine:", {
+        arr: extracted.kpis.arr,
+        mrr: extracted.kpis.mrr,
+        revenue_current: (extracted.kpis as any).revenue_current,
+        ebitda: extracted.kpis.ebitda,
+        valuation_dcf_present: (extracted.kpis as any).valuation_dcf_present,
+        stated_pre_money: extracted.kpis.stated_pre_money,
+        stated_post_money: extracted.kpis.stated_post_money,
+      });
+
       // Deterministic valuations — PV-aware and ARR/Revenue safe fallback
       const valuations = computeDeterministicValuationsEnhanced(
         {

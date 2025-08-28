@@ -130,8 +130,17 @@ export function computeDeterministicValuationsEnhanced(
   geography: string, // kept for compatibility (not used here)
   DEFAULT_BENCHMARKS: Benchmarks,
 ) {
+  console.log("Valuation engine starting with KPIs:", {
+    arr: kpis.arr,
+    mrr: kpis.mrr,
+    revenue_current: kpis.revenue_current,
+    ebitda: kpis.ebitda,
+    valuation_dcf_present: (kpis as any).valuation_dcf_present,
+  });
+
   const results: any = {};
   const rate = getDiscountRate(kpis);
+  console.log("Using discount rate:", rate);
 
   // 1) Revenue multiple (now uses ARR if present, else revenue)
   const base = inferARR(kpis);
