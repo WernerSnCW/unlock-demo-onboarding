@@ -11,6 +11,7 @@ import { ProfileOverview } from '@/components/profile/ProfileOverview';
 import { PortfolioAnalytics } from '@/components/profile/PortfolioAnalytics';
 import { PortfolioTable } from '@/components/profile/PortfolioTable';
 import { PortfolioUploader } from '@/components/profile/PortfolioUploader';
+import { PropertyPortfolio } from '@/components/profile/PropertyPortfolio';
 import { AnalystOpinionsPanel } from '@/components/profile/AnalystOpinionsPanel';
 import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 
@@ -128,6 +129,7 @@ export default function Profile() {
         </Dialog>
       </div>
 
+      {/* Financial Portfolio Section */}
       {positions.length === 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PortfolioUploader onUploadComplete={() => {/* Portfolio updated */}} />
@@ -170,6 +172,11 @@ export default function Profile() {
           </div>
         </div>
       )}
+
+      {/* Property Portfolio Section */}
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <PropertyPortfolio userId={currentInvestorId || 'demo-1755866735025'} />
+      </div>
     </div>
   );
 
