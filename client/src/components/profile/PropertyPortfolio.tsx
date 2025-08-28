@@ -769,23 +769,13 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                   <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Portfolio Value</p>
                   <p className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>
                     {(() => {
-                      // Debug: Log property structure to understand data format
-                      console.log('Portfolio Value Debug - Properties:', propertiesWithValuations.map(p => ({
-                        id: p.id,
-                        address: p.addressLine1,
-                        latestValuation: p.latestValuation,
-                        valuation: p.valuation
-                      })));
-                      
                       const totalValue = propertiesWithValuations
-                        .filter(p => p.latestValuation?.estimatedValueGbp || p.valuation?.estimate)
+                        .filter(p => p.latestValuation?.valueGbp || p.valuation?.estimate)
                         .reduce((sum, p) => {
-                          const value = p.latestValuation?.estimatedValueGbp || p.valuation?.estimate || 0;
-                          console.log('Portfolio Value Debug - Property:', p.addressLine1, 'Value:', value);
+                          // Use the correct field name and convert string to number
+                          const value = Number(p.latestValuation?.valueGbp) || p.valuation?.estimate || 0;
                           return sum + value;
                         }, 0);
-                      
-                      console.log('Portfolio Value Debug - Total:', totalValue);
                       return totalValue > 0 ? formatCurrency(totalValue) : '—';
                     })()}
                   </p>
