@@ -82,19 +82,25 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
       }
 
       // First check for property price data
-      const searchResponse = await apiRequest('/api/property-search', {
+      const searchResponse = await fetch('/api/property-search', {
         method: 'POST',
-        body: { query: property.postcode, limit: 5 }
-      });
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: property.postcode, limit: 5 })
+      }).then(res => res.json());
 
       // Get property valuation
-      const valuationResponse = await apiRequest('/api/property-valuation', {
+      const valuationResponse = await fetch('/api/property-valuation', {
         method: 'POST',
-        body: { 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
           postcode: property.postcode, 
           propertyType: property.propertyType?.toLowerCase() || 'detached'
-        }
-      });
+        })
+      }).then(res => res.json());
 
       return {
         propertyId: property.id,
