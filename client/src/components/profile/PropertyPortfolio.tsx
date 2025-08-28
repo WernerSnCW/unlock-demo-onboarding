@@ -847,6 +847,22 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         </p>
                       </div>
                     )}
+                    {property.acquisitionPriceGbp && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">Your Purchase:</span>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {formatCurrency(Number(property.acquisitionPriceGbp))}
+                        </p>
+                      </div>
+                    )}
+                    {property.acquisitionDate && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">Purchase Date:</span>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {new Date(property.acquisitionDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Valuation Section */}
