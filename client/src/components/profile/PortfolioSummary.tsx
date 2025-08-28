@@ -62,6 +62,7 @@ const formatPercentage = (value: number) => {
 export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysis, setAnalysis] = useState<InvestmentAnalysis | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Fetch portfolio data from all three sources
   const { data: portfolioHoldings = [] } = useQuery<any[]>({
@@ -134,6 +135,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
     if (!userId || totalValue === 0) return;
     
     setAnalysisLoading(true);
+    setAnalysisError(null);
     try {
       // Prepare portfolio data for LLM analysis
       const portfolioSummary = {
@@ -170,8 +172,11 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
 
       const analysisData = await response.json();
       setAnalysis(analysisData as InvestmentAnalysis);
+      setAnalysisError(null);
     } catch (error) {
       console.error('Failed to analyze portfolio:', error);
+      setAnalysisError('Failed to analyze portfolio. Please try again.');
+      setAnalysis(null);
     } finally {
       setAnalysisLoading(false);
     }
@@ -319,6 +324,18 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Analysis Error */}
+      {analysisError && (
+        <Card className="border-red-200 dark:border-red-800">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="text-sm">{analysisError}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Analysis Results */}
       {analysis && (
