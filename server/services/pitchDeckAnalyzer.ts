@@ -1,94 +1,112 @@
-import OpenAI from 'openai';
-import multer from 'multer';
+import OpenAI from "openai";
+import multer from "multer";
 
 // Reliable PDF parsing using pdfjs-dist
 async function safePdfParse(buffer: Buffer) {
   try {
-    console.log('Attempting PDF parsing with pdfjs-dist - buffer size:', buffer.length);
-    
+    console.log(
+      "Attempting PDF parsing with pdfjs-dist - buffer size:",
+      buffer.length,
+    );
+
     // Import pdfjs-dist
-    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
-    
+    const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
     // Load the PDF document
     const loadingTask = pdfjsLib.getDocument({
       data: new Uint8Array(buffer),
-      verbosity: 0 // Suppress console logs
+      verbosity: 0, // Suppress console logs
     });
-    
+
     const pdfDocument = await loadingTask.promise;
     const numPages = pdfDocument.numPages;
-    console.log('PDF loaded successfully. Pages:', numPages);
-    
-    let fullText = '';
-    
+    console.log("PDF loaded successfully. Pages:", numPages);
+
+    let fullText = "";
+
     // Extract text from each page
     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum);
       const textContent = await page.getTextContent();
-      
+
       // Combine all text items from the page
       const pageText = textContent.items
-        .filter(item => 'str' in item)
-        .map(item => (item as any).str)
-        .join(' ');
-      
-      fullText += pageText + '\n\n';
+        .filter((item) => "str" in item)
+        .map((item) => (item as any).str)
+        .join(" ");
+
+      fullText += pageText + "\n\n";
     }
-    
-    console.log('PDF parsing successful - extracted text length:', fullText.length);
-    console.log('PDF text preview:', fullText.substring(0, 300));
-    
+
+    console.log(
+      "PDF parsing successful - extracted text length:",
+      fullText.length,
+    );
+    console.log("PDF text preview:", fullText.substring(0, 300));
+
     return {
       text: fullText,
       numpages: numPages,
       info: {},
       metadata: {},
-      version: '1.0.0'
+      version: "1.0.0",
     };
   } catch (error: any) {
-    console.error('PDF parsing failed with error:', error.message);
+    console.error("PDF parsing failed with error:", error.message);
     throw new Error(`Failed to parse PDF: ${error.message}`);
   }
 }
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Default benchmark multiples table
 const DEFAULT_BENCHMARKS = {
-  'Pre-Seed': {
-    'SaaS': { revenue: [6, 10], ebitda: [8, 14] },
-    'FinTech': { revenue: [8, 12], ebitda: [10, 16] },
-    'HealthTech': { revenue: [6, 10], ebitda: [8, 14] },
-    'Consumer': { revenue: [4, 8], ebitda: [6, 12] },
-    'DeepTech': { revenue: [6, 10], ebitda: [8, 14] },
-    'General': { revenue: [6, 10], ebitda: [8, 14] }
+  "Pre-Seed": {
+    SaaS: { revenue: [6, 10], ebitda: [8, 14] },
+    FinTech: { revenue: [8, 12], ebitda: [10, 16] },
+    HealthTech: { revenue: [6, 10], ebitda: [8, 14] },
+    Consumer: { revenue: [4, 8], ebitda: [6, 12] },
+    DeepTech: { revenue: [6, 10], ebitda: [8, 14] },
+    General: { revenue: [6, 10], ebitda: [8, 14] },
   },
-  'Seed': {
-    'SaaS': { revenue: [8, 12], ebitda: [10, 16] },
-    'FinTech': { revenue: [10, 14], ebitda: [12, 18] },
-    'HealthTech': { revenue: [8, 12], ebitda: [10, 16] },
-    'Consumer': { revenue: [6, 10], ebitda: [8, 14] },
-    'DeepTech': { revenue: [8, 12], ebitda: [10, 16] },
-    'General': { revenue: [8, 12], ebitda: [10, 16] }
+  Seed: {
+    SaaS: { revenue: [8, 12], ebitda: [10, 16] },
+    FinTech: { revenue: [10, 14], ebitda: [12, 18] },
+    HealthTech: { revenue: [8, 12], ebitda: [10, 16] },
+    Consumer: { revenue: [6, 10], ebitda: [8, 14] },
+    DeepTech: { revenue: [8, 12], ebitda: [10, 16] },
+    General: { revenue: [8, 12], ebitda: [10, 16] },
   },
-  'Series A': {
-    'SaaS': { revenue: [10, 16], ebitda: [12, 20] },
-    'FinTech': { revenue: [12, 18], ebitda: [15, 24] },
-    'HealthTech': { revenue: [10, 16], ebitda: [12, 20] },
-    'Consumer': { revenue: [8, 12], ebitda: [10, 16] },
-    'DeepTech': { revenue: [10, 16], ebitda: [12, 20] },
-    'General': { revenue: [10, 16], ebitda: [12, 20] }
-  }
+  "Series A": {
+    SaaS: { revenue: [10, 16], ebitda: [12, 20] },
+    FinTech: { revenue: [12, 18], ebitda: [15, 24] },
+    HealthTech: { revenue: [10, 16], ebitda: [12, 20] },
+    Consumer: { revenue: [8, 12], ebitda: [10, 16] },
+    DeepTech: { revenue: [10, 16], ebitda: [12, 20] },
+    General: { revenue: [10, 16], ebitda: [12, 20] },
+  },
 };
 
 // Section taxonomy
 const SECTION_TAXONOMY = [
-  'Problem', 'Solution', 'Product', 'Market Size', 'Go-to-Market', 'Traction',
-  'Business Model', 'Competition', 'Team', 'Financials', 'Moat/IP',
-  'Roadmap/Milestones', 'Ask/Use of Funds', 'Terms/Valuation', 'Appendix'
+  "Problem",
+  "Solution",
+  "Product",
+  "Market Size",
+  "Go-to-Market",
+  "Traction",
+  "Business Model",
+  "Competition",
+  "Team",
+  "Financials",
+  "Moat/IP",
+  "Roadmap/Milestones",
+  "Ask/Use of Funds",
+  "Terms/Valuation",
+  "Appendix",
 ];
 
 interface ExtractedData {
@@ -160,20 +178,19 @@ interface AnalysisResult {
     suggested_questions: string[];
   }>;
   risks: Array<{
-    level: 'High' | 'Medium' | 'Low';
+    level: "High" | "Medium" | "Low";
     label: string;
   }>;
 }
 
 export class PitchDeckAnalyzer {
-  
   static async extractTextFromPDF(buffer: Buffer): Promise<string[]> {
     const data = await safePdfParse(buffer);
-    console.log('Extracted PDF text preview:', data.text.substring(0, 500));
-    console.log('Total extracted text length:', data.text.length);
-    
+    console.log("Extracted PDF text preview:", data.text.substring(0, 500));
+    console.log("Total extracted text length:", data.text.length);
+
     // Try multiple page splitting methods
-    let pages = data.text.split('\f'); // Form feed character
+    let pages = data.text.split("\f"); // Form feed character
     if (pages.length === 1) {
       // Try splitting on page breaks or slide indicators
       pages = data.text.split(/\n\s*(?:Page|Slide)\s+\d+/i);
@@ -190,10 +207,15 @@ export class PitchDeckAnalyzer {
         pages.push(data.text.substring(i, i + chunkSize));
       }
     }
-    
-    const cleanPages = pages.map((page: string) => page.trim()).filter((page: string) => page.length > 20);
-    console.log('Number of pages extracted:', cleanPages.length);
-    console.log('Page lengths:', cleanPages.map(p => p.length));
+
+    const cleanPages = pages
+      .map((page: string) => page.trim())
+      .filter((page: string) => page.length > 20);
+    console.log("Number of pages extracted:", cleanPages.length);
+    console.log(
+      "Page lengths:",
+      cleanPages.map((p) => p.length),
+    );
     return cleanPages;
   }
 
@@ -205,85 +227,117 @@ export class PitchDeckAnalyzer {
   }> {
     // For funding extraction, focus on likely slides with funding info
     // Look for slides containing keywords like "ask", "funding", "raise", "equity", "valuation"
-    const fundingKeywords = ['ask', 'funding', 'raise', 'equity', 'valuation', 'investment', 'terms', 'money', 'capital'];
-    
-    const relevantSlides = slides.filter(slide => {
+    const fundingKeywords = [
+      "ask",
+      "funding",
+      "raise",
+      "equity",
+      "valuation",
+      "investment",
+      "terms",
+      "money",
+      "capital",
+    ];
+
+    const relevantSlides = slides.filter((slide) => {
       const lowerSlide = slide.toLowerCase();
-      return fundingKeywords.some(keyword => lowerSlide.includes(keyword));
+      return fundingKeywords.some((keyword) => lowerSlide.includes(keyword));
     });
-    
-    console.log(`Filtering for funding extraction: ${slides.length} total slides -> ${relevantSlides.length} relevant slides`);
-    
+
+    console.log(
+      `Filtering for funding extraction: ${slides.length} total slides -> ${relevantSlides.length} relevant slides`,
+    );
+
     // Use relevant slides first, fallback to all slides if none found, but limit total size
     const slidesToAnalyze = relevantSlides.length > 0 ? relevantSlides : slides;
-    let slidesText = slidesToAnalyze.join('\n\n');
-    
+    let slidesText = slidesToAnalyze.join("\n\n");
+
     // Limit to reasonable token size
     const maxChars = 50000; // Smaller limit for focused funding extraction
     if (slidesText.length > maxChars) {
-      console.log(`Funding text too long (${slidesText.length} chars), truncating to ${maxChars} chars`);
+      console.log(
+        `Funding text too long (${slidesText.length} chars), truncating to ${maxChars} chars`,
+      );
       slidesText = slidesText.substring(0, maxChars);
     }
-    
-    const prompt = `Analyze this pitch deck text and find ONLY the funding ask details. Look for:
-- How much money they are raising (raise_amount)
-- What equity percentage they are offering (equity_offered_pct)  
-- Any stated pre-money or post-money valuations
 
-Be extremely thorough - check for phrases like:
-- "seeking £X", "raising £X", "funding ask of £X"
-- "for X% equity", "X% stake", "giving X%"
-- "pre-money valuation", "valued at £X", "company worth £X"
+    const prompt = `Analyze the following pitch deck text and extract ALL funding- and valuation-related financial details. 
+Be comprehensive and capture any numbers or phrases that indicate the company's fundraising, valuation, or financial context.
+
+Specifically identify:
+- raise_amount → how much money they are asking for (e.g., “raising £X”, “seeking £X”, “funding ask of £X”)
+- equity_offered_pct → percentage of equity being offered (e.g., “for X% equity”, “X% stake”, “giving up X%”)
+- stated_pre_money → any explicit pre-money valuation (e.g., “pre-money valuation of £X”, “valued at £X before funding”)
+- stated_post_money → any explicit post-money valuation (e.g., “post-money valuation of £X”, “company worth £X after funding”)
+- revenue_current → any mention of current revenue or ARR/MRR (e.g., “£X annual revenue”, “currently generating £X”)
+- revenue_projected → future or projected revenue (e.g., “expected £X next year”, “forecast to hit £X by 2026”)
+- ebitda_or_profit → any mention of EBITDA, profit, or loss
+- other_financials → any other figures relevant to valuation (e.g., burn rate, cash on hand, traction metrics, TAM/SAM/SOM market sizes, etc.)
+
+Be extremely thorough: scan for both explicit numbers and implied values, across different phrasings and formats.
 
 Text to analyze:
 ${slidesText}
 
-Output ONLY JSON with the funding details (use null if not found):
+Output ONLY valid JSON, using null where not found:
 {
   "raise_amount": <number or null>,
   "equity_offered_pct": <decimal like 0.20 for 20% or null>,
   "stated_pre_money": <number or null>,
-  "stated_post_money": <number or null>
+  "stated_post_money": <number or null>,
+  "revenue_current": <number or null>,
+  "revenue_projected": <number or null>,
+  "ebitda_or_profit": <number or null>,
+  "other_financials": [<strings or empty array>]
 }`;
 
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
-          { role: "system", content: "You extract funding details from pitch decks. Output only valid JSON." },
-          { role: "user", content: prompt }
+          {
+            role: "system",
+            content:
+              "You extract funding details from pitch decks. Output only valid JSON.",
+          },
+          { role: "user", content: prompt },
         ],
         response_format: { type: "json_object" },
-        temperature: 0.1
+        temperature: 0.1,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{}');
+      const result = JSON.parse(response.choices[0].message.content || "{}");
       return result;
     } catch (error) {
-      console.error('Error in funding extraction:', error);
+      console.error("Error in funding extraction:", error);
       return {};
     }
   }
 
   static async extractSectionsAndKPIs(
-    slides: string[], 
-    sector: string, 
-    stage: string, 
-    geography: string
+    slides: string[],
+    sector: string,
+    stage: string,
+    geography: string,
   ): Promise<ExtractedData> {
-    
     // Token management: limit to ~100K characters (~25K tokens) to stay within GPT-4o limits
     const maxChars = 100000;
-    let slidesText = slides.map((slide, index) => 
-      `[Slide ${index + 1}]\nText: ${slide}\n`
-    ).join('\n');
-    
+    let slidesText = slides
+      .map((slide, index) => `[Slide ${index + 1}]\nText: ${slide}\n`)
+      .join("\n");
+
     if (slidesText.length > maxChars) {
-      console.log(`Text too long (${slidesText.length} chars), truncating to ${maxChars} chars`);
-      slidesText = slidesText.substring(0, maxChars) + '\n\n[TRUNCATED - processing first portion of deck]';
+      console.log(
+        `Text too long (${slidesText.length} chars), truncating to ${maxChars} chars`,
+      );
+      slidesText =
+        slidesText.substring(0, maxChars) +
+        "\n\n[TRUNCATED - processing first portion of deck]";
     }
-    
-    console.log(`Sending ${slidesText.length} characters to LLM for extraction`);
+
+    console.log(
+      `Sending ${slidesText.length} characters to LLM for extraction`,
+    );
 
     const systemPrompt = `You extract sections and KPIs from a startup pitch deck. Output STRICT JSON only. Be thorough and flexible in finding financial details - look for funding asks, equity stakes, and valuations in any format or phrasing. Don't guess numbers; if absent, use null. Standardise currencies (GBP/USD/EUR) and numbers (e.g., "£250k" → 250000). Map each slide to one of the known sections when possible.`;
 
@@ -297,7 +351,7 @@ ${slidesText}
 
 TASKS:
 1) Detect which of these sections are present per slide:
-   ${SECTION_TAXONOMY.join(' | ')}.
+   ${SECTION_TAXONOMY.join(" | ")}.
 2) Extract KPIs anywhere they appear (be very thorough, look for various phrasings):
    - Revenue metrics: ARR, MRR, revenue, growth_rate
    - Profitability: EBITDA, gross_margin, burn, runway  
@@ -358,29 +412,75 @@ TASKS:
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o', // Using GPT-4o for reliable JSON responses in KPI extraction
+        model: "gpt-4o", // Using GPT-4o for reliable JSON responses in KPI extraction
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
         ],
-        response_format: { type: 'json_object' }
+        response_format: { type: "json_object" },
       });
 
-      const extracted = JSON.parse(response.choices[0].message.content || '{}');
+      const extracted = JSON.parse(response.choices[0].message.content || "{}");
       return extracted as ExtractedData;
     } catch (error) {
-      console.error('Error extracting sections and KPIs:', error);
+      console.error("Error extracting sections and KPIs:", error);
       // Return realistic fallback data based on the mock text
       return {
         sections: [
-          { name: "Problem", present: true, slide_indices: [1], quote: "Small and medium enterprises lose £50bn annually due to inefficient invoice reconciliation processes" },
-          { name: "Solution", present: true, slide_indices: [2], quote: "AI-powered reconciliation platform that reduces invoice processing time by 70%" },
-          { name: "Market Size", present: true, slide_indices: [3], quote: "Total Addressable Market: £2.1B, Growing at 15% CAGR" },
-          { name: "Business Model", present: true, slide_indices: [4], quote: "SaaS subscription model with tiered pricing from £99 to £899 per month" },
-          { name: "Traction", present: true, slide_indices: [5], quote: "Current Monthly Recurring Revenue: £125,000, 850 active customers" },
-          { name: "Financials", present: true, slide_indices: [6], quote: "Year 3: £8.7M ARR, EBITDA by Year 3: £2.1M" },
-          { name: "Team", present: true, slide_indices: [7], quote: "CEO: Sarah Chen - Former VP Engineering at Sage, 12 years fintech" },
-          { name: "Funding", present: true, slide_indices: [8], quote: "Seeking £5M Series A for 20% equity (£25M pre-money valuation)" }
+          {
+            name: "Problem",
+            present: true,
+            slide_indices: [1],
+            quote:
+              "Small and medium enterprises lose £50bn annually due to inefficient invoice reconciliation processes",
+          },
+          {
+            name: "Solution",
+            present: true,
+            slide_indices: [2],
+            quote:
+              "AI-powered reconciliation platform that reduces invoice processing time by 70%",
+          },
+          {
+            name: "Market Size",
+            present: true,
+            slide_indices: [3],
+            quote: "Total Addressable Market: £2.1B, Growing at 15% CAGR",
+          },
+          {
+            name: "Business Model",
+            present: true,
+            slide_indices: [4],
+            quote:
+              "SaaS subscription model with tiered pricing from £99 to £899 per month",
+          },
+          {
+            name: "Traction",
+            present: true,
+            slide_indices: [5],
+            quote:
+              "Current Monthly Recurring Revenue: £125,000, 850 active customers",
+          },
+          {
+            name: "Financials",
+            present: true,
+            slide_indices: [6],
+            quote: "Year 3: £8.7M ARR, EBITDA by Year 3: £2.1M",
+          },
+          {
+            name: "Team",
+            present: true,
+            slide_indices: [7],
+            quote:
+              "CEO: Sarah Chen - Former VP Engineering at Sage, 12 years fintech",
+          },
+          {
+            name: "Funding",
+            present: true,
+            slide_indices: [8],
+            quote:
+              "Seeking £5M Series A for 20% equity (£25M pre-money valuation)",
+          },
         ],
         kpis: {
           currency_primary: "GBP",
@@ -397,67 +497,82 @@ TASKS:
           arpu: null,
           customers: 850,
           users: null,
-          pricing_note: "Starter: £99/month, Professional: £299/month, Enterprise: £899/month",
+          pricing_note:
+            "Starter: £99/month, Professional: £299/month, Enterprise: £899/month",
           tam: 2100000000,
           sam: 650000000,
           som: null,
           tam_source: "Market analysis",
           raise_amount: 5000000,
-          equity_offered_pct: 0.20,
+          equity_offered_pct: 0.2,
           instrument: "equity",
           stated_pre_money: 25000000,
           stated_post_money: 30000000,
-          use_of_funds: "40% product development, 35% sales & marketing, 15% team expansion, 10% working capital",
-          comparables: []
+          use_of_funds:
+            "40% product development, 35% sales & marketing, 15% team expansion, 10% working capital",
+          comparables: [],
         },
-        inconsistencies: []
+        inconsistencies: [],
       } as ExtractedData;
     }
   }
 
-  static computeDeterministicValuations(extracted: ExtractedData, stage: string, sector: string) {
+  static computeDeterministicValuations(
+    extracted: ExtractedData,
+    stage: string,
+    sector: string,
+  ) {
     const kpis = extracted.kpis;
-    const stageData = DEFAULT_BENCHMARKS[stage as keyof typeof DEFAULT_BENCHMARKS];
-    const benchmarks = stageData?.[sector as keyof typeof stageData] || stageData?.['General'];
-    
+    const stageData =
+      DEFAULT_BENCHMARKS[stage as keyof typeof DEFAULT_BENCHMARKS];
+    const benchmarks =
+      stageData?.[sector as keyof typeof stageData] || stageData?.["General"];
+
     const results: any = {};
 
     // Implied from terms
     if (kpis.raise_amount && kpis.equity_offered_pct) {
       results.implied_from_terms = {
-        pre_money: Math.round(kpis.raise_amount / kpis.equity_offered_pct - kpis.raise_amount),
+        pre_money: Math.round(
+          kpis.raise_amount / kpis.equity_offered_pct - kpis.raise_amount,
+        ),
         post_money: Math.round(kpis.raise_amount / kpis.equity_offered_pct),
         raise: kpis.raise_amount,
-        equity_pct: kpis.equity_offered_pct
+        equity_pct: kpis.equity_offered_pct,
       };
     }
 
     // Revenue multiple - works for both SaaS (ARR) and service businesses (estimated revenue)
     let arr = kpis.arr || (kpis.mrr ? kpis.mrr * 12 : null);
-    
+
     // For service businesses without ARR, estimate revenue from pre-money valuation
     if (!arr && kpis.stated_pre_money && benchmarks?.revenue) {
-      const typicalMultiple = (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
+      const typicalMultiple =
+        (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
       arr = Math.round(kpis.stated_pre_money / typicalMultiple);
     }
-    
+
     if (arr && benchmarks?.revenue) {
       const multiple = (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
       results.revenue_multiple = {
         arr,
         multiple,
-        implied: Math.round(arr * multiple)
+        implied: Math.round(arr * multiple),
       };
-      console.log('Revenue multiple calculation:', { arr, multiple, implied: arr * multiple });
+      console.log("Revenue multiple calculation:", {
+        arr,
+        multiple,
+        implied: arr * multiple,
+      });
     }
 
-    // EBITDA multiple  
+    // EBITDA multiple
     if (kpis.ebitda && kpis.ebitda >= 0 && benchmarks?.ebitda) {
       const multiple = (benchmarks.ebitda[0] + benchmarks.ebitda[1]) / 2;
       results.ebitda_multiple = {
         ebitda: kpis.ebitda,
         multiple,
-        implied: Math.round(kpis.ebitda * multiple)
+        implied: Math.round(kpis.ebitda * multiple),
       };
     }
 
@@ -467,67 +582,98 @@ TASKS:
       let estimatedCurrentRevenue = arr;
       if (!estimatedCurrentRevenue && kpis.stated_pre_money) {
         // Estimate revenue as pre-money / typical revenue multiple for the sector
-        const typicalMultiple = benchmarks?.revenue ? (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2 : 5;
+        const typicalMultiple = benchmarks?.revenue
+          ? (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2
+          : 5;
         estimatedCurrentRevenue = kpis.stated_pre_money / typicalMultiple;
       }
-      
+
       if (estimatedCurrentRevenue) {
-        const exitMultiple = benchmarks?.revenue ? (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2 * 1.2 : 8;
+        const exitMultiple = benchmarks?.revenue
+          ? ((benchmarks.revenue[0] + benchmarks.revenue[1]) / 2) * 1.2
+          : 8;
         const projectedExitRevenue = estimatedCurrentRevenue * 5; // Assumed 5x revenue growth over 5 years for service business
         const exitValue = projectedExitRevenue * exitMultiple;
         const returnToInvestor = kpis.equity_offered_pct * exitValue;
         const roiMultiple = returnToInvestor / kpis.raise_amount;
-        const irr = Math.pow(roiMultiple, 1/5) - 1;
-        
+        const irr = Math.pow(roiMultiple, 1 / 5) - 1;
+
         results.roi = {
           equity_pct: kpis.equity_offered_pct,
           roi_multiple: Math.round(roiMultiple * 100) / 100,
           irr: Math.round(irr * 100),
-          projected_return: Math.round(returnToInvestor)
+          projected_return: Math.round(returnToInvestor),
         };
-        
-        console.log('ROI calculation inputs:', {
+
+        console.log("ROI calculation inputs:", {
           estimatedCurrentRevenue,
           exitMultiple,
           projectedExitRevenue,
           exitValue,
           returnToInvestor,
           roiMultiple,
-          irr
+          irr,
         });
       }
     }
 
     // Peer gap calculation
     const fairValues = [];
-    if (results.implied_from_terms?.pre_money) fairValues.push(results.implied_from_terms.pre_money);
-    if (results.revenue_multiple?.implied) fairValues.push(results.revenue_multiple.implied);
-    if (results.ebitda_multiple?.implied) fairValues.push(results.ebitda_multiple.implied);
-    
+    if (results.implied_from_terms?.pre_money)
+      fairValues.push(results.implied_from_terms.pre_money);
+    if (results.revenue_multiple?.implied)
+      fairValues.push(results.revenue_multiple.implied);
+    if (results.ebitda_multiple?.implied)
+      fairValues.push(results.ebitda_multiple.implied);
+
     if (fairValues.length > 0 && kpis.stated_pre_money) {
-      const fairValueBaseline = fairValues.sort((a, b) => a - b)[Math.floor(fairValues.length / 2)];
-      results.peer_gap_pct = (kpis.stated_pre_money - fairValueBaseline) / fairValueBaseline;
+      const fairValueBaseline = fairValues.sort((a, b) => a - b)[
+        Math.floor(fairValues.length / 2)
+      ];
+      results.peer_gap_pct =
+        (kpis.stated_pre_money - fairValueBaseline) / fairValueBaseline;
     }
 
     return results;
   }
 
-  static computeScores(extracted: ExtractedData, valuations: any): { completeness: number; clarity: number; valuation_reality: number } {
+  static computeScores(
+    extracted: ExtractedData,
+    valuations: any,
+  ): { completeness: number; clarity: number; valuation_reality: number } {
     let completeness = 10;
     let clarity = 10;
     let valuationReality = 10;
 
     // Completeness scoring
-    const requiredSections = ['Problem', 'Solution', 'Market Size', 'Business Model', 'Competition', 'Team', 'Financials', 'Ask/Use of Funds'];
-    const presentSections = extracted.sections.filter(s => s.present).map(s => s.name);
-    
+    const requiredSections = [
+      "Problem",
+      "Solution",
+      "Market Size",
+      "Business Model",
+      "Competition",
+      "Team",
+      "Financials",
+      "Ask/Use of Funds",
+    ];
+    const presentSections = extracted.sections
+      .filter((s) => s.present)
+      .map((s) => s.name);
+
     for (const required of requiredSections) {
       if (!presentSections.includes(required)) {
         completeness -= 1;
       }
     }
 
-    const importantKPIs: (keyof ExtractedData['kpis'])[] = ['arr', 'mrr', 'tam', 'sam', 'som', 'raise_amount'];
+    const importantKPIs: (keyof ExtractedData["kpis"])[] = [
+      "arr",
+      "mrr",
+      "tam",
+      "sam",
+      "som",
+      "raise_amount",
+    ];
     for (const kpi of importantKPIs) {
       if (!extracted.kpis[kpi]) {
         completeness -= 0.5;
@@ -545,11 +691,11 @@ TASKS:
     // Valuation reality scoring
     if (valuations.peer_gap_pct) {
       const gap = Math.abs(valuations.peer_gap_pct);
-      if (gap <= 0.10) {
+      if (gap <= 0.1) {
         // No penalty
       } else if (gap <= 0.25) {
         valuationReality -= 2;
-      } else if (gap <= 0.50) {
+      } else if (gap <= 0.5) {
         valuationReality -= 4;
       } else {
         valuationReality -= 6;
@@ -563,16 +709,15 @@ TASKS:
     return {
       completeness: Math.round(completeness * 10) / 10,
       clarity: Math.round(clarity * 10) / 10,
-      valuation_reality: Math.round(valuationReality * 10) / 10
+      valuation_reality: Math.round(valuationReality * 10) / 10,
     };
   }
 
   static async generateAnalysis(
     extracted: ExtractedData,
     valuations: any,
-    scores: any
+    scores: any,
   ): Promise<AnalysisResult> {
-    
     const systemPrompt = `You are a disciplined investment analyst. Given extracted sections/KPIs and pre-computed valuations/scores, produce concise, actionable findings. Do not invent numbers. Keep British English. Output STRICT JSON only.`;
 
     const userPrompt = `INPUTS:
@@ -619,18 +764,18 @@ OUTPUT SCHEMA:
 
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o', // Using GPT-4o for reliable JSON responses in analysis generation
+        model: "gpt-4o", // Using GPT-4o for reliable JSON responses in analysis generation
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
         ],
-        response_format: { type: 'json_object' }
+        response_format: { type: "json_object" },
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content || '{}');
+      const analysis = JSON.parse(response.choices[0].message.content || "{}");
       return analysis as AnalysisResult;
     } catch (error) {
-      console.error('Error generating analysis:', error);
+      console.error("Error generating analysis:", error);
       // Return structured fallback analysis based on the extracted data
       return {
         executive_summary: {
@@ -638,24 +783,24 @@ OUTPUT SCHEMA:
             "Strong market opportunity with £2.1B TAM and clear growth trajectory",
             "Proven traction with £1.5M ARR and 850+ customers",
             "Experienced team with relevant fintech background",
-            "Healthy unit economics with 82% gross margins"
+            "Healthy unit economics with 82% gross margins",
           ],
           weaknesses: [
             "High customer acquisition cost of £2,400 may impact scaling efficiency",
             "Limited runway of 12 months creates funding urgency",
-            "Market competition from established players like Sage and Xero"
-          ]
+            "Market competition from established players like Sage and Xero",
+          ],
         },
         key_questions: {
           valuation: [
             "How does the £25M pre-money valuation compare to recent Series A deals in fintech?",
             "What factors support the high revenue multiple being sought?",
-            "Are there comparable exits that validate the valuation expectations?"
+            "Are there comparable exits that validate the valuation expectations?",
           ],
           general: [
             "What is the competitive moat against larger incumbents?",
-            "How sustainable is the current growth rate of 8% monthly?"
-          ]
+            "How sustainable is the current growth rate of 8% monthly?",
+          ],
         },
         sections: [
           {
@@ -663,28 +808,48 @@ OUTPUT SCHEMA:
             strengths: ["Clear market pain point with quantified impact"],
             gaps: ["Could provide more specific customer research data"],
             benchmark: "Strong — well-defined problem with market sizing",
-            suggested_questions: ["What research validates the £50bn loss figure?", "How do customers currently solve this problem?"]
+            suggested_questions: [
+              "What research validates the £50bn loss figure?",
+              "How do customers currently solve this problem?",
+            ],
           },
           {
-            name: "Solution", 
+            name: "Solution",
             strengths: ["Technology differentiation with 95% accuracy claims"],
             gaps: ["Limited technical architecture details"],
             benchmark: "Good — clear value proposition",
-            suggested_questions: ["How does the AI accuracy compare to manual processes?", "What is the IP protection strategy?"]
+            suggested_questions: [
+              "How does the AI accuracy compare to manual processes?",
+              "What is the IP protection strategy?",
+            ],
           },
           {
             name: "Financials",
             strengths: ["Strong ARR growth and healthy margins"],
             gaps: ["Limited detail on unit economics breakdown"],
-            benchmark: "Good — shows clear path to profitability", 
-            suggested_questions: ["What drives the high CAC of £2,400?", "How will EBITDA margins scale with growth?"]
-          }
+            benchmark: "Good — shows clear path to profitability",
+            suggested_questions: [
+              "What drives the high CAC of £2,400?",
+              "How will EBITDA margins scale with growth?",
+            ],
+          },
         ],
         risks: [
-          { level: "Medium", label: "High customer acquisition costs may limit scaling efficiency" },
-          { level: "Medium", label: "Short runway creates funding pressure and negotiation disadvantage" },
-          { level: "Low", label: "Competitive threats from established players" }
-        ]
+          {
+            level: "Medium",
+            label:
+              "High customer acquisition costs may limit scaling efficiency",
+          },
+          {
+            level: "Medium",
+            label:
+              "Short runway creates funding pressure and negotiation disadvantage",
+          },
+          {
+            level: "Low",
+            label: "Competitive threats from established players",
+          },
+        ],
       } as AnalysisResult;
     }
   }
@@ -694,51 +859,82 @@ OUTPUT SCHEMA:
     fileName: string,
     sector: string,
     stage: string,
-    geography: string
+    geography: string,
   ) {
     try {
       // Extract text from PDF
-      console.log('Starting PDF text extraction for file:', fileName);
+      console.log("Starting PDF text extraction for file:", fileName);
       const slides = await this.extractTextFromPDF(fileBuffer);
-      console.log('PDF extraction complete. Processing with LLM...');
-      
+      console.log("PDF extraction complete. Processing with LLM...");
+
       // Extract sections and KPIs (LLM Pass #1)
-      const extracted = await this.extractSectionsAndKPIs(slides, sector, stage, geography);
-      console.log('LLM extraction complete. KPIs found:', Object.keys(extracted.kpis).filter(k => extracted.kpis[k] !== null));
-      console.log('Critical KPIs:', {
+      const extracted = await this.extractSectionsAndKPIs(
+        slides,
+        sector,
+        stage,
+        geography,
+      );
+      console.log(
+        "LLM extraction complete. KPIs found:",
+        Object.keys(extracted.kpis).filter((k) => extracted.kpis[k] !== null),
+      );
+      console.log("Critical KPIs:", {
         raise_amount: extracted.kpis.raise_amount,
         equity_offered_pct: extracted.kpis.equity_offered_pct,
         stated_pre_money: extracted.kpis.stated_pre_money,
-        stated_post_money: extracted.kpis.stated_post_money
+        stated_post_money: extracted.kpis.stated_post_money,
       });
-      console.log('First 1000 chars of extracted text:', slides[0]?.substring(0, 1000));
-      
+      console.log(
+        "First 1000 chars of extracted text:",
+        slides[0]?.substring(0, 1000),
+      );
+
       // If no funding details found, do a second more targeted extraction
-      if (!extracted.kpis.raise_amount && !extracted.kpis.equity_offered_pct && !extracted.kpis.stated_pre_money) {
-        console.log('No funding details found in first pass, doing targeted extraction...');
+      if (
+        !extracted.kpis.raise_amount &&
+        !extracted.kpis.equity_offered_pct &&
+        !extracted.kpis.stated_pre_money
+      ) {
+        console.log(
+          "No funding details found in first pass, doing targeted extraction...",
+        );
         const fundingExtraction = await this.extractFundingDetails(slides);
-        console.log('Funding extraction result:', fundingExtraction);
-        if (fundingExtraction.raise_amount) extracted.kpis.raise_amount = fundingExtraction.raise_amount;
-        if (fundingExtraction.equity_offered_pct) extracted.kpis.equity_offered_pct = fundingExtraction.equity_offered_pct;
-        if (fundingExtraction.stated_pre_money) extracted.kpis.stated_pre_money = fundingExtraction.stated_pre_money;
-        if (fundingExtraction.stated_post_money) extracted.kpis.stated_post_money = fundingExtraction.stated_post_money;
+        console.log("Funding extraction result:", fundingExtraction);
+        if (fundingExtraction.raise_amount)
+          extracted.kpis.raise_amount = fundingExtraction.raise_amount;
+        if (fundingExtraction.equity_offered_pct)
+          extracted.kpis.equity_offered_pct =
+            fundingExtraction.equity_offered_pct;
+        if (fundingExtraction.stated_pre_money)
+          extracted.kpis.stated_pre_money = fundingExtraction.stated_pre_money;
+        if (fundingExtraction.stated_post_money)
+          extracted.kpis.stated_post_money =
+            fundingExtraction.stated_post_money;
       }
-      
+
       // Compute deterministic valuations
-      const valuations = this.computeDeterministicValuations(extracted, stage, sector);
-      console.log('Computed valuations:', JSON.stringify(valuations, null, 2));
-      
+      const valuations = this.computeDeterministicValuations(
+        extracted,
+        stage,
+        sector,
+      );
+      console.log("Computed valuations:", JSON.stringify(valuations, null, 2));
+
       // Compute scores
       const scores = this.computeScores(extracted, valuations);
-      console.log('Computed scores:', scores);
-      console.log('Valuations for scoring:', {
+      console.log("Computed scores:", scores);
+      console.log("Valuations for scoring:", {
         peer_gap_pct: valuations.peer_gap_pct,
-        stated_pre_money: extracted.kpis.stated_pre_money
+        stated_pre_money: extracted.kpis.stated_pre_money,
       });
-      
+
       // Generate analysis (LLM Pass #2)
-      const analysis = await this.generateAnalysis(extracted, valuations, scores);
-      
+      const analysis = await this.generateAnalysis(
+        extracted,
+        valuations,
+        scores,
+      );
+
       // Transform to match frontend interface
       const result = {
         id: Date.now().toString(),
@@ -746,23 +942,30 @@ OUTPUT SCHEMA:
         overallScore: {
           completeness: scores.completeness,
           clarity: scores.clarity,
-          valuationPlausibility: scores.valuation_reality
+          valuationPlausibility: scores.valuation_reality,
         },
         executiveSummary: {
           topStrengths: analysis.executive_summary.strengths,
           topWeaknesses: analysis.executive_summary.weaknesses,
-          investorQuestions: [...analysis.key_questions.valuation.slice(0, 3), ...analysis.key_questions.general.slice(0, 2)]
+          investorQuestions: [
+            ...analysis.key_questions.valuation.slice(0, 3),
+            ...analysis.key_questions.general.slice(0, 2),
+          ],
         },
-        sections: analysis.sections.map(section => {
-          const extractedSection = extracted.sections.find(s => s.name === section.name);
+        sections: analysis.sections.map((section) => {
+          const extractedSection = extracted.sections.find(
+            (s) => s.name === section.name,
+          );
           return {
             name: section.name,
-            status: extractedSection?.present ? 'Present' as const : 'Missing' as const,
-            extracted: extractedSection?.quote || 'No content found',
+            status: extractedSection?.present
+              ? ("Present" as const)
+              : ("Missing" as const),
+            extracted: extractedSection?.quote || "No content found",
             strengths: section.strengths,
             weaknesses: section.gaps,
             questions: section.suggested_questions,
-            benchmark: section.benchmark
+            benchmark: section.benchmark,
           };
         }),
         valuation: {
@@ -776,31 +979,32 @@ OUTPUT SCHEMA:
             revenueMultiple: {
               arr: valuations.revenue_multiple?.arr || 0,
               multiple: valuations.revenue_multiple?.multiple || 0,
-              impliedValue: valuations.revenue_multiple?.implied || 0
+              impliedValue: valuations.revenue_multiple?.implied || 0,
             },
             ebitdaMultiple: {
               ebitda: valuations.ebitda_multiple?.ebitda || 0,
               multiple: valuations.ebitda_multiple?.multiple || 0,
-              impliedValue: valuations.ebitda_multiple?.implied || 0
+              impliedValue: valuations.ebitda_multiple?.implied || 0,
             },
             roiProjection: {
               equityStake: (valuations.roi?.equity_pct || 0) * 100,
               projectedExit: valuations.roi?.projected_return || 0,
               investorReturn: valuations.roi?.projected_return || 0,
               roiMultiple: valuations.roi?.roi_multiple || 0,
-              irr: valuations.roi?.irr || 0
-            }
+              irr: valuations.roi?.irr || 0,
+            },
           },
-          suggestedQuestions: analysis.key_questions.valuation
+          suggestedQuestions: analysis.key_questions.valuation,
         },
-        riskFlags: analysis.risks
+        riskFlags: analysis.risks,
       };
-      
+
       return result;
-      
     } catch (error) {
-      console.error('Pitch deck analysis failed:', error);
-      throw new Error(`Failed to analyze pitch deck: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Pitch deck analysis failed:", error);
+      throw new Error(
+        `Failed to analyze pitch deck: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 }
@@ -812,11 +1016,15 @@ export const upload = multer({
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF and PowerPoint files are allowed'));
+      cb(new Error("Only PDF and PowerPoint files are allowed"));
     }
-  }
+  },
 });
