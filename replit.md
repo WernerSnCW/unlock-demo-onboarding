@@ -35,6 +35,14 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 - Added comprehensive logging showing postcode → LAD code → HPI region mapping chain
 - Significantly improved valuation accuracy across all UK regions including Scotland, Wales, and Northern Ireland
 
+**Design System Migration Complete (Aug 28, 2025):** Successfully migrated property portfolio cards to use official CSS design system:
+- Replaced all hardcoded Tailwind colors with CSS custom properties from index.css
+- Updated property cards to use --primary, --secondary, --accent, --muted color variables
+- Enhanced visual consistency across light/dark themes using official design tokens
+- Implemented proper gradient backgrounds using CSS variables for brand consistency
+- Updated action buttons to use official color scheme (--destructive for delete, --primary for actions)
+- All visual elements now follow the established design system for reliable theming
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

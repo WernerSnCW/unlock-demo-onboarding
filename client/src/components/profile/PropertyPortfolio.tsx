@@ -841,19 +841,29 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {propertiesWithValuations.map((property) => (
-            <Card key={property.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+            <Card key={property.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md" style={{ 
+              background: `linear-gradient(to bottom right, var(--card), var(--neutral-bg-alt))`,
+              boxShadow: 'var(--shadow-md)'
+            }}>
               <CardHeader className="pb-4 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-bl-full opacity-50"></div>
+                <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-full opacity-30" style={{
+                  background: `linear-gradient(to bottom right, var(--primary), var(--secondary))`
+                }}></div>
                 <div className="flex items-start justify-between relative z-10">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-sm">
+                    <div className="p-2 rounded-lg shadow-sm" style={{
+                      background: `linear-gradient(to bottom right, var(--primary), var(--secondary))`,
+                      color: 'var(--primary-foreground)'
+                    }}>
                       <Home className="h-5 w-5" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      <CardTitle className="text-lg font-bold transition-colors" style={{
+                        color: 'var(--card-foreground)'
+                      }}>
                         {property.addressLine1}
                       </CardTitle>
-                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>
                         <MapPin className="h-3 w-3" />
                         <span>{[property.city, property.postcode].filter(Boolean).join(', ')}</span>
                       </div>
@@ -872,13 +882,17 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
               <CardContent className="pt-0">
                 <div className="space-y-5">
                   {/* Property Details */}
-                  <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700">
+                  <div className="grid grid-cols-2 gap-4 text-sm rounded-lg p-4 border" style={{
+                    backgroundColor: 'var(--muted)',
+                    borderColor: 'var(--border)',
+                    borderRadius: 'var(--radius-md)'
+                  }}>
                     {property.propertyType && (
                       <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-blue-500" />
+                        <Building className="h-4 w-4" style={{ color: 'var(--primary)' }} />
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Type</span>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Type</span>
+                          <p className="font-semibold capitalize" style={{ color: 'var(--card-foreground)' }}>
                             {property.propertyType}
                           </p>
                         </div>
@@ -886,10 +900,10 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     )}
                     {property.bedrooms && (
                       <div className="flex items-center gap-2">
-                        <Home className="h-4 w-4 text-green-500" />
+                        <Home className="h-4 w-4" style={{ color: 'var(--success)' }} />
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Bedrooms</span>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Bedrooms</span>
+                          <p className="font-semibold" style={{ color: 'var(--card-foreground)' }}>
                             {property.bedrooms}
                           </p>
                         </div>
@@ -897,10 +911,10 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     )}
                     {property.floorAreaSqm && (
                       <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-purple-500" />
+                        <TrendingUp className="h-4 w-4" style={{ color: 'var(--info)' }} />
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Area</span>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Area</span>
+                          <p className="font-semibold" style={{ color: 'var(--card-foreground)' }}>
                             {property.floorAreaSqm} m²
                           </p>
                         </div>
@@ -908,10 +922,10 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     )}
                     {property.yearBuilt && (
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-orange-500" />
+                        <Calendar className="h-4 w-4" style={{ color: 'var(--warning)' }} />
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Built</span>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Built</span>
+                          <p className="font-semibold" style={{ color: 'var(--card-foreground)' }}>
                             {property.yearBuilt}
                           </p>
                         </div>
@@ -919,11 +933,11 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     )}
                     {property.acquisitionPriceGbp && (
                       <div className="flex items-center gap-2">
-                        <PoundSterling className="h-4 w-4 text-emerald-500" />
+                        <PoundSterling className="h-4 w-4" style={{ color: 'var(--success)' }} />
                         <div className="flex-1">
-                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Your Purchase</span>
+                          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Your Purchase</span>
                           <div className="flex items-center gap-2">
-                            <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                            <p className="font-bold" style={{ color: 'var(--success)' }}>
                               {formatCurrency(Number(property.acquisitionPriceGbp))}
                             </p>
                             {property.latestPurchasePrice && 
@@ -958,10 +972,10 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     )}
                     {property.acquisitionDate && (
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-blue-500" />
+                        <Calendar className="h-4 w-4" style={{ color: 'var(--primary)' }} />
                         <div>
-                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Purchase Date</span>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                          <span className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Purchase Date</span>
+                          <p className="font-semibold" style={{ color: 'var(--card-foreground)' }}>
                             {new Date(property.acquisitionDate).toLocaleDateString()}
                           </p>
                         </div>
@@ -970,10 +984,17 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                   </div>
 
                   {/* Valuation Section */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                  <div className="rounded-xl p-4 border" style={{
+                    background: `linear-gradient(to right, var(--muted), var(--neutral-bg-alt))`,
+                    borderColor: 'var(--border)',
+                    borderRadius: 'var(--radius-lg)'
+                  }}>
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                      <h4 className="text-base font-bold flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                        <div className="p-1.5 rounded-lg" style={{
+                          background: `linear-gradient(to bottom right, var(--primary), var(--secondary))`,
+                          color: 'var(--primary-foreground)'
+                        }}>
                           <BarChart3 className="h-4 w-4" />
                         </div>
                         Property Valuations
@@ -984,9 +1005,13 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         onClick={() => refreshValuationMutation.mutate(property)}
                         disabled={property.isValuationLoading || !property.postcode}
                         data-testid={`button-refresh-valuation-${property.id}`}
-                        className="h-8 w-8 p-0 border-blue-200 hover:bg-blue-100 dark:border-blue-600 dark:hover:bg-blue-800"
+                        className="h-8 w-8 p-0"
+                        style={{
+                          borderColor: 'var(--border)',
+                          color: 'var(--primary)'
+                        }}
                       >
-                        <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin text-blue-600' : 'text-blue-600'}`} />
+                        <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin' : ''}`} style={{ color: 'var(--primary)' }} />
                       </Button>
                     </div>
                     
@@ -1234,7 +1259,12 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                             size="sm"
                             data-testid={`button-view-property-${property.id}`}
                             onClick={() => setSelectedProperty(property)}
-                            className="flex-1 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-600 text-blue-600 dark:text-blue-400 transition-colors"
+                            className="flex-1 transition-colors hover:opacity-90"
+                            style={{
+                              backgroundColor: 'var(--card)',
+                              borderColor: 'var(--border)',
+                              color: 'var(--primary)'
+                            }}
                           >
                             <Eye className="h-3 w-3 mr-2" />
                             View
@@ -1341,6 +1371,12 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         variant="outline" 
                         size="sm"
                         data-testid={`button-edit-property-${property.id}`}
+                        className="flex-1 transition-colors hover:opacity-90"
+                        style={{
+                          backgroundColor: 'var(--card)',
+                          borderColor: 'var(--border)',
+                          color: 'var(--card-foreground)'
+                        }}
                       >
                         <Edit className="h-3 w-3 mr-2" />
                         Edit
@@ -1350,7 +1386,12 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="px-3 transition-colors hover:opacity-90"
+                      style={{
+                        backgroundColor: 'var(--card)',
+                        borderColor: 'var(--border)',
+                        color: 'var(--destructive)'
+                      }}
                       onClick={() => {
                         if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
                           deletePropertyMutation.mutate(property.id);
