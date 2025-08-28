@@ -562,16 +562,17 @@ export default function PitchDeckAnalyser() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
                 <div className="text-2xl font-bold text-[var(--primary)] mb-1">
-                  {formatCurrency(result.valuation.declared)}
+                  {result.valuation.declared && result.valuation.declared > 0 ? formatCurrency(result.valuation.declared) : "Not specified"}
                 </div>
                 <div className="text-sm text-[var(--muted-foreground)]">Pre-Money Valuation</div>
               </div>
               <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
                 <div className="text-2xl font-bold text-[var(--secondary)] mb-1">
-                  {result.valuation.methods.postMoney ? formatCurrency(result.valuation.methods.postMoney) : 
-                   result.valuation.implied_from_terms?.post_money ? formatCurrency(result.valuation.implied_from_terms.post_money) :
-                   result.valuation.implied_from_stated?.post_money ? formatCurrency(result.valuation.implied_from_stated.post_money) :
-                   result.valuation.implied_from_post_money?.post_money ? formatCurrency(result.valuation.implied_from_post_money.post_money) : '£0'}
+                  {(() => {
+                    const postMoney = result.valuation.methods.postMoney;
+                    if (postMoney && postMoney > 0) return formatCurrency(postMoney);
+                    return "Not specified";
+                  })()}
                 </div>
                 <div className="text-sm text-[var(--muted-foreground)]">Post-Money Valuation</div>
               </div>
@@ -616,11 +617,15 @@ export default function PitchDeckAnalyser() {
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
-                          const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
+                          const declaredValue = (result.valuation as any).declaredValue ?? result.valuation.declared;
                           const isDCF = (result.valuation as any).declaredPV !== null && (result.valuation as any).declaredPV !== undefined;
                           
-                          if (isDCF && declaredValue > 0) {
-                            return `${formatCurrency(declaredValue)} DCF PV`;
+                          // Check if we have a valid declared value (not null/zero)
+                          if (declaredValue && declaredValue > 0) {
+                            if (isDCF) {
+                              return `${formatCurrency(declaredValue)} DCF PV`;
+                            }
+                            return `${formatCurrency(declaredValue)} stated`;
                           }
                           
                           const hasTerms = (result.valuation as any).hasTerms;
@@ -628,7 +633,7 @@ export default function PitchDeckAnalyser() {
                             return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
                           }
                           
-                          return "—";
+                          return "Not specified";
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--success)]">{
@@ -640,15 +645,30 @@ export default function PitchDeckAnalyser() {
                     </tr>
                     <tr className="border-b border-[var(--border)]">
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">Revenue Multiple</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.arr)} ARR × {result.valuation.methods.revenueMultiple.multiple}x</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
-                          const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
+                          const arr = result.valuation.methods.revenueMultiple.arr;
+                          if (!arr || arr === 0) return "ARR not specified";
+                          return `${formatCurrency(arr)} ARR × ${result.valuation.methods.revenueMultiple.multiple}x`;
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          const impliedValue = result.valuation.methods.revenueMultiple.impliedValue;
+                          if (!impliedValue || impliedValue === 0) return "—";
+                          return formatCurrency(impliedValue);
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          const declaredValue = (result.valuation as any).declaredValue ?? result.valuation.declared;
                           const isDCF = (result.valuation as any).declaredPV !== null && (result.valuation as any).declaredPV !== undefined;
                           
-                          if (isDCF && declaredValue > 0) {
-                            return `${formatCurrency(declaredValue)} DCF PV`;
+                          if (declaredValue && declaredValue > 0) {
+                            if (isDCF) {
+                              return `${formatCurrency(declaredValue)} DCF PV`;
+                            }
+                            return `${formatCurrency(declaredValue)} stated`;
                           }
                           
                           const hasTerms = (result.valuation as any).hasTerms;
@@ -656,7 +676,7 @@ export default function PitchDeckAnalyser() {
                             return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
                           }
                           
-                          return "—";
+                          return "Not specified";
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--destructive)]">{
@@ -674,11 +694,14 @@ export default function PitchDeckAnalyser() {
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
                         (() => {
-                          const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
+                          const declaredValue = (result.valuation as any).declaredValue ?? result.valuation.declared;
                           const isDCF = (result.valuation as any).declaredPV !== null && (result.valuation as any).declaredPV !== undefined;
                           
-                          if (isDCF && declaredValue > 0) {
-                            return `${formatCurrency(declaredValue)} DCF PV`;
+                          if (declaredValue && declaredValue > 0) {
+                            if (isDCF) {
+                              return `${formatCurrency(declaredValue)} DCF PV`;
+                            }
+                            return `${formatCurrency(declaredValue)} stated`;
                           }
                           
                           const hasTerms = (result.valuation as any).hasTerms;
@@ -686,13 +709,13 @@ export default function PitchDeckAnalyser() {
                             return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
                           }
                           
-                          return "—";
+                          return "Not specified";
                         })()
                       }</td>
                       <td className="px-4 py-3 text-sm text-[var(--warning)]">{
                         (() => {
                           const basePV = result.valuation.methods.ebitdaMultiple.impliedValue;
-                          const deckVal = (result.valuation as any).declaredValue || result.valuation.declared;
+                          const deckVal = (result.valuation as any).declaredValue ?? result.valuation.declared;
                           if (!deckVal || !basePV || deckVal <= 0 || basePV <= 0) return "—";
                           return deckVal < basePV ? "Undervalued vs EBITDA benchmark" : "Premium pricing applied";
                         })()

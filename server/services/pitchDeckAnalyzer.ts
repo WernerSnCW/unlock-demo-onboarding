@@ -1159,11 +1159,12 @@ OUTPUT SCHEMA:
             }
           }
           
+          // Only use a declared value if we have actual data, not zero/null fallbacks
           const declaredValue = declaredPV 
             ?? extracted.kpis.stated_pre_money 
             ?? extracted.kpis.stated_post_money 
             ?? (hasTerms ? valuations.implied_from_terms?.pre_money : null)
-            ?? 0;
+            ?? null; // Changed from 0 to null to indicate missing data
 
           return {
             declared: declaredValue,
