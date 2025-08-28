@@ -16,12 +16,16 @@ import { insertPropertySchema, insertPropertyOwnershipSchema } from '@shared/sch
 
 // Form schema for adding new property
 const addPropertyFormSchema = insertPropertySchema.extend({
+  // Override numeric fields to handle empty strings properly
+  floorAreaSqm: z.string().optional().transform(val => val === '' ? undefined : val),
+  latitude: z.string().optional().transform(val => val === '' ? undefined : val),
+  longitude: z.string().optional().transform(val => val === '' ? undefined : val),
   // Ownership details
   ownershipType: z.enum(['direct', 'spv']).default('direct'),
   sharePct: z.coerce.number().min(0).max(100).default(100),
-  acquisitionDate: z.string().optional(),
-  acquisitionPriceGbp: z.coerce.number().positive().optional(),
-  acquisitionCostsGbp: z.coerce.number().min(0).optional(),
+  acquisitionDate: z.string().optional().transform(val => val === '' ? undefined : val),
+  acquisitionPriceGbp: z.string().optional().transform(val => val === '' ? undefined : val),
+  acquisitionCostsGbp: z.string().optional().transform(val => val === '' ? undefined : val),
   isPrimaryResidence: z.boolean().default(false),
 });
 
@@ -115,15 +119,27 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
       // Separate property and ownership data
       const { ownershipType, sharePct, acquisitionDate, acquisitionPriceGbp, acquisitionCostsGbp, isPrimaryResidence, ...propertyData } = data;
       
+      // Clean the property data - convert empty strings to null for numeric fields
+      const cleanedPropertyData = {
+        ...propertyData,
+        floorAreaSqm: propertyData.floorAreaSqm || null,
+        latitude: propertyData.latitude || null,
+        longitude: propertyData.longitude || null,
+      };
+      
+      console.log('Sending property data:', cleanedPropertyData);
+      
       // Create property
       const propertyResponse = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(propertyData),
+        body: JSON.stringify(cleanedPropertyData),
       });
       
       if (!propertyResponse.ok) {
-        throw new Error('Failed to create property');
+        const errorData = await propertyResponse.json();
+        console.error('Property creation failed:', errorData);
+        throw new Error(errorData.message || 'Failed to create property');
       }
       
       const property = await propertyResponse.json();
@@ -135,10 +151,12 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
         ownershipType,
         sharePct,
         acquisitionDate: acquisitionDate || undefined,
-        acquisitionPriceGbp: acquisitionPriceGbp || undefined,
-        acquisitionCostsGbp: acquisitionCostsGbp || undefined,
+        acquisitionPriceGbp: acquisitionPriceGbp ? parseFloat(acquisitionPriceGbp) : undefined,
+        acquisitionCostsGbp: acquisitionCostsGbp ? parseFloat(acquisitionCostsGbp) : undefined,
         isPrimaryResidence,
       };
+      
+      console.log('Sending ownership data:', ownershipData);
       
       const ownershipResponse = await fetch(`/api/properties/${property.id}/ownerships`, {
         method: 'POST',
@@ -147,7 +165,9 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
       });
       
       if (!ownershipResponse.ok) {
-        throw new Error('Failed to create property ownership');
+        const errorData = await ownershipResponse.json();
+        console.error('Ownership creation failed:', errorData);
+        throw new Error(errorData.message || 'Failed to create property ownership');
       }
       
       return property;
