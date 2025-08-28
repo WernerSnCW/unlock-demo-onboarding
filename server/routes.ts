@@ -840,7 +840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Step 1: Get HPI baseline for the region using postcode to LAD mapping
       console.log(`Valuation request: postcode=${postcode}`);
       
-      // Enhanced postcode matching - try multiple formats
+      // Enhanced postcode matching - try multiple formats with intelligent fallback
       const normalizedPostcode = postcode.toUpperCase().trim();
       const spacedPostcode = normalizedPostcode.includes(' ') ? normalizedPostcode : 
         normalizedPostcode.replace(/^([A-Z]{1,2}\d{1,2}[A-Z]?)(\d[A-Z]{2})$/, '$1 $2');
@@ -848,7 +848,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Postcode lookup variants: original="${normalizedPostcode}", spaced="${spacedPostcode}", unspaced="${unspacedPostcode}"`);
       
-      // Try multiple postcode formats for LAD mapping
+      // Try multiple postcode formats for exact LAD mapping
       const postcodeVariants = [normalizedPostcode, spacedPostcode, unspacedPostcode].filter((v, i, arr) => arr.indexOf(v) === i);
       let postcodeMapping: any[] = [];
       let matchedPostcode = '';
@@ -861,7 +861,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
         if (postcodeMapping.length > 0) {
           matchedPostcode = variant;
-          console.log(`Found LAD mapping using variant "${variant}": ${variant} → ${postcodeMapping[0].ladCode}`);
+          console.log(`Found exact LAD mapping using variant "${variant}": ${variant} → ${postcodeMapping[0].ladCode}`);
           break;
         }
       }
@@ -885,7 +885,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`No HPI data found for LAD code: ${ladCode}`);
         }
       } else {
-        console.log(`No LAD mapping found for any postcode variant: ${postcodeVariants.join(', ')}`);
+        console.log(`No exact LAD mapping found for any postcode variant: ${postcodeVariants.join(', ')}`);
       }
       
       // Fallback strategy: try with postcode prefix if exact postcode not found
