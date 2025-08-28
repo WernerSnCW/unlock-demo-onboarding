@@ -197,7 +197,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                 name="addressLine1"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address Line 1 *</FormLabel>
+                    <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Address Line 1 *</FormLabel>
                     <FormControl>
                       <Input placeholder="123 Main Street" {...field} />
                     </FormControl>
@@ -211,7 +211,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                 name="addressLine2"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address Line 2</FormLabel>
+                    <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Address Line 2</FormLabel>
                     <FormControl>
                       <Input placeholder="Apartment, suite, etc." {...field} />
                     </FormControl>
@@ -226,7 +226,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">City</FormLabel>
                       <FormControl>
                         <Input placeholder="London" {...field} />
                       </FormControl>
@@ -240,7 +240,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="postcode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Postcode</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Postcode</FormLabel>
                       <FormControl>
                         <Input placeholder="SW1A 1AA" {...field} />
                       </FormControl>
@@ -261,7 +261,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="propertyType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Property Type</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Property Type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -287,7 +287,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="bedrooms"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bedrooms</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Bedrooms</FormLabel>
                       <FormControl>
                         <Input placeholder="3" {...field} />
                       </FormControl>
@@ -303,7 +303,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="yearBuilt"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Year Built</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Year Built</FormLabel>
                       <FormControl>
                         <Input placeholder="1995" {...field} />
                       </FormControl>
@@ -317,7 +317,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="epcRating"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>EPC Rating</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">EPC Rating</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -351,7 +351,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="ownershipType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ownership Type</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Ownership Type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -373,7 +373,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="sharePct"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ownership Share (%)</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Ownership Share (%)</FormLabel>
                       <FormControl>
                         <Input type="number" min="0" max="100" {...field} />
                       </FormControl>
@@ -389,7 +389,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="acquisitionDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Acquisition Date</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Acquisition Date</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -403,7 +403,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   name="acquisitionPriceGbp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Purchase Price (£)</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Purchase Price (£)</FormLabel>
                       <FormControl>
                         <Input type="number" min="0" placeholder="350000" {...field} />
                       </FormControl>
