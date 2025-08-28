@@ -24,6 +24,12 @@
 
 import OpenAI from "openai";
 
+// Helper function to discount future values to present value
+function discountToPresent(futureValue: number, years?: number | null, rate?: number | null) {
+  if (!futureValue || !years || years <= 0 || !rate || rate <= 0) return Math.round(futureValue);
+  return Math.round(futureValue / Math.pow(1 + rate, years));
+}
+
 // -----------------------------
 // Types you already use or extend
 // -----------------------------
@@ -310,6 +316,13 @@ export async function computeDeterministicValuationsEnhanced(
   // Implied from terms (priced equity / SAFE / note)
   Object.assign(results, impliedFromTerms(kpis));
 
+  // Read horizon & discount from extracted KPIs; default discount 25% if deck supplies none
+  const arrHorizon = extracted.kpis.arr_horizon_years ?? 0;
+  const ebitdaHorizon = extracted.kpis.ebitda_horizon_years ?? 0;
+  const dRate = (typeof extracted.kpis.discount_rate_pct === "number") 
+    ? extracted.kpis.discount_rate_pct 
+    : 0.25; // sensible default
+
   // ARR (inferred if needed)
   let arr = inferARR(kpis);
 
@@ -327,7 +340,7 @@ export async function computeDeterministicValuationsEnhanced(
     if (stated) arr = Math.round(stated / band.mid);
   }
 
-  // Revenue multiple range
+  // Revenue multiple range with discounting
   if (arr) {
     const band = revenueMultipleBand({
       stage, sector, geography,
@@ -337,32 +350,57 @@ export async function computeDeterministicValuationsEnhanced(
       arr,
       churn_pct: kpis.churn_pct,
     });
+    const impliedFwdLow = Math.round(arr * band.low);   // forward (e.g., Year-5) EV
+    const impliedFwdMid = Math.round(arr * band.mid);
+    const impliedFwdHigh = Math.round(arr * band.high);
+    const impliedPVLow = discountToPresent(impliedFwdLow, arrHorizon, dRate);   // present value (PV)
+    const impliedPVMid = discountToPresent(impliedFwdMid, arrHorizon, dRate);
+    const impliedPVHigh = discountToPresent(impliedFwdHigh, arrHorizon, dRate);
+
     results.revenue_multiple = {
       arr,
       multiple_low: band.low,
       multiple_mid: band.mid,
       multiple_high: band.high,
-      implied_low: Math.round(arr * band.low),
-      implied_mid: Math.round(arr * band.mid),
-      implied_high: Math.round(arr * band.high),
+      implied_forward_low: impliedFwdLow,
+      implied_forward_mid: impliedFwdMid,
+      implied_forward_high: impliedFwdHigh,
+      implied_low: impliedPVLow,          // <- use PV everywhere you compare to DCF/stated pre
+      implied_mid: impliedPVMid,
+      implied_high: impliedPVHigh,
+      horizon_years: arrHorizon,
+      discounted: arrHorizon > 0,
       confidence: ((kpis.arr ? 1 : 0) + (kpis.growth_rate_pct ? 1 : 0) + (kpis.gross_margin_pct ? 1 : 0)) >= 2 ? "High" : ((kpis.arr || kpis.growth_rate_pct || kpis.gross_margin_pct) ? "Medium" : "Low"),
     };
   }
 
-  // EBITDA multiple (only if positive)
-  if (typeof kpis.ebitda === "number" && kpis.ebitda > 0) {
+  // EBITDA multiple (only if positive) with discounting
+  let ebitda = kpis.ebitda;
+  if (typeof ebitda === "number" && ebitda >= 0) {
     const stageData = DEFAULT_BENCHMARKS[stage] || DEFAULT_BENCHMARKS["Seed"];
     const sectorData = stageData?.[sector] || stageData?.["General"];
     const [eLow, eHigh] = sectorData?.ebitda || [10, 16];
     const eMid = (eLow + eHigh) / 2;
+    const impliedFwdLow = Math.round(ebitda * eLow);
+    const impliedFwdMid = Math.round(ebitda * eMid);
+    const impliedFwdHigh = Math.round(ebitda * eHigh);
+    const impliedPVLow = discountToPresent(impliedFwdLow, ebitdaHorizon, dRate);
+    const impliedPVMid = discountToPresent(impliedFwdMid, ebitdaHorizon, dRate);
+    const impliedPVHigh = discountToPresent(impliedFwdHigh, ebitdaHorizon, dRate);
+
     results.ebitda_multiple = {
-      ebitda: kpis.ebitda,
+      ebitda,
       multiple_low: eLow,
       multiple_mid: eMid,
       multiple_high: eHigh,
-      implied_low: Math.round(kpis.ebitda * eLow),
-      implied_mid: Math.round(kpis.ebitda * eMid),
-      implied_high: Math.round(kpis.ebitda * eHigh),
+      implied_forward_low: impliedFwdLow,
+      implied_forward_mid: impliedFwdMid,
+      implied_forward_high: impliedFwdHigh,
+      implied_low: impliedPVLow,
+      implied_mid: impliedPVMid,
+      implied_high: impliedPVHigh,
+      horizon_years: ebitdaHorizon,
+      discounted: ebitdaHorizon > 0,
     };
   }
 
@@ -442,19 +480,19 @@ export async function computeDeterministicValuationsEnhanced(
     } catch (error) {
       console.error('❌ LLM Peer Analysis Failed:', error);
       console.log('⚠️  Using fallback hardcoded benchmark comparison instead of real peer analysis');
-      // Fallback to basic comparison if LLM analysis fails
-      const allImplied = [
-        results.revenue_multiple?.implied_mid,
-        results.ebitda_multiple?.implied_mid,
-        results.implied_from_terms?.pre_money
-      ].filter(v => typeof v === "number" && v > 0);
-      
-      if (allImplied.length > 0) {
-        const median = allImplied.sort((a, b) => a - b)[Math.floor(allImplied.length / 2)];
-        const stated = kpis.stated_pre_money || kpis.stated_post_money || 0;
-        if (stated > 0) {
-          results.peer_gap_pct = (stated - median) / median;
-        }
+      // Fallback to basic comparison if LLM analysis fails - use present values only
+      // Choose a comparable base (PV mid) for gap calculation
+      const base = results.revenue_multiple?.implied_mid || results.ebitda_multiple?.implied_mid || null;
+
+      // Stated "deck" valuation: prefer explicit DCF PV, else pre/post, else implied_from_terms
+      const stated = extracted.kpis.valuation_dcf_present
+        || extracted.kpis.stated_pre_money
+        || extracted.kpis.stated_post_money
+        || results.implied_from_terms?.post_money
+        || null;
+
+      if (stated && base) {
+        results.peer_gap_pct = Math.round(((stated - base) / base) * 100) / 100;
       }
     }
   }

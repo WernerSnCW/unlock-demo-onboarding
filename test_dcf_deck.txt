@@ -1,0 +1,62 @@
+TECHFLOW SOLUTIONS PITCH DECK
+
+COMPANY OVERVIEW
+TechFlow Solutions is a B2B SaaS platform providing automated workflow management for mid-size enterprises.
+
+MARKET OPPORTUNITY
+Total Addressable Market: £12B
+Serviceable Addressable Market: £3.2B
+Our Target Market: £850M
+
+BUSINESS MODEL
+Monthly Recurring Revenue (MRR): £420,000
+Annual Recurring Revenue (ARR): £5,040,000
+Customer Acquisition Cost (CAC): £2,400
+Customer Lifetime Value (LTV): £28,500
+Gross Margin: 85%
+Monthly Churn Rate: 2.1%
+
+FINANCIAL PROJECTIONS
+Current Year Revenue: £5,040,000
+Year 2 Revenue Projection: £8,760,000
+Year 3 Revenue Projection: £14,200,000
+Year 4 Revenue Projection: £21,800,000
+Year 5 Revenue Projection: £32,100,000
+
+EBITDA Margins:
+Current EBITDA: £1,260,000 (25% margin)
+Year 2 EBITDA: £2,800,000 (32% margin)
+Year 3 EBITDA: £4,970,000 (35% margin)
+
+DCF VALUATION MODEL
+Discount Rate: 12%
+Terminal Growth Rate: 3%
+Projected Free Cash Flows:
+- Year 1: £1,180,000
+- Year 2: £2,650,000  
+- Year 3: £4,720,000
+- Year 4: £7,450,000
+- Year 5: £11,200,000
+Terminal Value: £168,000,000
+Present Value of Cash Flows: £18,750,000
+Present Value of Terminal Value: £95,200,000
+Enterprise Value: £113,950,000
+Net Present Value: £113,950,000
+
+FUNDING REQUEST
+Seeking: £8,000,000 Series A
+Equity Offered: 18%
+Pre-Money Valuation: £36,444,444
+Post-Money Valuation: £44,444,444
+Use of Funds: 40% Product Development, 35% Sales & Marketing, 15% Team Expansion, 10% Working Capital
+
+TEAM & TRACTION
+Founded: 2022
+Employees: 45
+Active Customers: 180
+Revenue Growth Rate: 73% YoY
+Customer Retention: 94%
+
+COMPETITIVE LANDSCAPE
+Direct Competitors: WorkflowMax, ProcessPro, StreamlineOps
+Our Differentiation: AI-powered automation, 50% faster implementation, enterprise-grade security

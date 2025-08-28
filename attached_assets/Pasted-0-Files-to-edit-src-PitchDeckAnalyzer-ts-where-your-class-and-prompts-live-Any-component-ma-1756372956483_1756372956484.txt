@@ -1,0 +1,202 @@
+0) Files to edit
+
+src/.../PitchDeckAnalyzer.ts (where your class and prompts live)
+
+Any component/mapper that renders the top valuation tiles (where you label “Pre-/Post-Money”)
+
+1) Extend the KPI schema (so we know horizon & DCF context)
+
+In the ExtractedData interface, add these optional fields under kpis:
+
+// New fields (place inside ExtractedData["kpis"])
+discount_rate_pct?: number | null;        // e.g., 0.25 for 25%
+exit_multiple?: number | null;            // e.g., 8
+valuation_dcf_present?: number | null;    // Deck’s DCF present value, if stated
+arr_horizon_years?: number | null;        // 0=current; 5=“Year 5”
+ebitda_horizon_years?: number | null;     // 0=current; 5=“Year 5”
+
+
+Rationale: we’re currently mixing Year-5 metrics with a present-day DCF. These flags let us discount future multiple outputs to present value.
+
+2) Update Pass-1 extraction prompt to collect those fields
+
+In extractSectionsAndKPIs(), append this block to the TASKS prompt (leave everything else as is):
+
+Also extract (use null if not found):
+- valuation_dcf_present (present-value DCF stated in deck)
+- discount_rate_pct (as decimal, e.g., 0.25 for 25%)
+- exit_multiple (e.g., 8 if “8× exit multiple”)
+- arr_horizon_years (0 = current; else N from phrases like “Year 5”)
+- ebitda_horizon_years (0 = current; else N)
+
+
+And add these keys (set to null if absent) in the JSON example within the prompt so the model returns them.
+
+3) Add a small discount helper
+
+Anywhere in the class (e.g., top of PitchDeckAnalyzer), add:
+
+function discountToPresent(futureValue: number, years?: number | null, rate?: number | null) {
+  if (!futureValue || !years || years <= 0 || !rate || rate <= 0) return Math.round(futureValue);
+  return Math.round(futureValue / Math.pow(1 + rate, years));
+}
+
+4) Patch the valuation logic (discount forward multiples & fix peer gap)
+
+In computeDeterministicValuations(...) (keep the function name; edit in place):
+
+Right after you compute arr and before you build results.revenue_multiple, insert:
+
+// Read horizon & discount from extracted KPIs; default discount 25% if deck supplies none
+const arrHorizon = extracted.kpis.arr_horizon_years ?? 0;
+const ebitdaHorizon = extracted.kpis.ebitda_horizon_years ?? 0;
+const dRate = (typeof extracted.kpis.discount_rate_pct === "number") 
+  ? extracted.kpis.discount_rate_pct 
+  : 0.25; // sensible default – adjust if you prefer no default
+
+
+Replace your revenue multiple block with this discounted version:
+
+if (arr && benchmarks?.revenue) {
+  const multiple = (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
+  const impliedFwd = Math.round(arr * multiple);               // forward (e.g., Year-5) EV
+  const impliedPV  = discountToPresent(impliedFwd, arrHorizon, dRate); // present value (PV)
+
+  results.revenue_multiple = {
+    arr,
+    multiple,
+    implied_forward: impliedFwd,
+    implied: impliedPV,          // <- use PV everywhere you compare to DCF/stated pre
+    horizon_years: arrHorizon,
+    discounted: arrHorizon > 0
+  };
+}
+
+
+Replace your EBITDA multiple block similarly:
+
+let ebitda = kpis.ebitda;
+if (typeof ebitda === "number" && ebitda >= 0 && benchmarks?.ebitda) {
+  const multiple = (benchmarks.ebitda[0] + benchmarks.ebitda[1]) / 2;
+  const impliedFwd = Math.round(ebitda * multiple);
+  const impliedPV  = discountToPresent(impliedFwd, ebitdaHorizon, dRate);
+
+  results.ebitda_multiple = {
+    ebitda,
+    multiple,
+    implied_forward: impliedFwd,
+    implied: impliedPV,
+    horizon_years: ebitdaHorizon,
+    discounted: ebitdaHorizon > 0
+  };
+}
+
+
+Fix peer_gap_pct to compare present values only:
+
+// Choose a comparable base (PV mid) for gap calculation
+const base = results.revenue_multiple?.implied || results.ebitda_multiple?.implied || null;
+
+// Stated “deck” valuation: prefer explicit DCF PV, else pre/post, else implied_from_terms
+const stated = extracted.kpis.valuation_dcf_present
+  || extracted.kpis.stated_pre_money
+  || extracted.kpis.stated_post_money
+  || results.implied_from_terms?.post_money
+  || null;
+
+if (stated && base) {
+  results.peer_gap_pct = Math.round(((stated - base) / base) * 100) / 100;
+}
+
+
+Now you’re comparing PV to PV, not PV vs forward.
+
+5) Don’t show “Pre/Post” when there are no terms
+
+In analyzePitchDeck() where you build result.valuation:
+
+Compute a flag:
+
+const hasTerms = !!(extracted.kpis.raise_amount && extracted.kpis.equity_offered_pct);
+const declaredPV = extracted.kpis.valuation_dcf_present ?? null;
+
+
+Use this when populating the top tiles / methods:
+
+const declaredValue = declaredPV 
+  ?? extracted.kpis.stated_pre_money 
+  ?? extracted.kpis.stated_post_money 
+  ?? 0;
+
+result.valuation = {
+  declared: declaredValue,
+  assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
+  methods: {
+    // Keep your existing structure, but:
+    preMoney: hasTerms ? (valuations.implied_from_terms?.pre_money || extracted.kpis.stated_pre_money || 0)
+                       : 0,
+    postMoney: hasTerms ? (valuations.implied_from_terms?.post_money
+                        || valuations.implied_from_post_money?.post_money
+                        || extracted.kpis.stated_post_money || 0) : 0,
+    // Ensure you surface discounted PV in the ranges:
+    revenueMultiple: {
+      arr: valuations.revenue_multiple?.arr || 0,
+      multiple: valuations.revenue_multiple?.multiple || 0,
+      impliedValue: valuations.revenue_multiple?.implied || 0, // PV
+    },
+    ebitdaMultiple: {
+      ebitda: valuations.ebitda_multiple?.ebitda || 0,
+      multiple: valuations.ebitda_multiple?.multiple || 0,
+      impliedValue: valuations.ebitda_multiple?.implied || 0,  // PV
+    },
+  },
+  // spread the rest…
+  ...valuations,
+};
+
+
+In your UI layer, if !hasTerms, relabel the “Pre-/Post-Money” tiles to “Deck Valuation (PV)” or hide them; show declared as the main PV number instead.
+
+6) Fix the label logic in your comparison table
+
+Where you render the “Overvalued vs ARR benchmark” line, switch to:
+
+const basePV = valuations.revenue_multiple?.implied || valuations.ebitda_multiple?.implied || 0;
+const deckVal = declaredValue;
+const label = (deckVal && basePV)
+  ? (deckVal < basePV ? "Undervalued vs ARR benchmark" : "Overvalued vs ARR benchmark")
+  : "—";
+
+7) (Optional but recommended) Extract the horizon & DCF terms from text
+
+Add these to your funding/financial extraction prompt so the model finds them reliably:
+
+Look for phrases like “Year 5”, “Y5”, “in 5 years” near ARR/EBITDA numbers → set arr_horizon_years / ebitda_horizon_years.
+
+Look for “Discount rate X%” → set discount_rate_pct.
+
+Look for “DCF valuation ~£X”, “implied valuation ~£X” → set valuation_dcf_present.
+
+You already have a strong extractor; this is just three extra keys.
+
+✅ Acceptance Criteria (for QA)
+
+Deck with Year-5 metrics and DCF 25% / 8×:
+
+Revenue and EBITDA multiple outputs show two values: forward (internal) and present value displayed/used for comparisons.
+
+peer_gap_pct compares the deck PV to the discounted mid multiple, not the forward value.
+
+No explicit raise/equity terms in deck:
+
+“Pre-Money” / “Post-Money” tiles are hidden or relabelled.
+
+The headline tile shows “Deck Valuation (PV)” = valuation_dcf_present (or stated pre/post if that’s all we have).
+
+Copy check:
+
+If deck PV < PV multiple mid → label “Undervalued vs ARR benchmark”; else “Overvalued…”.
+
+Regression:
+
+When a deck does have “£X for Y%”, your existing implied_from_terms pre/post still render exactly as before.

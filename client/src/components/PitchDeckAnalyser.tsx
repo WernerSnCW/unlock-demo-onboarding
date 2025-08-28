@@ -602,24 +602,71 @@ export default function PitchDeckAnalyser() {
                   <tbody className="bg-[var(--card)]">
                     <tr className="border-b border-[var(--border)]">
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">Pre/Post Money</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">£5m ask for 20%</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre, {formatCurrency(result.valuation.methods.postMoney)} post</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
-                      <td className="px-4 py-3 text-sm text-[var(--success)]">Matches stated figures</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          if (!(result.valuation as any).hasTerms) return "Terms not specified";
+                          return "Ask amount & equity terms";
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          if (!(result.valuation as any).hasTerms) return "—";
+                          return `${formatCurrency(result.valuation.methods.preMoney)} pre, ${formatCurrency(result.valuation.methods.postMoney)} post`;
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
+                          if ((result.valuation as any).declaredPV) return `${formatCurrency(declaredValue)} DCF PV`;
+                          return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--success)]">{
+                        (() => {
+                          if (!(result.valuation as any).hasTerms) return "—";
+                          return (result.valuation as any).declaredPV ? "DCF vs. Terms Check" : "Matches terms";
+                        })()
+                      }</td>
                     </tr>
                     <tr className="border-b border-[var(--border)]">
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">Revenue Multiple</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.arr)} ARR × {result.valuation.methods.revenueMultiple.multiple}x</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.revenueMultiple.impliedValue)}</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
-                      <td className="px-4 py-3 text-sm text-[var(--destructive)]">Overvalued vs ARR benchmark</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
+                          if ((result.valuation as any).declaredPV) return `${formatCurrency(declaredValue)} DCF PV`;
+                          return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--destructive)]">{
+                        (() => {
+                          const basePV = result.valuation.methods.revenueMultiple.impliedValue;
+                          const deckVal = (result.valuation as any).declaredValue || result.valuation.declared;
+                          if (!deckVal || !basePV) return "—";
+                          return deckVal < basePV ? "Undervalued vs ARR benchmark" : "Overvalued vs ARR benchmark";
+                        })()
+                      }</td>
                     </tr>
                     <tr className="border-b border-[var(--border)]">
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">EBITDA Multiple</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.ebitda)} EBITDA × {result.valuation.methods.ebitdaMultiple.multiple}x</td>
                       <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.ebitdaMultiple.impliedValue)}</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.preMoney)} pre</td>
-                      <td className="px-4 py-3 text-sm text-[var(--warning)]">Premium pricing applied</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{
+                        (() => {
+                          const declaredValue = (result.valuation as any).declaredValue || result.valuation.declared;
+                          if ((result.valuation as any).declaredPV) return `${formatCurrency(declaredValue)} DCF PV`;
+                          return `${formatCurrency(result.valuation.methods.preMoney)} pre`;
+                        })()
+                      }</td>
+                      <td className="px-4 py-3 text-sm text-[var(--warning)]">{
+                        (() => {
+                          const basePV = result.valuation.methods.ebitdaMultiple.impliedValue;
+                          const deckVal = (result.valuation as any).declaredValue || result.valuation.declared;
+                          if (!deckVal || !basePV) return "—";
+                          return deckVal < basePV ? "Undervalued vs EBITDA benchmark" : "Premium pricing applied";
+                        })()
+                      }</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">ROI Projection</td>

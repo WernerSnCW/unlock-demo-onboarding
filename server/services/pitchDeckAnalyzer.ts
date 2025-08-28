@@ -63,6 +63,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Helper function to discount future values to present value
+function discountToPresent(futureValue: number, years?: number | null, rate?: number | null) {
+  if (!futureValue || !years || years <= 0 || !rate || rate <= 0) return Math.round(futureValue);
+  return Math.round(futureValue / Math.pow(1 + rate, years));
+}
+
 // Default benchmark multiples table
 const DEFAULT_BENCHMARKS = {
   "Pre-Seed": {
@@ -143,6 +149,12 @@ interface ExtractedData {
     stated_pre_money?: number;
     stated_post_money?: number;
     use_of_funds?: string;
+    // New DCF and horizon fields
+    discount_rate_pct?: number | null;        // e.g., 0.25 for 25%
+    exit_multiple?: number | null;            // e.g., 8
+    valuation_dcf_present?: number | null;    // Deck's DCF present value, if stated
+    arr_horizon_years?: number | null;        // 0=current; 5="Year 5"
+    ebitda_horizon_years?: number | null;     // 0=current; 5="Year 5"
     comparables: Array<{
       name: string;
       metric: string;
@@ -374,6 +386,14 @@ TASKS:
      * stated_post_money: post-money valuations
    - Be very flexible with phrasing and formats - check every slide thoroughly
    - named_comparables (array of {name, metric, multiple})
+
+Also extract (use null if not found):
+- valuation_dcf_present (present-value DCF stated in deck)
+- discount_rate_pct (as decimal, e.g., 0.25 for 25%)
+- exit_multiple (e.g., 8 if "8× exit multiple")
+- arr_horizon_years (0 = current; else N from phrases like "Year 5")
+- ebitda_horizon_years (0 = current; else N)
+
 3) For each detected section, provide a 1–2 sentence representative quote from the deck (do not paraphrase).
 4) Output STRICT JSON with this schema:
 
@@ -412,6 +432,11 @@ TASKS:
     "stated_pre_money":20000000,
     "stated_post_money":25000000,
     "use_of_funds":"<raw string if found>",
+    "discount_rate_pct":0.25,
+    "exit_multiple":8,
+    "valuation_dcf_present":null,
+    "arr_horizon_years":5,
+    "ebitda_horizon_years":3,
     "comparables":[{"name":"Comp A","metric":"ARR multiple","multiple":12}]
   },
   "inconsistencies":[
@@ -1111,39 +1136,51 @@ OUTPUT SCHEMA:
             benchmark: section.benchmark,
           };
         }),
-        valuation: {
-          declared: extracted.kpis.stated_pre_money || extracted.kpis.stated_post_money || 0,
-          benchmarkMin: valuations.revenue_multiple?.implied_mid || 0,
-          benchmarkMax: valuations.ebitda_multiple?.implied_mid || 0,
-          assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
-          methods: {
-            preMoney: valuations.implied_from_terms?.pre_money || extracted.kpis.stated_pre_money || 0,
-            postMoney: valuations.implied_from_terms?.post_money || 
-                      valuations.implied_from_post_money?.post_money || 
-                      valuations.implied_from_stated?.post_money || 
-                      extracted.kpis.stated_post_money || 0,
-            revenueMultiple: {
-              arr: valuations.revenue_multiple?.arr || 0,
-              multiple: valuations.revenue_multiple?.multiple_mid || 0,
-              impliedValue: valuations.revenue_multiple?.implied_mid || 0,
+        valuation: (() => {
+          // Compute flags and declared value
+          const hasTerms = !!(extracted.kpis.raise_amount && extracted.kpis.equity_offered_pct);
+          const declaredPV = extracted.kpis.valuation_dcf_present ?? null;
+          const declaredValue = declaredPV 
+            ?? extracted.kpis.stated_pre_money 
+            ?? extracted.kpis.stated_post_money 
+            ?? 0;
+
+          return {
+            declared: declaredValue,
+            benchmarkMin: valuations.revenue_multiple?.implied_mid || 0,
+            benchmarkMax: valuations.ebitda_multiple?.implied_mid || 0,
+            assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
+            methods: {
+              preMoney: hasTerms ? (valuations.implied_from_terms?.pre_money || extracted.kpis.stated_pre_money || 0) : 0,
+              postMoney: hasTerms ? (valuations.implied_from_terms?.post_money ||
+                        valuations.implied_from_post_money?.post_money || 
+                        extracted.kpis.stated_post_money || 0) : 0,
+              revenueMultiple: {
+                arr: valuations.revenue_multiple?.arr || 0,
+                multiple: valuations.revenue_multiple?.multiple_mid || 0,
+                impliedValue: valuations.revenue_multiple?.implied_mid || 0, // PV
+              },
+              ebitdaMultiple: {
+                ebitda: valuations.ebitda_multiple?.ebitda || 0,
+                multiple: valuations.ebitda_multiple?.multiple_mid || 0,
+                impliedValue: valuations.ebitda_multiple?.implied_mid || 0,  // PV
+              },
+              roiProjection: {
+                equityStake: (valuations.roi_estimated?.equity_pct || 0) * 100,
+                projectedExit: valuations.roi_estimated?.exit_value_mid || 0,
+                investorReturn: valuations.roi_estimated?.investor_return_mid || 0,
+                roiMultiple: valuations.roi_estimated?.roi_multiple_mid || 0,
+                irr: valuations.roi_estimated?.irr_mid || 0,
+              },
             },
-            ebitdaMultiple: {
-              ebitda: valuations.ebitda_multiple?.ebitda || 0,
-              multiple: valuations.ebitda_multiple?.multiple_mid || 0,
-              impliedValue: valuations.ebitda_multiple?.implied_mid || 0,
-            },
-            roiProjection: {
-              equityStake: (valuations.roi_estimated?.equity_pct || 0) * 100,
-              projectedExit: valuations.roi_estimated?.exit_value_mid || 0,
-              investorReturn: valuations.roi_estimated?.investor_return_mid || 0,
-              roiMultiple: valuations.roi_estimated?.roi_multiple_mid || 0,
-              irr: valuations.roi_estimated?.irr_mid || 0,
-            },
-          },
-          // Include all computed valuation sources for frontend fallback
-          ...valuations,
-          suggestedQuestions: analysis.key_questions.valuation,
-        },
+            // Include all computed valuation sources for frontend fallback
+            ...valuations,
+            suggestedQuestions: analysis.key_questions.valuation,
+            hasTerms,
+            declaredPV,
+            declaredValue,
+          };
+        })(),
         riskFlags: analysis.risks,
       };
 
