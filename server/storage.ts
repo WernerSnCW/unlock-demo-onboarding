@@ -395,16 +395,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updatePropertyOwnershipPrice(propertyId: string, priceData: { acquisitionPriceGbp?: string; acquisitionDate?: string }): Promise<boolean> {
-    const result = await db
-      .update(propertyOwnerships)
-      .set({
-        acquisitionPriceGbp: priceData.acquisitionPriceGbp,
-        acquisitionDate: priceData.acquisitionDate,
-        updatedAt: new Date().toISOString()
-      })
-      .where(eq(propertyOwnerships.propertyId, propertyId));
-    
-    return result.length > 0;
+    try {
+      const result = await db
+        .update(propertyOwnerships)
+        .set({
+          acquisitionPriceGbp: priceData.acquisitionPriceGbp,
+          acquisitionDate: priceData.acquisitionDate,
+          updatedAt: new Date().toISOString()
+        })
+        .where(eq(propertyOwnerships.propertyId, propertyId));
+      
+      console.log('Update result:', result);
+      return Array.isArray(result) ? result.length > 0 : result.rowCount > 0;
+    } catch (error) {
+      console.error('Error updating property ownership price:', error);
+      return false;
+    }
   }
 
   // Property Loan methods

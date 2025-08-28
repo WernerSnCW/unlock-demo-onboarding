@@ -607,13 +607,20 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update property price');
+        const errorText = await response.text();
+        throw new Error(`Failed to update property price: ${response.status} ${errorText}`);
       }
       
       return response.json();
     },
     onSuccess: () => {
+      // Refresh the properties data to show updated prices
       queryClient.invalidateQueries({ queryKey: ['/api/properties', userId] });
+      
+      // Refresh the entire page to ensure all data is current
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     },
     onError: (error) => {
       console.error('Property price update failed:', error);
@@ -908,6 +915,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                                 <input
                                   type="checkbox"
                                   className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+                                  disabled={updatePropertyPriceMutation.isPending}
                                   onChange={(e) => {
                                     if (e.target.checked && property.latestPurchasePrice) {
                                       // Update the property's acquisition price to match latest purchase price
@@ -922,7 +930,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                                 />
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Update your purchase price to match official records ({formatCurrency(property.latestPurchasePrice.price)})</p>
+                                <p>{updatePropertyPriceMutation.isPending ? 'Updating...' : `Update your purchase price to match official records (${formatCurrency(property.latestPurchasePrice.price)})`}</p>
                               </TooltipContent>
                             </Tooltip>
                           )}
