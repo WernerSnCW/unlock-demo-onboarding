@@ -1497,6 +1497,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Portfolio Analysis API endpoint
+  app.post('/api/portfolio/analyze', async (req, res) => {
+    try {
+      const { userId, portfolioData } = req.body;
+
+      if (!userId || !portfolioData) {
+        return res.status(400).json({ message: 'User ID and portfolio data are required' });
+      }
+
+      // Import OpenAI for analysis
+      const OpenAI = await import('openai').then(mod => mod.default);
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      // Prepare portfolio data for LLM analysis
+      const prompt = `
+Analyze this investment portfolio and provide detailed insights. Focus on asset allocation, diversification, and potential overexposure risks. Provide guidance but NOT financial advice.
+
+PORTFOLIO DATA:
+Total Value: £${portfolioData.totalValue.toLocaleString()}
+Asset Allocation:
+- Traditional Holdings: ${portfolioData.assetAllocation.traditional.toFixed(1)}%
+- Property Portfolio: ${portfolioData.assetAllocation.property.toFixed(1)}%
+- Alternative Investments: ${portfolioData.assetAllocation.alternatives.toFixed(1)}%
+
+Holdings Details:
+${portfolioData.holdings.traditional.map(h => `- ${h.ticker} (${h.sector}): £${h.value.toLocaleString()} (${h.percentage.toFixed(1)}%)`).join('\n')}
+
+Properties:
+${portfolioData.holdings.properties.map(p => `- ${p.type} in ${p.location}: £${p.value.toLocaleString()}`).join('\n')}
+
+Alternative Investments:
+${portfolioData.holdings.alternatives.map(a => `- ${a.type} (${a.riskRating} risk): £${a.value.toLocaleString()}`).join('\n')}
+
+ANALYSIS REQUIREMENTS:
+1. Identify overexposure areas (>30% in single asset class, >20% in single sector, >15% in single property location, etc.)
+2. Calculate diversification score (0-10, considering geographic spread, sector diversity, asset class balance)
+3. Provide risk assessment summary
+4. Give 3-5 key insights about the portfolio structure
+5. Provide 3-5 general guidance points (NOT financial advice, just educational information)
+
+Return as JSON with this exact structure:
+{
+  "totalPortfolioValue": ${portfolioData.totalValue},
+  "assetAllocation": ${JSON.stringify(portfolioData.assetAllocation)},
+  "overexposureWarnings": [
+    {
+      "category": "Asset Class/Sector/Location",
+      "percentage": number,
+      "recommendation": "Educational guidance only"
+    }
+  ],
+  "diversificationScore": number_0_to_10,
+  "keyInsights": ["insight1", "insight2", "insight3"],
+  "riskAssessment": "Overall risk assessment summary",
+  "generalGuidance": ["guidance1", "guidance2", "guidance3"]
+}`;
+
+      console.log('Analyzing portfolio with OpenAI...');
+      
+      const response = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: "You are a financial analysis expert. Analyze investment portfolios and provide educational insights. NEVER give financial advice - only educational information and general guidance. Focus on diversification, risk assessment, and portfolio structure analysis."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3
+      });
+
+      const analysis = JSON.parse(response.choices[0].message.content || '{}');
+      
+      console.log('Portfolio analysis completed successfully');
+      res.json(analysis);
+
+    } catch (error) {
+      console.error('Portfolio analysis error:', error);
+      res.status(500).json({ 
+        message: 'Portfolio analysis failed', 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

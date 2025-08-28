@@ -15,6 +15,7 @@ import { PropertyPortfolio } from '@/components/profile/PropertyPortfolio';
 import { AnalystOpinionsPanel } from '@/components/profile/AnalystOpinionsPanel';
 import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 import { AlternativeInvestments } from '@/components/profile/AlternativeInvestments';
+import { PortfolioSummary } from '@/components/profile/PortfolioSummary';
 
 export default function Profile() {
   const [location] = useLocation();
@@ -129,6 +130,9 @@ export default function Profile() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Portfolio Summary Section */}
+      <PortfolioSummary userId={currentInvestorId || 'demo-1755866735025'} />
 
       {/* Financial Portfolio Section */}
       {positions.length === 0 ? (

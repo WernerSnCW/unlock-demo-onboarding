@@ -64,17 +64,17 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
   const [analysis, setAnalysis] = useState<InvestmentAnalysis | null>(null);
 
   // Fetch portfolio data from all three sources
-  const { data: portfolioHoldings = [] } = useQuery({
+  const { data: portfolioHoldings = [] } = useQuery<any[]>({
     queryKey: ['/api/investors', userId, 'portfolio-holdings'],
     enabled: !!userId,
   });
 
-  const { data: properties = [] } = useQuery({
+  const { data: properties = [] } = useQuery<any[]>({
     queryKey: ['/api/properties', userId],
     enabled: !!userId,
   });
 
-  const { data: alternatives = [] } = useQuery({
+  const { data: alternatives = [] } = useQuery<any[]>({
     queryKey: ['/api/alternatives', userId],
     enabled: !!userId,
   });
@@ -168,7 +168,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
         portfolioData: portfolioSummary
       });
 
-      setAnalysis(response);
+      setAnalysis(response as unknown as InvestmentAnalysis);
     } catch (error) {
       console.error('Failed to analyze portfolio:', error);
     } finally {
