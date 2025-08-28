@@ -170,10 +170,19 @@ export const propertyValuations = pgTable("property_valuations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   propertyId: varchar("property_id"),
   valuationDate: text("valuation_date").notNull(),
-  method: text("method"), // 'purchase','appraisal','avm','manual'
+  method: text("method"), // 'purchase','appraisal','avm','manual','hpi_plus_comps','market_comp','ai_valuation'
   valueGbp: numeric("value_gbp").notNull(),
-  source: text("source"), // 'Hometrack','Zoopla','Surveyor Smith','LandRegistry'
+  source: text("source"), // 'Hometrack','Zoopla','Surveyor Smith','LandRegistry','UK_HPI','Market_Comparables','AI_Engine'
   confidence: numeric("confidence"), // 0..1
+  // Enhanced fields for market comparables and AI valuations
+  valuationRangeMinGbp: numeric("valuation_range_min_gbp"), // Lower bound of valuation range
+  valuationRangeMaxGbp: numeric("valuation_range_max_gbp"), // Upper bound of valuation range
+  comparableCount: integer("comparable_count"), // Number of comparable properties used
+  hpiBaseValueGbp: numeric("hpi_base_value_gbp"), // HPI baseline value
+  comparableAvgValueGbp: numeric("comparable_avg_value_gbp"), // Average of comparable sales
+  methodDetails: text("method_details"), // JSON string with calculation breakdown
+  regionCode: text("region_code"), // LAD code or area code used
+  regionName: text("region_name"), // Human-readable region name
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 

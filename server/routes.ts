@@ -1271,6 +1271,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Confidence: ${confidence}`);
       console.log('================================');
 
+      // Save valuation to database if propertyId is provided
+      if (propertyId) {
+        try {
+          const comparableAverage = comparables.length > 0 ? 
+            comparables.reduce((sum, c) => sum + parseFloat(c.price || '0'), 0) / comparables.length : null;
+          
+          const valuationData = {
+            propertyId,
+            valuationDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+            method: method.toLowerCase(),
+            valueGbp: Math.round(finalEstimate).toString(),
+            source: method === 'HPI_PLUS_COMPS' ? 'Market_Comparables' : 'UK_HPI',
+            confidence: confidenceScore / 5, // Convert 0-5 scale to 0-1
+            valuationRangeMinGbp: range.min.toString(),
+            valuationRangeMaxGbp: range.max.toString(),
+            comparableCount: comparables.length,
+            hpiBaseValueGbp: hpiBasePrice.toString(),
+            comparableAvgValueGbp: comparableAverage ? comparableAverage.toString() : null,
+            methodDetails: JSON.stringify({
+              hpiRegion: hpi.regionName,
+              hpiAreaCode: hpi.areaCode,
+              hpiUpliftFactor: hpiUpliftFactor,
+              usesPurchaseData: usesPurchaseData,
+              autoDetectedPurchase: !!(purchasePrice && !requestPurchasePrice),
+              calculationBreakdown: explainability
+            }),
+            regionCode: hpi.areaCode,
+            regionName: hpi.regionName
+          };
+
+          console.log('Saving valuation to database:', valuationData);
+          const savedValuation = await storage.createPropertyValuation(valuationData);
+          console.log('Valuation saved successfully:', savedValuation.id);
+        } catch (dbError) {
+          console.error('Error saving valuation to database:', dbError);
+          // Don't fail the request if database save fails - just log the error
+        }
+      }
+
       // Cache the result
       valuationCache.set(cacheKey, {
         data: enhancedValuation,

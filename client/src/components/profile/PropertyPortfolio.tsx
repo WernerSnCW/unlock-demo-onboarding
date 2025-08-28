@@ -519,7 +519,8 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
         },
         body: JSON.stringify({ 
           postcode: property.postcode, 
-          propertyType: property.propertyType?.toLowerCase() || 'detached'
+          propertyType: property.propertyType?.toLowerCase() || 'detached',
+          propertyId: property.id
         })
       }).then(res => res.json());
 
