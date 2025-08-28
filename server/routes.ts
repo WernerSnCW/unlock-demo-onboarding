@@ -445,8 +445,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const properties = await storage.getAllProperties(userId);
-      res.json(properties);
+      
+      // Fetch latest valuation for each property
+      const propertiesWithValuations = await Promise.all(
+        properties.map(async (property) => {
+          const latestValuation = await storage.getLatestPropertyValuation(property.id);
+          return {
+            ...property,
+            latestValuation: latestValuation ? {
+              id: latestValuation.id,
+              valueGbp: latestValuation.valueGbp,
+              valuationDate: latestValuation.valuationDate,
+              method: latestValuation.method,
+              source: latestValuation.source,
+              confidence: latestValuation.confidence,
+              valuationRangeMinGbp: latestValuation.valuationRangeMinGbp,
+              valuationRangeMaxGbp: latestValuation.valuationRangeMaxGbp,
+              comparableCount: latestValuation.comparableCount,
+              hpiBaseValueGbp: latestValuation.hpiBaseValueGbp,
+              comparableAvgValueGbp: latestValuation.comparableAvgValueGbp,
+              regionName: latestValuation.regionName,
+              createdAt: latestValuation.createdAt
+            } : null
+          };
+        })
+      );
+      
+      res.json(propertiesWithValuations);
     } catch (error) {
+      console.error('Failed to fetch properties with valuations:', error);
       res.status(500).json({ message: 'Failed to fetch properties' });
     }
   });

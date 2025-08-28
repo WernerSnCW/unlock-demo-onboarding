@@ -805,16 +805,6 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         EPC {property.epcRating}
                       </Badge>
                     )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => refreshValuationMutation.mutate(property)}
-                      disabled={property.isValuationLoading || !property.postcode}
-                      data-testid={`button-refresh-valuation-${property.id}`}
-                      className="h-8 w-8 p-0"
-                    >
-                      <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin' : ''}`} />
-                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -859,10 +849,22 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
 
                   {/* Valuation Section */}
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4" />
-                      Property Valuations
-                    </h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4" />
+                        Property Valuations
+                      </h4>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => refreshValuationMutation.mutate(property)}
+                        disabled={property.isValuationLoading || !property.postcode}
+                        data-testid={`button-refresh-valuation-${property.id}`}
+                        className="h-8 w-8 p-0"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin' : ''}`} />
+                      </Button>
+                    </div>
                     
                     <div className="space-y-2 text-sm">
                       {/* User Purchase Price */}
@@ -887,14 +889,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       )}
 
                       {/* Market Comparable */}
-                      {property.marketComparable ? (
+                      {(property.latestValuation?.comparableAvgValueGbp || property.marketComparable) ? (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <TrendingUp className="h-3 w-3" />
                             Market Comp:
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
-                            {formatCurrency(property.marketComparable.price)}
+                            {formatCurrency(property.latestValuation?.comparableAvgValueGbp || property.marketComparable?.price)}
                           </span>
                         </div>
                       ) : (
@@ -910,14 +912,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       )}
 
                       {/* AI Valuation */}
-                      {property.valuation ? (
+                      {(property.latestValuation?.valueGbp || property.valuation) ? (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <BarChart3 className="h-3 w-3" />
                             AI Valuation:
                           </span>
                           <span className="font-medium text-green-600">
-                            {formatCurrency(property.valuation.estimate)}
+                            {formatCurrency(property.latestValuation?.valueGbp || property.valuation?.estimate)}
                           </span>
                         </div>
                       ) : (
@@ -933,24 +935,41 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       )}
 
                       {/* Regional Average */}
-                      {property.valuation?.hpiBaseline && (
+                      {(property.latestValuation?.hpiBaseValueGbp || property.valuation?.hpiBaseline) && (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             Area Average:
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
-                            {formatCurrency(property.valuation.hpiBaseline)}
+                            {formatCurrency(property.latestValuation?.hpiBaseValueGbp || property.valuation?.hpiBaseline)}
                           </span>
                         </div>
                       )}
 
                       {/* Valuation Range */}
-                      {property.valuation?.range && (
+                      {(property.latestValuation?.valuationRangeMinGbp && property.latestValuation?.valuationRangeMaxGbp) ? (
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
+                          <span>Range:</span>
+                          <span>
+                            {formatCurrency(property.latestValuation.valuationRangeMinGbp)} - {formatCurrency(property.latestValuation.valuationRangeMaxGbp)}
+                          </span>
+                        </div>
+                      ) : property.valuation?.range && (
                         <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
                           <span>Range:</span>
                           <span>
                             {formatCurrency(property.valuation.range.min)} - {formatCurrency(property.valuation.range.max)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Valuation Date */}
+                      {property.latestValuation?.createdAt && (
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
+                          <span>Last Updated:</span>
+                          <span>
+                            {new Date(property.latestValuation.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       )}

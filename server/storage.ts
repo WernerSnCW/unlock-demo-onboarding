@@ -368,7 +368,15 @@ export class DatabaseStorage implements IStorage {
 
   // Property Valuation methods
   async getPropertyValuations(propertyId: string): Promise<PropertyValuation[]> {
-    return await db.select().from(propertyValuations).where(eq(propertyValuations.propertyId, propertyId));
+    return await db.select().from(propertyValuations).where(eq(propertyValuations.propertyId, propertyId)).orderBy(desc(propertyValuations.createdAt));
+  }
+
+  async getLatestPropertyValuation(propertyId: string): Promise<PropertyValuation | undefined> {
+    const [valuation] = await db.select().from(propertyValuations)
+      .where(eq(propertyValuations.propertyId, propertyId))
+      .orderBy(desc(propertyValuations.createdAt))
+      .limit(1);
+    return valuation || undefined;
   }
 
   async createPropertyValuation(valuation: InsertPropertyValuation): Promise<PropertyValuation> {
