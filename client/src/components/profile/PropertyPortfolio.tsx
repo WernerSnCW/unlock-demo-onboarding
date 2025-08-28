@@ -262,10 +262,10 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Property Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
+                          <SelectTrigger className="text-gray-900 dark:text-gray-100">
+                            <SelectValue placeholder="Select type" className="text-gray-900 dark:text-gray-100" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -318,10 +318,10 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">EPC Rating</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select rating" />
+                          <SelectTrigger className="text-gray-900 dark:text-gray-100">
+                            <SelectValue placeholder="Select rating" className="text-gray-900 dark:text-gray-100" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -352,10 +352,10 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Ownership Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
+                          <SelectTrigger className="text-gray-900 dark:text-gray-100">
+                            <SelectValue placeholder="Select ownership" className="text-gray-900 dark:text-gray-100" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
