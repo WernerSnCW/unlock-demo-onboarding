@@ -681,7 +681,7 @@ TASKS:
         Math.floor(fairValues.length / 2)
       ];
       results.peer_gap_pct =
-        (statedValuation - fairValueBaseline) / fairValueBaseline;
+        Math.round(((statedValuation - fairValueBaseline) / fairValueBaseline) * 100) / 100;
       
       console.log("Peer gap calculation:", {
         fairValues,
