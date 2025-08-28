@@ -1274,93 +1274,234 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                             View
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px]">
+                        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
-                            <DialogTitle className="text-gray-900 dark:text-gray-100">
+                            <DialogTitle style={{ color: 'var(--card-foreground)' }}>
                               Property Details
                             </DialogTitle>
-                            <DialogDescription className="text-gray-600 dark:text-gray-400">
+                            <DialogDescription style={{ color: 'var(--muted-foreground)' }}>
                               {formatAddress(selectedProperty || property)}
                             </DialogDescription>
                           </DialogHeader>
                           
                           {selectedProperty && (
                             <div className="space-y-6">
-                              {/* Address Section */}
-                              <div>
-                                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Address</h4>
-                                <div className="space-y-1 text-sm">
-                                  <p>{selectedProperty.addressLine1}</p>
-                                  {selectedProperty.addressLine2 && <p>{selectedProperty.addressLine2}</p>}
-                                  <p>{[selectedProperty.city, selectedProperty.postcode].filter(Boolean).join(', ')}</p>
-                                  <p>{selectedProperty.country}</p>
+                              {/* Property Overview */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Address Section */}
+                                <div>
+                                  <h4 className="font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                                    <Home className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+                                    Address
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <p style={{ color: 'var(--card-foreground)' }}>{selectedProperty.addressLine1}</p>
+                                    {selectedProperty.addressLine2 && <p style={{ color: 'var(--card-foreground)' }}>{selectedProperty.addressLine2}</p>}
+                                    <p style={{ color: 'var(--card-foreground)' }}>{[selectedProperty.city, selectedProperty.postcode].filter(Boolean).join(', ')}</p>
+                                    <p style={{ color: 'var(--card-foreground)' }}>{selectedProperty.country}</p>
+                                  </div>
+                                </div>
+
+                                {/* Property Specifications */}
+                                <div>
+                                  <h4 className="font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                                    <Building className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+                                    Property Information
+                                  </h4>
+                                  <div className="grid grid-cols-2 gap-3 text-sm">
+                                    {selectedProperty.propertyType && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Type:</span>
+                                        <p className="font-medium capitalize" style={{ color: 'var(--card-foreground)' }}>{selectedProperty.propertyType}</p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.bedrooms && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Bedrooms:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>{selectedProperty.bedrooms}</p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.floorAreaSqm && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Floor Area:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>{selectedProperty.floorAreaSqm} m²</p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.yearBuilt && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Year Built:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>{selectedProperty.yearBuilt}</p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.epcRating && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>EPC Rating:</span>
+                                        <Badge className={getEpcColor(selectedProperty.epcRating)}>
+                                          {selectedProperty.epcRating}
+                                        </Badge>
+                                      </div>
+                                    )}
+                                    {selectedProperty.uprn && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>UPRN:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>{selectedProperty.uprn}</p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.titleNumber && (
+                                      <div>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Title Number:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>{selectedProperty.titleNumber}</p>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
 
-                              {/* Property Details */}
-                              <div>
-                                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Property Information</h4>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                  {selectedProperty.uprn && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">UPRN:</span>
-                                      <p className="font-medium">{selectedProperty.uprn}</p>
-                                    </div>
-                                  )}
-                                  {selectedProperty.titleNumber && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">Title Number:</span>
-                                      <p className="font-medium">{selectedProperty.titleNumber}</p>
-                                    </div>
-                                  )}
-                                  {selectedProperty.propertyType && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">Type:</span>
-                                      <p className="font-medium capitalize">{selectedProperty.propertyType}</p>
-                                    </div>
-                                  )}
-                                  {selectedProperty.bedrooms && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">Bedrooms:</span>
-                                      <p className="font-medium">{selectedProperty.bedrooms}</p>
-                                    </div>
-                                  )}
-                                  {selectedProperty.floorAreaSqm && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">Floor Area:</span>
-                                      <p className="font-medium">{selectedProperty.floorAreaSqm} m²</p>
-                                    </div>
-                                  )}
-                                  {selectedProperty.yearBuilt && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">Year Built:</span>
-                                      <p className="font-medium">{selectedProperty.yearBuilt}</p>
-                                    </div>
-                                  )}
-                                  {selectedProperty.epcRating && (
-                                    <div>
-                                      <span className="text-gray-600 dark:text-gray-400">EPC Rating:</span>
-                                      <Badge className={getEpcColor(selectedProperty.epcRating)}>
-                                        {selectedProperty.epcRating}
-                                      </Badge>
-                                    </div>
-                                  )}
+                              {/* Purchase Information */}
+                              {(selectedProperty.acquisitionPriceGbp || selectedProperty.acquisitionDate || selectedProperty.latestPurchasePrice) && (
+                                <div>
+                                  <h4 className="font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                                    <PoundSterling className="h-4 w-4" style={{ color: 'var(--success)' }} />
+                                    Purchase Information
+                                  </h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    {selectedProperty.acquisitionPriceGbp && (
+                                      <div className="p-3 rounded-lg border" style={{ 
+                                        borderColor: 'var(--border)', 
+                                        backgroundColor: 'var(--muted)' 
+                                      }}>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Your Purchase Price:</span>
+                                        <p className="font-bold text-lg" style={{ color: 'var(--success)' }}>
+                                          {formatCurrency(Number(selectedProperty.acquisitionPriceGbp))}
+                                        </p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.acquisitionDate && (
+                                      <div className="p-3 rounded-lg border" style={{ 
+                                        borderColor: 'var(--border)', 
+                                        backgroundColor: 'var(--muted)' 
+                                      }}>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Purchase Date:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>
+                                          {new Date(selectedProperty.acquisitionDate).toLocaleDateString()}
+                                        </p>
+                                      </div>
+                                    )}
+                                    {selectedProperty.latestPurchasePrice && (
+                                      <div className="p-3 rounded-lg border" style={{ 
+                                        borderColor: 'var(--border)', 
+                                        backgroundColor: 'var(--muted)' 
+                                      }}>
+                                        <span style={{ color: 'var(--muted-foreground)' }}>Registry Record:</span>
+                                        <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>
+                                          {formatCurrency(selectedProperty.latestPurchasePrice.priceGbp)}
+                                        </p>
+                                        {selectedProperty.latestPurchasePrice.dateOfTransfer && (
+                                          <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                                            {new Date(selectedProperty.latestPurchasePrice.dateOfTransfer).toLocaleDateString()}
+                                          </p>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
+                              )}
 
-                              {/* Meta Information */}
+                              {/* Current Valuations */}
+                              {selectedProperty.latestValuation && (
+                                <div>
+                                  <h4 className="font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                                    <BarChart3 className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+                                    Current Valuations
+                                  </h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* AI Valuation */}
+                                    <div className="p-4 rounded-lg border" style={{ 
+                                      borderColor: 'var(--border)', 
+                                      backgroundColor: 'var(--card)' 
+                                    }}>
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>AI Valuation</span>
+                                        <Badge variant="outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }}>
+                                          {selectedProperty.latestValuation.method?.replace('_', ' ').toUpperCase()}
+                                        </Badge>
+                                      </div>
+                                      <p className="text-2xl font-bold mb-2" style={{ color: 'var(--primary)' }}>
+                                        {formatCurrency(Number(selectedProperty.latestValuation.valueGbp))}
+                                      </p>
+                                      {selectedProperty.latestValuation.valuationRangeMinGbp && selectedProperty.latestValuation.valuationRangeMaxGbp && (
+                                        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                                          Range: {formatCurrency(Number(selectedProperty.latestValuation.valuationRangeMinGbp))} - {formatCurrency(Number(selectedProperty.latestValuation.valuationRangeMaxGbp))}
+                                        </p>
+                                      )}
+                                      <p className="text-xs mt-2" style={{ color: 'var(--muted-foreground)' }}>
+                                        Updated: {new Date(selectedProperty.latestValuation.createdAt).toLocaleDateString()}
+                                      </p>
+                                    </div>
+
+                                    {/* Market Comparables */}
+                                    {selectedProperty.latestValuation.comparableAvgValueGbp && (
+                                      <div className="p-4 rounded-lg border" style={{ 
+                                        borderColor: 'var(--border)', 
+                                        backgroundColor: 'var(--card)' 
+                                      }}>
+                                        <div className="flex items-center justify-between mb-2">
+                                          <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Market Comparables</span>
+                                          {selectedProperty.latestValuation.comparableCount && (
+                                            <Badge variant="secondary">
+                                              {selectedProperty.latestValuation.comparableCount} sales
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <p className="text-2xl font-bold mb-2" style={{ color: 'var(--secondary)' }}>
+                                          {formatCurrency(Number(selectedProperty.latestValuation.comparableAvgValueGbp))}
+                                        </p>
+                                        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                                          Average of recent sales
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {/* Regional Average */}
+                                    {selectedProperty.latestValuation.hpiBaseValueGbp && (
+                                      <div className="p-4 rounded-lg border" style={{ 
+                                        borderColor: 'var(--border)', 
+                                        backgroundColor: 'var(--card)' 
+                                      }}>
+                                        <div className="flex items-center justify-between mb-2">
+                                          <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Area Average</span>
+                                          <Badge variant="outline" style={{ color: 'var(--info)', borderColor: 'var(--info)' }}>
+                                            {selectedProperty.latestValuation.regionName}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-2xl font-bold mb-2" style={{ color: 'var(--info)' }}>
+                                          {formatCurrency(Number(selectedProperty.latestValuation.hpiBaseValueGbp))}
+                                        </p>
+                                        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                                          UK HPI regional data
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Record Information */}
                               <div>
-                                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Record Information</h4>
+                                <h4 className="font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                                  <Calendar className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                                  Record Information
+                                </h4>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                   <div>
-                                    <span className="text-gray-600 dark:text-gray-400">Added:</span>
-                                    <p className="font-medium">
+                                    <span style={{ color: 'var(--muted-foreground)' }}>Added to Portfolio:</span>
+                                    <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>
                                       {new Date(selectedProperty.createdAt).toLocaleDateString()}
                                     </p>
                                   </div>
                                   <div>
-                                    <span className="text-gray-600 dark:text-gray-400">Updated:</span>
-                                    <p className="font-medium">
+                                    <span style={{ color: 'var(--muted-foreground)' }}>Last Updated:</span>
+                                    <p className="font-medium" style={{ color: 'var(--card-foreground)' }}>
                                       {new Date(selectedProperty.updatedAt).toLocaleDateString()}
                                     </p>
                                   </div>
