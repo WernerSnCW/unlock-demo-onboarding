@@ -339,38 +339,47 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
 
       {/* Analysis Results */}
       {analysis && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
-              <Lightbulb className="h-5 w-5" style={{ color: 'var(--primary)' }} />
-              Investment Analysis & Guidance
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border-b">
+            <CardTitle className="flex items-center gap-3" style={{ color: 'var(--card-foreground)' }}>
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
+                <Lightbulb className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Investment Analysis & Guidance</h3>
+                <p className="text-sm font-normal mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                  AI-powered insights based on your current portfolio allocation • Not financial advice
+                </p>
+              </div>
             </CardTitle>
-            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-              AI-powered insights based on your current portfolio allocation • Not financial advice
-            </p>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8 p-6">
             {/* Overexposure Warnings */}
             {analysis.overexposureWarnings.length > 0 && (
-              <div>
-                <h4 className="font-medium mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
-                  <AlertTriangle className="h-4 w-4 text-orange-500" />
-                  Potential Overexposure Areas
-                </h4>
-                <div className="space-y-2">
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 text-white shadow-md">
+                    <AlertTriangle className="h-4 w-4" />
+                  </div>
+                  <h4 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
+                    Potential Overexposure Areas
+                  </h4>
+                </div>
+                <div className="space-y-3">
                   {analysis.overexposureWarnings.map((warning, index) => (
-                    <div key={index} className="p-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-orange-800 dark:text-orange-400">
+                    <div key={index} className="relative p-5 rounded-xl border-l-4 border-orange-400 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-semibold text-orange-800 dark:text-orange-400 text-base">
                           {warning.category}
                         </span>
-                        <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+                        <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-sm px-3 py-1">
                           {formatPercentage(warning.percentage)}
                         </Badge>
                       </div>
-                      <p className="text-sm text-orange-700 dark:text-orange-400">
+                      <p className="text-sm text-orange-700 dark:text-orange-300 leading-relaxed">
                         {warning.recommendation}
                       </p>
+                      <div className="absolute top-2 right-2 w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                     </div>
                   ))}
                 </div>
@@ -378,71 +387,108 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
             )}
 
             {/* Diversification Score */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-                <h4 className="font-medium mb-2" style={{ color: 'var(--card-foreground)' }}>
-                  Diversification Score
-                </h4>
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-                    {analysis.diversificationScore}/10
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative p-6 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md">
+                    <TrendingUp className="h-4 w-4" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-green-800 dark:text-green-400">
+                    Diversification Score
+                  </h4>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-3xl font-bold text-green-700 dark:text-green-300">
+                    {analysis.diversificationScore}
+                    <span className="text-lg text-green-600 dark:text-green-400">/10</span>
                   </div>
                   <div className="flex-1">
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="w-full bg-green-200 dark:bg-green-800 rounded-full h-3 shadow-inner">
                       <div 
-                        className="h-2 rounded-full"
+                        className="h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-sm transition-all duration-500"
                         style={{ 
-                          backgroundColor: 'var(--primary)',
                           width: `${(analysis.diversificationScore / 10) * 100}%`
                         }}
                       />
                     </div>
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      {analysis.diversificationScore >= 8 ? 'Excellent' : 
+                       analysis.diversificationScore >= 6 ? 'Good' : 
+                       analysis.diversificationScore >= 4 ? 'Moderate' : 'Needs Improvement'}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-                <h4 className="font-medium mb-2" style={{ color: 'var(--card-foreground)' }}>
-                  Risk Assessment
-                </h4>
-                <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+              <div className="relative p-6 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 border border-purple-200 dark:border-purple-800 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-md">
+                    <AlertTriangle className="h-4 w-4" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-purple-800 dark:text-purple-400">
+                    Risk Assessment
+                  </h4>
+                </div>
+                <p className="text-sm text-purple-700 dark:text-purple-300 leading-relaxed">
                   {analysis.riskAssessment}
                 </p>
               </div>
             </div>
 
             {/* Key Insights */}
-            <div>
-              <h4 className="font-medium mb-3" style={{ color: 'var(--card-foreground)' }}>
-                Key Insights
-              </h4>
-              <ul className="space-y-2">
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-md">
+                  <Lightbulb className="h-4 w-4" />
+                </div>
+                <h4 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
+                  Key Insights
+                </h4>
+              </div>
+              <div className="grid gap-3">
                 {analysis.keyInsights.map((insight, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: 'var(--primary)' }} />
-                    <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                  <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 text-white text-xs font-bold shadow-sm">
+                      {index + 1}
+                    </div>
+                    <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed flex-1">
                       {insight}
-                    </span>
-                  </li>
+                    </p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* General Guidance */}
-            <div>
-              <h4 className="font-medium mb-3" style={{ color: 'var(--card-foreground)' }}>
-                General Guidance
-              </h4>
-              <ul className="space-y-2">
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-green-600 text-white shadow-md">
+                  <DollarSign className="h-4 w-4" />
+                </div>
+                <h4 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
+                  General Guidance
+                </h4>
+              </div>
+              <div className="grid gap-3">
                 {analysis.generalGuidance.map((guidance, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: 'var(--secondary)' }} />
-                    <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                  <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-teal-50 to-green-50 dark:from-teal-950/20 dark:to-green-950/20 border border-teal-200 dark:border-teal-800">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-green-600 text-white text-xs font-bold shadow-sm">
+                      {index + 1}
+                    </div>
+                    <p className="text-sm text-teal-800 dark:text-teal-300 leading-relaxed flex-1">
                       {guidance}
-                    </span>
-                  </li>
+                    </p>
+                  </div>
                 ))}
-              </ul>
+              </div>
+            </div>
+
+            {/* Disclaimer */}
+            <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/50 dark:to-slate-900/50 border border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-gray-600 dark:text-gray-400 text-center italic">
+                <strong>Important Disclaimer:</strong> This analysis is for educational purposes only and does not constitute financial advice. 
+                Always consult with qualified financial advisors before making investment decisions.
+              </p>
             </div>
 
             <div className="text-xs p-3 rounded-lg border border-gray-200 dark:border-gray-700" style={{ backgroundColor: 'var(--muted)' }}>
