@@ -427,14 +427,21 @@ export async function computeDeterministicValuationsEnhanced(
         growth_rate: kpis.growth_rate_pct,
         customers: kpis.customers,
         raise_amount: kpis.raise_amount,
-        stated_valuation: kpis.stated_pre_money || kpis.stated_post_money,
+        stated_valuation: kpis.stated_pre_money || kpis.stated_post_money || 0,
         currency: kpis.currency_primary || 'GBP'
       });
       
       results.peer_analysis = peerAnalysis;
       results.peer_gap_pct = peerAnalysis.valuation_gap_pct;
+      console.log('✅ LLM Peer Analysis Success:', {
+        gap_pct: peerAnalysis.valuation_gap_pct,
+        reasonableness_score: peerAnalysis.assessment.reasonableness_score,
+        similar_companies: peerAnalysis.peer_comparison.similar_companies.length,
+        methodology: peerAnalysis.methodology_note
+      });
     } catch (error) {
-      console.error('Peer analysis failed:', error);
+      console.error('❌ LLM Peer Analysis Failed:', error);
+      console.log('⚠️  Using fallback hardcoded benchmark comparison instead of real peer analysis');
       // Fallback to basic comparison if LLM analysis fails
       const allImplied = [
         results.revenue_multiple?.implied_mid,
@@ -549,7 +556,7 @@ Base your analysis on real market knowledge and recent funding trends. If data i
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -562,7 +569,7 @@ Base your analysis on real market knowledge and recent funding trends. If data i
       ],
       response_format: { type: "json_object" },
       temperature: 0.3,
-      max_tokens: 1500
+      max_completion_tokens: 1500
     });
 
     const result = JSON.parse(response.choices[0].message.content || '{}');
@@ -672,7 +679,7 @@ Examples:
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
       messages: [
         { role: "system", content: "You are a financial data extraction expert. Return precise JSON data only." },
         { role: "user", content: prompt }
