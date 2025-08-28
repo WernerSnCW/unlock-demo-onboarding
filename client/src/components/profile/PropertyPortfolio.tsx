@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { insertPropertySchema, insertPropertyOwnershipSchema } from '@shared/schema';
 
 // Form schema for adding new property
@@ -149,10 +149,10 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
         propertyId: property.id,
         userId,
         ownershipType,
-        sharePct,
+        sharePct: sharePct.toString(), // Convert to string as expected by Zod schema
         acquisitionDate: acquisitionDate || undefined,
-        acquisitionPriceGbp: acquisitionPriceGbp ? parseFloat(acquisitionPriceGbp) : undefined,
-        acquisitionCostsGbp: acquisitionCostsGbp ? parseFloat(acquisitionCostsGbp) : undefined,
+        acquisitionPriceGbp: acquisitionPriceGbp || undefined,
+        acquisitionCostsGbp: acquisitionCostsGbp || undefined,
         isPrimaryResidence,
       };
       
@@ -233,7 +233,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Address Line 2</FormLabel>
                     <FormControl>
-                      <Input placeholder="Apartment, suite, etc." {...field} />
+                      <Input placeholder="Apartment, suite, etc." {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -248,7 +248,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">City</FormLabel>
                       <FormControl>
-                        <Input placeholder="London" {...field} />
+                        <Input placeholder="London" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -262,7 +262,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Postcode</FormLabel>
                       <FormControl>
-                        <Input placeholder="SW1A 1AA" {...field} />
+                        <Input placeholder="SW1A 1AA" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -282,7 +282,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Property Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                           <SelectTrigger className="text-gray-900 dark:text-gray-100">
                             <SelectValue placeholder="Select type" className="text-gray-900 dark:text-gray-100" />
@@ -309,7 +309,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Bedrooms</FormLabel>
                       <FormControl>
-                        <Input placeholder="3" {...field} />
+                        <Input placeholder="3" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -325,7 +325,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Year Built</FormLabel>
                       <FormControl>
-                        <Input placeholder="1995" {...field} />
+                        <Input placeholder="1995" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -338,7 +338,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">EPC Rating</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                           <SelectTrigger className="text-gray-900 dark:text-gray-100">
                             <SelectValue placeholder="Select rating" className="text-gray-900 dark:text-gray-100" />
@@ -372,7 +372,7 @@ function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: ()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-900 dark:text-gray-100">Ownership Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                           <SelectTrigger className="text-gray-900 dark:text-gray-100">
                             <SelectValue placeholder="Select ownership" className="text-gray-900 dark:text-gray-100" />
