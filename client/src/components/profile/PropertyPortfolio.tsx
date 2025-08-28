@@ -841,23 +841,27 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {propertiesWithValuations.map((property) => (
-            <Card key={property.id} className="group hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{getPropertyTypeIcon(property.propertyType)}</span>
+            <Card key={property.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+              <CardHeader className="pb-4 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-bl-full opacity-50"></div>
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-sm">
+                      <Home className="h-5 w-5" />
+                    </div>
                     <div>
-                      <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                      <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {property.addressLine1}
                       </CardTitle>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {[property.city, property.postcode].filter(Boolean).join(', ')}
-                      </p>
+                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                        <MapPin className="h-3 w-3" />
+                        <span>{[property.city, property.postcode].filter(Boolean).join(', ')}</span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {property.epcRating && (
-                      <Badge className={getEpcColor(property.epcRating)}>
+                      <Badge className={`${getEpcColor(property.epcRating)} shadow-sm border-0`}>
                         EPC {property.epcRating}
                       </Badge>
                     )}
@@ -866,92 +870,112 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
               </CardHeader>
               
               <CardContent className="pt-0">
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* Property Details */}
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700">
                     {property.propertyType && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Type:</span>
-                        <p className="font-medium text-gray-900 dark:text-gray-100 capitalize">
-                          {property.propertyType}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-blue-500" />
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Type</span>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                            {property.propertyType}
+                          </p>
+                        </div>
                       </div>
                     )}
                     {property.bedrooms && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Bedrooms:</span>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {property.bedrooms}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Home className="h-4 w-4 text-green-500" />
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Bedrooms</span>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                            {property.bedrooms}
+                          </p>
+                        </div>
                       </div>
                     )}
                     {property.floorAreaSqm && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Area:</span>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {property.floorAreaSqm} m²
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-purple-500" />
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Area</span>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                            {property.floorAreaSqm} m²
+                          </p>
+                        </div>
                       </div>
                     )}
                     {property.yearBuilt && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Built:</span>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {property.yearBuilt}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-orange-500" />
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Built</span>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                            {property.yearBuilt}
+                          </p>
+                        </div>
                       </div>
                     )}
                     {property.acquisitionPriceGbp && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Your Purchase:</span>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            {formatCurrency(Number(property.acquisitionPriceGbp))}
-                          </p>
-                          {property.latestPurchasePrice && 
-                           Number(property.acquisitionPriceGbp) !== property.latestPurchasePrice.price && (
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <input
-                                  type="checkbox"
-                                  className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
-                                  disabled={updatePropertyPriceMutation.isPending}
-                                  onChange={(e) => {
-                                    if (e.target.checked && property.latestPurchasePrice) {
-                                      // Update the property's acquisition price to match latest purchase price
-                                      updatePropertyPriceMutation.mutate({
-                                        propertyId: property.id,
-                                        price: property.latestPurchasePrice.price,
-                                        date: property.latestPurchasePrice.dateOfTransfer
-                                      });
-                                    }
-                                  }}
-                                  data-testid={`checkbox-align-price-${property.id}`}
-                                />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{updatePropertyPriceMutation.isPending ? 'Updating...' : `Update your purchase price to match official records (${formatCurrency(property.latestPurchasePrice.price)})`}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
+                      <div className="flex items-center gap-2">
+                        <PoundSterling className="h-4 w-4 text-emerald-500" />
+                        <div className="flex-1">
+                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Your Purchase</span>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                              {formatCurrency(Number(property.acquisitionPriceGbp))}
+                            </p>
+                            {property.latestPurchasePrice && 
+                             Number(property.acquisitionPriceGbp) !== property.latestPurchasePrice.price && (
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <input
+                                    type="checkbox"
+                                    className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+                                    disabled={updatePropertyPriceMutation.isPending}
+                                    onChange={(e) => {
+                                      if (e.target.checked && property.latestPurchasePrice) {
+                                        // Update the property's acquisition price to match latest purchase price
+                                        updatePropertyPriceMutation.mutate({
+                                          propertyId: property.id,
+                                          price: property.latestPurchasePrice.price,
+                                          date: property.latestPurchasePrice.dateOfTransfer
+                                        });
+                                      }
+                                    }}
+                                    data-testid={`checkbox-align-price-${property.id}`}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{updatePropertyPriceMutation.isPending ? 'Updating...' : `Update your purchase price to match official records (${formatCurrency(property.latestPurchasePrice.price)})`}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
                     {property.acquisitionDate && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">Purchase Date:</span>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {new Date(property.acquisitionDate).toLocaleDateString()}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-blue-500" />
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide">Purchase Date</span>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                            {new Date(property.acquisitionDate).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
 
                   {/* Valuation Section */}
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4" />
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                          <BarChart3 className="h-4 w-4" />
+                        </div>
                         Property Valuations
                       </h4>
                       <Button
@@ -960,9 +984,9 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         onClick={() => refreshValuationMutation.mutate(property)}
                         disabled={property.isValuationLoading || !property.postcode}
                         data-testid={`button-refresh-valuation-${property.id}`}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 border-blue-200 hover:bg-blue-100 dark:border-blue-600 dark:hover:bg-blue-800"
                       >
-                        <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`h-3 w-3 ${property.isValuationLoading ? 'animate-spin text-blue-600' : 'text-blue-600'}`} />
                       </Button>
                     </div>
                     
@@ -1201,8 +1225,8 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                   </div>
 
                   {/* Actions */}
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex gap-2">
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex gap-3 flex-1">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button 
@@ -1210,8 +1234,9 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                             size="sm"
                             data-testid={`button-view-property-${property.id}`}
                             onClick={() => setSelectedProperty(property)}
+                            className="flex-1 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-600 text-blue-600 dark:text-blue-400 transition-colors"
                           >
-                            <Eye className="h-3 w-3 mr-1" />
+                            <Eye className="h-3 w-3 mr-2" />
                             View
                           </Button>
                         </DialogTrigger>
@@ -1317,7 +1342,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                         size="sm"
                         data-testid={`button-edit-property-${property.id}`}
                       >
-                        <Edit className="h-3 w-3 mr-1" />
+                        <Edit className="h-3 w-3 mr-2" />
                         Edit
                       </Button>
                     </div>
