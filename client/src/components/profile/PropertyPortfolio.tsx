@@ -3,10 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Building, MapPin, Calendar, TrendingUp, Plus, Eye, Edit, Trash2, RefreshCw, PoundSterling, Home, BarChart3 } from 'lucide-react';
+import { Building, MapPin, Calendar, TrendingUp, Plus, Eye, Edit, Trash2, RefreshCw, PoundSterling, Home, BarChart3, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -678,7 +679,8 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <TooltipProvider>
+      <div className={`space-y-6 ${className}`}>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -873,6 +875,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <Home className="h-3 w-3" />
                             Purchase Price:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>The original price you paid for this property</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
                             {formatCurrency(Number(property.acquisitionPriceGbp))}
@@ -883,6 +893,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <Home className="h-3 w-3" />
                             Purchase Price:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>The original price you paid for this property</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="text-gray-500 dark:text-gray-500 italic">Not set</span>
                         </div>
@@ -894,6 +912,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <TrendingUp className="h-3 w-3" />
                             Market Comp:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Average value based on recent comparable property sales in your area</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
                             {formatCurrency(property.latestValuation?.comparableAvgValueGbp || property.marketComparable?.price)}
@@ -904,6 +930,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <TrendingUp className="h-3 w-3" />
                             Market Comp:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Average value based on recent comparable property sales in your area</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="text-gray-500 dark:text-gray-500 italic">
                             {property.isValuationLoading ? 'Loading...' : 'Not found'}
@@ -917,6 +951,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <BarChart3 className="h-3 w-3" />
                             AI Valuation:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Smart estimate combining your purchase price with regional house price index growth</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="font-medium text-green-600">
                             {formatCurrency(property.latestValuation?.valueGbp || property.valuation?.estimate)}
@@ -927,6 +969,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <BarChart3 className="h-3 w-3" />
                             AI Valuation:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Smart estimate combining your purchase price with regional house price index growth</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="text-gray-500 dark:text-gray-500 italic">
                             {property.isValuationLoading ? 'Loading...' : 'Click refresh'}
@@ -940,6 +990,14 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             Area Average:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Current average property price in {property.latestValuation?.regionName || 'your area'} based on official UK HPI data</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
                             {formatCurrency(property.latestValuation?.hpiBaseValueGbp || property.valuation?.hpiBaseline)}
@@ -950,14 +1008,34 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       {/* Valuation Range */}
                       {(property.latestValuation?.valuationRangeMinGbp && property.latestValuation?.valuationRangeMaxGbp) ? (
                         <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
-                          <span>Range:</span>
+                          <span className="flex items-center gap-1">
+                            Range:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Estimated value range considering market uncertainty and comparable sales variation</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </span>
                           <span>
                             {formatCurrency(property.latestValuation.valuationRangeMinGbp)} - {formatCurrency(property.latestValuation.valuationRangeMaxGbp)}
                           </span>
                         </div>
                       ) : property.valuation?.range && (
                         <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
-                          <span>Range:</span>
+                          <span className="flex items-center gap-1">
+                            Range:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Estimated value range considering market uncertainty and comparable sales variation</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </span>
                           <span>
                             {formatCurrency(property.valuation.range.min)} - {formatCurrency(property.valuation.range.max)}
                           </span>
@@ -967,7 +1045,17 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                       {/* Valuation Date */}
                       {property.latestValuation?.createdAt && (
                         <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center justify-between">
-                          <span>Last Updated:</span>
+                          <span className="flex items-center gap-1">
+                            Last Updated:
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>When this valuation was last calculated and saved to the database</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </span>
                           <span>
                             {new Date(property.latestValuation.createdAt).toLocaleDateString()}
                           </span>
@@ -1119,6 +1207,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }
