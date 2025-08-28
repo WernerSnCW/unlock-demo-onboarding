@@ -17,7 +17,8 @@ import {
   insertPropertyLeaseSchema,
   insertPropertyCashflowSchema,
   propertyPriceData,
-  ukHpi
+  ukHpi,
+  postcodeLadMapping
 } from "@shared/schema";
 
 // Helper functions for UK HPI data
@@ -767,90 +768,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached.data);
       }
 
-      // Step 1: Get HPI baseline for the region
-      const postcodePrefix = postcode.split(' ')[0];
-      const postcodeArea = postcodePrefix.match(/^[A-Z]+/)?.[0] || postcodePrefix.substring(0, 2);
+      // Step 1: Get HPI baseline for the region using postcode to LAD mapping
+      console.log(`Valuation request: postcode=${postcode}`);
       
-      console.log(`Valuation request: postcode=${postcode}, prefix=${postcodePrefix}, area=${postcodeArea}`);
+      // Look up LAD code from postcode mapping table
+      const postcodeMapping = await db.select()
+        .from(postcodeLadMapping)
+        .where(eq(postcodeLadMapping.postcode, postcode.toUpperCase().trim()))
+        .limit(1);
       
-      // Proper postcode to HPI region mapping
-      const getHpiRegionForPostcode = (postcodePrefix: string): string[] => {
-        const area = postcodePrefix.substring(0, 2).toUpperCase();
-        
-        // Define proper UK postcode area to HPI region mappings
-        const postcodeMap: Record<string, string[]> = {
-          // London postcodes
-          'E1': ['London'], 'E2': ['London'], 'E3': ['London'], 'E4': ['London'], 'E5': ['London'],
-          'EC': ['London'], 'N1': ['London'], 'N2': ['London'], 'N3': ['London'], 'N4': ['London'],
-          'NW': ['London'], 'SE': ['London'], 'SW': ['London'], 'W1': ['London'], 'WC': ['London'],
-          
-          // Essex postcodes
-          'SS': ['Essex', 'Basildon'], 'CM': ['Essex'], 'CO': ['Essex'], 'RM': ['Essex'],
-          
-          // Kent postcodes  
-          'TN': ['Kent'], 'CT': ['Kent'], 'DA': ['Kent'], 'ME': ['Kent'], 'BR': ['Kent'],
-          
-          // Manchester/Greater Manchester
-          'M1': ['Manchester', 'Greater Manchester'], 'M2': ['Manchester', 'Greater Manchester'],
-          
-          // Other major areas
-          'B1': ['Birmingham'], 'B2': ['Birmingham'], 'LS': ['Leeds'], 'S1': ['Sheffield'],
-          'OX': ['Oxfordshire'], 'CB': ['Cambridgeshire'], 'RG': ['Reading', 'Berkshire']
-        };
-        
-        return postcodeMap[area] || postcodeMap[postcodePrefix.substring(0, 1)] || [];
-      };
-      
-      const possibleRegions = getHpiRegionForPostcode(postcodePrefix);
       let hpiData: any[] = [];
+      let ladCode: string | null = null;
       
-      // Try each possible region
-      for (const region of possibleRegions) {
+      if (postcodeMapping.length > 0) {
+        ladCode = postcodeMapping[0].ladCode;
+        console.log(`Found LAD mapping: ${postcode} → ${ladCode}`);
+        
+        // Look up HPI data using LAD code
         hpiData = await db.select()
           .from(ukHpi)
-          .where(eq(ukHpi.regionName, region))
+          .where(eq(ukHpi.areaCode, ladCode))
           .orderBy(desc(ukHpi.date))
           .limit(1);
           
         if (hpiData.length > 0) {
-          console.log(`Found HPI data for ${postcodePrefix} → ${region}`);
-          break;
+          console.log(`Found HPI data for LAD ${ladCode}: ${hpiData[0].regionName}`);
+        } else {
+          console.log(`No HPI data found for LAD code: ${ladCode}`);
         }
+      } else {
+        console.log(`No LAD mapping found for postcode: ${postcode}`);
       }
       
-      console.log(`Postcode mapping: ${postcodePrefix} → [${possibleRegions.join(', ')}], found: ${hpiData.length > 0 ? hpiData[0].regionName : 'none'}`);
-      
-      // Fallback to broader area search if no exact match
-      if (hpiData.length === 0 && possibleRegions.length > 0) {
-        console.log(`Trying fuzzy match for regions: ${possibleRegions.join(', ')}`);
-        for (const region of possibleRegions) {
-          hpiData = await db.select()
-            .from(ukHpi)
-            .where(like(ukHpi.regionName, `%${region}%`))
-            .orderBy(desc(ukHpi.date))
-            .limit(1);
-            
-          if (hpiData.length > 0) {
-            console.log(`Fuzzy match found: ${region} → ${hpiData[0].regionName}`);
-            break;
+      // Fallback strategy: try with postcode prefix if exact postcode not found
+      if (hpiData.length === 0) {
+        const postcodePrefix = postcode.split(' ')[0];
+        console.log(`Trying fallback with postcode prefix: ${postcodePrefix}`);
+        
+        const prefixMapping = await db.select()
+          .from(postcodeLadMapping)
+          .where(like(postcodeLadMapping.postcode, `${postcodePrefix}%`))
+          .limit(10);
+        
+        if (prefixMapping.length > 0) {
+          // Try the most common LAD code for this prefix
+          const ladCodes = prefixMapping.map(m => m.ladCode);
+          const uniqueLadCodes = [...new Set(ladCodes)];
+          
+          for (const tryLadCode of uniqueLadCodes) {
+            hpiData = await db.select()
+              .from(ukHpi)
+              .where(eq(ukHpi.areaCode, tryLadCode))
+              .orderBy(desc(ukHpi.date))
+              .limit(1);
+              
+            if (hpiData.length > 0) {
+              ladCode = tryLadCode;
+              console.log(`Fallback success: ${postcodePrefix} → LAD ${ladCode} → ${hpiData[0].regionName}`);
+              break;
+            }
           }
         }
       }
       
-      // Strategy 4: London fallback for London postcodes
-      if (hpiData.length === 0 && (postcodeArea.startsWith('E') || postcodeArea.startsWith('N') || postcodeArea.startsWith('NW') || postcodeArea.startsWith('SE') || postcodeArea.startsWith('SW') || postcodeArea.startsWith('W') || postcodeArea.startsWith('EC') || postcodeArea.startsWith('WC'))) {
-        console.log(`London fallback for: ${postcodeArea}`);
-        hpiData = await db.select()
-          .from(ukHpi)
-          .where(eq(ukHpi.regionName, 'London'))
-          .orderBy(desc(ukHpi.date))
-          .limit(1);
-        console.log(`London fallback found ${hpiData.length} results`);
-      }
-      
-      // Strategy 5: England/UK-wide fallback
+      // Final fallback: England/UK-wide data
       if (hpiData.length === 0) {
-        console.log(`England/UK fallback`);
+        console.log(`Final fallback: using England/UK-wide data`);
         hpiData = await db.select()
           .from(ukHpi)
           .where(
@@ -959,6 +942,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Step 3: Find PPD comparables (last 12-24 months)
       const cutoffDate = new Date();
       cutoffDate.setMonth(cutoffDate.getMonth() - 18); // 18 months for wider search
+      const postcodePrefix = postcode.split(' ')[0]; // Extract postcode prefix for comparables search
       
       const comparables = await db.select()
         .from(propertyPriceData)
