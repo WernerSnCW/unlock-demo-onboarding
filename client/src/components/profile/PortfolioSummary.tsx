@@ -163,12 +163,13 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
         }
       };
 
-      const response = await apiRequest('/api/portfolio/analyze', 'POST', {
+      const response = await apiRequest('POST', '/api/portfolio/analyze', {
         userId,
         portfolioData: portfolioSummary
       });
 
-      setAnalysis(response as unknown as InvestmentAnalysis);
+      const analysisData = await response.json();
+      setAnalysis(analysisData as InvestmentAnalysis);
     } catch (error) {
       console.error('Failed to analyze portfolio:', error);
     } finally {
