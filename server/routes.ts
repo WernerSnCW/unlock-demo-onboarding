@@ -774,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Valuation request: postcode=${postcode}, prefix=${postcodePrefix}, area=${postcodeArea}`);
       
       // Proper postcode to HPI region mapping
-      function getHpiRegionForPostcode(postcodePrefix: string): string[] {
+      const getHpiRegionForPostcode = (postcodePrefix: string): string[] => {
         const area = postcodePrefix.substring(0, 2).toUpperCase();
         
         // Define proper UK postcode area to HPI region mappings
@@ -799,7 +799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         return postcodeMap[area] || postcodeMap[postcodePrefix.substring(0, 1)] || [];
-      }
+      };
       
       const possibleRegions = getHpiRegionForPostcode(postcodePrefix);
       let hpiData: any[] = [];
@@ -1068,7 +1068,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`Valuation Range: £${range.min.toLocaleString()} - £${range.max.toLocaleString()}`);
           
           explainability = {
-            ...explainability,
+            hpiBaseline: explainability.hpiBaseline,
+            hpiUpliftFactor: explainability.hpiUpliftFactor,
+            purchasePrice: explainability.purchasePrice,
+            comparablesFound: explainability.comparablesFound,
             method: usesPurchaseData ? 'Purchase price adjusted by HPI growth' : 'Blended: 70% comparable sales + 30% HPI baseline',
             blendedResult: finalEstimate,
             comparableAverage: compAverage,
@@ -1339,7 +1342,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Fact checking failed:', error);
       res.status(500).json({ 
         message: 'Fact checking failed', 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
@@ -1375,7 +1378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Pitch deck analysis failed:', error);
       res.status(500).json({ 
         message: 'Pitch deck analysis failed', 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
