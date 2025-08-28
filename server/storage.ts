@@ -18,7 +18,7 @@ import {
   propertyValuations, propertyLeases, propertyCashflows
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
