@@ -14,6 +14,7 @@ import { PortfolioUploader } from '@/components/profile/PortfolioUploader';
 import { PropertyPortfolio } from '@/components/profile/PropertyPortfolio';
 import { AnalystOpinionsPanel } from '@/components/profile/AnalystOpinionsPanel';
 import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
+import { AlternativeInvestments } from '@/components/profile/AlternativeInvestments';
 
 export default function Profile() {
   const [location] = useLocation();
@@ -40,11 +41,11 @@ export default function Profile() {
 
   const PortfolioTab = () => (
     <div className="space-y-6">
-      {/* Upload Portfolio Button - Always visible */}
+      {/* Header and Upload Portfolio Button */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Portfolio</h2>
-          <p className="text-gray-600 dark:text-gray-400">Manage your investment portfolio and track performance</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Complete Investment Portfolio</h2>
+          <p className="text-gray-600 dark:text-gray-400">All your investments in one place - properties, holdings, and alternatives</p>
         </div>
         
         <Dialog>
@@ -173,9 +174,17 @@ export default function Profile() {
         </div>
       )}
 
-      {/* Property Portfolio Section */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <PropertyPortfolio userId={currentInvestorId || 'demo-1755866735025'} />
+      {/* Investment Portfolio Sections */}
+      <div className="space-y-8">
+        {/* Property Portfolio Section */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <PropertyPortfolio userId={currentInvestorId || 'demo-1755866735025'} />
+        </div>
+
+        {/* Alternative Investments Section */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <AlternativeInvestments userId={currentInvestorId || 'demo-1755866735025'} />
+        </div>
       </div>
     </div>
   );
