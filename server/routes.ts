@@ -840,18 +840,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Step 1: Get HPI baseline for the region using postcode to LAD mapping
       console.log(`Valuation request: postcode=${postcode}`);
       
-      // Look up LAD code from postcode mapping table
-      const postcodeMapping = await db.select()
-        .from(postcodeLadMapping)
-        .where(eq(postcodeLadMapping.postcode, postcode.toUpperCase().trim()))
-        .limit(1);
+      // Enhanced postcode matching - try multiple formats
+      const normalizedPostcode = postcode.toUpperCase().trim();
+      const spacedPostcode = normalizedPostcode.includes(' ') ? normalizedPostcode : 
+        normalizedPostcode.replace(/^([A-Z]{1,2}\d{1,2}[A-Z]?)(\d[A-Z]{2})$/, '$1 $2');
+      const unspacedPostcode = normalizedPostcode.replace(/\s+/g, '');
+      
+      console.log(`Postcode lookup variants: original="${normalizedPostcode}", spaced="${spacedPostcode}", unspaced="${unspacedPostcode}"`);
+      
+      // Try multiple postcode formats for LAD mapping
+      const postcodeVariants = [normalizedPostcode, spacedPostcode, unspacedPostcode].filter((v, i, arr) => arr.indexOf(v) === i);
+      let postcodeMapping: any[] = [];
+      let matchedPostcode = '';
+      
+      for (const variant of postcodeVariants) {
+        postcodeMapping = await db.select()
+          .from(postcodeLadMapping)
+          .where(eq(postcodeLadMapping.postcode, variant))
+          .limit(1);
+          
+        if (postcodeMapping.length > 0) {
+          matchedPostcode = variant;
+          console.log(`Found LAD mapping using variant "${variant}": ${variant} → ${postcodeMapping[0].ladCode}`);
+          break;
+        }
+      }
       
       let hpiData: any[] = [];
       let ladCode: string | null = null;
       
       if (postcodeMapping.length > 0) {
         ladCode = postcodeMapping[0].ladCode;
-        console.log(`Found LAD mapping: ${postcode} → ${ladCode}`);
         
         // Look up HPI data using LAD code
         hpiData = await db.select()
@@ -866,7 +885,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`No HPI data found for LAD code: ${ladCode}`);
         }
       } else {
-        console.log(`No LAD mapping found for postcode: ${postcode}`);
+        console.log(`No LAD mapping found for any postcode variant: ${postcodeVariants.join(', ')}`);
       }
       
       // Fallback strategy: try with postcode prefix if exact postcode not found
@@ -882,7 +901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (prefixMapping.length > 0) {
           // Try the most common LAD code for this prefix
           const ladCodes = prefixMapping.map(m => m.ladCode);
-          const uniqueLadCodes = [...new Set(ladCodes)];
+          const uniqueLadCodes = Array.from(new Set(ladCodes));
           
           for (const tryLadCode of uniqueLadCodes) {
             hpiData = await db.select()
@@ -1340,7 +1359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             method: method.toLowerCase(),
             valueGbp: Math.round(finalEstimate).toString(),
             source: method === 'HPI_PLUS_COMPS' ? 'Market_Comparables' : 'UK_HPI',
-            confidence: confidenceScore / 5, // Convert 0-5 scale to 0-1
+            confidence: (confidenceScore / 5).toString(), // Convert 0-5 scale to 0-1 as string
             valuationRangeMinGbp: range.min.toString(),
             valuationRangeMaxGbp: range.max.toString(),
             comparableCount: comparables.length,
@@ -1352,7 +1371,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               hpiUpliftFactor: hpiUpliftFactor,
               usesPurchaseData: usesPurchaseData,
               autoDetectedPurchase: !!(purchasePrice && !requestPurchasePrice),
-              calculationBreakdown: explainability
+              calculationBreakdown: {
+                ...explainability,
+                blendedResult: finalEstimate
+              }
             }),
             regionCode: hpi.areaCode,
             regionName: hpi.regionName
