@@ -1,11 +1,31 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Building, MapPin, Calendar, TrendingUp, Plus, Eye, Edit, Trash2, RefreshCw, PoundSterling, Home, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
+import { insertPropertySchema, insertPropertyOwnershipSchema } from '@shared/schema';
+
+// Form schema for adding new property
+const addPropertyFormSchema = insertPropertySchema.extend({
+  // Ownership details
+  ownershipType: z.enum(['direct', 'spv']).default('direct'),
+  sharePct: z.coerce.number().min(0).max(100).default(100),
+  acquisitionDate: z.string().optional(),
+  acquisitionPriceGbp: z.coerce.number().positive().optional(),
+  acquisitionCostsGbp: z.coerce.number().min(0).optional(),
+  isPrimaryResidence: z.boolean().default(false),
+});
+
+type AddPropertyFormData = z.infer<typeof addPropertyFormSchema>;
 
 interface Property {
   id: string;
@@ -61,6 +81,361 @@ interface PropertyWithValuation extends Property {
 interface PropertyPortfolioProps {
   userId: string;
   className?: string;
+}
+
+// AddPropertyModal component
+function AddPropertyModal({ userId, onSuccess }: { userId: string; onSuccess: () => void }) {
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const form = useForm<AddPropertyFormData>({
+    resolver: zodResolver(addPropertyFormSchema),
+    defaultValues: {
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      postcode: '',
+      country: 'UK',
+      propertyType: '',
+      bedrooms: '',
+      floorAreaSqm: '',
+      yearBuilt: '',
+      epcRating: '',
+      ownershipType: 'direct',
+      sharePct: 100,
+      acquisitionDate: '',
+      acquisitionPriceGbp: '',
+      acquisitionCostsGbp: '',
+      isPrimaryResidence: false,
+    },
+  });
+
+  const addPropertyMutation = useMutation({
+    mutationFn: async (data: AddPropertyFormData) => {
+      // Separate property and ownership data
+      const { ownershipType, sharePct, acquisitionDate, acquisitionPriceGbp, acquisitionCostsGbp, isPrimaryResidence, ...propertyData } = data;
+      
+      // Create property
+      const propertyResponse = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(propertyData),
+      });
+      
+      if (!propertyResponse.ok) {
+        throw new Error('Failed to create property');
+      }
+      
+      const property = await propertyResponse.json();
+      
+      // Create ownership record
+      const ownershipData = {
+        propertyId: property.id,
+        userId,
+        ownershipType,
+        sharePct,
+        acquisitionDate: acquisitionDate || undefined,
+        acquisitionPriceGbp: acquisitionPriceGbp || undefined,
+        acquisitionCostsGbp: acquisitionCostsGbp || undefined,
+        isPrimaryResidence,
+      };
+      
+      const ownershipResponse = await fetch(`/api/properties/${property.id}/ownerships`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ownershipData),
+      });
+      
+      if (!ownershipResponse.ok) {
+        throw new Error('Failed to create property ownership');
+      }
+      
+      return property;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', userId] });
+      form.reset();
+      setOpen(false);
+      onSuccess();
+    },
+    onError: (error) => {
+      console.error('Add property failed:', error);
+    }
+  });
+
+  const onSubmit = (data: AddPropertyFormData) => {
+    addPropertyMutation.mutate(data);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button 
+          data-testid="button-add-property"
+          className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Property
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-gray-900 dark:text-gray-100">Add New Property</DialogTitle>
+          <DialogDescription className="text-gray-600 dark:text-gray-400">
+            Add a property to your portfolio and set ownership details.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Address Section */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Property Address</h4>
+              
+              <FormField
+                control={form.control}
+                name="addressLine1"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address Line 1 *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123 Main Street" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="addressLine2"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address Line 2</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Apartment, suite, etc." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="London" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="postcode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Postcode</FormLabel>
+                      <FormControl>
+                        <Input placeholder="SW1A 1AA" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Property Details Section */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Property Details</h4>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="propertyType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Property Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="detached">Detached</SelectItem>
+                          <SelectItem value="semi-detached">Semi-detached</SelectItem>
+                          <SelectItem value="terraced">Terraced</SelectItem>
+                          <SelectItem value="flat">Flat</SelectItem>
+                          <SelectItem value="commercial">Commercial</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="bedrooms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bedrooms</FormLabel>
+                      <FormControl>
+                        <Input placeholder="3" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="yearBuilt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Year Built</FormLabel>
+                      <FormControl>
+                        <Input placeholder="1995" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="epcRating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>EPC Rating</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select rating" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="A">A</SelectItem>
+                          <SelectItem value="B">B</SelectItem>
+                          <SelectItem value="C">C</SelectItem>
+                          <SelectItem value="D">D</SelectItem>
+                          <SelectItem value="E">E</SelectItem>
+                          <SelectItem value="F">F</SelectItem>
+                          <SelectItem value="G">G</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Ownership Section */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Ownership Details</h4>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="ownershipType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ownership Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="direct">Direct</SelectItem>
+                          <SelectItem value="spv">SPV</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="sharePct"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ownership Share (%)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="0" max="100" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="acquisitionDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Acquisition Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="acquisitionPriceGbp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Purchase Price (£)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="0" placeholder="350000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={addPropertyMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={addPropertyMutation.isPending}
+                className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
+              >
+                {addPropertyMutation.isPending ? 'Adding...' : 'Add Property'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioProps) {
@@ -291,13 +666,7 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
             {properties.length} {properties.length === 1 ? 'property' : 'properties'} in your portfolio
           </p>
         </div>
-        <Button 
-          data-testid="button-add-property"
-          className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Property
-        </Button>
+        <AddPropertyModal userId={userId} onSuccess={() => {}} />
       </div>
 
       {/* Property Summary Stats */}

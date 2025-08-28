@@ -528,6 +528,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/properties/:propertyId/ownerships', async (req, res) => {
+    try {
+      const { propertyId } = req.params;
+      const validatedData = insertPropertyOwnershipSchema.parse({ ...req.body, propertyId });
+      const ownership = await storage.createPropertyOwnership(validatedData);
+      res.status(201).json(ownership);
+    } catch (error) {
+      console.error('Property ownership creation error:', error);
+      res.status(500).json({ message: 'Failed to create property ownership' });
+    }
+  });
+
   app.get('/api/properties/:propertyId/loans', async (req, res) => {
     try {
       const { propertyId } = req.params;
