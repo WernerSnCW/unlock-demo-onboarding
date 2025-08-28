@@ -620,6 +620,7 @@ OUTPUT SCHEMA:
         equity_offered_pct: extracted.kpis.equity_offered_pct,
         stated_pre_money: extracted.kpis.stated_pre_money,
         stated_post_money: extracted.kpis.stated_post_money,
+        valuation_dcf_present: (extracted.kpis as any).valuation_dcf_present,
       });
 
       // Targeted funding re-scan (non-destructive merge; also brings in revenue_current, discount rate, horizons)
@@ -629,11 +630,13 @@ OUTPUT SCHEMA:
           slides
         );
         console.log("Targeted funding extraction:", fundingExtraction);
-        // Merge only when the target field is currently null/undefined:
+        // Merge funding extraction results, prioritizing enhanced extraction for valuation_dcf_present
         const set = (k: keyof typeof extracted.kpis) => {
-          if ((fundingExtraction as any)[k] !== undefined && (fundingExtraction as any)[k] !== null
-              && (extracted.kpis as any)[k] == null) {
-            (extracted.kpis as any)[k] = (fundingExtraction as any)[k];
+          if ((fundingExtraction as any)[k] !== undefined && (fundingExtraction as any)[k] !== null) {
+            // For valuation_dcf_present, always use the enhanced extraction result
+            if (k === "valuation_dcf_present" || (extracted.kpis as any)[k] == null) {
+              (extracted.kpis as any)[k] = (fundingExtraction as any)[k];
+            }
           }
         };
         ["valuation_dcf_present","stated_pre_money","stated_post_money","raise_amount","equity_offered_pct",
@@ -671,6 +674,13 @@ OUTPUT SCHEMA:
         DEFAULT_BENCHMARKS,
       );
       console.log("Computed valuations:", JSON.stringify(valuations, null, 2));
+      
+      // Debug the final declared valuation
+      const finalDeclaredPV = (extracted.kpis as any).valuation_dcf_present ??
+        extracted.kpis.stated_pre_money ??
+        extracted.kpis.stated_post_money ??
+        null;
+      console.log("Final declared PV for result:", finalDeclaredPV);
 
       // Scores
       const scores = this.computeScores(extracted, valuations);
