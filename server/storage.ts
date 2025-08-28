@@ -76,6 +76,7 @@ export interface IStorage {
   // Property Ownership methods  
   getPropertyOwnerships(propertyId: string): Promise<PropertyOwnership[]>;
   createPropertyOwnership(ownership: InsertPropertyOwnership): Promise<PropertyOwnership>;
+  updatePropertyOwnershipPrice(propertyId: string, priceData: { acquisitionPriceGbp?: string; acquisitionDate?: string }): Promise<boolean>;
   
   // Property Loan methods
   getPropertyLoans(propertyId: string): Promise<PropertyLoan[]>;
@@ -391,6 +392,19 @@ export class DatabaseStorage implements IStorage {
       .values(ownership)
       .returning();
     return newOwnership;
+  }
+
+  async updatePropertyOwnershipPrice(propertyId: string, priceData: { acquisitionPriceGbp?: string; acquisitionDate?: string }): Promise<boolean> {
+    const result = await db
+      .update(propertyOwnerships)
+      .set({
+        acquisitionPriceGbp: priceData.acquisitionPriceGbp,
+        acquisitionDate: priceData.acquisitionDate,
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(propertyOwnerships.propertyId, propertyId));
+    
+    return result.length > 0;
   }
 
   // Property Loan methods

@@ -576,6 +576,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/properties/:propertyId/ownership-price', async (req, res) => {
+    try {
+      const { propertyId } = req.params;
+      const { acquisitionPriceGbp, acquisitionDate } = req.body;
+      
+      const updated = await storage.updatePropertyOwnershipPrice(propertyId, {
+        acquisitionPriceGbp,
+        acquisitionDate
+      });
+      
+      if (!updated) {
+        return res.status(404).json({ message: 'Property ownership not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Property ownership price update error:', error);
+      res.status(500).json({ message: 'Failed to update property ownership price' });
+    }
+  });
+
   app.get('/api/properties/:propertyId/loans', async (req, res) => {
     try {
       const { propertyId } = req.params;

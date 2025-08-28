@@ -76,11 +76,30 @@ interface PropertyPriceData {
 }
 
 interface PropertyWithValuation extends Property {
-  acquisitionPriceGbp?: number;
+  acquisitionPriceGbp?: string;
   acquisitionDate?: string;
   valuation?: PropertyValuation;
   marketComparable?: PropertyPriceData;
   isValuationLoading?: boolean;
+  latestValuation?: {
+    id: string;
+    valueGbp: number;
+    valuationDate: string;
+    method: string;
+    source: string;
+    confidence: number;
+    valuationRangeMinGbp: number;
+    valuationRangeMaxGbp: number;
+    comparableCount: number;
+    hpiBaseValueGbp: number;
+    comparableAvgValueGbp: number;
+    regionName: string;
+    createdAt: string;
+  };
+  latestPurchasePrice?: {
+    price: number;
+    dateOfTransfer: string;
+  };
 }
 
 interface PropertyPortfolioProps {
@@ -573,6 +592,31 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
     }
   });
 
+  // Mutation for updating property acquisition price
+  const updatePropertyPriceMutation = useMutation({
+    mutationFn: async ({ propertyId, price, date }: { propertyId: string; price: number; date: string }) => {
+      const response = await apiRequest(`/api/properties/${propertyId}/ownership-price`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          acquisitionPriceGbp: price.toString(),
+          acquisitionDate: date
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update property price');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', userId] });
+    },
+    onError: (error) => {
+      console.error('Property price update failed:', error);
+    }
+  });
+
   // Merge properties with valuation data
   const propertiesWithValuations: PropertyWithValuation[] = properties.map(property => ({
     ...property,
@@ -850,9 +894,36 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
                     {property.acquisitionPriceGbp && (
                       <div>
                         <span className="text-gray-600 dark:text-gray-400">Your Purchase:</span>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {formatCurrency(Number(property.acquisitionPriceGbp))}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {formatCurrency(Number(property.acquisitionPriceGbp))}
+                          </p>
+                          {property.latestPurchasePrice && 
+                           Number(property.acquisitionPriceGbp) !== property.latestPurchasePrice.price && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <input
+                                  type="checkbox"
+                                  className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+                                  onChange={(e) => {
+                                    if (e.target.checked && property.latestPurchasePrice) {
+                                      // Update the property's acquisition price to match latest purchase price
+                                      updatePropertyPriceMutation.mutate({
+                                        propertyId: property.id,
+                                        price: property.latestPurchasePrice.price,
+                                        date: property.latestPurchasePrice.dateOfTransfer
+                                      });
+                                    }
+                                  }}
+                                  data-testid={`checkbox-align-price-${property.id}`}
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Update your purchase price to match official records ({formatCurrency(property.latestPurchasePrice.price)})</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
                       </div>
                     )}
                     {property.acquisitionDate && (
