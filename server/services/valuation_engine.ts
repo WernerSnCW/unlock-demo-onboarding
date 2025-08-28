@@ -296,7 +296,8 @@ export function impliedFromTerms(k: ExtractedData["kpis"]) {
 // Enhanced Deterministic Valuations
 // -----------------------------
 
-export function computeDeterministicValuationsEnhanced(
+export async function computeDeterministicValuationsEnhanced(
+  openai: OpenAI,
   extracted: ExtractedData,
   stage: string,
   sector: string,
@@ -413,23 +414,191 @@ export function computeDeterministicValuationsEnhanced(
     };
   }
 
-  // Peer gap analysis
-  const allImplied = [
-    results.revenue_multiple?.implied_mid,
-    results.ebitda_multiple?.implied_mid,
-    results.implied_from_terms?.pre_money,
-    kpis.stated_pre_money
-  ].filter(v => typeof v === "number" && v > 0);
-  
-  if (allImplied.length > 1) {
-    const median = allImplied.sort((a, b) => a - b)[Math.floor(allImplied.length / 2)];
-    const stated = kpis.stated_pre_money || kpis.stated_post_money || 0;
-    if (stated > 0) {
-      results.peer_gap_pct = (stated - median) / median;
+  // LLM-powered peer valuation analysis
+  if (kpis.stated_pre_money || kpis.stated_post_money) {
+    try {
+      const peerAnalysis = await analyzePeerValuation(openai, {
+        sector,
+        stage,
+        arr: kpis.arr,
+        mrr: kpis.mrr,
+        revenue: kpis.arr || (kpis.mrr ? kpis.mrr * 12 : null),
+        ebitda: kpis.ebitda,
+        growth_rate: kpis.growth_rate_pct,
+        customers: kpis.customers,
+        raise_amount: kpis.raise_amount,
+        stated_valuation: kpis.stated_pre_money || kpis.stated_post_money,
+        currency: kpis.currency_primary || 'GBP'
+      });
+      
+      results.peer_analysis = peerAnalysis;
+      results.peer_gap_pct = peerAnalysis.valuation_gap_pct;
+    } catch (error) {
+      console.error('Peer analysis failed:', error);
+      // Fallback to basic comparison if LLM analysis fails
+      const allImplied = [
+        results.revenue_multiple?.implied_mid,
+        results.ebitda_multiple?.implied_mid,
+        results.implied_from_terms?.pre_money
+      ].filter(v => typeof v === "number" && v > 0);
+      
+      if (allImplied.length > 0) {
+        const median = allImplied.sort((a, b) => a - b)[Math.floor(allImplied.length / 2)];
+        const stated = kpis.stated_pre_money || kpis.stated_post_money || 0;
+        if (stated > 0) {
+          results.peer_gap_pct = (stated - median) / median;
+        }
+      }
     }
   }
 
   return results;
+}
+
+// -----------------------------
+// LLM-Powered Peer Valuation Analysis
+// -----------------------------
+
+interface PeerValuationRequest {
+  sector: string;
+  stage: string;
+  arr?: number | null;
+  mrr?: number | null;
+  revenue?: number | null;
+  ebitda?: number | null;
+  growth_rate?: number | null;
+  customers?: number | null;
+  raise_amount?: number | null;
+  stated_valuation: number;
+  currency: string;
+}
+
+interface PeerValuationAnalysis {
+  valuation_gap_pct: number;
+  peer_comparison: {
+    similar_companies: string[];
+    typical_multiples: {
+      revenue_multiple_range: [number, number];
+      ebitda_multiple_range?: [number, number];
+    };
+    market_context: string;
+  };
+  assessment: {
+    reasonableness_score: number; // 1-10 scale
+    key_factors: string[];
+    justification: string;
+    red_flags?: string[];
+    positive_signals?: string[];
+  };
+  methodology_note: string;
+}
+
+export async function analyzePeerValuation(
+  openai: OpenAI,
+  request: PeerValuationRequest
+): Promise<PeerValuationAnalysis> {
+  const prompt = `You are a senior venture capital analyst with deep knowledge of startup valuations across sectors and stages. Analyze this startup's valuation against realistic peer benchmarks.
+
+STARTUP PROFILE:
+- Sector: ${request.sector}
+- Stage: ${request.stage}
+- Currency: ${request.currency}
+- Annual Revenue (ARR): ${request.arr ? `${request.currency}${(request.arr / 1000000).toFixed(1)}M` : 'Not provided'}
+- Monthly Revenue (MRR): ${request.mrr ? `${request.currency}${(request.mrr / 1000).toFixed(0)}k` : 'Not provided'}
+- EBITDA: ${request.ebitda ? `${request.currency}${(request.ebitda / 1000000).toFixed(1)}M` : 'Not provided'}
+- Growth Rate: ${request.growth_rate ? `${(request.growth_rate * 100).toFixed(0)}%` : 'Not provided'}
+- Customers: ${request.customers || 'Not provided'}
+- Raise Amount: ${request.raise_amount ? `${request.currency}${(request.raise_amount / 1000000).toFixed(1)}M` : 'Not provided'}
+- Stated Valuation: ${request.currency}${(request.stated_valuation / 1000000).toFixed(1)}M
+
+ANALYSIS REQUIREMENTS:
+
+1. **Peer Identification**: Based on your knowledge of the ${request.sector} sector at ${request.stage} stage, identify 3-5 similar companies that have raised funding recently (2022-2025). Focus on companies with similar business models, revenue scale, and market positioning.
+
+2. **Market Multiple Analysis**: Provide typical revenue and EBITDA multiples for this sector/stage based on recent market transactions and funding rounds you're aware of.
+
+3. **Valuation Gap Calculation**: Calculate how much the stated valuation deviates from peer benchmarks. Express as a percentage: (stated_valuation - peer_median) / peer_median.
+
+4. **Contextual Assessment**: Consider market conditions, growth trajectory, competitive positioning, and any unique factors that might justify premium/discount valuations.
+
+5. **Red Flags & Positive Signals**: Identify any concerning or encouraging aspects of the valuation relative to fundamentals.
+
+Respond with a JSON object matching this exact structure:
+
+{
+  "valuation_gap_pct": 0.15,
+  "peer_comparison": {
+    "similar_companies": ["Company A", "Company B", "Company C"],
+    "typical_multiples": {
+      "revenue_multiple_range": [8, 12],
+      "ebitda_multiple_range": [15, 25]
+    },
+    "market_context": "Brief explanation of current market conditions for this sector/stage"
+  },
+  "assessment": {
+    "reasonableness_score": 7,
+    "key_factors": ["Factor 1 affecting valuation", "Factor 2", "Factor 3"],
+    "justification": "Detailed explanation of whether valuation is reasonable",
+    "red_flags": ["Any concerning aspects"],
+    "positive_signals": ["Any encouraging aspects"]
+  },
+  "methodology_note": "Explanation of how you arrived at this analysis"
+}
+
+Base your analysis on real market knowledge and recent funding trends. If data is insufficient, clearly note limitations in your methodology_note.`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      messages: [
+        {
+          role: "system",
+          content: "You are a senior VC analyst with comprehensive knowledge of startup valuations, recent funding rounds, and market multiples across all sectors. Provide detailed, accurate analysis based on real market data and trends."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+      max_tokens: 1500
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    
+    // Validate and sanitize the response
+    return {
+      valuation_gap_pct: typeof result.valuation_gap_pct === 'number' ? result.valuation_gap_pct : 0,
+      peer_comparison: {
+        similar_companies: Array.isArray(result.peer_comparison?.similar_companies) 
+          ? result.peer_comparison.similar_companies 
+          : [],
+        typical_multiples: {
+          revenue_multiple_range: Array.isArray(result.peer_comparison?.typical_multiples?.revenue_multiple_range)
+            ? result.peer_comparison.typical_multiples.revenue_multiple_range
+            : [8, 12],
+          ebitda_multiple_range: Array.isArray(result.peer_comparison?.typical_multiples?.ebitda_multiple_range)
+            ? result.peer_comparison.typical_multiples.ebitda_multiple_range
+            : undefined
+        },
+        market_context: result.peer_comparison?.market_context || 'Market analysis not available'
+      },
+      assessment: {
+        reasonableness_score: typeof result.assessment?.reasonableness_score === 'number' 
+          ? Math.max(1, Math.min(10, result.assessment.reasonableness_score))
+          : 5,
+        key_factors: Array.isArray(result.assessment?.key_factors) ? result.assessment.key_factors : [],
+        justification: result.assessment?.justification || 'Analysis not available',
+        red_flags: Array.isArray(result.assessment?.red_flags) ? result.assessment.red_flags : undefined,
+        positive_signals: Array.isArray(result.assessment?.positive_signals) ? result.assessment.positive_signals : undefined
+      },
+      methodology_note: result.methodology_note || 'LLM-based analysis using market knowledge and recent funding trends'
+    };
+  } catch (error) {
+    console.error('Failed to analyze peer valuation:', error);
+    throw new Error('Peer valuation analysis failed');
+  }
 }
 
 // -----------------------------

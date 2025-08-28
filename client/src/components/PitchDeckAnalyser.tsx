@@ -709,6 +709,150 @@ export default function PitchDeckAnalyser() {
               </div>
             )}
 
+            {/* LLM-Powered Peer Analysis */}
+            {(result.valuation as any).peer_analysis && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4 flex items-center gap-2">
+                  <i className="fas fa-users text-[var(--primary)]" aria-hidden="true"></i>
+                  Peer Valuation Analysis
+                </h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Peer Comparison Summary */}
+                  <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                    <h4 className="font-medium text-[var(--card-foreground)] mb-3">Market Comparison</h4>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-sm text-[var(--muted-foreground)] mb-1">Valuation Gap vs. Peers</div>
+                        <div className={`text-lg font-semibold ${(result.valuation as any).peer_analysis.valuation_gap_pct > 0.2 ? 'text-[var(--destructive)]' : (result.valuation as any).peer_analysis.valuation_gap_pct > 0 ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
+                          {((result.valuation as any).peer_analysis.valuation_gap_pct * 100).toFixed(1)}%
+                          {(result.valuation as any).peer_analysis.valuation_gap_pct > 0 ? ' premium' : (result.valuation as any).peer_analysis.valuation_gap_pct < 0 ? ' discount' : ' aligned'}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm text-[var(--muted-foreground)] mb-1">Reasonableness Score</div>
+                        <div className="flex items-center gap-2">
+                          <div className={`text-lg font-semibold ${(result.valuation as any).peer_analysis.assessment.reasonableness_score >= 7 ? 'text-[var(--success)]' : (result.valuation as any).peer_analysis.assessment.reasonableness_score >= 5 ? 'text-[var(--warning)]' : 'text-[var(--destructive)]'}`}>
+                            {(result.valuation as any).peer_analysis.assessment.reasonableness_score}/10
+                          </div>
+                          <div className="flex">
+                            {Array.from({ length: 10 }, (_, i) => (
+                              <i key={i} className={`fas fa-star text-xs ${i < (result.valuation as any).peer_analysis.assessment.reasonableness_score ? 'text-[var(--accent)]' : 'text-[var(--muted-foreground)]'}`} aria-hidden="true"></i>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm text-[var(--muted-foreground)] mb-1">Typical Revenue Multiples</div>
+                        <div className="text-sm text-[var(--foreground)]">
+                          {(result.valuation as any).peer_analysis.peer_comparison.typical_multiples.revenue_multiple_range[0]}× - {(result.valuation as any).peer_analysis.peer_comparison.typical_multiples.revenue_multiple_range[1]}×
+                        </div>
+                      </div>
+                      
+                      {(result.valuation as any).peer_analysis.peer_comparison.typical_multiples.ebitda_multiple_range && (
+                        <div>
+                          <div className="text-sm text-[var(--muted-foreground)] mb-1">Typical EBITDA Multiples</div>
+                          <div className="text-sm text-[var(--foreground)]">
+                            {(result.valuation as any).peer_analysis.peer_comparison.typical_multiples.ebitda_multiple_range[0]}× - {(result.valuation as any).peer_analysis.peer_comparison.typical_multiples.ebitda_multiple_range[1]}×
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Similar Companies & Assessment */}
+                  <div className="space-y-4">
+                    {/* Similar Companies */}
+                    <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                      <h4 className="font-medium text-[var(--card-foreground)] mb-2">Similar Companies</h4>
+                      <div className="space-y-1">
+                        {(result.valuation as any).peer_analysis.peer_comparison.similar_companies.map((company: string, index: number) => (
+                          <div key={index} className="text-sm text-[var(--foreground)] flex items-center gap-2">
+                            <i className="fas fa-building text-[var(--primary)] text-xs" aria-hidden="true"></i>
+                            {company}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Market Context */}
+                    <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                      <h4 className="font-medium text-[var(--card-foreground)] mb-2">Market Context</h4>
+                      <p className="text-sm text-[var(--foreground)]">
+                        {(result.valuation as any).peer_analysis.peer_comparison.market_context}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Assessment Details */}
+                <div className="mt-6 bg-[var(--card)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                  <h4 className="font-medium text-[var(--card-foreground)] mb-3">Assessment Summary</h4>
+                  <p className="text-sm text-[var(--foreground)] mb-4">
+                    {(result.valuation as any).peer_analysis.assessment.justification}
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Key Factors */}
+                    {(result.valuation as any).peer_analysis.assessment.key_factors.length > 0 && (
+                      <div>
+                        <h5 className="text-sm font-medium text-[var(--card-foreground)] mb-2">Key Factors</h5>
+                        <ul className="space-y-1">
+                          {(result.valuation as any).peer_analysis.assessment.key_factors.map((factor: string, index: number) => (
+                            <li key={index} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                              <i className="fas fa-check-circle text-[var(--primary)] text-xs mt-0.5" aria-hidden="true"></i>
+                              {factor}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Red Flags / Positive Signals */}
+                    <div className="space-y-3">
+                      {(result.valuation as any).peer_analysis.assessment.red_flags && (result.valuation as any).peer_analysis.assessment.red_flags.length > 0 && (
+                        <div>
+                          <h5 className="text-sm font-medium text-[var(--destructive)] mb-2">Red Flags</h5>
+                          <ul className="space-y-1">
+                            {(result.valuation as any).peer_analysis.assessment.red_flags.map((flag: string, index: number) => (
+                              <li key={index} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                                <i className="fas fa-exclamation-triangle text-[var(--destructive)] text-xs mt-0.5" aria-hidden="true"></i>
+                                {flag}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {(result.valuation as any).peer_analysis.assessment.positive_signals && (result.valuation as any).peer_analysis.assessment.positive_signals.length > 0 && (
+                        <div>
+                          <h5 className="text-sm font-medium text-[var(--success)] mb-2">Positive Signals</h5>
+                          <ul className="space-y-1">
+                            {(result.valuation as any).peer_analysis.assessment.positive_signals.map((signal: string, index: number) => (
+                              <li key={index} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                                <i className="fas fa-thumbs-up text-[var(--success)] text-xs mt-0.5" aria-hidden="true"></i>
+                                {signal}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-[var(--border)]">
+                    <p className="text-xs text-[var(--muted-foreground)]">
+                      <i className="fas fa-info-circle mr-1" aria-hidden="true"></i>
+                      {(result.valuation as any).peer_analysis.methodology_note}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Method Details */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">

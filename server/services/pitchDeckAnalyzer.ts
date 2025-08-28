@@ -1053,7 +1053,8 @@ OUTPUT SCHEMA:
       }
 
       // Compute deterministic valuations
-      const valuations = computeDeterministicValuationsEnhanced(
+      const valuations = await computeDeterministicValuationsEnhanced(
+        openai,
         extracted,
         stage,
         sector,
