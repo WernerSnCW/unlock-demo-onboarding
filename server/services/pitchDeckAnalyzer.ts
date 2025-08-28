@@ -542,14 +542,30 @@ TASKS:
       };
     }
 
-    // Revenue multiple - works for both SaaS (ARR) and service businesses (estimated revenue)
+    // Enhanced revenue multiple calculation with projected revenue data
     let arr = kpis.arr || (kpis.mrr ? kpis.mrr * 12 : null);
+    
+    // Try to extract projected ARR from other_financials if current ARR missing
+    if (!arr && (kpis as any).other_financials) {
+      const arrMatches = (kpis as any).other_financials
+        .join(' ')
+        .match(/(\d+(?:\.\d+)?)\s*(?:M|m|million)?\s*ARR/i);
+      if (arrMatches) {
+        const value = parseFloat(arrMatches[1]);
+        arr = value > 100 ? value : value * 1000000; // Handle M notation
+      }
+    }
 
     // For service businesses without ARR, estimate revenue from pre-money valuation
     if (!arr && kpis.stated_pre_money && benchmarks?.revenue) {
       const typicalMultiple =
         (benchmarks.revenue[0] + benchmarks.revenue[1]) / 2;
       arr = Math.round(kpis.stated_pre_money / typicalMultiple);
+    }
+    
+    // Use projected revenue if current revenue unavailable
+    if (!arr && (kpis as any).revenue_projected) {
+      arr = (kpis as any).revenue_projected;
     }
 
     if (arr && benchmarks?.revenue) {
@@ -566,14 +582,37 @@ TASKS:
       });
     }
 
-    // EBITDA multiple
-    if (kpis.ebitda && kpis.ebitda >= 0 && benchmarks?.ebitda) {
+    // Enhanced EBITDA multiple calculation
+    let ebitda = kpis.ebitda;
+    
+    // Try to extract EBITDA from other_financials if not found directly
+    if (!ebitda && (kpis as any).other_financials) {
+      const ebitdaMatches = (kpis as any).other_financials
+        .join(' ')
+        .match(/EBITDA[:\s]*[£$€]?(\d+(?:\.\d+)?)\s*(?:M|m|million)?/i);
+      if (ebitdaMatches) {
+        const value = parseFloat(ebitdaMatches[1]);
+        ebitda = value > 100 ? value : value * 1000000; // Handle M notation
+      }
+    }
+    
+    // Use ebitda_or_profit as fallback
+    if (!ebitda && (kpis as any).ebitda_or_profit) {
+      ebitda = (kpis as any).ebitda_or_profit;
+    }
+
+    if (ebitda && ebitda >= 0 && benchmarks?.ebitda) {
       const multiple = (benchmarks.ebitda[0] + benchmarks.ebitda[1]) / 2;
       results.ebitda_multiple = {
-        ebitda: kpis.ebitda,
+        ebitda,
         multiple,
-        implied: Math.round(kpis.ebitda * multiple),
+        implied: Math.round(ebitda * multiple),
       };
+      console.log("EBITDA multiple calculation:", {
+        ebitda,
+        multiple,
+        implied: ebitda * multiple,
+      });
     }
 
     // ROI/IRR projection (5-year default) - works for both SaaS and service businesses
@@ -617,7 +656,15 @@ TASKS:
       }
     }
 
-    // Peer gap calculation
+    // Enhanced implied valuation from post-money data
+    if (kpis.stated_post_money && !results.implied_from_terms) {
+      results.implied_from_post_money = {
+        post_money: kpis.stated_post_money,
+        method: "stated_post_money"
+      };
+    }
+
+    // Enhanced peer gap calculation using all available valuation data
     const fairValues = [];
     if (results.implied_from_terms?.pre_money)
       fairValues.push(results.implied_from_terms.pre_money);
@@ -626,12 +673,22 @@ TASKS:
     if (results.ebitda_multiple?.implied)
       fairValues.push(results.ebitda_multiple.implied);
 
-    if (fairValues.length > 0 && kpis.stated_pre_money) {
+    // Compare against stated valuations (pre-money first, then post-money as backup)
+    const statedValuation = kpis.stated_pre_money || kpis.stated_post_money;
+    
+    if (fairValues.length > 0 && statedValuation) {
       const fairValueBaseline = fairValues.sort((a, b) => a - b)[
         Math.floor(fairValues.length / 2)
       ];
       results.peer_gap_pct =
-        (kpis.stated_pre_money - fairValueBaseline) / fairValueBaseline;
+        (statedValuation - fairValueBaseline) / fairValueBaseline;
+      
+      console.log("Peer gap calculation:", {
+        fairValues,
+        fairValueBaseline,
+        statedValuation,
+        gap_pct: results.peer_gap_pct
+      });
     }
 
     return results;
