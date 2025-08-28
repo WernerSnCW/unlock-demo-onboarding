@@ -1113,8 +1113,8 @@ OUTPUT SCHEMA:
         }),
         valuation: {
           declared: extracted.kpis.stated_pre_money || extracted.kpis.stated_post_money || 0,
-          benchmarkMin: valuations.revenue_multiple?.implied || 0,
-          benchmarkMax: valuations.ebitda_multiple?.implied || 0,
+          benchmarkMin: valuations.revenue_multiple?.implied_mid || 0,
+          benchmarkMax: valuations.ebitda_multiple?.implied_mid || 0,
           assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
           methods: {
             preMoney: valuations.implied_from_terms?.pre_money || extracted.kpis.stated_pre_money || 0,
@@ -1124,20 +1124,20 @@ OUTPUT SCHEMA:
                       extracted.kpis.stated_post_money || 0,
             revenueMultiple: {
               arr: valuations.revenue_multiple?.arr || 0,
-              multiple: valuations.revenue_multiple?.multiple || 0,
-              impliedValue: valuations.revenue_multiple?.implied || 0,
+              multiple: valuations.revenue_multiple?.multiple_mid || 0,
+              impliedValue: valuations.revenue_multiple?.implied_mid || 0,
             },
             ebitdaMultiple: {
               ebitda: valuations.ebitda_multiple?.ebitda || 0,
-              multiple: valuations.ebitda_multiple?.multiple || 0,
-              impliedValue: valuations.ebitda_multiple?.implied || 0,
+              multiple: valuations.ebitda_multiple?.multiple_mid || 0,
+              impliedValue: valuations.ebitda_multiple?.implied_mid || 0,
             },
             roiProjection: {
-              equityStake: (valuations.roi?.equity_pct || valuations.roi_estimated?.equity_pct || 0) * 100,
-              projectedExit: valuations.roi?.projected_return || valuations.roi_estimated?.projected_return || 0,
-              investorReturn: valuations.roi?.projected_return || valuations.roi_estimated?.projected_return || 0,
-              roiMultiple: valuations.roi?.roi_multiple || valuations.roi_estimated?.roi_multiple || 0,
-              irr: valuations.roi?.irr || valuations.roi_estimated?.irr || 0,
+              equityStake: (valuations.roi_estimated?.equity_pct || 0) * 100,
+              projectedExit: valuations.roi_estimated?.exit_value_mid || 0,
+              investorReturn: valuations.roi_estimated?.investor_return_mid || 0,
+              roiMultiple: valuations.roi_estimated?.roi_multiple_mid || 0,
+              irr: valuations.roi_estimated?.irr_mid || 0,
             },
           },
           // Include all computed valuation sources for frontend fallback
