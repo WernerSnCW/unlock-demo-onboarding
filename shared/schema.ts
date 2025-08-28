@@ -290,6 +290,14 @@ export type InsertPropertyLease = z.infer<typeof insertPropertyLeaseSchema>;
 export type PropertyCashflow = typeof propertyCashflows.$inferSelect;
 export type InsertPropertyCashflow = z.infer<typeof insertPropertyCashflowSchema>;
 
+// Postcode to LAD Code mapping table
+export const postcodeLadMapping = pgTable("postcode_lad_mapping", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  postcode: text("postcode").notNull(),
+  ladCode: text("lad_code").notNull(),
+  createdAt: timestamp("created_at").default(sql`now()`),
+});
+
 // UK House Price Index data for property valuations
 export const ukHpi = pgTable("uk_hpi", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -349,9 +357,16 @@ export const ukHpi = pgTable("uk_hpi", {
   oldSalesVolume: integer("old_sales_volume"),
 });
 
+export const insertPostcodeLadMappingSchema = createInsertSchema(postcodeLadMapping).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUkHpiSchema = createInsertSchema(ukHpi).omit({
   id: true,
 });
 
+export type PostcodeLadMapping = typeof postcodeLadMapping.$inferSelect;
+export type InsertPostcodeLadMapping = z.infer<typeof insertPostcodeLadMappingSchema>;
 export type UkHpi = typeof ukHpi.$inferSelect;
 export type InsertUkHpi = z.infer<typeof insertUkHpiSchema>;
