@@ -623,24 +623,95 @@ export default function PitchDeckAnalyser() {
                     </tr>
                     <tr>
                       <td className="px-4 py-3 text-sm text-[var(--card-foreground)] font-medium">ROI Projection</td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">
-                        {result.valuation.methods.roiProjection?.projectedExit ? 
-                         `Exit ${formatCurrency(result.valuation.methods.roiProjection.projectedExit)}` : 'Exit £0'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">
-                        {result.valuation.methods.roiProjection?.roiMultiple ? 
-                         `${result.valuation.methods.roiProjection.roiMultiple}× return (${result.valuation.methods.roiProjection.equityStake}% stake)` :
-                         result.valuation.roi_estimated?.roi_multiple ? 
-                         `${result.valuation.roi_estimated.roi_multiple}× return (${Math.round(result.valuation.roi_estimated.equity_pct * 100)}% stake)` : 
-                         '0× return (0% stake)'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">N/A</td>
-                      <td className="px-4 py-3 text-sm text-[var(--success)]">Attractive if growth targets hit</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{result.valuation.methods.roiProjection.equityStake}% stake, {result.valuation.methods.roiProjection.roiMultiple}x return</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">{formatCurrency(result.valuation.methods.roiProjection.projectedExit)}</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">5-7 year horizon</td>
+                      <td className="px-4 py-3 text-sm text-[var(--accent-foreground)]">{result.valuation.methods.roiProjection.irr}% IRR target</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
+
+            {/* Enhanced Valuation Methods from enhanced engine */}
+            {(result.valuation.revenue_multiple_enhanced || result.valuation.ebitda_multiple_enhanced || result.valuation.roi_enhanced) && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4 flex items-center gap-2">
+                  <i className="fas fa-chart-line text-[var(--primary)]" aria-hidden="true"></i>
+                  Enhanced Valuation Calculations
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {result.valuation.revenue_multiple_enhanced && (
+                    <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                      <h4 className="font-medium text-[var(--card-foreground)] mb-2">Revenue Multiple Range</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Low:</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.revenue_multiple_enhanced.low_value)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Mid:</span>
+                          <span className="text-[var(--primary)] font-medium">{formatCurrency(result.valuation.revenue_multiple_enhanced.mid_value)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">High:</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.revenue_multiple_enhanced.high_value)}</span>
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)] mt-2">
+                          Based on {formatCurrency(result.valuation.revenue_multiple_enhanced.arr)} ARR
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {result.valuation.ebitda_multiple_enhanced && (
+                    <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                      <h4 className="font-medium text-[var(--card-foreground)] mb-2">EBITDA Multiple Range</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Low:</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.ebitda_multiple_enhanced.low_value)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Mid:</span>
+                          <span className="text-[var(--secondary)] font-medium">{formatCurrency(result.valuation.ebitda_multiple_enhanced.mid_value)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">High:</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.ebitda_multiple_enhanced.high_value)}</span>
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)] mt-2">
+                          Based on {formatCurrency(result.valuation.ebitda_multiple_enhanced.ebitda)} EBITDA
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {result.valuation.roi_enhanced && (
+                    <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
+                      <h4 className="font-medium text-[var(--card-foreground)] mb-2">ROI Projection Range</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Conservative:</span>
+                          <span className="text-[var(--foreground)]">{result.valuation.roi_enhanced.conservative_roi_multiple}x</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Expected:</span>
+                          <span className="text-[var(--accent)] font-medium">{result.valuation.roi_enhanced.expected_roi_multiple}x</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--muted-foreground)]">Optimistic:</span>
+                          <span className="text-[var(--foreground)]">{result.valuation.roi_enhanced.optimistic_roi_multiple}x</span>
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)] mt-2">
+                          {result.valuation.roi_enhanced.confidence_score}% confidence
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Method Details */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
