@@ -754,8 +754,8 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
               <div className="flex items-center gap-2">
                 <Building className="h-4 w-4 text-[var(--primary)]" />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Properties</p>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">{properties.length}</p>
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Total Properties</p>
+                  <p className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>{properties.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -764,14 +764,17 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <PoundSterling className="h-4 w-4 text-green-600" />
+                <PoundSterling className="h-4 w-4" style={{ color: 'var(--success)' }} />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Portfolio Value</p>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Portfolio Value</p>
+                  <p className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>
                     {(() => {
                       const totalValue = propertiesWithValuations
-                        .filter(p => p.valuation?.estimate)
-                        .reduce((sum, p) => sum + (p.valuation?.estimate || 0), 0);
+                        .filter(p => p.latestValuation?.estimatedValueGbp || p.valuation?.estimate)
+                        .reduce((sum, p) => {
+                          const value = p.latestValuation?.estimatedValueGbp || p.valuation?.estimate || 0;
+                          return sum + value;
+                        }, 0);
                       return totalValue > 0 ? formatCurrency(totalValue) : '—';
                     })()}
                   </p>
@@ -785,8 +788,8 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-[var(--secondary)]" />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Unique Locations</p>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Unique Locations</p>
+                  <p className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>
                     {new Set(properties.map(p => p.city).filter(Boolean)).size}
                   </p>
                 </div>
@@ -799,8 +802,8 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-[var(--accent)]" />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Property Types</p>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Property Types</p>
+                  <p className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>
                     {new Set(properties.map(p => p.propertyType).filter(Boolean)).size}
                   </p>
                 </div>
@@ -811,10 +814,10 @@ export function PropertyPortfolio({ userId, className = '' }: PropertyPortfolioP
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+                <TrendingUp className="h-4 w-4" style={{ color: 'var(--success)' }} />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. EPC Rating</p>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Avg. EPC Rating</p>
+                  <p className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>
                     {properties.filter(p => p.epcRating).length > 0 ? 'C' : '—'}
                   </p>
                 </div>
