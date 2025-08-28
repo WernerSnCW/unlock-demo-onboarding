@@ -1,0 +1,121 @@
+A) Ensure the DCF PV is extracted as a number and merged
+1) In valuation_engine.ts – use a robust money parser (handles “£20,5m”)
+
+Replace your money parser with this (or add it if missing):
+
+export function parseMoney(raw: string): { value?: number; currency?: string } {
+  if (!raw) return {};
+  let s = raw.trim()
+    .replace(/[~≈≃]/g, "")
+    .replace(/\s+/g, " ");
+  // convert EU comma decimals: 20,5m -> 20.5m (but don’t wreck 20,000,000)
+  s = s.replace(/(\d),(\d{1,2})(?=[^\d]|$)/g, "$1.$2");
+
+  const currencyMatch = s.match(/(GBP|EUR|USD|US\$|£|\$|€)/i);
+  const currency = currencyMatch ? currencyMatch[0].toUpperCase() : undefined;
+
+  const numMatch = s.match(/(\d{1,3}(?:[,\s]\d{3})+|\d+(?:[.,]\d+)?)/);
+  if (!numMatch) return { currency };
+  const num = parseFloat(numMatch[1].replace(/[,\s]/g, ""));
+  const unitMatch = s.match(/\b(k|m|mn|bn)\b/i);
+  const unit = unitMatch ? ({k:1e3,m:1e6,mn:1e6,bn:1e9} as any)[unitMatch[1].toLowerCase()] : 1;
+
+  return { value: Number.isFinite(num) ? num * unit : undefined, currency };
+}
+
+2) In extractFundingDetailsEnhanced(...) (same file)
+
+Make sure the schema includes valuation_dcf_present and you request JSON schema so the model returns a number, not a string:
+
+// in the schema:
+valuation_dcf_present: { type: ["number", "null"] },
+
+// when calling OpenAI:
+response_format: { type: "json_schema", json_schema: fundingExtractionSchema },
+
+
+(You already had this in my earlier file; confirm it’s actually the function being called.)
+
+B) Always run the focused funding extractor and merge without overwriting
+3) In pitchDeckAnalyzer.ts – call the funding extractor unconditionally after Pass #1, and merge
+
+Right after:
+
+console.log("LLM extraction complete. KPIs found:", ...);
+
+
+add (or keep) this block:
+
+try {
+  const fundingExtraction = await this.extractFundingDetails(slides); // or extractFundingDetailsEnhanced(...)
+  console.log("Targeted funding extraction:", fundingExtraction);
+  // Merge only when the target field is currently null/undefined:
+  const set = (k: keyof ExtractedData["kpis"]) => {
+    if ((fundingExtraction as any)[k] !== undefined && (fundingExtraction as any)[k] !== null
+        && (extracted.kpis as any)[k] == null) {
+      (extracted.kpis as any)[k] = (fundingExtraction as any)[k];
+    }
+  };
+  ["valuation_dcf_present","stated_pre_money","stated_post_money","raise_amount","equity_offered_pct",
+   "revenue_current","discount_rate_pct","arr_horizon_years","ebitda_horizon_years"].forEach(k => set(k as any));
+} catch(e) {
+  console.warn("Funding re-scan skipped:", e);
+}
+
+
+This guarantees the DCF PV (~£20.5m) flows into KPIs when present.
+
+C) Remove the £1 fallback everywhere
+4) In pitchDeckAnalyzer.ts – compute the declared PV with null fallback
+
+Find your valuation mapping where you set the headline number (often declared:). Replace any || 1 or ?? 1 with null and let the UI say “Not specified”:
+
+const declaredPV =
+  extracted.kpis.valuation_dcf_present ??
+  extracted.kpis.stated_pre_money ??
+  extracted.kpis.stated_post_money ??
+  null;
+
+result.valuation = {
+  ...result.valuation,
+  declared: declaredPV ?? 0, // if your UI needs a number, keep 0 here but don’t render it as money
+};
+
+5) In the UI (React) – never render placeholders as £1
+
+Search in the front-end for || 1, ?? 1, or Number(value) || 1. Replace with:
+
+null at data level; and
+
+a formatter that displays “Not specified” when value == null.
+
+Example:
+
+const moneyOrNA = (v?: number | null) =>
+  v == null ? "Not specified" : formatMoney(v);
+
+D) Compute “Gap vs peers” from deck PV vs discounted mid
+6) In pitchDeckAnalyzer.ts – set the gap text after you’ve set declaredPV:
+const basePV = valuations.revenue_multiple?.implied_mid
+            ?? valuations.ebitda_multiple?.implied_mid
+            ?? null;
+
+result.valuation.assessment =
+  (declaredPV != null && basePV != null)
+    ? `Gap vs peers: ${Math.round(((declaredPV - basePV) / basePV) * 100)}%`
+    : "Gap vs peers: not enough data";
+
+
+With Unlock, once declaredPV ≈ 20.5m is in place, and your discounted mids are ~£22.9m (ARR Y5, 10×, PV) and £28.8m (EBITDA Y3, 13×, PV), this will show an undervaluation of c. –18% to –29% depending on the basis.
+
+E) Label the base correctly in the UI (no “Current ARR” if it’s Year-5)
+7) In back-end mapping (already in my drop-in), pass baseLabel and horizonYears:
+revenueMultiple: {
+  base: valuations.revenue_multiple?.base || 0,
+  baseLabel: valuations.revenue_multiple?.base_label || "Revenue",
+  horizonYears: valuations.revenue_multiple?.horizon_years ?? 0,
+  multiple: valuations.revenue_multiple?.multiple_mid || 0,
+  impliedValue: valuations.revenue_multiple?.implied_mid || 0,
+},
+
+8) In the React component that prints the caption

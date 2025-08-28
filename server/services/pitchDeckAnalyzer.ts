@@ -624,12 +624,20 @@ OUTPUT SCHEMA:
 
       // Targeted funding re-scan (non-destructive merge; also brings in revenue_current, discount rate, horizons)
       try {
-        const fundingExtraction = await this.extractFundingDetails(slides);
-        console.log("Targeted funding extraction:", fundingExtraction);
-        PitchDeckAnalyzer.mergeFundingIntoKPIs(
-          extracted.kpis,
-          fundingExtraction,
+        const fundingExtraction = await extractFundingDetailsEnhanced(
+          new (await import("openai")).default({ apiKey: process.env.OPENAI_API_KEY }),
+          slides
         );
+        console.log("Targeted funding extraction:", fundingExtraction);
+        // Merge only when the target field is currently null/undefined:
+        const set = (k: keyof typeof extracted.kpis) => {
+          if ((fundingExtraction as any)[k] !== undefined && (fundingExtraction as any)[k] !== null
+              && (extracted.kpis as any)[k] == null) {
+            (extracted.kpis as any)[k] = (fundingExtraction as any)[k];
+          }
+        };
+        ["valuation_dcf_present","stated_pre_money","stated_post_money","raise_amount","equity_offered_pct",
+         "revenue_current","discount_rate_pct","arr_horizon_years","ebitda_horizon_years"].forEach(k => set(k as any));
       } catch (e) {
         console.warn("Funding re-scan skipped:", e);
       }
@@ -651,6 +659,7 @@ OUTPUT SCHEMA:
           equity_offered_pct: extracted.kpis.equity_offered_pct ?? null,
           stated_pre_money: extracted.kpis.stated_pre_money ?? null,
           stated_post_money: extracted.kpis.stated_post_money ?? null,
+          valuation_dcf_present: (extracted.kpis as any).valuation_dcf_present ?? null,
 
           discount_rate_pct: extracted.kpis.discount_rate_pct ?? null,
           arr_horizon_years: extracted.kpis.arr_horizon_years ?? 0,
@@ -717,14 +726,22 @@ OUTPUT SCHEMA:
         }),
         valuation: {
           declared:
-            extracted.kpis.valuation_dcf_present ??
+            (extracted.kpis as any).valuation_dcf_present ??
             extracted.kpis.stated_pre_money ??
             extracted.kpis.stated_post_money ??
             null,
-          assessment:
-            valuations.peer_gap_pct != null
-              ? `Gap vs peers: ${Math.round(valuations.peer_gap_pct * 100)}%`
-              : "Gap vs peers: not enough data",
+          assessment: (() => {
+            const declaredPV = (extracted.kpis as any).valuation_dcf_present ??
+              extracted.kpis.stated_pre_money ??
+              extracted.kpis.stated_post_money ??
+              null;
+            const basePV = valuations.revenue_multiple?.implied_mid ??
+              valuations.ebitda_multiple?.implied_mid ??
+              null;
+            return (declaredPV != null && basePV != null)
+              ? `Gap vs peers: ${Math.round(((declaredPV - basePV) / basePV) * 100)}%`
+              : "Gap vs peers: not enough data";
+          })(),
           methods: {
             preMoney: hasTerms
               ? valuations.implied_from_terms?.pre_money ||

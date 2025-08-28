@@ -311,7 +311,8 @@ export default function PitchDeckAnalyser() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | null | undefined) => {
+    if (amount == null || amount === 0) return "Not specified";
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: 'GBP',
@@ -319,6 +320,9 @@ export default function PitchDeckAnalyser() {
       maximumFractionDigits: 1
     }).format(amount);
   };
+
+  const moneyOrNA = (v?: number | null) =>
+    v == null || v === 0 ? "Not specified" : formatCurrency(v);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -570,7 +574,7 @@ export default function PitchDeckAnalyser() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="text-center p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
                 <div className="text-2xl font-bold text-[var(--primary)] mb-1">
-                  {result.valuation.declared && result.valuation.declared > 0 ? formatCurrency(result.valuation.declared) : "Not specified"}
+                  {formatCurrency(result.valuation.declared)}
                 </div>
                 <div className="text-sm text-[var(--muted-foreground)]">
                   {(result.valuation as any).headlineLabel || "Valuation"}

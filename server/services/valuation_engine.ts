@@ -41,7 +41,7 @@ export function parseMoney(raw: string): { value?: number; currency?: string } {
   s = s.replace(/(\d),(\d{1,2})(?=[^\d]|$)/g, "$1.$2");
 
   const currencyMatch = s.match(/(GBP|EUR|USD|US\$|£|\$|€)/i);
-  const currency = currencyMatch ? currencyMatch[0].toUpperCase().replace(/[^\w£$€]/g, "") : undefined;
+  const currency = currencyMatch ? currencyMatch[0].toUpperCase() : undefined;
 
   const numMatch = s.match(/(\d{1,3}(?:[,\s]\d{3})+|\d+(?:[.,]\d+)?)/);
   if (!numMatch) return { currency };
@@ -77,6 +77,7 @@ export interface ExtractedKPIs {
   equity_offered_pct?: number | null;
   stated_pre_money?: number | null;
   stated_post_money?: number | null;
+  valuation_dcf_present?: number | null;
   discount_rate_pct?: number | null;
   arr_horizon_years?: number | null;
   ebitda_horizon_years?: number | null;

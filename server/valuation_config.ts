@@ -78,5 +78,6 @@ export function computePVMultipleBlock(
     implied_high: pvHigh,
     horizon_years: years,
     discounted: !!(rate && years > 0),
+    base_label: "", // will be set by caller
   };
 }
