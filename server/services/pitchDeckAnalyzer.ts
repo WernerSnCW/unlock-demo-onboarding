@@ -1188,6 +1188,8 @@ OUTPUT SCHEMA:
 
           return {
             declared: declaredValue,
+            declaredPV: declaredPV, // Make the DCF PV available to frontend
+            declaredValue: declaredValue, // Also provide as declaredValue for frontend compatibility
             benchmarkMin: valuations.revenue_multiple?.implied_mid || 0,
             benchmarkMax: valuations.ebitda_multiple?.implied_mid || 0,
             assessment: `Gap vs peers: ${valuations.peer_gap_pct ? Math.round(valuations.peer_gap_pct * 100) : 0}%`,
@@ -1218,8 +1220,6 @@ OUTPUT SCHEMA:
             ...valuations,
             suggestedQuestions: analysis.key_questions.valuation,
             hasTerms,
-            declaredPV,
-            declaredValue,
           };
         })(),
         riskFlags: analysis.risks,
