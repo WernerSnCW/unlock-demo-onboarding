@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import multer from "multer";
+import { extractFundingDetailsEnhanced, computeDeterministicValuationsEnhanced } from "./valuation_engine";
 
 // Reliable PDF parsing using pdfjs-dist
 async function safePdfParse(buffer: Buffer) {
@@ -521,7 +522,7 @@ TASKS:
           comparables: [],
         },
         inconsistencies: [],
-      } as ExtractedData;
+      } as unknown as ExtractedData;
     }
   }
 
@@ -1015,7 +1016,7 @@ OUTPUT SCHEMA:
       );
       console.log(
         "LLM extraction complete. KPIs found:",
-        Object.keys(extracted.kpis).filter((k) => extracted.kpis[k] !== null),
+        Object.keys(extracted.kpis).filter((k) => extracted.kpis[k as keyof typeof extracted.kpis] !== null),
       );
       console.log("Critical KPIs:", {
         raise_amount: extracted.kpis.raise_amount,
@@ -1037,7 +1038,7 @@ OUTPUT SCHEMA:
         console.log(
           "No funding details found in first pass, doing targeted extraction...",
         );
-        const fundingExtraction = await this.extractFundingDetails(slides);
+        const fundingExtraction = await extractFundingDetailsEnhanced(openai, slides);
         console.log("Funding extraction result:", fundingExtraction);
         if (fundingExtraction.raise_amount)
           extracted.kpis.raise_amount = fundingExtraction.raise_amount;
@@ -1052,10 +1053,12 @@ OUTPUT SCHEMA:
       }
 
       // Compute deterministic valuations
-      const valuations = this.computeDeterministicValuations(
+      const valuations = computeDeterministicValuationsEnhanced(
         extracted,
         stage,
         sector,
+        geography,
+        DEFAULT_BENCHMARKS,
       );
       console.log("Computed valuations:", JSON.stringify(valuations, null, 2));
 

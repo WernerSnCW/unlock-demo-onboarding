@@ -1,0 +1,542 @@
+/**
+ * Pitch Deck Valuation Engine — Drop-in for Replit
+ * ------------------------------------------------
+ * What this adds:
+ *  - Funding extraction w/ JSON schema (robust types, no stringly-typed JSON)
+ *  - Instrument-aware terms (priced equity, SAFE [pre/post], convertibles)
+ *  - Number + currency normalisation (k/m/bn, EU decimals, symbols)
+ *  - ARR inference from unit economics / projections
+ *  - Range-based EV/ARR multiples (low/mid/high) adjusted by quality
+ *  - EBITDA logic (skip when negative), SAFE/Note valuation boundaries
+ *  - Provenance hooks & confidence flags
+ *
+ * How to integrate (minimal):
+ *  1) import {
+ *       extractFundingDetailsEnhanced,
+ *       computeDeterministicValuationsEnhanced,
+ *       inferARR,
+ *       revenueMultipleBand
+ *     } from "./valuation_engine";
+ *  2) Replace your calls to extractFundingDetails(...) with extractFundingDetailsEnhanced(...)
+ *  3) Replace computeDeterministicValuations(...) with computeDeterministicValuationsEnhanced(...)
+ *  4) (Optional) Use extractTextFromPDFEnhanced(...) if some PDFs are image-only
+ */
+
+import OpenAI from "openai";
+
+// -----------------------------
+// Types you already use or extend
+// -----------------------------
+
+export interface ExtractedData {
+  sections: Array<{
+    name: string;
+    present: boolean;
+    slide_indices: number[];
+    quote: string;
+  }>;
+  kpis: {
+    currency_primary: string;
+    arr?: number | null;
+    mrr?: number | null;
+    growth_rate_pct?: number | null;
+    ebitda?: number | null;
+    gross_margin_pct?: number | null;
+    burn?: number | null;
+    runway_months?: number | null;
+    cac?: number | null;
+    ltv?: number | null;
+    churn_pct?: number | null;
+    arpu?: number | null;
+    customers?: number | null;
+    users?: number | null;
+    pricing_note?: string | null;
+    tam?: number | null;
+    sam?: number | null;
+    som?: number | null;
+    tam_source?: string | null;
+
+    // Funding/terms
+    raise_amount?: number | null;
+    equity_offered_pct?: number | null;
+    instrument?: string | null; // legacy
+    stated_pre_money?: number | null;
+    stated_post_money?: number | null;
+    use_of_funds?: string | null;
+
+    // New richer funding fields
+    funding_terms?: {
+      round_type?: "Pre-Seed" | "Seed" | "Series A" | "Bridge" | "Equity Crowdfunding" | string;
+      instrument?: "priced_equity" | "safe_pre" | "safe_post" | "convertible_note" | "debt" | "grant" | string;
+      safe_cap?: number | null;
+      safe_discount_pct?: number | null; // e.g., 0.2 for 20%
+      safe_post_money?: boolean | null;
+      note_cap?: number | null;
+      note_discount_pct?: number | null;
+      note_interest_pct?: number | null;
+      note_maturity_months?: number | null;
+    } | null;
+
+    // Named comps
+    comparables: Array<{
+      name: string;
+      metric: string;
+      multiple: number;
+    }>;
+
+    // Optional provenance hooks
+    provenance?: Array<{
+      field: string;
+      slides: number[];
+      raw: string;
+      confidence: number; // 0..1
+    }>;
+
+    // If multiple currencies appear
+    currency_all_seen?: string[] | null;
+  };
+  inconsistencies: Array<{
+    field: string;
+    slides: number[];
+    values: string[];
+  }>;
+}
+
+// Stage/Sector benchmark scaffold (use your existing DEFAULT_BENCHMARKS)
+export type Benchmarks = {
+  [stage: string]: {
+    [sector: string]: { revenue: [number, number]; ebitda: [number, number] };
+  };
+};
+
+// -----------------------------
+// Currency / Percent Parsers
+// -----------------------------
+
+const UNIT_MAP: Record<string, number> = {
+  k: 1e3, K: 1e3,
+  m: 1e6, M: 1e6, mn: 1e6,
+  b: 1e9, B: 1e9, bn: 1e9, Bn: 1e9,
+};
+
+const CURRENCY_MAP: Record<string, string> = {
+  "£": "GBP", "GBP": "GBP",
+  "$": "USD", "USD": "USD", "US$": "USD",
+  "€": "EUR", "EUR": "EUR",
+};
+
+export function parseMoney(raw: string): { value?: number; currency?: string } {
+  if (!raw) return {};
+  let s = raw.trim().replace(/\s+/g, " ");
+
+  // Convert EU decimals "1,2m" -> "1.2m"
+  s = s.replace(/(\d),(\d{1,2})(?=[^\d]|$)/g, "$1.$2");
+
+  const currMatch = s.match(/(GBP|EUR|USD|US\$|£|\$|€)/i);
+  const currency = currMatch
+    ? CURRENCY_MAP[(currMatch[0].toUpperCase() as keyof typeof CURRENCY_MAP)] || currMatch[0].replace(/[^A-Z]/g, "")
+    : undefined;
+
+  const numMatch = s.match(/(\d{1,3}(?:[,.\s]\d{3})*|\d+(?:[.,]\d+)?)/);
+  if (!numMatch) return { currency };
+  const numStr = numMatch[1].replace(/[,\s]/g, "");
+  const num = parseFloat(numStr);
+
+  const unitMatch = s.match(/\b(k|K|m|M|mn|bn|Bn|b)\b/);
+  const unit = unitMatch ? UNIT_MAP[unitMatch[1]] : 1;
+
+  const value = isNaN(num) ? undefined : num * unit;
+  return { value, currency };
+}
+
+export function parsePercent(raw: string): number | undefined {
+  if (!raw) return undefined;
+  const s = raw.toLowerCase();
+  const m = s.match(/(\d+(?:[.,]\d+)?)\s*(%|percent|pct)/);
+  if (m) return parseFloat(m[1].replace(",", ".")) / 100;
+  const f = parseFloat(s.replace(",", "."));
+  if (!isNaN(f) && f <= 1) return f;
+  return undefined;
+}
+
+// Simple currency conversion hook — pass fx rates optionally
+// fx example: { USD: 0.78, EUR: 0.85, GBP: 1 } meaning 1 unit * rate = GBP
+export function toPrimaryCurrency(
+  value: number,
+  from: string | undefined,
+  primary: string,
+  fx?: Record<string, number>,
+): number {
+  if (!from || from === primary) return value;
+  if (!fx || !fx[from]) return value; // fallback: no conversion if rates missing
+  return value * fx[from];
+}
+
+// -----------------------------
+// ARR Inference & Multiple Bands
+// -----------------------------
+
+export function inferARR(k: ExtractedData["kpis"]): number | null {
+  if (k.arr) return k.arr;
+  if (k.mrr) return k.mrr * 12;
+  if ((k as any).arpu && (k as any).customers) {
+    const arpu = (k as any).arpu as number;
+    const customers = (k as any).customers as number;
+    return Math.round(arpu * customers * 12);
+  }
+  if ((k as any).arpu && (k as any).users) {
+    const arpu = (k as any).arpu as number;
+    const users = (k as any).users as number;
+    return Math.round(arpu * users * 12);
+  }
+  // If current revenue proxy + growth, project 12 months forward
+  const rev = (k as any).revenue_current as number | undefined;
+  const g = k.growth_rate_pct ?? undefined;
+  if (rev && typeof g === "number") {
+    const monthly = Math.pow(1 + g / 100, 1 / 12) - 1;
+    const projected = rev * Math.pow(1 + monthly, 12);
+    return Math.round(projected);
+  }
+  return null;
+}
+
+export function revenueMultipleBand(input: {
+  stage: string; sector: string; geography: string;
+  baseBenchmarks: Benchmarks;
+  growth_rate_pct?: number | null;
+  gross_margin_pct?: number | null;
+  arr?: number | null;
+  churn_pct?: number | null;
+}): { low: number; mid: number; high: number } {
+  const stageData = input.baseBenchmarks[input.stage] || input.baseBenchmarks["Seed"];
+  const sectorData = stageData?.[input.sector] || stageData?.["General"];
+  let [low, high] = sectorData?.revenue || [6, 10];
+
+  const g = input.growth_rate_pct ?? 0;
+  if (g >= 100) { low += 3; high += 6; }
+  else if (g >= 50) { low += 2; high += 4; }
+  else if (g >= 25) { low += 1; high += 2; }
+  else if (g < 0) { low -= 2; high -= 3; }
+
+  const gm = input.gross_margin_pct ?? 0;
+  if (gm >= 80) { low += 1; high += 2; }
+  else if (gm < 50) { low -= 1; }
+
+  const churn = input.churn_pct ?? 0;
+  if (churn > 5) { low -= 1; high -= 1; }
+
+  if (/europe|uk|nl|de|fr|eu/i.test(input.geography)) {
+    low -= 0.5; high -= 0.5; // light geography discount
+  }
+
+  low = Math.max(2, low);
+  const mid = (low + high) / 2;
+  return { low, mid, high };
+}
+
+// -----------------------------
+// Terms → Implied Valuation
+// -----------------------------
+
+export function impliedFromTerms(k: ExtractedData["kpis"]) {
+  const out: any = {};
+  const eq = k.equity_offered_pct ?? undefined;
+  const raise = k.raise_amount ?? undefined;
+
+  if (typeof raise === "number" && typeof eq === "number" && eq > 0) {
+    const post = raise / eq;
+    const pre = post - raise;
+    out.implied_from_terms = {
+      pre_money: Math.round(pre),
+      post_money: Math.round(post),
+      raise,
+      equity_pct: eq,
+    };
+  } else if (typeof k.stated_pre_money === "number" && typeof eq === "number" && eq > 0 && eq < 1) {
+    // raise = pre * eq / (1 - eq)
+    const raise2 = (k.stated_pre_money * eq) / (1 - eq);
+    out.implied_from_terms = {
+      pre_money: k.stated_pre_money,
+      post_money: Math.round(k.stated_pre_money + raise2),
+      raise: Math.round(raise2),
+      equity_pct: eq,
+    };
+  } else if (typeof k.stated_pre_money === "number" && typeof raise === "number") {
+    const post = k.stated_pre_money + raise;
+    out.implied_from_terms = {
+      pre_money: k.stated_pre_money,
+      post_money: post,
+      raise,
+      equity_pct: raise / post,
+    };
+  }
+
+  // SAFE / Note boundaries (no single "valuation", but caps/discounts)
+  const ft = k.funding_terms;
+  if (ft?.instrument?.startsWith("safe") && (ft.safe_cap || ft.safe_discount_pct)) {
+    out.safe_implied = {
+      post_money_cap: ft.safe_post_money ? ft.safe_cap ?? null : null,
+      pre_money_cap: ft.safe_post_money ? null : ft.safe_cap ?? null,
+      discount_applies: (ft.safe_discount_pct ?? 0) > 0,
+      notes: "SAFE terms indicate a cap/discount boundary; conversion depends on next priced round."
+    };
+  } else if (ft?.instrument === "convertible_note" && (ft.note_cap || ft.note_discount_pct)) {
+    out.note_implied = {
+      cap: ft.note_cap ?? null,
+      discount: ft.note_discount_pct ?? null,
+      interest_pct: ft.note_interest_pct ?? null,
+      maturity_months: ft.note_maturity_months ?? null
+    };
+  }
+
+  return out;
+}
+
+// -----------------------------
+// Enhanced Deterministic Valuations
+// -----------------------------
+
+export function computeDeterministicValuationsEnhanced(
+  extracted: ExtractedData,
+  stage: string,
+  sector: string,
+  geography: string,
+  DEFAULT_BENCHMARKS: Benchmarks,
+) {
+  const kpis = extracted.kpis;
+  const results: any = {};
+
+  // Implied from terms (priced equity / SAFE / note)
+  Object.assign(results, impliedFromTerms(kpis));
+
+  // ARR (inferred if needed)
+  let arr = inferARR(kpis);
+
+  // If still no ARR but stated valuations exist, back-solve using mid multiple
+  if (!arr && (kpis.stated_pre_money || kpis.stated_post_money)) {
+    const band = revenueMultipleBand({
+      stage, sector, geography,
+      baseBenchmarks: DEFAULT_BENCHMARKS,
+      growth_rate_pct: kpis.growth_rate_pct,
+      gross_margin_pct: kpis.gross_margin_pct,
+      arr: null,
+      churn_pct: kpis.churn_pct,
+    });
+    const stated = kpis.stated_pre_money || kpis.stated_post_money || null;
+    if (stated) arr = Math.round(stated / band.mid);
+  }
+
+  // Revenue multiple range
+  if (arr) {
+    const band = revenueMultipleBand({
+      stage, sector, geography,
+      baseBenchmarks: DEFAULT_BENCHMARKS,
+      growth_rate_pct: kpis.growth_rate_pct,
+      gross_margin_pct: kpis.gross_margin_pct,
+      arr,
+      churn_pct: kpis.churn_pct,
+    });
+    results.revenue_multiple = {
+      arr,
+      multiple_low: band.low,
+      multiple_mid: band.mid,
+      multiple_high: band.high,
+      implied_low: Math.round(arr * band.low),
+      implied_mid: Math.round(arr * band.mid),
+      implied_high: Math.round(arr * band.high),
+      confidence: ((kpis.arr ? 1 : 0) + (kpis.growth_rate_pct ? 1 : 0) + (kpis.gross_margin_pct ? 1 : 0)) >= 2 ? "High" : ((kpis.arr || kpis.growth_rate_pct || kpis.gross_margin_pct) ? "Medium" : "Low"),
+    };
+  }
+
+  // EBITDA multiple (only if positive)
+  if (typeof kpis.ebitda === "number" && kpis.ebitda > 0) {
+    const stageData = DEFAULT_BENCHMARKS[stage] || DEFAULT_BENCHMARKS["Seed"];
+    const sectorData = stageData?.[sector] || stageData?.["General"];
+    const [eLow, eHigh] = sectorData?.ebitda || [10, 16];
+    const eMid = (eLow + eHigh) / 2;
+    results.ebitda_multiple = {
+      ebitda: kpis.ebitda,
+      multiple_low: eLow,
+      multiple_mid: eMid,
+      multiple_high: eHigh,
+      implied_low: Math.round(kpis.ebitda * eLow),
+      implied_mid: Math.round(kpis.ebitda * eMid),
+      implied_high: Math.round(kpis.ebitda * eHigh),
+    };
+  }
+
+  // Stated/post-money passthrough
+  if (kpis.stated_post_money && !results.implied_from_terms?.post_money) {
+    results.implied_from_post_money = { post_money: kpis.stated_post_money, method: "stated_post_money" };
+  }
+  if (kpis.stated_pre_money && !kpis.raise_amount && !results.implied_from_terms) {
+    results.implied_from_stated = { pre_or_post: kpis.stated_pre_money, method: "stated_pre_money_only" };
+  }
+
+  // Peer gap vs revenue mid
+  const stated = kpis.stated_pre_money || kpis.stated_post_money || results.implied_from_terms?.post_money;
+  const baseMid = results.revenue_multiple?.implied_mid;
+  if (stated && baseMid) {
+    results.peer_gap_pct = Math.round(((stated - baseMid) / baseMid) * 100) / 100;
+  }
+
+  return results;
+}
+
+// -----------------------------
+// LLM Funding Extraction (Schema-enforced)
+// -----------------------------
+
+const fundingExtractionSchema = {
+  name: "FundingExtraction",
+  schema: {
+    type: "object",
+    properties: {
+      raise_amount: { type: ["number", "null"] },
+      equity_offered_pct: { type: ["number", "null"] },
+      stated_pre_money: { type: ["number", "null"] },
+      stated_post_money: { type: ["number", "null"] },
+      revenue_current: { type: ["number", "null"] },
+      revenue_projected: { type: ["number", "null"] },
+      ebitda_or_profit: { type: ["number", "null"] },
+      other_financials: { type: "array", items: { type: "string" } },
+
+      funding_terms: {
+        type: ["object", "null"],
+        properties: {
+          round_type: { type: ["string", "null"] },
+          instrument: { type: ["string", "null"] },
+          safe_cap: { type: ["number", "null"] },
+          safe_discount_pct: { type: ["number", "null"] },
+          safe_post_money: { type: ["boolean", "null"] },
+          note_cap: { type: ["number", "null"] },
+          note_discount_pct: { type: ["number", "null"] },
+          note_interest_pct: { type: ["number", "null"] },
+          note_maturity_months: { type: ["number", "null"] },
+        },
+        additionalProperties: false
+      }
+    },
+    required: ["raise_amount", "equity_offered_pct", "stated_pre_money", "stated_post_money", "other_financials"],
+    additionalProperties: true
+  }
+};
+
+export async function extractFundingDetailsEnhanced(
+  openai: OpenAI,
+  slides: string[],
+): Promise<{
+  raise_amount?: number | null;
+  equity_offered_pct?: number | null;
+  stated_pre_money?: number | null;
+  stated_post_money?: number | null;
+  revenue_current?: number | null;
+  revenue_projected?: number | null;
+  ebitda_or_profit?: number | null;
+  other_financials?: string[];
+  funding_terms?: ExtractedData["kpis"]["funding_terms"];
+}> {
+  const fundingKeywords = [
+    "ask", "funding", "raise", "equity", "valuation", "investment", "terms",
+    "SAFE", "convertible", "cap", "discount", "note", "interest", "maturity"
+  ];
+  const relevantSlides = slides.filter((s) =>
+    fundingKeywords.some((kw) => s.toLowerCase().includes(kw.toLowerCase())),
+  );
+  const slidesToAnalyze = relevantSlides.length ? relevantSlides : slides;
+  const maxChars = 50000;
+  let slidesText = slidesToAnalyze.join("\n\n");
+  if (slidesText.length > maxChars) slidesText = slidesText.slice(0, maxChars);
+
+  const prompt = `Analyze the pitch deck text and extract ALL funding- and valuation-related details.
+Be comprehensive across phrasing variations, instruments, and implied valuations.
+
+Capture:
+- raise_amount (seeking/raising/funding ask)
+- equity_offered_pct (as decimal, e.g., 0.20)
+- stated_pre_money, stated_post_money (explicit or implied)
+- revenue_current, revenue_projected, ebitda_or_profit
+- funding_terms:
+  * round_type, instrument (priced_equity | safe_pre | safe_post | convertible_note | debt | grant)
+  * safe_cap, safe_discount_pct, safe_post_money
+  * note_cap, note_discount_pct, note_interest_pct, note_maturity_months
+- other_financials: any extra raw lines relevant to valuation (burn, runway, TAM/SAM/SOM, unit economics, comps, etc.)
+
+If you infer a number, only do so when the deck provides enough context (e.g., projecting revenue forward).
+If absent, set null. Output MUST be valid JSON per the given schema.
+
+Text:
+${slidesText}`;
+
+  try {
+    // Prefer JSON schema if available
+    const resp = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: "You extract funding details from pitch decks. Output only valid JSON matching the provided schema." },
+        { role: "user", content: prompt },
+      ],
+      response_format: {
+        // @ts-ignore - newer clients support json_schema
+        type: "json_schema",
+        json_schema: fundingExtractionSchema,
+      },
+      temperature: 0,
+    });
+
+    const content = resp.choices?.[0]?.message?.content || "{}";
+    return JSON.parse(content);
+  } catch (e) {
+    // Fallback to json_object if schema not supported
+    const resp = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: "You extract funding details from pitch decks. Output only valid JSON." },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0,
+    });
+    const content = resp.choices?.[0]?.message?.content || "{}";
+    return JSON.parse(content);
+  }
+}
+
+// -----------------------------
+// Optional: PDF → Text (with OCR fallback)
+// -----------------------------
+
+// You can wire this to replace your extractor if many decks are image-only.
+// This keeps OCR optional to avoid adding heavy deps unless you need them.
+export async function extractTextFromPDFEnhanced(
+  safePdfParse: (buffer: Buffer) => Promise<{ text: string; numpages: number }>,
+  buffer: Buffer,
+): Promise<string[]> {
+  const data = await safePdfParse(buffer);
+  let pages = data.text.split("\f");
+  if (pages.length === 1) pages = data.text.split(/\n\s*(?:Page|Slide)\s+\d+/i);
+  if (pages.length === 1) pages = data.text.split(/\n\s*\n\s*\n/);
+  if (pages.length === 1) {
+    const chunkSize = Math.max(1000, Math.floor(data.text.length / 10));
+    pages = [];
+    for (let i = 0; i < data.text.length; i += chunkSize) {
+      pages.push(data.text.substring(i, i + chunkSize));
+    }
+  }
+  const clean = pages.map((p) => p.trim()).filter((p) => p.length > 20);
+
+  // OCR fallback if too little text
+  if (clean.join("\n").length < 500) {
+    try {
+      // Lazy import to keep optional
+      // @ts-ignore
+      const Tesseract = (await import("tesseract.js")).default || (await import("tesseract.js"));
+      const { data: { text } } = await Tesseract.recognize(buffer, "eng");
+      const ocrPages = text.split(/\n\s*\n/g).map((s: string) => s.trim()).filter((s: string) => s.length > 20);
+      if (ocrPages.length) return ocrPages;
+    } catch {
+      // Ignore if tesseract not installed; caller still gets pdfjs text
+    }
+  }
+  return clean;
+}
