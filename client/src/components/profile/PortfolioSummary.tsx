@@ -386,53 +386,62 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
               </div>
             )}
 
-            {/* Diversification Score */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="relative p-6 rounded-xl shadow-sm" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full shadow-md" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }}>
-                    <TrendingUp className="h-4 w-4" />
-                  </div>
-                  <h4 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
-                    Diversification Score
-                  </h4>
+            {/* Portfolio Assessment */}
+            <div className="p-6 rounded-xl shadow-sm" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full shadow-md" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                  <TrendingUp className="h-4 w-4" />
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-3xl font-bold" style={{ color: 'var(--primary)' }}>
-                    {analysis.diversificationScore}
-                    <span className="text-lg" style={{ color: 'var(--muted-foreground)' }}>/10</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="w-full rounded-full h-3 shadow-inner" style={{ background: 'var(--border)' }}>
-                      <div 
-                        className="h-3 rounded-full shadow-sm transition-all duration-500"
-                        style={{ 
-                          background: 'var(--primary)',
-                          width: `${(analysis.diversificationScore / 10) * 100}%`
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
-                      {analysis.diversificationScore >= 8 ? 'Excellent' : 
-                       analysis.diversificationScore >= 6 ? 'Good' : 
-                       analysis.diversificationScore >= 4 ? 'Moderate' : 'Needs Improvement'}
-                    </p>
-                  </div>
-                </div>
+                <h4 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
+                  Portfolio Assessment
+                </h4>
               </div>
-
-              <div className="relative p-6 rounded-xl shadow-sm" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full shadow-md" style={{ background: 'var(--accent)', color: 'var(--accent-foreground)' }}>
-                    <AlertTriangle className="h-4 w-4" />
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Diversification Score */}
+                <div>
+                  <h5 className="font-medium mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full" style={{ background: 'var(--secondary)', color: 'var(--secondary-foreground)' }}>
+                      <TrendingUp className="h-3 w-3" />
+                    </div>
+                    Diversification Score
+                  </h5>
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="text-3xl font-bold" style={{ color: 'var(--primary)' }}>
+                      {analysis.diversificationScore}
+                      <span className="text-lg" style={{ color: 'var(--muted-foreground)' }}>/10</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="w-full rounded-full h-3 shadow-inner" style={{ background: 'var(--border)' }}>
+                        <div 
+                          className="h-3 rounded-full shadow-sm transition-all duration-500"
+                          style={{ 
+                            background: 'var(--primary)',
+                            width: `${(analysis.diversificationScore / 10) * 100}%`
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                        {analysis.diversificationScore >= 8 ? 'Excellent' : 
+                         analysis.diversificationScore >= 6 ? 'Good' : 
+                         analysis.diversificationScore >= 4 ? 'Moderate' : 'Needs Improvement'}
+                      </p>
+                    </div>
                   </div>
-                  <h4 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
-                    Risk Assessment
-                  </h4>
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                  {analysis.riskAssessment}
-                </p>
+
+                {/* Risk Assessment */}
+                <div>
+                  <h5 className="font-medium mb-3 flex items-center gap-2" style={{ color: 'var(--card-foreground)' }}>
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full" style={{ background: 'var(--accent)', color: 'var(--accent-foreground)' }}>
+                      <AlertTriangle className="h-3 w-3" />
+                    </div>
+                    Risk Assessment
+                  </h5>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+                    {analysis.riskAssessment}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -485,17 +494,10 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
             </div>
 
             {/* Disclaimer */}
-            <div className="mt-6 p-4 rounded-lg" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
+            <div className="p-4 rounded-lg" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
               <p className="text-xs text-center italic" style={{ color: 'var(--muted-foreground)' }}>
                 <strong>Important Disclaimer:</strong> This analysis is for educational purposes only and does not constitute financial advice. 
                 Always consult with qualified financial advisors before making investment decisions.
-              </p>
-            </div>
-
-            <div className="text-xs p-3 rounded-lg border border-gray-200 dark:border-gray-700" style={{ backgroundColor: 'var(--muted)' }}>
-              <p style={{ color: 'var(--muted-foreground)' }}>
-                <strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute financial advice. 
-                Always consult with a qualified financial advisor before making investment decisions.
               </p>
             </div>
           </CardContent>
