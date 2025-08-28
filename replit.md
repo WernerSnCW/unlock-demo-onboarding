@@ -43,6 +43,16 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 - Updated action buttons to use official color scheme (--destructive for delete, --primary for actions)
 - All visual elements now follow the established design system for reliable theming
 
+**Portfolio Summary & LLM Analysis Complete (Aug 28, 2025):** Successfully implemented comprehensive portfolio overview with AI-powered insights:
+- Added portfolio summary section with interactive pie chart showing allocation across Traditional Holdings, Property Portfolio, and Alternative Investments
+- Created total portfolio value display with breakdown by investment type and count
+- Integrated GPT-5 powered investment analysis API endpoint providing educational insights (not financial advice)
+- Built overexposure detection system identifying concentration risks (>30% single asset class, >20% sector, >15% property location)
+- Implemented diversification scoring (0-10) considering geographic spread, sector diversity, and asset class balance
+- Added risk assessment summaries, key portfolio insights, and general guidance points
+- Fixed property valuation data integration using latestValuation.valueGbp field structure
+- All analysis includes professional disclaimers emphasizing informational purpose only
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

@@ -85,7 +85,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
       sum + (parseFloat(holding.currentValueGbp) || 0), 0);
     
     const propertyValue = properties.reduce((sum: number, property: any) => 
-      sum + (parseFloat(property.currentValuationGbp) || 0), 0);
+      sum + (parseFloat(property.latestValuation?.valueGbp) || 0), 0);
     
     const alternativesValue = alternatives.reduce((sum: number, alt: any) => 
       sum + (parseFloat(alt.currentValueGbp) || 0), 0);
@@ -153,7 +153,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
           properties: properties.map((p: any) => ({
             type: p.propertyType,
             location: p.postcode,
-            value: parseFloat(p.currentValuationGbp)
+            value: parseFloat(p.latestValuation?.valueGbp || '0')
           })),
           alternatives: alternatives.map((a: any) => ({
             type: a.investmentType,
