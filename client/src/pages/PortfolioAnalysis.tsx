@@ -85,7 +85,8 @@ export default function PortfolioAnalysis() {
         console.log('Processed holdings count:', allHoldings.length);
         
         // Classify holdings into categories based on Category field
-        const traditionalCategories = ['Equities', 'Bonds', 'ETF', 'Stocks', 'Funds', 'Crypto', 'Cash'];
+        // Handle both standard format and user's format (Pension, ISA, Brokerage, Holding, etc.)
+        const traditionalCategories = ['Equities', 'Bonds', 'ETF', 'Stocks', 'Funds', 'Crypto', 'Cash', 'Pension', 'ISA', 'Brokerage', 'Holding'];
         const propertyCategories = ['Property', 'Real Estate', 'REIT'];
         const alternativeCategories = ['Alternative', 'Alternatives', 'Private Equity', 'Venture Capital', 'Commodities', 'Art', 'Wine'];
         
