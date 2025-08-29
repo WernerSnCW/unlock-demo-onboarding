@@ -127,12 +127,6 @@ export default function PortfolioAnalysis() {
           
         // Calculate total value from ALL holdings, not just traditional
         const totalValue = allHoldings.reduce((sum: number, holding: any) => sum + holding.value, 0);
-        console.log('TOTAL VALUE CALCULATION:');
-        console.log('All holdings count:', allHoldings.length);
-        console.log('Traditional holdings count:', traditionalHoldings.length);
-        console.log('Property holdings count:', propertyHoldings.length);
-        console.log('Alternative holdings count:', alternativeHoldings.length);
-        console.log('Total portfolio value:', totalValue);
         
         // Calculate percentages for ALL holdings based on total portfolio value
         allHoldings.forEach((holding: any) => {
@@ -145,6 +139,9 @@ export default function PortfolioAnalysis() {
         const alternativeValue = alternativeHoldings.reduce((sum: number, h: any) => sum + h.value, 0);
         
         
+        // Create combined array of ALL holdings with valid tickers for live feed
+        const liveTickerHoldings = allHoldings.filter((h: any) => h.hasValidTicker);
+        
         const portfolioData = {
           totalValue,
           assetAllocation: {
@@ -155,19 +152,19 @@ export default function PortfolioAnalysis() {
           holdings: {
             traditional: traditionalHoldings,
             properties: propertyHoldings,
-            alternatives: alternativeHoldings
+            alternatives: alternativeHoldings,
+            liveTickerHoldings: liveTickerHoldings // ALL holdings with tickers for live feed
           }
         };
         
         setPortfolioData(portfolioData);
-        console.log('Processed uploaded portfolio data:', portfolioData);
         
         // Fetch live market data for uploaded holdings (only for those with valid tickers)
         const fetchUploadedLiveData = async () => {
           try {
-            // Only get tickers that are valid (not N/A, not empty)
-            const validTickers = traditionalHoldings
-              .filter((h: any) => h.hasValidTicker && h.ticker !== 'N/A' && h.ticker.trim() !== '')
+            // Get tickers from ALL holdings with valid tickers (Traditional, Property, Alternative)
+            const validTickers = liveTickerHoldings
+              .filter((h: any) => h.ticker !== 'N/A' && h.ticker.trim() !== '')
               .map((h: any) => h.ticker);
             
             console.log('Valid tickers for live data:', validTickers);
@@ -191,8 +188,7 @@ export default function PortfolioAnalysis() {
             console.error('Failed to fetch live market data for uploads:', error);
             // Fallback to mock data for valid tickers only
             const fallbackData: any = {};
-            traditionalHoldings
-              .filter((holding: any) => holding.hasValidTicker)
+            liveTickerHoldings
               .forEach((holding: any) => {
                 const randomChange = (Math.random() - 0.5) * 0.02;
                 fallbackData[holding.ticker] = {
@@ -902,7 +898,7 @@ export default function PortfolioAnalysis() {
 
                     <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-hide">
                       {portfolioData ? (
-                        portfolioData.holdings.traditional.map((holding: any, index: number) => {
+                        portfolioData.holdings.liveTickerHoldings.map((holding: any, index: number) => {
                           const livePrice = liveData[holding.ticker];
                           const isPositive = livePrice ? livePrice.changePercent >= 0 : holding.changePercent >= 0;
                           const displayPrice = livePrice ? livePrice.price : holding.currentPrice;
