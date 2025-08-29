@@ -48,6 +48,54 @@ export default function InvestorOnboarding() {
     setIsUploading(true);
     setUploadProgress(0);
 
+    // Parse CSV file and store to localStorage
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const csvText = e.target?.result as string;
+        const lines = csvText.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          throw new Error('CSV file must have at least a header and one data row');
+        }
+
+        // Parse CSV rows
+        const rawData = lines.slice(1).map(line => {
+          const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+          return {
+            Category: values[0] || '',
+            'Account/Provider': values[1] || '',
+            Holding: values[2] || '',
+            Ticker: values[3] || '',
+            Value_GBP: values[4] || '0'
+          };
+        }).filter(row => row.Category && row.Holding); // Filter out empty rows
+
+        console.log('=== PARSED CSV DATA ===');
+        console.log('Total rows parsed:', rawData.length);
+        console.log('Sample data:', rawData.slice(0, 3));
+
+        // Store in localStorage for Portfolio Analysis
+        const uploadedPortfolioData = {
+          uploadedAt: new Date().toISOString(),
+          positions: [], // Not needed for this analysis flow
+          rawData: rawData
+        };
+
+        localStorage.setItem('uploadedPortfolioData', JSON.stringify(uploadedPortfolioData));
+        
+        // Verify storage
+        const verification = localStorage.getItem('uploadedPortfolioData');
+        console.log('STORAGE VERIFICATION:', verification ? 'SUCCESS' : 'FAILED');
+        console.log('Stored data for Portfolio Analysis:', rawData.length, 'rows');
+
+      } catch (error) {
+        console.error('Error parsing CSV:', error);
+      }
+    };
+
+    reader.readAsText(file);
+
     // Simulate upload progress
     const interval = setInterval(() => {
       setUploadProgress(prev => {
