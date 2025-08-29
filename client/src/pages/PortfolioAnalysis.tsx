@@ -63,9 +63,14 @@ export default function PortfolioAnalysis() {
             const ticker = row.Ticker || row.ticker || 'N/A';
             const hasValidTicker = ticker && ticker !== 'N/A' && ticker.trim() !== '';
             
+            // Use Account/Provider as name when Holding is N/A (for accounts like Pension, ISA, etc.)
+            const displayName = (row.Holding === 'N/A' || !row.Holding) 
+              ? (row['Account/Provider'] || 'Unknown Account')
+              : (row.Holding || 'Unknown Holding');
+            
             const holding = {
               ticker: ticker,
-              name: row.Holding || 'Unknown Holding',
+              name: displayName,
               sector: row.Category || 'Unknown',
               value: value,
               percentage: 0, // Will be calculated below
