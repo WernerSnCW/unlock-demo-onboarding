@@ -236,14 +236,18 @@ export default function PortfolioAnalysis() {
     }).format(amount);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+  const formatPrice = (price: number | null | undefined) => {
+    if (price == null || isNaN(price)) return '£0.00';
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(price);
   };
 
-  const formatPercentage = (percentage: number) => {
+  const formatPercentage = (percentage: number | null | undefined) => {
+    if (percentage == null || isNaN(percentage)) return '0.00%';
     return `${percentage >= 0 ? '+' : ''}${percentage.toFixed(2)}%`;
   };
 
@@ -290,12 +294,12 @@ export default function PortfolioAnalysis() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
       
-      {/* Debug/Test Bar */}
-      {uploadedDataStr ? (
+      {/* Data Source Indicator */}
+      {uploadedDataStr && (
         <div className="bg-green-100 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800/50 px-4 py-2">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <span className="text-sm text-green-800 dark:text-green-200">
-              ✓ Using uploaded portfolio data (Portfolio Analysis uses your uploaded CSV data)
+              ✓ Using your uploaded CSV portfolio data
             </span>
             <Button 
               onClick={clearUploadedData}
@@ -303,23 +307,7 @@ export default function PortfolioAnalysis() {
               size="sm"
               className="text-green-800 dark:text-green-200 border-green-300 dark:border-green-700"
             >
-              Clear & Use Demo Data
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-blue-100 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800/50 px-4 py-2">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <span className="text-sm text-blue-800 dark:text-blue-200">
-              No uploaded portfolio data found. Upload a CSV or use demo data for testing.
-            </span>
-            <Button 
-              onClick={loadDemoCSV}
-              variant="outline" 
-              size="sm"
-              className="text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700"
-            >
-              Load Demo CSV Data
+              Clear Uploaded Data
             </Button>
           </div>
         </div>
@@ -424,7 +412,7 @@ export default function PortfolioAnalysis() {
                             ))}
                           </Pie>
                           <Tooltip 
-                            formatter={(value: any) => [`${value.toFixed(1)}%`, 'Allocation']}
+                            formatter={(value: any) => [`${(value || 0).toFixed(1)}%`, 'Allocation']}
                             contentStyle={{ 
                               backgroundColor: 'var(--card)', 
                               border: '1px solid var(--border)',
