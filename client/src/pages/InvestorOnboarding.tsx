@@ -94,11 +94,8 @@ export default function InvestorOnboarding() {
             </div>
 
             <h1 className="relative mb-8">
-              <span className="block text-3xl md:text-5xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">
-                INVESTOR ONBOARDING
-              </span>
               <span className="block text-5xl md:text-7xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
-                SIMULATION
+                INVESTOR ONBOARDING
               </span>
               <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-40 h-2 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
             </h1>
