@@ -170,7 +170,19 @@ class MarketDataService {
     // Fetch crypto data 
     const cryptoPromises = cryptoSymbols.map(async (symbol) => {
       try {
-        const coinId = symbol === 'BTC-USD' ? 'bitcoin' : symbol.toLowerCase().replace('-usd', '');
+        // Map crypto symbols to CoinGecko IDs
+        let coinId: string;
+        switch(symbol) {
+          case 'BTC-USD':
+            coinId = 'bitcoin';
+            break;
+          case 'ETH-USD':
+            coinId = 'ethereum';
+            break;
+          default:
+            // Fallback for other cryptos
+            coinId = symbol.toLowerCase().replace('-usd', '');
+        }
         const data = await this.getCryptoPrice(coinId);
         quotes[symbol] = data;
       } catch (error) {
