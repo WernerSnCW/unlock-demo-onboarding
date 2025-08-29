@@ -33,14 +33,20 @@ export default function PortfolioAnalysis() {
         const uploadedData = JSON.parse(uploadedDataStr);
         console.log('Using uploaded portfolio data:', uploadedData);
         
-        // Parse uploaded CSV data with format: Category,Account/Provider,Holding,Value_GBP
-        const traditionalHoldings = uploadedData.rawData
+        // Parse uploaded CSV data with format: Category,Account/Provider,Holding,Ticker,Value_GBP
+        console.log('Processing uploaded CSV data:', uploadedData.rawData);
+        console.log('Total rows in CSV:', uploadedData.rawData.length);
+        
+        // Filter and categorize all holdings
+        const allHoldings = uploadedData.rawData
           .filter((row: any) => row.Category && row.Holding && row.Value_GBP)
           .map((row: any, index: number) => {
             const value = parseFloat(row.Value_GBP) || 0;
-            const ticker = row.Holding.split(' ')[0] || `HOLDING_${index}`;
+            // Handle ticker codes - skip live data fetch if ticker is N/A
+            const ticker = row.Ticker || row.ticker || 'N/A';
+            const hasValidTicker = ticker && ticker !== 'N/A' && ticker.trim() !== '';
             
-            return {
+            const holding = {
               ticker: ticker,
               name: row.Holding || 'Unknown Holding',
               sector: row.Category || 'Unknown',
@@ -50,9 +56,50 @@ export default function PortfolioAnalysis() {
               currentPrice: value,
               change: 0,
               changePercent: 0,
-              provider: row['Account/Provider'] || 'Unknown'
+              provider: row['Account/Provider'] || 'Unknown',
+              category: row.Category,
+              hasValidTicker: hasValidTicker
             };
+            
+            console.log(`Row ${index + 1}: ${holding.name} (${holding.ticker}) - £${holding.value} - Category: ${holding.category}`);
+            return holding;
           });
+          
+        console.log('Processed holdings count:', allHoldings.length);
+        
+        // Classify holdings into categories based on Category field
+        const traditionalCategories = ['Equities', 'Bonds', 'ETF', 'Stocks', 'Funds', 'Crypto', 'Cash'];
+        const propertyCategories = ['Property', 'Real Estate', 'REIT'];
+        const alternativeCategories = ['Alternative', 'Alternatives', 'Private Equity', 'Venture Capital', 'Commodities', 'Art', 'Wine'];
+        
+        const traditionalHoldings = allHoldings.filter((h: any) => 
+          traditionalCategories.some(cat => h.category.toLowerCase().includes(cat.toLowerCase()))
+        );
+        
+        const propertyHoldings = allHoldings.filter((h: any) => 
+          propertyCategories.some(cat => h.category.toLowerCase().includes(cat.toLowerCase()))
+        ).map((h: any) => ({
+          type: h.name,
+          location: h.provider,
+          value: h.value,
+          monthlyRent: Math.round(h.value * 0.005), // Estimate 6% annual yield
+          yield: 6.0,
+          purchasePrice: h.value,
+          mortgage: 0,
+          equity: h.value
+        }));
+        
+        const alternativeHoldings = allHoldings.filter((h: any) => 
+          alternativeCategories.some(cat => h.category.toLowerCase().includes(cat.toLowerCase()))
+        ).map((h: any) => ({
+          type: h.category,
+          name: h.name,
+          value: h.value,
+          riskRating: 'Medium' as const,
+          sector: h.sector,
+          investmentDate: '2023-01-01',
+          expectedReturn: '2-3x'
+        }));
           
         const totalValue = traditionalHoldings.reduce((sum: number, holding: any) => sum + holding.value, 0);
         
