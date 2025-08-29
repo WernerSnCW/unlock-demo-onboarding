@@ -227,10 +227,11 @@ export function PortfolioUploader({ onUploadComplete, className = '' }: Portfoli
       }));
 
       // Store the uploaded portfolio data for demo analysis
+      // Include ALL raw data for portfolio analysis, not just valid database rows
       const uploadedPortfolioData = {
         uploadedAt: new Date().toISOString(),
         positions: newPositions,
-        rawData: validRows.map(row => row.raw)
+        rawData: mappedData.map(row => row.raw)  // Store ALL rows for analysis
       };
       
       // Store in localStorage for demo analysis access
