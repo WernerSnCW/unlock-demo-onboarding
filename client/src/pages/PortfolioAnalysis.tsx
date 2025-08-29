@@ -259,18 +259,43 @@ export default function PortfolioAnalysis() {
     window.location.reload();
   };
 
+  const loadDemoCSV = () => {
+    // Create demo CSV data in the expected format
+    const demoCSVData = [
+      { Category: 'Equities', 'Account/Provider': 'Interactive Brokers', Holding: 'Apple Inc', Value_GBP: '25000' },
+      { Category: 'Equities', 'Account/Provider': 'Interactive Brokers', Holding: 'Microsoft Corp', Value_GBP: '18000' },
+      { Category: 'Equities', 'Account/Provider': 'Interactive Brokers', Holding: 'NVIDIA Corp', Value_GBP: '15000' },
+      { Category: 'Equities', 'Account/Provider': 'Hargreaves Lansdown', Holding: 'Vanguard FTSE 100', Value_GBP: '12000' },
+      { Category: 'Bonds', 'Account/Provider': 'Hargreaves Lansdown', Holding: 'UK Government Gilts', Value_GBP: '8000' },
+      { Category: 'Crypto', 'Account/Provider': 'Coinbase', Holding: 'Bitcoin', Value_GBP: '5000' },
+      { Category: 'ETF', 'Account/Provider': 'Interactive Brokers', Holding: 'S&P 500 ETF', Value_GBP: '22000' }
+    ];
+
+    const demoUploadData = {
+      uploadedAt: new Date().toISOString(),
+      positions: [], // Not needed for this demo
+      rawData: demoCSVData
+    };
+
+    localStorage.setItem('uploadedPortfolioData', JSON.stringify(demoUploadData));
+    window.location.reload();
+  };
+
   const uploadedDataStr = localStorage.getItem('uploadedPortfolioData');
+  
+  // Debug: Log current localStorage state
+  console.log('Current localStorage uploadedPortfolioData:', uploadedDataStr);
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Header />
       
       {/* Debug/Test Bar */}
-      {uploadedDataStr && (
+      {uploadedDataStr ? (
         <div className="bg-green-100 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800/50 px-4 py-2">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <span className="text-sm text-green-800 dark:text-green-200">
-              Using uploaded portfolio data (Portfolio Analysis will use your uploaded CSV data)
+              ✓ Using uploaded portfolio data (Portfolio Analysis uses your uploaded CSV data)
             </span>
             <Button 
               onClick={clearUploadedData}
@@ -279,6 +304,22 @@ export default function PortfolioAnalysis() {
               className="text-green-800 dark:text-green-200 border-green-300 dark:border-green-700"
             >
               Clear & Use Demo Data
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-blue-100 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800/50 px-4 py-2">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <span className="text-sm text-blue-800 dark:text-blue-200">
+              No uploaded portfolio data found. Upload a CSV or use demo data for testing.
+            </span>
+            <Button 
+              onClick={loadDemoCSV}
+              variant="outline" 
+              size="sm"
+              className="text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700"
+            >
+              Load Demo CSV Data
             </Button>
           </div>
         </div>
