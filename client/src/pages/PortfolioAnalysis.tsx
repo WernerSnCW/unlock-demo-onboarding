@@ -88,16 +88,22 @@ export default function PortfolioAnalysis() {
         // Use explicit Classification column instead of guessing from Category
         console.log('Using Classification column for categorization');
         
+        console.log('=== CLASSIFICATION DEBUGGING ===');
+        allHoldings.forEach((h: any, index: number) => {
+          console.log(`Item ${index + 1}: "${h.name}" has Classification: "${h.classification}"`);
+        });
+
         const traditionalHoldings = allHoldings.filter((h: any) => {
-          const classification = h.classification ? h.classification.toLowerCase() : 'traditional';
-          const isTraditional = classification.includes('traditional') || classification.includes('stock') || classification.includes('equity');
-          console.log(`${h.name}: classification="${h.classification}" -> ${isTraditional ? 'TRADITIONAL' : 'NOT TRADITIONAL'}`);
+          const classification = h.classification ? h.classification.toLowerCase().trim() : 'traditional';
+          const isTraditional = classification === 'traditional' || classification === 'stock' || classification === 'equity';
+          console.log(`${h.name}: classification="${h.classification}" (trimmed: "${classification}") -> ${isTraditional ? 'TRADITIONAL' : 'NOT TRADITIONAL'}`);
           return isTraditional;
         });
         
         const propertyHoldings = allHoldings.filter((h: any) => {
-          const classification = h.classification ? h.classification.toLowerCase() : '';
-          const isProperty = classification.includes('property') || classification.includes('real estate');
+          const classification = h.classification ? h.classification.toLowerCase().trim() : '';
+          const isProperty = classification === 'property' || classification === 'real estate' || classification.includes('property');
+          console.log(`${h.name}: property check - classification="${classification}" -> ${isProperty ? 'PROPERTY' : 'NOT PROPERTY'}`);
           return isProperty;
         }).map((h: any) => ({
           type: h.name,
@@ -111,8 +117,9 @@ export default function PortfolioAnalysis() {
         }));
         
         const alternativeHoldings = allHoldings.filter((h: any) => {
-          const classification = h.classification ? h.classification.toLowerCase() : '';
-          const isAlternative = classification.includes('alternative') || classification.includes('private') || classification.includes('art') || classification.includes('commodity');
+          const classification = h.classification ? h.classification.toLowerCase().trim() : '';
+          const isAlternative = classification === 'alternative' || classification.includes('alternative') || classification.includes('private') || classification.includes('art') || classification.includes('commodity');
+          console.log(`${h.name}: alternative check - classification="${classification}" -> ${isAlternative ? 'ALTERNATIVE' : 'NOT ALTERNATIVE'}`);
           return isAlternative;
         }).map((h: any) => ({
           type: h.category,
