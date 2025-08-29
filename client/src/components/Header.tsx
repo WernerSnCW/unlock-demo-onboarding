@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from './ThemeProvider';
 import { useInvestor } from '../contexts/InvestorContext';
-import { User, ChevronDown, Settings, LogOut } from 'lucide-react';
+import { User, ChevronDown, Settings, LogOut, Play } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Header() {
@@ -75,6 +75,16 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-4">
+            {/* Demo Button */}
+            <Link 
+              href="/demo"
+              className="hidden sm:inline-flex items-center px-4 py-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm"
+              data-testid="button-demo"
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Live Demo
+            </Link>
+
             <button 
               onClick={toggleTheme}
               className="p-2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] transition-colors duration-200"
@@ -187,6 +197,17 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-[var(--card)] border-b border-[var(--border)]">
           <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* Mobile Demo Button */}
+            <Link 
+              href="/demo"
+              className="flex items-center px-3 py-2 text-base font-medium rounded-md bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white mb-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+              data-testid="button-demo-mobile"
+            >
+              <Play className="h-5 w-5 mr-2" />
+              Live Demo
+            </Link>
+            
             {navigation.map((item) => (
               <Link 
                 key={item.name} 

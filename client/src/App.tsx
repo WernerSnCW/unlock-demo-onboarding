@@ -22,6 +22,7 @@ import DueDiligenceRequestDetail from "@/pages/DueDiligenceRequestDetail";
 import Profile from "@/pages/Profile";
 import ProfilePortfolio from "@/pages/ProfilePortfolio";
 import AccountSettings from "@/pages/AccountSettings";
+import DemoAgenda from "@/pages/DemoAgenda";
 
 
 function Router() {
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/profile/portfolio" component={ProfilePortfolio} />
       <Route path="/account-settings" component={AccountSettings} />
+      <Route path="/demo" component={DemoAgenda} />
       <Route component={NotFound} />
     </Switch>
   );
