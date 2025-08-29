@@ -42,9 +42,21 @@ export default function PortfolioAnalysis() {
           (uploadedData.rawData[0].hasOwnProperty('Ticker') || uploadedData.rawData[0].hasOwnProperty('ticker'));
         console.log('CSV has Ticker column:', hasTickerColumn);
         
-        // Filter and categorize all holdings
+        // DEBUG: Log all raw data to see what's missing
+        console.log('All raw data rows:');
+        uploadedData.rawData.forEach((row: any, index: number) => {
+          console.log(`Raw row ${index + 1}:`, row);
+        });
+        
+        // Filter and categorize all holdings - process ALL rows, not just those with tickers
         const allHoldings = uploadedData.rawData
-          .filter((row: any) => row.Category && row.Holding && row.Value_GBP)
+          .filter((row: any) => {
+            const hasRequiredFields = row.Category && row.Holding && row.Value_GBP;
+            if (!hasRequiredFields) {
+              console.log('Skipping row due to missing fields:', row);
+            }
+            return hasRequiredFields;
+          })
           .map((row: any, index: number) => {
             const value = parseFloat(row.Value_GBP) || 0;
             // Handle ticker codes - skip live data fetch if ticker is N/A
