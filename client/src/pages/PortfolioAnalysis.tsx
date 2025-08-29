@@ -88,23 +88,14 @@ export default function PortfolioAnalysis() {
         // Use explicit Classification column instead of guessing from Category
         console.log('Using Classification column for categorization');
         
-        console.log('=== CLASSIFICATION DEBUGGING ===');
-        allHoldings.forEach((h: any, index: number) => {
-          console.log(`Item ${index + 1}: "${h.name}" has Classification: "${h.classification}"`);
-        });
-
         const traditionalHoldings = allHoldings.filter((h: any) => {
           const classification = h.classification ? h.classification.toLowerCase().trim() : 'traditional';
-          const isTraditional = classification === 'traditional' || classification === 'stock' || classification === 'equity';
-          console.log(`${h.name}: classification="${h.classification}" (trimmed: "${classification}") -> ${isTraditional ? 'TRADITIONAL' : 'NOT TRADITIONAL'}`);
-          return isTraditional;
+          return classification === 'traditional' || classification === 'stock' || classification === 'equity';
         });
         
         const propertyHoldings = allHoldings.filter((h: any) => {
           const classification = h.classification ? h.classification.toLowerCase().trim() : '';
-          const isProperty = classification === 'property' || classification === 'real estate' || classification.includes('property');
-          console.log(`${h.name}: property check - classification="${classification}" -> ${isProperty ? 'PROPERTY' : 'NOT PROPERTY'}`);
-          return isProperty;
+          return classification === 'property' || classification === 'real estate' || classification.includes('property');
         }).map((h: any) => ({
           type: h.name,
           location: h.provider,
@@ -118,9 +109,7 @@ export default function PortfolioAnalysis() {
         
         const alternativeHoldings = allHoldings.filter((h: any) => {
           const classification = h.classification ? h.classification.toLowerCase().trim() : '';
-          const isAlternative = classification === 'alternative' || classification.includes('alternative') || classification.includes('private') || classification.includes('art') || classification.includes('commodity');
-          console.log(`${h.name}: alternative check - classification="${classification}" -> ${isAlternative ? 'ALTERNATIVE' : 'NOT ALTERNATIVE'}`);
-          return isAlternative;
+          return classification === 'alternative' || classification.includes('alternative') || classification.includes('private') || classification.includes('art') || classification.includes('commodity');
         }).map((h: any) => ({
           type: h.category,
           name: h.name,
@@ -150,10 +139,6 @@ export default function PortfolioAnalysis() {
         const propertyValue = propertyHoldings.reduce((sum: number, h: any) => sum + h.value, 0);
         const alternativeValue = alternativeHoldings.reduce((sum: number, h: any) => sum + h.value, 0);
         
-        console.log('ASSET ALLOCATION CALCULATION:');
-        console.log('Traditional value:', traditionalValue);
-        console.log('Property value:', propertyValue);
-        console.log('Alternative value:', alternativeValue);
         
         const portfolioData = {
           totalValue,
@@ -606,7 +591,7 @@ export default function PortfolioAnalysis() {
                     </div>
 
                     <div className="grid gap-4">
-                      {portfolioData.holdings.traditional.filter((holding: any) => holding.hasValidTicker).map((holding: any, index: number) => (
+                      {portfolioData.holdings.traditional.map((holding: any, index: number) => (
                         <div key={index} 
                              className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
@@ -912,7 +897,7 @@ export default function PortfolioAnalysis() {
 
                     <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-hide">
                       {portfolioData ? (
-                        portfolioData.holdings.traditional.filter((holding: any) => holding.hasValidTicker).map((holding: any, index: number) => {
+                        portfolioData.holdings.traditional.map((holding: any, index: number) => {
                           const livePrice = liveData[holding.ticker];
                           const isPositive = livePrice ? livePrice.changePercent >= 0 : holding.changePercent >= 0;
                           const displayPrice = livePrice ? livePrice.price : holding.currentPrice;
