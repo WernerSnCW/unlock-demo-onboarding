@@ -16,6 +16,7 @@ import { AnalystOpinionsPanel } from '@/components/profile/AnalystOpinionsPanel'
 import { usePortfolioStoreDB } from '@/state/portfolioStoreDB';
 import { AlternativeInvestments } from '@/components/profile/AlternativeInvestments';
 import { PortfolioSummary } from '@/components/profile/PortfolioSummary';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Profile() {
   const [location] = useLocation();
@@ -36,8 +37,59 @@ export default function Profile() {
     }
   }, [currentInvestorId, setCurrentInvestor]);
 
+  // Fetch investor data from database
+  const { data: investor } = useQuery<any>({
+    queryKey: ['/api/investors', currentInvestorId || 'demo-1755866735025'],
+    enabled: !!(currentInvestorId || 'demo-1755866735025'),
+  });
+
+  // Fetch investor preferences
+  const { data: preferences } = useQuery<any>({
+    queryKey: ['/api/investors', currentInvestorId || 'demo-1755866735025', 'preferences'],
+    enabled: !!(currentInvestorId || 'demo-1755866735025'),
+  });
+
+  // Fetch tax profile for EIS/SEIS interests
+  const { data: taxProfile } = useQuery<any>({
+    queryKey: ['/api/investors', currentInvestorId || 'demo-1755866735025', 'tax-profile'],
+    enabled: !!(currentInvestorId || 'demo-1755866735025'),
+  });
+
+  // Create profile data from database values
+  const profileData = investor && preferences ? {
+    name: investor.name || 'Demo User',
+    investorType: investor.investorType || 'Angel',
+    riskAppetite: preferences.riskBand || 'Moderate',
+    ticketRange: preferences.ticketMinGbp && preferences.ticketMaxGbp 
+      ? `£${parseFloat(preferences.ticketMinGbp).toLocaleString()}-£${parseFloat(preferences.ticketMaxGbp).toLocaleString()}`
+      : '£10k-£50k',
+    jurisdictions: preferences.regions || ['UK', 'US'],
+    eisInterest: taxProfile?.interests?.includes('EIS') || false,
+    seisInterest: taxProfile?.interests?.includes('SEIS') || false,
+    completionScore: calculateCompletionScore(investor, preferences, taxProfile)
+  } : DEFAULT_PROFILE;
+
+  // Calculate completion score based on filled fields
+  function calculateCompletionScore(investor: any, preferences: any, taxProfile: any) {
+    let score = 0;
+    const totalFields = 10;
+    
+    if (investor?.name) score++;
+    if (investor?.investorType) score++;
+    if (preferences?.riskBand) score++;
+    if (preferences?.ticketMinGbp && preferences?.ticketMaxGbp) score++;
+    if (preferences?.regions?.length) score++;
+    if (preferences?.focusSectors?.length) score++;
+    if (preferences?.existingInvestments?.length) score++;
+    if (preferences?.investmentInterests?.length) score++;
+    if (taxProfile?.country) score++;
+    if (taxProfile?.interests?.length) score++;
+    
+    return Math.round((score / totalFields) * 100);
+  }
+
   const OverviewTab = () => (
-    <ProfileOverview profile={DEFAULT_PROFILE} />
+    <ProfileOverview profile={profileData} />
   );
 
   const PortfolioTab = () => (
@@ -325,7 +377,7 @@ export default function Profile() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header */}
           <ProfileHeader 
-            profile={DEFAULT_PROFILE}
+            profile={profileData}
             className="mb-8"
           />
 
