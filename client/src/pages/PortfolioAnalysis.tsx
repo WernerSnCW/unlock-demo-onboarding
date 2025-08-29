@@ -33,9 +33,14 @@ export default function PortfolioAnalysis() {
         const uploadedData = JSON.parse(uploadedDataStr);
         console.log('Using uploaded portfolio data:', uploadedData);
         
-        // Parse uploaded CSV data with format: Category,Account/Provider,Holding,Ticker,Value_GBP
+        // Parse uploaded CSV data - check if it has Ticker column or old format
         console.log('Processing uploaded CSV data:', uploadedData.rawData);
         console.log('Total rows in CSV:', uploadedData.rawData.length);
+        
+        // Check CSV format - see if first row has Ticker column
+        const hasTickerColumn = uploadedData.rawData.length > 0 && 
+          (uploadedData.rawData[0].hasOwnProperty('Ticker') || uploadedData.rawData[0].hasOwnProperty('ticker'));
+        console.log('CSV has Ticker column:', hasTickerColumn);
         
         // Filter and categorize all holdings
         const allHoldings = uploadedData.rawData
@@ -125,31 +130,45 @@ export default function PortfolioAnalysis() {
         setPortfolioData(portfolioData);
         console.log('Processed uploaded portfolio data:', portfolioData);
         
-        // Fetch live market data for uploaded holdings
+        // Fetch live market data for uploaded holdings (only for those with valid tickers)
         const fetchUploadedLiveData = async () => {
           try {
-            const symbols = traditionalHoldings.map((h: any) => h.ticker).join(',');
-            console.log('Fetching live market data for uploaded holdings:', symbols);
+            // Only get tickers that are valid (not N/A, not empty)
+            const validTickers = traditionalHoldings
+              .filter((h: any) => h.hasValidTicker && h.ticker !== 'N/A' && h.ticker.trim() !== '')
+              .map((h: any) => h.ticker);
             
-            const response = await apiRequest('GET', `/api/market-data/quotes?symbols=${symbols}`);
-            const data = await response.json();
+            console.log('Valid tickers for live data:', validTickers);
             
-            if (data.quotes) {
-              console.log('Received live market data for uploads:', data.quotes);
-              setLiveData(data.quotes);
+            if (validTickers.length > 0) {
+              const symbols = validTickers.join(',');
+              console.log('Fetching live market data for uploaded holdings:', symbols);
+              
+              const response = await apiRequest('GET', `/api/market-data/quotes?symbols=${symbols}`);
+              const data = await response.json();
+              
+              if (data.quotes) {
+                console.log('Received live market data for uploads:', data.quotes);
+                setLiveData(data.quotes);
+              }
+            } else {
+              console.log('No valid tickers found for live market data - using static values');
+              // No live data needed - holdings will show static values
             }
           } catch (error) {
             console.error('Failed to fetch live market data for uploads:', error);
-            // Fallback to mock data
+            // Fallback to mock data for valid tickers only
             const fallbackData: any = {};
-            traditionalHoldings.forEach((holding: any) => {
-              const randomChange = (Math.random() - 0.5) * 0.02;
-              fallbackData[holding.ticker] = {
-                price: holding.currentPrice * (1 + randomChange),
-                change: holding.currentPrice * randomChange,
-                changePercent: randomChange * 100
-              };
-            });
+            traditionalHoldings
+              .filter((holding: any) => holding.hasValidTicker)
+              .forEach((holding: any) => {
+                const randomChange = (Math.random() - 0.5) * 0.02;
+                fallbackData[holding.ticker] = {
+                  price: holding.currentPrice * (1 + randomChange),
+                  change: holding.currentPrice * randomChange,
+                  changePercent: randomChange * 100
+                };
+              });
             setLiveData(fallbackData);
           }
         };
