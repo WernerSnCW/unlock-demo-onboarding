@@ -219,7 +219,7 @@ export default function DemoAgenda() {
                     Your competitive advantage awaits activation.
                   </p>
                   <Link 
-                    href="/"
+                    href="/investor-onboarding"
                     className="group inline-flex items-center px-12 py-6 bg-white text-[var(--primary)] rounded-2xl font-black text-xl hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-white/20"
                     data-testid="button-start-demo"
                   >
