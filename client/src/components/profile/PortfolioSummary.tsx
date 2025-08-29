@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { TrendingUp, DollarSign, PieChart as PieChartIcon, AlertTriangle, Lightbulb, RefreshCw } from 'lucide-react';
@@ -63,6 +63,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysis, setAnalysis] = useState<InvestmentAnalysis | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisLoaded, setAnalysisLoaded] = useState(false);
 
   // Fetch portfolio data from all three sources
   const { data: portfolioHoldings = [] } = useQuery<any[]>({
@@ -130,6 +131,14 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
       count: portfolioData.alternatives.count
     }
   ].filter(item => item.value > 0);
+
+  // Auto-load cached analysis on component mount
+  useEffect(() => {
+    if (userId && totalValue > 0 && !analysisLoaded && !analysisLoading) {
+      setAnalysisLoaded(true);
+      analyzePortfolio(false); // Load cached analysis without forcing refresh
+    }
+  }, [userId, totalValue, analysisLoaded, analysisLoading]);
 
   const analyzePortfolio = async (forceRefresh = false) => {
     if (!userId || totalValue === 0) return;
