@@ -211,6 +211,8 @@ export function PortfolioUploader({ onUploadComplete, className = '' }: Portfoli
     setIsProcessing(true);
     
     try {
+      console.log('=== STARTING IMPORT PROCESS ===');
+      console.log('mappedData length:', mappedData.length);
       const validRows = mappedData.filter(row => row.errors.length === 0);
       const newPositions: Omit<Position, 'id'>[] = validRows.map((row) => ({
         ticker: row.mapped.ticker!,
@@ -235,7 +237,16 @@ export function PortfolioUploader({ onUploadComplete, className = '' }: Portfoli
       };
       
       // Store in localStorage for demo analysis access
+      console.log('BEFORE storing - uploadedPortfolioData:', uploadedPortfolioData);
+      console.log('BEFORE storing - rawData length:', uploadedPortfolioData.rawData.length);
+      
       localStorage.setItem('uploadedPortfolioData', JSON.stringify(uploadedPortfolioData));
+      
+      // Verify it was stored
+      const verification = localStorage.getItem('uploadedPortfolioData');
+      console.log('AFTER storing - verification check:', verification ? 'SUCCESS' : 'FAILED');
+      console.log('AFTER storing - localStorage data:', verification);
+      
       console.log('Stored uploaded portfolio data for analysis:', uploadedPortfolioData);
       
       // Add each position to the database
