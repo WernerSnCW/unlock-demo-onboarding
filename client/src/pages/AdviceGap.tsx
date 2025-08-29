@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
 import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { AlertTriangle, Clock, Shield, TrendingDown, Search, AlertCircle, Target, Eye, ChevronRight, Zap, Users, ArrowRight } from 'lucide-react';
 
 export default function AdviceGap() {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
       {/* Animated Background Elements */}
