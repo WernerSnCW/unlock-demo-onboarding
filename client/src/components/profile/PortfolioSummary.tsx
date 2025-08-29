@@ -131,7 +131,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
     }
   ].filter(item => item.value > 0);
 
-  const analyzePortfolio = async () => {
+  const analyzePortfolio = async (forceRefresh = false) => {
     if (!userId || totalValue === 0) return;
     
     setAnalysisLoading(true);
@@ -167,7 +167,8 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
 
       const response = await apiRequest('POST', '/api/portfolio/analyze', {
         userId,
-        portfolioData: portfolioSummary
+        portfolioData: portfolioSummary,
+        forceRefresh // Pass through the force refresh parameter
       });
 
       const analysisData = await response.json();
@@ -268,24 +269,43 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
                   ))}
                 </div>
 
-                <Button 
-                  onClick={analyzePortfolio}
-                  disabled={analysisLoading}
-                  className="w-full"
-                  style={{ backgroundColor: 'var(--primary)', color: 'white' }}
-                >
-                  {analysisLoading ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Lightbulb className="h-4 w-4 mr-2" />
-                      Analyze Portfolio
-                    </>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => analyzePortfolio(false)}
+                    disabled={analysisLoading}
+                    className="flex-1"
+                    style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+                  >
+                    {analysisLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Lightbulb className="h-4 w-4 mr-2" />
+                        Analyze Portfolio
+                      </>
+                    )}
+                  </Button>
+                  {analysis && (
+                    <Button 
+                      variant="outline"
+                      onClick={() => analyzePortfolio(true)}
+                      disabled={analysisLoading}
+                      className="px-3"
+                      title="Generate fresh analysis (ignores cache)"
+                    >
+                      {analysisLoading ? (
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      )}
+                    </Button>
                   )}
-                </Button>
+                </div>
               </div>
             </div>
 

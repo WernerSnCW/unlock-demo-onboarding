@@ -13,6 +13,8 @@ export const investors = pgTable("investors", {
   userId: varchar("user_id").primaryKey(),
   name: text("name").notNull(),
   investorType: text("investor_type"), // 'Angel','Fund','Family Office',...
+  portfolioAnalysis: text("portfolio_analysis"), // JSON string of cached portfolio analysis
+  analysisUpdatedAt: timestamp("analysis_updated_at"), // Last time analysis was generated
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 

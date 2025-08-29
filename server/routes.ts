@@ -18,7 +18,8 @@ import {
   insertPropertyCashflowSchema,
   propertyPriceData,
   ukHpi,
-  postcodeLadMapping
+  postcodeLadMapping,
+  investors
 } from "@shared/schema";
 
 // Helper functions for UK HPI data
@@ -1500,10 +1501,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio Analysis API endpoint
   app.post('/api/portfolio/analyze', async (req, res) => {
     try {
-      const { userId, portfolioData } = req.body;
+      const { userId, portfolioData, forceRefresh = false } = req.body;
 
       if (!userId || !portfolioData) {
         return res.status(400).json({ message: 'User ID and portfolio data are required' });
+      }
+
+      // Check if we have cached analysis (unless force refresh is requested)
+      if (!forceRefresh) {
+        const [existingInvestor] = await db.select()
+          .from(investors)
+          .where(eq(investors.userId, userId));
+
+        if (existingInvestor?.portfolioAnalysis && existingInvestor?.analysisUpdatedAt) {
+          // Check if analysis is less than 24 hours old
+          const analysisAge = Date.now() - new Date(existingInvestor.analysisUpdatedAt).getTime();
+          const oneDayInMs = 24 * 60 * 60 * 1000;
+          
+          if (analysisAge < oneDayInMs) {
+            console.log('Using cached portfolio analysis');
+            const cachedAnalysis = JSON.parse(existingInvestor.portfolioAnalysis);
+            return res.json(cachedAnalysis);
+          }
+        }
       }
 
       // Import OpenAI for analysis
@@ -1573,7 +1593,15 @@ Return as JSON with this exact structure:
 
       const analysis = JSON.parse(response.choices[0].message.content || '{}');
       
-      console.log('Portfolio analysis completed successfully');
+      // Save analysis to database
+      await db.update(investors)
+        .set({
+          portfolioAnalysis: JSON.stringify(analysis),
+          analysisUpdatedAt: new Date()
+        })
+        .where(eq(investors.userId, userId));
+      
+      console.log('Portfolio analysis completed successfully and saved to database');
       res.json(analysis);
 
     } catch (error) {
