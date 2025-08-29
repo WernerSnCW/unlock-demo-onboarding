@@ -191,9 +191,9 @@ export default function PortfolioAnalysis() {
 
   // Chart data
   const assetAllocationData = portfolioData ? [
-    { name: 'Traditional', value: portfolioData.assetAllocation.traditional, color: 'hsl(var(--primary))' },
-    { name: 'Property', value: portfolioData.assetAllocation.property, color: 'hsl(var(--secondary))' },
-    { name: 'Alternative', value: portfolioData.assetAllocation.alternatives, color: 'hsl(var(--accent))' }
+    { name: 'Traditional', value: portfolioData.assetAllocation.traditional, color: '#10A957' },
+    { name: 'Property', value: portfolioData.assetAllocation.property, color: '#13683B' },
+    { name: 'Alternative', value: portfolioData.assetAllocation.alternatives, color: '#FE9239' }
   ] : [];
 
   return (
@@ -421,27 +421,19 @@ export default function PortfolioAnalysis() {
                   </div>
 
                   {/* Property Portfolio */}
-                  <div className="p-8 rounded-3xl relative overflow-hidden" 
-                       style={{ 
-                         background: 'var(--card)',
-                         boxShadow: 'var(--shadow-xl)',
-                         border: '1px solid var(--border)'
-                       }}>
-                    <div className="absolute bottom-0 left-0 w-32 h-32 opacity-5 rounded-full -ml-16 -mb-16"
-                         style={{ background: `radial-gradient(circle, hsl(var(--secondary)) 0%, transparent 70%)` }}></div>
+                  <div className="p-8 rounded-3xl relative overflow-hidden bg-[var(--card)] shadow-2xl border border-[var(--border)]">
+                    <div className="absolute bottom-0 left-0 w-32 h-32 opacity-5 rounded-full -ml-16 -mb-16 bg-gradient-to-r from-[#13683B]/20 to-transparent"></div>
                     
                     <div className="flex items-center gap-6 mb-8">
-                      <div className="p-4 rounded-2xl" 
-                           style={{ background: `linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary))/80 100%)` }}>
+                      <div className="p-4 rounded-2xl bg-gradient-to-r from-[#13683B] to-[#13683B]/80">
                         <Building className="h-10 w-10 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>Property Portfolio</h3>
-                        <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>Real Estate Investments</p>
+                        <h3 className="text-3xl font-black text-[var(--foreground)]">Property Portfolio</h3>
+                        <p className="text-lg text-[var(--muted-foreground)]">Real Estate Investments</p>
                       </div>
-                      <div className="ml-auto px-6 py-3 rounded-xl" 
-                           style={{ background: `hsl(var(--secondary))/10`, border: '1px solid hsl(var(--secondary))/20' }}>
-                        <span className="text-2xl font-black" style={{ color: 'hsl(var(--secondary))' }}>
+                      <div className="ml-auto px-6 py-3 rounded-xl bg-[#13683B]/10 border border-[#13683B]/20">
+                        <span className="text-2xl font-black text-[#13683B]">
                           {portfolioData.holdings.properties.length} properties
                         </span>
                       </div>
@@ -450,31 +442,23 @@ export default function PortfolioAnalysis() {
                     <div className="grid gap-4">
                       {portfolioData.holdings.properties.map((property: any, index: number) => (
                         <div key={index} 
-                             className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300" 
-                             style={{ 
-                               background: 'var(--muted)/50',
-                               border: '1px solid var(--border)'
-                             }}>
+                             className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg"
-                                 style={{ background: `linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--info)) 100%)` }}>
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg bg-gradient-to-r from-[#13683B] to-[#3B82F6]">
                               <Home className="h-8 w-8" />
                             </div>
                             <div>
-                              <div className="text-xl font-black" style={{ color: 'var(--foreground)' }}>{property.type}</div>
-                              <div className="text-lg" style={{ color: 'var(--muted-foreground)' }}>{property.location}</div>
+                              <div className="text-xl font-black text-[var(--foreground)]">{property.type}</div>
+                              <div className="text-lg text-[var(--muted-foreground)]">{property.location}</div>
                               <div className="flex items-center gap-4 mt-2">
-                                <span className="text-sm px-3 py-1 rounded-lg" 
-                                      style={{ background: 'hsl(var(--success))/20', color: 'hsl(var(--success))' }}>
+                                <span className="text-sm px-3 py-1 rounded-lg bg-[#10B981]/20 text-[#10B981]">
                                   £{property.monthlyRent}/mo
                                 </span>
-                                <span className="text-sm px-3 py-1 rounded-lg" 
-                                      style={{ background: 'hsl(var(--success))/20', color: 'hsl(var(--success))' }}>
+                                <span className="text-sm px-3 py-1 rounded-lg bg-[#10B981]/20 text-[#10B981]">
                                   {property.yield}% yield
                                 </span>
                                 {property.mortgage > 0 && (
-                                  <span className="text-sm px-3 py-1 rounded-lg" 
-                                        style={{ background: 'hsl(var(--warning))/20', color: 'hsl(var(--warning))' }}>
+                                  <span className="text-sm px-3 py-1 rounded-lg bg-[#FE9239]/20 text-[#FE9239]">
                                     Mortgage: {formatCurrency(property.mortgage)}
                                   </span>
                                 )}
@@ -482,10 +466,10 @@ export default function PortfolioAnalysis() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-3xl font-black mb-2" style={{ color: 'var(--foreground)' }}>
+                            <div className="text-3xl font-black mb-2 text-[var(--foreground)]">
                               {formatCurrency(property.value)}
                             </div>
-                            <div className="text-lg" style={{ color: 'var(--muted-foreground)' }}>
+                            <div className="text-lg text-[var(--muted-foreground)]">
                               Equity: {formatCurrency(property.equity || property.value)}
                             </div>
                           </div>
@@ -495,27 +479,19 @@ export default function PortfolioAnalysis() {
                   </div>
 
                   {/* Alternative Investments */}
-                  <div className="p-8 rounded-3xl relative overflow-hidden" 
-                       style={{ 
-                         background: 'var(--card)',
-                         boxShadow: 'var(--shadow-xl)',
-                         border: '1px solid var(--border)'
-                       }}>
-                    <div className="absolute top-0 left-1/2 w-24 h-24 opacity-10 rounded-full -ml-12 -mt-12"
-                         style={{ background: `radial-gradient(circle, hsl(var(--warning)) 0%, transparent 70%)` }}></div>
+                  <div className="p-8 rounded-3xl relative overflow-hidden bg-[var(--card)] shadow-2xl border border-[var(--border)]">
+                    <div className="absolute top-0 left-1/2 w-24 h-24 opacity-10 rounded-full -ml-12 -mt-12 bg-gradient-to-r from-[#FE9239]/30 to-transparent"></div>
                     
                     <div className="flex items-center gap-6 mb-8">
-                      <div className="p-4 rounded-2xl" 
-                           style={{ background: `linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning))/80 100%)` }}>
+                      <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FE9239] to-[#FE9239]/80">
                         <Zap className="h-10 w-10 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>Alternative Investments</h3>
-                        <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>High Growth Opportunities</p>
+                        <h3 className="text-3xl font-black text-[var(--foreground)]">Alternative Investments</h3>
+                        <p className="text-lg text-[var(--muted-foreground)]">High Growth Opportunities</p>
                       </div>
-                      <div className="ml-auto px-6 py-3 rounded-xl" 
-                           style={{ background: `hsl(var(--warning))/10`, border: '1px solid hsl(var(--warning))/20' }}>
-                        <span className="text-2xl font-black" style={{ color: 'hsl(var(--warning))' }}>
+                      <div className="ml-auto px-6 py-3 rounded-xl bg-[#FE9239]/10 border border-[#FE9239]/20">
+                        <span className="text-2xl font-black text-[#FE9239]">
                           {portfolioData.holdings.alternatives.length} investments
                         </span>
                       </div>
@@ -524,48 +500,33 @@ export default function PortfolioAnalysis() {
                     <div className="grid gap-4">
                       {portfolioData.holdings.alternatives.map((alternative: any, index: number) => (
                         <div key={index} 
-                             className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300" 
-                             style={{ 
-                               background: 'var(--muted)/50',
-                               border: '1px solid var(--border)'
-                             }}>
+                             className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg"
-                                 style={{ background: `linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--accent)) 100%)` }}>
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg bg-gradient-to-r from-[#FE9239] to-[#F8D49B]">
                               <Sparkles className="h-8 w-8" />
                             </div>
                             <div>
-                              <div className="text-xl font-black" style={{ color: 'var(--foreground)' }}>{alternative.name}</div>
-                              <div className="text-lg" style={{ color: 'var(--muted-foreground)' }}>{alternative.type} • {alternative.sector}</div>
+                              <div className="text-xl font-black text-[var(--foreground)]">{alternative.name}</div>
+                              <div className="text-lg text-[var(--muted-foreground)]">{alternative.type} • {alternative.sector}</div>
                               <div className="flex items-center gap-4 mt-2">
-                                <span className="text-sm px-3 py-1 rounded-lg" 
-                                      style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
+                                <span className="text-sm px-3 py-1 rounded-lg bg-[var(--muted)] text-[var(--foreground)]">
                                   Invested: {alternative.investmentDate}
                                 </span>
-                                <span className="text-sm px-3 py-1 rounded-lg" 
-                                      style={{ background: 'hsl(var(--success))/20', color: 'hsl(var(--success))' }}>
+                                <span className="text-sm px-3 py-1 rounded-lg bg-[#10B981]/20 text-[#10B981]">
                                   Expected: {alternative.expectedReturn}
                                 </span>
                                 <span className={`text-sm px-3 py-1 rounded-lg ${
                                   alternative.riskRating === 'High' 
-                                    ? 'text-white' 
-                                    : ''
-                                }`} 
-                                      style={{ 
-                                        background: alternative.riskRating === 'High' 
-                                          ? 'hsl(var(--destructive))' 
-                                          : 'hsl(var(--warning))/20',
-                                        color: alternative.riskRating === 'High' 
-                                          ? 'white' 
-                                          : 'hsl(var(--warning))'
-                                      }}>
+                                    ? 'bg-[#EF4444] text-white' 
+                                    : 'bg-[#FE9239]/20 text-[#FE9239]'
+                                }`}>
                                   {alternative.riskRating} Risk
                                 </span>
                               </div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>
+                            <div className="text-3xl font-black text-[var(--foreground)]">
                               {formatCurrency(alternative.value)}
                             </div>
                           </div>
@@ -577,38 +538,29 @@ export default function PortfolioAnalysis() {
               )}
 
               {/* AI Analysis Section - Masterpiece */}
-              <div className="p-8 rounded-3xl relative overflow-hidden" 
-                   style={{ 
-                     background: 'var(--card)',
-                     boxShadow: 'var(--shadow-xl)',
-                     border: '1px solid var(--border)'
-                   }}>
-                <div className="absolute top-0 right-0 w-64 h-64 opacity-5 rounded-full -mr-32 -mt-32"
-                     style={{ background: `radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)` }}></div>
+              <div className="p-8 rounded-3xl relative overflow-hidden bg-[var(--card)] shadow-2xl border border-[var(--border)]">
+                <div className="absolute top-0 right-0 w-64 h-64 opacity-5 rounded-full -mr-32 -mt-32 bg-gradient-to-r from-[#10A957]/20 to-transparent"></div>
                 
                 <div className="flex items-center gap-6 mb-8">
-                  <div className="p-6 rounded-2xl"
-                       style={{ background: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 50%, hsl(var(--accent)) 100%)` }}>
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-[#10A957] via-[#13683B] to-[#F8D49B]">
                     <Brain className="h-12 w-12 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-4xl font-black" style={{ color: 'var(--foreground)' }}>AI Investment Analysis</h3>
-                    <p className="text-xl" style={{ color: 'var(--muted-foreground)' }}>Powered by GPT-4 Turbo • Educational insights only</p>
+                    <h3 className="text-4xl font-black text-[var(--foreground)]">AI Investment Analysis</h3>
+                    <p className="text-xl text-[var(--muted-foreground)]">Powered by GPT-5 • Educational insights only</p>
                   </div>
-                  <div className="ml-auto px-6 py-3 rounded-xl text-white font-bold text-lg"
-                       style={{ background: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)` }}>
-                    GPT-4 Turbo
+                  <div className="ml-auto px-6 py-3 rounded-xl text-white font-bold text-lg bg-gradient-to-r from-[#10A957] to-[#13683B]">
+                    GPT-5
                   </div>
                 </div>
 
                 {analysisLoading ? (
                   <div className="text-center py-16">
-                    <div className="inline-flex items-center gap-6 mb-8 p-6 rounded-2xl"
-                         style={{ background: 'var(--muted)/50' }}>
-                      <Loader className="h-12 w-12 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+                    <div className="inline-flex items-center gap-6 mb-8 p-6 rounded-2xl bg-[var(--muted)]/50">
+                      <Loader className="h-12 w-12 animate-spin text-[#10A957]" />
                       <div className="text-left">
-                        <div className="text-2xl font-black mb-2" style={{ color: 'var(--foreground)' }}>Analyzing Portfolio...</div>
-                        <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>
+                        <div className="text-2xl font-black mb-2 text-[var(--foreground)]">Analyzing Portfolio...</div>
+                        <p className="text-lg text-[var(--muted-foreground)]">
                           {analysisProgress < 30 ? 'Loading portfolio data...' :
                            analysisProgress < 60 ? 'Analyzing risk factors...' :
                            analysisProgress < 90 ? 'Generating insights...' :
@@ -618,7 +570,7 @@ export default function PortfolioAnalysis() {
                     </div>
                     <div className="max-w-md mx-auto">
                       <UIProgress value={analysisProgress} className="h-3" />
-                      <div className="mt-2 text-lg font-bold" style={{ color: 'hsl(var(--primary))' }}>
+                      <div className="mt-2 text-lg font-bold text-[#10A957]">
                         {Math.round(analysisProgress)}%
                       </div>
                     </div>
@@ -629,26 +581,20 @@ export default function PortfolioAnalysis() {
                     {/* Key Insights */}
                     <div>
                       <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 rounded-xl"
-                             style={{ background: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)` }}>
+                        <div className="p-3 rounded-xl bg-gradient-to-r from-[#10A957] to-[#13683B]">
                           <Lightbulb className="h-8 w-8 text-white" />
                         </div>
-                        <h4 className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>Key Insights</h4>
+                        <h4 className="text-3xl font-black text-[var(--foreground)]">Key Insights</h4>
                       </div>
                       <div className="grid gap-6">
                         {analysis.keyInsights?.map((insight: string, index: number) => (
                           <div key={index} 
-                               className="p-8 rounded-2xl" 
-                               style={{ 
-                                 background: `linear-gradient(135deg, hsl(var(--primary))/5 0%, hsl(var(--secondary))/5 100%)`,
-                                 border: '1px solid hsl(var(--primary))/20'
-                               }}>
+                               className="p-8 rounded-2xl bg-gradient-to-r from-[#10A957]/5 to-[#13683B]/5 border border-[#10A957]/20">
                             <div className="flex items-start gap-6">
-                              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg flex-shrink-0"
-                                   style={{ background: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)` }}>
+                              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg flex-shrink-0 bg-gradient-to-r from-[#10A957] to-[#13683B]">
                                 {index + 1}
                               </div>
-                              <p className="text-xl font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
+                              <p className="text-xl font-medium leading-relaxed text-[var(--foreground)]">
                                 {insight}
                               </p>
                             </div>
@@ -661,32 +607,25 @@ export default function PortfolioAnalysis() {
                     {analysis.overexposureWarnings?.length > 0 && (
                       <div>
                         <div className="flex items-center gap-4 mb-6">
-                          <div className="p-3 rounded-xl"
-                               style={{ background: `linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--warning)) 100%)` }}>
+                          <div className="p-3 rounded-xl bg-gradient-to-r from-[#EF4444] to-[#FE9239]">
                             <AlertTriangle className="h-8 w-8 text-white" />
                           </div>
-                          <h4 className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>Risk Alerts</h4>
+                          <h4 className="text-3xl font-black text-[var(--foreground)]">Risk Alerts</h4>
                         </div>
                         <div className="space-y-6">
                           {analysis.overexposureWarnings.map((warning: any, index: number) => (
                             <div key={index} 
-                                 className="relative p-8 rounded-2xl" 
-                                 style={{ 
-                                   background: `linear-gradient(135deg, hsl(var(--destructive))/5 0%, hsl(var(--warning))/5 100%)`,
-                                   border: '1px solid hsl(var(--destructive))/20'
-                                 }}>
-                              <div className="absolute top-4 right-4 w-4 h-4 rounded-full animate-pulse"
-                                   style={{ background: 'hsl(var(--destructive))' }}></div>
+                                 className="relative p-8 rounded-2xl bg-gradient-to-r from-[#EF4444]/5 to-[#FE9239]/5 border border-[#EF4444]/20">
+                              <div className="absolute top-4 right-4 w-4 h-4 rounded-full animate-pulse bg-[#EF4444]"></div>
                               <div className="flex items-center justify-between mb-6">
-                                <span className="text-2xl font-black" style={{ color: 'hsl(var(--destructive))' }}>
+                                <span className="text-2xl font-black text-[#EF4444]">
                                   {warning.category}
                                 </span>
-                                <div className="px-6 py-3 rounded-xl text-white font-bold text-lg"
-                                     style={{ background: 'hsl(var(--destructive))' }}>
+                                <div className="px-6 py-3 rounded-xl text-white font-bold text-lg bg-[#EF4444]">
                                   {formatPercentage(warning.percentage)} Exposure
                                 </div>
                               </div>
-                              <p className="text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
+                              <p className="text-lg leading-relaxed text-[var(--foreground)]">
                                 {warning.recommendation}
                               </p>
                             </div>
@@ -698,26 +637,20 @@ export default function PortfolioAnalysis() {
                     {/* Investment Guidance */}
                     <div>
                       <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 rounded-xl"
-                             style={{ background: `linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--success)) 100%)` }}>
+                        <div className="p-3 rounded-xl bg-gradient-to-r from-[#13683B] to-[#10B981]">
                           <Globe className="h-8 w-8 text-white" />
                         </div>
-                        <h4 className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>Investment Guidance</h4>
+                        <h4 className="text-3xl font-black text-[var(--foreground)]">Investment Guidance</h4>
                       </div>
                       <div className="grid gap-6">
                         {analysis.generalGuidance?.map((guidance: string, index: number) => (
                           <div key={index} 
-                               className="p-8 rounded-2xl" 
-                               style={{ 
-                                 background: `linear-gradient(135deg, hsl(var(--success))/5 0%, hsl(var(--secondary))/5 100%)`,
-                                 border: '1px solid hsl(var(--success))/20'
-                               }}>
+                               className="p-8 rounded-2xl bg-gradient-to-r from-[#10B981]/5 to-[#13683B]/5 border border-[#10B981]/20">
                             <div className="flex items-start gap-6">
-                              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg flex-shrink-0"
-                                   style={{ background: `linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--secondary)) 100%)` }}>
+                              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg flex-shrink-0 bg-gradient-to-r from-[#10B981] to-[#13683B]">
                                 {index + 1}
                               </div>
-                              <p className="text-xl font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
+                              <p className="text-xl font-medium leading-relaxed text-[var(--foreground)]">
                                 {guidance}
                               </p>
                             </div>
@@ -727,13 +660,9 @@ export default function PortfolioAnalysis() {
                     </div>
 
                     {/* Professional Disclaimer */}
-                    <div className="p-8 rounded-2xl text-center" 
-                         style={{ 
-                           background: 'var(--muted)/30',
-                           border: '1px solid var(--border)'
-                         }}>
-                      <p className="text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                        <span className="font-black" style={{ color: 'var(--foreground)' }}>Important Disclaimer:</span> This AI-powered analysis is for educational and informational purposes only. 
+                    <div className="p-8 rounded-2xl text-center bg-[var(--muted)]/30 border border-[var(--border)]">
+                      <p className="text-lg leading-relaxed text-[var(--muted-foreground)]">
+                        <span className="font-black text-[var(--foreground)]">Important Disclaimer:</span> This AI-powered analysis is for educational and informational purposes only. 
                         It does not constitute financial advice. Always consult with qualified financial advisors before making investment decisions.
                       </p>
                     </div>
