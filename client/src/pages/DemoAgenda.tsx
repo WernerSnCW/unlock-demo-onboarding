@@ -44,9 +44,24 @@ export default function DemoAgenda() {
             <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto mb-8">
               Here's what we'll cover in today's live demonstration
             </p>
-            <div className="inline-flex items-center px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-full text-[var(--muted-foreground)] shadow-sm">
+            <div className="inline-flex items-center px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-full text-[var(--muted-foreground)] shadow-sm mb-8">
               <Shield className="h-4 w-4 mr-2 text-[var(--success)]" />
               Estimated Duration: 15 minutes
+            </div>
+            
+            {/* Expectations Section */}
+            <div className="bg-[var(--accent)] bg-opacity-20 border border-[var(--accent)] border-opacity-30 rounded-xl p-6 max-w-3xl mx-auto">
+              <div className="flex items-start gap-4">
+                <div className="bg-[var(--accent)] bg-opacity-30 rounded-full p-2 flex-shrink-0 mt-1">
+                  <i className="fas fa-info text-[var(--accent-foreground)]"></i>
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">What to expect</h3>
+                  <p className="text-[var(--foreground)] leading-relaxed">
+                    This demo uses pre-set example portfolios to simulate how Unlock works. After the demo, you can either join the free waitlist or explore our founding investor programme.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
           
