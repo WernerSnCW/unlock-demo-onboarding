@@ -226,6 +226,17 @@ export function PortfolioUploader({ onUploadComplete, className = '' }: Portfoli
         meta: row.raw
       }));
 
+      // Store the uploaded portfolio data for demo analysis
+      const uploadedPortfolioData = {
+        uploadedAt: new Date().toISOString(),
+        positions: newPositions,
+        rawData: validRows.map(row => row.raw)
+      };
+      
+      // Store in localStorage for demo analysis access
+      localStorage.setItem('uploadedPortfolioData', JSON.stringify(uploadedPortfolioData));
+      console.log('Stored uploaded portfolio data for analysis:', uploadedPortfolioData);
+      
       // Add each position to the database
       for (const position of newPositions) {
         await addPosition(position);

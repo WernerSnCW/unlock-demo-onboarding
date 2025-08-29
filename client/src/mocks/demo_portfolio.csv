@@ -1,0 +1,8 @@
+Category,Account/Provider,Holding,Value_GBP
+Equities,Interactive Brokers,Apple Inc,25000
+Equities,Interactive Brokers,Microsoft Corp,18000
+Equities,Interactive Brokers,NVIDIA Corp,15000
+Equities,Hargreaves Lansdown,Vanguard FTSE 100,12000
+Bonds,Hargreaves Lansdown,UK Government Gilts,8000
+Crypto,Coinbase,Bitcoin,5000
+ETF,Interactive Brokers,S&P 500 ETF,22000
