@@ -24,75 +24,175 @@ export default function PortfolioAnalysis() {
 
   // Process uploaded file and generate portfolio data with live market prices
   useEffect(() => {
-    const processUploadedPortfolio = () => {
-      // Simulate realistic portfolio data based on uploaded file
-      const mockPortfolio = {
-        totalValue: 485000,
-        assetAllocation: {
-          traditional: 62.5,
-          property: 25.8,
-          alternatives: 11.7
-        },
-        holdings: {
-          traditional: [
-            { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology', value: 85000, percentage: 17.5, shares: 450, currentPrice: 188.85, change: 2.34, changePercent: 1.26 },
-            { ticker: 'MSFT', name: 'Microsoft Corp.', sector: 'Technology', value: 72000, percentage: 14.8, shares: 185, currentPrice: 389.12, change: -1.88, changePercent: -0.48 },
-            { ticker: 'NVDA', name: 'NVIDIA Corp.', sector: 'Technology', value: 58000, percentage: 12.0, shares: 65, currentPrice: 892.45, change: 18.92, changePercent: 2.17 },
-            { ticker: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', value: 45000, percentage: 9.3, shares: 280, currentPrice: 160.71, change: 0.92, changePercent: 0.58 },
-            { ticker: 'TSLA', name: 'Tesla Inc.', sector: 'Consumer Cyclical', value: 38000, percentage: 7.8, shares: 145, currentPrice: 262.12, change: -4.23, changePercent: -1.59 },
-            { ticker: 'BTC-USD', name: 'Bitcoin', sector: 'Cryptocurrency', value: 32000, percentage: 6.6, shares: 0.8, currentPrice: 40000, change: 1200, changePercent: 3.09 },
-            { ticker: 'VOO', name: 'Vanguard S&P 500 ETF', sector: 'Diversified ETF', value: 28000, percentage: 5.8, shares: 65, currentPrice: 430.85, change: 2.15, changePercent: 0.50 }
-          ],
-          properties: [
-            { type: 'Buy-to-Let Flat', location: 'Manchester M1', value: 85000, monthlyRent: 950, yield: 13.4, purchasePrice: 75000, mortgage: 55000, equity: 30000 },
-            { type: 'Commercial Property', location: 'Birmingham B2', value: 40000, monthlyRent: 580, yield: 17.4, purchasePrice: 35000, mortgage: 0, equity: 40000 }
-          ],
-          alternatives: [
-            { type: 'Startup Investment', name: 'TechCorp Series A', value: 25000, riskRating: 'High', sector: 'FinTech', investmentDate: '2023-06-15', expectedReturn: '3-5x' },
-            { type: 'Art Investment', name: 'Contemporary Art Portfolio', value: 18000, riskRating: 'Medium', sector: 'Art', investmentDate: '2023-03-20', expectedReturn: '8-12% p.a.' },
-            { type: 'Whisky Cask', name: 'Macallan 25yr Cask', value: 14000, riskRating: 'Medium', sector: 'Collectibles', investmentDate: '2022-11-08', expectedReturn: '10-15% p.a.' }
-          ]
-        }
-      };
-      setPortfolioData(mockPortfolio);
-
-      // Fetch real live market data
-      const fetchLiveMarketData = async () => {
-        try {
-          const symbols = mockPortfolio.holdings.traditional.map(h => h.ticker).join(',');
-          console.log('Fetching live market data for:', symbols);
+    const processUploadedPortfolio = async () => {
+      try {
+        // Fetch real portfolio data from the demo user account
+        const demoUserId = 'demo-1755866735025'; // The demo user ID from the system
+        
+        // Fetch traditional holdings
+        const holdingsResponse = await fetch(`/api/investors/${demoUserId}/portfolio-holdings`);
+        const portfolioHoldings = holdingsResponse.ok ? await holdingsResponse.json() : [];
+        
+        // Fetch properties
+        const propertiesResponse = await fetch(`/api/properties/${demoUserId}`);
+        const properties = propertiesResponse.ok ? await propertiesResponse.json() : [];
+        
+        // Fetch alternatives
+        const alternativesResponse = await fetch(`/api/alternatives/${demoUserId}`);
+        const alternatives = alternativesResponse.ok ? await alternativesResponse.json() : [];
+        
+        // Calculate values from real data
+        const traditionalValue = portfolioHoldings.reduce((sum: number, holding: any) => 
+          sum + (parseFloat(holding.currentValueGbp) || 0), 0);
           
-          const response = await apiRequest('GET', `/api/market-data/quotes?symbols=${symbols}`);
-          const data = await response.json();
+        const propertyValue = properties.reduce((sum: number, property: any) => 
+          sum + (parseFloat(property.latestValuation?.valueGbp) || 0), 0);
           
-          if (data.quotes) {
-            console.log('Received live market data:', data.quotes);
-            setLiveData(data.quotes);
+        const alternativesValue = alternatives.reduce((sum: number, alt: any) => 
+          sum + (parseFloat(alt.currentValueGbp) || 0), 0);
+          
+        const totalValue = traditionalValue + propertyValue + alternativesValue;
+        
+        // Convert to frontend format
+        const realPortfolioData = {
+          totalValue: totalValue > 0 ? totalValue : 485000, // Fallback to demo data if no real data
+          assetAllocation: {
+            traditional: totalValue > 0 ? (traditionalValue / totalValue) * 100 : 62.5,
+            property: totalValue > 0 ? (propertyValue / totalValue) * 100 : 25.8,
+            alternatives: totalValue > 0 ? (alternativesValue / totalValue) * 100 : 11.7
+          },
+          holdings: {
+            traditional: portfolioHoldings.length > 0 ? portfolioHoldings.map((holding: any) => ({
+              ticker: holding.symbol || 'N/A',
+              name: holding.name || 'Unknown',
+              sector: 'Technology', // Default sector
+              value: parseFloat(holding.currentValueGbp) || 0,
+              percentage: totalValue > 0 ? ((parseFloat(holding.currentValueGbp) || 0) / totalValue) * 100 : 0,
+              shares: parseFloat(holding.quantity) || 0,
+              currentPrice: parseFloat(holding.currentPriceGbp) || 0,
+              change: 0, // Will be updated by live market data
+              changePercent: 0 // Will be updated by live market data
+            })) : [
+              { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology', value: 85000, percentage: 17.5, shares: 450, currentPrice: 188.85, change: 2.34, changePercent: 1.26 },
+              { ticker: 'MSFT', name: 'Microsoft Corp.', sector: 'Technology', value: 72000, percentage: 14.8, shares: 185, currentPrice: 389.12, change: -1.88, changePercent: -0.48 },
+              { ticker: 'NVDA', name: 'NVIDIA Corp.', sector: 'Technology', value: 58000, percentage: 12.0, shares: 65, currentPrice: 892.45, change: 18.92, changePercent: 2.17 },
+              { ticker: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', value: 45000, percentage: 9.3, shares: 280, currentPrice: 160.71, change: 0.92, changePercent: 0.58 },
+              { ticker: 'TSLA', name: 'Tesla Inc.', sector: 'Consumer Cyclical', value: 38000, percentage: 7.8, shares: 145, currentPrice: 262.12, change: -4.23, changePercent: -1.59 },
+              { ticker: 'BTC-USD', name: 'Bitcoin', sector: 'Cryptocurrency', value: 32000, percentage: 6.6, shares: 0.8, currentPrice: 40000, change: 1200, changePercent: 3.09 },
+              { ticker: 'VOO', name: 'Vanguard S&P 500 ETF', sector: 'Diversified ETF', value: 28000, percentage: 5.8, shares: 65, currentPrice: 430.85, change: 2.15, changePercent: 0.50 }
+            ],
+            properties: properties.length > 0 ? properties.map((property: any) => ({
+              type: property.propertyType || 'Property',
+              location: `${property.city || 'Unknown'} ${property.postcode || ''}`.trim(),
+              value: parseFloat(property.latestValuation?.valueGbp) || 0,
+              monthlyRent: property.leases?.[0]?.monthlyRentGbp || 0,
+              yield: property.leases?.[0]?.monthlyRentGbp ? 
+                (property.leases[0].monthlyRentGbp * 12 / (parseFloat(property.latestValuation?.valueGbp) || 1)) * 100 : 0,
+              purchasePrice: parseFloat(property.ownerships?.[0]?.purchasePriceGbp) || 0,
+              mortgage: property.loans?.[0] ? parseFloat(property.loans[0].currentBalanceGbp) || 0 : 0,
+              equity: (parseFloat(property.latestValuation?.valueGbp) || 0) - 
+                (property.loans?.[0] ? parseFloat(property.loans[0].currentBalanceGbp) || 0 : 0)
+            })) : [
+              { type: 'Buy-to-Let Flat', location: 'Manchester M1', value: 85000, monthlyRent: 950, yield: 13.4, purchasePrice: 75000, mortgage: 55000, equity: 30000 },
+              { type: 'Commercial Property', location: 'Birmingham B2', value: 40000, monthlyRent: 580, yield: 17.4, purchasePrice: 35000, mortgage: 0, equity: 40000 }
+            ],
+            alternatives: alternatives.length > 0 ? alternatives.map((alt: any) => ({
+              type: alt.investmentType || 'Alternative Investment',
+              name: alt.name || 'Investment',
+              value: parseFloat(alt.currentValueGbp) || 0,
+              riskRating: alt.riskRating || 'Medium',
+              sector: 'Alternative',
+              investmentDate: alt.investmentDateUk || 'N/A',
+              expectedReturn: alt.targetReturnPct ? `${alt.targetReturnPct}%` : 'N/A'
+            })) : [
+              { type: 'Startup Investment', name: 'TechCorp Series A', value: 25000, riskRating: 'High', sector: 'FinTech', investmentDate: '2023-06-15', expectedReturn: '3-5x' },
+              { type: 'Art Investment', name: 'Contemporary Art Portfolio', value: 18000, riskRating: 'Medium', sector: 'Art', investmentDate: '2023-03-20', expectedReturn: '8-12% p.a.' },
+              { type: 'Whisky Cask', name: 'Macallan 25yr Cask', value: 14000, riskRating: 'Medium', sector: 'Collectibles', investmentDate: '2022-11-08', expectedReturn: '10-15% p.a.' }
+            ]
           }
-        } catch (error) {
-          console.error('Failed to fetch live market data:', error);
-          // Fallback to mock data if API fails
-          const fallbackData: any = {};
-          mockPortfolio.holdings.traditional.forEach(holding => {
-            const volatility = holding.ticker.includes('BTC') ? 0.05 : holding.ticker === 'TSLA' ? 0.03 : 0.02;
-            const randomChange = (Math.random() - 0.5) * volatility;
-            fallbackData[holding.ticker] = {
-              price: holding.currentPrice * (1 + randomChange),
-              change: holding.change + (Math.random() - 0.5) * 2,
-              changePercent: holding.changePercent + randomChange * 100
-            };
-          });
-          setLiveData(fallbackData);
-        }
-      };
+        };
+        
+        setPortfolioData(realPortfolioData);
+        console.log('Loaded portfolio data:', realPortfolioData);
+        
+        // Fetch real live market data using the loaded portfolio data
+        const fetchLiveMarketData = async (portfolioData: any) => {
+          try {
+            if (!portfolioData?.holdings?.traditional?.length) return;
+            
+            const symbols = portfolioData.holdings.traditional.map((h: any) => h.ticker).join(',');
+            console.log('Fetching live market data for:', symbols);
+            
+            const response = await apiRequest('GET', `/api/market-data/quotes?symbols=${symbols}`);
+            const data = await response.json();
+            
+            if (data.quotes) {
+              console.log('Received live market data:', data.quotes);
+              setLiveData(data.quotes);
+            }
+          } catch (error) {
+            console.error('Failed to fetch live market data:', error);
+            // Fallback to mock data if API fails
+            const fallbackData: any = {};
+            portfolioData.holdings.traditional.forEach((holding: any) => {
+              const volatility = holding.ticker.includes('BTC') ? 0.05 : holding.ticker === 'TSLA' ? 0.03 : 0.02;
+              const randomChange = (Math.random() - 0.5) * volatility;
+              fallbackData[holding.ticker] = {
+                price: holding.currentPrice * (1 + randomChange),
+                change: holding.change + (Math.random() - 0.5) * 2,
+                changePercent: holding.changePercent + randomChange * 100
+              };
+            });
+            setLiveData(fallbackData);
+          }
+        };
 
-      // Initial fetch
-      fetchLiveMarketData();
-      
-      // Update live data every 30 seconds (reasonable for free APIs)
-      const interval = setInterval(fetchLiveMarketData, 30000);
-      
-      return () => clearInterval(interval);
+        // Initial fetch
+        fetchLiveMarketData(realPortfolioData);
+        
+        // Update live data every 30 seconds (reasonable for free APIs)
+        const interval = setInterval(() => fetchLiveMarketData(realPortfolioData), 30000);
+        
+        return () => clearInterval(interval);
+        
+      } catch (error) {
+        console.error('Error loading portfolio data:', error);
+        // Fallback to mock portfolio if API fails
+        const fallbackPortfolio = {
+          totalValue: 485000,
+          assetAllocation: { traditional: 62.5, property: 25.8, alternatives: 11.7 },
+          holdings: {
+            traditional: [
+              { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology', value: 85000, percentage: 17.5, shares: 450, currentPrice: 188.85, change: 2.34, changePercent: 1.26 },
+              { ticker: 'MSFT', name: 'Microsoft Corp.', sector: 'Technology', value: 72000, percentage: 14.8, shares: 185, currentPrice: 389.12, change: -1.88, changePercent: -0.48 },
+            ],
+            properties: [
+              { type: 'Buy-to-Let Flat', location: 'Manchester M1', value: 85000, monthlyRent: 950, yield: 13.4, purchasePrice: 75000, mortgage: 55000, equity: 30000 },
+            ],
+            alternatives: [
+              { type: 'Startup Investment', name: 'TechCorp Series A', value: 25000, riskRating: 'High', sector: 'FinTech', investmentDate: '2023-06-15', expectedReturn: '3-5x' },
+            ]
+          }
+        };
+        setPortfolioData(fallbackPortfolio);
+        
+        // Set up live data fetching for fallback data too
+        const fetchFallbackLiveData = async () => {
+          try {
+            const symbols = fallbackPortfolio.holdings.traditional.map(h => h.ticker).join(',');
+            const response = await apiRequest('GET', `/api/market-data/quotes?symbols=${symbols}`);
+            const data = await response.json();
+            if (data.quotes) setLiveData(data.quotes);
+          } catch (error) {
+            console.error('Failed to fetch fallback live market data:', error);
+          }
+        };
+        
+        fetchFallbackLiveData();
+        const interval = setInterval(fetchFallbackLiveData, 30000);
+        
+        return () => clearInterval(interval);
+      }
     };
 
     const cleanup = processUploadedPortfolio();

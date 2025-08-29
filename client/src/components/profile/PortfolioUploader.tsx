@@ -28,7 +28,7 @@ interface PortfolioUploaderProps {
 }
 
 export function PortfolioUploader({ onUploadComplete, className = '' }: PortfolioUploaderProps) {
-  const { positions } = usePortfolioStoreDB();
+  const { positions, addPosition } = usePortfolioStoreDB();
   
   const [uploadStep, setUploadStep] = useState<'drop' | 'mapping' | 'validation' | 'complete'>('drop');
   const [parsedData, setParsedData] = useState<any[]>([]);
@@ -207,13 +207,12 @@ export function PortfolioUploader({ onUploadComplete, className = '' }: Portfoli
     }
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     setIsProcessing(true);
     
     try {
       const validRows = mappedData.filter(row => row.errors.length === 0);
-      const newPositions: Position[] = validRows.map((row, index) => ({
-        id: `imported_${Date.now()}_${index}`,
+      const newPositions: Omit<Position, 'id'>[] = validRows.map((row) => ({
         ticker: row.mapped.ticker!,
         name: row.mapped.name!,
         market: row.mapped.market!,
@@ -227,8 +226,10 @@ export function PortfolioUploader({ onUploadComplete, className = '' }: Portfoli
         meta: row.raw
       }));
 
-      // Merge with existing positions (simple append for demo)
-      setPositions([...positions, ...newPositions]);
+      // Add each position to the database
+      for (const position of newPositions) {
+        await addPosition(position);
+      }
       
       setUploadStep('complete');
       onUploadComplete?.();
