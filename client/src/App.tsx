@@ -25,6 +25,7 @@ import AccountSettings from "@/pages/AccountSettings";
 import DemoAgenda from "@/pages/DemoAgenda";
 import AdviceGap from "@/pages/AdviceGap";
 import InvestorOnboarding from "@/pages/InvestorOnboarding";
+import PortfolioAnalysis from "@/pages/PortfolioAnalysis";
 
 
 function Router() {
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/demo" component={DemoAgenda} />
       <Route path="/advice-gap" component={AdviceGap} />
       <Route path="/investor-onboarding" component={InvestorOnboarding} />
+      <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
       <Route component={NotFound} />
     </Switch>
   );

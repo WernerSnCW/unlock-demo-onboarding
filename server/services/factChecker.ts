@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { URL } from 'url';
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+// Using GPT-4 Turbo as the latest available OpenAI model
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export interface FactCheckOptions {
@@ -162,7 +162,7 @@ SCHEMA:
 
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-5",
+        model: "gpt-4-turbo",
         messages: [
           {
             role: "system",
@@ -378,7 +378,7 @@ OUTPUT SCHEMA:
 
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-5",
+        model: "gpt-4-turbo",
         messages: [
           {
             role: "system",

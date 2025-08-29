@@ -299,17 +299,14 @@ export default function InvestorOnboarding() {
                         </p>
                       </div>
 
-                      <button
+                      <Link
+                        href="/portfolio-analysis"
                         className="inline-flex items-center px-12 py-6 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] text-white rounded-2xl font-black text-xl hover:scale-105 hover:shadow-2xl transition-all duration-300 shadow-xl"
                         data-testid="button-continue-onboarding"
-                        onClick={() => {
-                          // In a real app, this would navigate to the next step
-                          alert('Next: Portfolio Analysis & Insights (Step 2 of 3)');
-                        }}
                       >
                         <span className="mr-4">Continue to Analysis</span>
                         <ArrowRight className="h-6 w-6" />
-                      </button>
+                      </Link>
 
                       <div className="mt-8 text-center">
                         <p className="text-sm text-[var(--muted-foreground)]">
