@@ -145,17 +145,27 @@ export default function PortfolioAnalysis() {
           holding.percentage = totalValue > 0 ? (holding.value / totalValue) * 100 : 0;
         });
         
+        // Calculate actual asset allocation percentages
+        const traditionalValue = traditionalHoldings.reduce((sum: number, h: any) => sum + h.value, 0);
+        const propertyValue = propertyHoldings.reduce((sum: number, h: any) => sum + h.value, 0);
+        const alternativeValue = alternativeHoldings.reduce((sum: number, h: any) => sum + h.value, 0);
+        
+        console.log('ASSET ALLOCATION CALCULATION:');
+        console.log('Traditional value:', traditionalValue);
+        console.log('Property value:', propertyValue);
+        console.log('Alternative value:', alternativeValue);
+        
         const portfolioData = {
           totalValue,
           assetAllocation: {
-            traditional: 100, // All holdings are traditional for uploaded CSV
-            property: 0,
-            alternatives: 0
+            traditional: totalValue > 0 ? Math.round((traditionalValue / totalValue) * 100) : 0,
+            property: totalValue > 0 ? Math.round((propertyValue / totalValue) * 100) : 0,
+            alternatives: totalValue > 0 ? Math.round((alternativeValue / totalValue) * 100) : 0
           },
           holdings: {
             traditional: traditionalHoldings,
-            properties: [],
-            alternatives: []
+            properties: propertyHoldings,
+            alternatives: alternativeHoldings
           }
         };
         
