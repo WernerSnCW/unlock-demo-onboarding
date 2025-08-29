@@ -59,7 +59,7 @@ export default function InvestorOnboarding() {
           throw new Error('CSV file must have at least a header and one data row');
         }
 
-        // Parse CSV rows
+        // Parse CSV rows with new Classification column
         const rawData = lines.slice(1).map(line => {
           const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
           return {
@@ -67,7 +67,8 @@ export default function InvestorOnboarding() {
             'Account/Provider': values[1] || '',
             Holding: values[2] || '',
             Ticker: values[3] || '',
-            Value_GBP: values[4] || '0'
+            Value_GBP: values[4] || '0',
+            Classification: values[5] || 'Traditional' // Default to Traditional if missing
           };
         }).filter(row => row.Category && row.Holding); // Filter out empty rows
 
