@@ -79,7 +79,7 @@ export default function PortfolioAnalysis() {
               hasValidTicker: hasValidTicker
             };
             
-            console.log(`Row ${index + 1}: ${holding.name} (${holding.ticker}) - £${holding.value} - Category: ${holding.category}`);
+            console.log(`Row ${index + 1}: ${holding.name} (${holding.ticker}) - £${holding.value} - Category: ${holding.category} - Classification: ${holding.classification}`);
             return holding;
           });
           
@@ -124,10 +124,17 @@ export default function PortfolioAnalysis() {
           expectedReturn: '2-3x'
         }));
           
-        const totalValue = traditionalHoldings.reduce((sum: number, holding: any) => sum + holding.value, 0);
+        // Calculate total value from ALL holdings, not just traditional
+        const totalValue = allHoldings.reduce((sum: number, holding: any) => sum + holding.value, 0);
+        console.log('TOTAL VALUE CALCULATION:');
+        console.log('All holdings count:', allHoldings.length);
+        console.log('Traditional holdings count:', traditionalHoldings.length);
+        console.log('Property holdings count:', propertyHoldings.length);
+        console.log('Alternative holdings count:', alternativeHoldings.length);
+        console.log('Total portfolio value:', totalValue);
         
-        // Calculate percentages
-        traditionalHoldings.forEach((holding: any) => {
+        // Calculate percentages for ALL holdings based on total portfolio value
+        allHoldings.forEach((holding: any) => {
           holding.percentage = totalValue > 0 ? (holding.value / totalValue) * 100 : 0;
         });
         
