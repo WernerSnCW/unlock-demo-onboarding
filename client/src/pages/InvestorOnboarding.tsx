@@ -60,9 +60,15 @@ export default function InvestorOnboarding() {
         }
 
         // Parse CSV rows with new Classification column
-        const rawData = lines.slice(1).map(line => {
+        console.log('=== CSV PARSING DEBUG ===');
+        console.log('Header line:', lines[0]);
+        console.log('First few data lines:', lines.slice(1, 4));
+        
+        const rawData = lines.slice(1).map((line, index) => {
           const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-          return {
+          console.log(`Row ${index + 1}: Split into ${values.length} columns:`, values);
+          
+          const row = {
             Category: values[0] || '',
             'Account/Provider': values[1] || '',
             Holding: values[2] || '',
@@ -70,6 +76,9 @@ export default function InvestorOnboarding() {
             Value_GBP: values[4] || '0',
             Classification: values[5] || 'Traditional' // Default to Traditional if missing
           };
+          
+          console.log(`Row ${index + 1} parsed:`, row);
+          return row;
         }).filter(row => row.Category && row.Holding); // Filter out empty rows
 
         console.log('=== PARSED CSV DATA ===');
