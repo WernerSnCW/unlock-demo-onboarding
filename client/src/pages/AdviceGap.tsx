@@ -298,12 +298,12 @@ export default function AdviceGap() {
                     See how Unlock transforms these challenges into competitive advantages
                   </p>
                   <Link 
-                    href="/demo"
+                    href="/investor-onboarding"
                     className="group inline-flex items-center px-12 py-6 bg-white text-[var(--primary)] rounded-2xl font-black text-xl hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-white/20"
                     data-testid="button-see-solution"
                   >
                     <Zap className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
-                    SEE THE SOLUTION
+                    START ONBOARDING
                     <ArrowRight className="h-8 w-8 ml-4 group-hover:translate-x-2 transition-transform" />
                   </Link>
                 </div>
