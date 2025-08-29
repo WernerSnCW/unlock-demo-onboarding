@@ -269,45 +269,54 @@ export default function InvestorOnboarding() {
                       </div>
                     </>
                   ) : (
-                    <>
+                    <div className="bg-white rounded-3xl shadow-2xl p-12 border border-[var(--border)]">
                       <div className="mb-8">
                         <div className="relative inline-block">
-                          <div className="bg-gradient-to-br from-[var(--success)] to-[var(--primary)] rounded-2xl p-6 shadow-xl">
-                            <CheckCircle className="h-16 w-16 text-white" />
+                          <div className="bg-gradient-to-br from-[var(--success)] to-[var(--primary)] rounded-full p-6 shadow-xl">
+                            <CheckCircle className="h-20 w-20 text-white" />
                           </div>
-                          <div className="absolute -inset-2 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] rounded-2xl opacity-20 blur-lg"></div>
+                          <div className="absolute -inset-3 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] rounded-full opacity-20 blur-xl animate-pulse"></div>
                         </div>
                       </div>
 
-                      <h3 className="text-3xl font-bold text-[var(--success)] mb-4">
+                      <h3 className="text-4xl font-black text-[var(--foreground)] mb-4">
                         Upload Complete!
                       </h3>
-                      <p className="text-lg text-[var(--muted-foreground)] mb-8">
-                        Your portfolio data has been successfully uploaded and is being processed.
+                      <p className="text-xl text-[var(--muted-foreground)] mb-10 leading-relaxed max-w-2xl mx-auto">
+                        Your portfolio data has been successfully uploaded and is being processed by our advanced AI system.
                       </p>
 
-                      <div className="bg-[var(--success)] bg-opacity-10 border border-[var(--success)] rounded-2xl p-6 mb-8">
-                        <div className="flex items-center justify-center gap-3 mb-4">
-                          <Zap className="h-6 w-6 text-[var(--success)]" />
-                          <span className="font-semibold text-[var(--success)]">Processing Your Data</span>
+                      <div className="bg-gradient-to-r from-[var(--success)] via-[var(--primary)] to-[var(--secondary)] rounded-2xl p-8 mb-10 text-white">
+                        <div className="flex items-center justify-center gap-4 mb-6">
+                          <div className="bg-white bg-opacity-20 rounded-full p-3">
+                            <Zap className="h-8 w-8 text-white" />
+                          </div>
+                          <h4 className="text-2xl font-bold text-white">AI Analysis in Progress</h4>
                         </div>
-                        <p className="text-sm text-[var(--muted-foreground)]">
-                          Our AI is analyzing your portfolio across traditional holdings, property investments, and alternative assets...
+                        <p className="text-lg opacity-95 leading-relaxed text-center max-w-3xl mx-auto">
+                          Our intelligent system is now analyzing your complete investment portfolio across traditional holdings, 
+                          property investments, and alternative assets to provide personalized insights and recommendations.
                         </p>
                       </div>
 
                       <button
-                        className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] text-white rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-xl"
+                        className="inline-flex items-center px-12 py-6 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] text-white rounded-2xl font-black text-xl hover:scale-105 hover:shadow-2xl transition-all duration-300 shadow-xl"
                         data-testid="button-continue-onboarding"
                         onClick={() => {
                           // In a real app, this would navigate to the next step
                           alert('Next: Portfolio Analysis & Insights (Step 2 of 3)');
                         }}
                       >
-                        Continue to Analysis
-                        <ArrowRight className="h-6 w-6 ml-3" />
+                        <span className="mr-4">Continue to Analysis</span>
+                        <ArrowRight className="h-6 w-6" />
                       </button>
-                    </>
+
+                      <div className="mt-8 text-center">
+                        <p className="text-sm text-[var(--muted-foreground)]">
+                          Step 2 will show you comprehensive portfolio insights and recommendations
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
