@@ -63,7 +63,7 @@ export default function DemoAgenda() {
                 </div>
                 <span className="text-[var(--foreground)] font-semibold text-lg">LIVE DEMONSTRATION</span>
                 <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
-                <span className="text-[var(--muted-foreground)] font-medium">15 minutes</span>
+                <span className="text-[var(--muted-foreground)] font-medium">30-45 minutes</span>
               </div>
             </div>
           </div>
