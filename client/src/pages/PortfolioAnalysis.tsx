@@ -571,13 +571,13 @@ export default function PortfolioAnalysis() {
                       </div>
                       <div className="ml-auto px-6 py-3 rounded-xl bg-[#10A957]/10 border border-[#10A957]/20">
                         <span className="text-2xl font-black text-[#10A957]">
-                          {portfolioData.holdings.traditional.length} positions
+                          {portfolioData.holdings.traditional.filter((h: any) => h.hasValidTicker).length} positions
                         </span>
                       </div>
                     </div>
 
                     <div className="grid gap-4">
-                      {portfolioData.holdings.traditional.map((holding: any, index: number) => (
+                      {portfolioData.holdings.traditional.filter((holding: any) => holding.hasValidTicker).map((holding: any, index: number) => (
                         <div key={index} 
                              className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
@@ -883,7 +883,7 @@ export default function PortfolioAnalysis() {
 
                     <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-hide">
                       {portfolioData ? (
-                        portfolioData.holdings.traditional.map((holding: any, index: number) => {
+                        portfolioData.holdings.traditional.filter((holding: any) => holding.hasValidTicker).map((holding: any, index: number) => {
                           const livePrice = liveData[holding.ticker];
                           const isPositive = livePrice ? livePrice.changePercent >= 0 : holding.changePercent >= 0;
                           const displayPrice = livePrice ? livePrice.price : holding.currentPrice;
