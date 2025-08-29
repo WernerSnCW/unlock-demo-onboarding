@@ -21,6 +21,7 @@ import {
   postcodeLadMapping,
   investors
 } from "@shared/schema";
+import { marketDataService } from "./services/marketData.js";
 
 // Helper functions for UK HPI data
 function getPropertyTypeChange(data: any, propertyType: string): number {
@@ -1608,6 +1609,62 @@ Return as JSON with this exact structure:
       console.error('Portfolio analysis error:', error);
       res.status(500).json({ 
         message: 'Portfolio analysis failed', 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Market Data API endpoints
+  app.get('/api/market-data/quotes', async (req, res) => {
+    try {
+      const { symbols } = req.query;
+      
+      if (!symbols || typeof symbols !== 'string') {
+        return res.status(400).json({ 
+          message: 'Symbols parameter is required. Provide comma-separated list of symbols.' 
+        });
+      }
+
+      const symbolList = symbols.split(',').map(s => s.trim());
+      console.log('Fetching market data for symbols:', symbolList);
+      
+      const quotes = await marketDataService.getMultipleQuotes(symbolList);
+      
+      res.json({
+        quotes,
+        lastUpdate: new Date().toISOString(),
+        source: 'Yahoo Finance / CoinGecko'
+      });
+    } catch (error) {
+      console.error('Market data API error:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch market data',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.get('/api/market-data/quote/:symbol', async (req, res) => {
+    try {
+      const { symbol } = req.params;
+      console.log('Fetching single quote for:', symbol);
+      
+      let quote;
+      if (symbol.includes('-USD') || symbol === 'BTC-USD') {
+        const coinId = symbol === 'BTC-USD' ? 'bitcoin' : symbol.toLowerCase().replace('-usd', '');
+        quote = await marketDataService.getCryptoPrice(coinId);
+      } else {
+        quote = await marketDataService.getStockPrice(symbol);
+      }
+      
+      res.json({
+        quote,
+        lastUpdate: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Single quote API error:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch quote',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }

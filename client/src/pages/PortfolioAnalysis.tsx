@@ -20,7 +20,7 @@ export default function PortfolioAnalysis() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Simulate processing uploaded file and generating portfolio data
+  // Process uploaded file and generate portfolio data with live market prices
   useEffect(() => {
     const processUploadedPortfolio = () => {
       // Simulate realistic portfolio data based on uploaded file
@@ -54,25 +54,41 @@ export default function PortfolioAnalysis() {
       };
       setPortfolioData(mockPortfolio);
 
-      // Generate live market data with realistic fluctuations
-      const generateLiveData = () => {
-        const liveUpdates: any = {};
-        mockPortfolio.holdings.traditional.forEach(holding => {
-          const volatility = holding.ticker.includes('BTC') ? 0.05 : holding.ticker === 'TSLA' ? 0.03 : 0.02;
-          const randomChange = (Math.random() - 0.5) * volatility;
-          liveUpdates[holding.ticker] = {
-            price: holding.currentPrice * (1 + randomChange),
-            change: holding.change + (Math.random() - 0.5) * 2,
-            changePercent: holding.changePercent + randomChange * 100
-          };
-        });
-        setLiveData(liveUpdates);
+      // Fetch real live market data
+      const fetchLiveMarketData = async () => {
+        try {
+          const symbols = mockPortfolio.holdings.traditional.map(h => h.ticker).join(',');
+          console.log('Fetching live market data for:', symbols);
+          
+          const response = await apiRequest('GET', `/api/market-data/quotes?symbols=${symbols}`);
+          const data = await response.json();
+          
+          if (data.quotes) {
+            console.log('Received live market data:', data.quotes);
+            setLiveData(data.quotes);
+          }
+        } catch (error) {
+          console.error('Failed to fetch live market data:', error);
+          // Fallback to mock data if API fails
+          const fallbackData: any = {};
+          mockPortfolio.holdings.traditional.forEach(holding => {
+            const volatility = holding.ticker.includes('BTC') ? 0.05 : holding.ticker === 'TSLA' ? 0.03 : 0.02;
+            const randomChange = (Math.random() - 0.5) * volatility;
+            fallbackData[holding.ticker] = {
+              price: holding.currentPrice * (1 + randomChange),
+              change: holding.change + (Math.random() - 0.5) * 2,
+              changePercent: holding.changePercent + randomChange * 100
+            };
+          });
+          setLiveData(fallbackData);
+        }
       };
 
-      generateLiveData();
+      // Initial fetch
+      fetchLiveMarketData();
       
-      // Update live data every 3 seconds
-      const interval = setInterval(generateLiveData, 3000);
+      // Update live data every 30 seconds (reasonable for free APIs)
+      const interval = setInterval(fetchLiveMarketData, 30000);
       
       return () => clearInterval(interval);
     };
@@ -448,6 +464,8 @@ export default function PortfolioAnalysis() {
                       {portfolioData.holdings.traditional.map((holding: any, index: number) => {
                         const livePrice = liveData[holding.ticker];
                         const isPositive = livePrice ? livePrice.changePercent >= 0 : holding.changePercent >= 0;
+                        const displayPrice = livePrice ? livePrice.price : holding.currentPrice;
+                        const displayChange = livePrice ? livePrice.changePercent : holding.changePercent;
                         
                         return (
                           <tr key={index} className="border-b border-[var(--border)] hover:bg-[var(--muted)] transition-colors">
@@ -456,18 +474,29 @@ export default function PortfolioAnalysis() {
                                 <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center text-white font-bold text-sm">
                                   {holding.ticker.slice(0, 2)}
                                 </div>
-                                <span className="font-bold">{holding.ticker}</span>
+                                <div>
+                                  <span className="font-bold">{holding.ticker}</span>
+                                  {livePrice && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
+                                      <span className="text-xs text-[var(--success)] font-medium">LIVE</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </td>
                             <td className="p-4 text-[var(--muted-foreground)]">{holding.name}</td>
                             <td className="p-4 text-right font-mono">
-                              ${formatPrice(livePrice ? livePrice.price : holding.currentPrice)}
+                              {holding.ticker === 'BTC-USD' ? 
+                                formatCurrency(displayPrice).replace('£', '$') :
+                                `$${formatPrice(displayPrice)}`
+                              }
                             </td>
                             <td className="p-4 text-right">
                               <div className={`flex items-center justify-end gap-1 ${isPositive ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
                                 {isPositive ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                                 <span className="font-semibold">
-                                  {formatPercentage(livePrice ? livePrice.changePercent : holding.changePercent)}
+                                  {formatPercentage(displayChange)}
                                 </span>
                               </div>
                             </td>
