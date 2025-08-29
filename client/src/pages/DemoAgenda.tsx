@@ -115,9 +115,9 @@ export default function DemoAgenda() {
           <div className="space-y-8 max-w-5xl mx-auto">
             
             {/* Agenda Item 1 - Problem Analysis */}
-            <div className="group relative">
+            <Link href="/advice-gap" className="group relative block" data-testid="link-problem-deconstruction">
               <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
-              <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--primary)] rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
+              <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--primary)] rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] cursor-pointer">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
                 <div className="p-10">
                   <div className="flex items-center gap-8">
@@ -141,7 +141,7 @@ export default function DemoAgenda() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Agenda Item 2 - Demo Walkthrough */}
             <div className="group relative">
