@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight } from 'lucide-react';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const preferencesSchema = z.object({
@@ -787,6 +787,23 @@ export default function InvestorPreferences() {
     setCurrentQuestionAnswer(updated);
   };
 
+  // Go back to previous question
+  const goBackToPreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      
+      // Restore previous answer if it exists
+      const previousQuestion = questionnaireQuestions[currentQuestionIndex - 1];
+      const previousAnswer = questionnaireAnswers.find(a => a.questionId === previousQuestion.id);
+      
+      if (previousAnswer) {
+        setCurrentQuestionAnswer(previousAnswer.response);
+      } else {
+        setCurrentQuestionAnswer(previousQuestion.type === 'multiselect' ? [] : '');
+      }
+    }
+  };
+
   // Submit current question answer and move to next
   const submitCurrentAnswer = () => {
     if (!currentQuestionAnswer || (Array.isArray(currentQuestionAnswer) && currentQuestionAnswer.length === 0)) {
@@ -849,9 +866,17 @@ export default function InvestorPreferences() {
   useEffect(() => {
     if (questionnaireQuestions[currentQuestionIndex]) {
       const currentQuestion = questionnaireQuestions[currentQuestionIndex];
-      setCurrentQuestionAnswer(currentQuestion.type === 'multiselect' ? [] : '');
+      
+      // Check if there's already an answer for this question
+      const existingAnswer = questionnaireAnswers.find(a => a.questionId === currentQuestion.id);
+      
+      if (existingAnswer) {
+        setCurrentQuestionAnswer(existingAnswer.response);
+      } else {
+        setCurrentQuestionAnswer(currentQuestion.type === 'multiselect' ? [] : '');
+      }
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, questionnaireAnswers]);
 
   const form = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
@@ -1667,8 +1692,23 @@ export default function InvestorPreferences() {
                         </div>
                       )}
 
-                      {/* Continue Button */}
-                      <div className="flex justify-center mt-8">
+                      {/* Navigation Buttons */}
+                      <div className="flex justify-between items-center mt-8 max-w-md mx-auto">
+                        {currentQuestionIndex > 0 ? (
+                          <Button
+                            onClick={goBackToPreviousQuestion}
+                            size="lg"
+                            variant="outline"
+                            className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10 transition-all duration-300"
+                            data-testid="button-back"
+                          >
+                            <ArrowLeft className="mr-2 h-5 w-5" />
+                            Back
+                          </Button>
+                        ) : (
+                          <div className="w-24" /> /* Spacer */
+                        )}
+                        
                         <Button
                           onClick={submitCurrentAnswer}
                           size="lg"
