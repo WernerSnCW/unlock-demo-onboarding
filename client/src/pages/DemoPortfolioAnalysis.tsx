@@ -316,51 +316,39 @@ export default function DemoPortfolioAnalysis() {
                   <CardContent>
                     <div className="space-y-4">
                       {personaScenarios.map((scenario) => {
-                        const isActive = investorData.scenario?.name === scenario.name;
+                        const isCurrentScenario = investorData.scenario?.name === scenario.name;
                         const IconComponent = scenario.icon;
                         
                         return (
                           <div
                             key={scenario.id}
-                            className={`p-3 rounded-xl border transition-all duration-300 ${
-                              isActive
-                                ? 'border-[var(--secondary)] bg-[var(--secondary)]/10 shadow-md'
-                                : 'border-[var(--border)] bg-[var(--muted)]/30'
-                            }`}
+                            className="p-3 rounded-xl border transition-all duration-300 border-[var(--secondary)] bg-[var(--secondary)]/10 shadow-md"
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-lg ${
-                                isActive 
-                                  ? 'bg-[var(--secondary)] text-white' 
-                                  : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
-                              }`}>
+                              <div className="p-2 rounded-lg bg-[var(--secondary)] text-white">
                                 <IconComponent className="h-4 w-4" />
                               </div>
                               
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <h4 className={`font-semibold text-sm ${
-                                    isActive ? 'text-[var(--secondary)]' : 'text-[var(--foreground)]'
-                                  }`}>
+                                  <h4 className="font-semibold text-sm text-[var(--secondary)]">
                                     {scenario.name}
                                   </h4>
-                                  {isActive && (
-                                    <Badge variant="secondary" className="bg-[var(--secondary)] text-white text-xs">
-                                      High Impact
-                                    </Badge>
-                                  )}
+                                  <Badge variant="secondary" className="bg-[var(--secondary)] text-white text-xs">
+                                    High Impact
+                                  </Badge>
                                 </div>
                                 
                                 <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-2">
                                   {scenario.description}
                                 </p>
                                 
-                                {isActive && (
-                                  <div className="flex items-center gap-2 text-xs text-[var(--secondary)]">
-                                    <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
-                                    <span>Stress testing active</span>
-                                  </div>
-                                )}
+                                <div className="flex items-center gap-2 text-xs text-[var(--secondary)]">
+                                  <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
+                                  <span>
+                                    {isCurrentScenario ? 'Stress testing active' : 'Scenario modeling active'}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
