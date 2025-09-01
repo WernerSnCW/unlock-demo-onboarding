@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, TrendingDown, User, Target, AlertTriangle, PieChart, BarChart3, LineChart, Sparkles, Brain, Zap, ArrowLeft } from "lucide-react";
+import { TrendingUp, TrendingDown, User, Target, AlertTriangle, PieChart, BarChart3, LineChart, Sparkles, Brain, Zap, ArrowLeft, Shield } from "lucide-react";
 import { Link } from "wouter";
 
 interface InvestorData {
@@ -22,6 +22,45 @@ interface InvestorData {
   portfolioData?: any;
   portfolioConfig?: any;
 }
+
+// Economic scenarios data
+const economicScenarios = [
+  {
+    id: 'property_crash_2008',
+    name: '2008-Style Property Crash',
+    description: 'Significant property value decline with credit market freeze and financial sector stress',
+    horizon: '5 year horizon',
+    icon: AlertTriangle
+  },
+  {
+    id: 'ai_recession',
+    name: 'AI-Driven Economic Recession',
+    description: 'Widespread job displacement and economic disruption from rapid AI adoption',
+    horizon: '5 year horizon',
+    icon: Brain
+  },
+  {
+    id: 'stagflation_1970s',
+    name: 'High-Inflation Stagflation (1970s Redux)',
+    description: 'Prolonged period of high inflation combined with economic stagnation and unemployment',
+    horizon: '5 year horizon',
+    icon: TrendingUp
+  },
+  {
+    id: 'tech_bubble_burst',
+    name: 'Tech & Speculative Bubble Burst',
+    description: 'Major correction in technology valuations and speculative assets',
+    horizon: '5 year horizon',
+    icon: Zap
+  },
+  {
+    id: 'uk_policy_shift',
+    name: 'Major UK Policy Shift',
+    description: 'Significant changes in UK tax, regulatory, or economic policy affecting investors',
+    horizon: '5 year horizon',
+    icon: Shield
+  }
+];
 
 export default function DemoPortfolioAnalysis() {
   const [investorData, setInvestorData] = useState<InvestorData>({});
@@ -506,13 +545,67 @@ export default function DemoPortfolioAnalysis() {
                     </div>
                   )}
                   
-                  <div className="h-80 flex items-center justify-center border-2 border-dashed border-[var(--border)] rounded-lg">
-                    <div className="text-center space-y-2">
-                      <Zap className="h-12 w-12 text-[var(--muted-foreground)] mx-auto" />
-                      <p className="text-[var(--muted-foreground)]">Stress test results and scenario modeling</p>
-                      <p className="text-sm text-[var(--muted-foreground)]">
-                        Impact analysis across different market conditions
-                      </p>
+                  {/* All Economic Scenarios */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">All Economic Scenarios</h3>
+                    <div className="grid gap-4">
+                      {economicScenarios.map((scenario) => {
+                        const isActive = investorData.scenario?.name === scenario.name;
+                        const IconComponent = scenario.icon;
+                        
+                        return (
+                          <div
+                            key={scenario.id}
+                            className={`relative p-4 rounded-xl border transition-all duration-300 ${
+                              isActive
+                                ? 'border-[var(--primary)] bg-[var(--primary)]/5 shadow-lg shadow-[var(--primary)]/20'
+                                : 'border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)]/50 hover:shadow-md'
+                            }`}
+                          >
+                            {isActive && (
+                              <div className="absolute top-2 right-2">
+                                <Badge variant="secondary" className="bg-[var(--primary)] text-white">
+                                  Active
+                                </Badge>
+                              </div>
+                            )}
+                            
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg ${
+                                isActive 
+                                  ? 'bg-[var(--primary)] text-white' 
+                                  : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                              }`}>
+                                <IconComponent className="h-5 w-5" />
+                              </div>
+                              
+                              <div className="flex-1 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <h4 className={`font-semibold ${
+                                    isActive ? 'text-[var(--primary)]' : 'text-[var(--foreground)]'
+                                  }`}>
+                                    {scenario.name}
+                                  </h4>
+                                  <span className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded">
+                                    {scenario.horizon}
+                                  </span>
+                                </div>
+                                
+                                <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                                  {scenario.description}
+                                </p>
+                                
+                                {isActive && (
+                                  <div className="flex items-center gap-2 text-xs text-[var(--primary)]">
+                                    <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse"></div>
+                                    <span>Currently running stress test analysis</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
