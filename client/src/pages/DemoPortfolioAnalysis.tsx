@@ -874,129 +874,423 @@ export default function DemoPortfolioAnalysis() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Investment Goals */}
+                  {/* Employment Income */}
                   <Card className="bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 border-[var(--primary)]/20">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Target className="h-5 w-5 text-[var(--primary)]" />
-                        Investment Goals
+                        <User className="h-5 w-5 text-[var(--primary)]" />
+                        Employment Income
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
                       <div>
-                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
-                          What is your primary investment objective?
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          If AI recession hits, how secure is your role?
                         </label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
-                            <div className="font-medium">Capital Growth</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Focus on long-term appreciation</div>
-                          </button>
-                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
-                            <div className="font-medium">Income Generation</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Priority on dividends and yield</div>
-                          </button>
-                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
-                            <div className="font-medium">Capital Preservation</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Protect existing wealth</div>
-                          </button>
-                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
-                            <div className="font-medium">Balanced Approach</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Mix of growth and income</div>
-                          </button>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="job-security" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Very secure - essential/senior role</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="job-security" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Moderate risk - could be affected</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="job-security" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>High risk - vulnerable to automation/cuts</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What percentage of your income comes from bonuses/commission?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="bonus-income" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>0-10% - mostly salary</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="bonus-income" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>10-30% - moderate bonus</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="bonus-income" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>30-50% - significant variable comp</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="bonus-income" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>50%+ - highly variable income</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          In a downturn, how much could you reduce discretionary spending?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="spending-flexibility" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>0-10% - most expenses fixed</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="spending-flexibility" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>10-25% - some flexibility</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="spending-flexibility" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>25-40% - significant flexibility</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="spending-flexibility" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>40%+ - high lifestyle flexibility</span>
+                          </label>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Risk Tolerance */}
+                  {/* Property Mortgages */}
                   <Card className="bg-gradient-to-br from-[var(--secondary)]/5 to-[var(--accent)]/5 border-[var(--secondary)]/20">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-[var(--secondary)]" />
-                        Risk Assessment
+                        <Settings className="h-5 w-5 text-[var(--secondary)]" />
+                        Property Mortgages
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
                       <div>
-                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
-                          How would you react to a 20% portfolio decline?
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What type of mortgage do you have on your main property?
                         </label>
                         <div className="space-y-2">
-                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--secondary)] hover:bg-[var(--secondary)]/5 transition-all duration-200">
-                            <div className="font-medium">Sell immediately</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Minimize further losses</div>
-                          </button>
-                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--secondary)] hover:bg-[var(--secondary)]/5 transition-all duration-200">
-                            <div className="font-medium">Hold and wait for recovery</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Stay the course</div>
-                          </button>
-                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--secondary)] hover:bg-[var(--secondary)]/5 transition-all duration-200">
-                            <div className="font-medium">Buy more at lower prices</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Take advantage of the opportunity</div>
-                          </button>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="mortgage-type" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>Fixed rate - 3+ years remaining</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="mortgage-type" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>Fixed rate - &lt;2 years remaining</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="mortgage-type" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>Tracker/variable rate</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="mortgage-type" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>No mortgage - owned outright</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          For rental properties, what's your typical net margin after all costs?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rental-margin" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>No rental properties</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rental-margin" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>0-5% - break-even/low margin</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rental-margin" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>5-10% - moderate margin</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rental-margin" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>10%+ - high margin</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          In a property crash, what percentage of property equity would you liquidate?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="property-liquidation" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>None - hold through any downturn</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="property-liquidation" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>0-25% - minimal selling</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="property-liquidation" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>25-50% - significant rebalancing</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="property-liquidation" className="w-4 h-4 text-[var(--secondary)]" />
+                            <span>50%+ - major liquidation if needed</span>
+                          </label>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Time Horizon */}
+                  {/* Liquidity Buffers */}
                   <Card className="bg-gradient-to-br from-[var(--accent)]/5 to-[var(--warning)]/5 border-[var(--accent)]/20">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-[var(--accent)]" />
-                        Investment Timeline
+                        <Target className="h-5 w-5 text-[var(--accent)]" />
+                        Liquidity Buffers
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
                       <div>
-                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
-                          When do you expect to need this money?
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          How many months of expenses do you keep in cash?
                         </label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
-                            <div className="font-medium text-sm">1-3 years</div>
-                          </button>
-                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
-                            <div className="font-medium text-sm">3-7 years</div>
-                          </button>
-                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
-                            <div className="font-medium text-sm">7-15 years</div>
-                          </button>
-                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
-                            <div className="font-medium text-sm">15+ years</div>
-                          </button>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>0-3 months - minimal buffer</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>3-6 months - standard emergency fund</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>6-12 months - conservative buffer</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>12+ months - very large buffer</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What's the minimum cash buffer you want to maintain?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="min-cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>£50k or less</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="min-cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>£50k-£100k</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="min-cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>£100k-£200k</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="min-cash-buffer" className="w-4 h-4 text-[var(--accent)]" />
+                            <span>£200k+</span>
+                          </label>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* ESG Preferences */}
+                  {/* Tax EIS SEIS */}
                   <Card className="bg-gradient-to-br from-[var(--success)]/5 to-[var(--primary)]/5 border-[var(--success)]/20">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Leaf className="h-5 w-5 text-[var(--success)]" />
-                        ESG & Sustainability
+                        <Shield className="h-5 w-5 text-[var(--success)]" />
+                        Tax EIS SEIS
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6">
                       <div>
-                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
-                          How important are environmental and social factors in your investments?
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What's your target annual EIS investment budget?
                         </label>
                         <div className="space-y-2">
-                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--success)] hover:bg-[var(--success)]/5 transition-all duration-200">
-                            <div className="font-medium">Very Important</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Only invest in ESG-compliant companies</div>
-                          </button>
-                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--success)] hover:bg-[var(--success)]/5 transition-all duration-200">
-                            <div className="font-medium">Somewhat Important</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Prefer ESG options when available</div>
-                          </button>
-                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--success)] hover:bg-[var(--success)]/5 transition-all duration-200">
-                            <div className="font-medium">Not a Priority</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">Focus primarily on returns</div>
-                          </button>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-budget" className="w-4 h-4 text-[var(--success)]" />
+                            <span>Not interested in EIS</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-budget" className="w-4 h-4 text-[var(--success)]" />
+                            <span>£10k-£30k per year</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-budget" className="w-4 h-4 text-[var(--success)]" />
+                            <span>£30k-£60k per year</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-budget" className="w-4 h-4 text-[var(--success)]" />
+                            <span>£60k+ per year (full allowance)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          How long are you comfortable locking up money in EIS investments?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-timeline" className="w-4 h-4 text-[var(--success)]" />
+                            <span>3-5 years - shorter term</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-timeline" className="w-4 h-4 text-[var(--success)]" />
+                            <span>5-7 years - standard term</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-timeline" className="w-4 h-4 text-[var(--success)]" />
+                            <span>7-10 years - longer term</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="eis-timeline" className="w-4 h-4 text-[var(--success)]" />
+                            <span>10+ years - very long term</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What's your current marginal tax rate?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tax-rate" className="w-4 h-4 text-[var(--success)]" />
+                            <span>20% - basic rate</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tax-rate" className="w-4 h-4 text-[var(--success)]" />
+                            <span>40% - higher rate</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tax-rate" className="w-4 h-4 text-[var(--success)]" />
+                            <span>45% - additional rate</span>
+                          </label>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Inflation Spending */}
+                  <Card className="bg-gradient-to-br from-[var(--warning)]/5 to-[var(--primary)]/5 border-[var(--warning)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-[var(--warning)]" />
+                        Inflation Spending
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          Which areas of spending are you most sensitive to inflation?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>Travel & holidays</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>Food & dining</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>Energy & utilities</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>School fees</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>Healthcare & insurance</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What's the maximum real income drawdown you'd accept over 5 years?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="income-drawdown" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>0-5% - maintain purchasing power</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="income-drawdown" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>5-10% - modest reduction</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="income-drawdown" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>10-20% - significant but manageable</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="income-drawdown" className="w-4 h-4 text-[var(--warning)]" />
+                            <span>20%+ - willing to take large cuts</span>
+                          </label>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Behavioural Constraints */}
+                  <Card className="bg-gradient-to-br from-[var(--muted)]/5 to-[var(--accent)]/5 border-[var(--muted)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Brain className="h-5 w-5 text-[var(--muted-foreground)]" />
+                        Behavioural Constraints
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What's the maximum you'd want in any single asset class?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="max-concentration" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>30% - highly diversified</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="max-concentration" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>40% - moderate concentration</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="max-concentration" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>50% - willing to concentrate</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="max-concentration" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>60%+ - comfortable with concentration</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          How often would you prefer to rebalance your portfolio?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rebalance-frequency" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>Monthly - active management</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rebalance-frequency" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>Quarterly - regular review</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rebalance-frequency" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>Annually - set and forget</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="rebalance-frequency" className="w-4 h-4 text-[var(--muted-foreground)]" />
+                            <span>Only on major market shocks</span>
+                          </label>
                         </div>
                       </div>
                     </CardContent>
