@@ -737,7 +737,17 @@ export default function DemoSimulation() {
                   }
                   
                   // Navigate to analysis page
-                  window.location.href = '/demo-portfolio-analysis';
+                  // Build URL with scenario parameters
+                  const scenarioIds = allScenarios.map(s => s.id).join(',');
+                  const personaScenarioIds = allScenarios.filter(s => s.isHighImpact).map(s => s.id).join(',');
+                  const selectedScenarioIds = allScenarios.filter(s => s.isSelected).map(s => s.id).join(',');
+                  
+                  const params = new URLSearchParams();
+                  if (scenarioIds) params.set('scenarios', scenarioIds);
+                  if (personaScenarioIds) params.set('personaScenarios', personaScenarioIds);
+                  if (selectedScenarioIds) params.set('selectedScenarios', selectedScenarioIds);
+                  
+                  window.location.href = `/demo-portfolio-analysis?${params.toString()}`;
                 }}
               >
                 <div className="flex items-center gap-3">
