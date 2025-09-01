@@ -390,6 +390,26 @@ export default function DemoPortfolioAnalysis() {
               )}
             </div>
 
+            {/* Refine Your Analysis Button - Prominent Top Placement */}
+            <div className="w-full bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-3xl p-6 border-2 border-[var(--primary)]/20 mb-8">
+              <div className="text-center space-y-3">
+                <h3 className="text-lg font-bold text-[var(--foreground)]">
+                  Want More Personalized Insights?
+                </h3>
+                <p className="text-[var(--muted-foreground)] text-sm">
+                  Answer a few quick questions to get tailored recommendations based on your specific situation.
+                </p>
+                <Button 
+                  onClick={() => setActiveTab("refine")}
+                  size="lg"
+                  className="px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Refine Your Analysis
+                </Button>
+              </div>
+            </div>
+
             <Card className="border-2 border-[var(--border)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500 p-6">
               <div className="grid lg:grid-cols-3 gap-6">
                 <Card className="lg:col-span-2 border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-xl rounded-3xl transition-all duration-500">
@@ -858,26 +878,6 @@ export default function DemoPortfolioAnalysis() {
                 </div>
               </CardContent>
             </Card>
-            
-            {/* Refine Your Analysis Button */}
-            <div className="w-full bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-3xl p-8 border-2 border-[var(--primary)]/20">
-              <div className="text-center space-y-4">
-                <h3 className="text-xl font-bold text-[var(--foreground)]">
-                  Want More Personalized Insights?
-                </h3>
-                <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
-                  Answer a few quick questions to get tailored recommendations based on your specific situation and risk tolerance.
-                </p>
-                <Button 
-                  onClick={() => setActiveTab("refine")}
-                  size="lg"
-                  className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
-                >
-                  <Settings className="h-5 w-5 mr-2" />
-                  Refine Your Analysis
-                </Button>
-              </div>
-            </div>
           </TabsContent>
 
           {/* Refine Your Analysis Tab */}
