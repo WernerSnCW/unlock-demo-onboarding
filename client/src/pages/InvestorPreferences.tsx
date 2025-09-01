@@ -240,10 +240,303 @@ const geographicRegions = [
   'Switzerland', 'Emerging Markets', 'Frontier Markets', 'Global Diversified'
 ];
 
+// Persona definitions based on criteria
+const investorPersonas = [
+  {
+    id: 'retirement_planner',
+    name: 'The Retirement Planner (Hybrid)',
+    description: 'Focused on long-term retirement planning with moderate involvement and balanced approach',
+    criteria: {
+      investorObjective: ['hybrid'],
+      riskProfile: ['cautious', 'balanced'],
+      riskCapacity: [4, 5, 6],
+      managementStyle: ['moderate'],
+      liquidityPreference: ['mixed_acceptable'],
+      decisionMakingStyle: ['rely_advisors', 'independent_research'],
+      investmentHorizon: ['long_term'],
+      esgImportance: ['somewhat_important'],
+      activeInvestmentInterests: ['Pension Schemes', 'ISA Optimization', 'Tax-Efficient Investments', 'EIS/SEIS Opportunities'],
+      learningCuriosityAreas: ['Retirement Strategies', 'Tax Optimization Strategies', 'Insurance Products', 'Estate Planning'],
+      geographicPreferences: ['United Kingdom', 'European Union']
+    }
+  },
+  {
+    id: 'wealth_accumulator',
+    name: 'The Wealth Accumulator (Self-Directed)',
+    description: 'High-growth focused, self-directed investor with appetite for emerging opportunities',
+    criteria: {
+      investorObjective: ['wealth_building'],
+      riskProfile: ['growth'],
+      riskCapacity: [7, 8, 9],
+      managementStyle: ['high'],
+      liquidityPreference: ['mixed_acceptable'],
+      decisionMakingStyle: ['independent_research'],
+      investmentHorizon: ['medium_term'],
+      esgImportance: ['not_important', 'somewhat_important'],
+      activeInvestmentInterests: ['Venture Capital', 'Angel Investing', 'Cryptocurrency', 'Emerging Markets', 'AI & Technology'],
+      learningCuriosityAreas: ['Market Analysis & Research', 'Venture Capital Ecosystem', 'Risk Management', 'Cryptocurrency Fundamentals'],
+      geographicPreferences: ['United States', 'Global Diversified', 'Emerging Markets']
+    }
+  },
+  {
+    id: 'legacy_builder',
+    name: 'The Legacy Builder (Advisor-Reliant)',
+    description: 'Conservative wealth preservation focused on long-term legacy with strong ESG considerations',
+    criteria: {
+      investorObjective: ['wealth_preservation'],
+      riskProfile: ['conservative'],
+      riskCapacity: [3, 4, 5],
+      managementStyle: ['minimal'],
+      liquidityPreference: ['prefer_liquid'],
+      decisionMakingStyle: ['rely_advisors'],
+      investmentHorizon: ['long_term'],
+      esgImportance: ['very_important'],
+      activeInvestmentInterests: ['Bond Markets', 'Real Estate Investment', 'Fine Art & Collectibles', 'EIS/SEIS Opportunities'],
+      learningCuriosityAreas: ['Estate Planning', 'Tax Optimization Strategies', 'Pension Planning'],
+      geographicPreferences: ['United Kingdom', 'European Union']
+    }
+  },
+  {
+    id: 'novice_self_directed',
+    name: 'The Novice Self-Directed Investor',
+    description: 'Learning-focused beginner with cautious approach to self-directed investing',
+    criteria: {
+      investorObjective: ['hybrid'],
+      riskProfile: ['cautious'],
+      riskCapacity: [3, 4, 5],
+      managementStyle: ['moderate'],
+      liquidityPreference: ['prefer_liquid'],
+      decisionMakingStyle: ['independent_research'],
+      investmentHorizon: ['medium_term'],
+      esgImportance: ['not_important', 'somewhat_important'],
+      activeInvestmentInterests: ['Public Equity Markets', 'Cryptocurrency', 'EIS/SEIS Opportunities'],
+      learningCuriosityAreas: ['Market Analysis & Research', 'DIY Investment Platforms', 'Risk Management'],
+      geographicPreferences: ['United Kingdom', 'United States']
+    }
+  },
+  {
+    id: 'property_lover',
+    name: 'The Property Lover',
+    description: 'Real estate focused investor comfortable with illiquid assets and advisor support',
+    criteria: {
+      investorObjective: ['hybrid'],
+      riskProfile: ['balanced'],
+      riskCapacity: [5, 6, 7],
+      managementStyle: ['minimal', 'moderate'],
+      liquidityPreference: ['comfortable_illiquid'],
+      decisionMakingStyle: ['rely_advisors'],
+      investmentHorizon: ['long_term'],
+      esgImportance: ['not_important'],
+      activeInvestmentInterests: ['Real Estate Investment', 'Property Development', 'REITs', 'Alternative Assets'],
+      learningCuriosityAreas: ['Tax Optimization Strategies', 'Real Estate Investment Analysis'],
+      geographicPreferences: ['United Kingdom', 'European Union']
+    }
+  },
+  {
+    id: 'crypto_bro',
+    name: 'The Crypto Bro',
+    description: 'High-risk cryptocurrency enthusiast with aggressive self-directed approach',
+    criteria: {
+      investorObjective: ['wealth_building'],
+      riskProfile: ['aggressive'],
+      riskCapacity: [8, 9, 10],
+      managementStyle: ['high'],
+      liquidityPreference: ['mixed_acceptable'],
+      decisionMakingStyle: ['independent_research'],
+      investmentHorizon: ['medium_term'],
+      esgImportance: ['not_important'],
+      activeInvestmentInterests: ['Cryptocurrency', 'AI & Technology'],
+      learningCuriosityAreas: ['Cryptocurrency Fundamentals', 'Risk Management'],
+      geographicPreferences: ['United States', 'Emerging Markets']
+    }
+  },
+  {
+    id: 'old_fashioned',
+    name: 'The Old Fashioned',
+    description: 'Traditional conservative investor preferring established markets and advisor guidance',
+    criteria: {
+      investorObjective: ['wealth_preservation'],
+      riskProfile: ['conservative'],
+      riskCapacity: [2, 3, 4],
+      managementStyle: ['minimal'],
+      liquidityPreference: ['prefer_liquid'],
+      decisionMakingStyle: ['rely_advisors'],
+      investmentHorizon: ['long_term'],
+      esgImportance: ['somewhat_important'],
+      activeInvestmentInterests: ['Bond Markets', 'Public Equity Markets', 'Government Securities'],
+      learningCuriosityAreas: ['Pension Planning', 'Risk Management', 'Market Analysis & Research'],
+      geographicPreferences: ['United Kingdom', 'European Union']
+    }
+  },
+  {
+    id: 'mr_alternative',
+    name: 'Mr Alternative',
+    description: 'Alternative investment specialist comfortable with illiquid assets and complex strategies',
+    criteria: {
+      investorObjective: ['hybrid'],
+      riskProfile: ['growth'],
+      riskCapacity: [6, 7, 8],
+      managementStyle: ['moderate'],
+      liquidityPreference: ['comfortable_illiquid'],
+      decisionMakingStyle: ['independent_research', 'rely_advisors'],
+      investmentHorizon: ['medium_term', 'long_term'],
+      esgImportance: ['not_important'],
+      activeInvestmentInterests: ['Fine Art & Collectibles', 'Whisky & Spirits', 'Private Equity', 'Hedge Funds', 'Alternative Assets', 'Venture Capital', 'EIS/SEIS Opportunities'],
+      learningCuriosityAreas: ['Alternative Investment Strategies', 'Valuation Methods', 'Venture Capital Ecosystem'],
+      geographicPreferences: ['Global Diversified']
+    }
+  },
+  {
+    id: 'angel_networker',
+    name: 'The Angel Networker',
+    description: 'Early-stage investment specialist who values peer collaboration and syndicate opportunities',
+    criteria: {
+      investorObjective: ['wealth_building'],
+      riskProfile: ['growth'],
+      riskCapacity: [6, 7, 8],
+      managementStyle: ['moderate'],
+      liquidityPreference: ['mixed_acceptable'],
+      decisionMakingStyle: ['collaborate_peers'],
+      investmentHorizon: ['medium_term', 'long_term'],
+      esgImportance: ['somewhat_important'],
+      activeInvestmentInterests: ['Angel Investing', 'EIS/SEIS Opportunities', 'Venture Capital'],
+      learningCuriosityAreas: ['Venture Capital Ecosystem', 'Risk Management'],
+      geographicPreferences: ['United Kingdom', 'United States', 'European Union']
+    }
+  },
+  {
+    id: 'city_professional',
+    name: 'The City Professional',
+    description: 'Time-poor professional seeking advisor-managed balanced approach to wealth building',
+    criteria: {
+      investorObjective: ['hybrid'],
+      riskProfile: ['balanced'],
+      riskCapacity: [5, 6, 7],
+      managementStyle: ['minimal'],
+      liquidityPreference: ['mixed_acceptable'],
+      decisionMakingStyle: ['rely_advisors'],
+      investmentHorizon: ['medium_term'],
+      esgImportance: ['somewhat_important'],
+      activeInvestmentInterests: ['Public Equity Markets', 'Venture Capital', 'EIS/SEIS Opportunities'],
+      learningCuriosityAreas: ['Tax Optimization Strategies', 'Pension Planning'],
+      geographicPreferences: ['United Kingdom', 'Global Diversified']
+    }
+  },
+  {
+    id: 'inheritance_receiver',
+    name: 'The Inheritance Receiver',
+    description: 'Cautious new investor exploring options while preserving inherited wealth',
+    criteria: {
+      investorObjective: ['wealth_preservation'],
+      riskProfile: ['cautious'],
+      riskCapacity: [3, 4, 5],
+      managementStyle: ['moderate'],
+      liquidityPreference: ['prefer_liquid'],
+      decisionMakingStyle: ['rely_advisors', 'independent_research'],
+      investmentHorizon: ['medium_term', 'long_term'],
+      esgImportance: ['somewhat_important'],
+      activeInvestmentInterests: ['Bond Markets', 'Cryptocurrency'],
+      learningCuriosityAreas: ['Market Analysis & Research', 'Behavioral Finance'],
+      geographicPreferences: ['United Kingdom', 'European Union']
+    }
+  },
+  {
+    id: 'the_saver',
+    name: 'The Saver',
+    description: 'Ultra-conservative investor focused on capital preservation and ESG principles',
+    criteria: {
+      investorObjective: ['wealth_preservation'],
+      riskProfile: ['conservative'],
+      riskCapacity: [2, 3, 4],
+      managementStyle: ['minimal'],
+      liquidityPreference: ['prefer_liquid'],
+      decisionMakingStyle: ['rely_advisors'],
+      investmentHorizon: ['long_term'],
+      esgImportance: ['very_important', 'somewhat_important'],
+      activeInvestmentInterests: ['Bond Markets', 'Government Securities', 'ISA Optimization', 'Pension Schemes'],
+      learningCuriosityAreas: ['Pension Planning'],
+      geographicPreferences: ['United Kingdom', 'European Union']
+    }
+  }
+];
+
+function classifyInvestorPersona(formData: PreferencesFormData): { persona: typeof investorPersonas[0], score: number } {
+  let bestMatch = { persona: investorPersonas[0], score: 0 };
+
+  for (const persona of investorPersonas) {
+    let score = 0;
+    let totalCriteria = 0;
+
+    // Check each criterion and award points for matches
+    const criteria = persona.criteria;
+
+    // Primary criteria (higher weight)
+    if (criteria.investorObjective.includes(formData.investorObjective)) score += 3;
+    totalCriteria += 3;
+
+    if (criteria.riskProfile.includes(formData.riskProfile)) score += 3;
+    totalCriteria += 3;
+
+    if (criteria.riskCapacity.includes(formData.riskCapacity)) score += 2;
+    totalCriteria += 2;
+
+    // Management and decision style (medium weight)
+    if (criteria.managementStyle.includes(formData.managementStyle)) score += 2;
+    totalCriteria += 2;
+
+    if (criteria.liquidityPreference.includes(formData.liquidityPreference)) score += 2;
+    totalCriteria += 2;
+
+    if (criteria.decisionMakingStyle.includes(formData.decisionMakingStyle)) score += 2;
+    totalCriteria += 2;
+
+    if (criteria.investmentHorizon.includes(formData.investmentHorizon)) score += 2;
+    totalCriteria += 2;
+
+    if (criteria.esgImportance.includes(formData.esgImportance)) score += 1;
+    totalCriteria += 1;
+
+    // Interest alignment (lower weight but important for persona fit)
+    const interestMatches = formData.activeInvestmentInterests.filter(interest => 
+      criteria.activeInvestmentInterests.some(criteriaInterest => 
+        criteriaInterest.toLowerCase().includes(interest.toLowerCase()) || 
+        interest.toLowerCase().includes(criteriaInterest.toLowerCase())
+      )
+    ).length;
+    score += Math.min(interestMatches, 3); // Cap at 3 points
+    totalCriteria += 3;
+
+    const learningMatches = formData.learningCuriosityAreas.filter(area => 
+      criteria.learningCuriosityAreas.some(criteriaArea => 
+        criteriaArea.toLowerCase().includes(area.toLowerCase()) || 
+        area.toLowerCase().includes(criteriaArea.toLowerCase())
+      )
+    ).length;
+    score += Math.min(learningMatches, 2); // Cap at 2 points
+    totalCriteria += 2;
+
+    const geoMatches = formData.geographicPreferences.filter(geo => 
+      criteria.geographicPreferences.includes(geo)
+    ).length;
+    score += Math.min(geoMatches, 2); // Cap at 2 points
+    totalCriteria += 2;
+
+    // Calculate percentage score
+    const percentageScore = (score / totalCriteria) * 100;
+
+    if (percentageScore > bestMatch.score) {
+      bestMatch = { persona, score: percentageScore };
+    }
+  }
+
+  return bestMatch;
+}
+
 export default function InvestorPreferences() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setLocation] = useLocation();
+  const [personaResult, setPersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number } | null>(null);
 
   const form = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
@@ -267,18 +560,28 @@ export default function InvestorPreferences() {
     try {
       console.log('Investor preferences submitted:', data);
       
+      // Classify investor persona based on form responses
+      const personaClassification = classifyInvestorPersona(data);
+      setPersonaResult(personaClassification);
+      
+      console.log('Investor persona classified:', {
+        persona: personaClassification.persona.name,
+        score: `${personaClassification.score.toFixed(1)}%`,
+        description: personaClassification.persona.description
+      });
+      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
-        title: "Preferences Saved",
-        description: "Your investment preferences have been successfully updated.",
+        title: "Preferences Saved & Persona Identified!",
+        description: `You've been classified as "${personaClassification.persona.name}" with ${personaClassification.score.toFixed(1)}% match confidence.`,
       });
       
       // Navigate back to demo agenda after a brief delay
       setTimeout(() => {
         setLocation('/demo/agenda');
-      }, 1500);
+      }, 3000);
       
     } catch (error) {
       toast({
@@ -937,6 +1240,41 @@ export default function InvestorPreferences() {
                 )}
               </Button>
             </div>
+
+            {/* Persona Result Display */}
+            {personaResult && (
+              <Card className="border-2 border-[var(--primary)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl mt-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-2xl text-[var(--primary)]">
+                    <User className="h-6 w-6" />
+                    Your Investor Persona
+                  </CardTitle>
+                  <CardDescription>
+                    Based on your preferences, we've identified your investor profile
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold text-[var(--primary)]">
+                        {personaResult.persona.name}
+                      </h3>
+                      <Badge variant="secondary" className="px-3 py-1">
+                        {personaResult.score.toFixed(1)}% match
+                      </Badge>
+                    </div>
+                    <p className="text-[var(--muted-foreground)] leading-relaxed">
+                      {personaResult.persona.description}
+                    </p>
+                    <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20">
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        🎯 This classification helps us tailor investment recommendations and educational content specifically for your profile.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
               </form>
             </Form>
           </TabsContent>
