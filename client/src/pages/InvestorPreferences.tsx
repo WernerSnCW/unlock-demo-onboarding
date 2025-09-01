@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft } from 'lucide-react';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const preferencesSchema = z.object({
@@ -460,6 +460,45 @@ const investorPersonas = [
   }
 ];
 
+// Economic scenarios for portfolio stress testing
+const economicScenarios = [
+  {
+    id: 'property_crash_2008',
+    name: '2008-Style Property Crash',
+    description: 'Significant property value decline with credit market freeze and financial sector stress',
+    horizon: '5 year horizon',
+    icon: AlertTriangle
+  },
+  {
+    id: 'ai_recession',
+    name: 'AI-Driven Economic Recession',
+    description: 'Widespread job displacement and economic disruption from rapid AI adoption',
+    horizon: '5 year horizon',
+    icon: Brain
+  },
+  {
+    id: 'stagflation_1970s',
+    name: 'High-Inflation Stagflation (1970s Redux)',
+    description: 'Prolonged period of high inflation combined with economic stagnation and unemployment',
+    horizon: '5 year horizon',
+    icon: TrendingUp
+  },
+  {
+    id: 'tech_bubble_burst',
+    name: 'Tech & Speculative Bubble Burst',
+    description: 'Major correction in technology valuations and speculative assets',
+    horizon: '5 year horizon',
+    icon: Zap
+  },
+  {
+    id: 'uk_policy_shift',
+    name: 'UK Policy & Tax Regime Shift',
+    description: 'Significant changes to tax policy, regulatory environment, and economic framework',
+    horizon: '5 year horizon',
+    icon: Settings
+  }
+];
+
 // New scoring matrix from CSV data
 const scoringMatrix: Record<string, Record<string, Record<string, number>>> = {
   'Q1_Objective': {
@@ -848,6 +887,9 @@ export default function InvestorPreferences() {
   
   // Selected persona state for user override
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
+  
+  // Selected economic scenario state
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
 
   // Convert questionnaire answers to form data for persona classification
   const convertQuestionnaireToFormData = (answers: QuestionnaireAnswer[]): PreferencesFormData => {
@@ -2083,6 +2125,89 @@ export default function InvestorPreferences() {
                               <div className="pt-2 border-t border-[var(--border)]/30">
                                 <p className="text-xs font-medium text-[var(--primary)]">
                                   {isSelected ? '🎯 Selected Profile' : isPrimaryMatch ? '✨ Your Primary Match' : '📊 Relevant Profile'}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Economic Scenarios Section */}
+              <Card className="border-2 border-[var(--border)] bg-[var(--card)] backdrop-blur-sm shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl text-[var(--primary)]">
+                    <Zap className="h-5 w-5" />
+                    Economic Scenarios
+                  </CardTitle>
+                  <CardDescription>
+                    Select an economic scenario to stress test your portfolio against potential market conditions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {economicScenarios.map((scenario) => {
+                      const isSelected = selectedScenarioId === scenario.id;
+                      
+                      // Determine styling based on selection
+                      let cardClasses = "cursor-pointer rounded-xl border p-4 transition-all hover:shadow-lg hover:scale-[1.02] duration-300";
+                      let borderClasses = "";
+                      let backgroundClasses = "";
+                      
+                      if (isSelected) {
+                        // Selected scenario: prominent styling
+                        borderClasses = "border-2 border-[var(--primary)]";
+                        backgroundClasses = "bg-gradient-to-br from-blue-100 to-teal-50 dark:from-blue-900/40 dark:to-teal-900/30 shadow-lg ring-2 ring-[var(--primary)]/30";
+                      } else {
+                        // Standard styling
+                        borderClasses = "border border-[var(--border)]";
+                        backgroundClasses = "bg-[var(--card)]";
+                      }
+
+                      const IconComponent = scenario.icon;
+
+                      return (
+                        <div
+                          key={scenario.id}
+                          className={`${cardClasses} ${borderClasses} ${backgroundClasses} hover:border-[var(--primary)]`}
+                          onClick={() => setSelectedScenarioId(scenario.id)}
+                          data-testid={`scenario-card-${scenario.id}`}
+                        >
+                          <div className="space-y-3">
+                            {/* Header with icon */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+                                  <IconComponent className="h-4 w-4 text-[var(--primary)]" />
+                                </div>
+                                <h5 className="font-medium text-[var(--foreground)] text-sm">
+                                  {scenario.name}
+                                </h5>
+                              </div>
+                              {isSelected && (
+                                <Badge variant="outline" className="bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20">
+                                  Selected
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
+                              {scenario.description}
+                            </p>
+                            
+                            <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+                              <Clock className="h-3 w-3" />
+                              <span>{scenario.horizon}</span>
+                            </div>
+
+                            {/* Selection indicator */}
+                            {isSelected && (
+                              <div className="pt-2 border-t border-[var(--border)]/30">
+                                <p className="text-xs font-medium text-[var(--primary)]">
+                                  🎯 Selected Scenario
                                 </p>
                               </div>
                             )}
