@@ -126,22 +126,6 @@ export default function DemoSimulation() {
   const handleConfigComplete = () => {
     // Store portfolio configuration data
     localStorage.setItem('portfolioConfig', JSON.stringify(portfolioConfig));
-    
-    // Store complete demo configuration data
-    const demoConfigData = {
-      portfolioConfig,
-      persona: {
-        id: personaId,
-        name: personaName ? decodeURIComponent(personaName) : null
-      },
-      scenarios: {
-        selected: selectedScenarioIds,
-        personaApplicable: personaScenarioIds,
-        all: allScenarios
-      }
-    };
-    localStorage.setItem('demoConfigData', JSON.stringify(demoConfigData));
-    
     setShowConfiguration(false);
   };
 
