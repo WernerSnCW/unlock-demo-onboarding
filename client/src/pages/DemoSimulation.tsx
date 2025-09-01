@@ -217,7 +217,7 @@ export default function DemoSimulation() {
                     STRESS TESTING
                   </h3>
                   
-                  <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                  <div className="space-y-4">
                     <div className="text-center mb-4">
                       <Badge className="bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)] text-white border-0 font-bold px-4 py-2">
                         {allScenarios.length} Active Scenarios
