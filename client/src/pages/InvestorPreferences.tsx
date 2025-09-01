@@ -1998,7 +1998,7 @@ export default function InvestorPreferences() {
                       onClick={resetQuestionnaire}
                       variant="outline"
                       size="lg"
-                      className="px-8 py-4"
+                      className="px-8 py-4 text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
                       data-testid="button-retake-questionnaire"
                     >
                       <RotateCcw className="mr-2 h-4 w-4" />
