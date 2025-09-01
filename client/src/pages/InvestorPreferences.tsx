@@ -2493,7 +2493,6 @@ export default function InvestorPreferences() {
                       if (selectedScenarioIds.length > 0) {
                         params.set('scenarios', selectedScenarioIds.join(','));
                       }
-                      
                       setLocation(`/demo?${params.toString()}`);
                     }}
                     size="lg"
