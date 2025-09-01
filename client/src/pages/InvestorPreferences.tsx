@@ -151,7 +151,10 @@ export default function InvestorPreferences() {
         description: "Your investment preferences have been successfully updated.",
       });
       
-      // TODO: Navigate to next step in demo flow
+      // Navigate back to demo agenda after a brief delay
+      setTimeout(() => {
+        window.location.href = '/demo/agenda';
+      }, 1500);
       
     } catch (error) {
       toast({

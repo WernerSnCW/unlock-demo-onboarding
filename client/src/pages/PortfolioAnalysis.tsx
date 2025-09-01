@@ -1020,7 +1020,7 @@ export default function PortfolioAnalysis() {
                 Back to Onboarding
               </Button>
             </Link>
-            <Link href="/demo/agenda">
+            <Link href="/investor-preferences">
               <Button className="px-8 py-4 text-lg rounded-2xl" 
                       style={{ 
                         background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
@@ -1029,7 +1029,7 @@ export default function PortfolioAnalysis() {
                         boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
                       }}>
                 <Zap className="h-5 w-5 mr-2" style={{ color: '#FFFFFF' }} />
-                <span style={{ color: '#FFFFFF' }}>Return to Demo</span>
+                <span style={{ color: '#FFFFFF' }}>Continue Onboarding</span>
               </Button>
             </Link>
           </div>
