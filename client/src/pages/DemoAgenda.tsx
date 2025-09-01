@@ -226,86 +226,86 @@ export default function DemoAgenda() {
           </div>
         </div>
 
-        {/* Expectation Setting */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="mb-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border-blue-200/50 dark:border-blue-800/30">
-            <CardContent className="p-8">
-              <div className="flex items-start gap-4">
-                <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-3">
-                  <AlertTriangle className="h-6 w-6" />
+        {/* Main Content - Revolutionary Design */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          
+          {/* Expectation Setting - Elevated Design */}
+          <div className="text-center mb-20 relative">
+            <div className="inline-block relative mb-8">
+              <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-4 mb-4">
+                <AlertTriangle className="h-8 w-8" />
+              </div>
+              <div className="absolute -inset-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] opacity-10 blur-xl rounded-full"></div>
+            </div>
+            
+            <h3 className="text-2xl md:text-3xl font-black text-[var(--foreground)] mb-4 tracking-tight">
+              DEMO OVERVIEW
+            </h3>
+            <p className="text-lg text-[var(--muted-foreground)] max-w-4xl mx-auto leading-relaxed">
+              This demo uses pre-set example portfolios to simulate how Unlock works. After the demo, you can either join the free waitlist or explore our founding investor programme.
+            </p>
+          </div>
+
+          {/* Revolutionary Card Grid */}
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-8 mb-20">
+            {[
+              {
+                icon: Target,
+                title: "The Problem",
+                subtitle: "We Solve",
+                description: "Traditional investment analysis takes weeks of manual research, fragmented tools, and disconnected data sources. Alternative assets lack transparency.",
+                gradient: "from-red-500 to-pink-400",
+                bgColor: "bg-red-50 dark:bg-red-950/20",
+                borderColor: "border-red-200 dark:border-red-800/30",
+                badge: "01"
+              },
+              {
+                icon: Users,
+                title: "Demo Walkthrough",
+                subtitle: "Tailored to You",
+                description: "Experience personalized portfolio analysis powered by AI, real-time market data, and stress testing scenarios matched to your investor profile.",
+                gradient: "from-blue-500 to-cyan-400",
+                bgColor: "bg-blue-50 dark:bg-blue-950/20",
+                borderColor: "border-blue-200 dark:border-blue-800/30",
+                badge: "02"
+              },
+              {
+                icon: ArrowRight,
+                title: "Next Steps",
+                subtitle: "Your Journey",
+                description: "Choose your path forward: Join our free waitlist for early access or explore our founding investor programme for exclusive opportunities.",
+                gradient: "from-green-500 to-emerald-400",
+                bgColor: "bg-green-50 dark:bg-green-950/20",
+                borderColor: "border-green-200 dark:border-green-800/30",
+                badge: "03"
+              }
+            ].map((feature, index) => (
+              <div key={index} className={`relative group ${feature.bgColor} ${feature.borderColor} border rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4`}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-5 rounded-2xl`}></div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-[var(--foreground)] mb-3">Demo Overview</h3>
-                  <p className="text-[var(--muted-foreground)] text-lg leading-relaxed">
-                    This demo uses pre-set example portfolios to simulate how Unlock works. After the demo, you can either join the free waitlist or explore our founding investor programme.
-                  </p>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <Badge className={`text-lg font-bold px-4 py-2 bg-gradient-to-r ${feature.gradient} text-white border-0`}>
+                      {feature.badge}
+                    </Badge>
+                    <div className={`p-4 bg-gradient-to-br ${feature.gradient} text-white rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                      <feature.icon className="h-8 w-8" />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-3xl font-black text-[var(--foreground)] mb-2 leading-tight">{feature.title}</h3>
+                  <p className="text-xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent mb-4 tracking-wide">{feature.subtitle}</p>
+                  <p className="text-[var(--muted-foreground)] leading-relaxed mb-6">{feature.description}</p>
+                  
+                  <div className="flex items-center text-[var(--primary)] font-bold group-hover:translate-x-2 transition-transform duration-300">
+                    <span className="mr-2">Explore Section</span>
+                    <ChevronRight className="h-5 w-5" />
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Session Agenda - 3 Main Items */}
-          <div className="grid gap-8 mb-16">
-            
-            {/* 1. Problem We Solve */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border-red-200/50 dark:border-red-800/30">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-6">
-                  <div className="bg-gradient-to-br from-red-500 to-pink-400 text-white rounded-full p-4 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="h-8 w-8" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Badge className="bg-red-100 text-red-700 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-600">01</Badge>
-                      <h2 className="text-2xl font-bold text-[var(--foreground)]">Problem We Solve</h2>
-                    </div>
-                    <p className="text-[var(--muted-foreground)] text-lg">
-                      Traditional investment analysis takes weeks. We deliver insights in minutes.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 2. Demo Walkthrough */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200/50 dark:border-blue-800/30">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-6">
-                  <div className="bg-gradient-to-br from-blue-500 to-cyan-400 text-white rounded-full p-4 group-hover:scale-110 transition-transform duration-300">
-                    <Users className="h-8 w-8" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600">02</Badge>
-                      <h2 className="text-2xl font-bold text-[var(--foreground)]">Demo Walkthrough Tailored to Investor Interests</h2>
-                    </div>
-                    <p className="text-[var(--muted-foreground)] text-lg">
-                      Personalized portfolio analysis using your investor profile and risk scenarios.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 3. Next Steps */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200/50 dark:border-green-800/30">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-6">
-                  <div className="bg-gradient-to-br from-green-500 to-emerald-400 text-white rounded-full p-4 group-hover:scale-110 transition-transform duration-300">
-                    <ArrowRight className="h-8 w-8" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600">03</Badge>
-                      <h2 className="text-2xl font-bold text-[var(--foreground)]">Next Steps</h2>
-                    </div>
-                    <p className="text-[var(--muted-foreground)] text-lg">
-                      Choose your path: Free waitlist or founding investor programme.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            ))}
           </div>
 
           {/* Call to Action */}
