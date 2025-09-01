@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -125,6 +126,7 @@ const geographicRegions = [
 export default function InvestorPreferences() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setLocation] = useLocation();
 
   const form = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
@@ -153,7 +155,7 @@ export default function InvestorPreferences() {
       
       // Navigate back to demo agenda after a brief delay
       setTimeout(() => {
-        window.location.href = '/demo/agenda';
+        setLocation('/demo/agenda');
       }, 1500);
       
     } catch (error) {
