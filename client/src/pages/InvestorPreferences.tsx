@@ -499,6 +499,29 @@ const economicScenarios = [
   }
 ];
 
+// Persona to Economic Scenario mapping based on risk exposure analysis
+const personaScenarioMapping: Record<string, string[]> = {
+  // Property-Heavy Personas
+  'property_lover': ['property_crash_2008', 'uk_policy_shift'],
+  'legacy_builder': ['property_crash_2008', 'uk_policy_shift'], 
+  'inheritance_receiver': ['property_crash_2008', 'uk_policy_shift'],
+  
+  // Tech & Growth Personas  
+  'wealth_accumulator': ['tech_bubble_burst', 'ai_recession'],
+  'crypto_bro': ['tech_bubble_burst', 'ai_recession'],
+  'novice_self_directed': ['tech_bubble_burst', 'ai_recession'],
+  'angel_networker': ['tech_bubble_burst', 'ai_recession'],
+  
+  // Income & Tax-Sensitive Personas
+  'old_fashioned': ['stagflation_1970s', 'uk_policy_shift'],
+  'the_saver': ['stagflation_1970s', 'uk_policy_shift'],
+  'city_professional': ['uk_policy_shift', 'ai_recession'],
+  
+  // Mixed Risk Personas
+  'retirement_planner': ['ai_recession', 'uk_policy_shift'],
+  'mr_alternative': ['tech_bubble_burst', 'uk_policy_shift']
+};
+
 // New scoring matrix from CSV data
 const scoringMatrix: Record<string, Record<string, Record<string, number>>> = {
   'Q1_Objective': {
@@ -2152,7 +2175,12 @@ export default function InvestorPreferences() {
                     {economicScenarios.map((scenario) => {
                       const isSelected = selectedScenarioId === scenario.id;
                       
-                      // Determine styling based on selection
+                      // Determine which persona is effectively selected (manual override or questionnaire result)
+                      const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
+                      const applicableScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
+                      const isApplicable = applicableScenarios.includes(scenario.id);
+                      
+                      // Determine styling based on selection and applicability
                       let cardClasses = "cursor-pointer rounded-xl border p-4 transition-all hover:shadow-lg hover:scale-[1.02] duration-300";
                       let borderClasses = "";
                       let backgroundClasses = "";
@@ -2161,6 +2189,10 @@ export default function InvestorPreferences() {
                         // Selected scenario: prominent styling
                         borderClasses = "border-2 border-[var(--primary)]";
                         backgroundClasses = "bg-gradient-to-br from-blue-100 to-teal-50 dark:from-blue-900/40 dark:to-teal-900/30 shadow-lg ring-2 ring-[var(--primary)]/30";
+                      } else if (isApplicable && effectivePersonaId) {
+                        // Applicable scenario: highlighted styling
+                        borderClasses = "border-2 border-[var(--secondary)]/60";
+                        backgroundClasses = "bg-[var(--secondary)]/5";
                       } else {
                         // Standard styling
                         borderClasses = "border border-[var(--border)]";
@@ -2187,11 +2219,15 @@ export default function InvestorPreferences() {
                                   {scenario.name}
                                 </h5>
                               </div>
-                              {isSelected && (
+                              {isSelected ? (
                                 <Badge variant="outline" className="bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20">
                                   Selected
                                 </Badge>
-                              )}
+                              ) : isApplicable && effectivePersonaId ? (
+                                <Badge variant="outline" className="bg-[var(--secondary)]/10 text-[var(--secondary)] border-[var(--secondary)]/20">
+                                  Applicable
+                                </Badge>
+                              ) : null}
                             </div>
                             
                             <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
@@ -2204,10 +2240,10 @@ export default function InvestorPreferences() {
                             </div>
 
                             {/* Selection indicator */}
-                            {isSelected && (
+                            {(isSelected || (isApplicable && effectivePersonaId)) && (
                               <div className="pt-2 border-t border-[var(--border)]/30">
                                 <p className="text-xs font-medium text-[var(--primary)]">
-                                  🎯 Selected Scenario
+                                  {isSelected ? '🎯 Selected Scenario' : '⚠️ High Risk for Your Profile'}
                                 </p>
                               </div>
                             )}

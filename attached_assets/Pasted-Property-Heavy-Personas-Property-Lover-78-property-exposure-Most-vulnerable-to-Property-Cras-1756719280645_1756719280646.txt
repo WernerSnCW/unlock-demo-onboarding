@@ -1,0 +1,56 @@
+Property-Heavy Personas
+Property Lover (78% property exposure)
+
+Most vulnerable to: Property Crash 2008-Style, UK Tax Regime Shift
+Risk: Massive property concentration + rental income dependency
+Legacy Builder (52% property exposure)
+
+Most vulnerable to: Property Crash 2008-Style, UK Tax Regime Shift
+Risk: Property concentration + high net worth tax exposure
+Financial Advisor (47% property exposure)
+
+Most vulnerable to: Property Crash 2008-Style, UK Tax Regime Shift
+Risk: Property concentration + complex structures
+Tech & Growth Personas
+Tech Worker (73% global tech + 15% crypto)
+
+Most vulnerable to: Tech Bubble Burst, AI-Driven Recession
+Risk: Tech sector concentration + company stock options
+Crypto Enthusiast (51% crypto + 19% tech)
+
+Most vulnerable to: Tech Bubble Burst, AI-Driven Recession
+Risk: Crypto volatility + tech correlation
+Young Professional (78% global equity/crypto)
+
+Most vulnerable to: Tech Bubble Burst, AI-Driven Recession
+Risk: Growth stock concentration + limited diversification
+Global Nomad (64% global exposure)
+
+Most vulnerable to: AI-Driven Recession, Tech Bubble Burst
+Risk: Global correlation + currency exposure
+Income & Tax-Sensitive Personas
+Dividend Seeker (59% UK dividend stocks)
+
+Most vulnerable to: UK Tax Regime Shift, AI-Driven Recession
+Risk: Dividend cuts + UK market concentration
+Old Fashioned Saver (61% cash/bonds)
+
+Most vulnerable to: Stagflation 1970s-Style, UK Tax Regime Shift
+Risk: Inflation erosion + interest rate risk
+Pension Maximiser (complex pension structures)
+
+Most vulnerable to: UK Tax Regime Shift, Property Crash 2008-Style
+Risk: Pension policy changes + SSAS property exposure
+Mixed Risk Personas
+Business Owner (27% private equity + 33% commercial property)
+
+Most vulnerable to: Tech Bubble Burst, UK Tax Regime Shift
+Risk: Business cycle exposure + illiquid investments
+Retirement Planner (85% balanced portfolio)
+
+Most vulnerable to: AI-Driven Recession, UK Tax Regime Shift
+Risk: Moderate diversification + pension dependency
+Balanced Property Investor (32% property + 31% global + 8% crypto)
+
+Most vulnerable to: Property Crash 2008-Style, Tech Bubble Burst
+Risk: Property concentration + crypto volatility + insufficient defensive assets
