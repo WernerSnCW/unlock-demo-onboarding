@@ -348,7 +348,7 @@ export default function DemoSimulation() {
       )}
 
       {/* Combined Portfolio & Simulation Configuration */}
-      {(!showConfiguration && totalValue > 0) || (personaName || allScenarios.length > 0) ? (
+      {((!showConfiguration && (portfolioConfig.stocks || portfolioConfig.bonds || portfolioConfig.alternatives || portfolioConfig.property || portfolioConfig.cash)) || (personaName || allScenarios.length > 0)) ? (
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black text-[var(--foreground)] mb-6">
@@ -364,7 +364,7 @@ export default function DemoSimulation() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Side - Portfolio Configuration */}
-            {!showConfiguration && (portfolioConfig.stocks || portfolioConfig.bonds || portfolioConfig.alternatives || portfolioConfig.property || portfolioConfig.cash) && (
+            {(portfolioConfig.stocks || portfolioConfig.bonds || portfolioConfig.alternatives || portfolioConfig.property || portfolioConfig.cash) && (
               <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
                 <CardContent className="p-8">
