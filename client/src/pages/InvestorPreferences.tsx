@@ -911,8 +911,8 @@ export default function InvestorPreferences() {
   // Selected persona state for user override
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   
-  // Selected economic scenario state
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+  // Selected economic scenarios state (multiple selection allowed)
+  const [selectedScenarioIds, setSelectedScenarioIds] = useState<string[]>([]);
 
   // Convert questionnaire answers to form data for persona classification
   const convertQuestionnaireToFormData = (answers: QuestionnaireAnswer[]): PreferencesFormData => {
@@ -2197,7 +2197,7 @@ export default function InvestorPreferences() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {economicScenarios.map((scenario) => {
-                      const isSelected = selectedScenarioId === scenario.id;
+                      const isSelected = selectedScenarioIds.includes(scenario.id);
                       
                       // Determine which persona is effectively selected (manual override or questionnaire result)
                       const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
@@ -2229,7 +2229,13 @@ export default function InvestorPreferences() {
                         <div
                           key={scenario.id}
                           className={`${cardClasses} ${borderClasses} ${backgroundClasses} hover:border-[var(--primary)]`}
-                          onClick={() => setSelectedScenarioId(scenario.id)}
+                          onClick={() => {
+                            setSelectedScenarioIds(prev => 
+                              prev.includes(scenario.id) 
+                                ? prev.filter(id => id !== scenario.id)  // Remove if already selected
+                                : [...prev, scenario.id]                 // Add if not selected
+                            )
+                          }}
                           data-testid={`scenario-card-${scenario.id}`}
                         >
                           <div className="space-y-3">
@@ -2244,7 +2250,7 @@ export default function InvestorPreferences() {
                                 </h5>
                               </div>
                               {isSelected ? (
-                                <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600">
+                                <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 font-semibold">
                                   Selected
                                 </Badge>
                               ) : isApplicable && effectivePersonaId ? (
