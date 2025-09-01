@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -913,6 +914,9 @@ export default function InvestorPreferences() {
   
   // Selected economic scenarios state (multiple selection allowed)
   const [selectedScenarioIds, setSelectedScenarioIds] = useState<string[]>([]);
+
+  // Persona details modal state
+  const [selectedPersonaForDetails, setSelectedPersonaForDetails] = useState<typeof investorPersonas[0] | null>(null);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -2164,9 +2168,19 @@ export default function InvestorPreferences() {
                               </span>
                             </div>
 
-                            {/* Match indicator for scored personas or selected */}
-                            {(hasScore || isSelected) && (
-                              <div className="pt-2 border-t border-[var(--border)]/30">
+                            {/* View Details and Match indicator */}
+                            <div className="pt-2 border-t border-[var(--border)]/30 space-y-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPersonaForDetails(persona);
+                                }}
+                                className="text-xs text-[var(--primary)] hover:text-[var(--primary)]/80 font-medium underline"
+                              >
+                                View Details →
+                              </button>
+                              
+                              {(hasScore || isSelected) && (
                                 <p className={`text-xs font-medium ${
                                   isSelected && isPrimaryMatch ? 'text-purple-700 dark:text-purple-300' :
                                   isSelected ? 'text-blue-700 dark:text-blue-300' : 
@@ -2178,8 +2192,8 @@ export default function InvestorPreferences() {
                                    isPrimaryMatch ? '✨ Your Primary Match' : 
                                    '📊 Relevant Profile'}
                                 </p>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
@@ -2481,6 +2495,138 @@ export default function InvestorPreferences() {
         </div>
       </main>
       <Footer />
+      
+      {/* Persona Details Modal */}
+      <Dialog open={selectedPersonaForDetails !== null} onOpenChange={() => setSelectedPersonaForDetails(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {selectedPersonaForDetails && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-[var(--foreground)] flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  {selectedPersonaForDetails.name}
+                </DialogTitle>
+                <DialogDescription className="text-[var(--muted-foreground)] leading-relaxed">
+                  {selectedPersonaForDetails.description}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6 mt-6">
+                {/* Investment Objectives */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <Target className="h-4 w-4 text-[var(--primary)]" />
+                    Investment Objectives
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPersonaForDetails.criteria.investorObjective.map((obj) => (
+                      <Badge key={obj} variant="secondary" className="capitalize">
+                        {obj.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Risk Profile */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-[var(--primary)]" />
+                    Risk Profile
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPersonaForDetails.criteria.riskProfile.map((risk) => (
+                      <Badge key={risk} variant="secondary" className="capitalize">
+                        {risk}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Investment Preferences */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
+                    Investment Interests
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {selectedPersonaForDetails.criteria.activeInvestmentInterests.map((interest) => (
+                      <Badge key={interest} variant="outline" className="text-xs">
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Learning Areas */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-[var(--primary)]" />
+                    Areas of Learning Interest
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {selectedPersonaForDetails.criteria.learningCuriosityAreas.map((area) => (
+                      <Badge key={area} variant="outline" className="text-xs">
+                        {area}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Geographic Preferences */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-[var(--primary)]" />
+                    Geographic Preferences
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPersonaForDetails.criteria.geographicPreferences.map((geo) => (
+                      <Badge key={geo} variant="secondary">
+                        {geo}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Characteristics */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                    <Settings className="h-4 w-4 text-[var(--primary)]" />
+                    Investment Characteristics
+                  </h4>
+                  <div className="bg-[var(--muted)]/30 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[var(--muted-foreground)]">Risk Capacity Range:</span>
+                      <span className="font-medium text-[var(--foreground)]">
+                        {selectedPersonaForDetails.criteria.riskCapacity.join('-')}/10
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[var(--muted-foreground)]">Management Style:</span>
+                      <span className="font-medium text-[var(--foreground)] capitalize">
+                        {selectedPersonaForDetails.criteria.managementStyle.join(', ').replace('_', ' ')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[var(--muted-foreground)]">Investment Horizon:</span>
+                      <span className="font-medium text-[var(--foreground)] capitalize">
+                        {selectedPersonaForDetails.criteria.investmentHorizon.join(', ').replace('_', ' ')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[var(--muted-foreground)]">Liquidity Preference:</span>
+                      <span className="font-medium text-[var(--foreground)] capitalize">
+                        {selectedPersonaForDetails.criteria.liquidityPreference.join(', ').replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
