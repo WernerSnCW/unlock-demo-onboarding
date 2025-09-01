@@ -358,15 +358,22 @@ export default function PortfolioAnalysis() {
   };
 
   const loadDemoCSV = () => {
-    // Create demo CSV data in the expected format
+    // Create proper demo portfolio data (matching the corrected format)
     const demoCSVData = [
-      { Category: 'Equities', 'Account/Provider': 'Interactive Brokers', Holding: 'Apple Inc', Value_GBP: '25000' },
-      { Category: 'Equities', 'Account/Provider': 'Interactive Brokers', Holding: 'Microsoft Corp', Value_GBP: '18000' },
-      { Category: 'Equities', 'Account/Provider': 'Interactive Brokers', Holding: 'NVIDIA Corp', Value_GBP: '15000' },
-      { Category: 'Equities', 'Account/Provider': 'Hargreaves Lansdown', Holding: 'Vanguard FTSE 100', Value_GBP: '12000' },
-      { Category: 'Bonds', 'Account/Provider': 'Hargreaves Lansdown', Holding: 'UK Government Gilts', Value_GBP: '8000' },
-      { Category: 'Crypto', 'Account/Provider': 'Coinbase', Holding: 'Bitcoin', Value_GBP: '5000' },
-      { Category: 'ETF', 'Account/Provider': 'Interactive Brokers', Holding: 'S&P 500 ETF', Value_GBP: '22000' }
+      { Category: 'Brokerage', 'Account/Provider': 'Interactive Investor', Holding: 'N/A', Ticker: 'N/A', Value_GBP: '400000', Classification: 'Traditional' },
+      { Category: 'Private', 'Account/Provider': 'Self-managed', Holding: 'N/A', Ticker: 'N/A', Value_GBP: '200000', Classification: 'Traditional' },
+      { Category: 'ISA', 'Account/Provider': 'Fidelity ISA', Holding: 'N/A', Ticker: 'N/A', Value_GBP: '100000', Classification: 'Traditional' },
+      { Category: 'Cash', 'Account/Provider': 'Cash Reserve', Holding: 'GBP', Ticker: 'GBP', Value_GBP: '100000', Classification: 'Traditional' },
+      { Category: 'Holding', 'Account/Provider': 'Brokerage/ISA', Holding: 'NVIDIA', Ticker: 'NVDA', Value_GBP: '150000', Classification: 'Traditional' },
+      { Category: 'Holding', 'Account/Provider': 'Brokerage/ISA', Holding: 'Tesla', Ticker: 'TSLA', Value_GBP: '150000', Classification: 'Traditional' },
+      { Category: 'Holding', 'Account/Provider': 'Crypto Wallet', Holding: 'Bitcoin', Ticker: 'BTC-USD', Value_GBP: '75000', Classification: 'Alternative' },
+      { Category: 'Holding', 'Account/Provider': 'Crypto Wallet', Holding: 'Ethereum', Ticker: 'ETH-USD', Value_GBP: '75000', Classification: 'Alternative' },
+      { Category: 'Holding', 'Account/Provider': 'Brokerage/ISA', Holding: 'iShares MSCI Emerging Markets ETF', Ticker: 'EEM', Value_GBP: '150000', Classification: 'Traditional' },
+      { Category: 'Holding', 'Account/Provider': 'Private Equity', Holding: 'NeuralNet Inc (Angel)', Ticker: 'N/A', Value_GBP: '150000', Classification: 'Alternative' },
+      { Category: 'Holding', 'Account/Provider': 'Venture Capital', Holding: 'VC SeedInvest Ventures', Ticker: 'N/A', Value_GBP: '150000', Classification: 'Alternative' },
+      { Category: 'Holding', 'Account/Provider': 'EIS', Holding: 'CogniTech', Ticker: 'N/A', Value_GBP: '100000', Classification: 'Alternative' },
+      { Category: 'Holding', 'Account/Provider': 'Crypto Wallet', Holding: 'Altcoins', Ticker: 'N/A', Value_GBP: '100000', Classification: 'Alternative' },
+      { Category: 'Holding', 'Account/Provider': 'Fund', Holding: 'Bridgewater Pure Alpha Fund', Ticker: 'N/A', Value_GBP: '50000', Classification: 'Property' }
     ];
 
     const demoUploadData = {
