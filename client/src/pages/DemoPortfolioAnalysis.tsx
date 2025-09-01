@@ -217,7 +217,7 @@ export default function DemoPortfolioAnalysis() {
       {/* Main Analysis Tabs */}
       <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-2 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
             <TabsTrigger 
               value="overview" 
               className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-3"
@@ -235,6 +235,34 @@ export default function DemoPortfolioAnalysis() {
                 <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
                 <span className="font-semibold">Refine Your Analysis</span>
               </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="performance" 
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
+              <TrendingUp className="h-4 w-4" />
+              Performance
+            </TabsTrigger>
+            <TabsTrigger 
+              value="risk" 
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              Risk Analysis
+            </TabsTrigger>
+            <TabsTrigger 
+              value="stress" 
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
+              <Zap className="h-4 w-4" />
+              Stress Testing
+            </TabsTrigger>
+            <TabsTrigger 
+              value="insights" 
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
+              <Sparkles className="h-4 w-4" />
+              AI Insights
             </TabsTrigger>
           </TabsList>
 
