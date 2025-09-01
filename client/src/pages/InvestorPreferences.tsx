@@ -2186,13 +2186,13 @@ export default function InvestorPreferences() {
                       let backgroundClasses = "";
                       
                       if (isSelected) {
-                        // Selected scenario: prominent styling
+                        // Selected scenario: strong blue styling
                         borderClasses = "border-2 border-[var(--primary)]";
-                        backgroundClasses = "bg-gradient-to-br from-blue-100 to-teal-50 dark:from-blue-900/40 dark:to-teal-900/30 shadow-lg ring-2 ring-[var(--primary)]/30";
+                        backgroundClasses = "bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/40 shadow-lg ring-2 ring-[var(--primary)]/40";
                       } else if (isApplicable && effectivePersonaId) {
-                        // Applicable scenario: highlighted styling
-                        borderClasses = "border-2 border-[var(--secondary)]/60";
-                        backgroundClasses = "bg-[var(--secondary)]/5";
+                        // Applicable scenario: prominent warning styling with orange/amber background
+                        borderClasses = "border-2 border-orange-400 dark:border-orange-500";
+                        backgroundClasses = "bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 shadow-md ring-2 ring-orange-400/30 dark:ring-orange-500/30";
                       } else {
                         // Standard styling
                         borderClasses = "border border-[var(--border)]";
@@ -2220,12 +2220,12 @@ export default function InvestorPreferences() {
                                 </h5>
                               </div>
                               {isSelected ? (
-                                <Badge variant="outline" className="bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20">
+                                <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600">
                                   Selected
                                 </Badge>
                               ) : isApplicable && effectivePersonaId ? (
-                                <Badge variant="outline" className="bg-[var(--secondary)]/10 text-[var(--secondary)] border-[var(--secondary)]/20">
-                                  Applicable
+                                <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-600 font-semibold">
+                                  High Risk
                                 </Badge>
                               ) : null}
                             </div>
@@ -2242,7 +2242,7 @@ export default function InvestorPreferences() {
                             {/* Selection indicator */}
                             {(isSelected || (isApplicable && effectivePersonaId)) && (
                               <div className="pt-2 border-t border-[var(--border)]/30">
-                                <p className="text-xs font-medium text-[var(--primary)]">
+                                <p className={`text-xs font-medium ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-orange-700 dark:text-orange-300'}`}>
                                   {isSelected ? '🎯 Selected Scenario' : '⚠️ High Risk for Your Profile'}
                                 </p>
                               </div>
