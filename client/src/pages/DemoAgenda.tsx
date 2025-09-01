@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, AlertTriangle, ArrowLeft, Play, Target, TrendingUp, BarChart3, CheckCircle, Brain, Rocket, Shield, Zap, Sparkles, Eye } from 'lucide-react';
+import { User, AlertTriangle, Play, Target, TrendingUp, BarChart3, CheckCircle, Brain, Shield, Zap } from 'lucide-react';
 
 // Economic scenarios data
 const economicScenarios = [
@@ -67,85 +67,10 @@ export default function DemoAgenda() {
   const hasConfiguration = personaName || allScenarios.length > 0;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-32 left-16 w-40 h-40 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-2xl animate-pulse"></div>
-        <div className="absolute top-64 right-24 w-32 h-32 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
-        <div className="absolute bottom-48 left-24 w-28 h-28 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2.5s'}}></div>
-      </div>
-
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
       
-      {/* Navigation Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 relative z-10">
-        <div className="max-w-6xl mx-auto flex items-center gap-4">
-          <Link 
-            href="/investor-preferences"
-            className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-[#5193B3] dark:hover:text-[#62C4C3] transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Preferences
-          </Link>
-          <div className="text-gray-300 dark:text-gray-600">•</div>
-          <span className="text-gray-800 dark:text-gray-200 font-medium">Demo Simulation</span>
-        </div>
-      </div>
-
-      <main className="flex-1 relative z-10">
-        {/* Hero Section with Advanced Visual Design */}
-        <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
-          {/* Dynamic Background Mesh */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
-          </div>
-          
-          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-            {/* Floating Icon with Glow Effect */}
-            <div className="flex items-center justify-center mb-8 relative">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
-                  <Play className="h-12 w-12" />
-                </div>
-                <div className="absolute -top-2 -right-2 animate-bounce">
-                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
-                </div>
-              </div>
-            </div>
-
-            {/* Revolutionary Typography */}
-            <h1 className="relative mb-8">
-              <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Investment Intelligence</span>
-              <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
-                UNLEASHED
-              </span>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
-              Witness the paradigm shift that transforms weeks of manual analysis into 
-              <span className="text-[var(--primary)] font-semibold"> minutes of AI-powered insights</span>
-            </p>
-
-            {/* Status Badge with Animation */}
-            <div className="inline-flex items-center px-8 py-4 bg-[var(--card)] border-2 border-[var(--primary)] rounded-full shadow-2xl hover:shadow-[var(--primary)]/20 transition-all duration-300 group">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Shield className="h-6 w-6 text-[var(--success)]" />
-                  <div className="absolute inset-0 animate-ping">
-                    <Shield className="h-6 w-6 text-[var(--success)] opacity-30" />
-                  </div>
-                </div>
-                <span className="text-[var(--foreground)] font-semibold text-lg">LIVE DEMONSTRATION</span>
-                <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
-                <span className="text-[var(--muted-foreground)] font-medium">30-45 minutes</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
           {/* Configuration Display */}
