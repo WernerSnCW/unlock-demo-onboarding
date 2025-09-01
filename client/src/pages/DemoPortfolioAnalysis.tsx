@@ -19,10 +19,6 @@ interface InvestorData {
     name: string;
     description: string;
   };
-  scenarios?: Array<{
-    name: string;
-    description: string;
-  }>;
   portfolioData?: any;
   portfolioConfig?: any;
 }
@@ -35,7 +31,6 @@ export default function DemoPortfolioAnalysis() {
     // Load investor data from localStorage
     const storedPersona = localStorage.getItem('questionnairePersonaResult');
     const storedScenario = localStorage.getItem('selectedScenario');
-    const storedScenarios = localStorage.getItem('selectedScenarios');
     const storedPortfolio = localStorage.getItem('uploadedPortfolioData');
     const storedConfig = localStorage.getItem('portfolioConfig');
 
@@ -43,7 +38,7 @@ export default function DemoPortfolioAnalysis() {
 
     console.log('Loading demo data from localStorage:', {
       persona: storedPersona ? 'Found' : 'Missing',
-      scenarios: storedScenarios ? 'Found' : 'Missing', 
+      scenario: storedScenario ? 'Found' : 'Missing', 
       portfolio: storedPortfolio ? 'Found' : 'Missing',
       config: storedConfig ? 'Found' : 'Missing'
     });
@@ -59,10 +54,10 @@ export default function DemoPortfolioAnalysis() {
       }
     }
 
-    if (storedScenarios) {
+    if (storedScenario) {
       try {
-        data.scenarios = JSON.parse(storedScenarios);
-        console.log('Loaded scenarios:', Array.isArray(data.scenarios) ? `${data.scenarios.length} scenarios` : 'Single scenario');
+        data.scenario = JSON.parse(storedScenario);
+        console.log('Loaded scenario:', data.scenario?.name);
       } catch (e) {
         console.error('Failed to parse scenario data:', e);
       }
@@ -90,22 +85,15 @@ export default function DemoPortfolioAnalysis() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-32 left-16 w-40 h-40 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-2xl animate-pulse"></div>
-        <div className="absolute top-64 right-24 w-32 h-32 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
-        <div className="absolute bottom-48 left-24 w-28 h-28 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2.5s'}}></div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-[var(--background)] via-[var(--accent)]/5 to-[var(--secondary)]/10">
       <Header />
       
       {/* Hero Section */}
-      <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
-        {/* Dynamic Background Mesh */}
+      <div className="relative overflow-hidden">
+        {/* Animated Background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
-          <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/10 via-[var(--secondary)]/10 to-[var(--accent)]/10 animate-gradient-x"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-[var(--background)]/95"></div>
         </div>
         
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
@@ -163,7 +151,7 @@ export default function DemoPortfolioAnalysis() {
       </div>
 
       {/* Main Analysis Tabs */}
-      <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-5 bg-[var(--card)] border border-[var(--border)] p-1 rounded-xl">
             <TabsTrigger 
@@ -250,29 +238,25 @@ export default function DemoPortfolioAnalysis() {
                 </Card>
               )}
 
-              {(investorData.scenarios && investorData.scenarios.length > 0) ? (
+              {investorData.scenario ? (
                 <Card className="border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                       <Target className="h-5 w-5 text-[var(--secondary)]" />
-                      Stress Test Scenarios
+                      Stress Test Scenario
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {investorData.scenarios.map((scenario, index) => (
-                        <div key={index} className={`${index > 0 ? 'pt-4 border-t border-[var(--border)]' : ''}`}>
-                          <h3 className="text-xl font-bold text-[var(--secondary)]">
-                            {scenario.name}
-                          </h3>
-                          <p className="text-[var(--muted-foreground)] leading-relaxed mt-2">
-                            {scenario.description}
-                          </p>
-                        </div>
-                      ))}
+                      <h3 className="text-2xl font-bold text-[var(--secondary)]">
+                        {investorData.scenario.name}
+                      </h3>
+                      <p className="text-[var(--muted-foreground)] leading-relaxed">
+                        {investorData.scenario.description}
+                      </p>
                       <div className="flex items-center gap-2 text-sm text-[var(--secondary)]">
                         <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
-                        <span>{investorData.scenarios.length} scenario{investorData.scenarios.length > 1 ? 's' : ''} modeling active</span>
+                        <span>Scenario modeling active</span>
                       </div>
                     </div>
                   </CardContent>
@@ -491,9 +475,9 @@ export default function DemoPortfolioAnalysis() {
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-[var(--accent)]" />
                   Economic Scenario Testing
-                  {investorData.scenarios && investorData.scenarios.length > 0 && (
+                  {investorData.scenario && (
                     <Badge variant="secondary" className="ml-2">
-                      {investorData.scenarios.length} Active Scenario{investorData.scenarios.length > 1 ? 's' : ''}
+                      {investorData.scenario.name}
                     </Badge>
                   )}
                 </CardTitle>
@@ -503,19 +487,15 @@ export default function DemoPortfolioAnalysis() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {investorData.scenarios && investorData.scenarios.length > 0 && (
-                    <div className="space-y-3">
-                      {investorData.scenarios.map((scenario, index) => (
-                        <div key={index} className="p-4 bg-[var(--accent)]/10 rounded-lg border border-[var(--accent)]/20">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Target className="h-4 w-4 text-[var(--accent)]" />
-                            <span className="font-semibold">Active Scenario: {scenario.name}</span>
-                          </div>
-                          <p className="text-sm text-[var(--muted-foreground)]">
-                            {scenario.description}
-                          </p>
-                        </div>
-                      ))}
+                  {investorData.scenario && (
+                    <div className="p-4 bg-[var(--accent)]/10 rounded-lg border border-[var(--accent)]/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="h-4 w-4 text-[var(--accent)]" />
+                        <span className="font-semibold">Active Scenario: {investorData.scenario.name}</span>
+                      </div>
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        {investorData.scenario.description}
+                      </p>
                     </div>
                   )}
                   
