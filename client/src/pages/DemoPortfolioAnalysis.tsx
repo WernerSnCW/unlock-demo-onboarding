@@ -65,6 +65,7 @@ const economicScenarios = [
 export default function DemoPortfolioAnalysis() {
   const [investorData, setInvestorData] = useState<InvestorData>({});
   const [activeTab, setActiveTab] = useState("overview");
+  const [personaScenarios, setPersonaScenarios] = useState<any[]>([]);
 
   useEffect(() => {
     // Load investor data from localStorage
@@ -72,6 +73,11 @@ export default function DemoPortfolioAnalysis() {
     const storedScenario = localStorage.getItem('selectedScenario');
     const storedPortfolio = localStorage.getItem('uploadedPortfolioData');
     const storedConfig = localStorage.getItem('portfolioConfig');
+    
+    // Get persona scenarios from URL parameters (as passed from demo simulation)
+    const urlParams = new URLSearchParams(window.location.search);
+    const personaScenarioIds = urlParams.get('personaScenarios')?.split(',').filter(Boolean) || [];
+    const allScenarioIds = urlParams.get('scenarios')?.split(',').filter(Boolean) || [];
 
     const data: InvestorData = {};
 
@@ -82,8 +88,16 @@ export default function DemoPortfolioAnalysis() {
       config: storedConfig ? 'Found' : 'Missing'
     });
 
-    console.log('Available scenarios in DemoPortfolioAnalysis:', economicScenarios.map(s => s.name));
-    console.log('Active scenario from localStorage:', data.scenario?.name);
+    console.log('URL scenario IDs:', { personaScenarioIds, allScenarioIds });
+
+    // Filter scenarios to show only the ones relevant to this persona
+    const relevantScenarioIds = allScenarioIds.length > 0 ? allScenarioIds : personaScenarioIds;
+    const filteredScenarios = economicScenarios.filter(scenario => 
+      relevantScenarioIds.includes(scenario.id)
+    );
+    
+    console.log('Filtered scenarios for this persona:', filteredScenarios.map(s => s.name));
+    setPersonaScenarios(filteredScenarios);
 
     if (storedPersona) {
       try {
@@ -561,14 +575,14 @@ export default function DemoPortfolioAnalysis() {
                         All Economic Scenarios
                       </h3>
                       <Badge variant="outline" className="bg-[var(--muted)] text-[var(--foreground)]">
-                        {economicScenarios.length} Total Scenarios
+                        {personaScenarios.length} Active Scenarios
                       </Badge>
                     </div>
                     <div className="grid gap-3 max-h-none overflow-visible">
-                      {economicScenarios.map((scenario, index) => {
+                      {personaScenarios.map((scenario, index) => {
                         const isActive = investorData.scenario?.name === scenario.name;
                         const IconComponent = scenario.icon;
-                        console.log(`Rendering scenario ${index + 1}:`, scenario.name, 'Active:', isActive);
+                        console.log(`Rendering persona scenario ${index + 1}:`, scenario.name, 'Active:', isActive);
                         
                         return (
                           <div
