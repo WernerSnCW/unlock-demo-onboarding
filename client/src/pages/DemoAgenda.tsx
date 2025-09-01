@@ -279,33 +279,51 @@ export default function DemoAgenda() {
                 borderColor: "border-green-200 dark:border-green-800/30",
                 badge: "03"
               }
-            ].map((feature, index) => (
-              <div key={index} className={`relative group ${feature.bgColor} ${feature.borderColor} border rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4`}>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-5 rounded-2xl`}></div>
-                </div>
-                
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-6">
-                    <Badge className={`text-lg font-bold px-4 py-2 bg-gradient-to-r ${feature.gradient} text-white border-0`}>
-                      {feature.badge}
-                    </Badge>
-                    <div className={`p-4 bg-gradient-to-br ${feature.gradient} text-white rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                      <feature.icon className="h-8 w-8" />
+            ].map((feature, index) => {
+              // Determine the correct link for each card
+              const getLink = () => {
+                if (feature.badge === "01") return "/advice-gap"; // Problem We Solve -> Advice Gap
+                if (feature.badge === "02") return "/investor-onboarding"; // Demo Walkthrough -> Start Onboarding
+                return "#"; // Next Steps stays on same page
+              };
+              
+              const CardContent = () => (
+                <div className={`relative group ${feature.bgColor} ${feature.borderColor} border rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 ${feature.badge !== "03" ? "cursor-pointer" : ""}`}>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-5 rounded-2xl`}></div>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-6">
+                      <Badge className={`text-lg font-bold px-4 py-2 bg-gradient-to-r ${feature.gradient} text-white border-0`}>
+                        {feature.badge}
+                      </Badge>
+                      <div className={`p-4 bg-gradient-to-br ${feature.gradient} text-white rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                        <feature.icon className="h-8 w-8" />
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-3xl font-black text-[var(--foreground)] mb-2 leading-tight">{feature.title}</h3>
+                    <p className="text-xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent mb-4 tracking-wide">{feature.subtitle}</p>
+                    <p className="text-[var(--muted-foreground)] leading-relaxed mb-6">{feature.description}</p>
+                    
+                    <div className="flex items-center text-[var(--primary)] font-bold group-hover:translate-x-2 transition-transform duration-300">
+                      <span className="mr-2">{feature.badge === "03" ? "View Options" : "Explore Section"}</span>
+                      <ChevronRight className="h-5 w-5" />
                     </div>
                   </div>
-                  
-                  <h3 className="text-3xl font-black text-[var(--foreground)] mb-2 leading-tight">{feature.title}</h3>
-                  <p className="text-xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent mb-4 tracking-wide">{feature.subtitle}</p>
-                  <p className="text-[var(--muted-foreground)] leading-relaxed mb-6">{feature.description}</p>
-                  
-                  <div className="flex items-center text-[var(--primary)] font-bold group-hover:translate-x-2 transition-transform duration-300">
-                    <span className="mr-2">Explore Section</span>
-                    <ChevronRight className="h-5 w-5" />
-                  </div>
                 </div>
-              </div>
-            ))}
+              );
+              
+              // Wrap in Link for cards 01 and 02, return plain div for card 03
+              return feature.badge === "03" ? (
+                <div key={index}><CardContent /></div>
+              ) : (
+                <Link key={index} href={getLink()}>
+                  <CardContent />
+                </Link>
+              );
+            })}
           </div>
 
           {/* Call to Action */}
@@ -326,7 +344,7 @@ export default function DemoAgenda() {
                   READY TO BEGIN?
                 </h3>
                 
-                <Link href="/portfolio-analysis" className="group">
+                <Link href="/investor-onboarding" className="group">
                   <div className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105">
                     <div className="flex items-center gap-3">
                       <Play className="h-6 w-6" />
