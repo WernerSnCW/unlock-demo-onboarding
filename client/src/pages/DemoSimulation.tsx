@@ -76,6 +76,59 @@ export default function DemoSimulation() {
 
       <Header />
       
+      <main className="flex-1 relative z-10">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
+          {/* Dynamic Background Mesh */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
+          </div>
+          
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+            {/* Floating Icon with Glow Effect */}
+            <div className="flex items-center justify-center mb-8 relative">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
+                  <Play className="h-12 w-12" />
+                </div>
+                <div className="absolute -top-2 -right-2 animate-bounce">
+                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
+                </div>
+              </div>
+            </div>
+
+            {/* Revolutionary Typography */}
+            <h1 className="relative mb-8">
+              <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Live Demo</span>
+              <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
+                SIMULATION
+              </span>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
+              Experience how
+              <span className="text-[var(--primary)] font-semibold"> Unlock transforms investment analysis</span>
+            </p>
+
+            {/* Status Badge with Animation */}
+            <div className="inline-flex items-center px-8 py-4 bg-[var(--card)] border-2 border-[var(--success)] rounded-full shadow-2xl hover:shadow-[var(--success)]/20 transition-all duration-300 group">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Shield className="h-6 w-6 text-[var(--success)]" />
+                  <div className="absolute inset-0 animate-ping">
+                    <Shield className="h-6 w-6 text-[var(--success)] opacity-30" />
+                  </div>
+                </div>
+                <span className="text-[var(--foreground)] font-semibold text-lg">SIMULATION ACTIVE</span>
+                <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       {/* Configuration Display */}
       {(personaName || allScenarios.length > 0) && (
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -93,7 +146,7 @@ export default function DemoSimulation() {
                   </div>
                 </div>
                 <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">
-                  Live Demo Simulation
+                  Simulation Configuration
                 </h2>
                 <p className="text-[var(--muted-foreground)]">
                   Running personalized portfolio analysis with your investor profile and risk scenarios
@@ -187,75 +240,12 @@ export default function DemoSimulation() {
           </Card>
         </div>
       )}
-      
-      <main className="flex-1 relative z-10">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
-          {/* Dynamic Background Mesh */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
-          </div>
-          
-          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-            {/* Floating Icon with Glow Effect */}
-            <div className="flex items-center justify-center mb-8 relative">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
-                  <Play className="h-12 w-12" />
-                </div>
-                <div className="absolute -top-2 -right-2 animate-bounce">
-                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
-                </div>
-              </div>
-            </div>
-
-            {/* Revolutionary Typography */}
-            <h1 className="relative mb-8">
-              <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Live Demo</span>
-              <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
-                SIMULATION
-              </span>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
-              Experience how
-              <span className="text-[var(--primary)] font-semibold"> Unlock transforms investment analysis</span>
-            </p>
-
-            {/* Status Badge with Animation */}
-            <div className="inline-flex items-center px-8 py-4 bg-[var(--card)] border-2 border-[var(--success)] rounded-full shadow-2xl hover:shadow-[var(--success)]/20 transition-all duration-300 group">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Shield className="h-6 w-6 text-[var(--success)]" />
-                  <div className="absolute inset-0 animate-ping">
-                    <Shield className="h-6 w-6 text-[var(--success)] opacity-30" />
-                  </div>
-                </div>
-                <span className="text-[var(--foreground)] font-semibold text-lg">SIMULATION ACTIVE</span>
-                <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Main Demo Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           
           {/* Demo Instructions */}
           <div className="text-center mb-20 relative">
-            <div className="inline-block relative mb-8">
-              <h2 className="text-5xl md:text-6xl font-black text-[var(--foreground)] tracking-tight">
-                PORTFOLIO
-                <span className="block text-3xl md:text-4xl bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent font-light tracking-widest">
-                  ANALYSIS
-                </span>
-              </h2>
-              <div className="absolute -inset-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] opacity-10 blur-xl rounded-full"></div>
-            </div>
-            
             <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed mb-8">
               Your uploaded portfolio data has been processed and is ready for live analysis with real market data and AI-powered insights.
             </p>
