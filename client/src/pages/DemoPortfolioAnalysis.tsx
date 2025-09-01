@@ -301,26 +301,70 @@ export default function DemoPortfolioAnalysis() {
                 </Card>
               )}
 
-              {investorData.scenario ? (
+              {personaScenarios.length > 0 ? (
                 <Card className="relative border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden group hover:shadow-[var(--secondary)]/20 transition-all duration-500">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                       <Target className="h-5 w-5 text-[var(--secondary)]" />
-                      Stress Test Scenario
+                      Stress Testing
+                      <Badge variant="outline" className="bg-[var(--secondary)] text-white ml-2">
+                        {personaScenarios.length} Active Scenarios
+                      </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <h3 className="text-2xl font-bold text-[var(--secondary)]">
-                        {investorData.scenario.name}
-                      </h3>
-                      <p className="text-[var(--muted-foreground)] leading-relaxed">
-                        {investorData.scenario.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-sm text-[var(--secondary)]">
-                        <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
-                        <span>Scenario modeling active</span>
-                      </div>
+                      {personaScenarios.map((scenario) => {
+                        const isActive = investorData.scenario?.name === scenario.name;
+                        const IconComponent = scenario.icon;
+                        
+                        return (
+                          <div
+                            key={scenario.id}
+                            className={`p-3 rounded-xl border transition-all duration-300 ${
+                              isActive
+                                ? 'border-[var(--secondary)] bg-[var(--secondary)]/10 shadow-md'
+                                : 'border-[var(--border)] bg-[var(--muted)]/30'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg ${
+                                isActive 
+                                  ? 'bg-[var(--secondary)] text-white' 
+                                  : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                              }`}>
+                                <IconComponent className="h-4 w-4" />
+                              </div>
+                              
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className={`font-semibold text-sm ${
+                                    isActive ? 'text-[var(--secondary)]' : 'text-[var(--foreground)]'
+                                  }`}>
+                                    {scenario.name}
+                                  </h4>
+                                  {isActive && (
+                                    <Badge variant="secondary" className="bg-[var(--secondary)] text-white text-xs">
+                                      High Impact
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-2">
+                                  {scenario.description}
+                                </p>
+                                
+                                {isActive && (
+                                  <div className="flex items-center gap-2 text-xs text-[var(--secondary)]">
+                                    <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
+                                    <span>Stress testing active</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
