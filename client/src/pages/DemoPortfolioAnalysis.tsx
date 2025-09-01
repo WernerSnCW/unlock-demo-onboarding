@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { TrendingUp, TrendingDown, User, Target, AlertTriangle, PieChart, BarChart3, LineChart, Sparkles, Brain, Zap, ArrowLeft, Shield } from "lucide-react";
+import { Cell, Pie, PieChart as RechartsPieChart, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Link } from "wouter";
 
 interface InvestorData {
@@ -394,15 +395,85 @@ export default function DemoPortfolioAnalysis() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-80 flex items-center justify-center border-2 border-dashed border-[var(--border)] rounded-lg">
-                    <div className="text-center space-y-2">
-                      <PieChart className="h-12 w-12 text-[var(--muted-foreground)] mx-auto" />
-                      <p className="text-[var(--muted-foreground)]">Portfolio allocation chart will display here</p>
-                      <p className="text-sm text-[var(--muted-foreground)]">
-                        Real-time data integration with interactive visualizations
-                      </p>
+                  {investorData.portfolioConfig ? (
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={[
+                              {
+                                name: 'Stocks/Equities',
+                                value: parseInt(investorData.portfolioConfig.stocks || '0'),
+                                color: '#646cff'
+                              },
+                              {
+                                name: 'Bonds',
+                                value: parseInt(investorData.portfolioConfig.bonds || '0'),
+                                color: '#41d1ff'
+                              },
+                              {
+                                name: 'Alternatives',
+                                value: parseInt(investorData.portfolioConfig.alternatives || '0'),
+                                color: '#f97316'
+                              },
+                              {
+                                name: 'Property/REITs',
+                                value: parseInt(investorData.portfolioConfig.property || '0'),
+                                color: '#22c55e'
+                              },
+                              {
+                                name: 'Cash/Savings',
+                                value: parseInt(investorData.portfolioConfig.cash || '0'),
+                                color: '#8b5cf6'
+                              }
+                            ].filter(item => item.value > 0)}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {[
+                              { color: '#646cff' },
+                              { color: '#41d1ff' },
+                              { color: '#f97316' },
+                              { color: '#22c55e' },
+                              { color: '#8b5cf6' }
+                            ].map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            formatter={(value: number) => [`£${value.toLocaleString()}`, 'Value']}
+                            labelStyle={{ color: 'var(--foreground)' }}
+                            contentStyle={{ 
+                              backgroundColor: 'var(--card)', 
+                              border: '1px solid var(--border)',
+                              borderRadius: '8px'
+                            }}
+                          />
+                          <Legend 
+                            wrapperStyle={{ 
+                              paddingTop: '20px',
+                              fontSize: '14px'
+                            }}
+                          />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="h-80 flex items-center justify-center border-2 border-dashed border-[var(--border)] rounded-lg">
+                      <div className="text-center space-y-2">
+                        <PieChart className="h-12 w-12 text-[var(--muted-foreground)] mx-auto" />
+                        <p className="text-[var(--muted-foreground)]">Portfolio allocation chart will display here</p>
+                        <p className="text-sm text-[var(--muted-foreground)]">
+                          Real-time data integration with interactive visualizations
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
