@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles } from 'lucide-react';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const preferencesSchema = z.object({
@@ -27,6 +27,15 @@ const preferencesSchema = z.object({
   }),
   investmentHorizon: z.enum(['short_term', 'medium_term', 'long_term'], {
     required_error: 'Please select your investment time horizon.',
+  }),
+  managementStyle: z.enum(['minimal', 'moderate', 'high'], {
+    required_error: 'Please select your preferred management style.',
+  }),
+  liquidityPreference: z.enum(['prefer_liquid', 'mixed_acceptable', 'comfortable_illiquid'], {
+    required_error: 'Please select your liquidity preference.',
+  }),
+  decisionMakingStyle: z.enum(['rely_advisors', 'collaborate_peers', 'independent_research'], {
+    required_error: 'Please select your decision-making style.',
   }),
   riskCapacity: z.number().min(1).max(10),
   ticketSizeMin: z.number().min(0),
@@ -96,6 +105,111 @@ const riskProfiles = [
   }
 ];
 
+const managementStyles = [
+  {
+    id: 'minimal',
+    title: 'Minimal',
+    description: 'Prefer delegation/advisors',
+    icon: Users
+  },
+  {
+    id: 'moderate',
+    title: 'Moderate',
+    description: 'Occasional research and involvement',
+    icon: Settings
+  },
+  {
+    id: 'high',
+    title: 'High',
+    description: 'Hands-on, self-directed, frequent decisions',
+    icon: Brain
+  }
+];
+
+const liquidityPreferences = [
+  {
+    id: 'prefer_liquid',
+    title: 'Prefer Liquid Assets',
+    description: 'Prefer liquid, tradeable assets',
+    icon: Droplets
+  },
+  {
+    id: 'mixed_acceptable',
+    title: 'Mixed Acceptable',
+    description: 'Mix of liquid and illiquid acceptable',
+    icon: Target
+  },
+  {
+    id: 'comfortable_illiquid',
+    title: 'Comfortable with Illiquid',
+    description: 'Comfortable with illiquid/tied-up investments',
+    icon: Clock
+  }
+];
+
+const decisionMakingStyles = [
+  {
+    id: 'rely_advisors',
+    title: 'Professional Advisors',
+    description: 'Rely on professional advisors',
+    icon: Users
+  },
+  {
+    id: 'collaborate_peers',
+    title: 'Collaborate with Peers',
+    description: 'Collaborate with peers/networks',
+    icon: Globe
+  },
+  {
+    id: 'independent_research',
+    title: 'Independent Research',
+    description: 'Independent / self-research',
+    icon: BookOpen
+  }
+];
+
+const timeHorizons = [
+  {
+    id: 'short_term',
+    title: 'Short Term',
+    description: '0-5 years',
+    icon: Clock
+  },
+  {
+    id: 'medium_term',
+    title: 'Medium Term',
+    description: '5-10 years',
+    icon: Target
+  },
+  {
+    id: 'long_term',
+    title: 'Long Term',
+    description: '10+ years, retirement/legacy',
+    icon: TrendingUp
+  }
+];
+
+const esgImportanceOptions = [
+  {
+    id: 'not_important',
+    title: 'Not Important',
+    description: 'ESG factors are not a priority in investment decisions',
+    icon: DollarSign
+  },
+  {
+    id: 'somewhat_important',
+    title: 'Somewhat Important',
+    description: 'ESG factors are considered alongside financial returns',
+    icon: Heart
+  },
+  {
+    id: 'very_important',
+    title: 'Very Important',
+    description: 'ESG factors are a primary consideration in investment decisions',
+    icon: Globe
+  }
+];
+
 const investmentInterests = [
   'Public Equity Markets', 'Private Equity', 'Venture Capital', 'Angel Investing',
   'Real Estate Investment', 'Property Development', 'REITs', 'Cryptocurrency',
@@ -140,6 +254,11 @@ export default function InvestorPreferences() {
       activeInvestmentInterests: [],
       learningCuriosityAreas: [],
       geographicPreferences: [],
+      managementStyle: 'moderate',
+      liquidityPreference: 'mixed_acceptable',
+      decisionMakingStyle: 'collaborate_peers',
+      investmentHorizon: 'medium_term',
+      esgImportance: 'somewhat_important',
     },
   });
 
@@ -368,6 +487,261 @@ export default function InvestorPreferences() {
                             <span>Very High Risk</span>
                           </div>
                         </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Management Style */}
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Settings className="h-6 w-6 text-[var(--primary)]" />
+                  Investment Management Style
+                </CardTitle>
+                <CardDescription>
+                  How much time do you want to spend actively managing your investments?
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="managementStyle"
+                  render={({ field }) => (
+                    <FormItem className="space-y-4">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        >
+                          {managementStyles.map((style) => {
+                            const Icon = style.icon;
+                            return (
+                              <FormItem key={style.id}>
+                                <FormLabel className="[&:has([data-state=checked])>div]:border-[var(--primary)] [&:has([data-state=checked])>div]:bg-[var(--primary)]/5">
+                                  <FormControl>
+                                    <RadioGroupItem value={style.id} className="sr-only" />
+                                  </FormControl>
+                                  <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
+                                    <div className="space-y-3 text-center">
+                                      <Icon className="h-8 w-8 text-[var(--primary)] mx-auto" />
+                                      <h3 className="font-semibold text-lg">{style.title}</h3>
+                                      <p className="text-sm text-[var(--muted-foreground)]">{style.description}</p>
+                                    </div>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          })}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Liquidity Preference */}
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Droplets className="h-6 w-6 text-[var(--secondary)]" />
+                  Liquidity Preference
+                </CardTitle>
+                <CardDescription>
+                  How comfortable are you with locking up capital in long-term or illiquid assets?
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="liquidityPreference"
+                  render={({ field }) => (
+                    <FormItem className="space-y-4">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        >
+                          {liquidityPreferences.map((preference) => {
+                            const Icon = preference.icon;
+                            return (
+                              <FormItem key={preference.id}>
+                                <FormLabel className="[&:has([data-state=checked])>div]:border-[var(--secondary)] [&:has([data-state=checked])>div]:bg-[var(--secondary)]/5">
+                                  <FormControl>
+                                    <RadioGroupItem value={preference.id} className="sr-only" />
+                                  </FormControl>
+                                  <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--secondary)] transition-all hover:bg-[var(--accent)]/5">
+                                    <div className="space-y-3 text-center">
+                                      <Icon className="h-8 w-8 text-[var(--secondary)] mx-auto" />
+                                      <h3 className="font-semibold text-lg">{preference.title}</h3>
+                                      <p className="text-sm text-[var(--muted-foreground)]">{preference.description}</p>
+                                    </div>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          })}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Decision Making Style */}
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Brain className="h-6 w-6 text-[var(--accent)]" />
+                  Decision Making Style
+                </CardTitle>
+                <CardDescription>
+                  How do you prefer to make investment decisions?
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="decisionMakingStyle"
+                  render={({ field }) => (
+                    <FormItem className="space-y-4">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        >
+                          {decisionMakingStyles.map((style) => {
+                            const Icon = style.icon;
+                            return (
+                              <FormItem key={style.id}>
+                                <FormLabel className="[&:has([data-state=checked])>div]:border-[var(--accent)] [&:has([data-state=checked])>div]:bg-[var(--accent)]/5">
+                                  <FormControl>
+                                    <RadioGroupItem value={style.id} className="sr-only" />
+                                  </FormControl>
+                                  <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--accent)] transition-all hover:bg-[var(--accent)]/5">
+                                    <div className="space-y-3 text-center">
+                                      <Icon className="h-8 w-8 text-[var(--accent)] mx-auto" />
+                                      <h3 className="font-semibold text-lg">{style.title}</h3>
+                                      <p className="text-sm text-[var(--muted-foreground)]">{style.description}</p>
+                                    </div>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          })}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Investment Time Horizon */}
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Clock className="h-6 w-6 text-[var(--primary)]" />
+                  Investment Time Horizon
+                </CardTitle>
+                <CardDescription>
+                  What is your primary investment time horizon?
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="investmentHorizon"
+                  render={({ field }) => (
+                    <FormItem className="space-y-4">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        >
+                          {timeHorizons.map((horizon) => {
+                            const Icon = horizon.icon;
+                            return (
+                              <FormItem key={horizon.id}>
+                                <FormLabel className="[&:has([data-state=checked])>div]:border-[var(--primary)] [&:has([data-state=checked])>div]:bg-[var(--primary)]/5">
+                                  <FormControl>
+                                    <RadioGroupItem value={horizon.id} className="sr-only" />
+                                  </FormControl>
+                                  <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
+                                    <div className="space-y-3 text-center">
+                                      <Icon className="h-8 w-8 text-[var(--primary)] mx-auto" />
+                                      <h3 className="font-semibold text-lg">{horizon.title}</h3>
+                                      <p className="text-sm text-[var(--muted-foreground)]">{horizon.description}</p>
+                                    </div>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          })}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* ESG Importance */}
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Globe className="h-6 w-6 text-[var(--secondary)]" />
+                  ESG & Impact Considerations
+                </CardTitle>
+                <CardDescription>
+                  How important are ethical, environmental, or impact considerations in your investments?
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="esgImportance"
+                  render={({ field }) => (
+                    <FormItem className="space-y-4">
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        >
+                          {esgImportanceOptions.map((option) => {
+                            const Icon = option.icon;
+                            return (
+                              <FormItem key={option.id}>
+                                <FormLabel className="[&:has([data-state=checked])>div]:border-[var(--secondary)] [&:has([data-state=checked])>div]:bg-[var(--secondary)]/5">
+                                  <FormControl>
+                                    <RadioGroupItem value={option.id} className="sr-only" />
+                                  </FormControl>
+                                  <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--secondary)] transition-all hover:bg-[var(--accent)]/5">
+                                    <div className="space-y-3 text-center">
+                                      <Icon className="h-8 w-8 text-[var(--secondary)] mx-auto" />
+                                      <h3 className="font-semibold text-lg">{option.title}</h3>
+                                      <p className="text-sm text-[var(--muted-foreground)]">{option.description}</p>
+                                    </div>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          })}
+                        </RadioGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
