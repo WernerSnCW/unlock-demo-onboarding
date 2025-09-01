@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Play, Sparkles, Shield, ArrowRight, Target, Users, Gift, ChevronRight, Calendar, CheckCircle } from 'lucide-react';
+import { Play, Sparkles, Shield, ArrowRight, Target, Users, Gift, ChevronRight, Calendar, CheckCircle, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function Demo() {
@@ -90,13 +90,12 @@ export default function Demo() {
 
           {/* Session Expectations */}
           <div className="bg-gradient-to-br from-[var(--warning)] via-[var(--warning)]/20 to-transparent border border-[var(--warning)] rounded-2xl p-8 relative mb-12 max-w-4xl mx-auto">
-            <div className="absolute top-4 right-4">
-              <Shield className="h-6 w-6 text-[var(--warning)]" />
+            <div className="absolute top-6 right-6">
+              <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] text-white rounded-full p-3 shadow-lg">
+                <Lightbulb className="h-6 w-6" />
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-[var(--foreground)] mb-4">
-              Session Expectations
-            </h3>
-            <p className="text-lg text-[var(--foreground)] leading-relaxed font-medium">
+            <p className="text-lg text-[var(--foreground)] leading-relaxed font-medium pr-16">
               This demo uses pre-set example portfolios to simulate how Unlock works. After the demo, you can either join the free waitlist or explore our founding investor programme.
             </p>
           </div>
