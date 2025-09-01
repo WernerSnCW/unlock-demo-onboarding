@@ -2044,9 +2044,9 @@ export default function InvestorPreferences() {
                       let backgroundClasses = "";
                       
                       if (isPrimaryMatch) {
-                        // Primary match: prominent styling with stronger background
+                        // Primary match: prominent styling with strong visible background
                         borderClasses = "border-2 border-[var(--primary)]";
-                        backgroundClasses = "bg-gradient-to-br from-[var(--primary)]/25 to-[var(--secondary)]/20 shadow-lg ring-2 ring-[var(--primary)]/20";
+                        backgroundClasses = "bg-gradient-to-br from-blue-100 to-teal-50 dark:from-blue-900/40 dark:to-teal-900/30 shadow-lg ring-2 ring-[var(--primary)]/30";
                       } else if (hasScore) {
                         // Secondary match: subtle highlight
                         borderClasses = "border-2 border-[var(--secondary)]/60";
