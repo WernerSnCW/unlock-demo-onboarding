@@ -653,7 +653,7 @@ export default function InvestorPreferences() {
     return {
       investorObjective,
       riskProfile,
-      riskCapacity: riskProfile === 'aggressive' ? 9 : riskProfile === 'growth' ? 7 : riskProfile === 'balanced' ? 5 : riskProfile === 'cautious' ? 4 : 3,
+      riskCapacity: riskProfile === 'aggressive' ? 9 : riskProfile === 'growth' ? 7 : riskProfile === 'balanced' ? 5 : 3,
       ticketSizeMin: 1000,
       ticketSizeMax: 50000,
       activeInvestmentInterests,
@@ -1467,9 +1467,9 @@ export default function InvestorPreferences() {
                         {questionnaireQuestions.map((_, index) => (
                           <div
                             key={index}
-                            className={`w-3 h-3 rounded-full transition-all ${
+                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
                               index <= currentQuestionIndex 
-                                ? 'bg-[var(--primary)]' 
+                                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm' 
                                 : 'bg-[var(--border)]'
                             }`}
                           />
@@ -1485,7 +1485,7 @@ export default function InvestorPreferences() {
                       <Button
                         onClick={() => handleQuestionnaireAnswer('agree')}
                         size="lg"
-                        className="flex-1 py-6 text-lg bg-green-500 hover:bg-green-600 text-white border-2 border-green-500 hover:border-green-600"
+                        className="flex-1 py-6 text-lg bg-gradient-to-br from-[var(--secondary)] to-emerald-600 hover:from-[var(--secondary)]/90 hover:to-emerald-600/90 text-white border-2 border-[var(--secondary)] hover:border-[var(--secondary)]/90 shadow-lg hover:shadow-[var(--secondary)]/20 transition-all duration-300"
                         data-testid="button-agree"
                       >
                         <ThumbsUp className="mr-2 h-5 w-5" />
@@ -1496,7 +1496,7 @@ export default function InvestorPreferences() {
                         onClick={() => handleQuestionnaireAnswer('neutral')}
                         size="lg"
                         variant="outline"
-                        className="flex-1 py-6 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10"
+                        className="flex-1 py-6 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10 bg-[var(--card)] backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300"
                         data-testid="button-neutral"
                       >
                         <Minus className="mr-2 h-5 w-5" />
@@ -1506,7 +1506,7 @@ export default function InvestorPreferences() {
                       <Button
                         onClick={() => handleQuestionnaireAnswer('disagree')}
                         size="lg"
-                        className="flex-1 py-6 text-lg bg-red-500 hover:bg-red-600 text-white border-2 border-red-500 hover:border-red-600"
+                        className="flex-1 py-6 text-lg bg-gradient-to-br from-red-500 to-red-600 hover:from-red-500/90 hover:to-red-600/90 text-white border-2 border-red-500 hover:border-red-500/90 shadow-lg hover:shadow-red-500/20 transition-all duration-300"
                         data-testid="button-disagree"
                       >
                         <ThumbsDown className="mr-2 h-5 w-5" />
