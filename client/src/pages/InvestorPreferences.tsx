@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain } from 'lucide-react';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const preferencesSchema = z.object({
@@ -532,11 +532,185 @@ function classifyInvestorPersona(formData: PreferencesFormData): { persona: type
   return bestMatch;
 }
 
+// Sequential questionnaire data structure
+interface QuestionnaireQuestion {
+  id: string;
+  text: string;
+  category: string;
+}
+
+interface QuestionnaireAnswer {
+  questionId: string;
+  response: 'agree' | 'neutral' | 'disagree';
+}
+
+const questionnaireQuestions: QuestionnaireQuestion[] = [
+  { id: 'self_directed_research', text: 'I prefer to research and make my own investment decisions rather than rely on financial advisors', category: 'decision_style' },
+  { id: 'high_risk_tolerance', text: 'I am comfortable with investments that may lose significant value in exchange for higher potential returns', category: 'risk_tolerance' },
+  { id: 'long_term_horizon', text: 'I prefer to invest for the long term (10+ years) rather than seeking quick gains', category: 'time_horizon' },
+  { id: 'alternative_investments', text: 'I am interested in alternative investments like private equity, real estate, or collectibles', category: 'investment_type' },
+  { id: 'cryptocurrency_interest', text: 'I am interested in investing in cryptocurrencies and digital assets', category: 'investment_type' },
+  { id: 'advisor_reliance', text: 'I prefer to delegate investment decisions to professional advisors rather than manage myself', category: 'decision_style' },
+  { id: 'conservative_approach', text: 'I prioritize preserving my capital over achieving high returns', category: 'risk_tolerance' },
+  { id: 'esg_importance', text: 'Environmental, social, and governance (ESG) factors are important in my investment decisions', category: 'values' },
+  { id: 'liquidity_preference', text: 'I need to be able to access my investments quickly if necessary', category: 'liquidity' },
+  { id: 'peer_collaboration', text: 'I prefer to collaborate with other investors and learn from their experiences', category: 'decision_style' },
+  { id: 'property_focus', text: 'Real estate and property investments are a major focus of my investment strategy', category: 'investment_type' },
+  { id: 'retirement_planning', text: 'My primary investment goal is building wealth for retirement', category: 'objectives' }
+];
+
 export default function InvestorPreferences() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setLocation] = useLocation();
   const [personaResult, setPersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number } | null>(null);
+  
+  // Questionnaire state
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<QuestionnaireAnswer[]>([]);
+  const [questionnaireComplete, setQuestionnaireComplete] = useState(false);
+  const [questionnairePersonaResult, setQuestionnairePersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number } | null>(null);
+
+  // Convert questionnaire answers to form data for persona classification
+  const convertQuestionnaireToFormData = (answers: QuestionnaireAnswer[]): PreferencesFormData => {
+    const answerMap = answers.reduce((acc, answer) => {
+      acc[answer.questionId] = answer.response;
+      return acc;
+    }, {} as Record<string, string>);
+
+    // Map questionnaire answers to form fields
+    let investorObjective: 'wealth_building' | 'wealth_preservation' | 'hybrid' = 'hybrid';
+    let riskProfile: 'conservative' | 'cautious' | 'balanced' | 'growth' | 'aggressive' = 'balanced';
+    let managementStyle: 'minimal' | 'moderate' | 'high' = 'moderate';
+    let liquidityPreference: 'prefer_liquid' | 'mixed_acceptable' | 'comfortable_illiquid' = 'mixed_acceptable';
+    let decisionMakingStyle: 'rely_advisors' | 'independent_research' | 'collaborate_peers' = 'independent_research';
+    let investmentHorizon: 'short_term' | 'medium_term' | 'long_term' = 'medium_term';
+    let esgImportance: 'not_important' | 'somewhat_important' | 'very_important' = 'somewhat_important';
+    let activeInvestmentInterests: string[] = [];
+
+    // Decision making style
+    if (answerMap.self_directed_research === 'agree') {
+      decisionMakingStyle = 'independent_research';
+      managementStyle = 'high';
+    } else if (answerMap.advisor_reliance === 'agree') {
+      decisionMakingStyle = 'rely_advisors';
+      managementStyle = 'minimal';
+    } else if (answerMap.peer_collaboration === 'agree') {
+      decisionMakingStyle = 'collaborate_peers';
+    }
+
+    // Risk tolerance
+    if (answerMap.high_risk_tolerance === 'agree') {
+      riskProfile = answerMap.cryptocurrency_interest === 'agree' ? 'aggressive' : 'growth';
+    } else if (answerMap.conservative_approach === 'agree') {
+      riskProfile = 'conservative';
+    } else {
+      riskProfile = 'balanced';
+    }
+
+    // Investment objective
+    if (answerMap.retirement_planning === 'agree') {
+      investorObjective = answerMap.conservative_approach === 'agree' ? 'wealth_preservation' : 'hybrid';
+    } else if (answerMap.conservative_approach === 'agree') {
+      investorObjective = 'wealth_preservation';
+    } else if (answerMap.high_risk_tolerance === 'agree') {
+      investorObjective = 'wealth_building';
+    }
+
+    // Time horizon
+    if (answerMap.long_term_horizon === 'agree') {
+      investmentHorizon = 'long_term';
+    }
+
+    // Liquidity
+    if (answerMap.liquidity_preference === 'agree') {
+      liquidityPreference = 'prefer_liquid';
+    } else if (answerMap.alternative_investments === 'agree' || answerMap.property_focus === 'agree') {
+      liquidityPreference = 'comfortable_illiquid';
+    }
+
+    // ESG
+    if (answerMap.esg_importance === 'agree') {
+      esgImportance = 'very_important';
+    } else if (answerMap.esg_importance === 'disagree') {
+      esgImportance = 'not_important';
+    }
+
+    // Investment interests
+    if (answerMap.cryptocurrency_interest === 'agree') {
+      activeInvestmentInterests.push('Cryptocurrency');
+    }
+    if (answerMap.alternative_investments === 'agree') {
+      activeInvestmentInterests.push('Private Equity', 'Alternative Assets');
+    }
+    if (answerMap.property_focus === 'agree') {
+      activeInvestmentInterests.push('Real Estate Investment');
+    }
+    if (answerMap.retirement_planning === 'agree') {
+      activeInvestmentInterests.push('Pension Schemes');
+    }
+
+    return {
+      investorObjective,
+      riskProfile,
+      riskCapacity: riskProfile === 'aggressive' ? 9 : riskProfile === 'growth' ? 7 : riskProfile === 'balanced' ? 5 : riskProfile === 'cautious' ? 4 : 3,
+      ticketSizeMin: 1000,
+      ticketSizeMax: 50000,
+      activeInvestmentInterests,
+      learningCuriosityAreas: [],
+      geographicPreferences: ['United Kingdom'],
+      managementStyle,
+      liquidityPreference,
+      decisionMakingStyle,
+      investmentHorizon,
+      esgImportance,
+    };
+  };
+
+  // Handle questionnaire answer
+  const handleQuestionnaireAnswer = (response: 'agree' | 'neutral' | 'disagree') => {
+    const currentQuestion = questionnaireQuestions[currentQuestionIndex];
+    const newAnswer: QuestionnaireAnswer = {
+      questionId: currentQuestion.id,
+      response
+    };
+
+    const updatedAnswers = [...questionnaireAnswers.filter(a => a.questionId !== currentQuestion.id), newAnswer];
+    setQuestionnaireAnswers(updatedAnswers);
+
+    // Move to next question or complete
+    if (currentQuestionIndex < questionnaireQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      // Complete questionnaire
+      setQuestionnaireComplete(true);
+      
+      // Convert answers to form data and classify persona
+      const formData = convertQuestionnaireToFormData(updatedAnswers);
+      const personaClassification = classifyInvestorPersona(formData);
+      setQuestionnairePersonaResult(personaClassification);
+
+      console.log('Questionnaire completed:', {
+        answers: updatedAnswers,
+        formData,
+        persona: personaClassification.persona.name,
+        score: `${personaClassification.score.toFixed(1)}%`
+      });
+
+      toast({
+        title: "Profile Complete!",
+        description: `You've been identified as "${personaClassification.persona.name}" with ${personaClassification.score.toFixed(1)}% confidence.`,
+      });
+    }
+  };
+
+  // Reset questionnaire
+  const resetQuestionnaire = () => {
+    setCurrentQuestionIndex(0);
+    setQuestionnaireAnswers([]);
+    setQuestionnaireComplete(false);
+    setQuestionnairePersonaResult(null);
+  };
 
   const form = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
@@ -1281,205 +1455,143 @@ export default function InvestorPreferences() {
 
           <TabsContent value="profile">
             <div className="space-y-8">
-              {/* Experience Level */}
-              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <BookOpen className="h-5 w-5 text-[var(--primary)]" />
-                    Investment Experience
-                  </CardTitle>
-                  <CardDescription>
-                    How would you describe your investment experience?
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
-                      <div className="space-y-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                          <BookOpen className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg">Beginner</h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">New to investing, learning the basics</p>
+              {!questionnaireComplete ? (
+                /* Sequential Questionnaire */
+                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+                  <CardHeader className="text-center">
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="outline" className="text-sm">
+                        Question {currentQuestionIndex + 1} of {questionnaireQuestions.length}
+                      </Badge>
+                      <div className="flex gap-1">
+                        {questionnaireQuestions.map((_, index) => (
+                          <div
+                            key={index}
+                            className={`w-3 h-3 rounded-full transition-all ${
+                              index <= currentQuestionIndex 
+                                ? 'bg-[var(--primary)]' 
+                                : 'bg-[var(--border)]'
+                            }`}
+                          />
+                        ))}
                       </div>
                     </div>
-                    <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
-                      <div className="space-y-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                          <TrendingUp className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg">Intermediate</h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">Some experience with stocks, bonds, or funds</p>
-                      </div>
+                    <CardTitle className="text-2xl text-center leading-relaxed max-w-4xl mx-auto">
+                      {questionnaireQuestions[currentQuestionIndex]?.text}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-8">
+                    <div className="flex justify-center gap-4 max-w-2xl mx-auto">
+                      <Button
+                        onClick={() => handleQuestionnaireAnswer('agree')}
+                        size="lg"
+                        className="flex-1 py-6 text-lg bg-green-500 hover:bg-green-600 text-white border-2 border-green-500 hover:border-green-600"
+                        data-testid="button-agree"
+                      >
+                        <ThumbsUp className="mr-2 h-5 w-5" />
+                        Agree
+                      </Button>
+                      
+                      <Button
+                        onClick={() => handleQuestionnaireAnswer('neutral')}
+                        size="lg"
+                        variant="outline"
+                        className="flex-1 py-6 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10"
+                        data-testid="button-neutral"
+                      >
+                        <Minus className="mr-2 h-5 w-5" />
+                        Neutral
+                      </Button>
+                      
+                      <Button
+                        onClick={() => handleQuestionnaireAnswer('disagree')}
+                        size="lg"
+                        className="flex-1 py-6 text-lg bg-red-500 hover:bg-red-600 text-white border-2 border-red-500 hover:border-red-600"
+                        data-testid="button-disagree"
+                      >
+                        <ThumbsDown className="mr-2 h-5 w-5" />
+                        Disagree
+                      </Button>
                     </div>
-                    <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
-                      <div className="space-y-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                          <Target className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg">Advanced</h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">Experienced with complex strategies and analysis</p>
+                    
+                    {/* Progress Indicator */}
+                    <div className="mt-8">
+                      <div className="w-full bg-[var(--border)] rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
+                          style={{ 
+                            width: `${((currentQuestionIndex + 1) / questionnaireQuestions.length) * 100}%` 
+                          }}
+                        />
                       </div>
+                      <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+                        {Math.round(((currentQuestionIndex + 1) / questionnaireQuestions.length) * 100)}% Complete
+                      </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ) : (
+                /* Results Display */
+                <div className="space-y-6">
+                  {/* Persona Result */}
+                  {questionnairePersonaResult && (
+                    <Card className="border-2 border-[var(--primary)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-2xl text-[var(--primary)]">
+                          <User className="h-6 w-6" />
+                          Your Investment Persona
+                        </CardTitle>
+                        <CardDescription>
+                          Based on your questionnaire responses, we've identified your investor profile
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-[var(--primary)]">
+                              {questionnairePersonaResult.persona.name}
+                            </h3>
+                            <Badge variant="secondary" className="px-3 py-1">
+                              {questionnairePersonaResult.score.toFixed(1)}% match
+                            </Badge>
+                          </div>
+                          <p className="text-[var(--muted-foreground)] leading-relaxed">
+                            {questionnairePersonaResult.persona.description}
+                          </p>
+                          <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20">
+                            <p className="text-sm text-[var(--muted-foreground)]">
+                              🎯 This classification helps us tailor investment recommendations and educational content specifically for your profile.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
-              {/* Investment Motivation */}
-              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <Heart className="h-5 w-5 text-red-600" />
-                    What Motivates Your Investing?
-                  </CardTitle>
-                  <CardDescription>
-                    Select your primary motivation for investing (choose one)
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <DollarSign className="h-5 w-5 text-green-600" />
-                        <div>
-                          <h4 className="font-medium">Building wealth for retirement</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">Long-term financial security and independence</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <Users className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="font-medium">Supporting family goals</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">Education, home purchase, or family expenses</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <TrendingUp className="h-5 w-5 text-purple-600" />
-                        <div>
-                          <h4 className="font-medium">Growing current wealth</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">Maximizing returns on existing capital</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-orange-600" />
-                        <div>
-                          <h4 className="font-medium">Making a positive impact</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">ESG investing and sustainable businesses</p>
-                        </div>
-                      </div>
-                    </div>
+                  {/* Action Buttons */}
+                  <div className="flex justify-center gap-4">
+                    <Button
+                      onClick={resetQuestionnaire}
+                      variant="outline"
+                      size="lg"
+                      className="px-8 py-4"
+                      data-testid="button-retake-questionnaire"
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Retake Questionnaire
+                    </Button>
+                    <Button
+                      onClick={() => setLocation('/demo/agenda')}
+                      size="lg"
+                      className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
+                      data-testid="button-continue-demo"
+                    >
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      Continue to Demo
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Risk Scenario */}
-              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <AlertTriangle className="h-5 w-5 text-orange-600" />
-                    Risk Scenario
-                  </CardTitle>
-                  <CardDescription>
-                    Your investment portfolio drops 20% in value during a market downturn. What would you do?
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <Shield className="h-5 w-5 text-red-600" />
-                        <div>
-                          <h4 className="font-medium">Sell everything immediately</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">Protect remaining capital at all costs</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <Clock className="h-5 w-5 text-yellow-600" />
-                        <div>
-                          <h4 className="font-medium">Wait and monitor closely</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">Hold positions but watch for further declines</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
-                      <div className="flex items-center gap-3">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                        <div>
-                          <h4 className="font-medium">Buy more at lower prices</h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">See it as an opportunity to invest more</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Time Preference */}
-              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl hover:shadow-[var(--primary)]/10 transition-all duration-500 hover:scale-[1.01]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <Clock className="h-5 w-5 text-blue-600" />
-                    Investment Time Horizon
-                  </CardTitle>
-                  <CardDescription>
-                    When do you expect to need access to your investment funds?
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
-                      <div className="space-y-3 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mx-auto">
-                          <Clock className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg">0-3 Years</h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">Short-term goals and needs</p>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
-                      <div className="space-y-3 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto">
-                          <Clock className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg">3-10 Years</h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">Medium-term planning</p>
-                      </div>
-                    </div>
-                    <div className="cursor-pointer rounded-xl border-2 border-[var(--border)] p-6 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5">
-                      <div className="space-y-3 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto">
-                          <Clock className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg">10+ Years</h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">Long-term wealth building</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Results Action */}
-              <div className="text-center pt-6">
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-2xl p-8 mb-6">
-                  <User className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Create Your Investment Profile</h3>
-                  <p className="text-[var(--muted-foreground)] mb-6 max-w-md mx-auto">
-                    Based on your answers, we'll create a personalized investment profile with tailored recommendations.
-                  </p>
-                  <Button size="lg" className="px-12 py-6 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90">
-                    <Lightbulb className="mr-2 h-5 w-5" />
-                    Generate My Profile
-                  </Button>
                 </div>
-              </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
