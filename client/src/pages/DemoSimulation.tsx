@@ -82,6 +82,15 @@ export default function DemoSimulation() {
     })
     .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
 
+  // Save selected scenario to localStorage for demo carryover
+  const selectedScenario = allScenarios.find(s => s.isSelected);
+  if (selectedScenario) {
+    localStorage.setItem('selectedScenario', JSON.stringify({
+      name: selectedScenario.name,
+      description: selectedScenario.description
+    }));
+  }
+
   const portfolioQuestions = [
     {
       id: 'allocation',

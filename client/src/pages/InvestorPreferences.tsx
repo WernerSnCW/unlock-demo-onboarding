@@ -1089,6 +1089,9 @@ export default function InvestorPreferences() {
       // Classify persona using new CSV-based scoring
       const personaClassification = classifyInvestorPersonaFromAnswers(updatedAnswers);
       setQuestionnairePersonaResult(personaClassification);
+      
+      // Save persona result to localStorage for demo carryover
+      localStorage.setItem('questionnairePersonaResult', JSON.stringify(personaClassification));
 
       console.log('Questionnaire completed:', {
         answers: updatedAnswers,
@@ -1155,6 +1158,9 @@ export default function InvestorPreferences() {
     // Classify persona using the random answers
     const personaClassification = classifyInvestorPersonaFromAnswers(randomAnswers);
     setQuestionnairePersonaResult(personaClassification);
+    
+    // Save persona result to localStorage for demo carryover
+    localStorage.setItem('questionnairePersonaResult', JSON.stringify(personaClassification));
 
     console.log('Questionnaire randomized:', {
       answers: randomAnswers,

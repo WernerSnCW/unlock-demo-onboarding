@@ -20,6 +20,7 @@ interface InvestorData {
     description: string;
   };
   portfolioData?: any;
+  portfolioConfig?: any;
 }
 
 export default function DemoPortfolioAnalysis() {
@@ -31,14 +32,23 @@ export default function DemoPortfolioAnalysis() {
     const storedPersona = localStorage.getItem('questionnairePersonaResult');
     const storedScenario = localStorage.getItem('selectedScenario');
     const storedPortfolio = localStorage.getItem('uploadedPortfolioData');
+    const storedConfig = localStorage.getItem('portfolioConfig');
 
     const data: InvestorData = {};
+
+    console.log('Loading demo data from localStorage:', {
+      persona: storedPersona ? 'Found' : 'Missing',
+      scenario: storedScenario ? 'Found' : 'Missing', 
+      portfolio: storedPortfolio ? 'Found' : 'Missing',
+      config: storedConfig ? 'Found' : 'Missing'
+    });
 
     if (storedPersona) {
       try {
         const personaResult = JSON.parse(storedPersona);
         data.persona = personaResult.persona;
         data.score = personaResult.score;
+        console.log('Loaded persona:', data.persona?.name);
       } catch (e) {
         console.error('Failed to parse persona data:', e);
       }
@@ -47,6 +57,7 @@ export default function DemoPortfolioAnalysis() {
     if (storedScenario) {
       try {
         data.scenario = JSON.parse(storedScenario);
+        console.log('Loaded scenario:', data.scenario?.name);
       } catch (e) {
         console.error('Failed to parse scenario data:', e);
       }
@@ -55,8 +66,18 @@ export default function DemoPortfolioAnalysis() {
     if (storedPortfolio) {
       try {
         data.portfolioData = JSON.parse(storedPortfolio);
+        console.log('Loaded portfolio data:', data.portfolioData ? 'Success' : 'Failed');
       } catch (e) {
         console.error('Failed to parse portfolio data:', e);
+      }
+    }
+
+    if (storedConfig) {
+      try {
+        data.portfolioConfig = JSON.parse(storedConfig);
+        console.log('Loaded portfolio config:', data.portfolioConfig ? 'Success' : 'Failed');
+      } catch (e) {
+        console.error('Failed to parse portfolio config:', e);
       }
     }
 
@@ -184,6 +205,80 @@ export default function DemoPortfolioAnalysis() {
 
           {/* Portfolio Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Investor Profile & Scenario Configuration */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {investorData.persona && (
+                <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 backdrop-blur-sm shadow-2xl">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <User className="h-5 w-5 text-[var(--primary)]" />
+                      Your Investor Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-2xl font-bold text-[var(--primary)]">
+                          {investorData.persona.name}
+                        </h3>
+                        {investorData.score && (
+                          <Badge variant="secondary" className="px-3 py-1 text-sm">
+                            {investorData.score.toFixed(1)}% match
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[var(--muted-foreground)] leading-relaxed">
+                        {investorData.persona.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-sm text-[var(--success)]">
+                        <div className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse"></div>
+                        <span>Profile-based analysis active</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {investorData.scenario && (
+                <Card className="border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <Target className="h-5 w-5 text-[var(--secondary)]" />
+                      Stress Test Scenario
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <h3 className="text-2xl font-bold text-[var(--secondary)]">
+                        {investorData.scenario.name}
+                      </h3>
+                      <p className="text-[var(--muted-foreground)] leading-relaxed">
+                        {investorData.scenario.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-sm text-[var(--secondary)]">
+                        <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
+                        <span>Scenario modeling active</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Show placeholder if no data */}
+              {!investorData.persona && !investorData.scenario && (
+                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)] md:col-span-2">
+                  <CardContent className="flex items-center justify-center py-12">
+                    <div className="text-center space-y-3">
+                      <Brain className="h-8 w-8 text-[var(--muted-foreground)] mx-auto" />
+                      <p className="text-[var(--muted-foreground)]">
+                        Complete the investor preferences and scenario selection to see personalized analysis
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
             <div className="grid lg:grid-cols-3 gap-6">
               <Card className="lg:col-span-2 border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
                 <CardHeader>
