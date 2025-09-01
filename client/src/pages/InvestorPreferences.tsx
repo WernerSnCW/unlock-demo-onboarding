@@ -14,7 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const preferencesSchema = z.object({
@@ -192,8 +193,21 @@ export default function InvestorPreferences() {
           </p>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Tabs defaultValue="detailed" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="detailed" className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Detailed Preferences
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Discover Your Investment Profile
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="detailed">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
             {/* Investment Objectives */}
             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
@@ -517,8 +531,214 @@ export default function InvestorPreferences() {
                 )}
               </Button>
             </div>
-          </form>
-        </Form>
+              </form>
+            </Form>
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <div className="space-y-8">
+              {/* Experience Level */}
+              <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    Investment Experience
+                  </CardTitle>
+                  <CardDescription>
+                    How would you describe your investment experience?
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="space-y-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                          <BookOpen className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg">Beginner</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">New to investing, learning the basics</p>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="space-y-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                          <TrendingUp className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg">Intermediate</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Some experience with stocks, bonds, or funds</p>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="space-y-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
+                          <Target className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg">Advanced</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Experienced with complex strategies and analysis</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Investment Motivation */}
+              <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Heart className="h-5 w-5 text-red-600" />
+                    What Motivates Your Investing?
+                  </CardTitle>
+                  <CardDescription>
+                    Select your primary motivation for investing (choose one)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <DollarSign className="h-5 w-5 text-green-600" />
+                        <div>
+                          <h4 className="font-medium">Building wealth for retirement</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Long-term financial security and independence</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <Users className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <h4 className="font-medium">Supporting family goals</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Education, home purchase, or family expenses</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <TrendingUp className="h-5 w-5 text-purple-600" />
+                        <div>
+                          <h4 className="font-medium">Growing current wealth</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Maximizing returns on existing capital</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <Globe className="h-5 w-5 text-orange-600" />
+                        <div>
+                          <h4 className="font-medium">Making a positive impact</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">ESG investing and sustainable businesses</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Risk Scenario */}
+              <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    Risk Scenario
+                  </CardTitle>
+                  <CardDescription>
+                    Your investment portfolio drops 20% in value during a market downturn. What would you do?
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <Shield className="h-5 w-5 text-red-600" />
+                        <div>
+                          <h4 className="font-medium">Sell everything immediately</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Protect remaining capital at all costs</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-5 w-5 text-yellow-600" />
+                        <div>
+                          <h4 className="font-medium">Wait and monitor closely</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">Hold positions but watch for further declines</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="flex items-center gap-3">
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                        <div>
+                          <h4 className="font-medium">Buy more at lower prices</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">See it as an opportunity to invest more</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Time Preference */}
+              <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    Investment Time Horizon
+                  </CardTitle>
+                  <CardDescription>
+                    When do you expect to need access to your investment funds?
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="space-y-3 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mx-auto">
+                          <Clock className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg">0-3 Years</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Short-term goals and needs</p>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="space-y-3 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto">
+                          <Clock className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg">3-10 Years</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Medium-term planning</p>
+                      </div>
+                    </div>
+                    <div className="cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-700 p-6 hover:border-blue-300 transition-all hover:bg-blue-50 dark:hover:bg-blue-950/20">
+                      <div className="space-y-3 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto">
+                          <Clock className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg">10+ Years</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Long-term wealth building</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Results Action */}
+              <div className="text-center pt-6">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-2xl p-8 mb-6">
+                  <User className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Create Your Investment Profile</h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
+                    Based on your answers, we'll create a personalized investment profile with tailored recommendations.
+                  </p>
+                  <Button size="lg" className="px-12 py-6 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    <Lightbulb className="mr-2 h-5 w-5" />
+                    Generate My Profile
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
         </div>
       </main>
       <Footer />
