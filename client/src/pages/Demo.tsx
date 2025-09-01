@@ -88,43 +88,17 @@ export default function Demo() {
             </h2>
           </div>
 
-          {/* Session Content */}
-          <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)] border border-[var(--border)] rounded-3xl p-12 mb-12 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
-            
-            <h3 className="text-2xl font-black text-[var(--foreground)] mb-8 flex items-center">
-              <Calendar className="h-8 w-8 mr-4 text-[var(--primary)]" />
-              Begin with a session agenda slide:
+          {/* Session Expectations */}
+          <div className="bg-gradient-to-br from-[var(--warning)] via-[var(--warning)]/20 to-transparent border border-[var(--warning)] rounded-2xl p-8 relative mb-12 max-w-4xl mx-auto">
+            <div className="absolute top-4 right-4">
+              <Shield className="h-6 w-6 text-[var(--warning)]" />
+            </div>
+            <h3 className="text-xl font-bold text-[var(--foreground)] mb-4">
+              Session Expectations
             </h3>
-            
-            <div className="grid md:grid-cols-1 gap-6 mb-8">
-              <div className="space-y-4">
-                <div className="flex items-start group">
-                  <div className="w-3 h-3 bg-[var(--primary)] rounded-full mt-2 mr-4 flex-shrink-0 group-hover:scale-125 transition-transform"></div>
-                  <span className="text-lg text-[var(--foreground)] font-medium">Problem we solve</span>
-                </div>
-                <div className="flex items-start group">
-                  <div className="w-3 h-3 bg-[var(--primary)] rounded-full mt-2 mr-4 flex-shrink-0 group-hover:scale-125 transition-transform"></div>
-                  <span className="text-lg text-[var(--foreground)] font-medium">Demo walkthrough tailored to investor interests</span>
-                </div>
-                <div className="flex items-start group">
-                  <div className="w-3 h-3 bg-[var(--primary)] rounded-full mt-2 mr-4 flex-shrink-0 group-hover:scale-125 transition-transform"></div>
-                  <span className="text-lg text-[var(--foreground)] font-medium">Next steps (free account vs. founding investor)</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[var(--warning)] via-[var(--warning)]/20 to-transparent border border-[var(--warning)] rounded-2xl p-8 relative">
-              <div className="absolute top-4 right-4">
-                <Shield className="h-6 w-6 text-[var(--warning)]" />
-              </div>
-              <h4 className="text-xl font-bold text-[var(--foreground)] mb-4">
-                Establish expectations:
-              </h4>
-              <p className="text-lg text-[var(--foreground)] leading-relaxed font-medium">
-                "This demo uses pre-set example portfolios to simulate how Unlock works. After the demo, you can either join the free waitlist or explore our founding investor programme."
-              </p>
-            </div>
+            <p className="text-lg text-[var(--foreground)] leading-relaxed font-medium">
+              This demo uses pre-set example portfolios to simulate how Unlock works. After the demo, you can either join the free waitlist or explore our founding investor programme.
+            </p>
           </div>
 
           {/* Demo Session Navigation */}
