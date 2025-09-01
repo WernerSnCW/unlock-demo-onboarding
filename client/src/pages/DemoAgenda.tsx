@@ -1,9 +1,10 @@
 import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Play, Sparkles, Brain, Rocket, Shield, Zap, ArrowRight, Crown, Gift, Target, TrendingUp, Users, Eye, ChevronRight, User, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { User, AlertTriangle, ArrowLeft, Play, Target, TrendingUp, BarChart3, CheckCircle, Brain, Rocket, Shield, Zap } from 'lucide-react';
 
 // Economic scenarios data
 const economicScenarios = [
@@ -45,373 +46,253 @@ const economicScenarios = [
 ];
 
 export default function DemoAgenda() {
-  // Parse URL parameters to get persona and scenario configuration
+  // Parse URL parameters for configuration
   const urlParams = new URLSearchParams(window.location.search);
-  const personaId = urlParams.get('persona');
-  const personaName = urlParams.get('personaName');
-  const scenarioIds = urlParams.get('scenarios')?.split(',').filter(Boolean) || [];
-  const selectedScenarioIds = urlParams.get('selectedScenarios')?.split(',').filter(Boolean) || [];
-  const personaScenarioIds = urlParams.get('personaScenarios')?.split(',').filter(Boolean) || [];
-  
-  // Get all scenarios with their types
-  const allScenarios = scenarioIds
+  const personaName = urlParams.get('persona');
+  const selectedScenarioIds = urlParams.get('scenarios')?.split(',').filter(Boolean) || [];
+  const applicableScenarioIds = urlParams.get('applicable')?.split(',').filter(Boolean) || [];
+
+  // Combine and deduplicate scenarios
+  const allScenarioIds = Array.from(new Set([...selectedScenarioIds, ...applicableScenarioIds]));
+  const allScenarios = allScenarioIds
     .map(id => {
       const scenario = economicScenarios.find(s => s.id === id);
-      if (!scenario) return null;
-      
-      const isSelected = selectedScenarioIds.includes(id);
-      const isPersonaApplicable = personaScenarioIds.includes(id);
-      
-      return {
+      return scenario ? {
         ...scenario,
-        isSelected,
-        isPersonaApplicable,
-        type: isSelected ? 'selected' : 'persona-applicable'
-      };
+        isSelected: selectedScenarioIds.includes(id)
+      } : null;
     })
     .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
-  return (
-    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-lg animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-40 left-20 w-20 h-20 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-20 right-10 w-28 h-28 bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] rounded-full blur-xl animate-pulse" style={{animationDelay: '0.5s'}}></div>
-      </div>
 
+  const hasConfiguration = personaName || allScenarios.length > 0;
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
       
-      {/* Configuration Summary Section */}
-      {(personaName || allScenarios.length > 0) && (
-        <div className="relative z-10 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 border-b border-[var(--border)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <Card className="border-2 border-[var(--primary)]/20 bg-[var(--card)]/80 backdrop-blur-sm shadow-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                    <Target className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-[var(--foreground)]">
-                      Demo Configuration Active
-                    </h3>
-                    <p className="text-sm text-[var(--muted-foreground)]">
-                      Your simulation will use the following investor profile and economic scenarios
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Selected Persona */}
-                  {personaName && (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-[var(--primary)]" />
-                        <h4 className="font-semibold text-[var(--foreground)]">
-                          Investor Persona
-                        </h4>
-                      </div>
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-lg p-6 border border-green-200/50 dark:border-green-800/30">
-                        <div className="flex items-start justify-between mb-3">
-                          <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600">
-                            Selected Profile
-                          </Badge>
+      {/* Navigation Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center gap-4">
+          <Link 
+            href="/investor-preferences"
+            className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-[#5193B3] dark:hover:text-[#62C4C3] transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Preferences
+          </Link>
+          <div className="text-gray-300 dark:text-gray-600">•</div>
+          <span className="text-gray-800 dark:text-gray-200 font-medium">Demo Simulation</span>
+        </div>
+      </div>
+
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          
+          {/* Configuration Display */}
+          {hasConfiguration && (
+            <div className="mb-12">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border-blue-200/50 dark:border-blue-800/30">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2">
+                    <Target className="h-5 w-5 text-[var(--primary)]" />
+                    Simulation Configuration
+                  </CardTitle>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Your personalized demo will use the following settings for portfolio analysis and stress testing
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Selected Persona */}
+                    {personaName && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-[var(--primary)]" />
+                          <h4 className="font-semibold text-[var(--foreground)]">
+                            Investor Persona
+                          </h4>
                         </div>
-                        <h5 className="font-bold text-[var(--foreground)] text-lg mb-2">
-                          {personaName}
-                        </h5>
-                        <p className="text-sm text-[var(--muted-foreground)] mb-4 leading-relaxed">
-                          This simulation will model your portfolio behavior and risk responses according to the characteristics and preferences of this investor archetype.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            Risk-Aware Analysis
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Personalized Scenarios
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Behavioral Modeling
-                          </Badge>
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-lg p-6 border border-green-200/50 dark:border-green-800/30">
+                          <div className="flex items-start justify-between mb-3">
+                            <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600">
+                              Selected Profile
+                            </Badge>
+                          </div>
+                          <h5 className="font-bold text-[var(--foreground)] text-lg mb-2">
+                            {personaName}
+                          </h5>
+                          <p className="text-sm text-[var(--muted-foreground)] mb-4 leading-relaxed">
+                            This simulation will model your portfolio behavior and risk responses according to the characteristics and preferences of this investor archetype.
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              Risk-Aware Analysis
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              Personalized Scenarios
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              Behavioral Modeling
+                            </Badge>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  
-                  {/* Selected Economic Scenarios */}
-                  {allScenarios.length > 0 && (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
-                        <h4 className="font-semibold text-[var(--foreground)]">
-                          Stress Test Scenarios ({allScenarios.length})
-                        </h4>
-                      </div>
-                      <div className="space-y-3 max-h-80 overflow-y-auto">
-                        {allScenarios.map((scenario) => {
-                          const IconComponent = scenario.icon;
-                          return (
-                            <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/30">
-                              <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                  <IconComponent className="h-4 w-4 text-[var(--primary)]" />
-                                  <Badge className={`text-xs ${
-                                    scenario.isSelected 
-                                      ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
-                                      : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
-                                  }`}>
-                                    {scenario.isSelected ? 'Selected' : 'Applicable'}
+                    )}
+                    
+                    {/* Selected Economic Scenarios */}
+                    {allScenarios.length > 0 && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
+                          <h4 className="font-semibold text-[var(--foreground)]">
+                            Stress Test Scenarios ({allScenarios.length})
+                          </h4>
+                        </div>
+                        <div className="space-y-3 max-h-80 overflow-y-auto">
+                          {allScenarios.map((scenario) => {
+                            const IconComponent = scenario.icon;
+                            return (
+                              <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/30">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent className="h-4 w-4 text-[var(--primary)]" />
+                                    <Badge className={`text-xs ${
+                                      scenario.isSelected 
+                                        ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
+                                        : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
+                                    }`}>
+                                      {scenario.isSelected ? 'Selected' : 'Applicable'}
+                                    </Badge>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">
+                                    {scenario.horizon}
                                   </Badge>
                                 </div>
-                                <Badge variant="outline" className="text-xs">
-                                  {scenario.horizon}
-                                </Badge>
+                                <h6 className="font-semibold text-[var(--foreground)] text-sm mb-2">
+                                  {scenario.name}
+                                </h6>
+                                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-3">
+                                  {scenario.description}
+                                </p>
+                                <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                                  <div className="w-2 h-2 rounded-full bg-[var(--primary)]"></div>
+                                  <span>Portfolio stress testing enabled</span>
+                                </div>
                               </div>
-                              <h6 className="font-semibold text-[var(--foreground)] text-sm mb-2">
-                                {scenario.name}
-                              </h6>
-                              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-3">
-                                {scenario.description}
-                              </p>
-                              <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-                                <div className="w-2 h-2 rounded-full bg-[var(--primary)]"></div>
-                                <span>Portfolio stress testing enabled</span>
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      )}
-      
-      {/* Only show main content when no configuration is active */}
-      {!(personaName || allScenarios.length > 0) && (
-      <main className="flex-1 relative z-10">
-        {/* Hero Section with Advanced Visual Design */}
-        <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
-          {/* Dynamic Background Mesh */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
-          </div>
-          
-          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-            {/* Floating Icon with Glow Effect */}
-            <div className="flex items-center justify-center mb-8 relative">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
-                  <Play className="h-12 w-12" />
-                </div>
-                <div className="absolute -top-2 -right-2 animate-bounce">
-                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
-                </div>
-              </div>
-            </div>
-
-            {/* Revolutionary Typography */}
-            <h1 className="relative mb-8">
-              <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Investment Intelligence</span>
-              <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
-                UNLEASHED
-              </span>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
-              Witness the paradigm shift that transforms weeks of manual analysis into 
-              <span className="text-[var(--primary)] font-semibold"> minutes of AI-powered insights</span>
-            </p>
-
-            {/* Status Badge with Animation */}
-            <div className="inline-flex items-center px-8 py-4 bg-[var(--card)] border-2 border-[var(--primary)] rounded-full shadow-2xl hover:shadow-[var(--primary)]/20 transition-all duration-300 group">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Shield className="h-6 w-6 text-[var(--success)]" />
-                  <div className="absolute inset-0 animate-ping">
-                    <Shield className="h-6 w-6 text-[var(--success)] opacity-30" />
+                    )}
                   </div>
-                </div>
-                <span className="text-[var(--foreground)] font-semibold text-lg">LIVE DEMONSTRATION</span>
-                <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
-                <span className="text-[var(--muted-foreground)] font-medium">30-45 minutes</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content - Revolutionary Design */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          
-          {/* Central Focus Header */}
-          <div className="text-center mb-20 relative">
-            <div className="inline-block relative mb-8">
-              <h2 className="text-5xl md:text-6xl font-black text-[var(--foreground)] tracking-tight">
-                DEMO
-                <span className="block text-3xl md:text-4xl bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent font-light tracking-widest">
-                  ARCHITECTURE
-                </span>
-              </h2>
-              <div className="absolute -inset-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] opacity-10 blur-xl rounded-full"></div>
-            </div>
-            
-            {/* Dynamic Expectations Block */}
-            <div className="max-w-4xl mx-auto mb-16 relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
-              <div className="relative bg-[var(--card)] border border-[var(--accent)] rounded-2xl p-8 backdrop-blur-sm hover:shadow-2xl transition-all duration-500">
-                <div className="flex items-start gap-6">
-                  <div className="relative">
-                    <div className="bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full p-4 shadow-lg">
-                      <Eye className="h-8 w-8 text-[var(--accent-foreground)]" />
-                    </div>
-                    <div className="absolute -inset-2 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-full opacity-30 blur-sm animate-pulse"></div>
+                  
+                  {/* Action Buttons */}
+                  <div className="mt-8 flex flex-wrap gap-4">
+                    <Button className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white">
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Simulation
+                    </Button>
+                    <Link href="/investor-preferences">
+                      <Button variant="outline">
+                        Modify Configuration
+                      </Button>
+                    </Link>
                   </div>
-                  <div className="text-left flex-1">
-                    <h3 className="text-2xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
-                      EXPERIENTIAL PREVIEW
-                      <Sparkles className="h-5 w-5 text-[var(--accent)] fill-current" />
-                    </h3>
-                    <p className="text-lg text-[var(--foreground)] leading-relaxed">
-                      This demonstration employs <span className="font-bold text-[var(--primary)]">pre-configured portfolio simulations</span> to showcase Unlock's capabilities. 
-                      Post-demo pathways include <span className="font-bold text-[var(--secondary)]">waitlist enrollment</span> or exploration of our 
-                      <span className="font-bold text-[var(--accent)]"> founding investor ecosystem</span>.
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Default Demo Content */}
+          {!hasConfiguration && (
+            <>
+              {/* Page Header */}
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Investment Platform Demo
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  Experience the power of AI-driven investment analysis and portfolio insights
+                </p>
+              </div>
+
+              {/* Demo Features */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-[var(--primary)]" />
+                      Portfolio Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Real-time portfolio analysis with AI-powered insights and risk assessment
                     </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Revolutionary Agenda Items with Advanced Design */}
-          <div className="space-y-8 max-w-5xl mx-auto">
-            
-            {/* Agenda Item 1 - Problem Analysis */}
-            <Link href="/advice-gap" className="group relative block" data-testid="link-problem-deconstruction">
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
-              <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--primary)] rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] cursor-pointer">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
-                <div className="p-10">
-                  <div className="flex items-center gap-8">
-                    <div className="relative">
-                      <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                        <span className="text-3xl font-black text-white">01</span>
-                      </div>
-                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
-                      <Target className="absolute top-2 right-2 h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-3xl md:text-4xl font-black text-[var(--foreground)] mb-3 flex items-center gap-3">
-                        PROBLEM DECONSTRUCTION
-                        <Brain className="h-8 w-8 text-[var(--primary)]" />
-                      </h3>
-                      <p className="text-lg text-[var(--muted-foreground)] leading-relaxed">
-                        Dissecting the systemic inefficiencies in traditional investment due diligence methodologies
-                      </p>
-                    </div>
-                    <ChevronRight className="h-8 w-8 text-[var(--muted-foreground)] group-hover:text-[var(--primary)] group-hover:translate-x-2 transition-all" />
-                  </div>
-                </div>
-              </div>
-            </Link>
+                  </CardContent>
+                </Card>
 
-            {/* Agenda Item 2 - Demo Walkthrough */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
-              <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--secondary)] rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)]"></div>
-                <div className="p-10">
-                  <div className="flex items-center gap-8">
-                    <div className="relative">
-                      <div className="bg-gradient-to-br from-[var(--secondary)] to-[var(--accent)] rounded-2xl p-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                        <span className="text-3xl font-black text-white">02</span>
-                      </div>
-                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
-                      <Zap className="absolute top-2 right-2 h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-3xl md:text-4xl font-black text-[var(--foreground)] mb-3 flex items-center gap-3">
-                        ADAPTIVE DEMONSTRATION
-                        <TrendingUp className="h-8 w-8 text-[var(--secondary)]" />
-                      </h3>
-                      <p className="text-lg text-[var(--muted-foreground)] leading-relaxed">
-                        Personalized platform exploration calibrated to individual investor behavioral patterns and preferences
-                      </p>
-                    </div>
-                    <ChevronRight className="h-8 w-8 text-[var(--muted-foreground)] group-hover:text-[var(--secondary)] group-hover:translate-x-2 transition-all" />
-                  </div>
-                </div>
-              </div>
-            </div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-[var(--primary)]" />
+                      Stress Testing
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Comprehensive stress testing against various economic scenarios
+                    </p>
+                  </CardContent>
+                </Card>
 
-            {/* Agenda Item 3 - Next Steps */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
-              <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--accent)] rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)]"></div>
-                <div className="p-10">
-                  <div className="flex items-center gap-8">
-                    <div className="relative">
-                      <div className="bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-2xl p-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                        <span className="text-3xl font-black text-[var(--foreground)]">03</span>
-                      </div>
-                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--accent)] to-[var(--warning)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
-                      <Rocket className="absolute top-2 right-2 h-6 w-6 text-[var(--foreground)]" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-3xl md:text-4xl font-black text-[var(--foreground)] mb-3 flex items-center gap-3">
-                        ENGAGEMENT PATHWAYS
-                        <Users className="h-8 w-8 text-[var(--accent)]" />
-                      </h3>
-                      <p className="text-lg text-[var(--muted-foreground)] leading-relaxed">
-                        Strategic onboarding routes: Community access tier versus premium founding investor consortium membership
-                      </p>
-                    </div>
-                    <ChevronRight className="h-8 w-8 text-[var(--muted-foreground)] group-hover:text-[var(--accent)] group-hover:translate-x-2 transition-all" />
-                  </div>
-                </div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5 text-[var(--primary)]" />
+                      Investor Personas
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Personalized analysis based on your investor profile and preferences
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          </div>
 
-          {/* Ultimate Call to Action */}
-          <div className="text-center mt-24">
-            <div className="relative max-w-4xl mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] rounded-3xl blur-xl opacity-30 animate-pulse"></div>
-              <div className="relative bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] rounded-3xl p-12 text-white overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-5 rounded-full blur-xl"></div>
-                
-                <div className="relative z-10">
-                  <h3 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
-                    INITIATE TRANSFORMATION
-                  </h3>
-                  <p className="text-xl md:text-2xl opacity-95 mb-10 max-w-3xl mx-auto font-light leading-relaxed">
-                    Experience the convergence of artificial intelligence and investment strategy. 
-                    Your competitive advantage awaits activation.
+              {/* Get Started */}
+              <Card className="text-center">
+                <CardContent className="py-12">
+                  <CheckCircle className="h-16 w-16 text-[var(--primary)] mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                    Ready to Experience the Demo?
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Upload your portfolio data and complete our investor questionnaire to get a personalized demonstration
+                    of our AI-powered investment analysis platform.
                   </p>
-                  <Link 
-                    href="/investor-onboarding"
-                    className="group inline-flex items-center px-12 py-6 bg-white text-[var(--primary)] rounded-2xl font-black text-xl hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-white/20"
-                    data-testid="button-start-demo"
-                  >
-                    <Play className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
-                    COMMENCE DEMO
-                    <ArrowRight className="h-8 w-8 ml-4 group-hover:translate-x-2 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    <Link href="/portfolio-analysis">
+                      <Button size="lg" className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white">
+                        <BarChart3 className="h-5 w-5 mr-2" />
+                        Start with Portfolio Analysis
+                      </Button>
+                    </Link>
+                    <Link href="/investor-preferences">
+                      <Button size="lg" variant="outline">
+                        <User className="h-5 w-5 mr-2" />
+                        Take Investor Questionnaire
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       </main>
-      )}
+      
       <Footer />
     </div>
   );
