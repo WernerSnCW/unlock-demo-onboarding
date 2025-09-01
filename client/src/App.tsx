@@ -23,6 +23,7 @@ import Profile from "@/pages/Profile";
 import ProfilePortfolio from "@/pages/ProfilePortfolio";
 import AccountSettings from "@/pages/AccountSettings";
 import Demo from "@/pages/Demo";
+import DemoSimulation from "@/pages/DemoSimulation";
 import DemoAgenda from "@/pages/DemoAgenda";
 import AdviceGap from "@/pages/AdviceGap";
 import InvestorOnboarding from "@/pages/InvestorOnboarding";
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/profile/portfolio" component={ProfilePortfolio} />
       <Route path="/account-settings" component={AccountSettings} />
       <Route path="/demo" component={Demo} />
+      <Route path="/demo-simulation" component={DemoSimulation} />
       <Route path="/demo/agenda" component={DemoAgenda} />
       <Route path="/advice-gap" component={AdviceGap} />
       <Route path="/investor-onboarding" component={InvestorOnboarding} />
