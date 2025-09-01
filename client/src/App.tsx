@@ -22,6 +22,7 @@ import DueDiligenceRequestDetail from "@/pages/DueDiligenceRequestDetail";
 import Profile from "@/pages/Profile";
 import ProfilePortfolio from "@/pages/ProfilePortfolio";
 import AccountSettings from "@/pages/AccountSettings";
+import Demo from "@/pages/Demo";
 import DemoAgenda from "@/pages/DemoAgenda";
 import AdviceGap from "@/pages/AdviceGap";
 import InvestorOnboarding from "@/pages/InvestorOnboarding";
@@ -49,7 +50,8 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/profile/portfolio" component={ProfilePortfolio} />
       <Route path="/account-settings" component={AccountSettings} />
-      <Route path="/demo" component={DemoAgenda} />
+      <Route path="/demo" component={Demo} />
+      <Route path="/demo/agenda" component={DemoAgenda} />
       <Route path="/advice-gap" component={AdviceGap} />
       <Route path="/investor-onboarding" component={InvestorOnboarding} />
       <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
