@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Bad Portfolio Data</title>
+</head>
+<body>
+    <h1>Clear Bad Portfolio Data</h1>
+    <button onclick="clearData()">Clear Bad localStorage Data</button>
+    <div id="status"></div>
+    
+    <script>
+    function clearData() {
+        // Clear the bad uploaded portfolio data
+        localStorage.removeItem('uploadedPortfolioData');
+        
+        // Show what was cleared
+        document.getElementById('status').innerHTML = `
+            <p style="color: green;">✅ Cleared bad portfolio data!</p>
+            <p>Now you can upload a proper CSV file with real stock holdings.</p>
+            <p>Sample CSV format:</p>
+            <pre>
+Category,Account/Provider,Holding,Ticker,Value_GBP,Classification
+Stock,Brokerage,Apple Inc,AAPL,50000,Traditional
+Stock,ISA,Microsoft Corp,MSFT,30000,Traditional
+Bond,Pension,UK Gilts,GILT,20000,Traditional
+            </pre>
+        `;
+    }
+    </script>
+</body>
+</html>
