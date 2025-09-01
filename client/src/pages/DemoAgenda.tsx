@@ -1,9 +1,60 @@
 import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Play, Sparkles, Brain, Rocket, Shield, Zap, ArrowRight, Crown, Gift, Target, TrendingUp, Users, Eye, ChevronRight } from 'lucide-react';
+import { Play, Sparkles, Brain, Rocket, Shield, Zap, ArrowRight, Crown, Gift, Target, TrendingUp, Users, Eye, ChevronRight, User, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+
+// Economic scenarios data
+const economicScenarios = [
+  {
+    id: 'property_crash_2008',
+    name: '2008-Style Property Crash',
+    description: 'Significant property value decline with credit market freeze and financial sector stress',
+    horizon: '5 year horizon',
+    icon: AlertTriangle
+  },
+  {
+    id: 'ai_recession',
+    name: 'AI-Driven Economic Recession',
+    description: 'Widespread job displacement and economic disruption from rapid AI adoption',
+    horizon: '5 year horizon',
+    icon: Brain
+  },
+  {
+    id: 'stagflation_1970s',
+    name: 'High-Inflation Stagflation (1970s Redux)',
+    description: 'Prolonged period of high inflation combined with economic stagnation and unemployment',
+    horizon: '5 year horizon',
+    icon: TrendingUp
+  },
+  {
+    id: 'tech_bubble_burst',
+    name: 'Tech & Speculative Bubble Burst',
+    description: 'Major correction in technology valuations and speculative assets',
+    horizon: '5 year horizon',
+    icon: Zap
+  },
+  {
+    id: 'uk_policy_shift',
+    name: 'Major UK Policy Shift',
+    description: 'Significant changes in UK tax, regulatory, or economic policy affecting investors',
+    horizon: '5 year horizon',
+    icon: Shield
+  }
+];
 
 export default function DemoAgenda() {
+  // Parse URL parameters to get persona and scenario configuration
+  const urlParams = new URLSearchParams(window.location.search);
+  const personaId = urlParams.get('persona');
+  const personaName = urlParams.get('personaName');
+  const scenarioIds = urlParams.get('scenarios')?.split(',').filter(Boolean) || [];
+  
+  // Get selected scenarios
+  const selectedScenarios = scenarioIds
+    .map(id => economicScenarios.find(s => s.id === id))
+    .filter((scenario): scenario is typeof scenario & {} => scenario !== undefined);
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -15,6 +66,84 @@ export default function DemoAgenda() {
       </div>
 
       <Header />
+      
+      {/* Configuration Summary Section */}
+      {(personaName || selectedScenarios.length > 0) && (
+        <div className="relative z-10 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 border-b border-[var(--border)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <Card className="border-2 border-[var(--primary)]/20 bg-[var(--card)]/80 backdrop-blur-sm shadow-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
+                    <Target className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-[var(--foreground)]">
+                      Demo Configuration Active
+                    </h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">
+                      Your simulation will use the following investor profile and economic scenarios
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Selected Persona */}
+                  {personaName && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-[var(--primary)]" />
+                        <h4 className="font-semibold text-[var(--foreground)]">
+                          Investor Persona
+                        </h4>
+                      </div>
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-lg p-4 border border-green-200/50 dark:border-green-800/30">
+                        <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 mb-2">
+                          Selected Profile
+                        </Badge>
+                        <p className="font-medium text-[var(--foreground)] text-sm">
+                          {personaName}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Selected Economic Scenarios */}
+                  {selectedScenarios.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
+                        <h4 className="font-semibold text-[var(--foreground)]">
+                          Stress Test Scenarios ({selectedScenarios.length})
+                        </h4>
+                      </div>
+                      <div className="space-y-2 max-h-24 overflow-y-auto">
+                        {selectedScenarios.map((scenario) => {
+                          const IconComponent = scenario.icon;
+                          return (
+                            <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/30">
+                              <div className="flex items-center gap-2">
+                                <IconComponent className="h-3 w-3 text-[var(--primary)]" />
+                                <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs">
+                                  Active
+                                </Badge>
+                              </div>
+                              <p className="font-medium text-[var(--foreground)] text-xs mt-1">
+                                {scenario.name}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+      
       <main className="flex-1 relative z-10">
         {/* Hero Section with Advanced Visual Design */}
         <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">

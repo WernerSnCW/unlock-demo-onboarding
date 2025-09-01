@@ -2479,7 +2479,23 @@ export default function InvestorPreferences() {
                     Retake Questionnaire
                   </Button>
                   <Button
-                    onClick={() => setLocation('/demo/agenda')}
+                    onClick={() => {
+                      // Determine the effective persona and scenarios to pass
+                      const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
+                      const effectivePersona = investorPersonas.find(p => p.id === effectivePersonaId);
+                      
+                      // Create URL parameters
+                      const params = new URLSearchParams();
+                      if (effectivePersona) {
+                        params.set('persona', effectivePersona.id);
+                        params.set('personaName', effectivePersona.name);
+                      }
+                      if (selectedScenarioIds.length > 0) {
+                        params.set('scenarios', selectedScenarioIds.join(','));
+                      }
+                      
+                      setLocation(`/demo/agenda?${params.toString()}`);
+                    }}
                     size="lg"
                     className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
                     data-testid="button-continue-demo"
