@@ -217,59 +217,59 @@ export default function DemoPortfolioAnalysis() {
       {/* Main Analysis Tabs */}
       <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-0.5 rounded-2xl shadow-2xl backdrop-blur-sm overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-0.5 rounded-2xl shadow-2xl backdrop-blur-sm">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
+              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
-              <div className="flex flex-col items-center gap-0.5">
-                <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
-                <span className="text-xs font-medium hidden md:block">Overview</span>
+              <div className="flex flex-col items-center">
+                <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
+                <span className="text-xs hidden lg:block">Overview</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="refine" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
+              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
-              <div className="flex flex-col items-center gap-0.5">
-                <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
-                <span className="text-xs font-medium hidden md:block">Refine</span>
+              <div className="flex flex-col items-center">
+                <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
+                <span className="text-xs hidden lg:block">Refine</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="performance" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
+              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
-              <div className="flex flex-col items-center gap-0.5">
-                <TrendingUp className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium hidden md:block">Perf</span>
+              <div className="flex flex-col items-center">
+                <TrendingUp className="h-3 w-3" />
+                <span className="text-xs hidden lg:block">Perf</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="risk" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
+              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
-              <div className="flex flex-col items-center gap-0.5">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium hidden md:block">Risk</span>
+              <div className="flex flex-col items-center">
+                <AlertTriangle className="h-3 w-3" />
+                <span className="text-xs hidden lg:block">Risk</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="stress" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
+              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
-              <div className="flex flex-col items-center gap-0.5">
-                <Zap className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium hidden md:block">Stress</span>
+              <div className="flex flex-col items-center">
+                <Zap className="h-3 w-3" />
+                <span className="text-xs hidden lg:block">Stress</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="insights" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
+              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
-              <div className="flex flex-col items-center gap-0.5">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium hidden md:block">AI</span>
+              <div className="flex flex-col items-center">
+                <Sparkles className="h-3 w-3" />
+                <span className="text-xs hidden lg:block">AI</span>
               </div>
             </TabsTrigger>
           </TabsList>
