@@ -268,7 +268,7 @@ export default function DemoPortfolioAnalysis() {
               className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
-                <Sparkles className="h-3 w-3" />
+                <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">3</div>
                 <span className="text-xs hidden lg:block">AI</span>
               </div>
             </TabsTrigger>
@@ -1401,7 +1401,10 @@ export default function DemoPortfolioAnalysis() {
 
                   {/* Submit Button */}
                   <div className="flex justify-center pt-6">
-                    <button className="px-8 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <button 
+                      onClick={() => setActiveTab("insights")}
+                      className="px-8 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    >
                       Analyse my Portfolio
                     </button>
                   </div>
