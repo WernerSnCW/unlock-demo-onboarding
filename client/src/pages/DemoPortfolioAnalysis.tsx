@@ -217,56 +217,60 @@ export default function DemoPortfolioAnalysis() {
       {/* Main Analysis Tabs */}
       <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-0.5 rounded-2xl shadow-2xl backdrop-blur-sm overflow-x-auto">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
             >
-              <div className="flex items-center gap-1">
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
-                <span className="font-semibold hidden sm:inline">Overview</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
+                <span className="text-xs font-medium hidden md:block">Overview</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="refine" 
-              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
             >
-              <div className="flex items-center gap-1">
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
-                <span className="font-semibold hidden lg:inline">Refine</span>
-                <span className="font-semibold hidden sm:inline lg:hidden">Analysis</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
+                <span className="text-xs font-medium hidden md:block">Refine</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="performance" 
-              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
             >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Performance</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium hidden md:block">Perf</span>
+              </div>
             </TabsTrigger>
             <TabsTrigger 
               value="risk" 
-              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
             >
-              <AlertTriangle className="h-4 w-4" />
-              <span className="hidden lg:inline">Risk Analysis</span>
-              <span className="hidden sm:inline lg:hidden">Risk</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium hidden md:block">Risk</span>
+              </div>
             </TabsTrigger>
             <TabsTrigger 
               value="stress" 
-              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
             >
-              <Zap className="h-4 w-4" />
-              <span className="hidden lg:inline">Stress Testing</span>
-              <span className="hidden sm:inline lg:hidden">Stress</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <Zap className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium hidden md:block">Stress</span>
+              </div>
             </TabsTrigger>
             <TabsTrigger 
               value="insights" 
-              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1.5 px-1 min-w-0"
             >
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden lg:inline">AI Insights</span>
-              <span className="hidden sm:inline lg:hidden">Insights</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium hidden md:block">AI</span>
+              </div>
             </TabsTrigger>
           </TabsList>
 
