@@ -547,22 +547,48 @@ export default function DemoPortfolioAnalysis() {
 
                 <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
                   <CardHeader>
-                    <CardTitle className="text-lg">Key Metrics</CardTitle>
+                    <CardTitle className="text-lg">Portfolio Configuration</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-[var(--muted-foreground)]">Risk Score</span>
-                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Medium</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[var(--muted-foreground)]">Diversification</span>
-                        <Badge variant="outline" className="bg-green-100 text-green-800">Good</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[var(--muted-foreground)]">Holdings</span>
-                        <span className="font-semibold">14 positions</span>
-                      </div>
+                      {investorData.portfolioConfig ? (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-[var(--muted-foreground)]">Geographic Mix</span>
+                            <span className="font-semibold">
+                              {investorData.portfolioConfig.geography === '0-25' && '0-25% International'}
+                              {investorData.portfolioConfig.geography === '25-50' && '25-50% International'}
+                              {investorData.portfolioConfig.geography === '50-75' && '50-75% International'}
+                              {investorData.portfolioConfig.geography === '75-100' && '75-100% International'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[var(--muted-foreground)]">Time Horizon</span>
+                            <span className="font-semibold">
+                              {investorData.portfolioConfig.timeHorizon === '1-3' && '1-3 years'}
+                              {investorData.portfolioConfig.timeHorizon === '3-7' && '3-7 years'}
+                              {investorData.portfolioConfig.timeHorizon === '7-15' && '7-15 years'}
+                              {investorData.portfolioConfig.timeHorizon === '15-plus' && '15+ years'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[var(--muted-foreground)]">Portfolio Size</span>
+                            <span className="font-semibold">
+                              £{(
+                                (parseInt(investorData.portfolioConfig.stocks || '0')) +
+                                (parseInt(investorData.portfolioConfig.bonds || '0')) +
+                                (parseInt(investorData.portfolioConfig.alternatives || '0')) +
+                                (parseInt(investorData.portfolioConfig.property || '0')) +
+                                (parseInt(investorData.portfolioConfig.cash || '0'))
+                              ).toLocaleString()}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center py-4">
+                          <p className="text-[var(--muted-foreground)]">Portfolio configuration data not available</p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
