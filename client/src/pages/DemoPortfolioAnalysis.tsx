@@ -1174,6 +1174,89 @@ export default function DemoPortfolioAnalysis() {
                     </CardContent>
                   </Card>
 
+                  {/* Tech Growth Exposure */}
+                  <Card className="bg-gradient-to-br from-[var(--primary)]/5 to-[var(--muted)]/5 border-[var(--primary)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-[var(--primary)]" />
+                        Tech Growth Exposure
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What percentage of your equity is in AI/tech vs broad market?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tech-exposure" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>0-25% - broad diversification</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tech-exposure" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>25-50% - moderate tech tilt</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tech-exposure" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>50-75% - significant tech exposure</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="tech-exposure" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>75%+ - tech concentrated</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          What's your crypto allocation split?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-allocation" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>No crypto exposure</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-allocation" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>BTC/ETH only - blue chips</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-allocation" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Mostly BTC/ETH with some alts</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-allocation" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Significant altcoin exposure</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-3 block">
+                          How do you store your crypto holdings?
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-storage" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>No crypto holdings</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-storage" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Self custody - hardware wallets</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-storage" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Mix of exchange and self custody</span>
+                          </label>
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="crypto-storage" className="w-4 h-4 text-[var(--primary)]" />
+                            <span>Mostly on exchanges</span>
+                          </label>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   {/* Inflation Spending */}
                   <Card className="bg-gradient-to-br from-[var(--warning)]/5 to-[var(--primary)]/5 border-[var(--warning)]/20">
                     <CardHeader>
