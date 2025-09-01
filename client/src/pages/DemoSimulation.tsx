@@ -314,14 +314,25 @@ export default function DemoSimulation() {
                         <div className="text-center mt-6">
                           <Button
                             variant="outline"
-                            onClick={() => setPortfolioConfig(prev => ({
-                              ...prev,
-                              stocks: '200000',
-                              bonds: '100000',
-                              alternatives: '100000',
-                              property: '50000',
-                              cash: '50000'
-                            }))}
+                            onClick={() => {
+                              const demoData = {
+                                totalValue: '',
+                                stocks: '200000',
+                                bonds: '100000',
+                                alternatives: '100000',
+                                property: '50000',
+                                cash: '50000',
+                                international: '',
+                                timeHorizon: ''
+                              };
+                              setPortfolioConfig(prev => ({
+                                ...prev,
+                                ...demoData
+                              }));
+                              // Save demo data to localStorage immediately
+                              localStorage.setItem('portfolioConfig', JSON.stringify(demoData));
+                              console.log('Demo portfolio data saved to localStorage:', demoData);
+                            }}
                             className="mb-4 px-6 py-2 bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border-[var(--primary)] hover:from-[var(--primary)]/20 hover:to-[var(--secondary)]/20 transition-all duration-300"
                           >
                             <Gift className="h-4 w-4 mr-2" />
