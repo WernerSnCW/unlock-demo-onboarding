@@ -2285,6 +2285,101 @@ export default function InvestorPreferences() {
                 </CardContent>
               </Card>
               
+              {/* Summary Section */}
+              {questionnaireComplete && (
+                <Card className="bg-gradient-to-r from-[var(--card)] to-[var(--card)]/80 border-[var(--border)]">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-[var(--primary)]" />
+                      Demo Configuration Summary
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Persona Summary */}
+                      <div>
+                        <h4 className="text-sm font-medium text-[var(--foreground)] mb-2">Selected Investor Profile</h4>
+                        {(() => {
+                          const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
+                          const effectivePersona = investorPersonas.find(p => p.id === effectivePersonaId);
+                          const isUserSelected = selectedPersonaId !== null;
+                          const isPrimary = effectivePersonaId === questionnairePersonaResult?.persona.id;
+                          
+                          return effectivePersona ? (
+                            <div className="bg-[var(--muted)]/30 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <h5 className="font-medium text-[var(--foreground)] text-sm">{effectivePersona.name}</h5>
+                                {isUserSelected && !isPrimary ? (
+                                  <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs">
+                                    User Selected
+                                  </Badge>
+                                ) : isPrimary ? (
+                                  <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 text-xs">
+                                    Primary Match
+                                  </Badge>
+                                ) : null}
+                              </div>
+                              <p className="text-xs text-[var(--muted-foreground)] line-clamp-2">{effectivePersona.description}</p>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-[var(--muted-foreground)]">No persona available</p>
+                          );
+                        })()}
+                      </div>
+                      
+                      {/* Economic Scenarios Summary */}
+                      <div>
+                        <h4 className="text-sm font-medium text-[var(--foreground)] mb-2">Stress Test Scenarios</h4>
+                        {(() => {
+                          const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
+                          const highRiskScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
+                          const selectedScenarios = selectedScenarioIds;
+                          
+                          // Combine and deduplicate scenarios
+                          const allRelevantScenarioIds = Array.from(new Set([...highRiskScenarios, ...selectedScenarios]));
+                          const relevantScenarios = allRelevantScenarioIds
+                            .map(id => economicScenarios.find(s => s.id === id))
+                            .filter((scenario): scenario is typeof scenario & {} => scenario !== undefined);
+                          
+                          return relevantScenarios.length > 0 ? (
+                            <div className="space-y-2">
+                              {relevantScenarios.map(scenario => {
+                                const isSelected = selectedScenarios.includes(scenario.id);
+                                const isHighRisk = highRiskScenarios.includes(scenario.id);
+                                
+                                return (
+                                  <div key={scenario.id} className="bg-[var(--muted)]/30 rounded-lg p-3">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <h5 className="font-medium text-[var(--foreground)] text-xs">{scenario.name}</h5>
+                                      <div className="flex gap-1">
+                                        {isSelected && (
+                                          <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs">
+                                            Selected
+                                          </Badge>
+                                        )}
+                                        {isHighRisk && (
+                                          <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-600 text-xs">
+                                            High Risk
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <p className="text-xs text-[var(--muted-foreground)] line-clamp-1">{scenario.description}</p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="bg-[var(--muted)]/30 rounded-lg p-3">
+                              <p className="text-xs text-[var(--muted-foreground)]">No stress test scenarios identified for your profile</p>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Action Buttons - Moved below persona cards */}
               {questionnaireComplete && (
                 <div className="flex justify-center gap-4 mt-6">
