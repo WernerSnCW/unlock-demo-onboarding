@@ -131,113 +131,138 @@ export default function DemoSimulation() {
 
       {/* Configuration Display */}
       {(personaName || allScenarios.length > 0) && (
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border-blue-200/50 dark:border-blue-800/30">
-            <CardContent className="p-8">
-              <div className="text-center mb-8">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="relative">
-                    <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-4">
-                      <Target className="h-8 w-8" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 animate-bounce">
-                      <Sparkles className="h-5 w-5 text-[var(--accent)] fill-current" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-[var(--foreground)] mb-6">
+              SIMULATION
+              <span className="block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                CONFIGURATION
+              </span>
+            </h2>
+            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed">
+              Running personalized portfolio analysis with your investor profile and risk scenarios
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Selected Persona */}
+            {personaName && (
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
+                <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--primary)] rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl hover:scale-105">
+                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
+                  
+                  <div className="text-center mb-6">
+                    <div className="relative inline-block">
+                      <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl group-hover:scale-110 transition-transform">
+                        <User className="h-12 w-12 text-white" />
+                      </div>
+                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
                     </div>
                   </div>
-                </div>
-                <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">
-                  Simulation Configuration
-                </h2>
-                <p className="text-[var(--muted-foreground)]">
-                  Running personalized portfolio analysis with your investor profile and risk scenarios
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Selected Persona */}
-                {personaName && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-[var(--primary)]" />
-                      <h4 className="font-semibold text-[var(--foreground)]">
-                        Investor Persona
-                      </h4>
-                    </div>
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-lg p-6 border border-green-200/50 dark:border-green-800/30">
-                      <div className="flex items-start justify-between mb-3">
-                        <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600">
-                          Active Profile
+
+                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-4 text-center">
+                    ACTIVE PERSONA
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-2xl p-6 border border-green-200/50 dark:border-green-800/30">
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 font-bold px-4 py-2">
+                          Live Profile
                         </Badge>
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                       </div>
-                      <h5 className="font-bold text-[var(--foreground)] text-lg mb-2">
+                      <h4 className="text-xl font-bold text-[var(--foreground)] mb-3">
                         {decodeURIComponent(personaName)}
-                      </h5>
-                      <p className="text-sm text-[var(--muted-foreground)] mb-4 leading-relaxed">
+                      </h4>
+                      <p className="text-[var(--muted-foreground)] leading-relaxed mb-4">
                         The simulation is actively modeling your portfolio behavior and risk responses according to this investor archetype.
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
                           Live Analysis
                         </Badge>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300">
                           Risk Modeling
                         </Badge>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="border-purple-300 text-purple-700 dark:border-purple-600 dark:text-purple-300">
                           Real-time Data
                         </Badge>
                       </div>
                     </div>
                   </div>
-                )}
-                
-                {/* Active Economic Scenarios */}
-                {allScenarios.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
-                      <h4 className="font-semibold text-[var(--foreground)]">
-                        Active Stress Tests ({allScenarios.length})
-                      </h4>
-                    </div>
-                    <div className="space-y-3 max-h-80 overflow-y-auto">
-                      {allScenarios.map((scenario) => {
-                        const IconComponent = scenario.icon;
-                        return (
-                          <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/30">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <IconComponent className="h-4 w-4 text-[var(--primary)]" />
-                                <Badge className={`text-xs ${
-                                  scenario.isSelected 
-                                    ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
-                                    : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
-                                }`}>
-                                  {scenario.isSelected ? 'Selected' : 'Applicable'}
-                                </Badge>
-                              </div>
-                              <Badge variant="outline" className="text-xs">
-                                {scenario.horizon}
-                              </Badge>
-                            </div>
-                            <h6 className="font-semibold text-[var(--foreground)] text-sm mb-2">
-                              {scenario.name}
-                            </h6>
-                            <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-3">
-                              {scenario.description}
-                            </p>
-                            <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-                              <div className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse"></div>
-                              <span>Stress testing active</span>
-                            </div>
-                          </div>
-                        );
-                      })}
+                </div>
+              </div>
+            )}
+            
+            {/* Active Economic Scenarios */}
+            {allScenarios.length > 0 && (
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
+                <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--warning)] rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl hover:scale-105">
+                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)]"></div>
+                  
+                  <div className="text-center mb-6">
+                    <div className="relative inline-block">
+                      <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-2xl p-4 shadow-xl group-hover:scale-110 transition-transform">
+                        <AlertTriangle className="h-12 w-12 text-white" />
+                      </div>
+                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
                     </div>
                   </div>
-                )}
+
+                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-4 text-center">
+                    STRESS TESTING
+                  </h3>
+                  
+                  <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                    <div className="text-center mb-4">
+                      <Badge className="bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)] text-white border-0 font-bold px-4 py-2">
+                        {allScenarios.length} Active Scenarios
+                      </Badge>
+                    </div>
+                    
+                    {allScenarios.map((scenario) => {
+                      const IconComponent = scenario.icon;
+                      return (
+                        <div key={scenario.id} className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/20 rounded-xl p-4 border border-orange-200/50 dark:border-orange-800/30 hover:shadow-lg transition-shadow">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-lg p-2">
+                                <IconComponent className="h-4 w-4 text-white" />
+                              </div>
+                              <Badge className={`text-xs font-bold ${
+                                scenario.isSelected 
+                                  ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
+                                  : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
+                              }`}>
+                                {scenario.isSelected ? 'Selected' : 'Applicable'}
+                              </Badge>
+                            </div>
+                            <Badge variant="outline" className="text-xs border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-400">
+                              {scenario.horizon}
+                            </Badge>
+                          </div>
+                          <h5 className="font-bold text-[var(--foreground)] mb-2">
+                            {scenario.name}
+                          </h5>
+                          <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-3">
+                            {scenario.description}
+                          </p>
+                          <div className="flex items-center gap-2 text-sm text-[var(--success)] font-medium">
+                            <div className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse"></div>
+                            <span>Stress testing active</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
       )}
 
