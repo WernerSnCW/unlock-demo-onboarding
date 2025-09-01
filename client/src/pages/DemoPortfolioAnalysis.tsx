@@ -544,10 +544,11 @@ export default function DemoPortfolioAnalysis() {
                           <div className="flex justify-between">
                             <span className="text-[var(--muted-foreground)]">Geographic Mix</span>
                             <span className="font-semibold">
-                              {investorData.portfolioConfig.geography === '0-25' && '0-25% International'}
-                              {investorData.portfolioConfig.geography === '25-50' && '25-50% International'}
-                              {investorData.portfolioConfig.geography === '50-75' && '50-75% International'}
-                              {investorData.portfolioConfig.geography === '75-100' && '75-100% International'}
+                              {investorData.portfolioConfig.international === '0-25' && '0-25% International'}
+                              {investorData.portfolioConfig.international === '25-50' && '25-50% International'}
+                              {investorData.portfolioConfig.international === '50-75' && '50-75% International'}
+                              {investorData.portfolioConfig.international === '75-100' && '75-100% International'}
+                              {!investorData.portfolioConfig.international && 'Not specified'}
                             </span>
                           </div>
                           <div className="flex justify-between">
