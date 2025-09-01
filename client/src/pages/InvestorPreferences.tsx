@@ -2502,15 +2502,26 @@ export default function InvestorPreferences() {
           {selectedPersonaForDetails && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-[var(--foreground)] flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                    <User className="h-5 w-5 text-white" />
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <DialogTitle className="text-xl font-bold text-[var(--foreground)] flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
+                        <User className="h-5 w-5 text-white" />
+                      </div>
+                      {selectedPersonaForDetails.name}
+                    </DialogTitle>
+                    <DialogDescription className="text-[var(--muted-foreground)] leading-relaxed mt-2">
+                      {selectedPersonaForDetails.description}
+                    </DialogDescription>
                   </div>
-                  {selectedPersonaForDetails.name}
-                </DialogTitle>
-                <DialogDescription className="text-[var(--muted-foreground)] leading-relaxed">
-                  {selectedPersonaForDetails.description}
-                </DialogDescription>
+                  <button
+                    onClick={() => setSelectedPersonaForDetails(null)}
+                    className="ml-4 p-2 rounded-lg hover:bg-[var(--muted)] transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    aria-label="Close modal"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </DialogHeader>
               
               <div className="space-y-6 mt-6">
