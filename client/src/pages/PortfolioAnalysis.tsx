@@ -506,7 +506,15 @@ export default function PortfolioAnalysis() {
                             ))}
                           </Pie>
                           <Tooltip 
-                            formatter={(value: any) => [`${(value || 0).toFixed(1)}%`, 'Allocation']}
+                            formatter={(value: any, name: any, props: any) => {
+                              const categoryNames = {
+                                'Traditional': 'Traditional Holdings',
+                                'Property': 'Property Portfolio', 
+                                'Alternative': 'Alternative Investments'
+                              };
+                              const displayName = categoryNames[props.payload?.name] || props.payload?.name || 'Allocation';
+                              return [`${(value || 0).toFixed(1)}%`, displayName];
+                            }}
                             contentStyle={{ 
                               backgroundColor: 'var(--card)', 
                               border: '1px solid var(--border)',
