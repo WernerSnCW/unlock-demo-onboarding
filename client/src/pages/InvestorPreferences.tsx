@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -536,27 +536,126 @@ function classifyInvestorPersona(formData: PreferencesFormData): { persona: type
 interface QuestionnaireQuestion {
   id: string;
   text: string;
-  category: string;
+  type: 'radio' | 'multiselect';
+  options: { id: string; label: string; }[];
 }
 
 interface QuestionnaireAnswer {
   questionId: string;
-  response: 'agree' | 'neutral' | 'disagree';
+  response: string | string[]; // Single value for radio, array for multiselect
 }
 
 const questionnaireQuestions: QuestionnaireQuestion[] = [
-  { id: 'self_directed_research', text: 'I prefer to research and make my own investment decisions rather than rely on financial advisors', category: 'decision_style' },
-  { id: 'high_risk_tolerance', text: 'I am comfortable with investments that may lose significant value in exchange for higher potential returns', category: 'risk_tolerance' },
-  { id: 'long_term_horizon', text: 'I prefer to invest for the long term (10+ years) rather than seeking quick gains', category: 'time_horizon' },
-  { id: 'alternative_investments', text: 'I am interested in alternative investments like private equity, real estate, or collectibles', category: 'investment_type' },
-  { id: 'cryptocurrency_interest', text: 'I am interested in investing in cryptocurrencies and digital assets', category: 'investment_type' },
-  { id: 'advisor_reliance', text: 'I prefer to delegate investment decisions to professional advisors rather than manage myself', category: 'decision_style' },
-  { id: 'conservative_approach', text: 'I prioritize preserving my capital over achieving high returns', category: 'risk_tolerance' },
-  { id: 'esg_importance', text: 'Environmental, social, and governance (ESG) factors are important in my investment decisions', category: 'values' },
-  { id: 'liquidity_preference', text: 'I need to be able to access my investments quickly if necessary', category: 'liquidity' },
-  { id: 'peer_collaboration', text: 'I prefer to collaborate with other investors and learn from their experiences', category: 'decision_style' },
-  { id: 'property_focus', text: 'Real estate and property investments are a major focus of my investment strategy', category: 'investment_type' },
-  { id: 'retirement_planning', text: 'My primary investment goal is building wealth for retirement', category: 'objectives' }
+  {
+    id: 'investment_objective',
+    text: 'What is your main investment objective?',
+    type: 'radio',
+    options: [
+      { id: 'wealth_preservation', label: 'Wealth Preservation' },
+      { id: 'wealth_building', label: 'Wealth Building' },
+      { id: 'balanced_hybrid', label: 'Balanced / Hybrid' }
+    ]
+  },
+  {
+    id: 'risk_profile',
+    text: 'How would you describe your risk profile?',
+    type: 'radio',
+    options: [
+      { id: 'conservative', label: 'Conservative (0–15% volatility)' },
+      { id: 'cautious', label: 'Cautious (5–25%)' },
+      { id: 'balanced', label: 'Balanced (10–35%)' },
+      { id: 'growth', label: 'Growth (15–45%)' },
+      { id: 'aggressive', label: 'Aggressive (20%+)' }
+    ]
+  },
+  {
+    id: 'time_commitment',
+    text: 'How much time do you want to spend actively managing your investments?',
+    type: 'radio',
+    options: [
+      { id: 'minimal', label: 'Minimal (rely on advisors, little personal time)' },
+      { id: 'moderate', label: 'Moderate (some involvement, occasional research)' },
+      { id: 'high', label: 'High (hands-on, frequent decisions)' }
+    ]
+  },
+  {
+    id: 'decision_making',
+    text: 'How do you prefer to make investment decisions?',
+    type: 'radio',
+    options: [
+      { id: 'independent', label: 'Independent / self-research' },
+      { id: 'advisors', label: 'With professional advisors' },
+      { id: 'community', label: 'As part of a community or syndicate' }
+    ]
+  },
+  {
+    id: 'liquidity_importance',
+    text: 'How important is liquidity (easy access to your money) to you?',
+    type: 'radio',
+    options: [
+      { id: 'prefer_liquid', label: 'Prefer liquid, tradable assets' },
+      { id: 'mixed', label: 'Comfortable with a mix of liquid and illiquid' },
+      { id: 'comfortable_illiquid', label: 'Comfortable with illiquid, long-term holds' }
+    ]
+  },
+  {
+    id: 'current_portfolio',
+    text: 'Which best describes your current portfolio?',
+    type: 'radio',
+    options: [
+      { id: 'cash_bonds', label: 'Mostly cash/bonds/regulated assets' },
+      { id: 'diversified_equities', label: 'Diversified equities/funds' },
+      { id: 'property_heavy', label: 'Property-heavy' },
+      { id: 'alternatives_heavy', label: 'Alternatives/collectibles-heavy' },
+      { id: 'crypto_heavy', label: 'Crypto-heavy' },
+      { id: 'beginner_mix', label: 'Beginner mix (small allocations across categories)' }
+    ]
+  },
+  {
+    id: 'asset_interests',
+    text: 'What types of assets interest you most? (select all that apply)',
+    type: 'multiselect',
+    options: [
+      { id: 'public_equities', label: 'Public equities & bonds' },
+      { id: 'property_real_estate', label: 'Property/real estate' },
+      { id: 'crypto_digital', label: 'Crypto/digital assets' },
+      { id: 'collectibles', label: 'Collectibles (art, whisky, luxury items)' },
+      { id: 'vc_angel_eis', label: 'VC, Angel, or EIS/SEIS investments' }
+    ]
+  },
+  {
+    id: 'biggest_challenge',
+    text: 'What is your biggest challenge with investing?',
+    type: 'radio',
+    options: [
+      { id: 'lack_time', label: 'Lack of time' },
+      { id: 'lack_knowledge', label: 'Lack of knowledge/experience' },
+      { id: 'risk_scams', label: 'Risk of scams' },
+      { id: 'tax_optimisation', label: 'Tax optimisation' },
+      { id: 'estate_retirement', label: 'Estate/retirement planning' }
+    ]
+  },
+  {
+    id: 'annual_return_target',
+    text: 'What annual return are you aiming for?',
+    type: 'radio',
+    options: [
+      { id: 'three_to_five', label: '3–5%' },
+      { id: 'five_to_seven', label: '5–7%' },
+      { id: 'eight_to_twelve', label: '8–12%' },
+      { id: 'fifteen_plus', label: '15%+' }
+    ]
+  },
+  {
+    id: 'esg_importance',
+    text: 'How important are ethical/ESG or impact values in your investing?',
+    type: 'radio',
+    options: [
+      { id: 'not_important', label: 'Not important' },
+      { id: 'somewhat_important', label: 'Somewhat important' },
+      { id: 'very_important', label: 'Very important' }
+    ]
+  }
 ];
 
 export default function InvestorPreferences() {
@@ -570,13 +669,14 @@ export default function InvestorPreferences() {
   const [questionnaireAnswers, setQuestionnaireAnswers] = useState<QuestionnaireAnswer[]>([]);
   const [questionnaireComplete, setQuestionnaireComplete] = useState(false);
   const [questionnairePersonaResult, setQuestionnairePersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number } | null>(null);
+  const [currentQuestionAnswer, setCurrentQuestionAnswer] = useState<string | string[]>('');
 
   // Convert questionnaire answers to form data for persona classification
   const convertQuestionnaireToFormData = (answers: QuestionnaireAnswer[]): PreferencesFormData => {
     const answerMap = answers.reduce((acc, answer) => {
       acc[answer.questionId] = answer.response;
       return acc;
-    }, {} as Record<string, string>);
+    }, {} as Record<string, string | string[]>);
 
     // Map questionnaire answers to form fields
     let investorObjective: 'wealth_building' | 'wealth_preservation' | 'hybrid' = 'hybrid';
@@ -588,66 +688,67 @@ export default function InvestorPreferences() {
     let esgImportance: 'not_important' | 'somewhat_important' | 'very_important' = 'somewhat_important';
     let activeInvestmentInterests: string[] = [];
 
-    // Decision making style
-    if (answerMap.self_directed_research === 'agree') {
+    // Direct mappings from new question format
+    if (answerMap.investment_objective === 'wealth_preservation') {
+      investorObjective = 'wealth_preservation';
+    } else if (answerMap.investment_objective === 'wealth_building') {
+      investorObjective = 'wealth_building';
+    } else {
+      investorObjective = 'hybrid';
+    }
+
+    if (answerMap.risk_profile) {
+      riskProfile = answerMap.risk_profile as 'conservative' | 'cautious' | 'balanced' | 'growth' | 'aggressive';
+    }
+
+    if (answerMap.time_commitment) {
+      managementStyle = answerMap.time_commitment as 'minimal' | 'moderate' | 'high';
+    }
+
+    if (answerMap.decision_making === 'independent') {
       decisionMakingStyle = 'independent_research';
-      managementStyle = 'high';
-    } else if (answerMap.advisor_reliance === 'agree') {
+    } else if (answerMap.decision_making === 'advisors') {
       decisionMakingStyle = 'rely_advisors';
-      managementStyle = 'minimal';
-    } else if (answerMap.peer_collaboration === 'agree') {
+    } else if (answerMap.decision_making === 'community') {
       decisionMakingStyle = 'collaborate_peers';
     }
 
-    // Risk tolerance
-    if (answerMap.high_risk_tolerance === 'agree') {
-      riskProfile = answerMap.cryptocurrency_interest === 'agree' ? 'aggressive' : 'growth';
-    } else if (answerMap.conservative_approach === 'agree') {
-      riskProfile = 'conservative';
-    } else {
-      riskProfile = 'balanced';
-    }
-
-    // Investment objective
-    if (answerMap.retirement_planning === 'agree') {
-      investorObjective = answerMap.conservative_approach === 'agree' ? 'wealth_preservation' : 'hybrid';
-    } else if (answerMap.conservative_approach === 'agree') {
-      investorObjective = 'wealth_preservation';
-    } else if (answerMap.high_risk_tolerance === 'agree') {
-      investorObjective = 'wealth_building';
-    }
-
-    // Time horizon
-    if (answerMap.long_term_horizon === 'agree') {
-      investmentHorizon = 'long_term';
-    }
-
-    // Liquidity
-    if (answerMap.liquidity_preference === 'agree') {
+    if (answerMap.liquidity_importance === 'prefer_liquid') {
       liquidityPreference = 'prefer_liquid';
-    } else if (answerMap.alternative_investments === 'agree' || answerMap.property_focus === 'agree') {
+    } else if (answerMap.liquidity_importance === 'mixed') {
+      liquidityPreference = 'mixed_acceptable';
+    } else if (answerMap.liquidity_importance === 'comfortable_illiquid') {
       liquidityPreference = 'comfortable_illiquid';
     }
 
-    // ESG
-    if (answerMap.esg_importance === 'agree') {
-      esgImportance = 'very_important';
-    } else if (answerMap.esg_importance === 'disagree') {
-      esgImportance = 'not_important';
+    if (answerMap.esg_importance) {
+      esgImportance = answerMap.esg_importance as 'not_important' | 'somewhat_important' | 'very_important';
     }
 
-    // Investment interests
-    if (answerMap.cryptocurrency_interest === 'agree') {
-      activeInvestmentInterests.push('Cryptocurrency');
+    // Handle multi-select asset interests
+    if (Array.isArray(answerMap.asset_interests)) {
+      const assetMap: Record<string, string[]> = {
+        'public_equities': ['Public Equity Markets', 'Bond Markets'],
+        'property_real_estate': ['Real Estate Investment', 'REITs', 'Property Development'],
+        'crypto_digital': ['Cryptocurrency'],
+        'collectibles': ['Fine Art & Collectibles', 'Whisky & Spirits', 'Alternative Assets'],
+        'vc_angel_eis': ['Venture Capital', 'Angel Investing', 'EIS/SEIS Opportunities']
+      };
+      
+      answerMap.asset_interests.forEach(interest => {
+        if (assetMap[interest]) {
+          activeInvestmentInterests.push(...assetMap[interest]);
+        }
+      });
     }
-    if (answerMap.alternative_investments === 'agree') {
-      activeInvestmentInterests.push('Private Equity', 'Alternative Assets');
-    }
-    if (answerMap.property_focus === 'agree') {
-      activeInvestmentInterests.push('Real Estate Investment');
-    }
-    if (answerMap.retirement_planning === 'agree') {
-      activeInvestmentInterests.push('Pension Schemes');
+
+    // Set investment horizon based on return target and other factors
+    if (answerMap.annual_return_target === 'three_to_five' || answerMap.biggest_challenge === 'estate_retirement') {
+      investmentHorizon = 'long_term';
+    } else if (answerMap.annual_return_target === 'fifteen_plus') {
+      investmentHorizon = 'short_term';
+    } else {
+      investmentHorizon = 'medium_term';
     }
 
     return {
@@ -667,16 +768,47 @@ export default function InvestorPreferences() {
     };
   };
 
-  // Handle questionnaire answer
-  const handleQuestionnaireAnswer = (response: 'agree' | 'neutral' | 'disagree') => {
+  // Handle questionnaire answer for radio questions
+  const handleRadioAnswer = (value: string) => {
+    setCurrentQuestionAnswer(value);
+  };
+
+  // Handle questionnaire answer for multiselect questions
+  const handleMultiselectAnswer = (value: string, checked: boolean) => {
+    const current = Array.isArray(currentQuestionAnswer) ? currentQuestionAnswer : [];
+    let updated: string[];
+    
+    if (checked) {
+      updated = [...current, value];
+    } else {
+      updated = current.filter(item => item !== value);
+    }
+    
+    setCurrentQuestionAnswer(updated);
+  };
+
+  // Submit current question answer and move to next
+  const submitCurrentAnswer = () => {
+    if (!currentQuestionAnswer || (Array.isArray(currentQuestionAnswer) && currentQuestionAnswer.length === 0)) {
+      toast({
+        title: "Answer Required",
+        description: "Please select an answer before continuing.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const currentQuestion = questionnaireQuestions[currentQuestionIndex];
     const newAnswer: QuestionnaireAnswer = {
       questionId: currentQuestion.id,
-      response
+      response: currentQuestionAnswer
     };
 
     const updatedAnswers = [...questionnaireAnswers.filter(a => a.questionId !== currentQuestion.id), newAnswer];
     setQuestionnaireAnswers(updatedAnswers);
+
+    // Reset current answer
+    setCurrentQuestionAnswer(currentQuestion.type === 'multiselect' ? [] : '');
 
     // Move to next question or complete
     if (currentQuestionIndex < questionnaireQuestions.length - 1) {
@@ -710,7 +842,16 @@ export default function InvestorPreferences() {
     setQuestionnaireAnswers([]);
     setQuestionnaireComplete(false);
     setQuestionnairePersonaResult(null);
+    setCurrentQuestionAnswer(questionnaireQuestions[0]?.type === 'multiselect' ? [] : '');
   };
+
+  // Initialize current answer when component mounts or question changes
+  useEffect(() => {
+    if (questionnaireQuestions[currentQuestionIndex]) {
+      const currentQuestion = questionnaireQuestions[currentQuestionIndex];
+      setCurrentQuestionAnswer(currentQuestion.type === 'multiselect' ? [] : '');
+    }
+  }, [currentQuestionIndex]);
 
   const form = useForm<PreferencesFormData>({
     resolver: zodResolver(preferencesSchema),
@@ -1481,37 +1622,63 @@ export default function InvestorPreferences() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-8">
-                    <div className="flex justify-center gap-4 max-w-2xl mx-auto">
-                      <Button
-                        onClick={() => handleQuestionnaireAnswer('agree')}
-                        size="lg"
-                        className="flex-1 py-6 text-lg bg-gradient-to-br from-[var(--secondary)] to-emerald-600 hover:from-[var(--secondary)]/90 hover:to-emerald-600/90 text-white border-2 border-[var(--secondary)] hover:border-[var(--secondary)]/90 shadow-lg hover:shadow-[var(--secondary)]/20 transition-all duration-300"
-                        data-testid="button-agree"
-                      >
-                        <ThumbsUp className="mr-2 h-5 w-5" />
-                        Agree
-                      </Button>
-                      
-                      <Button
-                        onClick={() => handleQuestionnaireAnswer('neutral')}
-                        size="lg"
-                        variant="outline"
-                        className="flex-1 py-6 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10 bg-[var(--card)] backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300"
-                        data-testid="button-neutral"
-                      >
-                        <Minus className="mr-2 h-5 w-5" />
-                        Neutral
-                      </Button>
-                      
-                      <Button
-                        onClick={() => handleQuestionnaireAnswer('disagree')}
-                        size="lg"
-                        className="flex-1 py-6 text-lg bg-gradient-to-br from-red-500 to-red-600 hover:from-red-500/90 hover:to-red-600/90 text-white border-2 border-red-500 hover:border-red-500/90 shadow-lg hover:shadow-red-500/20 transition-all duration-300"
-                        data-testid="button-disagree"
-                      >
-                        <ThumbsDown className="mr-2 h-5 w-5" />
-                        Disagree
-                      </Button>
+                    <div className="max-w-3xl mx-auto">
+                      {questionnaireQuestions[currentQuestionIndex]?.type === 'radio' ? (
+                        /* Radio Group for Single Select */
+                        <RadioGroup
+                          value={typeof currentQuestionAnswer === 'string' ? currentQuestionAnswer : ''}
+                          onValueChange={handleRadioAnswer}
+                          className="space-y-4"
+                        >
+                          {questionnaireQuestions[currentQuestionIndex]?.options.map((option) => (
+                            <div
+                              key={option.id}
+                              className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
+                              onClick={() => handleRadioAnswer(option.id)}
+                              data-testid={`radio-option-${option.id}`}
+                            >
+                              <RadioGroupItem value={option.id} id={option.id} />
+                              <label htmlFor={option.id} className="flex-1 text-base cursor-pointer">
+                                {option.label}
+                              </label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      ) : (
+                        /* Checkbox Group for Multi Select */
+                        <div className="space-y-4">
+                          <p className="text-sm text-[var(--muted-foreground)] mb-4">Select all that apply:</p>
+                          {questionnaireQuestions[currentQuestionIndex]?.options.map((option) => (
+                            <div
+                              key={option.id}
+                              className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300"
+                            >
+                              <Checkbox
+                                id={option.id}
+                                checked={Array.isArray(currentQuestionAnswer) && currentQuestionAnswer.includes(option.id)}
+                                onCheckedChange={(checked) => handleMultiselectAnswer(option.id, checked as boolean)}
+                                data-testid={`checkbox-option-${option.id}`}
+                              />
+                              <label htmlFor={option.id} className="flex-1 text-base cursor-pointer">
+                                {option.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Continue Button */}
+                      <div className="flex justify-center mt-8">
+                        <Button
+                          onClick={submitCurrentAnswer}
+                          size="lg"
+                          className="px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                          data-testid="button-continue"
+                        >
+                          <ArrowRight className="mr-2 h-5 w-5" />
+                          {currentQuestionIndex === questionnaireQuestions.length - 1 ? 'Complete' : 'Continue'}
+                        </Button>
+                      </div>
                     </div>
                     
                     {/* Progress Indicator */}
