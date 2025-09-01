@@ -220,49 +220,53 @@ export default function DemoPortfolioAnalysis() {
           <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-3"
+              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
-                <span className="font-semibold">Overview</span>
+              <div className="flex items-center gap-1">
+                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
+                <span className="font-semibold hidden sm:inline">Overview</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="refine" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-3"
+              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
-                <span className="font-semibold">Refine Your Analysis</span>
+              <div className="flex items-center gap-1">
+                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
+                <span className="font-semibold hidden lg:inline">Refine</span>
+                <span className="font-semibold hidden sm:inline lg:hidden">Analysis</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
               value="performance" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
             >
               <TrendingUp className="h-4 w-4" />
-              Performance
+              <span className="hidden sm:inline">Performance</span>
             </TabsTrigger>
             <TabsTrigger 
               value="risk" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
             >
               <AlertTriangle className="h-4 w-4" />
-              Risk Analysis
+              <span className="hidden lg:inline">Risk Analysis</span>
+              <span className="hidden sm:inline lg:hidden">Risk</span>
             </TabsTrigger>
             <TabsTrigger 
               value="stress" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
             >
               <Zap className="h-4 w-4" />
-              Stress Testing
+              <span className="hidden lg:inline">Stress Testing</span>
+              <span className="hidden sm:inline lg:hidden">Stress</span>
             </TabsTrigger>
             <TabsTrigger 
               value="insights" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="flex items-center justify-center gap-1 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-2 px-2 text-xs"
             >
               <Sparkles className="h-4 w-4" />
-              AI Insights
+              <span className="hidden lg:inline">AI Insights</span>
+              <span className="hidden sm:inline lg:hidden">Insights</span>
             </TabsTrigger>
           </TabsList>
 
