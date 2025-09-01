@@ -217,7 +217,7 @@ export default function DemoPortfolioAnalysis() {
       {/* Main Analysis Tabs */}
       <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-0.5 rounded-2xl shadow-2xl backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-0.5 rounded-xl shadow-2xl backdrop-blur-sm h-12">
             <TabsTrigger 
               value="overview" 
               className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
