@@ -2484,14 +2484,24 @@ export default function InvestorPreferences() {
                       const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
                       const effectivePersona = investorPersonas.find(p => p.id === effectivePersonaId);
                       
+                      // Get both selected scenarios and persona-applicable scenarios
+                      const highRiskScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
+                      const selectedScenarios = selectedScenarioIds;
+                      
+                      // Combine and deduplicate scenarios (same logic as in summary section)
+                      const allRelevantScenarioIds = Array.from(new Set([...highRiskScenarios, ...selectedScenarios]));
+                      
                       // Create URL parameters
                       const params = new URLSearchParams();
                       if (effectivePersona) {
                         params.set('persona', effectivePersona.id);
                         params.set('personaName', effectivePersona.name);
                       }
-                      if (selectedScenarioIds.length > 0) {
-                        params.set('scenarios', selectedScenarioIds.join(','));
+                      if (allRelevantScenarioIds.length > 0) {
+                        params.set('scenarios', allRelevantScenarioIds.join(','));
+                        // Also pass which ones were manually selected vs persona-applicable
+                        params.set('selectedScenarios', selectedScenarios.join(','));
+                        params.set('personaScenarios', highRiskScenarios.join(','));
                       }
                       setLocation(`/demo?${params.toString()}`);
                     }}

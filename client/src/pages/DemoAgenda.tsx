@@ -50,11 +50,26 @@ export default function DemoAgenda() {
   const personaId = urlParams.get('persona');
   const personaName = urlParams.get('personaName');
   const scenarioIds = urlParams.get('scenarios')?.split(',').filter(Boolean) || [];
+  const selectedScenarioIds = urlParams.get('selectedScenarios')?.split(',').filter(Boolean) || [];
+  const personaScenarioIds = urlParams.get('personaScenarios')?.split(',').filter(Boolean) || [];
   
-  // Get selected scenarios
-  const selectedScenarios = scenarioIds
-    .map(id => economicScenarios.find(s => s.id === id))
-    .filter((scenario): scenario is typeof scenario & {} => scenario !== undefined);
+  // Get all scenarios with their types
+  const allScenarios = scenarioIds
+    .map(id => {
+      const scenario = economicScenarios.find(s => s.id === id);
+      if (!scenario) return null;
+      
+      const isSelected = selectedScenarioIds.includes(id);
+      const isPersonaApplicable = personaScenarioIds.includes(id);
+      
+      return {
+        ...scenario,
+        isSelected,
+        isPersonaApplicable,
+        type: isSelected ? 'selected' : 'persona-applicable'
+      };
+    })
+    .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -68,7 +83,7 @@ export default function DemoAgenda() {
       <Header />
       
       {/* Configuration Summary Section */}
-      {(personaName || selectedScenarios.length > 0) && (
+      {(personaName || allScenarios.length > 0) && (
         <div className="relative z-10 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <Card className="border-2 border-[var(--primary)]/20 bg-[var(--card)]/80 backdrop-blur-sm shadow-xl">
@@ -109,23 +124,27 @@ export default function DemoAgenda() {
                   )}
                   
                   {/* Selected Economic Scenarios */}
-                  {selectedScenarios.length > 0 && (
+                  {allScenarios.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
                         <h4 className="font-semibold text-[var(--foreground)]">
-                          Stress Test Scenarios ({selectedScenarios.length})
+                          Stress Test Scenarios ({allScenarios.length})
                         </h4>
                       </div>
                       <div className="space-y-2 max-h-24 overflow-y-auto">
-                        {selectedScenarios.map((scenario) => {
+                        {allScenarios.map((scenario) => {
                           const IconComponent = scenario.icon;
                           return (
                             <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/30">
                               <div className="flex items-center gap-2">
                                 <IconComponent className="h-3 w-3 text-[var(--primary)]" />
-                                <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs">
-                                  Active
+                                <Badge className={`text-xs ${
+                                  scenario.isSelected 
+                                    ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
+                                    : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
+                                }`}>
+                                  {scenario.isSelected ? 'Selected' : 'Applicable'}
                                 </Badge>
                               </div>
                               <p className="font-medium text-[var(--foreground)] text-xs mt-1">
