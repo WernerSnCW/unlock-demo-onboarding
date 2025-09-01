@@ -2285,19 +2285,31 @@ export default function InvestorPreferences() {
                 </CardContent>
               </Card>
               
-              {/* Summary Section */}
+              {/* Configuration Summary Section */}
               {questionnaireComplete && (
-                <Card className="bg-gradient-to-r from-[var(--card)] to-[var(--card)]/80 border-[var(--border)]">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
-                      <Users className="h-5 w-5 text-[var(--primary)]" />
-                      Demo Configuration Summary
-                    </h3>
+                <Card className="bg-gradient-to-br from-[var(--primary)]/5 via-[var(--card)] to-[var(--secondary)]/5 border-2 border-[var(--primary)]/20 shadow-lg">
+                  <CardContent className="p-8">
+                    <div className="text-center mb-6">
+                      <div className="inline-flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
+                          <Settings className="h-5 w-5 text-white" />
+                        </div>
+                        <h3 className="text-xl font-bold text-[var(--foreground)]">
+                          Demo Configuration Summary
+                        </h3>
+                      </div>
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        Review your investor profile and selected stress test scenarios
+                      </p>
+                    </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Persona Summary */}
-                      <div>
-                        <h4 className="text-sm font-medium text-[var(--foreground)] mb-2">Selected Investor Profile</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Investor Profile Card */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-4">
+                          <User className="h-4 w-4 text-[var(--primary)]" />
+                          <h4 className="font-semibold text-[var(--foreground)]">Investor Profile</h4>
+                        </div>
                         {(() => {
                           const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
                           const effectivePersona = investorPersonas.find(p => p.id === effectivePersonaId);
@@ -2305,30 +2317,43 @@ export default function InvestorPreferences() {
                           const isPrimary = effectivePersonaId === questionnairePersonaResult?.persona.id;
                           
                           return effectivePersona ? (
-                            <div className="bg-[var(--muted)]/30 rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-1">
-                                <h5 className="font-medium text-[var(--foreground)] text-sm">{effectivePersona.name}</h5>
-                                {isUserSelected && !isPrimary ? (
-                                  <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs">
-                                    User Selected
-                                  </Badge>
-                                ) : isPrimary ? (
-                                  <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 text-xs">
-                                    Primary Match
-                                  </Badge>
-                                ) : null}
+                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <h5 className="font-semibold text-[var(--foreground)] text-base mb-1">
+                                    {effectivePersona.name}
+                                  </h5>
+                                  <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                                    {effectivePersona.description}
+                                  </p>
+                                </div>
+                                <div className="ml-3 flex-shrink-0">
+                                  {isUserSelected && !isPrimary ? (
+                                    <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 font-medium">
+                                      User Selected
+                                    </Badge>
+                                  ) : isPrimary ? (
+                                    <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 font-medium">
+                                      Primary Match
+                                    </Badge>
+                                  ) : null}
+                                </div>
                               </div>
-                              <p className="text-xs text-[var(--muted-foreground)] line-clamp-2">{effectivePersona.description}</p>
                             </div>
                           ) : (
-                            <p className="text-sm text-[var(--muted-foreground)]">No persona available</p>
+                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm">
+                              <p className="text-sm text-[var(--muted-foreground)]">No investor profile selected</p>
+                            </div>
                           );
                         })()}
                       </div>
                       
-                      {/* Economic Scenarios Summary */}
-                      <div>
-                        <h4 className="text-sm font-medium text-[var(--foreground)] mb-2">Stress Test Scenarios</h4>
+                      {/* Economic Scenarios Card */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-4">
+                          <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
+                          <h4 className="font-semibold text-[var(--foreground)]">Stress Test Scenarios</h4>
+                        </div>
                         {(() => {
                           const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
                           const highRiskScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
@@ -2341,36 +2366,45 @@ export default function InvestorPreferences() {
                             .filter((scenario): scenario is typeof scenario & {} => scenario !== undefined);
                           
                           return relevantScenarios.length > 0 ? (
-                            <div className="space-y-2">
+                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm space-y-3">
                               {relevantScenarios.map(scenario => {
                                 const isSelected = selectedScenarios.includes(scenario.id);
                                 const isHighRisk = highRiskScenarios.includes(scenario.id);
                                 
                                 return (
-                                  <div key={scenario.id} className="bg-[var(--muted)]/30 rounded-lg p-3">
-                                    <div className="flex items-center justify-between mb-1">
-                                      <h5 className="font-medium text-[var(--foreground)] text-xs">{scenario.name}</h5>
-                                      <div className="flex gap-1">
-                                        {isSelected && (
-                                          <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs">
-                                            Selected
-                                          </Badge>
-                                        )}
-                                        {isHighRisk && (
-                                          <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-600 text-xs">
-                                            High Risk
-                                          </Badge>
-                                        )}
-                                      </div>
+                                  <div key={scenario.id} className="flex items-center justify-between p-3 bg-[var(--muted)]/30 rounded-lg border border-[var(--border)]/50">
+                                    <div className="flex-1">
+                                      <h6 className="font-medium text-[var(--foreground)] text-sm mb-1">
+                                        {scenario.name}
+                                      </h6>
+                                      <p className="text-xs text-[var(--muted-foreground)] line-clamp-1">
+                                        {scenario.description}
+                                      </p>
                                     </div>
-                                    <p className="text-xs text-[var(--muted-foreground)] line-clamp-1">{scenario.description}</p>
+                                    <div className="flex gap-2 ml-3">
+                                      {isSelected && (
+                                        <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs font-medium">
+                                          Selected
+                                        </Badge>
+                                      )}
+                                      {isHighRisk && (
+                                        <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-600 text-xs font-medium">
+                                          High Risk
+                                        </Badge>
+                                      )}
+                                    </div>
                                   </div>
                                 );
                               })}
                             </div>
                           ) : (
-                            <div className="bg-[var(--muted)]/30 rounded-lg p-3">
-                              <p className="text-xs text-[var(--muted-foreground)]">No stress test scenarios identified for your profile</p>
+                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm">
+                              <div className="text-center py-4">
+                                <AlertTriangle className="h-8 w-8 text-[var(--muted-foreground)] mx-auto mb-2" />
+                                <p className="text-sm text-[var(--muted-foreground)]">
+                                  No stress test scenarios identified for your profile
+                                </p>
+                              </div>
                             </div>
                           );
                         })()}
@@ -2400,7 +2434,7 @@ export default function InvestorPreferences() {
                     data-testid="button-continue-demo"
                   >
                     <ArrowRight className="mr-2 h-4 w-4" />
-                    Continue to Demo
+                    Use Configuration in Simulation
                   </Button>
                 </div>
               )}
