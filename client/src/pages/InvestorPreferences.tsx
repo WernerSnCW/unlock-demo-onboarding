@@ -2091,20 +2091,20 @@ export default function InvestorPreferences() {
                       let borderClasses = "";
                       let backgroundClasses = "";
                       
-                      if (isSelected) {
-                        // User selected: strong blue styling
+                      if (isSelected && isPrimaryMatch) {
+                        // Both selected and primary match: purple styling to show both states
+                        borderClasses = "border-2 border-purple-400 dark:border-purple-500";
+                        backgroundClasses = "bg-gradient-to-br from-purple-100 to-violet-50 dark:from-purple-900/40 dark:to-violet-900/30 shadow-lg ring-2 ring-purple-400/40 dark:ring-purple-500/40";
+                      } else if (isSelected) {
+                        // User selected only: blue styling
                         borderClasses = "border-2 border-[var(--primary)]";
                         backgroundClasses = "bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/40 shadow-lg ring-2 ring-[var(--primary)]/40";
                       } else if (isPrimaryMatch) {
-                        // Primary questionnaire match: prominent green styling
+                        // Primary questionnaire match only: green styling
                         borderClasses = "border-2 border-green-400 dark:border-green-500";
                         backgroundClasses = "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 shadow-md ring-2 ring-green-400/30 dark:ring-green-500/30";
-                      } else if (hasScore) {
-                        // Secondary match: orange styling for relevance
-                        borderClasses = "border-2 border-amber-400 dark:border-amber-500";
-                        backgroundClasses = "bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/25 dark:to-yellow-900/25 shadow-md ring-2 ring-amber-400/25 dark:ring-amber-500/25";
                       } else {
-                        // No match: standard styling
+                        // No special styling: standard appearance for secondary matches and no matches
                         borderClasses = "border border-[var(--border)]";
                         backgroundClasses = "bg-[var(--card)]";
                       }
@@ -2123,7 +2123,14 @@ export default function InvestorPreferences() {
                                 <div className={`w-3 h-3 rounded-full ${isPrimaryMatch ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' : hasScore ? 'bg-[var(--secondary)]' : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'}`}></div>
                                 <h3 className="font-semibold text-sm text-[var(--foreground)]">{persona.name}</h3>
                               </div>
-                              {isSelected ? (
+                              {isSelected && isPrimaryMatch ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs">🏆</span>
+                                  <Badge className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-600 font-semibold">
+                                    Selected & {personaMatch?.score}% Match
+                                  </Badge>
+                                </div>
+                              ) : isSelected ? (
                                 <Badge className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 font-semibold">
                                   Selected
                                 </Badge>
@@ -2135,7 +2142,7 @@ export default function InvestorPreferences() {
                                   </Badge>
                                 </div>
                               ) : hasScore ? (
-                                <Badge className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-600">
+                                <Badge variant="outline" className="text-xs px-2 py-0.5">
                                   {personaMatch?.score}%
                                 </Badge>
                               ) : null}
@@ -2156,11 +2163,15 @@ export default function InvestorPreferences() {
                             {(hasScore || isSelected) && (
                               <div className="pt-2 border-t border-[var(--border)]/30">
                                 <p className={`text-xs font-medium ${
+                                  isSelected && isPrimaryMatch ? 'text-purple-700 dark:text-purple-300' :
                                   isSelected ? 'text-blue-700 dark:text-blue-300' : 
                                   isPrimaryMatch ? 'text-green-700 dark:text-green-300' : 
-                                  'text-amber-700 dark:text-amber-300'
+                                  'text-[var(--muted-foreground)]'
                                 }`}>
-                                  {isSelected ? '🎯 Selected Profile' : isPrimaryMatch ? '✨ Your Primary Match' : '📊 Relevant Profile'}
+                                  {isSelected && isPrimaryMatch ? '🎯✨ Selected Primary Match' : 
+                                   isSelected ? '🎯 Selected Profile' : 
+                                   isPrimaryMatch ? '✨ Your Primary Match' : 
+                                   '📊 Relevant Profile'}
                                 </p>
                               </div>
                             )}
