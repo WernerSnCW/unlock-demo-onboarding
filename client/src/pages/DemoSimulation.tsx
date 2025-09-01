@@ -123,7 +123,16 @@ export default function DemoSimulation() {
   ];
 
   const handleConfigComplete = () => {
+    // Store portfolio configuration data
+    localStorage.setItem('portfolioConfig', JSON.stringify(portfolioConfig));
     setShowConfiguration(false);
+  };
+
+  // Calculate portfolio totals and percentages
+  const totalValue = Object.values(portfolioConfig).filter((_, i) => i >= 1 && i <= 5).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0);
+  const getPercentage = (value: string) => {
+    const num = parseInt(value || '0');
+    return totalValue > 0 ? ((num / totalValue) * 100).toFixed(1) : '0';
   };
 
   return (
@@ -329,6 +338,101 @@ export default function DemoSimulation() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      )}
+
+      {/* Portfolio Configuration Summary */}
+      {!showConfiguration && totalValue > 0 && (
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-black text-[var(--foreground)] mb-6">
+              YOUR PORTFOLIO
+              <span className="block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                SUMMARY
+              </span>
+            </h2>
+            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed">
+              Configuration captured for personalized analysis
+            </p>
+          </div>
+
+          <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
+            <CardContent className="p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Total Value */}
+                <div className="text-center">
+                  <div className="inline-block relative mb-4">
+                    <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl">
+                      <PoundSterling className="h-12 w-12 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-2">
+                    TOTAL PORTFOLIO VALUE
+                  </h3>
+                  <p className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                    £{totalValue.toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Asset Breakdown */}
+                <div className="space-y-4">
+                  <h3 className="text-xl font-black text-[var(--foreground)] mb-4 text-center">
+                    ASSET ALLOCATION
+                  </h3>
+                  
+                  {[
+                    { key: 'stocks', label: 'Stocks/Equities', color: 'from-blue-500 to-blue-600' },
+                    { key: 'bonds', label: 'Bonds/Fixed Income', color: 'from-green-500 to-green-600' },
+                    { key: 'alternatives', label: 'Alternatives', color: 'from-purple-500 to-purple-600' },
+                    { key: 'property', label: 'Property/REITs', color: 'from-orange-500 to-orange-600' },
+                    { key: 'cash', label: 'Cash/Savings', color: 'from-gray-500 to-gray-600' }
+                  ].map((asset) => {
+                    const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
+                    const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
+                    
+                    return value > 0 ? (
+                      <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${asset.color}`}></div>
+                          <span className="font-semibold text-[var(--foreground)]">{asset.label}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-[var(--foreground)]">£{value.toLocaleString()}</div>
+                          <div className="text-sm text-[var(--muted-foreground)]">{percentage}%</div>
+                        </div>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-8 pt-6 border-t border-[var(--border)]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {portfolioConfig.international && (
+                    <div className="bg-[var(--muted)] rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Globe className="h-4 w-4 text-[var(--primary)]" />
+                        <span className="font-semibold text-[var(--foreground)]">International Exposure</span>
+                      </div>
+                      <p className="text-[var(--muted-foreground)]">{portfolioConfig.international}</p>
+                    </div>
+                  )}
+                  
+                  {portfolioConfig.timeHorizon && (
+                    <div className="bg-[var(--muted)] rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Clock className="h-4 w-4 text-[var(--primary)]" />
+                        <span className="font-semibold text-[var(--foreground)]">Investment Timeline</span>
+                      </div>
+                      <p className="text-[var(--muted-foreground)]">{portfolioConfig.timeHorizon}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
