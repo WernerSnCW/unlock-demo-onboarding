@@ -242,7 +242,7 @@ export default function DemoPortfolioAnalysis() {
             >
               <div className="flex flex-col items-center">
                 <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">3</div>
-                <span className="text-xs hidden lg:block">AI</span>
+                <span className="text-xs hidden lg:block">Gap</span>
               </div>
             </TabsTrigger>
             <TabsTrigger 
