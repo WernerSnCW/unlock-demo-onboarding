@@ -646,10 +646,6 @@ export default function DemoSimulation() {
           
           {/* Demo Instructions */}
           <div className="text-center mb-20 relative">
-            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed mb-8">
-              Your uploaded portfolio data has been processed and is ready for live analysis with real market data and AI-powered insights.
-            </p>
-
             <div className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)] border border-[var(--border)] rounded-2xl p-8 max-w-4xl mx-auto">
               <h3 className="text-2xl font-bold text-[var(--foreground)] mb-4">Ready to Proceed</h3>
               <p className="text-[var(--muted-foreground)] mb-6">
