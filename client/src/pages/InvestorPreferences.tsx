@@ -1123,6 +1123,56 @@ export default function InvestorPreferences() {
     setCurrentQuestionAnswer(questionnaireQuestions[0]?.type === 'multiselect' ? [] : '');
   };
 
+  // Randomize all questionnaire answers
+  const randomizeAnswers = () => {
+    const randomAnswers: QuestionnaireAnswer[] = [];
+
+    questionnaireQuestions.forEach((question) => {
+      if (question.type === 'radio') {
+        // Pick a random option for radio questions
+        const randomIndex = Math.floor(Math.random() * question.options.length);
+        randomAnswers.push({
+          questionId: question.id,
+          response: question.options[randomIndex].id
+        });
+      } else if (question.type === 'multiselect') {
+        // Pick 1-3 random options for multiselect questions
+        const numSelections = Math.floor(Math.random() * 3) + 1; // 1-3 selections
+        const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+        const selectedOptions = shuffledOptions.slice(0, numSelections);
+        
+        randomAnswers.push({
+          questionId: question.id,
+          response: selectedOptions.map(option => option.id)
+        });
+      }
+    });
+
+    // Set the random answers and complete the questionnaire
+    setQuestionnaireAnswers(randomAnswers);
+    setQuestionnaireComplete(true);
+
+    // Classify persona using the random answers
+    const personaClassification = classifyInvestorPersonaFromAnswers(randomAnswers);
+    setQuestionnairePersonaResult(personaClassification);
+
+    console.log('Questionnaire randomized:', {
+      answers: randomAnswers,
+      csvMappedAnswers: mapAnswersToCsvFormat(randomAnswers),
+      topPersona: personaClassification.persona.name,
+      topScore: `${personaClassification.score}%`,
+      allMatches: personaClassification.allMatches?.map(m => ({ 
+        name: m.persona.name, 
+        score: `${m.score}%` 
+      }))
+    });
+
+    toast({
+      title: "Answers Randomized!",
+      description: `Generated random profile: ${personaClassification.persona.name} (${personaClassification.score}% match)`,
+    });
+  };
+
   // Initialize current answer when component mounts or question changes
   useEffect(() => {
     if (questionnaireQuestions[currentQuestionIndex]) {
@@ -1902,6 +1952,20 @@ export default function InvestorPreferences() {
                           />
                         ))}
                       </div>
+                    </div>
+                    
+                    {/* Randomize Button */}
+                    <div className="flex justify-center mb-6">
+                      <Button
+                        onClick={randomizeAnswers}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2 text-sm bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] hover:from-[var(--accent)]/90 hover:to-[var(--secondary)]/90 border-[var(--accent)]/50"
+                        data-testid="button-randomize-answers"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        Randomize All Answers
+                      </Button>
                     </div>
                     <CardTitle className="text-2xl text-center leading-relaxed max-w-4xl mx-auto">
                       {questionnaireQuestions[currentQuestionIndex]?.text}
