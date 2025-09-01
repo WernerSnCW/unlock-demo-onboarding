@@ -91,15 +91,15 @@ export default function DemoSimulation() {
       allScenarios: allScenarios.map(s => ({ id: s.id, name: s.name, isSelected: s.isSelected, isHighImpact: s.isHighImpact }))
     });
     
-    // Save the first available scenario (selected or high-impact)
-    const scenarioToSave = allScenarios.find(s => s.isSelected || s.isHighImpact);
-    if (scenarioToSave) {
-      const scenarioData = {
-        name: scenarioToSave.name,
-        description: scenarioToSave.description
-      };
-      localStorage.setItem('selectedScenario', JSON.stringify(scenarioData));
-      console.log('Saved scenario to localStorage:', scenarioData);
+    // Save ALL available scenarios (selected or high-impact)
+    const availableScenarios = allScenarios.filter(s => s.isSelected || s.isHighImpact);
+    if (availableScenarios.length > 0) {
+      const scenarioData = availableScenarios.map(scenario => ({
+        name: scenario.name,
+        description: scenario.description
+      }));
+      localStorage.setItem('selectedScenarios', JSON.stringify(scenarioData));
+      console.log('Saved scenarios to localStorage:', scenarioData);
     } else if (allScenarios.length > 0) {
       console.log('No scenarios found in:', allScenarios.map(s => ({ name: s.name, isSelected: s.isSelected, isHighImpact: s.isHighImpact })));
     }
@@ -696,13 +696,13 @@ export default function DemoSimulation() {
                   console.log('Saving scenarios before navigation:', availableScenarios);
                   
                   if (availableScenarios.length > 0) {
-                    // Save first available scenario
-                    const scenarioToSave = {
-                      name: availableScenarios[0].name,
-                      description: availableScenarios[0].description
-                    };
-                    localStorage.setItem('selectedScenario', JSON.stringify(scenarioToSave));
-                    console.log('Saved scenario to localStorage:', scenarioToSave);
+                    // Save ALL available scenarios
+                    const scenarioData = availableScenarios.map(scenario => ({
+                      name: scenario.name,
+                      description: scenario.description
+                    }));
+                    localStorage.setItem('selectedScenarios', JSON.stringify(scenarioData));
+                    console.log('Saved scenarios to localStorage:', scenarioData);
                   }
                   
                   // Navigate to analysis page

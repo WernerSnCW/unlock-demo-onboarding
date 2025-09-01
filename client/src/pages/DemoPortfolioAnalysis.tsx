@@ -19,6 +19,10 @@ interface InvestorData {
     name: string;
     description: string;
   };
+  scenarios?: Array<{
+    name: string;
+    description: string;
+  }>;
   portfolioData?: any;
   portfolioConfig?: any;
 }
@@ -31,6 +35,7 @@ export default function DemoPortfolioAnalysis() {
     // Load investor data from localStorage
     const storedPersona = localStorage.getItem('questionnairePersonaResult');
     const storedScenario = localStorage.getItem('selectedScenario');
+    const storedScenarios = localStorage.getItem('selectedScenarios');
     const storedPortfolio = localStorage.getItem('uploadedPortfolioData');
     const storedConfig = localStorage.getItem('portfolioConfig');
 
@@ -38,7 +43,7 @@ export default function DemoPortfolioAnalysis() {
 
     console.log('Loading demo data from localStorage:', {
       persona: storedPersona ? 'Found' : 'Missing',
-      scenario: storedScenario ? 'Found' : 'Missing', 
+      scenarios: storedScenarios ? 'Found' : 'Missing', 
       portfolio: storedPortfolio ? 'Found' : 'Missing',
       config: storedConfig ? 'Found' : 'Missing'
     });
@@ -54,10 +59,10 @@ export default function DemoPortfolioAnalysis() {
       }
     }
 
-    if (storedScenario) {
+    if (storedScenarios) {
       try {
-        data.scenario = JSON.parse(storedScenario);
-        console.log('Loaded scenario:', data.scenario?.name);
+        data.scenarios = JSON.parse(storedScenarios);
+        console.log('Loaded scenarios:', Array.isArray(data.scenarios) ? `${data.scenarios.length} scenarios` : 'Single scenario');
       } catch (e) {
         console.error('Failed to parse scenario data:', e);
       }
@@ -245,25 +250,29 @@ export default function DemoPortfolioAnalysis() {
                 </Card>
               )}
 
-              {investorData.scenario ? (
+              {(investorData.scenarios && investorData.scenarios.length > 0) ? (
                 <Card className="border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                       <Target className="h-5 w-5 text-[var(--secondary)]" />
-                      Stress Test Scenario
+                      Stress Test Scenarios
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <h3 className="text-2xl font-bold text-[var(--secondary)]">
-                        {investorData.scenario.name}
-                      </h3>
-                      <p className="text-[var(--muted-foreground)] leading-relaxed">
-                        {investorData.scenario.description}
-                      </p>
+                      {investorData.scenarios.map((scenario, index) => (
+                        <div key={index} className={`${index > 0 ? 'pt-4 border-t border-[var(--border)]' : ''}`}>
+                          <h3 className="text-xl font-bold text-[var(--secondary)]">
+                            {scenario.name}
+                          </h3>
+                          <p className="text-[var(--muted-foreground)] leading-relaxed mt-2">
+                            {scenario.description}
+                          </p>
+                        </div>
+                      ))}
                       <div className="flex items-center gap-2 text-sm text-[var(--secondary)]">
                         <div className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-pulse"></div>
-                        <span>Scenario modeling active</span>
+                        <span>{investorData.scenarios.length} scenario{investorData.scenarios.length > 1 ? 's' : ''} modeling active</span>
                       </div>
                     </div>
                   </CardContent>
@@ -482,9 +491,9 @@ export default function DemoPortfolioAnalysis() {
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-[var(--accent)]" />
                   Economic Scenario Testing
-                  {investorData.scenario && (
+                  {investorData.scenarios && investorData.scenarios.length > 0 && (
                     <Badge variant="secondary" className="ml-2">
-                      {investorData.scenario.name}
+                      {investorData.scenarios.length} Active Scenario{investorData.scenarios.length > 1 ? 's' : ''}
                     </Badge>
                   )}
                 </CardTitle>
@@ -494,15 +503,19 @@ export default function DemoPortfolioAnalysis() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {investorData.scenario && (
-                    <div className="p-4 bg-[var(--accent)]/10 rounded-lg border border-[var(--accent)]/20">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="h-4 w-4 text-[var(--accent)]" />
-                        <span className="font-semibold">Active Scenario: {investorData.scenario.name}</span>
-                      </div>
-                      <p className="text-sm text-[var(--muted-foreground)]">
-                        {investorData.scenario.description}
-                      </p>
+                  {investorData.scenarios && investorData.scenarios.length > 0 && (
+                    <div className="space-y-3">
+                      {investorData.scenarios.map((scenario, index) => (
+                        <div key={index} className="p-4 bg-[var(--accent)]/10 rounded-lg border border-[var(--accent)]/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="h-4 w-4 text-[var(--accent)]" />
+                            <span className="font-semibold">Active Scenario: {scenario.name}</span>
+                          </div>
+                          <p className="text-sm text-[var(--muted-foreground)]">
+                            {scenario.description}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   )}
                   
