@@ -386,44 +386,59 @@ export default function DemoSimulation() {
 
                     {/* Pie Chart */}
                     <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPieChart>
-                          <Pie
-                            data={[
-                              { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
-                              { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
-                              { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
-                              { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
-                              { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
-                            ].filter(item => item.value > 0)}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={40}
-                            outerRadius={80}
-                            dataKey="value"
-                            stroke="none"
-                          >
-                            {[
-                              { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
-                              { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
-                              { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
-                              { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
-                              { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
-                            ].filter(item => item.value > 0).map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip 
-                            formatter={(value: number) => [`£${value.toLocaleString()}`, 'Value']}
-                            labelStyle={{ color: 'var(--foreground)' }}
-                            contentStyle={{ 
-                              backgroundColor: 'var(--background)', 
-                              border: '1px solid var(--border)',
-                              borderRadius: '8px'
-                            }}
-                          />
-                        </RechartsPieChart>
-                      </ResponsiveContainer>
+                      {totalValue > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={[
+                                { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
+                                { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
+                                { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
+                                { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
+                                { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
+                              ].filter(item => item.value > 0)}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              dataKey="value"
+                              stroke="none"
+                            >
+                              {[
+                                { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
+                                { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
+                                { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
+                                { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
+                                { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
+                              ].filter(item => item.value > 0).map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              formatter={(value: number) => [`£${value.toLocaleString()}`, 'Value']}
+                              labelStyle={{ color: 'var(--foreground)' }}
+                              contentStyle={{ 
+                                backgroundColor: 'var(--background)', 
+                                border: '1px solid var(--border)',
+                                borderRadius: '8px'
+                              }}
+                            />
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center">
+                            <div className="w-32 h-32 mx-auto rounded-full border-4 border-dashed border-[var(--muted-foreground)]/30 flex items-center justify-center mb-4">
+                              <div className="text-[var(--muted-foreground)]/50 text-sm font-medium">
+                                Chart will<br />appear here
+                              </div>
+                            </div>
+                            <p className="text-sm text-[var(--muted-foreground)] max-w-xs">
+                              Complete portfolio configuration above to see allocation visualization
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Asset Breakdown */}
@@ -432,29 +447,57 @@ export default function DemoSimulation() {
                         ASSET ALLOCATION
                       </h4>
                       
-                      {[
-                        { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
-                        { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
-                        { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
-                        { key: 'property', label: 'Property/REITs', color: '#f97316' },
-                        { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
-                      ].map((asset) => {
-                        const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
-                        const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
-                        
-                        return value > 0 ? (
-                          <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
-                              <span className="font-semibold text-[var(--foreground)] text-sm">{asset.label}</span>
+                      {totalValue > 0 ? (
+                        [
+                          { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
+                          { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
+                          { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
+                          { key: 'property', label: 'Property/REITs', color: '#f97316' },
+                          { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
+                        ].map((asset) => {
+                          const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
+                          const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
+                          
+                          return value > 0 ? (
+                            <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
+                              <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
+                                <span className="font-semibold text-[var(--foreground)] text-sm">{asset.label}</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-bold text-[var(--foreground)] text-sm">£{value.toLocaleString()}</div>
+                                <div className="text-xs text-[var(--muted-foreground)]">{percentage}%</div>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <div className="font-bold text-[var(--foreground)] text-sm">£{value.toLocaleString()}</div>
-                              <div className="text-xs text-[var(--muted-foreground)]">{percentage}%</div>
+                          ) : null;
+                        })
+                      ) : (
+                        <div className="space-y-3">
+                          {[
+                            { label: 'Stocks/Equities', color: '#3b82f6' },
+                            { label: 'Bonds/Fixed Income', color: '#10b981' },
+                            { label: 'Alternatives', color: '#8b5cf6' },
+                            { label: 'Property/REITs', color: '#f97316' },
+                            { label: 'Cash/Savings', color: '#6b7280' }
+                          ].map((asset, index) => (
+                            <div key={index} className="flex justify-between items-center p-3 bg-[var(--muted)]/50 rounded-xl border-2 border-dashed border-[var(--muted-foreground)]/20">
+                              <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 rounded-full border-2 border-dashed" style={{borderColor: asset.color + '50'}}></div>
+                                <span className="font-semibold text-[var(--muted-foreground)] text-sm">{asset.label}</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-bold text-[var(--muted-foreground)] text-sm">£0</div>
+                                <div className="text-xs text-[var(--muted-foreground)]">0%</div>
+                              </div>
                             </div>
+                          ))}
+                          <div className="text-center pt-4">
+                            <p className="text-sm text-[var(--muted-foreground)]">
+                              Asset values will appear here after configuration
+                            </p>
                           </div>
-                        ) : null;
-                      })}
+                        </div>
+                      )}
                     </div>
 
                     {/* Additional Info */}
