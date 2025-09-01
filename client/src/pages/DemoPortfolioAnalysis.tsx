@@ -342,18 +342,6 @@ export default function DemoPortfolioAnalysis() {
                                 <span className="font-medium">£{parseInt(investorData.portfolioConfig.cash).toLocaleString()}</span>
                               </div>
                             )}
-                            {investorData.portfolioConfig.international && (
-                              <div className="flex justify-between">
-                                <span className="text-[var(--muted-foreground)]">International:</span>
-                                <span className="font-medium">{investorData.portfolioConfig.international}</span>
-                              </div>
-                            )}
-                            {investorData.portfolioConfig.timeHorizon && (
-                              <div className="flex justify-between">
-                                <span className="text-[var(--muted-foreground)]">Time Horizon:</span>
-                                <span className="font-medium">{investorData.portfolioConfig.timeHorizon}</span>
-                              </div>
-                            )}
                           </div>
                         </>
                       ) : (

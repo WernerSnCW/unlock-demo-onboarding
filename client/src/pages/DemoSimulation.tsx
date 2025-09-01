@@ -673,15 +673,35 @@ export default function DemoSimulation() {
                 Click below to begin your personalized portfolio analysis using the configuration settings from your investor profile.
               </p>
               
-              <Link href="/demo-portfolio-analysis" className="group">
-                <div className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105">
-                  <div className="flex items-center gap-3">
-                    <Rocket className="h-6 w-6" />
-                    <span>Start Portfolio Analysis</span>
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </div>
+              <div 
+                className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105 cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  
+                  // Save all selected scenarios to localStorage before navigation
+                  const selectedScenarios = allScenarios.filter(s => s.isSelected);
+                  console.log('Saving scenarios before navigation:', selectedScenarios);
+                  
+                  if (selectedScenarios.length > 0) {
+                    // Save first selected scenario (or all if needed)
+                    const scenarioToSave = {
+                      name: selectedScenarios[0].name,
+                      description: selectedScenarios[0].description
+                    };
+                    localStorage.setItem('selectedScenario', JSON.stringify(scenarioToSave));
+                    console.log('Saved scenario to localStorage:', scenarioToSave);
+                  }
+                  
+                  // Navigate to analysis page
+                  window.location.href = '/demo-portfolio-analysis';
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <Rocket className="h-6 w-6" />
+                  <span>Start Portfolio Analysis</span>
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </Link>
+              </div>
             </div>
           </div>
         </div>
