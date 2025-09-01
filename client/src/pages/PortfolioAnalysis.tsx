@@ -1013,9 +1013,10 @@ export default function PortfolioAnalysis() {
               </Button>
             </Link>
             <Link href="/demo/agenda">
-              <Button className="px-8 py-4 text-lg text-white rounded-2xl" 
+              <Button className="px-8 py-4 text-lg rounded-2xl" 
                       style={{ 
                         background: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)`,
+                        color: 'white',
                         boxShadow: 'var(--shadow-lg)'
                       }}>
                 <Zap className="h-5 w-5 mr-2" />
