@@ -364,7 +364,7 @@ export default function DemoSimulation() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Side - Portfolio Configuration */}
-            {!showConfiguration && totalValue > 0 && (
+            {!showConfiguration && (portfolioConfig.stocks || portfolioConfig.bonds || portfolioConfig.alternatives || portfolioConfig.property || portfolioConfig.cash) && (
               <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
                 <CardContent className="p-8">
