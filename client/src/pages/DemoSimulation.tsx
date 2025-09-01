@@ -6,7 +6,7 @@ import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, T
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Economic scenarios data
 const economicScenarios = [
@@ -128,6 +128,11 @@ export default function DemoSimulation() {
     localStorage.setItem('portfolioConfig', JSON.stringify(portfolioConfig));
     setShowConfiguration(false);
   };
+
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Calculate portfolio totals and percentages
   const totalValue = Object.values(portfolioConfig).filter((_, i) => i >= 1 && i <= 5).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0);
