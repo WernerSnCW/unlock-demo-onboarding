@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, TrendingDown, User, Target, AlertTriangle, PieChart, BarChart3, LineChart, Sparkles, Brain, Zap, ArrowLeft, Shield } from "lucide-react";
+import { TrendingUp, TrendingDown, User, Target, AlertTriangle, PieChart, BarChart3, LineChart, Sparkles, Brain, Zap, ArrowLeft, Shield, Settings, Clock, Leaf } from "lucide-react";
 import { Cell, Pie, PieChart as RechartsPieChart, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Link } from "wouter";
 
@@ -217,41 +217,24 @@ export default function DemoPortfolioAnalysis() {
       {/* Main Analysis Tabs */}
       <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-2 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-3"
             >
-              <PieChart className="h-4 w-4" />
-              Overview
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
+                <span className="font-semibold">Overview</span>
+              </div>
             </TabsTrigger>
             <TabsTrigger 
-              value="performance" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
+              value="refine" 
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-3"
             >
-              <TrendingUp className="h-4 w-4" />
-              Performance
-            </TabsTrigger>
-            <TabsTrigger 
-              value="risk" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              Risk Analysis
-            </TabsTrigger>
-            <TabsTrigger 
-              value="stress" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
-            >
-              <Zap className="h-4 w-4" />
-              Stress Testing
-            </TabsTrigger>
-            <TabsTrigger 
-              value="insights" 
-              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
-            >
-              <Sparkles className="h-4 w-4" />
-              AI Insights
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
+                <span className="font-semibold">Refine Your Analysis</span>
+              </div>
             </TabsTrigger>
           </TabsList>
 
@@ -827,6 +810,159 @@ export default function DemoPortfolioAnalysis() {
                         Machine learning insights based on market trends and personal profile
                       </p>
                     </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Refine Your Analysis Tab */}
+          <TabsContent value="refine" className="space-y-6">
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-[var(--primary)]" />
+                  Refine Your Analysis
+                </CardTitle>
+                <CardDescription>
+                  Answer these questions to get more personalized insights and recommendations
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Investment Goals */}
+                  <Card className="bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 border-[var(--primary)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Target className="h-5 w-5 text-[var(--primary)]" />
+                        Investment Goals
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
+                          What is your primary investment objective?
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
+                            <div className="font-medium">Capital Growth</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Focus on long-term appreciation</div>
+                          </button>
+                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
+                            <div className="font-medium">Income Generation</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Priority on dividends and yield</div>
+                          </button>
+                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
+                            <div className="font-medium">Capital Preservation</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Protect existing wealth</div>
+                          </button>
+                          <button className="p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-200">
+                            <div className="font-medium">Balanced Approach</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Mix of growth and income</div>
+                          </button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Risk Tolerance */}
+                  <Card className="bg-gradient-to-br from-[var(--secondary)]/5 to-[var(--accent)]/5 border-[var(--secondary)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-[var(--secondary)]" />
+                        Risk Assessment
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
+                          How would you react to a 20% portfolio decline?
+                        </label>
+                        <div className="space-y-2">
+                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--secondary)] hover:bg-[var(--secondary)]/5 transition-all duration-200">
+                            <div className="font-medium">Sell immediately</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Minimize further losses</div>
+                          </button>
+                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--secondary)] hover:bg-[var(--secondary)]/5 transition-all duration-200">
+                            <div className="font-medium">Hold and wait for recovery</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Stay the course</div>
+                          </button>
+                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--secondary)] hover:bg-[var(--secondary)]/5 transition-all duration-200">
+                            <div className="font-medium">Buy more at lower prices</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Take advantage of the opportunity</div>
+                          </button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Time Horizon */}
+                  <Card className="bg-gradient-to-br from-[var(--accent)]/5 to-[var(--warning)]/5 border-[var(--accent)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-[var(--accent)]" />
+                        Investment Timeline
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
+                          When do you expect to need this money?
+                        </label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
+                            <div className="font-medium text-sm">1-3 years</div>
+                          </button>
+                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
+                            <div className="font-medium text-sm">3-7 years</div>
+                          </button>
+                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
+                            <div className="font-medium text-sm">7-15 years</div>
+                          </button>
+                          <button className="p-3 text-center border border-[var(--border)] rounded-lg hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 transition-all duration-200">
+                            <div className="font-medium text-sm">15+ years</div>
+                          </button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* ESG Preferences */}
+                  <Card className="bg-gradient-to-br from-[var(--success)]/5 to-[var(--primary)]/5 border-[var(--success)]/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Leaf className="h-5 w-5 text-[var(--success)]" />
+                        ESG & Sustainability
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">
+                          How important are environmental and social factors in your investments?
+                        </label>
+                        <div className="space-y-2">
+                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--success)] hover:bg-[var(--success)]/5 transition-all duration-200">
+                            <div className="font-medium">Very Important</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Only invest in ESG-compliant companies</div>
+                          </button>
+                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--success)] hover:bg-[var(--success)]/5 transition-all duration-200">
+                            <div className="font-medium">Somewhat Important</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Prefer ESG options when available</div>
+                          </button>
+                          <button className="w-full p-3 text-left border border-[var(--border)] rounded-lg hover:border-[var(--success)] hover:bg-[var(--success)]/5 transition-all duration-200">
+                            <div className="font-medium">Not a Priority</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">Focus primarily on returns</div>
+                          </button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Submit Button */}
+                  <div className="flex justify-center pt-6">
+                    <button className="px-8 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      Update Analysis
+                    </button>
                   </div>
                 </div>
               </CardContent>
