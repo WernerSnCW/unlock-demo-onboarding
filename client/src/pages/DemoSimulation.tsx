@@ -2,6 +2,7 @@ import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Play, Sparkles, Brain, Rocket, Shield, Zap, ArrowRight, Crown, Gift, Target, TrendingUp, Users, Eye, ChevronRight, User, AlertTriangle, PoundSterling, PieChart, Globe, Clock } from 'lucide-react';
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -359,7 +360,7 @@ export default function DemoSimulation() {
           <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
             <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Total Value */}
                 <div className="text-center">
                   <div className="inline-block relative mb-4">
@@ -367,26 +368,72 @@ export default function DemoSimulation() {
                       <PoundSterling className="h-12 w-12 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-2">
+                  <h3 className="text-xl font-black text-[var(--foreground)] mb-2">
                     TOTAL PORTFOLIO VALUE
                   </h3>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                  <p className="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
                     £{totalValue.toLocaleString()}
                   </p>
                 </div>
 
+                {/* Pie Chart */}
+                <div className="text-center">
+                  <h3 className="text-xl font-black text-[var(--foreground)] mb-4">
+                    ALLOCATION
+                  </h3>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={[
+                            { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
+                            { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
+                            { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
+                            { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
+                            { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
+                          ].filter(item => item.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {[
+                            { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
+                            { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
+                            { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
+                            { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
+                            { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
+                          ].filter(item => item.value > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          formatter={(value: number) => [`£${value.toLocaleString()}`, 'Value']}
+                          labelStyle={{ color: 'var(--foreground)' }}
+                          contentStyle={{ 
+                            backgroundColor: 'var(--background)', 
+                            border: '1px solid var(--border)',
+                            borderRadius: '8px'
+                          }}
+                        />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
                 {/* Asset Breakdown */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <h3 className="text-xl font-black text-[var(--foreground)] mb-4 text-center">
-                    ASSET ALLOCATION
+                    BREAKDOWN
                   </h3>
                   
                   {[
-                    { key: 'stocks', label: 'Stocks/Equities', color: 'from-blue-500 to-blue-600' },
-                    { key: 'bonds', label: 'Bonds/Fixed Income', color: 'from-green-500 to-green-600' },
-                    { key: 'alternatives', label: 'Alternatives', color: 'from-purple-500 to-purple-600' },
-                    { key: 'property', label: 'Property/REITs', color: 'from-orange-500 to-orange-600' },
-                    { key: 'cash', label: 'Cash/Savings', color: 'from-gray-500 to-gray-600' }
+                    { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
+                    { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
+                    { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
+                    { key: 'property', label: 'Property/REITs', color: '#f97316' },
+                    { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
                   ].map((asset) => {
                     const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
                     const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
@@ -394,12 +441,12 @@ export default function DemoSimulation() {
                     return value > 0 ? (
                       <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
                         <div className="flex items-center gap-3">
-                          <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${asset.color}`}></div>
-                          <span className="font-semibold text-[var(--foreground)]">{asset.label}</span>
+                          <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
+                          <span className="font-semibold text-[var(--foreground)] text-sm">{asset.label}</span>
                         </div>
                         <div className="text-right">
-                          <div className="font-bold text-[var(--foreground)]">£{value.toLocaleString()}</div>
-                          <div className="text-sm text-[var(--muted-foreground)]">{percentage}%</div>
+                          <div className="font-bold text-[var(--foreground)] text-sm">£{value.toLocaleString()}</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">{percentage}%</div>
                         </div>
                       </div>
                     ) : null;
