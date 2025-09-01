@@ -110,55 +110,6 @@ export default function DemoPortfolioAnalysis() {
             </p>
           </div>
 
-          {/* Investor Profile Summary */}
-          {(investorData.persona || investorData.scenario) && (
-            <div className="mt-12 max-w-5xl mx-auto">
-              <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 backdrop-blur-sm shadow-2xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-2xl">
-                    <User className="h-6 w-6 text-[var(--primary)]" />
-                    Analysis Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {investorData.persona && (
-                      <div className="space-y-3">
-                        <h3 className="font-semibold text-[var(--primary)] flex items-center gap-2">
-                          <Brain className="h-4 w-4" />
-                          Investor Profile
-                        </h3>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-lg">{investorData.persona.name}</span>
-                          {investorData.score && (
-                            <Badge variant="secondary" className="px-3 py-1">
-                              {investorData.score.toFixed(1)}% match
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-[var(--muted-foreground)]">
-                          {investorData.persona.description}
-                        </p>
-                      </div>
-                    )}
-
-                    {investorData.scenario && (
-                      <div className="space-y-3">
-                        <h3 className="font-semibold text-[var(--secondary)] flex items-center gap-2">
-                          <Target className="h-4 w-4" />
-                          Stress Test Scenario
-                        </h3>
-                        <div className="font-bold text-lg">{investorData.scenario.name}</div>
-                        <p className="text-sm text-[var(--muted-foreground)]">
-                          {investorData.scenario.description}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
         </div>
       </div>
 
@@ -310,12 +261,40 @@ export default function DemoPortfolioAnalysis() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="text-3xl font-bold text-[var(--primary)]">£1,950,000</div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="text-green-600">+12.5% (£217k)</span>
-                        <span className="text-[var(--muted-foreground)]">vs last month</span>
-                      </div>
+                      {investorData.portfolioConfig ? (
+                        <>
+                          <div className="text-3xl font-bold text-[var(--primary)]">
+                            £{parseInt(investorData.portfolioConfig.totalValue || '0').toLocaleString()}
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="flex justify-between">
+                              <span className="text-[var(--muted-foreground)]">Stocks:</span>
+                              <span>£{parseInt(investorData.portfolioConfig.stocks || '0').toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[var(--muted-foreground)]">Bonds:</span>
+                              <span>£{parseInt(investorData.portfolioConfig.bonds || '0').toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[var(--muted-foreground)]">Alternatives:</span>
+                              <span>£{parseInt(investorData.portfolioConfig.alternatives || '0').toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[var(--muted-foreground)]">Cash:</span>
+                              <span>£{parseInt(investorData.portfolioConfig.cash || '0').toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-3xl font-bold text-[var(--primary)]">£1,950,000</div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                            <span className="text-green-600">+12.5% (£217k)</span>
+                            <span className="text-[var(--muted-foreground)]">vs last month</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
