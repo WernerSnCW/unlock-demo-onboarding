@@ -843,7 +843,7 @@ export default function InvestorPreferences() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionnaireAnswers, setQuestionnaireAnswers] = useState<QuestionnaireAnswer[]>([]);
   const [questionnaireComplete, setQuestionnaireComplete] = useState(false);
-  const [questionnairePersonaResult, setQuestionnairePersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number } | null>(null);
+  const [questionnairePersonaResult, setQuestionnairePersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number, allMatches?: Array<{ persona: typeof investorPersonas[0], score: number }> } | null>(null);
   const [currentQuestionAnswer, setCurrentQuestionAnswer] = useState<string | string[]>('');
 
   // Convert questionnaire answers to form data for persona classification
@@ -2044,9 +2044,9 @@ export default function InvestorPreferences() {
                       let backgroundClasses = "";
                       
                       if (isPrimaryMatch) {
-                        // Primary match: prominent styling
+                        // Primary match: prominent styling with stronger background
                         borderClasses = "border-2 border-[var(--primary)]";
-                        backgroundClasses = "bg-gradient-to-br from-[var(--primary)]/15 to-[var(--secondary)]/10";
+                        backgroundClasses = "bg-gradient-to-br from-[var(--primary)]/25 to-[var(--secondary)]/20 shadow-lg ring-2 ring-[var(--primary)]/20";
                       } else if (hasScore) {
                         // Secondary match: subtle highlight
                         borderClasses = "border-2 border-[var(--secondary)]/60";
