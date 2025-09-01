@@ -85,15 +85,22 @@ export default function DemoPortfolioAnalysis() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--background)] via-[var(--accent)]/5 to-[var(--secondary)]/10">
+    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-32 left-16 w-40 h-40 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute top-64 right-24 w-32 h-32 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
+        <div className="absolute bottom-48 left-24 w-28 h-28 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2.5s'}}></div>
+      </div>
+
       <Header />
       
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        {/* Animated Background */}
+      <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
+        {/* Dynamic Background Mesh */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/10 via-[var(--secondary)]/10 to-[var(--accent)]/10 animate-gradient-x"></div>
-          <div className="absolute top-0 left-0 w-full h-full bg-[var(--background)]/95"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
         </div>
         
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
@@ -151,40 +158,40 @@ export default function DemoPortfolioAnalysis() {
       </div>
 
       {/* Main Analysis Tabs */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 bg-[var(--card)] border border-[var(--border)] p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-5 bg-[var(--card)] border-2 border-[var(--border)] p-1 rounded-3xl shadow-2xl backdrop-blur-sm">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white"
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
             >
               <PieChart className="h-4 w-4" />
               Overview
             </TabsTrigger>
             <TabsTrigger 
               value="performance" 
-              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white"
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
             >
               <TrendingUp className="h-4 w-4" />
               Performance
             </TabsTrigger>
             <TabsTrigger 
               value="risk" 
-              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white"
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
             >
               <AlertTriangle className="h-4 w-4" />
               Risk Analysis
             </TabsTrigger>
             <TabsTrigger 
               value="stress" 
-              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white"
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
             >
               <Zap className="h-4 w-4" />
               Stress Testing
             </TabsTrigger>
             <TabsTrigger 
               value="insights" 
-              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white"
+              className="flex items-center gap-2 rounded-2xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg"
             >
               <Sparkles className="h-4 w-4" />
               AI Insights
@@ -196,7 +203,7 @@ export default function DemoPortfolioAnalysis() {
             {/* Investor Profile & Scenario Configuration */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               {investorData.persona ? (
-                <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 backdrop-blur-sm shadow-2xl">
+                <Card className="relative border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden group hover:shadow-[var(--primary)]/20 transition-all duration-500">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                       <User className="h-5 w-5 text-[var(--primary)]" />
@@ -226,7 +233,7 @@ export default function DemoPortfolioAnalysis() {
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)]">
+                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)] rounded-3xl">
                   <CardContent className="flex items-center justify-center py-12">
                     <div className="text-center space-y-3">
                       <User className="h-8 w-8 text-[var(--muted-foreground)] mx-auto" />
@@ -239,7 +246,7 @@ export default function DemoPortfolioAnalysis() {
               )}
 
               {investorData.scenario ? (
-                <Card className="border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
+                <Card className="relative border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden group hover:shadow-[var(--secondary)]/20 transition-all duration-500">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                       <Target className="h-5 w-5 text-[var(--secondary)]" />
@@ -262,7 +269,7 @@ export default function DemoPortfolioAnalysis() {
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)]">
+                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)] rounded-3xl">
                   <CardContent className="flex items-center justify-center py-12">
                     <div className="text-center space-y-3">
                       <Target className="h-8 w-8 text-[var(--muted-foreground)] mx-auto" />
@@ -276,7 +283,7 @@ export default function DemoPortfolioAnalysis() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2 border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+              <Card className="lg:col-span-2 border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <PieChart className="h-5 w-5 text-[var(--primary)]" />
@@ -300,7 +307,7 @@ export default function DemoPortfolioAnalysis() {
               </Card>
 
               <div className="space-y-6">
-                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
                   <CardHeader>
                     <CardTitle className="text-lg">Total Portfolio Value</CardTitle>
                   </CardHeader>
@@ -361,7 +368,7 @@ export default function DemoPortfolioAnalysis() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
                   <CardHeader>
                     <CardTitle className="text-lg">Key Metrics</CardTitle>
                   </CardHeader>
@@ -388,7 +395,7 @@ export default function DemoPortfolioAnalysis() {
 
           {/* Performance Tab */}
           <TabsContent value="performance" className="space-y-6">
-            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <LineChart className="h-5 w-5 text-[var(--secondary)]" />
@@ -415,7 +422,7 @@ export default function DemoPortfolioAnalysis() {
           {/* Risk Analysis Tab */}
           <TabsContent value="risk" className="space-y-6">
             <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-orange-500" />
@@ -452,7 +459,7 @@ export default function DemoPortfolioAnalysis() {
                 </CardContent>
               </Card>
 
-              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+              <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
                 <CardHeader>
                   <CardTitle>Asset Class Risk</CardTitle>
                 </CardHeader>
@@ -470,7 +477,7 @@ export default function DemoPortfolioAnalysis() {
 
           {/* Stress Testing Tab */}
           <TabsContent value="stress" className="space-y-6">
-            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-[var(--accent)]" />
@@ -515,7 +522,7 @@ export default function DemoPortfolioAnalysis() {
 
           {/* AI Insights Tab */}
           <TabsContent value="insights" className="space-y-6">
-            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+            <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-[var(--primary)]" />
