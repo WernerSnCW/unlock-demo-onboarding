@@ -309,7 +309,27 @@ export default function DemoSimulation() {
                             </div>
                           ))}
                         </div>
+                        
+                        {/* Load Demo Data Button */}
                         <div className="text-center mt-6">
+                          <Button
+                            variant="outline"
+                            onClick={() => setPortfolioConfig(prev => ({
+                              ...prev,
+                              stocks: '200000',
+                              bonds: '100000',
+                              alternatives: '100000',
+                              property: '50000',
+                              cash: '50000'
+                            }))}
+                            className="mb-4 px-6 py-2 bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border-[var(--primary)] hover:from-[var(--primary)]/20 hover:to-[var(--secondary)]/20 transition-all duration-300"
+                          >
+                            <Gift className="h-4 w-4 mr-2" />
+                            Load Demo Data
+                          </Button>
+                        </div>
+                        
+                        <div className="text-center mt-4">
                           <p className="text-lg font-semibold text-[var(--foreground)]">
                             Total Portfolio Value: £{Object.values(portfolioConfig).filter((_, i) => i >= 1 && i <= 5).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0).toLocaleString()}
                           </p>
