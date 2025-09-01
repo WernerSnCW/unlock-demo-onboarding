@@ -82,6 +82,8 @@ export default function DemoPortfolioAnalysis() {
       config: storedConfig ? 'Found' : 'Missing'
     });
 
+    console.log('Available scenarios in DemoPortfolioAnalysis:', economicScenarios.map(s => s.name));
+
     if (storedPersona) {
       try {
         const personaResult = JSON.parse(storedPersona);
@@ -352,10 +354,16 @@ export default function DemoPortfolioAnalysis() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {investorData.portfolioConfig && investorData.portfolioConfig.totalValue ? (
+                      {investorData.portfolioConfig && (investorData.portfolioConfig.stocks || investorData.portfolioConfig.bonds || investorData.portfolioConfig.alternatives || investorData.portfolioConfig.property || investorData.portfolioConfig.cash) ? (
                         <>
                           <div className="text-3xl font-bold text-[var(--primary)]">
-                            £{parseInt(investorData.portfolioConfig.totalValue).toLocaleString()}
+                            £{(
+                              (parseInt(investorData.portfolioConfig.stocks || '0')) +
+                              (parseInt(investorData.portfolioConfig.bonds || '0')) +
+                              (parseInt(investorData.portfolioConfig.alternatives || '0')) +
+                              (parseInt(investorData.portfolioConfig.property || '0')) +
+                              (parseInt(investorData.portfolioConfig.cash || '0'))
+                            ).toLocaleString()}
                           </div>
                           <div className="space-y-2 text-xs">
                             {investorData.portfolioConfig.stocks && (
@@ -547,7 +555,9 @@ export default function DemoPortfolioAnalysis() {
                   
                   {/* All Economic Scenarios */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">All Economic Scenarios</h3>
+                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">
+                      All Economic Scenarios ({economicScenarios.length} scenarios)
+                    </h3>
                     <div className="grid gap-4">
                       {economicScenarios.map((scenario) => {
                         const isActive = investorData.scenario?.name === scenario.name;
