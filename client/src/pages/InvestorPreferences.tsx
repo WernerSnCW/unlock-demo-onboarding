@@ -1592,6 +1592,46 @@ export default function InvestorPreferences() {
                   </div>
                 </div>
               )}
+
+              {/* Investor Persona Overview Cards */}
+              <Card className="border-2 border-[var(--border)] bg-[var(--card)] backdrop-blur-sm shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl text-[var(--primary)]">
+                    <Users className="h-5 w-5" />
+                    12 Investor Personas
+                  </CardTitle>
+                  <CardDescription>
+                    Discover which investor profile matches your preferences through our questionnaire
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {investorPersonas.map((persona) => (
+                      <div
+                        key={persona.id}
+                        className="cursor-pointer rounded-xl border border-[var(--border)] p-4 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5 hover:shadow-lg hover:scale-[1.02] duration-300"
+                        data-testid={`persona-card-${persona.id}`}
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
+                            <h3 className="font-semibold text-sm text-[var(--foreground)]">{persona.name}</h3>
+                          </div>
+                          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
+                            {persona.description}
+                          </p>
+                          <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+                            <Target className="h-3 w-3" />
+                            <span className="capitalize">
+                              {persona.criteria.investorObjective.join(', ')} • {persona.criteria.riskProfile.join(', ')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
