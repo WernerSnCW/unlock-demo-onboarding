@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -170,8 +172,10 @@ export default function InvestorPreferences() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-[var(--background)]">
+      <Header />
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div className="max-w-4xl mx-auto p-6 space-y-8">
         
         {/* Header */}
         <div className="text-center space-y-4">
@@ -515,7 +519,9 @@ export default function InvestorPreferences() {
             </div>
           </form>
         </Form>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
