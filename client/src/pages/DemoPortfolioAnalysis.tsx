@@ -485,9 +485,12 @@ export default function DemoPortfolioAnalysis() {
               </Card>
 
               <div className="space-y-6">
-                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Total Portfolio Value</CardTitle>
+                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500 p-2">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-[var(--primary)]" />
+                      Total Portfolio Value
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -552,9 +555,12 @@ export default function DemoPortfolioAnalysis() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Portfolio Configuration</CardTitle>
+                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500 p-2">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Settings className="h-5 w-5 text-[var(--primary)]" />
+                      Portfolio Configuration
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
