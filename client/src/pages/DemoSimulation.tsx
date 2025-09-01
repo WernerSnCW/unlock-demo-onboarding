@@ -1,9 +1,11 @@
 import { Link } from 'wouter';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Play, Sparkles, Brain, Rocket, Shield, Zap, ArrowRight, Crown, Gift, Target, TrendingUp, Users, Eye, ChevronRight, User, AlertTriangle } from 'lucide-react';
+import { Play, Sparkles, Brain, Rocket, Shield, Zap, ArrowRight, Crown, Gift, Target, TrendingUp, Users, Eye, ChevronRight, User, AlertTriangle, PoundSterling, PieChart, Globe, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 
 // Economic scenarios data
 const economicScenarios = [
@@ -53,6 +55,20 @@ export default function DemoSimulation() {
   const personaScenarioIds = urlParams.get('personaScenarios')?.split(',').filter(Boolean) || [];
   const allScenarioIds = urlParams.get('scenarios')?.split(',').filter(Boolean) || [];
 
+  // Portfolio configuration state
+  const [portfolioConfig, setPortfolioConfig] = useState({
+    totalValue: '',
+    stocks: '',
+    bonds: '',
+    alternatives: '',
+    cash: '',
+    property: '',
+    international: '',
+    timeHorizon: ''
+  });
+  const [configStep, setConfigStep] = useState(0);
+  const [showConfiguration, setShowConfiguration] = useState(true);
+
   // Get scenario details
   const allScenarios = allScenarioIds
     .map(id => {
@@ -64,6 +80,63 @@ export default function DemoSimulation() {
       } : null;
     })
     .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
+
+  const portfolioQuestions = [
+    {
+      id: 'totalValue',
+      title: 'Portfolio Value',
+      question: 'What is your total investable portfolio value?',
+      icon: PoundSterling,
+      options: [
+        { value: '100k-500k', label: '£100k - £500k' },
+        { value: '500k-1m', label: '£500k - £1M' },
+        { value: '1m-5m', label: '£1M - £5M' },
+        { value: '5m-plus', label: '£5M+' }
+      ]
+    },
+    {
+      id: 'allocation',
+      title: 'Asset Allocation',
+      question: 'How is your portfolio currently allocated?',
+      icon: PieChart,
+      type: 'allocation',
+      fields: [
+        { key: 'stocks', label: 'Stocks/Equities', placeholder: '40' },
+        { key: 'bonds', label: 'Bonds/Fixed Income', placeholder: '20' },
+        { key: 'alternatives', label: 'Alternatives', placeholder: '20' },
+        { key: 'property', label: 'Property/REITs', placeholder: '10' },
+        { key: 'cash', label: 'Cash/Savings', placeholder: '10' }
+      ]
+    },
+    {
+      id: 'international',
+      title: 'Geographic Mix',
+      question: 'What percentage is invested internationally?',
+      icon: Globe,
+      options: [
+        { value: '0-25', label: '0-25% International' },
+        { value: '25-50', label: '25-50% International' },
+        { value: '50-75', label: '50-75% International' },
+        { value: '75-100', label: '75-100% International' }
+      ]
+    },
+    {
+      id: 'timeHorizon',
+      title: 'Investment Timeline',
+      question: 'What is your primary investment time horizon?',
+      icon: Clock,
+      options: [
+        { value: '1-3', label: '1-3 years' },
+        { value: '3-7', label: '3-7 years' },
+        { value: '7-15', label: '7-15 years' },
+        { value: '15-plus', label: '15+ years' }
+      ]
+    }
+  ];
+
+  const handleConfigComplete = () => {
+    setShowConfiguration(false);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
@@ -129,8 +202,145 @@ export default function DemoSimulation() {
           </div>
         </div>
 
+      {/* Portfolio Configuration Questionnaire */}
+      {showConfiguration && (
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-black text-[var(--foreground)] mb-6">
+              PORTFOLIO
+              <span className="block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                CONFIGURATION
+              </span>
+            </h2>
+            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed">
+              Help us understand your portfolio makeup to provide personalized analysis
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Progress indicator */}
+            <div className="flex justify-center mb-8">
+              <div className="flex items-center gap-2">
+                {portfolioQuestions.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index <= configStep 
+                        ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' 
+                        : 'bg-[var(--muted)]'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Question Card */}
+            <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
+              <CardContent className="p-12">
+                {configStep < portfolioQuestions.length ? (
+                  <div className="space-y-8">
+                    <div className="text-center">
+                      <div className="inline-block relative mb-6">
+                        <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-6 shadow-xl">
+                          {React.createElement(portfolioQuestions[configStep].icon, {
+                            className: "h-16 w-16 text-white"
+                          })}
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-3xl font-black text-[var(--foreground)] mb-4">
+                        {portfolioQuestions[configStep].title}
+                      </h3>
+                      <p className="text-xl text-[var(--muted-foreground)] mb-8">
+                        {portfolioQuestions[configStep].question}
+                      </p>
+                    </div>
+
+                    {portfolioQuestions[configStep].type === 'allocation' ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {portfolioQuestions[configStep].fields?.map((field) => (
+                            <div key={field.key} className="space-y-2">
+                              <label className="font-semibold text-[var(--foreground)]">
+                                {field.label} (%)
+                              </label>
+                              <input
+                                type="number"
+                                placeholder={field.placeholder}
+                                className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                value={portfolioConfig[field.key as keyof typeof portfolioConfig]}
+                                onChange={(e) => setPortfolioConfig(prev => ({
+                                  ...prev,
+                                  [field.key]: e.target.value
+                                }))}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-center mt-6">
+                          <p className="text-sm text-[var(--muted-foreground)]">
+                            Total: {Object.values(portfolioConfig).filter((_, i) => i >= 1 && i <= 5).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0)}%
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {portfolioQuestions[configStep].options?.map((option) => (
+                          <Button
+                            key={option.value}
+                            variant="outline"
+                            className={`h-auto p-6 text-left justify-start transition-all duration-300 hover:scale-105 ${
+                              portfolioConfig[portfolioQuestions[configStep].id as keyof typeof portfolioConfig] === option.value
+                                ? 'border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]'
+                                : 'border-[var(--border)] hover:border-[var(--primary)]'
+                            }`}
+                            onClick={() => setPortfolioConfig(prev => ({
+                              ...prev,
+                              [portfolioQuestions[configStep].id]: option.value
+                            }))}
+                          >
+                            <div>
+                              <div className="font-bold text-lg mb-1">{option.label}</div>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex justify-between pt-8">
+                      <Button
+                        variant="outline"
+                        onClick={() => setConfigStep(Math.max(0, configStep - 1))}
+                        disabled={configStep === 0}
+                        className="px-8 py-3"
+                      >
+                        Previous
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          if (configStep < portfolioQuestions.length - 1) {
+                            setConfigStep(configStep + 1);
+                          } else {
+                            handleConfigComplete();
+                          }
+                        }}
+                        className="px-8 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
+                      >
+                        {configStep < portfolioQuestions.length - 1 ? 'Next' : 'Complete Configuration'}
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+
       {/* Configuration Display */}
-      {(personaName || allScenarios.length > 0) && (
+      {!showConfiguration && (personaName || allScenarios.length > 0) && (
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Section Header */}
           <div className="text-center mb-16">
