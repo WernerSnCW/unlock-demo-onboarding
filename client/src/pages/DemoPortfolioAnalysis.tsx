@@ -390,8 +390,9 @@ export default function DemoPortfolioAnalysis() {
               )}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2 border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500">
+            <Card className="border-2 border-[var(--border)] bg-[var(--card)] backdrop-blur-sm shadow-2xl rounded-3xl transition-all duration-500 p-6">
+              <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-xl rounded-3xl transition-all duration-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <PieChart className="h-5 w-5 text-[var(--primary)]" />
@@ -608,6 +609,7 @@ export default function DemoPortfolioAnalysis() {
                 </Card>
               </div>
             </div>
+            </Card>
           </TabsContent>
 
           {/* Performance Tab */}
