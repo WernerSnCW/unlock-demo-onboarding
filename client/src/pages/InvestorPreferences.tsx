@@ -914,6 +914,11 @@ export default function InvestorPreferences() {
   // Selected economic scenarios state (multiple selection allowed)
   const [selectedScenarioIds, setSelectedScenarioIds] = useState<string[]>([]);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // Convert questionnaire answers to form data for persona classification
   const convertQuestionnaireToFormData = (answers: QuestionnaireAnswer[]): PreferencesFormData => {
     const answerMap = answers.reduce((acc, answer) => {
