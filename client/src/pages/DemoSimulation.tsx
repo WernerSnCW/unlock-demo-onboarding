@@ -347,282 +347,256 @@ export default function DemoSimulation() {
         </div>
       )}
 
-      {/* Portfolio Configuration Summary */}
-      {!showConfiguration && totalValue > 0 && (
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-12">
+      {/* Combined Portfolio & Simulation Configuration */}
+      {(!showConfiguration && totalValue > 0) || (personaName || allScenarios.length > 0) ? (
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black text-[var(--foreground)] mb-6">
-              YOUR PORTFOLIO
+              CONFIGURATION
               <span className="block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
                 SUMMARY
               </span>
             </h2>
             <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed">
-              Configuration captured for personalized analysis
-            </p>
-          </div>
-
-          <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Side - Total Value + Pie Chart */}
-                <div className="space-y-6">
-                  {/* Total Value */}
-                  <div className="text-center">
-                    <div className="inline-block relative mb-4">
-                      <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl">
-                        <PoundSterling className="h-12 w-12 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-black text-[var(--foreground)] mb-2">
-                      TOTAL PORTFOLIO VALUE
-                    </h3>
-                    <p className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
-                      £{totalValue.toLocaleString()}
-                    </p>
-                  </div>
-
-                  {/* Pie Chart */}
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsPieChart>
-                        <Pie
-                          data={[
-                            { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
-                            { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
-                            { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
-                            { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
-                            { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
-                          ].filter(item => item.value > 0)}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={40}
-                          outerRadius={80}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          {[
-                            { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
-                            { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
-                            { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
-                            { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
-                            { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
-                          ].filter(item => item.value > 0).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          formatter={(value: number) => [`£${value.toLocaleString()}`, 'Value']}
-                          labelStyle={{ color: 'var(--foreground)' }}
-                          contentStyle={{ 
-                            backgroundColor: 'var(--background)', 
-                            border: '1px solid var(--border)',
-                            borderRadius: '8px'
-                          }}
-                        />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* Right Side - Asset Breakdown */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-black text-[var(--foreground)] mb-4 text-center">
-                    ASSET ALLOCATION
-                  </h3>
-                  
-                  {[
-                    { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
-                    { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
-                    { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
-                    { key: 'property', label: 'Property/REITs', color: '#f97316' },
-                    { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
-                  ].map((asset) => {
-                    const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
-                    const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
-                    
-                    return value > 0 ? (
-                      <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
-                          <span className="font-semibold text-[var(--foreground)]">{asset.label}</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-[var(--foreground)]">£{value.toLocaleString()}</div>
-                          <div className="text-sm text-[var(--muted-foreground)]">{percentage}%</div>
-                        </div>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="mt-8 pt-6 border-t border-[var(--border)]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {portfolioConfig.international && (
-                    <div className="bg-[var(--muted)] rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Globe className="h-4 w-4 text-[var(--primary)]" />
-                        <span className="font-semibold text-[var(--foreground)]">International Exposure</span>
-                      </div>
-                      <p className="text-[var(--muted-foreground)]">{portfolioConfig.international}</p>
-                    </div>
-                  )}
-                  
-                  {portfolioConfig.timeHorizon && (
-                    <div className="bg-[var(--muted)] rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="h-4 w-4 text-[var(--primary)]" />
-                        <span className="font-semibold text-[var(--foreground)]">Investment Timeline</span>
-                      </div>
-                      <p className="text-[var(--muted-foreground)]">{portfolioConfig.timeHorizon}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Configuration Display */}
-      {(personaName || allScenarios.length > 0) && (
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-[var(--foreground)] mb-6">
-              SIMULATION
-              <span className="block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
-                CONFIGURATION
-              </span>
-            </h2>
-            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed">
-              Running personalized portfolio analysis with your investor profile and risk scenarios
+              Portfolio setup and simulation parameters configured for personalized analysis
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Selected Persona */}
-            {personaName && (
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
-                <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--primary)] rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl hover:scale-105">
-                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
-                  
-                  <div className="text-center mb-6">
-                    <div className="relative inline-block">
-                      <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl group-hover:scale-110 transition-transform">
-                        <User className="h-12 w-12 text-white" />
+            {/* Left Side - Portfolio Configuration */}
+            {!showConfiguration && totalValue > 0 && (
+              <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
+                <CardContent className="p-8">
+                  <div className="space-y-6">
+                    {/* Total Value */}
+                    <div className="text-center">
+                      <div className="inline-block relative mb-4">
+                        <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl">
+                          <PoundSterling className="h-12 w-12 text-white" />
+                        </div>
                       </div>
-                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
-                    </div>
-                  </div>
-
-                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-4 text-center">
-                    ACTIVE PERSONA
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-2xl p-6 border border-green-200/50 dark:border-green-800/30">
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 font-bold px-4 py-2">
-                          Live Profile
-                        </Badge>
-                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                      </div>
-                      <h4 className="text-xl font-bold text-[var(--foreground)] mb-3">
-                        {decodeURIComponent(personaName)}
-                      </h4>
-                      <p className="text-[var(--muted-foreground)] leading-relaxed mb-4">
-                        The simulation is actively modeling your portfolio behavior and risk responses according to this investor archetype.
+                      <h3 className="text-2xl font-black text-[var(--foreground)] mb-2">
+                        PORTFOLIO VALUE
+                      </h3>
+                      <p className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                        £{totalValue.toLocaleString()}
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
-                          Live Analysis
-                        </Badge>
-                        <Badge variant="outline" className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300">
-                          Risk Modeling
-                        </Badge>
-                        <Badge variant="outline" className="border-purple-300 text-purple-700 dark:border-purple-600 dark:text-purple-300">
-                          Real-time Data
-                        </Badge>
-                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Active Economic Scenarios */}
-            {allScenarios.length > 0 && (
-              <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl"></div>
-                <div className="relative bg-[var(--card)] border-2 border-[var(--border)] hover:border-[var(--warning)] rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl hover:scale-105">
-                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)]"></div>
-                  
-                  <div className="text-center mb-6">
-                    <div className="relative inline-block">
-                      <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-2xl p-4 shadow-xl group-hover:scale-110 transition-transform">
-                        <AlertTriangle className="h-12 w-12 text-white" />
-                      </div>
-                      <div className="absolute -inset-2 bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)] rounded-2xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
-                    </div>
-                  </div>
 
-                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-4 text-center">
-                    STRESS TESTING
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="text-center mb-4">
-                      <Badge className="bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)] text-white border-0 font-bold px-4 py-2">
-                        {allScenarios.length} Active Scenarios
-                      </Badge>
+                    {/* Pie Chart */}
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={[
+                              { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
+                              { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
+                              { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
+                              { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
+                              { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
+                            ].filter(item => item.value > 0)}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={80}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            {[
+                              { name: 'Stocks/Equities', value: parseInt(portfolioConfig.stocks || '0'), color: '#3b82f6' },
+                              { name: 'Bonds/Fixed Income', value: parseInt(portfolioConfig.bonds || '0'), color: '#10b981' },
+                              { name: 'Alternatives', value: parseInt(portfolioConfig.alternatives || '0'), color: '#8b5cf6' },
+                              { name: 'Property/REITs', value: parseInt(portfolioConfig.property || '0'), color: '#f97316' },
+                              { name: 'Cash/Savings', value: parseInt(portfolioConfig.cash || '0'), color: '#6b7280' }
+                            ].filter(item => item.value > 0).map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            formatter={(value: number) => [`£${value.toLocaleString()}`, 'Value']}
+                            labelStyle={{ color: 'var(--foreground)' }}
+                            contentStyle={{ 
+                              backgroundColor: 'var(--background)', 
+                              border: '1px solid var(--border)',
+                              borderRadius: '8px'
+                            }}
+                          />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
                     </div>
-                    
-                    {allScenarios.map((scenario) => {
-                      const IconComponent = scenario.icon;
-                      return (
-                        <div key={scenario.id} className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/20 rounded-xl p-4 border border-orange-200/50 dark:border-orange-800/30 hover:shadow-lg transition-shadow">
-                          <div className="flex items-start justify-between mb-3">
+
+                    {/* Asset Breakdown */}
+                    <div className="space-y-3">
+                      <h4 className="text-lg font-black text-[var(--foreground)] text-center">
+                        ASSET ALLOCATION
+                      </h4>
+                      
+                      {[
+                        { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
+                        { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
+                        { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
+                        { key: 'property', label: 'Property/REITs', color: '#f97316' },
+                        { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
+                      ].map((asset) => {
+                        const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
+                        const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
+                        
+                        return value > 0 ? (
+                          <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
                             <div className="flex items-center gap-3">
-                              <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-lg p-2">
-                                <IconComponent className="h-4 w-4 text-white" />
-                              </div>
-                              <Badge className={`text-xs font-bold ${
-                                scenario.isSelected 
-                                  ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
-                                  : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
-                              }`}>
-                                {scenario.isSelected ? 'Selected' : 'Applicable'}
-                              </Badge>
+                              <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
+                              <span className="font-semibold text-[var(--foreground)] text-sm">{asset.label}</span>
                             </div>
-                            <Badge variant="outline" className="text-xs border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-400">
-                              {scenario.horizon}
-                            </Badge>
+                            <div className="text-right">
+                              <div className="font-bold text-[var(--foreground)] text-sm">£{value.toLocaleString()}</div>
+                              <div className="text-xs text-[var(--muted-foreground)]">{percentage}%</div>
+                            </div>
                           </div>
-                          <h5 className="font-bold text-[var(--foreground)] mb-2">
-                            {scenario.name}
-                          </h5>
-                          <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-3">
-                            {scenario.description}
-                          </p>
-                          <div className="flex items-center gap-2 text-sm text-[var(--success)] font-medium">
-                            <div className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse"></div>
-                            <span>Stress testing active</span>
+                        ) : null;
+                      })}
+                    </div>
+
+                    {/* Additional Info */}
+                    {(portfolioConfig.international || portfolioConfig.timeHorizon) && (
+                      <div className="pt-4 border-t border-[var(--border)]">
+                        <div className="grid grid-cols-1 gap-3">
+                          {portfolioConfig.international && (
+                            <div className="bg-[var(--muted)] rounded-xl p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Globe className="h-4 w-4 text-[var(--primary)]" />
+                                <span className="font-semibold text-[var(--foreground)] text-sm">International</span>
+                              </div>
+                              <p className="text-sm text-[var(--muted-foreground)]">{portfolioConfig.international}</p>
+                            </div>
+                          )}
+                          
+                          {portfolioConfig.timeHorizon && (
+                            <div className="bg-[var(--muted)] rounded-xl p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Clock className="h-4 w-4 text-[var(--primary)]" />
+                                <span className="font-semibold text-[var(--foreground)] text-sm">Timeline</span>
+                              </div>
+                              <p className="text-sm text-[var(--muted-foreground)]">{portfolioConfig.timeHorizon}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Right Side - Simulation Configuration */}
+            {(personaName || allScenarios.length > 0) && (
+              <div className="space-y-6">
+                {/* Active Persona */}
+                {personaName && (
+                  <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
+                    <CardContent className="p-6">
+                      <div className="text-center mb-4">
+                        <div className="inline-block relative mb-4">
+                          <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl">
+                            <User className="h-10 w-10 text-white" />
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                        <h3 className="text-xl font-black text-[var(--foreground)] mb-2">
+                          ACTIVE PERSONA
+                        </h3>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-2xl p-4 border border-green-200/50 dark:border-green-800/30">
+                        <div className="flex items-center justify-between mb-3">
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 font-bold">
+                            Live Profile
+                          </Badge>
+                          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        </div>
+                        <h4 className="text-lg font-bold text-[var(--foreground)] mb-2">
+                          {decodeURIComponent(personaName)}
+                        </h4>
+                        <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-3">
+                          Active modeling of portfolio behavior and risk responses according to this investor archetype.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-600 dark:text-green-300 text-xs">
+                            Live Analysis
+                          </Badge>
+                          <Badge variant="outline" className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300 text-xs">
+                            Risk Modeling
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Stress Testing */}
+                {allScenarios.length > 0 && (
+                  <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)]"></div>
+                    <CardContent className="p-6">
+                      <div className="text-center mb-4">
+                        <div className="inline-block relative mb-4">
+                          <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-2xl p-4 shadow-xl">
+                            <AlertTriangle className="h-10 w-10 text-white" />
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-black text-[var(--foreground)] mb-2">
+                          STRESS TESTING
+                        </h3>
+                        <Badge className="bg-gradient-to-r from-[var(--warning)] to-[var(--destructive)] text-white border-0 font-bold">
+                          {allScenarios.length} Active Scenarios
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {allScenarios.map((scenario) => {
+                          const IconComponent = scenario.icon;
+                          return (
+                            <div key={scenario.id} className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/20 rounded-xl p-4 border border-orange-200/50 dark:border-orange-800/30">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-lg p-2">
+                                    <IconComponent className="h-4 w-4 text-white" />
+                                  </div>
+                                  <Badge className={`text-xs font-bold ${
+                                    scenario.isSelected 
+                                      ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
+                                      : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
+                                  }`}>
+                                    {scenario.isSelected ? 'Selected' : 'Applicable'}
+                                  </Badge>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {scenario.horizon}
+                                </Badge>
+                              </div>
+                              <h5 className="font-bold text-[var(--foreground)] text-sm mb-2">
+                                {scenario.name}
+                              </h5>
+                              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-3">
+                                {scenario.description}
+                              </p>
+                              <div className="flex items-center gap-2 text-xs text-[var(--success)] font-medium">
+                                <div className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse"></div>
+                                <span>Stress testing active</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </div>
         </div>
-      )}
+      ) : null}
+
 
         {/* Main Demo Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
