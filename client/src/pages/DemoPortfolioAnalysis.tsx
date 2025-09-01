@@ -85,15 +85,22 @@ export default function DemoPortfolioAnalysis() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--background)] via-[var(--accent)]/5 to-[var(--secondary)]/10">
+    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-32 left-16 w-40 h-40 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute top-64 right-24 w-32 h-32 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
+        <div className="absolute bottom-48 left-24 w-28 h-28 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2.5s'}}></div>
+      </div>
+
       <Header />
       
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        {/* Animated Background */}
+      <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
+        {/* Dynamic Background Mesh */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/10 via-[var(--secondary)]/10 to-[var(--accent)]/10 animate-gradient-x"></div>
-          <div className="absolute top-0 left-0 w-full h-full bg-[var(--background)]/95"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
         </div>
         
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
@@ -151,7 +158,7 @@ export default function DemoPortfolioAnalysis() {
       </div>
 
       {/* Main Analysis Tabs */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-5 bg-[var(--card)] border border-[var(--border)] p-1 rounded-xl">
             <TabsTrigger 
