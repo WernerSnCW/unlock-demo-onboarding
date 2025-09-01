@@ -189,7 +189,7 @@ export default function Demo() {
               <div className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-10 py-5 rounded-full font-bold text-xl shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105">
                 <div className="flex items-center gap-4">
                   <Play className="h-7 w-7" />
-                  <span>Start Demo</span>
+                  <span>start demo</span>
                   <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
