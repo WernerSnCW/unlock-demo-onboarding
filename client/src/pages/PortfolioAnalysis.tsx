@@ -762,10 +762,10 @@ export default function PortfolioAnalysis() {
                   </div>
                   <div>
                     <h3 className="text-4xl font-black text-[var(--foreground)]">AI Investment Analysis</h3>
-                    <p className="text-xl text-[var(--muted-foreground)]">Powered by GPT-5 • Educational insights only</p>
+                    <p className="text-xl text-[var(--muted-foreground)]">Powered by AI • Educational insights only</p>
                   </div>
                   <div className="ml-auto px-6 py-3 rounded-xl text-white font-bold text-lg bg-gradient-to-r from-[#10A957] to-[#13683B]">
-                    GPT-5
+                    AI
                   </div>
                 </div>
 
