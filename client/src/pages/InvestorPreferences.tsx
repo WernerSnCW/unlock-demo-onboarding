@@ -2287,28 +2287,42 @@ export default function InvestorPreferences() {
               
               {/* Configuration Summary Section */}
               {questionnaireComplete && (
-                <Card className="bg-gradient-to-br from-[var(--primary)]/5 via-[var(--card)] to-[var(--secondary)]/5 border-2 border-[var(--primary)]/20 shadow-lg">
-                  <CardContent className="p-8">
-                    <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                          <Settings className="h-5 w-5 text-white" />
+                <div className="relative">
+                  {/* Gradient background effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)]/5 to-[var(--primary)]/10 rounded-2xl blur-xl"></div>
+                  
+                  <Card className="relative bg-gradient-to-br from-white via-blue-50/50 to-green-50/30 dark:from-slate-900/90 dark:via-blue-950/50 dark:to-emerald-950/30 border-2 border-gradient-to-r border-[var(--primary)]/30 shadow-2xl backdrop-blur-sm">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--secondary)]/5 rounded-lg"></div>
+                    
+                    <CardContent className="relative p-10">
+                      <div className="text-center mb-8">
+                        <div className="inline-flex items-center gap-4 mb-4">
+                          <div className="relative">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)] via-blue-500 to-[var(--secondary)] flex items-center justify-center shadow-lg">
+                              <Settings className="h-7 w-7 text-white" />
+                            </div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-2xl blur opacity-25"></div>
+                          </div>
+                          <div className="text-left">
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                              Demo Configuration Summary
+                            </h3>
+                            <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                              Your personalized simulation parameters
+                            </p>
+                          </div>
                         </div>
-                        <h3 className="text-xl font-bold text-[var(--foreground)]">
-                          Demo Configuration Summary
-                        </h3>
+                        <div className="w-24 h-1 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full mx-auto"></div>
                       </div>
-                      <p className="text-sm text-[var(--muted-foreground)]">
-                        Review your investor profile and selected stress test scenarios
-                      </p>
-                    </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                       {/* Investor Profile Card */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 mb-4">
-                          <User className="h-4 w-4 text-[var(--primary)]" />
-                          <h4 className="font-semibold text-[var(--foreground)]">Investor Profile</h4>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/10 flex items-center justify-center">
+                            <User className="h-4 w-4 text-[var(--primary)]" />
+                          </div>
+                          <h4 className="text-lg font-bold text-[var(--foreground)]">Investor Profile</h4>
                         </div>
                         {(() => {
                           const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
@@ -2317,42 +2331,48 @@ export default function InvestorPreferences() {
                           const isPrimary = effectivePersonaId === questionnairePersonaResult?.persona.id;
                           
                           return effectivePersona ? (
-                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm">
-                              <div className="flex items-start justify-between mb-3">
-                                <div className="flex-1">
-                                  <h5 className="font-semibold text-[var(--foreground)] text-base mb-1">
-                                    {effectivePersona.name}
-                                  </h5>
-                                  <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                                    {effectivePersona.description}
-                                  </p>
+                            <div className="relative group">
+                              <div className="absolute -inset-1 bg-gradient-to-r from-[var(--primary)]/20 to-[var(--secondary)]/20 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                              <div className="relative bg-gradient-to-br from-white via-blue-50/80 to-green-50/50 dark:from-slate-800 dark:via-blue-950/30 dark:to-emerald-950/20 rounded-2xl p-6 border-2 border-[var(--primary)]/20 shadow-xl backdrop-blur-sm">
+                                <div className="flex items-start justify-between mb-4">
+                                  <div className="flex-1">
+                                    <h5 className="text-lg font-bold text-[var(--foreground)] mb-2">
+                                      {effectivePersona.name}
+                                    </h5>
+                                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                                      {effectivePersona.description}
+                                    </p>
+                                  </div>
+                                  <div className="ml-4 flex-shrink-0">
+                                    {isUserSelected && !isPrimary ? (
+                                      <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-lg text-sm px-3 py-1 font-semibold">
+                                        🎯 User Selected
+                                      </Badge>
+                                    ) : isPrimary ? (
+                                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-lg text-sm px-3 py-1 font-semibold">
+                                        ✨ Primary Match
+                                      </Badge>
+                                    ) : null}
+                                  </div>
                                 </div>
-                                <div className="ml-3 flex-shrink-0">
-                                  {isUserSelected && !isPrimary ? (
-                                    <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 font-medium">
-                                      User Selected
-                                    </Badge>
-                                  ) : isPrimary ? (
-                                    <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 font-medium">
-                                      Primary Match
-                                    </Badge>
-                                  ) : null}
-                                </div>
+                                <div className="w-full h-1 bg-gradient-to-r from-[var(--primary)]/30 to-[var(--secondary)]/30 rounded-full"></div>
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm">
-                              <p className="text-sm text-[var(--muted-foreground)]">No investor profile selected</p>
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-6 border-2 border-dashed border-gray-300 dark:border-gray-600">
+                              <p className="text-center text-gray-500 dark:text-gray-400">No investor profile selected</p>
                             </div>
                           );
                         })()}
                       </div>
                       
                       {/* Economic Scenarios Card */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 mb-4">
-                          <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
-                          <h4 className="font-semibold text-[var(--foreground)]">Stress Test Scenarios</h4>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--secondary)]/20 to-[var(--secondary)]/10 flex items-center justify-center">
+                            <TrendingUp className="h-4 w-4 text-[var(--secondary)]" />
+                          </div>
+                          <h4 className="text-lg font-bold text-[var(--foreground)]">Stress Test Scenarios</h4>
                         </div>
                         {(() => {
                           const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
@@ -2366,42 +2386,53 @@ export default function InvestorPreferences() {
                             .filter((scenario): scenario is typeof scenario & {} => scenario !== undefined);
                           
                           return relevantScenarios.length > 0 ? (
-                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm space-y-3">
-                              {relevantScenarios.map(scenario => {
-                                const isSelected = selectedScenarios.includes(scenario.id);
-                                const isHighRisk = highRiskScenarios.includes(scenario.id);
-                                
-                                return (
-                                  <div key={scenario.id} className="flex items-center justify-between p-3 bg-[var(--muted)]/30 rounded-lg border border-[var(--border)]/50">
-                                    <div className="flex-1">
-                                      <h6 className="font-medium text-[var(--foreground)] text-sm mb-1">
-                                        {scenario.name}
-                                      </h6>
-                                      <p className="text-xs text-[var(--muted-foreground)] line-clamp-1">
-                                        {scenario.description}
-                                      </p>
+                            <div className="relative group">
+                              <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
+                              <div className="relative bg-gradient-to-br from-white via-orange-50/60 to-red-50/40 dark:from-slate-800 dark:via-orange-950/20 dark:to-red-950/10 rounded-2xl p-6 border-2 border-orange-200/50 dark:border-orange-800/30 shadow-xl backdrop-blur-sm space-y-4">
+                                {relevantScenarios.map(scenario => {
+                                  const isSelected = selectedScenarios.includes(scenario.id);
+                                  const isHighRisk = highRiskScenarios.includes(scenario.id);
+                                  
+                                  return (
+                                    <div key={scenario.id} className="flex items-center justify-between p-4 bg-white/70 dark:bg-slate-800/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm backdrop-blur-sm">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400"></div>
+                                          <h6 className="font-semibold text-[var(--foreground)] text-sm">
+                                            {scenario.name}
+                                          </h6>
+                                        </div>
+                                        <p className="text-xs text-[var(--muted-foreground)] line-clamp-1 ml-4">
+                                          {scenario.description}
+                                        </p>
+                                      </div>
+                                      <div className="flex gap-2 ml-4">
+                                        {isSelected && (
+                                          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-md text-xs px-2 py-1 font-semibold">
+                                            Selected
+                                          </Badge>
+                                        )}
+                                        {isHighRisk && (
+                                          <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 shadow-md text-xs px-2 py-1 font-semibold">
+                                            High Risk
+                                          </Badge>
+                                        )}
+                                      </div>
                                     </div>
-                                    <div className="flex gap-2 ml-3">
-                                      {isSelected && (
-                                        <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 text-xs font-medium">
-                                          Selected
-                                        </Badge>
-                                      )}
-                                      {isHighRisk && (
-                                        <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-600 text-xs font-medium">
-                                          High Risk
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
+                              </div>
                             </div>
                           ) : (
-                            <div className="bg-white dark:bg-[var(--muted)]/50 rounded-xl p-5 border border-[var(--border)] shadow-sm">
-                              <div className="text-center py-4">
-                                <AlertTriangle className="h-8 w-8 text-[var(--muted-foreground)] mx-auto mb-2" />
-                                <p className="text-sm text-[var(--muted-foreground)]">
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600">
+                              <div className="text-center">
+                                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
+                                  <AlertTriangle className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+                                </div>
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+                                  No Scenarios Identified
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   No stress test scenarios identified for your profile
                                 </p>
                               </div>
@@ -2412,6 +2443,7 @@ export default function InvestorPreferences() {
                     </div>
                   </CardContent>
                 </Card>
+                </div>
               )}
 
               {/* Action Buttons - Moved below persona cards */}
