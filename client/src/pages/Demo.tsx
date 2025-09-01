@@ -185,15 +185,17 @@ export default function Demo() {
               <div className="absolute -inset-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] opacity-10 blur-xl rounded-full"></div>
             </div>
             
-            <Link href="/advice-gap" className="group">
-              <div className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-10 py-5 rounded-full font-bold text-xl shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105">
-                <div className="flex items-center gap-4">
-                  <Play className="h-7 w-7" />
-                  <span>start demo</span>
-                  <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+            <div className="mt-8">
+              <Link href="/advice-gap" className="group">
+                <div className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-10 py-5 rounded-full font-bold text-xl shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105">
+                  <div className="flex items-center gap-4">
+                    <Play className="h-7 w-7" />
+                    <span>Start Demo</span>
+                    <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
         </div>
       </main>
