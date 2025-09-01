@@ -2503,7 +2503,7 @@ export default function InvestorPreferences() {
                         params.set('selectedScenarios', selectedScenarios.join(','));
                         params.set('personaScenarios', highRiskScenarios.join(','));
                       }
-                      setLocation(`/demo-simulation?${params.toString()}`);
+                      setLocation(`/demo?${params.toString()}`);
                     }}
                     size="lg"
                     className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
