@@ -1402,7 +1402,7 @@ export default function DemoPortfolioAnalysis() {
                   {/* Submit Button */}
                   <div className="flex justify-center pt-6">
                     <button className="px-8 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                      Update Analysis
+                      Analyse my Portfolio
                     </button>
                   </div>
                 </div>
