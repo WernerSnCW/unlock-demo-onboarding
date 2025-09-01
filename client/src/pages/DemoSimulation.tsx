@@ -70,38 +70,40 @@ export default function DemoSimulation() {
   const [configStep, setConfigStep] = useState(0);
   const [showConfiguration, setShowConfiguration] = useState(true);
 
-  // Get scenario details
+  // Get scenario details - scenarios are already determined from previous screen
   const allScenarios = allScenarioIds
     .map(id => {
       const scenario = economicScenarios.find(s => s.id === id);
       return scenario ? {
         ...scenario,
-        isSelected: selectedScenarioIds.includes(id),
-        isPersonaApplicable: personaScenarioIds.includes(id)
+        isSelected: selectedScenarioIds.includes(id), // User selected on previous screen
+        isHighImpact: personaScenarioIds.includes(id) // Auto-determined by persona
       } : null;
     })
     .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
 
-  // Save selected scenario to localStorage for demo carryover
+  // Save scenarios to localStorage for demo carryover
   useEffect(() => {
     console.log('Checking scenarios for localStorage save:', {
       allScenariosLength: allScenarios.length,
       selectedScenarioIds,
-      allScenarios: allScenarios.map(s => ({ id: s.id, name: s.name, isSelected: s.isSelected }))
+      personaScenarioIds,
+      allScenarios: allScenarios.map(s => ({ id: s.id, name: s.name, isSelected: s.isSelected, isHighImpact: s.isHighImpact }))
     });
     
-    const selectedScenario = allScenarios.find(s => s.isSelected);
-    if (selectedScenario) {
+    // Save the first available scenario (selected or high-impact)
+    const scenarioToSave = allScenarios.find(s => s.isSelected || s.isHighImpact);
+    if (scenarioToSave) {
       const scenarioData = {
-        name: selectedScenario.name,
-        description: selectedScenario.description
+        name: scenarioToSave.name,
+        description: scenarioToSave.description
       };
       localStorage.setItem('selectedScenario', JSON.stringify(scenarioData));
       console.log('Saved scenario to localStorage:', scenarioData);
     } else if (allScenarios.length > 0) {
-      console.log('No selected scenario found in:', allScenarios.map(s => ({ name: s.name, isSelected: s.isSelected })));
+      console.log('No scenarios found in:', allScenarios.map(s => ({ name: s.name, isSelected: s.isSelected, isHighImpact: s.isHighImpact })));
     }
-  }, [allScenarios, selectedScenarioIds]);
+  }, [allScenarios, selectedScenarioIds, personaScenarioIds]);
 
   const portfolioQuestions = [
     {
@@ -620,7 +622,16 @@ export default function DemoSimulation() {
                         {allScenarios.map((scenario) => {
                           const IconComponent = scenario.icon;
                           return (
-                            <div key={scenario.id} className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/20 rounded-xl p-4 border border-orange-200/50 dark:border-orange-800/30">
+                            <div 
+                              key={scenario.id} 
+                              className={`bg-gradient-to-br rounded-xl p-4 border transition-all duration-300 ${
+                                scenario.isSelected 
+                                  ? 'from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border-blue-300 dark:border-blue-600 shadow-lg' 
+                                  : scenario.isHighImpact
+                                  ? 'from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/20 border-red-300 dark:border-red-600 shadow-md'
+                                  : 'from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/20 border-orange-200/50 dark:border-orange-800/30'
+                              }`}
+                            >
                               <div className="flex items-start justify-between mb-3">
                                 <div className="flex items-center gap-3">
                                   <div className="bg-gradient-to-br from-[var(--warning)] to-[var(--destructive)] rounded-lg p-2">
@@ -629,9 +640,11 @@ export default function DemoSimulation() {
                                   <Badge className={`text-xs font-bold ${
                                     scenario.isSelected 
                                       ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
+                                      : scenario.isHighImpact
+                                      ? 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-600'
                                       : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
                                   }`}>
-                                    {scenario.isSelected ? 'Selected' : 'Applicable'}
+                                    {scenario.isSelected ? 'User Selected' : scenario.isHighImpact ? 'High Impact' : 'Applicable'}
                                   </Badge>
                                 </div>
                                 <Badge variant="outline" className="text-xs">
@@ -678,15 +691,15 @@ export default function DemoSimulation() {
                 onClick={(e) => {
                   e.preventDefault();
                   
-                  // Save all selected scenarios to localStorage before navigation
-                  const selectedScenarios = allScenarios.filter(s => s.isSelected);
-                  console.log('Saving scenarios before navigation:', selectedScenarios);
+                  // Save scenarios to localStorage before navigation
+                  const availableScenarios = allScenarios.filter(s => s.isSelected || s.isHighImpact);
+                  console.log('Saving scenarios before navigation:', availableScenarios);
                   
-                  if (selectedScenarios.length > 0) {
-                    // Save first selected scenario (or all if needed)
+                  if (availableScenarios.length > 0) {
+                    // Save first available scenario
                     const scenarioToSave = {
-                      name: selectedScenarios[0].name,
-                      description: selectedScenarios[0].description
+                      name: availableScenarios[0].name,
+                      description: availableScenarios[0].description
                     };
                     localStorage.setItem('selectedScenario', JSON.stringify(scenarioToSave));
                     console.log('Saved scenario to localStorage:', scenarioToSave);
