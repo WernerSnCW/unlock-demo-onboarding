@@ -2030,29 +2030,82 @@ export default function InvestorPreferences() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {investorPersonas.map((persona) => (
-                      <div
-                        key={persona.id}
-                        className="cursor-pointer rounded-xl border border-[var(--border)] p-4 hover:border-[var(--primary)] transition-all hover:bg-[var(--accent)]/5 hover:shadow-lg hover:scale-[1.02] duration-300"
-                        data-testid={`persona-card-${persona.id}`}
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
-                            <h3 className="font-semibold text-sm text-[var(--foreground)]">{persona.name}</h3>
-                          </div>
-                          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
-                            {persona.description}
-                          </p>
-                          <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
-                            <Target className="h-3 w-3" />
-                            <span className="capitalize">
-                              {persona.criteria.investorObjective.join(', ')} • {persona.criteria.riskProfile.join(', ')}
-                            </span>
+                    {investorPersonas.map((persona) => {
+                      // Find if this persona has a score from questionnaire results
+                      const personaMatch = questionnairePersonaResult?.allMatches?.find(
+                        match => match.persona.id === persona.id
+                      );
+                      const isPrimaryMatch = questionnairePersonaResult?.persona.id === persona.id;
+                      const hasScore = personaMatch && personaMatch.score > 0;
+
+                      // Determine styling based on match results
+                      let cardClasses = "cursor-pointer rounded-xl border p-4 transition-all hover:shadow-lg hover:scale-[1.02] duration-300";
+                      let borderClasses = "";
+                      let backgroundClasses = "";
+                      
+                      if (isPrimaryMatch) {
+                        // Primary match: prominent styling
+                        borderClasses = "border-2 border-[var(--primary)]";
+                        backgroundClasses = "bg-gradient-to-br from-[var(--primary)]/15 to-[var(--secondary)]/10";
+                      } else if (hasScore) {
+                        // Secondary match: subtle highlight
+                        borderClasses = "border-2 border-[var(--secondary)]/60";
+                        backgroundClasses = "bg-[var(--secondary)]/5";
+                      } else {
+                        // No match: standard styling
+                        borderClasses = "border border-[var(--border)]";
+                        backgroundClasses = "bg-[var(--card)]";
+                      }
+
+                      return (
+                        <div
+                          key={persona.id}
+                          className={`${cardClasses} ${borderClasses} ${backgroundClasses} hover:border-[var(--primary)]`}
+                          data-testid={`persona-card-${persona.id}`}
+                        >
+                          <div className="space-y-3">
+                            {/* Header with optional score badge */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-3 h-3 rounded-full ${isPrimaryMatch ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' : hasScore ? 'bg-[var(--secondary)]' : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'}`}></div>
+                                <h3 className="font-semibold text-sm text-[var(--foreground)]">{persona.name}</h3>
+                              </div>
+                              {hasScore && (
+                                <div className="flex items-center gap-1">
+                                  {isPrimaryMatch && <span className="text-xs">🏆</span>}
+                                  <Badge 
+                                    variant={isPrimaryMatch ? "default" : "secondary"} 
+                                    className={`text-xs px-2 py-0.5 ${isPrimaryMatch ? 'bg-[var(--primary)] text-white' : 'bg-[var(--secondary)] text-white'}`}
+                                  >
+                                    {personaMatch.score}%
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
+                              {persona.description}
+                            </p>
+                            
+                            <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+                              <Target className="h-3 w-3" />
+                              <span className="capitalize">
+                                {persona.criteria.investorObjective.join(', ')} • {persona.criteria.riskProfile.join(', ')}
+                              </span>
+                            </div>
+
+                            {/* Match indicator for scored personas */}
+                            {hasScore && (
+                              <div className="pt-2 border-t border-[var(--border)]/30">
+                                <p className="text-xs font-medium text-[var(--primary)]">
+                                  {isPrimaryMatch ? '✨ Your Primary Match' : '📊 Relevant Profile'}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
