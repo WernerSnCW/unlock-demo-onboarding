@@ -83,29 +83,17 @@ export default function DemoSimulation() {
 
   const portfolioQuestions = [
     {
-      id: 'totalValue',
-      title: 'Portfolio Value',
-      question: 'What is your total investable portfolio value?',
-      icon: PoundSterling,
-      options: [
-        { value: '100k-500k', label: '£100k - £500k' },
-        { value: '500k-1m', label: '£500k - £1M' },
-        { value: '1m-5m', label: '£1M - £5M' },
-        { value: '5m-plus', label: '£5M+' }
-      ]
-    },
-    {
       id: 'allocation',
-      title: 'Asset Allocation',
-      question: 'How is your portfolio currently allocated?',
-      icon: PieChart,
+      title: 'Portfolio Values',
+      question: 'What are the current values of your portfolio holdings?',
+      icon: PoundSterling,
       type: 'allocation',
       fields: [
-        { key: 'stocks', label: 'Stocks/Equities', placeholder: '40' },
-        { key: 'bonds', label: 'Bonds/Fixed Income', placeholder: '20' },
-        { key: 'alternatives', label: 'Alternatives', placeholder: '20' },
-        { key: 'property', label: 'Property/REITs', placeholder: '10' },
-        { key: 'cash', label: 'Cash/Savings', placeholder: '10' }
+        { key: 'stocks', label: 'Stocks/Equities', placeholder: '200000' },
+        { key: 'bonds', label: 'Bonds/Fixed Income', placeholder: '100000' },
+        { key: 'alternatives', label: 'Alternatives', placeholder: '100000' },
+        { key: 'property', label: 'Property/REITs', placeholder: '50000' },
+        { key: 'cash', label: 'Cash/Savings', placeholder: '50000' }
       ]
     },
     {
@@ -263,24 +251,29 @@ export default function DemoSimulation() {
                           {portfolioQuestions[configStep].fields?.map((field) => (
                             <div key={field.key} className="space-y-2">
                               <label className="font-semibold text-[var(--foreground)]">
-                                {field.label} (%)
+                                {field.label}
                               </label>
-                              <input
-                                type="number"
-                                placeholder={field.placeholder}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none transition-colors"
-                                value={portfolioConfig[field.key as keyof typeof portfolioConfig]}
-                                onChange={(e) => setPortfolioConfig(prev => ({
-                                  ...prev,
-                                  [field.key]: e.target.value
-                                }))}
-                              />
+                              <div className="relative">
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--muted-foreground)] text-lg">
+                                  £
+                                </span>
+                                <input
+                                  type="number"
+                                  placeholder={field.placeholder}
+                                  className="w-full pl-8 pr-4 py-3 rounded-xl border-2 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                  value={portfolioConfig[field.key as keyof typeof portfolioConfig]}
+                                  onChange={(e) => setPortfolioConfig(prev => ({
+                                    ...prev,
+                                    [field.key]: e.target.value
+                                  }))}
+                                />
+                              </div>
                             </div>
                           ))}
                         </div>
                         <div className="text-center mt-6">
-                          <p className="text-sm text-[var(--muted-foreground)]">
-                            Total: {Object.values(portfolioConfig).filter((_, i) => i >= 1 && i <= 5).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0)}%
+                          <p className="text-lg font-semibold text-[var(--foreground)]">
+                            Total Portfolio Value: £{Object.values(portfolioConfig).filter((_, i) => i >= 1 && i <= 5).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0).toLocaleString()}
                           </p>
                         </div>
                       </div>
