@@ -858,6 +858,17 @@ export default function DemoPortfolioAnalysis() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Refine Your Analysis Button */}
+            <div className="flex justify-center pt-6">
+              <Button 
+                onClick={() => setActiveTab("refine")}
+                className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg"
+              >
+                <Settings className="h-5 w-5 mr-2" />
+                Refine Your Analysis
+              </Button>
+            </div>
           </TabsContent>
 
           {/* Refine Your Analysis Tab */}
