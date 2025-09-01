@@ -51,8 +51,8 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/profile/portfolio" component={ProfilePortfolio} />
       <Route path="/account-settings" component={AccountSettings} />
-      <Route path="/demo" component={DemoSimulation} />
-      <Route path="/demo-tech" component={Demo} />
+      <Route path="/demo" component={Demo} />
+      <Route path="/demo-simulation" component={DemoSimulation} />
       <Route path="/demo/agenda" component={DemoAgenda} />
       <Route path="/advice-gap" component={AdviceGap} />
       <Route path="/investor-onboarding" component={InvestorOnboarding} />
