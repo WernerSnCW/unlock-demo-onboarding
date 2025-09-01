@@ -237,6 +237,15 @@ export default function DemoPortfolioAnalysis() {
               </div>
             </TabsTrigger>
             <TabsTrigger 
+              value="insights" 
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+            >
+              <div className="flex flex-col items-center">
+                <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">3</div>
+                <span className="text-xs hidden lg:block">AI</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
               value="performance" 
               className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
@@ -261,15 +270,6 @@ export default function DemoPortfolioAnalysis() {
               <div className="flex flex-col items-center">
                 <Zap className="h-3 w-3" />
                 <span className="text-xs hidden lg:block">Stress</span>
-              </div>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="insights" 
-              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
-            >
-              <div className="flex flex-col items-center">
-                <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">3</div>
-                <span className="text-xs hidden lg:block">AI</span>
               </div>
             </TabsTrigger>
           </TabsList>
