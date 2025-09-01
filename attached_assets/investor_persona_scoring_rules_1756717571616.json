@@ -1,0 +1,15 @@
+{
+  "max_score_per_persona": 20,
+  "scoring_rules": {
+    "direct_match": 2,
+    "adjacent_match": 1,
+    "mismatch": 0,
+    "Q7_interest_cap": 2,
+    "percent_formula": "percent = round(100 * score / max_score_per_persona)"
+  },
+  "notes": [
+    "For Q7 (multi-select), sum all matching interests then cap at 2.",
+    "For questions with multiple acceptable options, award the highest matching weight only once per question.",
+    "If a question is skipped, award 0 for that question."
+  ]
+}

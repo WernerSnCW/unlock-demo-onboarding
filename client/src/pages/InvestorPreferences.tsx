@@ -460,76 +460,251 @@ const investorPersonas = [
   }
 ];
 
-function classifyInvestorPersona(formData: PreferencesFormData): { persona: typeof investorPersonas[0], score: number } {
-  let bestMatch = { persona: investorPersonas[0], score: 0 };
+// New scoring matrix from CSV data
+const scoringMatrix: Record<string, Record<string, Record<string, number>>> = {
+  'Q1_Objective': {
+    'Wealth Preservation': { 'Legacy Builder': 2, 'Old Fashioned': 2, 'Saver': 2, 'Retirement Planner': 1 },
+    'Balanced / Hybrid': { 'Retirement Planner': 2, 'Property Lover': 2, 'City Professional': 2, 'Mr Alternative': 2, 'Inheritance Receiver': 1, 'Novice Self-Directed': 1 },
+    'Wealth Building': { 'Wealth Accumulator': 2, 'Crypto Bro': 2, 'Angel Networker': 2, 'City Professional': 1 }
+  },
+  'Q2_Risk': {
+    'Conservative': { 'Legacy Builder': 2, 'Old Fashioned': 2, 'Saver': 2 },
+    'Cautious': { 'Retirement Planner': 2, 'Inheritance Receiver': 2, 'Novice Self-Directed': 1 },
+    'Balanced': { 'Property Lover': 2, 'City Professional': 2, 'Retirement Planner': 1 },
+    'Growth': { 'Wealth Accumulator': 2, 'Angel Networker': 2, 'Mr Alternative': 2, 'Crypto Bro': 1 },
+    'Aggressive': { 'Crypto Bro': 2 }
+  },
+  'Q3_TimeInvolvement': {
+    'Minimal': { 'City Professional': 2, 'Legacy Builder': 2, 'Saver': 2, 'Old Fashioned': 2 },
+    'Moderate': { 'Retirement Planner': 2, 'Property Lover': 2, 'Angel Networker': 2, 'Inheritance Receiver': 2 },
+    'High': { 'Wealth Accumulator': 2, 'Crypto Bro': 2, 'Novice Self-Directed': 2 }
+  },
+  'Q4_Style': {
+    'Independent / self-research': { 'Wealth Accumulator': 2, 'Crypto Bro': 2, 'Novice Self-Directed': 2, 'Mr Alternative': 1 },
+    'With professional advisors': { 'Legacy Builder': 2, 'City Professional': 2, 'Old Fashioned': 2, 'Retirement Planner': 2, 'Property Lover': 2, 'Inheritance Receiver': 1 },
+    'Community / syndicate': { 'Angel Networker': 2 }
+  },
+  'Q5_Liquidity': {
+    'Prefer liquid': { 'Saver': 2, 'Old Fashioned': 2, 'Legacy Builder': 2, 'Novice Self-Directed': 2, 'Inheritance Receiver': 2 },
+    'Mixed OK': { 'Retirement Planner': 2, 'Wealth Accumulator': 2, 'Angel Networker': 2, 'City Professional': 2, 'Crypto Bro': 2 },
+    'Comfortable with illiquid': { 'Property Lover': 2, 'Mr Alternative': 2 }
+  },
+  'Q6_PortfolioType': {
+    'Cash/Bonds/Regulated': { 'Saver': 2, 'Old Fashioned': 2 },
+    'Diversified Equities/Funds': { 'Retirement Planner': 2, 'City Professional': 2 },
+    'Property-heavy': { 'Property Lover': 2 },
+    'Alternatives-heavy': { 'Mr Alternative': 2 },
+    'Crypto-heavy': { 'Crypto Bro': 2 },
+    'Beginner mix': { 'Novice Self-Directed': 2, 'Inheritance Receiver': 2 }
+  },
+  'Q7_Interests': {
+    'Public': { 'Old Fashioned': 2, 'Saver': 2, 'Retirement Planner': 2, 'City Professional': 1 },
+    'Property': { 'Property Lover': 2, 'Retirement Planner': 1 },
+    'Crypto': { 'Crypto Bro': 2, 'Wealth Accumulator': 1 },
+    'Collectibles': { 'Mr Alternative': 2, 'Legacy Builder': 2 },
+    'VC_Angel_EIS': { 'Angel Networker': 2, 'Wealth Accumulator': 2, 'City Professional': 2, 'Retirement Planner': 2 }
+  },
+  'Q8_Challenge': {
+    'Lack of time': { 'City Professional': 2 },
+    'Lack of knowledge': { 'Novice Self-Directed': 2, 'Inheritance Receiver': 2 },
+    'Scam risk': { 'Crypto Bro': 2 },
+    'Tax optimisation': { 'Retirement Planner': 2, 'Property Lover': 2 },
+    'Estate/retirement planning': { 'Legacy Builder': 2, 'Retirement Planner': 2 }
+  },
+  'Q9_ReturnTarget': {
+    '3–5%': { 'Old Fashioned': 2, 'Saver': 2 },
+    '5–7%': { 'Retirement Planner': 2 },
+    '8–12%': { 'Property Lover': 2, 'Mr Alternative': 2, 'Angel Networker': 2 },
+    '15%+': { 'Wealth Accumulator': 2, 'Crypto Bro': 2 }
+  },
+  'Q10_ESG': {
+    'Very important': { 'Legacy Builder': 2, 'Saver': 2, 'Retirement Planner': 2 },
+    'Somewhat important': { 'Angel Networker': 1, 'City Professional': 1, 'Old Fashioned': 1 },
+    'Not important': { 'Crypto Bro': 2, 'Mr Alternative': 2, 'Wealth Accumulator': 1 }
+  }
+};
 
-  for (const persona of investorPersonas) {
-    let score = 0;
-    let totalCriteria = 0;
+// Map persona names from CSV to persona IDs
+const personaNameMapping: Record<string, string> = {
+  'Legacy Builder': 'legacy_builder',
+  'Old Fashioned': 'old_fashioned',
+  'Saver': 'the_saver',
+  'Retirement Planner': 'retirement_planner',
+  'Property Lover': 'property_lover',
+  'City Professional': 'city_professional',
+  'Mr Alternative': 'mr_alternative',
+  'Wealth Accumulator': 'wealth_accumulator',
+  'Crypto Bro': 'crypto_bro',
+  'Angel Networker': 'angel_networker',
+  'Inheritance Receiver': 'inheritance_receiver',
+  'Novice Self-Directed': 'novice_self_directed'
+};
 
-    // Check each criterion and award points for matches
-    const criteria = persona.criteria;
+// Map questionnaire answers to CSV option values
+function mapAnswersToCsvFormat(answers: QuestionnaireAnswer[]): Record<string, string | string[]> {
+  const answerMap = answers.reduce((acc, answer) => {
+    acc[answer.questionId] = answer.response;
+    return acc;
+  }, {} as Record<string, string | string[]>);
 
-    // Primary criteria (higher weight)
-    if (criteria.investorObjective.includes(formData.investorObjective)) score += 3;
-    totalCriteria += 3;
+  const csvAnswers: Record<string, string | string[]> = {};
 
-    if (criteria.riskProfile.includes(formData.riskProfile)) score += 3;
-    totalCriteria += 3;
+  // Q1: Investment Objective
+  const objective = answerMap.investment_objective as string;
+  if (objective === 'wealth_preservation') csvAnswers.Q1_Objective = 'Wealth Preservation';
+  else if (objective === 'balanced_hybrid') csvAnswers.Q1_Objective = 'Balanced / Hybrid';
+  else if (objective === 'wealth_building') csvAnswers.Q1_Objective = 'Wealth Building';
 
-    if (criteria.riskCapacity.includes(formData.riskCapacity)) score += 2;
-    totalCriteria += 2;
+  // Q2: Risk Profile
+  const risk = answerMap.risk_profile as string;
+  if (risk) csvAnswers.Q2_Risk = risk.charAt(0).toUpperCase() + risk.slice(1);
 
-    // Management and decision style (medium weight)
-    if (criteria.managementStyle.includes(formData.managementStyle)) score += 2;
-    totalCriteria += 2;
+  // Q3: Time Involvement
+  const time = answerMap.time_commitment as string;
+  if (time === 'minimal') csvAnswers.Q3_TimeInvolvement = 'Minimal';
+  else if (time === 'moderate') csvAnswers.Q3_TimeInvolvement = 'Moderate';
+  else if (time === 'high') csvAnswers.Q3_TimeInvolvement = 'High';
 
-    if (criteria.liquidityPreference.includes(formData.liquidityPreference)) score += 2;
-    totalCriteria += 2;
+  // Q4: Decision Making Style
+  const style = answerMap.decision_making as string;
+  if (style === 'independent') csvAnswers.Q4_Style = 'Independent / self-research';
+  else if (style === 'advisors') csvAnswers.Q4_Style = 'With professional advisors';
+  else if (style === 'community') csvAnswers.Q4_Style = 'Community / syndicate';
 
-    if (criteria.decisionMakingStyle.includes(formData.decisionMakingStyle)) score += 2;
-    totalCriteria += 2;
+  // Q5: Liquidity
+  const liquidity = answerMap.liquidity_importance as string;
+  if (liquidity === 'prefer_liquid') csvAnswers.Q5_Liquidity = 'Prefer liquid';
+  else if (liquidity === 'mixed') csvAnswers.Q5_Liquidity = 'Mixed OK';
+  else if (liquidity === 'comfortable_illiquid') csvAnswers.Q5_Liquidity = 'Comfortable with illiquid';
 
-    if (criteria.investmentHorizon.includes(formData.investmentHorizon)) score += 2;
-    totalCriteria += 2;
+  // Q6: Portfolio Type
+  const portfolio = answerMap.current_portfolio as string;
+  if (portfolio === 'cash_bonds') csvAnswers.Q6_PortfolioType = 'Cash/Bonds/Regulated';
+  else if (portfolio === 'diversified_equities') csvAnswers.Q6_PortfolioType = 'Diversified Equities/Funds';
+  else if (portfolio === 'property_heavy') csvAnswers.Q6_PortfolioType = 'Property-heavy';
+  else if (portfolio === 'alternatives_heavy') csvAnswers.Q6_PortfolioType = 'Alternatives-heavy';
+  else if (portfolio === 'crypto_heavy') csvAnswers.Q6_PortfolioType = 'Crypto-heavy';
+  else if (portfolio === 'beginner_mix') csvAnswers.Q6_PortfolioType = 'Beginner mix';
 
-    if (criteria.esgImportance.includes(formData.esgImportance)) score += 1;
-    totalCriteria += 1;
-
-    // Interest alignment (lower weight but important for persona fit)
-    const interestMatches = formData.activeInvestmentInterests.filter(interest => 
-      criteria.activeInvestmentInterests.some(criteriaInterest => 
-        criteriaInterest.toLowerCase().includes(interest.toLowerCase()) || 
-        interest.toLowerCase().includes(criteriaInterest.toLowerCase())
-      )
-    ).length;
-    score += Math.min(interestMatches, 3); // Cap at 3 points
-    totalCriteria += 3;
-
-    const learningMatches = formData.learningCuriosityAreas.filter(area => 
-      criteria.learningCuriosityAreas.some(criteriaArea => 
-        criteriaArea.toLowerCase().includes(area.toLowerCase()) || 
-        area.toLowerCase().includes(criteriaArea.toLowerCase())
-      )
-    ).length;
-    score += Math.min(learningMatches, 2); // Cap at 2 points
-    totalCriteria += 2;
-
-    const geoMatches = formData.geographicPreferences.filter(geo => 
-      criteria.geographicPreferences.includes(geo)
-    ).length;
-    score += Math.min(geoMatches, 2); // Cap at 2 points
-    totalCriteria += 2;
-
-    // Calculate percentage score
-    const percentageScore = (score / totalCriteria) * 100;
-
-    if (percentageScore > bestMatch.score) {
-      bestMatch = { persona, score: percentageScore };
-    }
+  // Q7: Asset Interests (multi-select)
+  const interests = answerMap.asset_interests as string[];
+  if (Array.isArray(interests)) {
+    csvAnswers.Q7_Interests = [];
+    if (interests.includes('public_equities')) (csvAnswers.Q7_Interests as string[]).push('Public');
+    if (interests.includes('property_real_estate')) (csvAnswers.Q7_Interests as string[]).push('Property');
+    if (interests.includes('crypto_digital')) (csvAnswers.Q7_Interests as string[]).push('Crypto');
+    if (interests.includes('collectibles')) (csvAnswers.Q7_Interests as string[]).push('Collectibles');
+    if (interests.includes('vc_angel_eis')) (csvAnswers.Q7_Interests as string[]).push('VC_Angel_EIS');
   }
 
-  return bestMatch;
+  // Q8: Challenge
+  const challenge = answerMap.biggest_challenge as string;
+  if (challenge === 'lack_time') csvAnswers.Q8_Challenge = 'Lack of time';
+  else if (challenge === 'lack_knowledge') csvAnswers.Q8_Challenge = 'Lack of knowledge';
+  else if (challenge === 'risk_scams') csvAnswers.Q8_Challenge = 'Scam risk';
+  else if (challenge === 'tax_optimisation') csvAnswers.Q8_Challenge = 'Tax optimisation';
+  else if (challenge === 'estate_retirement') csvAnswers.Q8_Challenge = 'Estate/retirement planning';
+
+  // Q9: Return Target
+  const returnTarget = answerMap.annual_return_target as string;
+  if (returnTarget === 'three_to_five') csvAnswers.Q9_ReturnTarget = '3–5%';
+  else if (returnTarget === 'five_to_seven') csvAnswers.Q9_ReturnTarget = '5–7%';
+  else if (returnTarget === 'eight_to_twelve') csvAnswers.Q9_ReturnTarget = '8–12%';
+  else if (returnTarget === 'fifteen_plus') csvAnswers.Q9_ReturnTarget = '15%+';
+
+  // Q10: ESG
+  const esg = answerMap.esg_importance as string;
+  if (esg === 'not_important') csvAnswers.Q10_ESG = 'Not important';
+  else if (esg === 'somewhat_important') csvAnswers.Q10_ESG = 'Somewhat important';
+  else if (esg === 'very_important') csvAnswers.Q10_ESG = 'Very important';
+
+  return csvAnswers;
+}
+
+function classifyInvestorPersona(formData: PreferencesFormData): { persona: typeof investorPersonas[0], score: number } {
+  // For backwards compatibility, convert form data to questionnaire answers
+  const mockAnswers: QuestionnaireAnswer[] = [
+    { questionId: 'investment_objective', response: formData.investorObjective },
+    { questionId: 'risk_profile', response: formData.riskProfile },
+    { questionId: 'time_commitment', response: formData.managementStyle },
+    { questionId: 'decision_making', response: formData.decisionMakingStyle === 'rely_advisors' ? 'advisors' : formData.decisionMakingStyle === 'collaborate_peers' ? 'community' : 'independent' },
+    { questionId: 'liquidity_importance', response: formData.liquidityPreference === 'mixed_acceptable' ? 'mixed' : formData.liquidityPreference },
+    { questionId: 'current_portfolio', response: 'diversified_equities' }, // Default
+    { questionId: 'asset_interests', response: ['public_equities'] }, // Default
+    { questionId: 'biggest_challenge', response: 'lack_time' }, // Default
+    { questionId: 'annual_return_target', response: 'eight_to_twelve' }, // Default
+    { questionId: 'esg_importance', response: formData.esgImportance }
+  ];
+
+  return classifyInvestorPersonaFromAnswers(mockAnswers);
+}
+
+function classifyInvestorPersonaFromAnswers(answers: QuestionnaireAnswer[]): { persona: typeof investorPersonas[0], score: number, allMatches?: Array<{ persona: typeof investorPersonas[0], score: number }> } {
+  const csvAnswers = mapAnswersToCsvFormat(answers);
+  const personaScores: Record<string, number> = {};
+
+  // Initialize all persona scores to 0
+  Object.values(personaNameMapping).forEach(personaId => {
+    personaScores[personaId] = 0;
+  });
+
+  // Calculate scores based on CSV matrix
+  Object.entries(csvAnswers).forEach(([questionKey, userAnswer]) => {
+    const questionScoring = scoringMatrix[questionKey];
+    if (!questionScoring) return;
+
+    if (questionKey === 'Q7_Interests' && Array.isArray(userAnswer)) {
+      // Special handling for Q7 multi-select interests (cap at 2 points)
+      const interestScores: Record<string, number> = {};
+      userAnswer.forEach(interest => {
+        const interestScoring = questionScoring[interest];
+        if (interestScoring) {
+          Object.entries(interestScoring).forEach(([personaName, weight]) => {
+            const personaId = personaNameMapping[personaName];
+            if (personaId) {
+              interestScores[personaId] = (interestScores[personaId] || 0) + weight;
+            }
+          });
+        }
+      });
+      // Cap at 2 points per persona for Q7
+      Object.entries(interestScores).forEach(([personaId, score]) => {
+        personaScores[personaId] += Math.min(score, 2);
+      });
+    } else if (typeof userAnswer === 'string') {
+      // Regular single-select questions
+      const answerScoring = questionScoring[userAnswer];
+      if (answerScoring) {
+        Object.entries(answerScoring).forEach(([personaName, weight]) => {
+          const personaId = personaNameMapping[personaName];
+          if (personaId) {
+            personaScores[personaId] += weight;
+          }
+        });
+      }
+    }
+  });
+
+  // Convert scores to percentages and find all relevant matches
+  const MAX_SCORE_PER_PERSONA = 20;
+  const allMatches: Array<{ persona: typeof investorPersonas[0], score: number }> = [];
+
+  Object.entries(personaScores).forEach(([personaId, score]) => {
+    const persona = investorPersonas.find(p => p.id === personaId);
+    if (persona && score > 0) {
+      const percentage = Math.round((score / MAX_SCORE_PER_PERSONA) * 100);
+      allMatches.push({ persona, score: percentage });
+    }
+  });
+
+  // Sort by score descending
+  allMatches.sort((a, b) => b.score - a.score);
+
+  const bestMatch = allMatches.length > 0 
+    ? allMatches[0]
+    : { persona: investorPersonas[0], score: 0 };
+
+  return { ...bestMatch, allMatches };
 }
 
 // Sequential questionnaire data structure
@@ -834,21 +1009,30 @@ export default function InvestorPreferences() {
       // Complete questionnaire
       setQuestionnaireComplete(true);
       
-      // Convert answers to form data and classify persona
-      const formData = convertQuestionnaireToFormData(updatedAnswers);
-      const personaClassification = classifyInvestorPersona(formData);
+      // Classify persona using new CSV-based scoring
+      const personaClassification = classifyInvestorPersonaFromAnswers(updatedAnswers);
       setQuestionnairePersonaResult(personaClassification);
 
       console.log('Questionnaire completed:', {
         answers: updatedAnswers,
-        formData,
-        persona: personaClassification.persona.name,
-        score: `${personaClassification.score.toFixed(1)}%`
+        csvMappedAnswers: mapAnswersToCsvFormat(updatedAnswers),
+        topPersona: personaClassification.persona.name,
+        topScore: `${personaClassification.score}%`,
+        allMatches: personaClassification.allMatches?.map(m => ({ 
+          name: m.persona.name, 
+          score: `${m.score}%` 
+        }))
       });
 
+      // Show all relevant personas if multiple found
+      const topMatches = personaClassification.allMatches?.slice(0, 3) || [personaClassification];
+      const matchText = topMatches.length > 1 
+        ? `Top matches: ${topMatches.map(m => `${m.persona.name} (${m.score}%)`).join(', ')}`
+        : `You're a "${personaClassification.persona.name}" with ${personaClassification.score}% alignment.`;
+
       toast({
-        title: "Profile Complete!",
-        description: `You've been identified as "${personaClassification.persona.name}" with ${personaClassification.score.toFixed(1)}% confidence.`,
+        title: "Profile Analysis Complete!",
+        description: matchText,
       });
     }
   };
@@ -1746,28 +1930,61 @@ export default function InvestorPreferences() {
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-2xl text-[var(--primary)]">
                           <User className="h-6 w-6" />
-                          Your Investment Persona
+                          Your Investment Persona Analysis
                         </CardTitle>
                         <CardDescription>
-                          Based on your questionnaire responses, we've identified your investor profile
+                          Based on your questionnaire responses, here are your matching investor profiles
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-bold text-[var(--primary)]">
-                              {questionnairePersonaResult.persona.name}
-                            </h3>
-                            <Badge variant="secondary" className="px-3 py-1">
-                              {questionnairePersonaResult.score.toFixed(1)}% match
-                            </Badge>
+                        <div className="space-y-6">
+                          {/* Primary Match */}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-xl font-bold text-[var(--primary)]">
+                                🏆 Primary Match: {questionnairePersonaResult.persona.name}
+                              </h3>
+                              <Badge variant="default" className="px-3 py-1 bg-[var(--primary)] text-white">
+                                {questionnairePersonaResult.score}% alignment
+                              </Badge>
+                            </div>
+                            <p className="text-[var(--muted-foreground)] leading-relaxed">
+                              {questionnairePersonaResult.persona.description}
+                            </p>
                           </div>
-                          <p className="text-[var(--muted-foreground)] leading-relaxed">
-                            {questionnairePersonaResult.persona.description}
-                          </p>
+
+                          {/* Additional Relevant Matches */}
+                          {questionnairePersonaResult.allMatches && questionnairePersonaResult.allMatches.length > 1 && (
+                            <div className="space-y-4">
+                              <h4 className="text-lg font-semibold text-[var(--secondary)]">
+                                📊 Additional Relevant Profiles
+                              </h4>
+                              <div className="grid gap-3">
+                                {questionnairePersonaResult.allMatches.slice(1, 4).map((match, index) => (
+                                  <div 
+                                    key={match.persona.id}
+                                    className="flex items-center justify-between p-3 rounded-lg bg-[var(--muted)]/20 border border-[var(--border)]"
+                                  >
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-[var(--foreground)]">
+                                        {match.persona.name}
+                                      </h5>
+                                      <p className="text-sm text-[var(--muted-foreground)] mt-1 line-clamp-2">
+                                        {match.persona.description}
+                                      </p>
+                                    </div>
+                                    <Badge variant="outline" className="ml-3 px-2 py-1">
+                                      {match.score}%
+                                    </Badge>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20">
                             <p className="text-sm text-[var(--muted-foreground)]">
-                              🎯 This classification helps us tailor investment recommendations and educational content specifically for your profile.
+                              🎯 These classifications help us tailor investment recommendations and educational content specifically for your profile. The scoring is based on a weighted analysis of your responses across 10 discovery questions.
                             </p>
                           </div>
                         </div>

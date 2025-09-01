@@ -1,0 +1,111 @@
+question_key,option_value,persona,weight
+Q1_Objective,Wealth Preservation,Legacy Builder,2
+Q1_Objective,Wealth Preservation,Old Fashioned,2
+Q1_Objective,Wealth Preservation,Saver,2
+Q1_Objective,Balanced / Hybrid,Retirement Planner,2
+Q1_Objective,Balanced / Hybrid,Property Lover,2
+Q1_Objective,Balanced / Hybrid,City Professional,2
+Q1_Objective,Balanced / Hybrid,Mr Alternative,2
+Q1_Objective,Wealth Building,Wealth Accumulator,2
+Q1_Objective,Wealth Building,Crypto Bro,2
+Q1_Objective,Wealth Building,Angel Networker,2
+Q1_Objective,Wealth Preservation,Retirement Planner,1
+Q1_Objective,Balanced / Hybrid,Inheritance Receiver,1
+Q1_Objective,Balanced / Hybrid,Novice Self-Directed,1
+Q1_Objective,Wealth Building,City Professional,1
+Q2_Risk,Conservative,Legacy Builder,2
+Q2_Risk,Conservative,Old Fashioned,2
+Q2_Risk,Conservative,Saver,2
+Q2_Risk,Cautious,Retirement Planner,2
+Q2_Risk,Cautious,Inheritance Receiver,2
+Q2_Risk,Balanced,Property Lover,2
+Q2_Risk,Balanced,City Professional,2
+Q2_Risk,Growth,Wealth Accumulator,2
+Q2_Risk,Growth,Angel Networker,2
+Q2_Risk,Growth,Mr Alternative,2
+Q2_Risk,Aggressive,Crypto Bro,2
+Q2_Risk,Balanced,Retirement Planner,1
+Q2_Risk,Growth,Crypto Bro,1
+Q2_Risk,Cautious,Novice Self-Directed,1
+Q3_TimeInvolvement,Minimal,City Professional,2
+Q3_TimeInvolvement,Minimal,Legacy Builder,2
+Q3_TimeInvolvement,Minimal,Saver,2
+Q3_TimeInvolvement,Minimal,Old Fashioned,2
+Q3_TimeInvolvement,Moderate,Retirement Planner,2
+Q3_TimeInvolvement,Moderate,Property Lover,2
+Q3_TimeInvolvement,Moderate,Angel Networker,2
+Q3_TimeInvolvement,Moderate,Inheritance Receiver,2
+Q3_TimeInvolvement,High,Wealth Accumulator,2
+Q3_TimeInvolvement,High,Crypto Bro,2
+Q3_TimeInvolvement,High,Novice Self-Directed,2
+Q4_Style,Independent / self-research,Wealth Accumulator,2
+Q4_Style,Independent / self-research,Crypto Bro,2
+Q4_Style,Independent / self-research,Novice Self-Directed,2
+Q4_Style,With professional advisors,Legacy Builder,2
+Q4_Style,With professional advisors,City Professional,2
+Q4_Style,With professional advisors,Old Fashioned,2
+Q4_Style,With professional advisors,Retirement Planner,2
+Q4_Style,With professional advisors,Property Lover,2
+Q4_Style,Community / syndicate,Angel Networker,2
+Q4_Style,With professional advisors,Inheritance Receiver,1
+Q4_Style,Independent / self-research,Mr Alternative,1
+Q5_Liquidity,Prefer liquid,Saver,2
+Q5_Liquidity,Prefer liquid,Old Fashioned,2
+Q5_Liquidity,Prefer liquid,Legacy Builder,2
+Q5_Liquidity,Prefer liquid,Novice Self-Directed,2
+Q5_Liquidity,Prefer liquid,Inheritance Receiver,2
+Q5_Liquidity,Mixed OK,Retirement Planner,2
+Q5_Liquidity,Mixed OK,Wealth Accumulator,2
+Q5_Liquidity,Mixed OK,Angel Networker,2
+Q5_Liquidity,Mixed OK,City Professional,2
+Q5_Liquidity,Mixed OK,Crypto Bro,2
+Q5_Liquidity,Comfortable with illiquid,Property Lover,2
+Q5_Liquidity,Comfortable with illiquid,Mr Alternative,2
+Q6_PortfolioType,Cash/Bonds/Regulated,Saver,2
+Q6_PortfolioType,Cash/Bonds/Regulated,Old Fashioned,2
+Q6_PortfolioType,Diversified Equities/Funds,Retirement Planner,2
+Q6_PortfolioType,Diversified Equities/Funds,City Professional,2
+Q6_PortfolioType,Property-heavy,Property Lover,2
+Q6_PortfolioType,Alternatives-heavy,Mr Alternative,2
+Q6_PortfolioType,Crypto-heavy,Crypto Bro,2
+Q6_PortfolioType,Beginner mix,Novice Self-Directed,2
+Q6_PortfolioType,Beginner mix,Inheritance Receiver,2
+Q7_Interests_Public,Yes,Old Fashioned,2
+Q7_Interests_Public,Yes,Saver,2
+Q7_Interests_Public,Yes,Retirement Planner,2
+Q7_Interests_Public,Yes,City Professional,1
+Q7_Interests_Property,Yes,Property Lover,2
+Q7_Interests_Property,Yes,Retirement Planner,1
+Q7_Interests_Crypto,Yes,Crypto Bro,2
+Q7_Interests_Crypto,Yes,Wealth Accumulator,1
+Q7_Interests_Collectibles,Yes,Mr Alternative,2
+Q7_Interests_Collectibles,Yes,Legacy Builder,2
+Q7_Interests_VC_Angel_EIS,Yes,Angel Networker,2
+Q7_Interests_VC_Angel_EIS,Yes,Wealth Accumulator,2
+Q7_Interests_VC_Angel_EIS,Yes,City Professional,2
+Q7_Interests_VC_Angel_EIS,Yes,Retirement Planner,2
+Q8_Challenge,Lack of time,City Professional,2
+Q8_Challenge,Lack of knowledge,Novice Self-Directed,2
+Q8_Challenge,Lack of knowledge,Inheritance Receiver,2
+Q8_Challenge,Scam risk,Crypto Bro,2
+Q8_Challenge,Tax optimisation,Retirement Planner,2
+Q8_Challenge,Tax optimisation,Property Lover,2
+Q8_Challenge,Estate/retirement planning,Legacy Builder,2
+Q8_Challenge,Estate/retirement planning,Retirement Planner,2
+Q9_ReturnTarget,3–5%,Old Fashioned,2
+Q9_ReturnTarget,3–5%,Saver,2
+Q9_ReturnTarget,5–7%,Retirement Planner,2
+Q9_ReturnTarget,8–12%,Property Lover,2
+Q9_ReturnTarget,8–12%,Mr Alternative,2
+Q9_ReturnTarget,8–12%,Angel Networker,2
+Q9_ReturnTarget,15%+,Wealth Accumulator,2
+Q9_ReturnTarget,15%+,Crypto Bro,2
+Q10_ESG,Very important,Legacy Builder,2
+Q10_ESG,Very important,Saver,2
+Q10_ESG,Very important,Retirement Planner,2
+Q10_ESG,Somewhat important,Angel Networker,1
+Q10_ESG,Somewhat important,City Professional,1
+Q10_ESG,Somewhat important,Old Fashioned,1
+Q10_ESG,Not important,Crypto Bro,2
+Q10_ESG,Not important,Mr Alternative,2
+Q10_ESG,Not important,Wealth Accumulator,1
