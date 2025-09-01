@@ -652,7 +652,7 @@ export default function DemoSimulation() {
                 Click below to begin your personalized portfolio analysis using the configuration settings from your investor profile.
               </p>
               
-              <Link href="/portfolio-analysis" className="group">
+              <Link href="/demo-portfolio-analysis" className="group">
                 <div className="inline-block relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-[var(--primary)]/30 transition-all duration-300 group-hover:scale-105">
                   <div className="flex items-center gap-3">
                     <Rocket className="h-6 w-6" />
