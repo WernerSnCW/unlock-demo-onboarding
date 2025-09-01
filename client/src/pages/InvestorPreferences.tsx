@@ -845,6 +845,9 @@ export default function InvestorPreferences() {
   const [questionnaireComplete, setQuestionnaireComplete] = useState(false);
   const [questionnairePersonaResult, setQuestionnairePersonaResult] = useState<{ persona: typeof investorPersonas[0], score: number, allMatches?: Array<{ persona: typeof investorPersonas[0], score: number }> } | null>(null);
   const [currentQuestionAnswer, setCurrentQuestionAnswer] = useState<string | string[]>('');
+  
+  // Selected persona state for user override
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
 
   // Convert questionnaire answers to form data for persona classification
   const convertQuestionnaireToFormData = (answers: QuestionnaireAnswer[]): PreferencesFormData => {
@@ -1992,28 +1995,6 @@ export default function InvestorPreferences() {
                     </Card>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="flex justify-center gap-4">
-                    <Button
-                      onClick={resetQuestionnaire}
-                      variant="outline"
-                      size="lg"
-                      className="px-8 py-4 text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
-                      data-testid="button-retake-questionnaire"
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Retake Questionnaire
-                    </Button>
-                    <Button
-                      onClick={() => setLocation('/demo/agenda')}
-                      size="lg"
-                      className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
-                      data-testid="button-continue-demo"
-                    >
-                      <ArrowRight className="mr-2 h-4 w-4" />
-                      Continue to Demo
-                    </Button>
-                  </div>
                 </div>
               )}
 
@@ -2037,14 +2018,16 @@ export default function InvestorPreferences() {
                       );
                       const isPrimaryMatch = questionnairePersonaResult?.persona.id === persona.id;
                       const hasScore = personaMatch && personaMatch.score > 0;
+                      const isSelected = selectedPersonaId === persona.id;
+                      const isEffectivelySelected = isSelected || (selectedPersonaId === null && isPrimaryMatch);
 
-                      // Determine styling based on match results
+                      // Determine styling based on match results and selection
                       let cardClasses = "cursor-pointer rounded-xl border p-4 transition-all hover:shadow-lg hover:scale-[1.02] duration-300";
                       let borderClasses = "";
                       let backgroundClasses = "";
                       
-                      if (isPrimaryMatch) {
-                        // Primary match: prominent styling with strong visible background
+                      if (isEffectivelySelected) {
+                        // Selected (or primary when no override): prominent styling
                         borderClasses = "border-2 border-[var(--primary)]";
                         backgroundClasses = "bg-gradient-to-br from-blue-100 to-teal-50 dark:from-blue-900/40 dark:to-teal-900/30 shadow-lg ring-2 ring-[var(--primary)]/30";
                       } else if (hasScore) {
@@ -2061,6 +2044,7 @@ export default function InvestorPreferences() {
                         <div
                           key={persona.id}
                           className={`${cardClasses} ${borderClasses} ${backgroundClasses} hover:border-[var(--primary)]`}
+                          onClick={() => setSelectedPersonaId(persona.id)}
                           data-testid={`persona-card-${persona.id}`}
                         >
                           <div className="space-y-3">
@@ -2094,11 +2078,11 @@ export default function InvestorPreferences() {
                               </span>
                             </div>
 
-                            {/* Match indicator for scored personas */}
-                            {hasScore && (
+                            {/* Match indicator for scored personas or selected */}
+                            {(hasScore || isSelected) && (
                               <div className="pt-2 border-t border-[var(--border)]/30">
                                 <p className="text-xs font-medium text-[var(--primary)]">
-                                  {isPrimaryMatch ? '✨ Your Primary Match' : '📊 Relevant Profile'}
+                                  {isSelected ? '🎯 Selected Profile' : isPrimaryMatch ? '✨ Your Primary Match' : '📊 Relevant Profile'}
                                 </p>
                               </div>
                             )}
@@ -2109,6 +2093,31 @@ export default function InvestorPreferences() {
                   </div>
                 </CardContent>
               </Card>
+              
+              {/* Action Buttons - Moved below persona cards */}
+              {questionnaireComplete && (
+                <div className="flex justify-center gap-4 mt-6">
+                  <Button
+                    onClick={resetQuestionnaire}
+                    variant="outline"
+                    size="lg"
+                    className="px-8 py-4 text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                    data-testid="button-retake-questionnaire"
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Retake Questionnaire
+                  </Button>
+                  <Button
+                    onClick={() => setLocation('/demo/agenda')}
+                    size="lg"
+                    className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
+                    data-testid="button-continue-demo"
+                  >
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Continue to Demo
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
