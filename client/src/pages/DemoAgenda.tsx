@@ -112,13 +112,29 @@ export default function DemoAgenda() {
                           Investor Persona
                         </h4>
                       </div>
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-lg p-4 border border-green-200/50 dark:border-green-800/30">
-                        <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 mb-2">
-                          Selected Profile
-                        </Badge>
-                        <p className="font-medium text-[var(--foreground)] text-sm">
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-lg p-6 border border-green-200/50 dark:border-green-800/30">
+                        <div className="flex items-start justify-between mb-3">
+                          <Badge className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600">
+                            Selected Profile
+                          </Badge>
+                        </div>
+                        <h5 className="font-bold text-[var(--foreground)] text-lg mb-2">
                           {personaName}
+                        </h5>
+                        <p className="text-sm text-[var(--muted-foreground)] mb-4 leading-relaxed">
+                          This simulation will model your portfolio behavior and risk responses according to the characteristics and preferences of this investor archetype.
                         </p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            Risk-Aware Analysis
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Personalized Scenarios
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Behavioral Modeling
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -132,24 +148,36 @@ export default function DemoAgenda() {
                           Stress Test Scenarios ({allScenarios.length})
                         </h4>
                       </div>
-                      <div className="space-y-2 max-h-24 overflow-y-auto">
+                      <div className="space-y-3 max-h-80 overflow-y-auto">
                         {allScenarios.map((scenario) => {
                           const IconComponent = scenario.icon;
                           return (
-                            <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/30">
-                              <div className="flex items-center gap-2">
-                                <IconComponent className="h-3 w-3 text-[var(--primary)]" />
-                                <Badge className={`text-xs ${
-                                  scenario.isSelected 
-                                    ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
-                                    : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
-                                }`}>
-                                  {scenario.isSelected ? 'Selected' : 'Applicable'}
+                            <div key={scenario.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/30">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <IconComponent className="h-4 w-4 text-[var(--primary)]" />
+                                  <Badge className={`text-xs ${
+                                    scenario.isSelected 
+                                      ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600'
+                                      : 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/50 dark:text-orange-300 dark:border-orange-600'
+                                  }`}>
+                                    {scenario.isSelected ? 'Selected' : 'Applicable'}
+                                  </Badge>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {scenario.horizon}
                                 </Badge>
                               </div>
-                              <p className="font-medium text-[var(--foreground)] text-xs mt-1">
+                              <h6 className="font-semibold text-[var(--foreground)] text-sm mb-2">
                                 {scenario.name}
+                              </h6>
+                              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-3">
+                                {scenario.description}
                               </p>
+                              <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                                <div className="w-2 h-2 rounded-full bg-[var(--primary)]"></div>
+                                <span>Portfolio stress testing enabled</span>
+                              </div>
                             </div>
                           );
                         })}
@@ -163,6 +191,8 @@ export default function DemoAgenda() {
         </div>
       )}
       
+      {/* Only show main content when no configuration is active */}
+      {!(personaName || allScenarios.length > 0) && (
       <main className="flex-1 relative z-10">
         {/* Hero Section with Advanced Visual Design */}
         <div className="relative overflow-hidden min-h-[60vh] flex items-center justify-center">
@@ -381,6 +411,7 @@ export default function DemoAgenda() {
           </div>
         </div>
       </main>
+      )}
       <Footer />
     </div>
   );
