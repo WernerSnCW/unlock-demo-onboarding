@@ -84,6 +84,12 @@ export default function DemoSimulation() {
 
   // Save selected scenario to localStorage for demo carryover
   useEffect(() => {
+    console.log('Checking scenarios for localStorage save:', {
+      allScenariosLength: allScenarios.length,
+      selectedScenarioIds,
+      allScenarios: allScenarios.map(s => ({ id: s.id, name: s.name, isSelected: s.isSelected }))
+    });
+    
     const selectedScenario = allScenarios.find(s => s.isSelected);
     if (selectedScenario) {
       const scenarioData = {
@@ -92,8 +98,10 @@ export default function DemoSimulation() {
       };
       localStorage.setItem('selectedScenario', JSON.stringify(scenarioData));
       console.log('Saved scenario to localStorage:', scenarioData);
+    } else if (allScenarios.length > 0) {
+      console.log('No selected scenario found in:', allScenarios.map(s => ({ name: s.name, isSelected: s.isSelected })));
     }
-  }, [allScenarios]);
+  }, [allScenarios, selectedScenarioIds]);
 
   const portfolioQuestions = [
     {

@@ -90,26 +90,63 @@ export default function DemoPortfolioAnalysis() {
       
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/20 via-[var(--secondary)]/20 to-[var(--accent)]/20 animate-gradient-x"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Link href="/demo-simulation">
-                <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Demo
-                </Button>
-              </Link>
-            </div>
-            
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-tight mb-6">
-              Live Portfolio Analysis
-            </h1>
-            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto leading-relaxed">
-              Real-time analysis with AI-powered insights, stress testing, and personalized recommendations
-            </p>
+        {/* Animated Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/10 via-[var(--secondary)]/10 to-[var(--accent)]/10 animate-gradient-x"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-[var(--background)]/95"></div>
+        </div>
+        
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          {/* Back Navigation */}
+          <div className="flex items-center justify-center mb-8">
+            <Link href="/demo-simulation">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--primary)]">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Demo
+              </Button>
+            </Link>
           </div>
 
+          {/* Floating Icon with Glow Effect */}
+          <div className="flex items-center justify-center mb-8 relative">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
+                <LineChart className="h-12 w-12" />
+              </div>
+              <div className="absolute -top-2 -right-2 animate-bounce">
+                <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
+              </div>
+            </div>
+          </div>
+
+          {/* Revolutionary Typography */}
+          <h1 className="relative mb-8">
+            <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Live Portfolio</span>
+            <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
+              ANALYSIS
+            </span>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
+          </h1>
+
+          <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
+            Real-time analysis with
+            <span className="text-[var(--primary)] font-semibold"> AI-powered insights, stress testing, and personalized recommendations</span>
+          </p>
+
+          {/* Status Badge with Animation */}
+          <div className="inline-flex items-center px-8 py-4 bg-[var(--card)] border-2 border-[var(--success)] rounded-full shadow-2xl hover:shadow-[var(--success)]/20 transition-all duration-300 group">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Zap className="h-6 w-6 text-[var(--success)]" />
+                <div className="absolute inset-0 animate-ping">
+                  <Zap className="h-6 w-6 text-[var(--success)] opacity-30" />
+                </div>
+              </div>
+              <span className="text-[var(--foreground)] font-semibold text-lg">ANALYSIS ACTIVE</span>
+              <div className="w-2 h-2 bg-[var(--success)] rounded-full animate-pulse"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -158,7 +195,7 @@ export default function DemoPortfolioAnalysis() {
           <TabsContent value="overview" className="space-y-6">
             {/* Investor Profile & Scenario Configuration */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {investorData.persona && (
+              {investorData.persona ? (
                 <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 backdrop-blur-sm shadow-2xl">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
@@ -188,9 +225,20 @@ export default function DemoPortfolioAnalysis() {
                     </div>
                   </CardContent>
                 </Card>
+              ) : (
+                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)]">
+                  <CardContent className="flex items-center justify-center py-12">
+                    <div className="text-center space-y-3">
+                      <User className="h-8 w-8 text-[var(--muted-foreground)] mx-auto" />
+                      <p className="text-[var(--muted-foreground)]">
+                        Complete investor preferences questionnaire
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
 
-              {investorData.scenario && (
+              {investorData.scenario ? (
                 <Card className="border-2 border-[var(--secondary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
@@ -213,16 +261,13 @@ export default function DemoPortfolioAnalysis() {
                     </div>
                   </CardContent>
                 </Card>
-              )}
-              
-              {/* Show placeholder if no data */}
-              {!investorData.persona && !investorData.scenario && (
-                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)] md:col-span-2">
+              ) : (
+                <Card className="border-2 border-dashed border-[var(--border)] bg-[var(--card)]">
                   <CardContent className="flex items-center justify-center py-12">
                     <div className="text-center space-y-3">
-                      <Brain className="h-8 w-8 text-[var(--muted-foreground)] mx-auto" />
+                      <Target className="h-8 w-8 text-[var(--muted-foreground)] mx-auto" />
                       <p className="text-[var(--muted-foreground)]">
-                        Complete the investor preferences and scenario selection to see personalized analysis
+                        Select economic scenario for stress testing
                       </p>
                     </div>
                   </CardContent>
@@ -261,28 +306,54 @@ export default function DemoPortfolioAnalysis() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {investorData.portfolioConfig ? (
+                      {investorData.portfolioConfig && investorData.portfolioConfig.totalValue ? (
                         <>
                           <div className="text-3xl font-bold text-[var(--primary)]">
-                            £{parseInt(investorData.portfolioConfig.totalValue || '0').toLocaleString()}
+                            £{parseInt(investorData.portfolioConfig.totalValue).toLocaleString()}
                           </div>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="flex justify-between">
-                              <span className="text-[var(--muted-foreground)]">Stocks:</span>
-                              <span>£{parseInt(investorData.portfolioConfig.stocks || '0').toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[var(--muted-foreground)]">Bonds:</span>
-                              <span>£{parseInt(investorData.portfolioConfig.bonds || '0').toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[var(--muted-foreground)]">Alternatives:</span>
-                              <span>£{parseInt(investorData.portfolioConfig.alternatives || '0').toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[var(--muted-foreground)]">Cash:</span>
-                              <span>£{parseInt(investorData.portfolioConfig.cash || '0').toLocaleString()}</span>
-                            </div>
+                          <div className="space-y-2 text-xs">
+                            {investorData.portfolioConfig.stocks && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">Stocks/Equities:</span>
+                                <span className="font-medium">£{parseInt(investorData.portfolioConfig.stocks).toLocaleString()}</span>
+                              </div>
+                            )}
+                            {investorData.portfolioConfig.bonds && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">Bonds:</span>
+                                <span className="font-medium">£{parseInt(investorData.portfolioConfig.bonds).toLocaleString()}</span>
+                              </div>
+                            )}
+                            {investorData.portfolioConfig.alternatives && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">Alternatives:</span>
+                                <span className="font-medium">£{parseInt(investorData.portfolioConfig.alternatives).toLocaleString()}</span>
+                              </div>
+                            )}
+                            {investorData.portfolioConfig.property && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">Property/REITs:</span>
+                                <span className="font-medium">£{parseInt(investorData.portfolioConfig.property).toLocaleString()}</span>
+                              </div>
+                            )}
+                            {investorData.portfolioConfig.cash && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">Cash/Savings:</span>
+                                <span className="font-medium">£{parseInt(investorData.portfolioConfig.cash).toLocaleString()}</span>
+                              </div>
+                            )}
+                            {investorData.portfolioConfig.international && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">International:</span>
+                                <span className="font-medium">{investorData.portfolioConfig.international}</span>
+                              </div>
+                            )}
+                            {investorData.portfolioConfig.timeHorizon && (
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted-foreground)]">Time Horizon:</span>
+                                <span className="font-medium">{investorData.portfolioConfig.timeHorizon}</span>
+                              </div>
+                            )}
                           </div>
                         </>
                       ) : (
@@ -293,6 +364,9 @@ export default function DemoPortfolioAnalysis() {
                             <span className="text-green-600">+12.5% (£217k)</span>
                             <span className="text-[var(--muted-foreground)]">vs last month</span>
                           </div>
+                          <p className="text-xs text-[var(--muted-foreground)]">
+                            Complete portfolio configuration to see your values
+                          </p>
                         </>
                       )}
                     </div>
