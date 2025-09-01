@@ -25,7 +25,28 @@ export default function PortfolioAnalysis() {
   // Process uploaded portfolio data
   useEffect(() => {
     // Check for uploaded portfolio data first
-    const uploadedDataStr = localStorage.getItem('uploadedPortfolioData');
+    let uploadedDataStr = localStorage.getItem('uploadedPortfolioData');
+    
+    // CRITICAL FIX: Check if data is corrupted with questionnaire responses
+    if (uploadedDataStr) {
+      try {
+        const testData = JSON.parse(uploadedDataStr);
+        if (testData.rawData && testData.rawData.length > 0) {
+          const firstRow = testData.rawData[0];
+          // If we find questionnaire data (Q1_Objective, Legacy Builder, etc.), clear it
+          if (firstRow.Category && firstRow.Category.startsWith('Q') && firstRow.Holding && 
+              (firstRow.Holding.includes('Builder') || firstRow.Holding.includes('Fashioned') || firstRow.Holding.includes('Saver'))) {
+            console.warn('CORRUPTED QUESTIONNAIRE DATA DETECTED - CLEARING IT');
+            localStorage.removeItem('uploadedPortfolioData');
+            uploadedDataStr = null; // Reset to null so fallback demo loads
+          }
+        }
+      } catch (e) {
+        console.warn('Error checking uploaded data, clearing it');
+        localStorage.removeItem('uploadedPortfolioData');
+        uploadedDataStr = null;
+      }
+    }
     let interval: NodeJS.Timeout | null = null;
     
     if (uploadedDataStr) {
@@ -353,7 +374,12 @@ export default function PortfolioAnalysis() {
   ] : [];
 
   const clearUploadedData = () => {
+    // Clear ALL potentially corrupted data
     localStorage.removeItem('uploadedPortfolioData');
+    localStorage.removeItem('questionnaireAnswers');
+    localStorage.removeItem('investorPersona');
+    localStorage.removeItem('selectedScenario');
+    console.log('CLEARED ALL CORRUPTED DATA');
     window.location.reload();
   };
 
@@ -601,13 +627,13 @@ export default function PortfolioAnalysis() {
                       </div>
                       <div className="ml-auto px-6 py-3 rounded-xl bg-[#10A957]/10 border border-[#10A957]/20">
                         <span className="text-2xl font-black text-[#10A957]">
-                          {portfolioData.holdings.traditional.filter((h: any) => h.hasValidTicker).length} positions
+                          {portfolioData?.holdings?.traditional?.filter((h: any) => h.hasValidTicker).length || 0} positions
                         </span>
                       </div>
                     </div>
 
                     <div className="grid gap-4">
-                      {portfolioData.holdings.traditional.map((holding: any, index: number) => (
+                      {portfolioData?.holdings?.traditional?.map((holding: any, index: number) => (
                         <div key={index} 
                              className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
@@ -656,13 +682,13 @@ export default function PortfolioAnalysis() {
                       </div>
                       <div className="ml-auto px-6 py-3 rounded-xl bg-[#13683B]/10 border border-[#13683B]/20">
                         <span className="text-2xl font-black text-[#13683B]">
-                          {portfolioData.holdings.properties.length} properties
+                          {portfolioData?.holdings?.properties?.length || 0} properties
                         </span>
                       </div>
                     </div>
 
                     <div className="grid gap-4">
-                      {portfolioData.holdings.properties.map((property: any, index: number) => (
+                      {portfolioData?.holdings?.properties?.map((property: any, index: number) => (
                         <div key={index} 
                              className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
@@ -714,13 +740,13 @@ export default function PortfolioAnalysis() {
                       </div>
                       <div className="ml-auto px-6 py-3 rounded-xl bg-[#FE9239]/10 border border-[#FE9239]/20">
                         <span className="text-2xl font-black text-[#FE9239]">
-                          {portfolioData.holdings.alternatives.length} investments
+                          {portfolioData?.holdings?.alternatives?.length || 0} investments
                         </span>
                       </div>
                     </div>
 
                     <div className="grid gap-4">
-                      {portfolioData.holdings.alternatives.map((alternative: any, index: number) => (
+                      {portfolioData?.holdings?.alternatives?.map((alternative: any, index: number) => (
                         <div key={index} 
                              className="flex items-center justify-between p-6 rounded-2xl hover:shadow-lg transition-all duration-300 bg-[var(--muted)]/50 border border-[var(--border)]">
                           <div className="flex items-center gap-6">
@@ -809,7 +835,7 @@ export default function PortfolioAnalysis() {
                         <h4 className="text-3xl font-black text-[var(--foreground)]">Key Insights</h4>
                       </div>
                       <div className="grid gap-6">
-                        {analysis.keyInsights?.map((insight: string, index: number) => (
+                        {analysis?.keyInsights?.map((insight: string, index: number) => (
                           <div key={index} 
                                className="p-8 rounded-2xl bg-gradient-to-r from-[#10A957]/5 to-[#13683B]/5 border border-[#10A957]/20">
                             <div className="flex items-start gap-6">
@@ -835,7 +861,7 @@ export default function PortfolioAnalysis() {
                           <h4 className="text-3xl font-black text-[var(--foreground)]">Risk Alerts</h4>
                         </div>
                         <div className="space-y-6">
-                          {analysis.overexposureWarnings.map((warning: any, index: number) => (
+                          {analysis?.overexposureWarnings?.map((warning: any, index: number) => (
                             <div key={index} 
                                  className="relative p-8 rounded-2xl bg-gradient-to-r from-[#EF4444]/5 to-[#FE9239]/5 border border-[#EF4444]/20">
                               <div className="absolute top-4 right-4 w-4 h-4 rounded-full animate-pulse bg-[#EF4444]"></div>
@@ -865,7 +891,7 @@ export default function PortfolioAnalysis() {
                         <h4 className="text-3xl font-black text-[var(--foreground)]">Investment Guidance</h4>
                       </div>
                       <div className="grid gap-6">
-                        {analysis.generalGuidance?.map((guidance: string, index: number) => (
+                        {analysis?.generalGuidance?.map((guidance: string, index: number) => (
                           <div key={index} 
                                className="p-8 rounded-2xl bg-gradient-to-r from-[#10B981]/5 to-[#13683B]/5 border border-[#10B981]/20">
                             <div className="flex items-start gap-6">
@@ -913,7 +939,7 @@ export default function PortfolioAnalysis() {
 
                     <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-hide">
                       {portfolioData ? (
-                        portfolioData.holdings.liveTickerHoldings.map((holding: any, index: number) => {
+                        portfolioData?.holdings?.liveTickerHoldings?.map((holding: any, index: number) => {
                           const livePrice = liveData[holding.ticker];
                           const isPositive = livePrice ? livePrice.changePercent >= 0 : holding.changePercent >= 0;
                           const displayPrice = livePrice ? livePrice.price : holding.currentPrice;
@@ -980,9 +1006,9 @@ export default function PortfolioAnalysis() {
                     <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--muted)]/50">
                       <span className="font-medium text-[var(--muted-foreground)]">Total Positions</span>
                       <span className="font-black text-lg text-[var(--foreground)]">
-                        {(portfolioData?.holdings.traditional.length || 0) + 
-                         (portfolioData?.holdings.properties.length || 0) + 
-                         (portfolioData?.holdings.alternatives.length || 0)}
+                        {(portfolioData?.holdings?.traditional?.length || 0) + 
+                         (portfolioData?.holdings?.properties?.length || 0) + 
+                         (portfolioData?.holdings?.alternatives?.length || 0)}
                       </span>
                     </div>
                     
