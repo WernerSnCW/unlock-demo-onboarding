@@ -220,7 +220,7 @@ export default function DemoPortfolioAnalysis() {
           <TabsList className="grid w-full grid-cols-6 bg-[var(--card)] border-2 border-[var(--border)] p-0.5 rounded-xl shadow-2xl backdrop-blur-sm h-12">
             <TabsTrigger 
               value="overview" 
-              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
                 <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
@@ -229,7 +229,7 @@ export default function DemoPortfolioAnalysis() {
             </TabsTrigger>
             <TabsTrigger 
               value="refine" 
-              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
                 <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>
@@ -238,7 +238,7 @@ export default function DemoPortfolioAnalysis() {
             </TabsTrigger>
             <TabsTrigger 
               value="performance" 
-              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
                 <TrendingUp className="h-3 w-3" />
@@ -247,7 +247,7 @@ export default function DemoPortfolioAnalysis() {
             </TabsTrigger>
             <TabsTrigger 
               value="risk" 
-              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
                 <AlertTriangle className="h-3 w-3" />
@@ -256,7 +256,7 @@ export default function DemoPortfolioAnalysis() {
             </TabsTrigger>
             <TabsTrigger 
               value="stress" 
-              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
                 <Zap className="h-3 w-3" />
@@ -265,7 +265,7 @@ export default function DemoPortfolioAnalysis() {
             </TabsTrigger>
             <TabsTrigger 
               value="insights" 
-              className="flex items-center justify-center rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
+              className="flex items-center justify-center rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-white data-[state=active]:shadow-lg py-1 px-0.5"
             >
               <div className="flex flex-col items-center">
                 <Sparkles className="h-3 w-3" />
