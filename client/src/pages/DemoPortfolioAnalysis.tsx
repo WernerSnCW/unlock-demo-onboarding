@@ -83,6 +83,7 @@ export default function DemoPortfolioAnalysis() {
     });
 
     console.log('Available scenarios in DemoPortfolioAnalysis:', economicScenarios.map(s => s.name));
+    console.log('Active scenario from localStorage:', data.scenario?.name);
 
     if (storedPersona) {
       try {
@@ -555,13 +556,19 @@ export default function DemoPortfolioAnalysis() {
                   
                   {/* All Economic Scenarios */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">
-                      All Economic Scenarios ({economicScenarios.length} scenarios)
-                    </h3>
-                    <div className="grid gap-4">
-                      {economicScenarios.map((scenario) => {
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)]">
+                        All Economic Scenarios
+                      </h3>
+                      <Badge variant="outline" className="bg-[var(--muted)] text-[var(--foreground)]">
+                        {economicScenarios.length} Total Scenarios
+                      </Badge>
+                    </div>
+                    <div className="grid gap-3 max-h-none overflow-visible">
+                      {economicScenarios.map((scenario, index) => {
                         const isActive = investorData.scenario?.name === scenario.name;
                         const IconComponent = scenario.icon;
+                        console.log(`Rendering scenario ${index + 1}:`, scenario.name, 'Active:', isActive);
                         
                         return (
                           <div
