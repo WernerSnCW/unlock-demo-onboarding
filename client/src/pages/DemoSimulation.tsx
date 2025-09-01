@@ -360,28 +360,26 @@ export default function DemoSimulation() {
           <Card className="relative bg-[var(--card)] border-2 border-[var(--border)] rounded-3xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"></div>
             <CardContent className="p-8">
-              <div className="space-y-8">
-                {/* Total Value */}
-                <div className="text-center">
-                  <div className="inline-block relative mb-4">
-                    <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl">
-                      <PoundSterling className="h-12 w-12 text-white" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Side - Total Value + Pie Chart */}
+                <div className="space-y-6">
+                  {/* Total Value */}
+                  <div className="text-center">
+                    <div className="inline-block relative mb-4">
+                      <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl p-4 shadow-xl">
+                        <PoundSterling className="h-12 w-12 text-white" />
+                      </div>
                     </div>
+                    <h3 className="text-2xl font-black text-[var(--foreground)] mb-2">
+                      TOTAL PORTFOLIO VALUE
+                    </h3>
+                    <p className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                      £{totalValue.toLocaleString()}
+                    </p>
                   </div>
-                  <h3 className="text-2xl font-black text-[var(--foreground)] mb-2">
-                    TOTAL PORTFOLIO VALUE
-                  </h3>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
-                    £{totalValue.toLocaleString()}
-                  </p>
-                </div>
 
-                {/* Pie Chart */}
-                <div className="text-center">
-                  <h3 className="text-xl font-black text-[var(--foreground)] mb-6">
-                    ASSET ALLOCATION
-                  </h3>
-                  <div className="h-80 mb-6">
+                  {/* Pie Chart */}
+                  <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsPieChart>
                         <Pie
@@ -394,7 +392,8 @@ export default function DemoSimulation() {
                           ].filter(item => item.value > 0)}
                           cx="50%"
                           cy="50%"
-                          outerRadius={100}
+                          innerRadius={40}
+                          outerRadius={80}
                           dataKey="value"
                           stroke="none"
                         >
@@ -422,33 +421,35 @@ export default function DemoSimulation() {
                   </div>
                 </div>
 
-                {/* Asset Breakdown */}
-                <div className="max-w-2xl mx-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {[
-                      { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
-                      { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
-                      { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
-                      { key: 'property', label: 'Property/REITs', color: '#f97316' },
-                      { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
-                    ].map((asset) => {
-                      const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
-                      const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
-                      
-                      return value > 0 ? (
-                        <div key={asset.key} className="flex justify-between items-center p-4 bg-[var(--muted)] rounded-xl">
-                          <div className="flex items-center gap-3">
-                            <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
-                            <span className="font-semibold text-[var(--foreground)]">{asset.label}</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold text-[var(--foreground)]">£{value.toLocaleString()}</div>
-                            <div className="text-sm text-[var(--muted-foreground)]">{percentage}%</div>
-                          </div>
+                {/* Right Side - Asset Breakdown */}
+                <div className="space-y-4">
+                  <h3 className="text-xl font-black text-[var(--foreground)] mb-4 text-center">
+                    ASSET ALLOCATION
+                  </h3>
+                  
+                  {[
+                    { key: 'stocks', label: 'Stocks/Equities', color: '#3b82f6' },
+                    { key: 'bonds', label: 'Bonds/Fixed Income', color: '#10b981' },
+                    { key: 'alternatives', label: 'Alternatives', color: '#8b5cf6' },
+                    { key: 'property', label: 'Property/REITs', color: '#f97316' },
+                    { key: 'cash', label: 'Cash/Savings', color: '#6b7280' }
+                  ].map((asset) => {
+                    const value = parseInt(portfolioConfig[asset.key as keyof typeof portfolioConfig] || '0');
+                    const percentage = getPercentage(portfolioConfig[asset.key as keyof typeof portfolioConfig]);
+                    
+                    return value > 0 ? (
+                      <div key={asset.key} className="flex justify-between items-center p-3 bg-[var(--muted)] rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <div className="w-4 h-4 rounded-full" style={{backgroundColor: asset.color}}></div>
+                          <span className="font-semibold text-[var(--foreground)]">{asset.label}</span>
                         </div>
-                      ) : null;
-                    })}
-                  </div>
+                        <div className="text-right">
+                          <div className="font-bold text-[var(--foreground)]">£{value.toLocaleString()}</div>
+                          <div className="text-sm text-[var(--muted-foreground)]">{percentage}%</div>
+                        </div>
+                      </div>
+                    ) : null;
+                  })}
                 </div>
               </div>
 
