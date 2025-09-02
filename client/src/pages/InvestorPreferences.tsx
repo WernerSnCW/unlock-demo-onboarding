@@ -2187,6 +2187,69 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
           </div>
         </div>
         
+        {/* Persona & Scenarios Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* Selected Persona */}
+          <Card className="border border-[var(--primary)]/30 bg-[var(--primary)]/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-[var(--foreground)] text-lg">
+                <User className="h-4 w-4 text-[var(--primary)]" />
+                Selected Persona: {persona.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-2">
+              <p className="text-sm text-[var(--muted-foreground)]">{persona.notes}</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="font-medium text-[var(--foreground)]">Wealth Tier:</span> {persona.wealthTier}
+                </div>
+                <div>
+                  <span className="font-medium text-[var(--foreground)]">Liquidity:</span> {persona.liquidityMonths} months
+                </div>
+                <div>
+                  <span className="font-medium text-[var(--foreground)]">Risk Tolerance:</span> {persona.concentrationTolerance}
+                </div>
+                <div>
+                  <span className="font-medium text-[var(--foreground)]">Investment Style:</span> {persona.investmentStyle}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Active Economic Scenarios */}
+          <Card className="border border-[var(--secondary)]/30 bg-[var(--secondary)]/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-[var(--foreground)] text-lg">
+                <BarChart3 className="h-4 w-4 text-[var(--secondary)]" />
+                Active Economic Scenarios
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-2">
+                {Array.from(selectedScenarios)
+                  .map(scenario => {
+                    const weight = scenarioWeights.find(w => w.scenario === scenario);
+                    return (
+                      <div key={scenario} className="flex items-center justify-between">
+                        <div className="text-sm font-medium text-[var(--foreground)]">
+                          {SCENARIO_NAMES[scenario] || scenario}
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)]">
+                          {weight ? `${(weight.normalizedWeight * 100).toFixed(1)}%` : '0%'}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+              <div className="mt-2 pt-2 border-t border-[var(--border)]">
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Weights based on your economic beliefs responses
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <PortfolioDisplay
           baseAllocation={portfolioResult.baseAllocation}
           personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
