@@ -1558,6 +1558,7 @@ function PersonaQuizContent() {
     goBack,
     skipQuestion,
     resetQuiz,
+    autoCompleteRandomly,
     totalQuestions,
     dimensionLabels
   } = usePersonaQuiz();
@@ -1752,6 +1753,18 @@ function PersonaQuizContent() {
                 Tax Optimisation, Income Source Bias, Investment Horizon, Liquidity Preference, and Advisor Reliance.
               </p>
             </div>
+            <div className="flex justify-center">
+              <Button
+                onClick={autoCompleteRandomly}
+                size="lg"
+                variant="outline"
+                className="px-8 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
+                data-testid="button-auto-complete-intro"
+              >
+                <Zap className="mr-2 h-5 w-5" />
+                Try Random Demo
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -1801,7 +1814,7 @@ function PersonaQuizContent() {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center mt-8 max-w-md mx-auto">
+            <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto">
               {canGoBack ? (
                 <Button
                   onClick={goBack}
@@ -1816,6 +1829,17 @@ function PersonaQuizContent() {
               ) : (
                 <div className="w-24" />
               )}
+              
+              <Button
+                onClick={autoCompleteRandomly}
+                size="lg"
+                variant="outline"
+                className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
+                data-testid="button-auto-complete"
+              >
+                <Zap className="mr-2 h-5 w-5" />
+                Auto Complete
+              </Button>
               
               <Button
                 onClick={skipQuestion}
