@@ -354,20 +354,42 @@ export default function PitchDeckAnalyser() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-[var(--background)] min-h-screen">
-      
-      {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-2xl mb-4 shadow-lg">
-          <i className="fas fa-file-powerpoint text-2xl text-[var(--primary-foreground)]" aria-hidden="true"></i>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Professional Header */}
+      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                <i className="fas fa-file-powerpoint text-2xl text-white" aria-hidden="true"></i>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Pitch Deck Analyser</h1>
+                <p className="text-white/90 text-sm">Upload your startup pitch deck to get detailed analysis, investor questions, and valuation benchmarking</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Feature Highlights */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-sm font-bold text-white">Section Analysis</div>
+              <div className="text-xs text-white/80">15+ Key Areas</div>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-sm font-bold text-white">Valuation Check</div>
+              <div className="text-xs text-white/80">Multiple Methods</div>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-sm font-bold text-white">Investor Questions</div>
+              <div className="text-xs text-white/80">Due Diligence Ready</div>
+            </div>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent mb-3">
-          Pitch Deck Analyser
-        </h1>
-        <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
-          Upload your startup pitch deck to get detailed analysis, investor questions, and valuation benchmarking
-        </p>
       </div>
+      
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
 
       {/* Upload Section */}
       <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-md)]">
@@ -1252,7 +1274,7 @@ export default function PitchDeckAnalyser() {
 
         </div>
       )}
-
+      </div>
     </div>
   );
 }
