@@ -894,52 +894,19 @@ const questionnaireQuestions: QuestionnaireQuestion[] = [
 function PortfolioRecommendationsButton({ 
   persona, 
   selectedScenarios, 
-  scenarioWeights 
+  scenarioWeights,
+  onShowPortfolio
 }: { 
   persona: PersonaDef; 
   selectedScenarios: string[]; 
   scenarioWeights: any[];
+  onShowPortfolio: () => void;
 }) {
-  const [showPortfolio, setShowPortfolio] = useState(false);
-  const { 
-    portfolioResult, 
-    isComplete: portfolioComplete,
-    skipToNeutral 
-  } = useAdditionalBeliefs();
-
   const handleShowPortfolio = () => {
     if (selectedScenarios.length > 0) {
-      // Use the selected scenarios to generate portfolio
-      skipToNeutral(persona); // This will generate the portfolio result
-      setShowPortfolio(true);
+      onShowPortfolio();
     }
   };
-
-  if (showPortfolio && portfolioResult) {
-    return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <Button 
-            onClick={() => setShowPortfolio(false)}
-            variant="outline"
-            size="sm"
-            className="mb-6"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Scenario Selection
-          </Button>
-        </div>
-        
-        <PortfolioDisplay
-          baseAllocation={portfolioResult.baseAllocation}
-          personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
-          scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
-          personaName={persona.name}
-          explanations={portfolioResult.explanations}
-        />
-      </div>
-    );
-  }
 
   return (
     <Button 
@@ -2158,6 +2125,7 @@ function PersonaQuizContent() {
 }
 
 function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; onBack: () => void }) {
+  const [showPortfolioView, setShowPortfolioView] = useState(false);
   const {
     currentQuestion,
     currentQuestionIndex,
@@ -2177,12 +2145,58 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
     totalQuestions
   } = useBeliefQuestionnaire();
 
+  const { 
+    portfolioResult, 
+    skipToNeutral 
+  } = useAdditionalBeliefs();
+
+  const handleShowPortfolio = () => {
+    skipToNeutral(persona);
+    setShowPortfolioView(true);
+  };
+
   // Scroll to top when questionnaire is completed
   useEffect(() => {
     if (isComplete) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [isComplete]);
+
+  if (showPortfolioView && portfolioResult) {
+    return (
+      <div className="space-y-6">
+        {/* Header with Back Button */}
+        <div className="text-center space-y-4">
+          <Button 
+            onClick={() => setShowPortfolioView(false)}
+            variant="outline"
+            size="sm"
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Scenario Selection
+          </Button>
+          
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+              Portfolio Recommendations
+            </h1>
+            <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
+              Based on your economic beliefs and persona constraints
+            </p>
+          </div>
+        </div>
+        
+        <PortfolioDisplay
+          baseAllocation={portfolioResult.baseAllocation}
+          personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
+          scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
+          personaName={persona.name}
+          explanations={portfolioResult.explanations}
+        />
+      </div>
+    );
+  }
 
   if (isComplete) {
     return (
@@ -2384,6 +2398,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
                 persona={persona}
                 selectedScenarios={Array.from(selectedScenarios)}
                 scenarioWeights={scenarioWeights}
+                onShowPortfolio={handleShowPortfolio}
               />
             </div>
           </CardContent>
