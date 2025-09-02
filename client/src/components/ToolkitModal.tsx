@@ -1636,34 +1636,208 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         
       case 'document-checklist':
         return (
-          <div className="p-6">
+          <div className="p-6 max-h-[80vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="fas fa-tasks text-2xl text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Due Diligence Checklist</h3>
-              <p className="text-gray-600 dark:text-gray-300">Essential documents to request during your investment process.</p>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Due Diligence Document Checklist</h3>
+              <p className="text-gray-600 dark:text-gray-300">UK-centric comprehensive checklist with status tracking and stage applicability.</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               {[
-                { category: "Financial Documents", items: ["Last 3 years of accounts", "Management accounts (latest)", "Cash flow projections", "Cap table"] },
-                { category: "Legal & Compliance", items: ["Certificate of incorporation", "Articles of association", "Share agreements", "IP registrations"] },
-                { category: "Business Information", items: ["Business plan", "Market analysis", "Competitor overview", "Team CVs"] },
-                { category: "EIS/SEIS Specific", items: ["Advance assurance letter", "Compliance statement", "Risk-to-capital confirmation"] }
+                { 
+                  category: "Financial", 
+                  items: [
+                    { name: "Audited/statutory accounts (last 3 years)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Monthly management accounts (P&L, BS, CF) – last 12–24 months + YTD", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Forecast/budget (18–24 months) with assumptions workbook and hiring plan", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Bank statements (last 12 months)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Aged debtors/creditors reports", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Revenue breakdowns (by product, customer, channel, geography)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Unit economics (CAC, LTV, payback, churn/retention, ARPA/ARR/MRR for SaaS)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Tax filings & positions (CT600, VAT, PAYE/NI), R&D claims and HMRC correspondence", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Debt & grants schedule (terms, covenants, security/charges)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Related-party transactions summary", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Cap table (fully diluted) incl. option pool, vesting, ASAs/SAFEs/convertibles, warrants", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Any valuations (e.g., 409A/EMI valuation) and waterfall for this round", priority: "Must-have", stages: ["Seed", "Series A"] }
+                  ]
+                },
+                { 
+                  category: "Legal & Compliance", 
+                  items: [
+                    { name: "Certificate of incorporation & current Articles (with history of amendments)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Shareholders'/Subscription agreements, Board minutes/resolutions for prior rounds", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Companies House filings (PSC register, confirmation statements, charges)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Material contracts register (customer/supplier > £25k or > 12 months, exclusivity, MFN)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Licences/permits (e.g., FCA, MHRA) or confirmation not required", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Employment contracts (key staff), contractor agreements, IP assignment deeds", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Option scheme docs (EMI rules, grants, vesting, leavers)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "IP portfolio: trademarks/patents/registrations, domains, open-source licence audit", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Data protection: Privacy Policy, RoPA, DPIAs, DPA templates, ICO registration", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Insurance: D&O, PI, Cyber, EL/PL – schedules & claims history", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Litigation/claims and dispute log (actual or threatened)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Website terms of use/SaaS terms and SLAs", priority: "Must-have", stages: ["Seed", "Series A"] }
+                  ]
+                },
+                { 
+                  category: "Business & Commercial", 
+                  items: [
+                    { name: "Business model & pricing, Go-to-Market plan, market sizing (TAM/SAM/SOM)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Competitor map with differentiators and switching costs", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Customer list & concentration (top 20 with ARR/contract dates)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "CRM exports (pipeline, win/loss, sales cycle, conversion rates)", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Cohort & retention analyses, NPS, churn reasons, case studies/references", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Partnerships & distribution agreements; key dependencies", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Roadmap (next 12–18 months) and milestones", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] }
+                  ]
+                },
+                { 
+                  category: "People & HR", 
+                  items: [
+                    { name: "Org chart (current & post-raise), hiring plan", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Key person summaries/CVs, availability/notice periods, restrictive covenants", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Compensation & options table (salary, bonus, equity %, vesting)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "HR policies (handbook, disciplinary/grievance, whistleblowing, DEI, remote working)", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Right-to-work and background-check policy (summary)", priority: "Nice-to-have", stages: ["Seed", "Series A"] }
+                  ]
+                },
+                { 
+                  category: "Technology & Security", 
+                  items: [
+                    { name: "System architecture diagram, data flows, third-party services list", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Code repositories (read-only access or snapshot), branching/release process", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Security policies (access control, key management), BCP/DR", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Pen-test/VAPT reports and remediation logs; vulnerability management", priority: "Nice-to-have", stages: ["Series A"] },
+                    { name: "Uptime/incident history and monitoring", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "Data governance (retention, lawful bases, DSR handling)", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "Model cards/training data provenance (if using AI), licences for datasets", priority: "Must-have", stages: ["Seed", "Series A"] }
+                  ]
+                },
+                { 
+                  category: "EIS/SEIS Specific", 
+                  items: [
+                    { name: "Advance Assurance letter (and application pack)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "EIS/SEIS1/2/3 forms status; amounts already raised and remaining headroom", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Eligibility evidence: company age test, gross assets, employee count, UK PE", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Excluded activities confirmation; state aid received (incl. de minimis)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "KIC status (if applicable) with supporting calculations", priority: "Nice-to-have", stages: ["Seed", "Series A"] },
+                    { name: "ASA/Convertible terms confirming EIS-compatibility", priority: "Must-have", stages: ["Pre-seed", "Seed"] },
+                    { name: "Use of proceeds mapped to growth/R&D (aligns with risk-to-capital)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] }
+                  ]
+                },
+                { 
+                  category: "Governance & Reporting", 
+                  items: [
+                    { name: "Board pack example, KPIs/OKRs, risk register, information rights", priority: "Must-have", stages: ["Seed", "Series A"] },
+                    { name: "ESG/Modern Slavery statements (if any) or policy one-pager", priority: "Nice-to-have", stages: ["Series A"] }
+                  ]
+                },
+                { 
+                  category: "Transaction Documents", 
+                  items: [
+                    { name: "Term sheet, investment agreements, disclosure letter, warranties schedule", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "CP checklist (bank accounts, new Articles, board/SH resolutions)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] },
+                    { name: "Pro-forma cap table post-money (incl. option refresh)", priority: "Must-have", stages: ["Pre-seed", "Seed", "Series A"] }
+                  ]
+                }
               ].map((section, index) => (
                 <div key={index} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-800 dark:text-gray-100 mb-3">{section.category}</h4>
+                  <h4 className="font-medium text-gray-800 dark:text-gray-100 mb-4 text-lg">{section.category}</h4>
+                  
+                  {/* Table Header */}
+                  <div className="grid grid-cols-12 gap-2 pb-2 mb-3 border-b border-gray-300 dark:border-gray-600 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <div className="col-span-1">✓</div>
+                    <div className="col-span-1">N/A</div>
+                    <div className="col-span-4">Document</div>
+                    <div className="col-span-1">Priority</div>
+                    <div className="col-span-2">Stages</div>
+                    <div className="col-span-1">Status</div>
+                    <div className="col-span-1">Owner</div>
+                    <div className="col-span-1">Link</div>
+                  </div>
+                  
+                  {/* Table Rows */}
                   <div className="space-y-2">
                     {section.items.map((item, itemIndex) => (
-                      <label key={itemIndex} className="flex items-center">
-                        <input type="checkbox" className="mr-3 text-blue-600" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
-                      </label>
+                      <div key={itemIndex} className="grid grid-cols-12 gap-2 items-center text-sm">
+                        {/* Checkboxes */}
+                        <div className="col-span-1">
+                          <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        </div>
+                        <div className="col-span-1">
+                          <input type="checkbox" className="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500" />
+                        </div>
+                        
+                        {/* Document Name */}
+                        <div className="col-span-4 text-gray-700 dark:text-gray-300">{item.name}</div>
+                        
+                        {/* Priority */}
+                        <div className="col-span-1">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            item.priority === 'Must-have' 
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' 
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                          }`}>
+                            {item.priority}
+                          </span>
+                        </div>
+                        
+                        {/* Stages */}
+                        <div className="col-span-2">
+                          <div className="flex flex-wrap gap-1">
+                            {item.stages.map((stage, stageIndex) => (
+                              <span key={stageIndex} className="px-1 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 rounded text-xs">
+                                {stage}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Status */}
+                        <div className="col-span-1">
+                          <select className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            <option value="">-</option>
+                            <option value="req">Req</option>
+                            <option value="rec">Rec</option>
+                            <option value="reviewed">Reviewed</option>
+                          </select>
+                        </div>
+                        
+                        {/* Owner */}
+                        <div className="col-span-1">
+                          <input type="text" placeholder="Owner" className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded px-1 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300" />
+                        </div>
+                        
+                        {/* Link */}
+                        <div className="col-span-1">
+                          <input type="url" placeholder="Link" className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded px-1 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
               ))}
+              
+              {/* Notes Section */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mt-6">
+                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-3">Additional Notes & Sector Add-ons</h4>
+                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                  <p><strong>Fintech:</strong> safeguarding, CASS, AML/CTF policies, complaints log.</p>
+                  <p><strong>Health/Medtech:</strong> clinical safety case, DCB0129/0160, regulatory pathway.</p>
+                  <p><strong>Hardware:</strong> BOM, certifications (CE/UKCA), supply chain/QA.</p>
+                </div>
+                
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">General Notes & Risks:</label>
+                  <textarea 
+                    className="w-full p-3 border border-blue-200 dark:border-blue-700 rounded-md bg-white dark:bg-blue-900/10 text-blue-900 dark:text-blue-100 placeholder-blue-500 dark:placeholder-blue-400" 
+                    rows={3} 
+                    placeholder="Add any general notes, risks, or sector-specific requirements..."
+                  ></textarea>
+                </div>
+              </div>
             </div>
           </div>
         );

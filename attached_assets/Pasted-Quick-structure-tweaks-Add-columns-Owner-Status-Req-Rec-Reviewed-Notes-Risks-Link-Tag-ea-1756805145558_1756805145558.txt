@@ -1,0 +1,156 @@
+Quick structure tweaks
+
+Add columns: Owner | Status (Req/Rec/Reviewed) | Notes/Risks | Link.
+
+Tag each item Must-have / Nice-to-have and Applies to: Pre-seed / Seed / Series A.
+
+Include an N/A tick so reviewers can explicitly exclude items.
+
+Expanded checklist (UK-centric)
+1) Financial
+
+Audited/statutory accounts (last 3 years) (or unaudited if applicable).
+
+Monthly management accounts (P&L, BS, CF) – last 12–24 months + YTD.
+
+Forecast/budget (18–24 months) with assumptions workbook and hiring plan.
+
+Bank statements (last 12 months).
+
+Aged debtors/creditors reports.
+
+Revenue breakdowns (by product, customer, channel, geography).
+
+Unit economics (CAC, LTV, payback, churn/retention, ARPA/ARR/MRR for SaaS).
+
+Tax filings & positions (CT600, VAT, PAYE/NI), R&D claims and HMRC correspondence.
+
+Debt & grants schedule (terms, covenants, security/charges).
+
+Related-party transactions summary.
+
+Cap table (fully diluted) incl. option pool, vesting, ASAs/SAFEs/convertibles, warrants.
+
+Any valuations (e.g., 409A/EMI valuation) and waterfall for this round.
+
+2) Legal & Compliance
+
+Certificate of incorporation & current Articles (with history of amendments).
+
+Shareholders’/Subscription agreements, Board minutes/resolutions for prior rounds.
+
+Companies House filings (PSC register, confirmation statements, charges).
+
+Material contracts register (customer/supplier > £25k or > 12 months, exclusivity, MFN).
+
+Licences/permits (e.g., FCA, MHRA) or confirmation not required.
+
+Employment contracts (key staff), contractor agreements, IP assignment deeds.
+
+Option scheme docs (EMI rules, grants, vesting, leavers).
+
+IP portfolio: trademarks/patents/registrations, domains, open-source licence audit.
+
+Data protection: Privacy Policy, RoPA, DPIAs, DPA templates, ICO registration.
+
+Insurance: D&O, PI, Cyber, EL/PL – schedules & claims history.
+
+Litigation/claims and dispute log (actual or threatened).
+
+Website terms of use/SaaS terms and SLAs.
+
+3) Business & Commercial
+
+Business model & pricing, Go-to-Market plan, market sizing (TAM/SAM/SOM).
+
+Competitor map with differentiators and switching costs.
+
+Customer list & concentration (top 20 with ARR/contract dates).
+
+CRM exports (pipeline, win/loss, sales cycle, conversion rates).
+
+Cohort & retention analyses, NPS, churn reasons, case studies/references.
+
+Partnerships & distribution agreements; key dependencies.
+
+Roadmap (next 12–18 months) and milestones.
+
+4) People & HR
+
+Org chart (current & post-raise), hiring plan.
+
+Key person summaries/CVs, availability/notice periods, restrictive covenants.
+
+Compensation & options table (salary, bonus, equity %, vesting).
+
+HR policies (handbook, disciplinary/grievance, whistleblowing, DEI, remote working).
+
+Right-to-work and background-check policy (summary).
+
+5) Technology & Security (for software/AI businesses)
+
+System architecture diagram, data flows, third-party services list.
+
+Code repositories (read-only access or snapshot), branching/release process.
+
+Security policies (access control, key management), BCP/DR.
+
+Pen-test/VAPT reports and remediation logs; vulnerability management.
+
+Uptime/incident history and monitoring.
+
+Data governance (retention, lawful bases, DSR handling).
+
+Model cards/training data provenance (if using AI), licences for datasets.
+
+6) EIS/SEIS Specific (UK)
+
+Advance Assurance letter (and application pack).
+
+EIS/SEIS1/2/3 forms status; amounts already raised and remaining headroom.
+
+Eligibility evidence: company age test, gross assets, employee count, UK PE.
+
+Excluded activities confirmation; state aid received (incl. de minimis).
+
+KIC status (if applicable) with supporting calculations.
+
+ASA/Convertible terms confirming EIS-compatibility.
+
+Use of proceeds mapped to growth/R&D (aligns with risk-to-capital).
+
+7) Governance & Reporting
+
+Board pack example, KPIs/OKRs, risk register, information rights.
+
+ESG/Modern Slavery statements (if any) or policy one-pager.
+
+8) Transaction Documents (for the round)
+
+Term sheet, investment agreements, disclosure letter, warranties schedule.
+
+CP checklist (bank accounts, new Articles, board/SH resolutions).
+
+Pro-forma cap table post-money (incl. option refresh).
+
+Wording/clarity fixes on your current items
+
+“Management accounts (latest)” → “Management accounts (monthly, last 12–24 months + YTD)”
+
+“Cash flow projections” → “Integrated 3-statement forecast (18–24 months) with assumptions”
+
+“Share agreements” → “Shareholders’ & subscription agreements; option scheme rules; option/ASA/SAFE registers”
+
+“IP registrations” → “IP portfolio & assignments (registered + unregistered) and OSS audit”
+
+“Competitor overview” → “Competitor map with pricing and differentiation”
+
+“Team CVs” → “Key person CVs + org chart + options/comp summary”
+
+Optional sector add-ons
+
+Fintech: safeguarding, CASS, AML/CTF policies, complaints log.
+
+Health/Medtech: clinical safety case, DCB0129/0160, regulatory pathway.
+
+Hardware: BOM, certifications (CE/UKCA), supply chain/QA.
