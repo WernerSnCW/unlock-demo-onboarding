@@ -23,8 +23,24 @@ import {
 } from "@shared/schema";
 import { marketDataService } from "./services/marketData.js";
 import OpenAI from 'openai';
+import fs from 'fs';
+import path from 'path';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Simplified persona data (key traits for interpretation)
+const PERSONA_TRAITS: Record<string, any> = {
+  "The Retirement Planner": { liquidityMonths: 9, concentrationTolerance: "med", notes: "Pension-focused diversified", propertyBias: 0.30, techBias: 0.30, altBias: 0.25 },
+  "The Property Lover": { liquidityMonths: 6, concentrationTolerance: "high", notes: "78% property tilt", propertyBias: 0.85, techBias: 0.10, altBias: 0.15 },
+  "The Crypto Enthusiast": { liquidityMonths: 2, concentrationTolerance: "high", notes: "51% crypto; tech heavy", propertyBias: 0.05, techBias: 0.70, altBias: 0.45 },
+  "The Old Fashioned Saver": { liquidityMonths: 10, concentrationTolerance: "low", notes: "Cash/Bonds/Dividend focus", propertyBias: 0.20, techBias: 0.10, altBias: 0.10 },
+  "The Legacy Builder": { liquidityMonths: 9, concentrationTolerance: "med", notes: "Alt investments & estate planning", propertyBias: 0.50, techBias: 0.30, altBias: 0.40 },
+  "The Tech Worker": { liquidityMonths: 4, concentrationTolerance: "med", notes: "Company stock concentration", propertyBias: 0.15, techBias: 0.80, altBias: 0.25 },
+  "The Dividend Seeker": { liquidityMonths: 6, concentrationTolerance: "med", notes: "UK dividend tilt; REITs", propertyBias: 0.35, techBias: 0.15, altBias: 0.15 },
+  "The Young Professional": { liquidityMonths: 3, concentrationTolerance: "med", notes: "Indexing + small spec", propertyBias: 0.15, techBias: 0.55, altBias: 0.10 },
+  "The Global Nomad": { liquidityMonths: 6, concentrationTolerance: "med", notes: "Currency mgmt; global funds", propertyBias: 0.25, techBias: 0.35, altBias: 0.20 },
+  "The Financial Advisor": { liquidityMonths: 6, concentrationTolerance: "med", notes: "Pro diversification incl alts", propertyBias: 0.35, techBias: 0.35, altBias: 0.35 }
+};
 
 // Helper functions for UK HPI data
 function getPropertyTypeChange(data: any, propertyType: string): number {
@@ -336,43 +352,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio Interpretation endpoint
   app.post('/api/portfolio-interpretation', async (req, res) => {
     try {
-      const { persona, scenario, baseAllocation, personaAdjustedAllocation, constraintsApplied } = req.body;
+      const { personaName, scenario, baseAllocation, personaAdjustedAllocation, rulesApplied } = req.body;
+
+      // Look up persona traits
+      const persona = PERSONA_TRAITS[personaName] || null;
 
       // Format allocations for the prompt
       const formatAllocation = (allocation: Record<string, number>): string => {
         return Object.entries(allocation)
           .filter(([_, value]) => value > 0.005)
           .sort(([,a], [,b]) => b - a)
-          .map(([asset, weight]) => `["${asset}", ${(weight * 100).toFixed(1)}]`)
-          .join(',\n  ');
+          .map(([asset, weight]) => `"${asset}": ${(weight * 100).toFixed(1)}%`)
+          .join(', ');
       };
 
-      const prompt = `You are a financial explainer for non-technical UK readers. 
-Given a persona, a chosen economic scenario, the scenario's Base allocation, and the Persona-Adjusted Example allocation, write a concise interpretation.
+      const prompt = `You are a financial explainer for non-technical UK readers. Produce short, clear, human-sounding explanations of an example portfolio that reflect a specific persona and economic scenario. Do not give advice or forecasts.
 
-Rules:
-- Use plain UK English.
-- No forecasts or advice; explain trade-offs.
-- Start with "Baseline chosen" and "Persona".
-- Then include three sections: 
-  1) "What changed vs Base" (bullets with % moves and brief "why"), 
-  2) "How it should behave" (pros/cons, 2–3 bullets each), 
-  3) "Sanity checks" (liquidity floor met? concentration caps? sums to 100%?).
-- End with "Optional tweaks" (max 2, clearly labelled).
-- Keep the whole output under 180 words.
+STYLE GUARDRAILS
+UK English. Friendly, plain language.
+Use everyday terms: shares, government bonds, high-quality corporate bonds, short-term government bonds, property funds, gold, commodities, crypto, cash.
+Max 150 words. No percentages with more than one decimal. No probabilities. End with: "Illustrative example, not advice."
 
-Inputs:
-Persona: ["${persona}"; key traits: higher liquidity, moderate risk, concentration cap ~30%]
-Scenario: ["${scenario}"]
-Base allocation (scenario): [
-  ${formatAllocation(baseAllocation)}
-]
-Persona-Adjusted Example: [
-  ${formatAllocation(personaAdjustedAllocation)}
-]
-Constraints applied (free text): [
-  ${constraintsApplied.map((c: string) => `"${c}"`).join(',\n  ')}
-]`;
+TASK
+Given persona, scenario, the scenario Base allocation, the Persona-Adjusted Example allocation, and a list of rules applied, write a concise explanation that:
+- states what you did and why it suits the persona
+- highlights the biggest changes from Base to Example (only the top 2–3 absolute % moves, rounded)
+- explains why those changes fit the persona's needs/limits
+- sets expectations in plain terms (good days / rocky days)
+- offers one optional nudge the user could consider
+
+OUTPUT FORMAT (exactly this structure; no headings besides these)
+One-sentence overview (persona + scenario, what changed in plain words).
+Why this suits you – 2–3 short bullets linking persona → portfolio choices.
+What to expect – 2 bullets (good days / rocky days).
+Optional nudge – one sentence.
+Final line: Illustrative example, not advice
+
+DATA:
+Persona: ${persona ? `"${personaName}" - ${persona.notes}. ${persona.liquidityMonths} months liquidity needed, ${persona.concentrationTolerance} concentration tolerance. Property bias: ${persona.propertyBias}, Tech bias: ${persona.techBias}, Alt bias: ${persona.altBias}` : personaName}
+Scenario: "${scenario}"
+Base allocation: [${formatAllocation(baseAllocation)}]
+Example allocation: [${formatAllocation(personaAdjustedAllocation)}]
+Rules applied: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') || 'none'}]`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4-turbo", // using same model as other successful calls in the codebase

@@ -40,11 +40,11 @@ export function PortfolioDisplay({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          persona: personaName,
+          personaName: personaName,
           scenario: scenarioName,
           baseAllocation,
           personaAdjustedAllocation,
-          constraintsApplied: explanations.personaRulesApplied
+          rulesApplied: explanations.personaRulesApplied
         }),
       });
 
