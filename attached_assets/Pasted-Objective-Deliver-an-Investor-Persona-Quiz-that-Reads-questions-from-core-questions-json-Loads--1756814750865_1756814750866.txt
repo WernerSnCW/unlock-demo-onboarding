@@ -1,0 +1,210 @@
+Objective
+
+Deliver an Investor Persona Quiz that:
+
+Reads questions from core_questions.json.
+
+Loads personas from persona_defs.py.
+
+Builds an 8-dimension user profile, normalises it, weights key dimensions, and computes cosine similarity to each persona.
+
+Applies a “safer when close” tie-break.
+
+Shows a clear result with rationale.
+
+Emits the chosen persona.code for your simulator.
+
+Inputs & Data Contracts
+
+Questions (core_questions.json)
+
+Array of 10 items.
+
+Each item:
+id (string), text (string), dimension (int 0–7), options (2–4).
+
+Each option: text (string), scores (array of 8 numbers). Only the target dimension is non-zero (values typically 1/3/5).
+
+Personas (persona_defs.py)
+
+A mapping of code → { name: string, scores: number[8] }.
+
+scores are on a 0–5 scale and use the fixed dimension order below.
+
+Fixed Dimension Order (must match everywhere)
+
+0 Risk Tolerance
+1 Property Exposure
+2 Alternatives Orientation
+3 Tax Optimisation
+4 Income Source Bias
+5 Horizon / Legacy
+6 Liquidity Preference
+7 Advisor Reliance
+
+Configuration (editable at runtime or via simple config)
+
+dimensionLabels: as listed above.
+
+dimensionWeights: [1.5, 1.0, 1.0, 0.8, 0.9, 1.0, 1.5, 0.6]
+(emphasise Risk & Liquidity; slightly de-emphasise Tax & Advisor).
+
+tieBreakGap: 5 (points on the 0–100 match scale).
+
+showRunnerUpWhenClose: true.
+
+explanationsEnabled: true.
+
+Scoring & Matching (behaviour)
+
+Collect answers
+Maintain userRaw = 8-slot vector initialised to zeros. Each chosen option adds its 8-slot scores to userRaw.
+
+Per-dimension maxima
+Compute MAX_PER_DIM[i] by summing, across all questions, the maximum attainable score for dimension i. If a dimension has no questions, set its max to 1 (prevents division by zero).
+
+Normalise to 0–5
+userNorm[i] = clamp( (userRaw[i] / MAX_PER_DIM[i]) × 5 , 0, 5 ).
+
+Apply weights
+Multiply user and persona vectors by dimensionWeights element-wise.
+
+Cosine similarity
+For each persona:
+similarity = (user ⋅ persona) / (||user|| · ||persona||)
+Convert to Match Score (0–100) = round(similarity × 100).
+
+Ranking and tie-break
+
+Sort by Match Score (desc).
+
+If top two are within tieBreakGap points, select the safer persona:
+
+Safer = lower Risk (dimension 0).
+
+If tied, higher Liquidity (dimension 6).
+
+Still display the runner-up as “Also a close fit”.
+
+Relative confidence (display only)
+Softmax over all Match Scores → show as “Relative confidence (%)”. Do not label as probability.
+
+UI/UX Behaviour
+
+Start
+
+Short explainer; “Begin”.
+
+Quiz
+
+“Question X of 10” + progress bar.
+
+Option cards; Back and Skip present.
+
+Back reverses the previous answer’s contribution to userRaw.
+
+Skip makes no change to userRaw.
+
+Keyboard accessible; readable contrast; concise copy in UK English.
+
+Results
+
+Primary: Top Match name + Match Score (0–100).
+
+Runner-up: show if within tieBreakGap, with note: “We default to the safer option when scores are close.”
+
+Profile: eight bars showing userNorm (0–5).
+
+Why this match?
+
+List 2–3 aligned dimensions (smallest absolute difference between userNorm[i] and persona scores[i]).
+
+If any differences ≥ 2 (on 0–5 scale), list up to 3 as “Notable differences”.
+
+Actions: “Use this persona” (emit persona.code), “Take quiz again” (reset state).
+
+Handoff to Simulator (outputs required)
+
+Provide downstream with:
+
+persona.code (e.g., “P016”) and persona.name.
+
+The eight userNorm values (optional, for UI hints or rule toggles).
+
+Mapping guidance (for downstream use)
+
+Risk → equity/volatility bounds; CVaR alpha.
+
+Liquidity → minimum cash/short-duration floor; runway months.
+
+Property/Alternatives → category caps.
+
+Tax → ISA/SIPP/EIS hints.
+
+Income bias → dividend/coupon tilt.
+
+Horizon → tolerance for illiquids; growth vs income tilt.
+
+Advisor reliance → show “review with adviser” banner (UX only).
+
+Error Handling
+
+If questions fail to load → show “Questions unavailable. Please retry.”
+
+If personas fail to load → show “Personas unavailable. Please retry.”
+
+Validate: each persona scores.length === 8; each question option scores.length === 8.
+
+Guard against divide-by-zero in normalisation (see MAX_PER_DIM rule).
+
+Performance & Resilience
+
+Matching must be instant for ~20 personas and 10 questions.
+
+Prefetch questions and personas before quiz starts.
+
+Gracefully handle partial completion (skips).
+
+Accessibility & Copy
+
+Keyboard navigation, focus states, ARIA labels for progress.
+
+UK English throughout (e.g., “optimise”, “adviser” acceptable as “advisor” if consistent).
+
+Privacy & Compliance
+
+Don’t collect PII in quiz responses.
+
+If storing locally (e.g., selected persona), provide a “Clear data” action.
+
+Present tool as decision-support, not financial advice.
+
+Test Cases (manual)
+
+Dimension maximum: answer to maximise one dimension → that bar ≈ 5/5.
+
+Risk vs Liquidity: high Risk + high Liquidity → if top two are close, the safer persona is chosen.
+
+Tie-break: craft answers to put #1 and #2 within 5 points → safer wins; runner-up displayed.
+
+Skip handling: skip multiple questions → no errors; bars reflect answered content; normalisation keeps scales fair.
+
+Weights sanity: temporarily increase Liquidity weight → liquidity-favouring personas rise in ranking.
+
+Resilience: simulate failed persona load → friendly error message shown.
+
+Definition of Done
+
+Questions and personas load successfully; dimension order is consistent.
+
+Quiz supports Back/Skip; progress bar updates correctly.
+
+Results show Top Match, optional Runner-up, profile bars, rationale bullets.
+
+Match Score = cosine × 100; Relative confidence = softmax (%), clearly labelled.
+
+Safer tie-break applied when scores are close.
+
+persona.code is emitted for simulator consumption.
+
+Copy, accessibility, and error handling meet the requirements above.

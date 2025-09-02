@@ -18,6 +18,8 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, Zap, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
+import { DIMENSION_LABELS } from '@/data/personas';
 
 const preferencesSchema = z.object({
   activeInvestmentInterests: z.array(z.string()).min(1, 'Please select at least one investment interest'),
@@ -1524,802 +1526,312 @@ export default function InvestorPreferences() {
           </TabsContent>
 
           <TabsContent value="profile">
-            <div className="space-y-8">
-              {!questionnaireComplete ? (
-                /* Sequential Questionnaire */
-                <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
-                  <CardHeader className="text-center">
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge variant="outline" className="text-sm">
-                        Question {currentQuestionIndex + 1} of {questionnaireQuestions.length}
-                      </Badge>
-                      <div className="flex gap-1">
-                        {questionnaireQuestions.map((_, index) => (
-                          <div
-                            key={index}
-                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                              index <= currentQuestionIndex 
-                                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm' 
-                                : 'bg-[var(--border)]'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Randomize Button */}
-                    <div className="flex justify-center mb-6">
-                      <Button
-                        onClick={randomizeAnswers}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-2 text-sm rounded-2xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white border-[var(--primary)] shadow-md hover:shadow-lg transition-all duration-300 px-4 py-2"
-                        data-testid="button-randomize-answers"
-                      >
-                        <Sparkles className="h-4 w-4" />
-                        Randomize All Answers
-                      </Button>
-                    </div>
-                    <CardTitle className="text-2xl text-center leading-relaxed max-w-4xl mx-auto">
-                      {questionnaireQuestions[currentQuestionIndex]?.text}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-8">
-                    <div className="max-w-3xl mx-auto">
-                      {questionnaireQuestions[currentQuestionIndex]?.type === 'radio' ? (
-                        /* Radio Group for Single Select */
-                        <RadioGroup
-                          value={typeof currentQuestionAnswer === 'string' ? currentQuestionAnswer : ''}
-                          onValueChange={handleRadioAnswer}
-                          className="space-y-4"
-                        >
-                          {questionnaireQuestions[currentQuestionIndex]?.options.map((option) => (
-                            <div
-                              key={option.id}
-                              className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
-                              onClick={() => handleRadioAnswer(option.id)}
-                              data-testid={`radio-option-${option.id}`}
-                            >
-                              <RadioGroupItem value={option.id} id={option.id} />
-                              <label htmlFor={option.id} className="flex-1 text-base cursor-pointer">
-                                {option.label}
-                              </label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      ) : (
-                        /* Checkbox Group for Multi Select */
-                        <div className="space-y-4">
-                          <p className="text-sm text-[var(--muted-foreground)] mb-4">Select all that apply:</p>
-                          {questionnaireQuestions[currentQuestionIndex]?.options.map((option) => (
-                            <div
-                              key={option.id}
-                              className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300"
-                            >
-                              <Checkbox
-                                id={option.id}
-                                checked={Array.isArray(currentQuestionAnswer) && currentQuestionAnswer.includes(option.id)}
-                                onCheckedChange={(checked) => handleMultiselectAnswer(option.id, checked as boolean)}
-                                data-testid={`checkbox-option-${option.id}`}
-                              />
-                              <label htmlFor={option.id} className="flex-1 text-base cursor-pointer">
-                                {option.label}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Navigation Buttons */}
-                      <div className="flex justify-between items-center mt-8 max-w-md mx-auto">
-                        {currentQuestionIndex > 0 ? (
-                          <Button
-                            onClick={goBackToPreviousQuestion}
-                            size="lg"
-                            variant="outline"
-                            className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10 transition-all duration-300"
-                            data-testid="button-back"
-                          >
-                            <ArrowLeft className="mr-2 h-5 w-5" />
-                            Back
-                          </Button>
-                        ) : (
-                          <div className="w-24" /> /* Spacer */
-                        )}
-                        
-                        <Button
-                          onClick={submitCurrentAnswer}
-                          size="lg"
-                          className="px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                          data-testid="button-continue"
-                        >
-                          <ArrowRight className="mr-2 h-5 w-5" />
-                          {currentQuestionIndex === questionnaireQuestions.length - 1 ? 'Complete' : 'Continue'}
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {/* Progress Indicator */}
-                    <div className="mt-8">
-                      <div className="w-full bg-[var(--border)] rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
-                          style={{ 
-                            width: `${((currentQuestionIndex + 1) / questionnaireQuestions.length) * 100}%` 
-                          }}
-                        />
-                      </div>
-                      <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
-                        {Math.round(((currentQuestionIndex + 1) / questionnaireQuestions.length) * 100)}% Complete
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                /* Results Display */
-                <div className="space-y-6">
-                  {/* Persona Result */}
-                  {questionnairePersonaResult && (
-                    <Card className="border-2 border-[var(--primary)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-2xl text-[var(--primary)]">
-                          <User className="h-6 w-6" />
-                          Your Investment Persona Analysis
-                        </CardTitle>
-                        <CardDescription>
-                          Based on your questionnaire responses, here are your matching investor profiles
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-6">
-                          {/* Primary Match */}
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-xl font-bold text-[var(--primary)]">
-                                🏆 Primary Match: {questionnairePersonaResult.persona.name}
-                              </h3>
-                              <Badge variant="default" className="px-3 py-1 bg-[var(--primary)] text-white">
-                                {questionnairePersonaResult.score}% alignment
-                              </Badge>
-                            </div>
-                            <p className="text-[var(--muted-foreground)] leading-relaxed">
-                              {questionnairePersonaResult.persona.description}
-                            </p>
-                          </div>
-
-                          {/* Additional Relevant Matches */}
-                          {questionnairePersonaResult.allMatches && questionnairePersonaResult.allMatches.length > 1 && (
-                            <div className="space-y-4">
-                              <h4 className="text-lg font-semibold text-[var(--secondary)]">
-                                📊 Additional Relevant Profiles
-                              </h4>
-                              <div className="grid gap-3">
-                                {questionnairePersonaResult.allMatches.slice(1, 4).map((match, index) => (
-                                  <div 
-                                    key={match.persona.id}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-[var(--muted)]/20 border border-[var(--border)]"
-                                  >
-                                    <div className="flex-1">
-                                      <h5 className="font-medium text-[var(--foreground)]">
-                                        {match.persona.name}
-                                      </h5>
-                                      <p className="text-sm text-[var(--muted-foreground)] mt-1 line-clamp-2">
-                                        {match.persona.description}
-                                      </p>
-                                    </div>
-                                    <Badge variant="outline" className="ml-3 px-2 py-1">
-                                      {match.score}%
-                                    </Badge>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20">
-                            <p className="text-sm text-[var(--muted-foreground)]">
-                              🎯 These classifications help us tailor investment recommendations and educational content specifically for your profile. The scoring is based on a weighted analysis of your responses across 10 discovery questions.
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                </div>
-              )}
-
-              {/* Investor Persona Overview Cards */}
-              <Card className="border-2 border-[var(--border)] bg-[var(--card)] backdrop-blur-sm shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[var(--primary)]">
-                    <Users className="h-5 w-5" />
-                    12 Investor Personas
-                  </CardTitle>
-                  <CardDescription>
-                    Discover which investor profile matches your preferences through our questionnaire
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {investorPersonas.map((persona) => {
-                      // Find if this persona has a score from questionnaire results
-                      const personaMatch = questionnairePersonaResult?.allMatches?.find(
-                        match => match.persona.id === persona.id
-                      );
-                      const isPrimaryMatch = questionnairePersonaResult?.persona.id === persona.id;
-                      const hasScore = personaMatch && personaMatch.score > 0;
-                      const isSelected = selectedPersonaId === persona.id;
-                      const isEffectivelySelected = isSelected || (selectedPersonaId === null && isPrimaryMatch);
-
-                      // Determine styling based on match results and selection
-                      let cardClasses = "cursor-pointer rounded-xl border p-4 transition-all hover:shadow-lg hover:scale-[1.02] duration-300";
-                      let borderClasses = "";
-                      let backgroundClasses = "";
-                      
-                      if (isSelected && isPrimaryMatch) {
-                        // Both selected and primary match: purple styling to show both states
-                        borderClasses = "border-2 border-purple-400 dark:border-purple-500";
-                        backgroundClasses = "bg-gradient-to-br from-purple-100 to-violet-50 dark:from-purple-900/40 dark:to-violet-900/30 shadow-lg ring-2 ring-purple-400/40 dark:ring-purple-500/40";
-                      } else if (isSelected) {
-                        // User selected only: blue styling
-                        borderClasses = "border-2 border-[var(--primary)]";
-                        backgroundClasses = "bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/40 shadow-lg ring-2 ring-[var(--primary)]/40";
-                      } else if (isPrimaryMatch) {
-                        // Primary questionnaire match only: green styling
-                        borderClasses = "border-2 border-green-400 dark:border-green-500";
-                        backgroundClasses = "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 shadow-md ring-2 ring-green-400/30 dark:ring-green-500/30";
-                      } else {
-                        // No special styling: standard appearance for secondary matches and no matches
-                        borderClasses = "border border-[var(--border)]";
-                        backgroundClasses = "bg-[var(--card)]";
-                      }
-
-                      return (
-                        <div
-                          key={persona.id}
-                          className={`${cardClasses} ${borderClasses} ${backgroundClasses} hover:border-[var(--primary)]`}
-                          onClick={() => setSelectedPersonaId(persona.id)}
-                          data-testid={`persona-card-${persona.id}`}
-                        >
-                          <div className="space-y-3">
-                            {/* Header with optional score badge */}
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className={`w-3 h-3 rounded-full ${isPrimaryMatch ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' : hasScore ? 'bg-[var(--secondary)]' : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'}`}></div>
-                                <h3 className="font-semibold text-sm text-[var(--foreground)]">{persona.name}</h3>
-                              </div>
-                              {isSelected && isPrimaryMatch ? (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-xs">🏆</span>
-                                  <Badge className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-600 font-semibold">
-                                    Selected & {personaMatch?.score}% Match
-                                  </Badge>
-                                </div>
-                              ) : isSelected ? (
-                                <Badge className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 font-semibold">
-                                  Selected
-                                </Badge>
-                              ) : isPrimaryMatch ? (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-xs">🏆</span>
-                                  <Badge className="text-xs px-2 py-0.5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-600 font-semibold">
-                                    {personaMatch?.score}% Match
-                                  </Badge>
-                                </div>
-                              ) : hasScore ? (
-                                <Badge variant="outline" className="text-xs px-2 py-0.5">
-                                  {personaMatch?.score}%
-                                </Badge>
-                              ) : null}
-                            </div>
-                            
-                            <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
-                              {persona.description}
-                            </p>
-                            
-                            <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
-                              <Target className="h-3 w-3" />
-                              <span className="capitalize">
-                                {persona.criteria.investorObjective.join(', ')} • {persona.criteria.riskProfile.join(', ')}
-                              </span>
-                            </div>
-
-                            {/* View Details and Match indicator */}
-                            <div className="pt-2 border-t border-[var(--border)]/30 space-y-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedPersonaForDetails(persona);
-                                }}
-                                className="text-xs text-[var(--primary)] hover:text-[var(--primary)]/80 font-medium underline"
-                              >
-                                View Details →
-                              </button>
-                              
-                              {(hasScore || isSelected) && (
-                                <p className={`text-xs font-medium ${
-                                  isSelected && isPrimaryMatch ? 'text-purple-700 dark:text-purple-300' :
-                                  isSelected ? 'text-blue-700 dark:text-blue-300' : 
-                                  isPrimaryMatch ? 'text-green-700 dark:text-green-300' : 
-                                  'text-[var(--muted-foreground)]'
-                                }`}>
-                                  {isSelected && isPrimaryMatch ? '🎯✨ Selected Primary Match' : 
-                                   isSelected ? '🎯 Selected Profile' : 
-                                   isPrimaryMatch ? '✨ Your Primary Match' : 
-                                   '📊 Relevant Profile'}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Economic Scenarios Section */}
-              <Card className="border-2 border-[var(--border)] bg-[var(--card)] backdrop-blur-sm shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl text-[var(--primary)]">
-                    <Zap className="h-5 w-5" />
-                    Economic Scenarios
-                  </CardTitle>
-                  <CardDescription>
-                    Select an economic scenario to stress test your portfolio against potential market conditions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {economicScenarios.map((scenario) => {
-                      const isSelected = selectedScenarioIds.includes(scenario.id);
-                      
-                      // Determine which persona is effectively selected (manual override or questionnaire result)
-                      const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
-                      const applicableScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
-                      const isApplicable = applicableScenarios.includes(scenario.id);
-                      
-                      // Determine styling based on selection and applicability
-                      let cardClasses = "cursor-pointer rounded-xl border p-4 transition-all hover:shadow-lg hover:scale-[1.02] duration-300";
-                      let borderClasses = "";
-                      let backgroundClasses = "";
-                      
-                      if (isSelected) {
-                        // Selected scenario: strong blue styling
-                        borderClasses = "border-2 border-[var(--primary)]";
-                        backgroundClasses = "bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/40 shadow-lg ring-2 ring-[var(--primary)]/40";
-                      } else if (isApplicable && effectivePersonaId) {
-                        // Applicable scenario: prominent warning styling with orange/amber background
-                        borderClasses = "border-2 border-orange-400 dark:border-orange-500";
-                        backgroundClasses = "bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 shadow-md ring-2 ring-orange-400/30 dark:ring-orange-500/30";
-                      } else {
-                        // Standard styling
-                        borderClasses = "border border-[var(--border)]";
-                        backgroundClasses = "bg-[var(--card)]";
-                      }
-
-                      const IconComponent = scenario.icon;
-
-                      return (
-                        <div
-                          key={scenario.id}
-                          className={`${cardClasses} ${borderClasses} ${backgroundClasses} hover:border-[var(--primary)]`}
-                          onClick={() => {
-                            setSelectedScenarioIds(prev => 
-                              prev.includes(scenario.id) 
-                                ? prev.filter(id => id !== scenario.id)  // Remove if already selected
-                                : [...prev, scenario.id]                 // Add if not selected
-                            )
-                          }}
-                          data-testid={`scenario-card-${scenario.id}`}
-                        >
-                          <div className="space-y-3">
-                            {/* Header with icon */}
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                                  <IconComponent className="h-4 w-4 text-[var(--primary)]" />
-                                </div>
-                                <h5 className="font-medium text-[var(--foreground)] text-sm">
-                                  {scenario.name}
-                                </h5>
-                              </div>
-                              {isSelected ? (
-                                <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-600 font-semibold">
-                                  Selected
-                                </Badge>
-                              ) : isApplicable && effectivePersonaId ? (
-                                <Badge className="bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-600 font-semibold">
-                                  High Risk
-                                </Badge>
-                              ) : null}
-                            </div>
-                            
-                            <p className="text-xs text-[var(--muted-foreground)] leading-relaxed line-clamp-3">
-                              {scenario.description}
-                            </p>
-                            
-                            <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
-                              <Clock className="h-3 w-3" />
-                              <span>{scenario.horizon}</span>
-                            </div>
-
-                            {/* Selection indicator */}
-                            {(isSelected || (isApplicable && effectivePersonaId)) && (
-                              <div className="pt-2 border-t border-[var(--border)]/30">
-                                <p className={`text-xs font-medium ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-orange-700 dark:text-orange-300'}`}>
-                                  {isSelected ? '🎯 Selected Scenario' : '⚠️ High Risk for Your Profile'}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Configuration Summary Section */}
-              {questionnaireComplete && (
-                <div className="relative">
-                  {/* Gradient background effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)]/5 to-[var(--primary)]/10 rounded-2xl blur-xl"></div>
-                  
-                  <Card className="relative bg-gradient-to-br from-white via-blue-50/50 to-green-50/30 dark:from-slate-900/90 dark:via-blue-950/50 dark:to-emerald-950/30 border-2 border-gradient-to-r border-[var(--primary)]/30 shadow-2xl backdrop-blur-sm">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--secondary)]/5 rounded-lg"></div>
-                    
-                    <CardContent className="relative p-10">
-                      <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-4 mb-4">
-                          <div className="relative">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)] via-blue-500 to-[var(--secondary)] flex items-center justify-center shadow-lg">
-                              <Settings className="h-7 w-7 text-white" />
-                            </div>
-                            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-2xl blur opacity-25"></div>
-                          </div>
-                          <div className="text-left">
-                            <h3 className="text-2xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
-                              Demo Configuration Summary
-                            </h3>
-                            <p className="text-sm text-[var(--muted-foreground)] mt-1">
-                              Your personalized simulation parameters
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-24 h-1 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full mx-auto"></div>
-                      </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Investor Profile Card */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3 mb-5">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/10 flex items-center justify-center">
-                            <User className="h-4 w-4 text-[var(--primary)]" />
-                          </div>
-                          <h4 className="text-lg font-bold text-[var(--foreground)]">Investor Profile</h4>
-                        </div>
-                        {(() => {
-                          const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
-                          const effectivePersona = investorPersonas.find(p => p.id === effectivePersonaId);
-                          const isUserSelected = selectedPersonaId !== null;
-                          const isPrimary = effectivePersonaId === questionnairePersonaResult?.persona.id;
-                          
-                          return effectivePersona ? (
-                            <div className="relative group">
-                              <div className="absolute -inset-1 bg-gradient-to-r from-[var(--primary)]/20 to-[var(--secondary)]/20 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
-                              <div className="relative bg-gradient-to-br from-white via-blue-50/80 to-green-50/50 dark:from-slate-800 dark:via-blue-950/30 dark:to-emerald-950/20 rounded-2xl p-6 border-2 border-[var(--primary)]/20 shadow-xl backdrop-blur-sm">
-                                <div className="flex items-start justify-between mb-4">
-                                  <div className="flex-1">
-                                    <h5 className="text-lg font-bold text-[var(--foreground)] mb-2">
-                                      {effectivePersona.name}
-                                    </h5>
-                                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                                      {effectivePersona.description}
-                                    </p>
-                                  </div>
-                                  <div className="ml-4 flex-shrink-0">
-                                    {isUserSelected && !isPrimary ? (
-                                      <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-lg text-sm px-3 py-1 font-semibold">
-                                        🎯 User Selected
-                                      </Badge>
-                                    ) : isPrimary ? (
-                                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-lg text-sm px-3 py-1 font-semibold">
-                                        ✨ Primary Match
-                                      </Badge>
-                                    ) : null}
-                                  </div>
-                                </div>
-                                <div className="w-full h-1 bg-gradient-to-r from-[var(--primary)]/30 to-[var(--secondary)]/30 rounded-full"></div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-6 border-2 border-dashed border-gray-300 dark:border-gray-600">
-                              <p className="text-center text-gray-500 dark:text-gray-400">No investor profile selected</p>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                      
-                      {/* Economic Scenarios Card */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3 mb-5">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--secondary)]/20 to-[var(--secondary)]/10 flex items-center justify-center">
-                            <TrendingUp className="h-4 w-4 text-[var(--secondary)]" />
-                          </div>
-                          <h4 className="text-lg font-bold text-[var(--foreground)]">Stress Test Scenarios</h4>
-                        </div>
-                        {(() => {
-                          const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
-                          const highRiskScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
-                          const selectedScenarios = selectedScenarioIds;
-                          
-                          // Combine and deduplicate scenarios
-                          const allRelevantScenarioIds = Array.from(new Set([...highRiskScenarios, ...selectedScenarios]));
-                          const relevantScenarios = allRelevantScenarioIds
-                            .map(id => economicScenarios.find(s => s.id === id))
-                            .filter((scenario): scenario is typeof scenario & {} => scenario !== undefined);
-                          
-                          return relevantScenarios.length > 0 ? (
-                            <div className="relative group">
-                              <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
-                              <div className="relative bg-gradient-to-br from-white via-orange-50/60 to-red-50/40 dark:from-slate-800 dark:via-orange-950/20 dark:to-red-950/10 rounded-2xl p-6 border-2 border-orange-200/50 dark:border-orange-800/30 shadow-xl backdrop-blur-sm space-y-4">
-                                {relevantScenarios.map(scenario => {
-                                  const isSelected = selectedScenarios.includes(scenario.id);
-                                  const isHighRisk = highRiskScenarios.includes(scenario.id);
-                                  
-                                  return (
-                                    <div key={scenario.id} className="flex items-center justify-between p-4 bg-white/70 dark:bg-slate-800/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm backdrop-blur-sm">
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400"></div>
-                                          <h6 className="font-semibold text-[var(--foreground)] text-sm">
-                                            {scenario.name}
-                                          </h6>
-                                        </div>
-                                        <p className="text-xs text-[var(--muted-foreground)] line-clamp-1 ml-4">
-                                          {scenario.description}
-                                        </p>
-                                      </div>
-                                      <div className="flex gap-2 ml-4">
-                                        {isSelected && (
-                                          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-md text-xs px-2 py-1 font-semibold">
-                                            Selected
-                                          </Badge>
-                                        )}
-                                        {isHighRisk && (
-                                          <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 shadow-md text-xs px-2 py-1 font-semibold">
-                                            High Risk
-                                          </Badge>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600">
-                              <div className="text-center">
-                                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
-                                  <AlertTriangle className="h-6 w-6 text-gray-400 dark:text-gray-500" />
-                                </div>
-                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
-                                  No Scenarios Identified
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  No stress test scenarios identified for your profile
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                </div>
-              )}
-
-              {/* Action Buttons - Moved below persona cards */}
-              {questionnaireComplete && (
-                <div className="flex justify-center gap-4 mt-6">
-                  <Button
-                    onClick={resetQuestionnaire}
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
-                    data-testid="button-retake-questionnaire"
-                  >
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Retake Questionnaire
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      // Determine the effective persona and scenarios to pass
-                      const effectivePersonaId = selectedPersonaId || questionnairePersonaResult?.persona.id;
-                      const effectivePersona = investorPersonas.find(p => p.id === effectivePersonaId);
-                      
-                      // Get both selected scenarios and persona-applicable scenarios
-                      const highRiskScenarios = effectivePersonaId ? personaScenarioMapping[effectivePersonaId] || [] : [];
-                      const selectedScenarios = selectedScenarioIds;
-                      
-                      // Combine and deduplicate scenarios (same logic as in summary section)
-                      const allRelevantScenarioIds = Array.from(new Set([...highRiskScenarios, ...selectedScenarios]));
-                      
-                      // Create URL parameters
-                      const params = new URLSearchParams();
-                      if (effectivePersona) {
-                        params.set('persona', effectivePersona.id);
-                        params.set('personaName', effectivePersona.name);
-                      }
-                      if (allRelevantScenarioIds.length > 0) {
-                        params.set('scenarios', allRelevantScenarioIds.join(','));
-                        // Also pass which ones were manually selected vs persona-applicable
-                        params.set('selectedScenarios', selectedScenarios.join(','));
-                        params.set('personaScenarios', highRiskScenarios.join(','));
-                      }
-                      setLocation(`/demo-simulation?${params.toString()}`);
-                    }}
-                    size="lg"
-                    className="px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
-                    data-testid="button-continue-demo"
-                  >
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    Use Configuration in Simulation
-                  </Button>
-                </div>
-              )}
-            </div>
+            <PersonaQuizContent />
           </TabsContent>
         </Tabs>
-        </div>
-      </main>
-      <Footer />
-      
-      {/* Persona Details Modal */}
-      <Dialog open={selectedPersonaForDetails !== null} onOpenChange={() => setSelectedPersonaForDetails(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          {selectedPersonaForDetails && (
-            <>
-              <DialogHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <DialogTitle className="text-xl font-bold text-[var(--foreground)] flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                        <User className="h-5 w-5 text-white" />
-                      </div>
-                      {selectedPersonaForDetails.name}
-                    </DialogTitle>
-                    <DialogDescription className="text-[var(--muted-foreground)] leading-relaxed mt-2">
-                      {selectedPersonaForDetails.description}
-                    </DialogDescription>
-                  </div>
-                  <button
-                    onClick={() => setSelectedPersonaForDetails(null)}
-                    className="ml-4 p-2 rounded-lg hover:bg-[var(--muted)] transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                    aria-label="Close modal"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              </DialogHeader>
-              
-              <div className="space-y-6 mt-6">
-                {/* Investment Objectives */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                    <Target className="h-4 w-4 text-[var(--primary)]" />
-                    Investment Objectives
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedPersonaForDetails.criteria.investorObjective.map((obj) => (
-                      <Badge key={obj} variant="secondary" className="capitalize">
-                        {obj.replace('_', ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+      </div>
+    </div>
+  );
+}
 
-                {/* Risk Profile */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-[var(--primary)]" />
-                    Risk Profile
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedPersonaForDetails.criteria.riskProfile.map((risk) => (
-                      <Badge key={risk} variant="secondary" className="capitalize">
-                        {risk}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+function PersonaQuizContent() {
+  const {
+    currentQuestion,
+    currentQuestionIndex,
+    progress,
+    isComplete,
+    result,
+    canGoBack,
+    isLastQuestion,
+    answerQuestion,
+    goBack,
+    skipQuestion,
+    resetQuiz,
+    totalQuestions,
+    dimensionLabels
+  } = usePersonaQuiz();
 
-                {/* Investment Preferences */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
-                    Investment Interests
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {selectedPersonaForDetails.criteria.activeInvestmentInterests.map((interest) => (
-                      <Badge key={interest} variant="outline" className="text-xs">
-                        {interest}
-                      </Badge>
-                    ))}
-                  </div>
+  if (isComplete && result) {
+    return (
+      <div className="space-y-8">
+        {/* Results Display */}
+        <Card className="border-2 border-[var(--primary)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl text-[var(--primary)]">
+              <User className="h-6 w-6" />
+              Your Investment Persona Analysis
+            </CardTitle>
+            <CardDescription>
+              Based on your questionnaire responses, here's your matching investor profile
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Primary Match */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-[var(--primary)]">
+                    🏆 Primary Match: {result.topMatch.persona.name}
+                  </h3>
+                  <Badge variant="default" className="px-3 py-1 bg-[var(--primary)] text-white">
+                    {result.topMatch.matchScore}% match ({result.topMatch.confidence}% confidence)
+                  </Badge>
                 </div>
-
-                {/* Learning Areas */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-[var(--primary)]" />
-                    Areas of Learning Interest
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {selectedPersonaForDetails.criteria.learningCuriosityAreas.map((area) => (
-                      <Badge key={area} variant="outline" className="text-xs">
-                        {area}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Geographic Preferences */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-[var(--primary)]" />
-                    Geographic Preferences
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedPersonaForDetails.criteria.geographicPreferences.map((geo) => (
-                      <Badge key={geo} variant="secondary">
-                        {geo}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Additional Characteristics */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-[var(--primary)]" />
-                    Investment Characteristics
-                  </h4>
-                  <div className="bg-[var(--muted)]/30 rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[var(--muted-foreground)]">Risk Capacity Range:</span>
-                      <span className="font-medium text-[var(--foreground)]">
-                        {selectedPersonaForDetails.criteria.riskCapacity.join('-')}/10
-                      </span>
+                <p className="text-[var(--muted-foreground)] leading-relaxed">
+                  {result.topMatch.persona.notes}
+                </p>
+                <div className="bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-lg p-4 border border-[var(--primary)]/20">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-[var(--foreground)]">Wealth Tier:</span>
+                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.wealthTier}</p>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[var(--muted-foreground)]">Management Style:</span>
-                      <span className="font-medium text-[var(--foreground)] capitalize">
-                        {selectedPersonaForDetails.criteria.managementStyle.join(', ').replace('_', ' ')}
-                      </span>
+                    <div>
+                      <span className="font-medium text-[var(--foreground)]">Risk Profile:</span>
+                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.riskProfile}</p>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[var(--muted-foreground)]">Investment Horizon:</span>
-                      <span className="font-medium text-[var(--foreground)] capitalize">
-                        {selectedPersonaForDetails.criteria.investmentHorizon.join(', ').replace('_', ' ')}
-                      </span>
+                    <div>
+                      <span className="font-medium text-[var(--foreground)]">Approach:</span>
+                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.approach}</p>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-[var(--muted-foreground)]">Liquidity Preference:</span>
-                      <span className="font-medium text-[var(--foreground)] capitalize">
-                        {selectedPersonaForDetails.criteria.liquidityPreference.join(', ').replace('_', ' ')}
-                      </span>
+                    <div>
+                      <span className="font-medium text-[var(--foreground)]">Liquidity:</span>
+                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.liquidityMonths} months</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+
+              {/* Runner-up */}
+              {result.runnerUp && (
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-[var(--secondary)]">
+                    📊 Also a Close Match: {result.runnerUp.persona.name}
+                  </h4>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--muted)]/20 border border-[var(--border)]">
+                    <div className="flex-1">
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        {result.runnerUp.persona.notes}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="ml-3 px-2 py-1">
+                      {result.runnerUp.matchScore}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-[var(--muted-foreground)] italic">
+                    💡 We default to the safer option when scores are close.
+                  </p>
+                </div>
+              )}
+
+              {/* User Profile */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-[var(--foreground)]">
+                  📈 Your Investment Profile
+                </h4>
+                <div className="grid gap-3">
+                  {result.userProfile.map((score, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-[var(--foreground)] min-w-[140px]">
+                        {dimensionLabels[index]}:
+                      </span>
+                      <div className="flex-1 bg-[var(--border)] rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${(score / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-sm text-[var(--muted-foreground)] min-w-[30px]">
+                        {score.toFixed(1)}/5
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Why This Match */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-[var(--foreground)]">
+                  🎯 Why This Match?
+                </h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <h5 className="font-medium text-[var(--success)] mb-2 text-sm flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      Aligned Dimensions
+                    </h5>
+                    <ul className="space-y-1">
+                      {result.alignedDimensions.map((dimension, idx) => (
+                        <li key={idx} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                          <span className="text-[var(--success)]">✓</span>
+                          {dimension}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  {result.notableDifferences.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-[var(--warning)] mb-2 text-sm flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Notable Differences
+                      </h5>
+                      <ul className="space-y-1">
+                        {result.notableDifferences.map((dimension, idx) => (
+                          <li key={idx} className="text-sm text-[var(--foreground)] flex items-start gap-2">
+                            <span className="text-[var(--warning)]">⚠</span>
+                            {dimension}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-4 pt-4 border-t border-[var(--border)]">
+                <Button 
+                  onClick={resetQuiz}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  data-testid="button-retake-quiz"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Take Quiz Again
+                </Button>
+                <Button 
+                  className="flex items-center gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
+                  data-testid="button-use-persona"
+                >
+                  <Target className="h-4 w-4" />
+                  Use This Persona
+                </Button>
+              </div>
+
+              <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  🎯 This classification helps us tailor investment recommendations and educational content specifically for your profile. The scoring is based on an 8-dimensional analysis using cosine similarity with weighted dimensions.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Quiz Intro */}
+      {currentQuestionIndex === 0 && (
+        <Card className="border-2 border-[var(--border)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-[var(--primary)]">
+              Discover Your Investment Persona
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Answer 10 questions to find your ideal investor profile from our 19 research-backed personas
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20 mb-6">
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Our 8-dimensional analysis covers Risk Tolerance, Property Exposure, Alternatives Orientation, 
+                Tax Optimisation, Income Source Bias, Investment Horizon, Liquidity Preference, and Advisor Reliance.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quiz Question */}
+      <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+        <CardHeader className="text-center">
+          <div className="flex items-center justify-between mb-4">
+            <Badge variant="outline" className="text-sm">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </Badge>
+            <div className="flex gap-1">
+              {Array.from({ length: totalQuestions }, (_, index) => (
+                <div
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index <= currentQuestionIndex 
+                      ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm' 
+                      : 'bg-[var(--border)]'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <CardTitle className="text-2xl text-center leading-relaxed max-w-4xl mx-auto">
+            {currentQuestion?.text}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-8">
+          <div className="max-w-3xl mx-auto">
+            {/* Question Options */}
+            <div className="space-y-4">
+              {currentQuestion?.options.map((option, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
+                  onClick={() => answerQuestion(index)}
+                  data-testid={`option-${index}`}
+                >
+                  <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
+                  <label className="flex-1 text-base cursor-pointer">
+                    {option.text}
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-8 max-w-md mx-auto">
+              {canGoBack ? (
+                <Button
+                  onClick={goBack}
+                  size="lg"
+                  variant="outline"
+                  className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10 transition-all duration-300"
+                  data-testid="button-back"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Back
+                </Button>
+              ) : (
+                <div className="w-24" />
+              )}
+              
+              <Button
+                onClick={skipQuestion}
+                size="lg"
+                variant="outline"
+                className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--secondary)] hover:bg-[var(--accent)]/10 transition-all duration-300"
+                data-testid="button-skip"
+              >
+                Skip
+              </Button>
+            </div>
+          </div>
+          
+          {/* Progress Indicator */}
+          <div className="mt-8">
+            <div className="w-full bg-[var(--border)] rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+              {Math.round(progress)}% Complete
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

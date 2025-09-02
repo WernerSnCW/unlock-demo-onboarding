@@ -1,0 +1,117 @@
+// Investment Persona Quiz Questions
+// Each question targets specific dimensions with weighted scoring
+
+export interface QuestionOption {
+  text: string;
+  scores: number[]; // 8-dimensional scores
+}
+
+export interface Question {
+  id: string;
+  text: string;
+  dimension: number; // Primary dimension (0-7)
+  options: QuestionOption[];
+}
+
+export const CORE_QUESTIONS: Question[] = [
+  {
+    id: "risk_tolerance",
+    text: "When markets fall 15% in a year, do you usually see it as:",
+    dimension: 0,
+    options: [
+      { text: "A buying opportunity", scores: [5,0,0,0,0,0,0,0] },
+      { text: "A reason to hold steady", scores: [3,0,0,0,0,0,0,0] },
+      { text: "A signal to reduce exposure", scores: [1,0,0,0,0,0,0,0] }
+    ]
+  },
+  {
+    id: "income_source",
+    text: "Which of these makes up most of your financial security:",
+    dimension: 4,
+    options: [
+      { text: "Salary", scores: [0,0,0,0,3,0,0,0] },
+      { text: "Property rental", scores: [0,0,0,0,4,0,0,0] },
+      { text: "Pensions", scores: [0,0,0,0,4,0,0,0] },
+      { text: "Dividends", scores: [0,0,0,0,5,0,0,0] }
+    ]
+  },
+  {
+    id: "asset_preference",
+    text: "If you had an extra £250,000 tomorrow, would you put it into:",
+    dimension: 1,
+    options: [
+      { text: "Property", scores: [0,5,0,0,0,0,0,0] },
+      { text: "Markets (listed funds/shares)", scores: [0,2,0,0,0,0,0,0] },
+      { text: "Alternatives (not property)", scores: [0,1,0,0,0,0,0,0] }
+    ]
+  },
+  {
+    id: "time_horizon",
+    text: "Do you tend to think in terms of:",
+    dimension: 5,
+    options: [
+      { text: "The next 2–3 years", scores: [0,0,0,0,0,2,0,0] },
+      { text: "The next 5–10 years", scores: [0,0,0,0,0,3,0,0] },
+      { text: "What you will pass on to others", scores: [0,0,0,0,0,5,0,0] }
+    ]
+  },
+  {
+    id: "liquidity",
+    text: "When you set money aside, how much do you want available in cash within a year?",
+    dimension: 6,
+    options: [
+      { text: "Very little — most can be tied up", scores: [0,0,0,0,0,0,1,0] },
+      { text: "A moderate amount for flexibility", scores: [0,0,0,0,0,0,3,0] },
+      { text: "A large amount for security", scores: [0,0,0,0,0,0,5,0] }
+    ]
+  },
+  {
+    id: "alternatives",
+    text: "Which of these interests you more:",
+    dimension: 2,
+    options: [
+      { text: "Owning fine wine/collectibles", scores: [0,0,3,0,0,0,0,0] },
+      { text: "Backing early-stage companies", scores: [0,0,5,0,0,0,0,0] },
+      { text: "Neither", scores: [0,0,1,0,0,0,0,0] }
+    ]
+  },
+  {
+    id: "decision_making",
+    text: "When making financial decisions, do you usually:",
+    dimension: 7,
+    options: [
+      { text: "Rely on your own research", scores: [0,0,0,0,0,0,0,2] },
+      { text: "Ask an adviser for input", scores: [0,0,0,0,0,0,0,3] },
+      { text: "Delegate completely to an adviser", scores: [0,0,0,0,0,0,0,5] }
+    ]
+  },
+  {
+    id: "market_crash",
+    text: "Think back to 2020 — did you:",
+    dimension: 0,
+    options: [
+      { text: "Sell during the market crash", scores: [1,0,0,0,0,0,0,0] },
+      { text: "Hold through the crash", scores: [3,0,0,0,0,0,0,0] },
+      { text: "Buy during the crash", scores: [5,0,0,0,0,0,0,0] }
+    ]
+  },
+  {
+    id: "investment_purpose",
+    text: "Do you see your investments mainly as:",
+    dimension: 5,
+    options: [
+      { text: "Providing for your lifestyle", scores: [0,0,0,0,0,2,0,0] },
+      { text: "Something to pass on", scores: [0,0,0,0,0,5,0,0] }
+    ]
+  },
+  {
+    id: "tax_wrappers",
+    text: "Do you regularly max out ISAs or pensions, or prefer to invest outside wrappers for flexibility?",
+    dimension: 3,
+    options: [
+      { text: "Max out tax wrappers", scores: [0,0,0,5,0,0,0,0] },
+      { text: "Prefer flexibility outside wrappers", scores: [0,0,0,2,0,0,0,0] },
+      { text: "Mix of both", scores: [0,0,0,3,0,0,0,0] }
+    ]
+  }
+];
