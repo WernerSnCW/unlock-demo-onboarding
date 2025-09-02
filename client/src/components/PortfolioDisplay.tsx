@@ -1,7 +1,8 @@
 // Portfolio display component for Base and Persona-Adjusted allocations
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Shield, PieChart, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Shield, PieChart, AlertTriangle, Brain, Loader2 } from 'lucide-react';
 import { ASSET_NAMES } from '../data/scenarioDefaults';
 import type { Allocation } from '../utils/personaRules';
 
@@ -23,6 +24,41 @@ export function PortfolioDisplay({
   personaName,
   explanations 
 }: PortfolioDisplayProps) {
+  const [interpretation, setInterpretation] = useState<string>('');
+  const [isLoadingInterpretation, setIsLoadingInterpretation] = useState(false);
+
+  useEffect(() => {
+    generateInterpretation();
+  }, [baseAllocation, personaAdjustedAllocation, scenarioName, personaName]);
+
+  const generateInterpretation = async () => {
+    setIsLoadingInterpretation(true);
+    try {
+      const response = await fetch('/api/portfolio-interpretation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          persona: personaName,
+          scenario: scenarioName,
+          baseAllocation,
+          personaAdjustedAllocation,
+          constraintsApplied: explanations.personaRulesApplied
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setInterpretation(data.interpretation);
+      }
+    } catch (error) {
+      console.error('Failed to generate interpretation:', error);
+    } finally {
+      setIsLoadingInterpretation(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Scenario Banner */}
@@ -100,6 +136,36 @@ export function PortfolioDisplay({
               ))}
             </ul>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* AI Interpretation */}
+      <Card className="border border-[var(--accent)]/30 bg-[var(--accent)]/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-[var(--foreground)] flex items-center gap-2 text-base">
+            <Brain className="h-4 w-4 text-[var(--accent)]" />
+            Portfolio Interpretation
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {isLoadingInterpretation ? (
+            <div className="flex items-center gap-2 py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-[var(--accent)]" />
+              <span className="text-sm text-[var(--muted-foreground)]">
+                Analyzing portfolio allocation...
+              </span>
+            </div>
+          ) : interpretation ? (
+            <div className="prose prose-sm max-w-none">
+              <div className="text-sm text-[var(--foreground)] whitespace-pre-line">
+                {interpretation}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Unable to generate interpretation at this time.
+            </p>
+          )}
         </CardContent>
       </Card>
 

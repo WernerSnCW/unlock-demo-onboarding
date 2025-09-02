@@ -22,6 +22,9 @@ import {
   investors
 } from "@shared/schema";
 import { marketDataService } from "./services/marketData.js";
+import OpenAI from 'openai';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Helper functions for UK HPI data
 function getPropertyTypeChange(data: any, propertyType: string): number {
@@ -327,6 +330,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: 'Failed to delete portfolio holding' });
+    }
+  });
+
+  // Portfolio Interpretation endpoint
+  app.post('/api/portfolio-interpretation', async (req, res) => {
+    try {
+      const { persona, scenario, baseAllocation, personaAdjustedAllocation, constraintsApplied } = req.body;
+
+      // Format allocations for the prompt
+      const formatAllocation = (allocation: Record<string, number>): string => {
+        return Object.entries(allocation)
+          .filter(([_, value]) => value > 0.005)
+          .sort(([,a], [,b]) => b - a)
+          .map(([asset, weight]) => `["${asset}", ${(weight * 100).toFixed(1)}]`)
+          .join(',\n  ');
+      };
+
+      const prompt = `You are a financial explainer for non-technical UK readers. 
+Given a persona, a chosen economic scenario, the scenario's Base allocation, and the Persona-Adjusted Example allocation, write a concise interpretation.
+
+Rules:
+- Use plain UK English.
+- No forecasts or advice; explain trade-offs.
+- Start with "Baseline chosen" and "Persona".
+- Then include three sections: 
+  1) "What changed vs Base" (bullets with % moves and brief "why"), 
+  2) "How it should behave" (pros/cons, 2–3 bullets each), 
+  3) "Sanity checks" (liquidity floor met? concentration caps? sums to 100%?).
+- End with "Optional tweaks" (max 2, clearly labelled).
+- Keep the whole output under 180 words.
+
+Inputs:
+Persona: ["${persona}"; key traits: higher liquidity, moderate risk, concentration cap ~30%]
+Scenario: ["${scenario}"]
+Base allocation (scenario): [
+  ${formatAllocation(baseAllocation)}
+]
+Persona-Adjusted Example: [
+  ${formatAllocation(personaAdjustedAllocation)}
+]
+Constraints applied (free text): [
+  ${constraintsApplied.map((c: string) => `"${c}"`).join(',\n  ')}
+]`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 300,
+        temperature: 0.7
+      });
+
+      const interpretation = response.choices[0]?.message?.content || 'Unable to generate interpretation';
+
+      res.json({ interpretation });
+    } catch (error) {
+      console.error('Portfolio interpretation error:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate portfolio interpretation',
+        interpretation: 'Technical issue generating interpretation. Please try again.'
+      });
     }
   });
 
