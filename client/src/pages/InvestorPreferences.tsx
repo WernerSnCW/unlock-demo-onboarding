@@ -1565,167 +1565,262 @@ function PersonaQuizContent() {
 
   if (isComplete && result) {
     return (
-      <div className="space-y-8">
-        {/* Results Display */}
-        <Card className="border-2 border-[var(--primary)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-2xl">
+      <div className="space-y-10">
+        {/* Hero Results Header */}
+        <div className="text-center space-y-4 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10 rounded-3xl blur-3xl -z-10"></div>
+          
+          <div className="relative bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm border border-[var(--primary)]/20 rounded-3xl p-8 shadow-2xl">
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75"></div>
+                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-4">
+                  <Target className="h-8 w-8" />
+                </div>
+                <div className="absolute -top-2 -right-2 animate-bounce">
+                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
+                </div>
+              </div>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent mb-4">
+              Analysis Complete!
+            </h1>
+            <p className="text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto">
+              Your personality matches our research-backed investor profiles with sophisticated 8-dimensional analysis
+            </p>
+          </div>
+        </div>
+
+        {/* Primary Match - Hero Card */}
+        <Card className="relative overflow-hidden border-2 border-[var(--primary)] shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--secondary)]/5"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-bl-3xl"></div>
+          
+          <CardHeader className="relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-xl text-white">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                  <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30">
+                    🏆 BEST MATCH
+                  </Badge>
+                </div>
+                <CardTitle className="text-3xl md:text-4xl font-black text-[var(--primary)] leading-tight">
+                  {result.topMatch.persona.name}
+                </CardTitle>
+                <CardDescription className="text-lg text-[var(--muted-foreground)]">
+                  Your primary investment personality match
+                </CardDescription>
+              </div>
+              
+              <div className="text-right space-y-2">
+                <div className="text-4xl font-black text-[var(--primary)]">
+                  {result.topMatch.matchScore}%
+                </div>
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  {result.topMatch.confidence}% confidence
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="relative space-y-6">
+            <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10">
+              <p className="text-lg leading-relaxed text-[var(--foreground)]">
+                {result.topMatch.persona.notes}
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Wealth Tier</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.wealthTier}</p>
+              </div>
+              
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-4 w-4 text-[var(--secondary)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Risk Profile</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.riskProfile}</p>
+              </div>
+              
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="h-4 w-4 text-[var(--accent)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Approach</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.approach}</p>
+              </div>
+              
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Droplets className="h-4 w-4 text-[var(--warning)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Liquidity</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.liquidityMonths} months</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Runner-up Match */}
+        {result.runnerUp && (
+          <Card className="border border-[var(--border)] bg-gradient-to-br from-[var(--secondary)]/5 to-transparent shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="px-3 py-1 border-[var(--secondary)] text-[var(--secondary)]">
+                      📊 RUNNER-UP
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[var(--secondary)]">
+                    {result.runnerUp.persona.name}
+                  </CardTitle>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-[var(--secondary)]">
+                    {result.runnerUp.matchScore}%
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[var(--muted-foreground)] mb-4">
+                {result.runnerUp.persona.notes}
+              </p>
+              <div className="bg-[var(--accent)]/10 rounded-lg p-3 border border-[var(--accent)]/20">
+                <p className="text-sm text-[var(--muted-foreground)] flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-[var(--accent)]" />
+                  We default to the safer option when scores are close for better risk management.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* User Profile Scores */}
+        <Card className="border border-[var(--border)] bg-gradient-to-br from-[var(--accent)]/5 to-transparent shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl text-[var(--primary)]">
-              <User className="h-6 w-6" />
-              Your Investment Persona Analysis
+            <CardTitle className="flex items-center gap-2 text-xl text-[var(--foreground)]">
+              <BarChart3 className="h-5 w-5 text-[var(--accent)]" />
+              Your 8-Dimensional Investment Profile
             </CardTitle>
             <CardDescription>
-              Based on your questionnaire responses, here's your matching investor profile
+              How you scored across our research-backed investment dimensions
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
-              {/* Primary Match */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-[var(--primary)]">
-                    🏆 Primary Match: {result.topMatch.persona.name}
-                  </h3>
-                  <Badge variant="default" className="px-3 py-1 bg-[var(--primary)] text-white">
-                    {result.topMatch.matchScore}% match ({result.topMatch.confidence}% confidence)
-                  </Badge>
-                </div>
-                <p className="text-[var(--muted-foreground)] leading-relaxed">
-                  {result.topMatch.persona.notes}
-                </p>
-                <div className="bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-lg p-4 border border-[var(--primary)]/20">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-[var(--foreground)]">Wealth Tier:</span>
-                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.wealthTier}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-[var(--foreground)]">Risk Profile:</span>
-                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.riskProfile}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-[var(--foreground)]">Approach:</span>
-                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.approach}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-[var(--foreground)]">Liquidity:</span>
-                      <p className="text-[var(--muted-foreground)]">{result.topMatch.persona.liquidityMonths} months</p>
-                    </div>
+            <div className="grid gap-4">
+              {result.userProfile.map((score, index) => (
+                <div key={index} className="bg-[var(--card)] rounded-lg p-4 border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-[var(--foreground)]">
+                      {dimensionLabels[index]}
+                    </span>
+                    <span className="text-sm font-bold text-[var(--accent)]">
+                      {score.toFixed(1)}/5
+                    </span>
+                  </div>
+                  <div className="w-full bg-[var(--border)] rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] h-3 rounded-full transition-all duration-1000 shadow-sm"
+                      style={{ width: `${(score / 5) * 100}%` }}
+                    />
                   </div>
                 </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Analysis Deep Dive */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Aligned Dimensions */}
+          <Card className="border border-[var(--success)]/20 bg-gradient-to-br from-[var(--success)]/5 to-transparent shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg text-[var(--success)]">
+                <CheckCircle className="h-5 w-5" />
+                Strong Alignment
+              </CardTitle>
+              <CardDescription>
+                These dimensions match your persona well
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {result.alignedDimensions.map((dimension, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-3 bg-[var(--success)]/5 rounded-lg border border-[var(--success)]/10">
+                    <div className="w-2 h-2 bg-[var(--success)] rounded-full"></div>
+                    <span className="text-[var(--foreground)] font-medium">{dimension}</span>
+                  </div>
+                ))}
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Runner-up */}
-              {result.runnerUp && (
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-[var(--secondary)]">
-                    📊 Also a Close Match: {result.runnerUp.persona.name}
-                  </h4>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--muted)]/20 border border-[var(--border)]">
-                    <div className="flex-1">
-                      <p className="text-sm text-[var(--muted-foreground)]">
-                        {result.runnerUp.persona.notes}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="ml-3 px-2 py-1">
-                      {result.runnerUp.matchScore}%
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-[var(--muted-foreground)] italic">
-                    💡 We default to the safer option when scores are close.
-                  </p>
-                </div>
-              )}
-
-              {/* User Profile */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-[var(--foreground)]">
-                  📈 Your Investment Profile
-                </h4>
-                <div className="grid gap-3">
-                  {result.userProfile.map((score, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-[var(--foreground)] min-w-[140px]">
-                        {dimensionLabels[index]}:
-                      </span>
-                      <div className="flex-1 bg-[var(--border)] rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${(score / 5) * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-[var(--muted-foreground)] min-w-[30px]">
-                        {score.toFixed(1)}/5
-                      </span>
+          {/* Notable Differences */}
+          {result.notableDifferences.length > 0 && (
+            <Card className="border border-[var(--warning)]/20 bg-gradient-to-br from-[var(--warning)]/5 to-transparent shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg text-[var(--warning)]">
+                  <AlertTriangle className="h-5 w-5" />
+                  Areas of Difference
+                </CardTitle>
+                <CardDescription>
+                  Where you might differ from the typical persona
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {result.notableDifferences.map((dimension, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-[var(--warning)]/5 rounded-lg border border-[var(--warning)]/10">
+                      <div className="w-2 h-2 bg-[var(--warning)] rounded-full"></div>
+                      <span className="text-[var(--foreground)] font-medium">{dimension}</span>
                     </div>
                   ))}
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-              {/* Why This Match */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-[var(--foreground)]">
-                  🎯 Why This Match?
-                </h4>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <h5 className="font-medium text-[var(--success)] mb-2 text-sm flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4" />
-                      Aligned Dimensions
-                    </h5>
-                    <ul className="space-y-1">
-                      {result.alignedDimensions.map((dimension, idx) => (
-                        <li key={idx} className="text-sm text-[var(--foreground)] flex items-start gap-2">
-                          <span className="text-[var(--success)]">✓</span>
-                          {dimension}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  {result.notableDifferences.length > 0 && (
-                    <div>
-                      <h5 className="font-medium text-[var(--warning)] mb-2 text-sm flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4" />
-                        Notable Differences
-                      </h5>
-                      <ul className="space-y-1">
-                        {result.notableDifferences.map((dimension, idx) => (
-                          <li key={idx} className="text-sm text-[var(--foreground)] flex items-start gap-2">
-                            <span className="text-[var(--warning)]">⚠</span>
-                            {dimension}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-4 pt-4 border-t border-[var(--border)]">
-                <Button 
-                  onClick={resetQuiz}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  data-testid="button-retake-quiz"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Take Quiz Again
-                </Button>
-                <Button 
-                  className="flex items-center gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
-                  data-testid="button-use-persona"
-                >
-                  <Target className="h-4 w-4" />
-                  Use This Persona
-                </Button>
-              </div>
-
-              <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20">
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  🎯 This classification helps us tailor investment recommendations and educational content specifically for your profile. The scoring is based on an 8-dimensional analysis using cosine similarity with weighted dimensions.
-                </p>
-              </div>
+        {/* Action Buttons */}
+        <Card className="border border-[var(--border)] shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={resetQuiz}
+                variant="outline"
+                size="lg"
+                className="flex items-center gap-2 px-8 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-300"
+                data-testid="button-retake-quiz"
+              >
+                <RotateCcw className="h-5 w-5" />
+                Take Quiz Again
+              </Button>
+              <Button 
+                size="lg"
+                className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
+                data-testid="button-use-persona"
+              >
+                <Target className="h-5 w-5" />
+                Use This Persona
+              </Button>
+            </div>
+            
+            <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+              <p className="text-sm text-[var(--muted-foreground)] text-center flex items-center justify-center gap-2">
+                <Target className="h-4 w-4 text-[var(--accent)]" />
+                This classification helps us tailor investment recommendations and educational content specifically for your profile.
+              </p>
             </div>
           </CardContent>
         </Card>
