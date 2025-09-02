@@ -1692,7 +1692,7 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         return (
           <div className="p-0 max-h-[90vh] overflow-hidden flex flex-col">
             {/* Professional Header */}
-            <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white p-6 relative overflow-hidden">
+            <div className="bg-gradient-to-r from-[var(--secondary)] to-[var(--primary)] text-white p-6 relative overflow-hidden">
               <div className="absolute inset-0 bg-black/10"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
