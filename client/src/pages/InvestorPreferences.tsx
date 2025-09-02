@@ -2096,6 +2096,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
     answerQuestion,
     goBack,
     resetQuestionnaire,
+    autoCompleteQuestionnaire,
     totalQuestions
   } = useBeliefQuestionnaire();
 
@@ -2325,6 +2326,20 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
               <div className="text-sm text-[var(--muted-foreground)]">
                 {isLastQuestion ? 'Last Question!' : `${totalQuestions - currentQuestionIndex - 1} questions remaining`}
               </div>
+            </div>
+
+            {/* Auto Complete Button */}
+            <div className="flex justify-center pt-6">
+              <Button
+                onClick={autoCompleteQuestionnaire}
+                size="lg"
+                variant="outline"
+                className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
+                data-testid="button-auto-complete-beliefs"
+              >
+                <Zap className="mr-2 h-5 w-5" />
+                Auto Complete Assessment
+              </Button>
             </div>
           </div>
         </CardContent>

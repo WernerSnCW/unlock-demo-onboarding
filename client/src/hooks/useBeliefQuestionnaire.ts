@@ -57,13 +57,6 @@ export function useBeliefQuestionnaire() {
     }
   }, [canGoBack]);
 
-  const resetQuestionnaire = useCallback(() => {
-    setCurrentQuestionIndex(0);
-    setAnswers([]);
-    setIsComplete(false);
-    setScenarioWeights([]);
-  }, []);
-
   const calculateScenarioWeights = useCallback((answers: BeliefAnswer[]) => {
     const rawWeights: Record<string, number> = {};
 
@@ -120,6 +113,30 @@ export function useBeliefQuestionnaire() {
     return normalizedWeights.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
   }, [questions]);
 
+  const resetQuestionnaire = useCallback(() => {
+    setCurrentQuestionIndex(0);
+    setAnswers([]);
+    setIsComplete(false);
+    setScenarioWeights([]);
+  }, []);
+
+  const autoCompleteQuestionnaire = useCallback(() => {
+    // Generate random answers for all remaining questions
+    const remainingQuestions = questions.slice(currentQuestionIndex);
+    const randomAnswers: BeliefAnswer[] = remainingQuestions.map(question => ({
+      questionId: question.id,
+      value: Math.floor(Math.random() * 5) + 1 // Random value between 1-5
+    }));
+
+    const allAnswers = [...answers, ...randomAnswers];
+    setAnswers(allAnswers);
+
+    // Calculate scenario weights with all answers
+    const weights = calculateScenarioWeights(allAnswers);
+    setScenarioWeights(weights);
+    setIsComplete(true);
+  }, [currentQuestionIndex, questions, answers, calculateScenarioWeights]);
+
   return {
     // State
     currentQuestion,
@@ -135,6 +152,7 @@ export function useBeliefQuestionnaire() {
     answerQuestion,
     goBack,
     resetQuestionnaire,
+    autoCompleteQuestionnaire,
 
     // Computed
     totalQuestions: questions.length,
