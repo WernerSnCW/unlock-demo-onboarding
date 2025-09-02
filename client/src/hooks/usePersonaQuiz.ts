@@ -254,59 +254,6 @@ export function usePersonaQuiz() {
     setResult(null);
   }, []);
 
-  const autoCompleteRandomly = useCallback(() => {
-    if (isComplete) return;
-
-    // Calculate random answers for all remaining questions
-    const remainingQuestions = CORE_QUESTIONS.slice(currentQuestionIndex);
-    let currentRawScores = [...userRawScores];
-    const newAnswers: QuizAnswer[] = [];
-
-    remainingQuestions.forEach((question, index) => {
-      const randomOptionIndex = Math.floor(Math.random() * question.options.length);
-      const option = question.options[randomOptionIndex];
-      
-      const answer: QuizAnswer = {
-        questionId: question.id,
-        optionIndex: randomOptionIndex,
-        scores: option.scores
-      };
-
-      newAnswers.push(answer);
-      
-      // Update scores
-      option.scores.forEach((score, dimIndex) => {
-        currentRawScores[dimIndex] += score;
-      });
-    });
-
-    // Update state with all answers at once
-    setAnswers(prev => [...prev, ...newAnswers]);
-    setUserRawScores(currentRawScores);
-
-    // Calculate final result
-    const userProfile = normalizeScores(currentRawScores);
-    const matches = calculatePersonaMatches(userProfile);
-    const finalMatches = applyTieBreaking(matches);
-    
-    const topMatch = finalMatches[0];
-    const runnerUp = CONFIG.showRunnerUpWhenClose && 
-                    finalMatches.length > 1 && 
-                    (topMatch.matchScore - finalMatches[1].matchScore) <= CONFIG.tieBreakGap
-                    ? finalMatches[1] 
-                    : undefined;
-
-    const { alignedDimensions, notableDifferences } = analyzeAlignment(userProfile, topMatch.persona);
-
-    setResult({
-      topMatch,
-      runnerUp,
-      userProfile,
-      alignedDimensions,
-      notableDifferences
-    });
-    setIsComplete(true);
-  }, [currentQuestionIndex, userRawScores, isComplete, normalizeScores, calculatePersonaMatches, applyTieBreaking, analyzeAlignment]);
 
   return {
     // State
@@ -324,7 +271,6 @@ export function usePersonaQuiz() {
     goBack,
     skipQuestion,
     resetQuiz,
-    autoCompleteRandomly,
 
     // Computed
     totalQuestions: CORE_QUESTIONS.length,
