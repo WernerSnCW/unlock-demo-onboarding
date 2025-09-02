@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -1565,6 +1565,22 @@ function PersonaQuizContent() {
     dimensionLabels
   } = usePersonaQuiz();
 
+  // Scroll to top when quiz is completed
+  useEffect(() => {
+    if (isComplete && result) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [isComplete, result]);
+
+  // Handle auto complete with scroll to top
+  const handleAutoComplete = useCallback(() => {
+    autoCompleteRandomly();
+    // Small delay to ensure state update, then scroll
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  }, [autoCompleteRandomly]);
+
   if (isComplete && result) {
     return (
       <div className="space-y-10">
@@ -2000,7 +2016,7 @@ function PersonaQuizContent() {
               )}
               
               <Button
-                onClick={autoCompleteRandomly}
+                onClick={handleAutoComplete}
                 size="lg"
                 variant="outline"
                 className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
