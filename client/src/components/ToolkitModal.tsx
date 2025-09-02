@@ -303,52 +303,38 @@ function WebsiteFactCheckerComponent() {
   }
 
   return (
-    <div className="p-0 h-[85vh] max-h-[85vh] overflow-hidden flex flex-col">
+    <div className="p-0 h-[80vh] overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Professional Header */}
-      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <i className="fas fa-shield-alt text-xl text-white" aria-hidden="true"></i>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-white">Website Fact Checker</h3>
-                <p className="text-white/90 text-sm">Verify claims using AI analysis and trusted sources</p>
-              </div>
-            </div>
+      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-4 sticky top-0 z-10">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+            <i className="fas fa-shield-alt text-lg text-white" aria-hidden="true"></i>
           </div>
-          
-          {/* Feature Highlights */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center border border-white/10">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-2">
-                <i className="fas fa-brain text-sm text-white" aria-hidden="true"></i>
-              </div>
-              <div className="text-base font-bold text-white">AI-Powered</div>
-              <div className="text-xs text-white/90">Analysis</div>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center border border-white/10">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-2">
-                <i className="fas fa-network-wired text-sm text-white" aria-hidden="true"></i>
-              </div>
-              <div className="text-base font-bold text-white">Multi-Source</div>
-              <div className="text-xs text-white/90">Verification</div>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center border border-white/10">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-2">
-                <i className="fas fa-bolt text-sm text-white" aria-hidden="true"></i>
-              </div>
-              <div className="text-base font-bold text-white">Real-time</div>
-              <div className="text-xs text-white/90">Results</div>
-            </div>
+          <div>
+            <h3 className="text-xl font-bold text-white">Website Fact Checker</h3>
+            <p className="text-white/90 text-xs">Verify claims using AI analysis and trusted sources</p>
+          </div>
+        </div>
+        
+        {/* Feature Highlights */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+            <div className="text-sm font-bold text-white">AI-Powered</div>
+            <div className="text-xs text-white/80">Analysis</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+            <div className="text-sm font-bold text-white">Multi-Source</div>
+            <div className="text-xs text-white/80">Verification</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+            <div className="text-sm font-bold text-white">Real-time</div>
+            <div className="text-xs text-white/80">Results</div>
           </div>
         </div>
       </div>
       
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+      {/* Content */}
+      <div className="p-6">
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl shadow-sm">
             <div className="flex items-center gap-2">
