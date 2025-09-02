@@ -318,15 +318,15 @@ function WebsiteFactCheckerComponent() {
         
         {/* Feature Highlights */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
             <div className="text-sm font-bold text-white">AI-Powered</div>
             <div className="text-xs text-white/80">Analysis</div>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
             <div className="text-sm font-bold text-white">Multi-Source</div>
             <div className="text-xs text-white/80">Verification</div>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
             <div className="text-sm font-bold text-white">Real-time</div>
             <div className="text-xs text-white/80">Results</div>
           </div>
