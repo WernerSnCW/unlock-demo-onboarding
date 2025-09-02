@@ -375,11 +375,10 @@ Constraints applied (free text): [
 ]`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // using gpt-4o as the latest available model
+        model: "gpt-4-turbo", // using same model as other successful calls in the codebase
         messages: [
           { role: "user", content: prompt }
         ],
-        max_completion_tokens: 300,
         temperature: 0.7
       });
 
