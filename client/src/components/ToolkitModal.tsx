@@ -1636,17 +1636,61 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
         
       case 'document-checklist':
         return (
-          <div className="p-6 max-h-[80vh] overflow-y-auto">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-tasks text-2xl text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
+          <div className="p-0 max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Professional Header */}
+            <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white p-6 relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                      <i className="fas fa-clipboard-check text-xl text-white" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white">Due Diligence Document Checklist</h3>
+                      <p className="text-white/90 text-sm">UK-centric comprehensive checklist with status tracking and stage applicability</p>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <button className="bg-white/20 hover:bg-white/30 text-white font-medium px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-200 flex items-center gap-2 text-sm">
+                      <i className="fas fa-download" aria-hidden="true"></i>
+                      Export PDF
+                    </button>
+                    <button className="bg-white/20 hover:bg-white/30 text-white font-medium px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-200 flex items-center gap-2 text-sm">
+                      <i className="fas fa-file-excel" aria-hidden="true"></i>
+                      Download Excel
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Progress Summary */}
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-white">55+</div>
+                    <div className="text-xs text-white/80">Documents</div>
+                  </div>
+                  <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-white">8</div>
+                    <div className="text-xs text-white/80">Categories</div>
+                  </div>
+                  <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-white">0%</div>
+                    <div className="text-xs text-white/80">Complete</div>
+                  </div>
+                  <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-xs text-white/80">N/A Items</div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Due Diligence Document Checklist</h3>
-              <p className="text-gray-600 dark:text-gray-300">UK-centric comprehensive checklist with status tracking and stage applicability.</p>
             </div>
             
-            <div className="space-y-6">
-              {[
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+              <div className="space-y-6">
+                {[
                 { 
                   category: "Financial", 
                   items: [
@@ -1818,24 +1862,25 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
                     ))}
                   </div>
                 </div>
-              ))}
-              
-              {/* Notes Section */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mt-6">
-                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-3">Additional Notes & Sector Add-ons</h4>
-                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
-                  <p><strong>Fintech:</strong> safeguarding, CASS, AML/CTF policies, complaints log.</p>
-                  <p><strong>Health/Medtech:</strong> clinical safety case, DCB0129/0160, regulatory pathway.</p>
-                  <p><strong>Hardware:</strong> BOM, certifications (CE/UKCA), supply chain/QA.</p>
-                </div>
+                ))}
                 
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">General Notes & Risks:</label>
-                  <textarea 
-                    className="w-full p-3 border border-blue-200 dark:border-blue-700 rounded-md bg-white dark:bg-blue-900/10 text-blue-900 dark:text-blue-100 placeholder-blue-500 dark:placeholder-blue-400" 
-                    rows={3} 
-                    placeholder="Add any general notes, risks, or sector-specific requirements..."
-                  ></textarea>
+                {/* Notes Section */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mt-6">
+                  <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-3">Additional Notes & Sector Add-ons</h4>
+                  <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                    <p><strong>Fintech:</strong> safeguarding, CASS, AML/CTF policies, complaints log.</p>
+                    <p><strong>Health/Medtech:</strong> clinical safety case, DCB0129/0160, regulatory pathway.</p>
+                    <p><strong>Hardware:</strong> BOM, certifications (CE/UKCA), supply chain/QA.</p>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">General Notes & Risks:</label>
+                    <textarea 
+                      className="w-full p-3 border border-blue-200 dark:border-blue-700 rounded-md bg-white dark:bg-blue-900/10 text-blue-900 dark:text-blue-100 placeholder-blue-500 dark:placeholder-blue-400" 
+                      rows={3} 
+                      placeholder="Add any general notes, risks, or sector-specific requirements..."
+                    ></textarea>
+                  </div>
                 </div>
               </div>
             </div>
