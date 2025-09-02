@@ -149,11 +149,12 @@ export function PortfolioDisplay({
         </CardHeader>
         <CardContent className="pt-0">
           {isLoadingInterpretation ? (
-            <div className="flex items-center gap-2 py-4">
-              <Loader2 className="h-4 w-4 animate-spin text-[var(--accent)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">
-                Analyzing portfolio allocation...
-              </span>
+            <div className="flex items-center gap-2 py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-[var(--accent)]" />
+              <div className="text-sm text-[var(--muted-foreground)]">
+                <div className="font-medium">AI is analyzing your portfolio...</div>
+                <div className="text-xs mt-1">This may take 10-15 seconds</div>
+              </div>
             </div>
           ) : interpretation ? (
             <div className="prose prose-sm max-w-none">
