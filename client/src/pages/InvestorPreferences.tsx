@@ -465,6 +465,17 @@ function PersonaQuizContent() {
     dimensionLabels
   } = usePersonaQuiz();
 
+  // Add safety check for quiz state
+  if (!currentQuestion && !isComplete) {
+    return (
+      <Card className="border border-[var(--border)] shadow-xl">
+        <CardContent className="p-12 text-center">
+          <div className="text-lg text-[var(--muted-foreground)]">Loading quiz...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Scroll to top when quiz is completed
   useEffect(() => {
     if (isComplete && result) {
@@ -551,7 +562,7 @@ function PersonaQuizContent() {
                   Aligned Dimensions
                 </h4>
                 <div className="space-y-2">
-                  {result.topMatch.alignedDimensions.map((dim) => (
+                  {result.topMatch.alignedDimensions?.map((dim) => (
                     <div key={dim} className="flex items-center gap-2 text-sm">
                       <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
                       <span className="text-[var(--foreground)]">{dimensionLabels[dim]}</span>
@@ -565,7 +576,7 @@ function PersonaQuizContent() {
                   Different Dimensions
                 </h4>
                 <div className="space-y-2">
-                  {result.topMatch.differentDimensions.map((dim) => (
+                  {result.topMatch.differentDimensions?.map((dim) => (
                     <div key={dim} className="flex items-center gap-2 text-sm">
                       <Minus className="h-4 w-4 text-[var(--warning)]" />
                       <span className="text-[var(--muted-foreground)]">{dimensionLabels[dim]}</span>
@@ -610,7 +621,7 @@ function PersonaQuizContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Object.entries(result.userScores).map(([dimension, score]) => (
+              {Object.entries(result.userScores || {}).map(([dimension, score]) => (
                 <div key={dimension} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-[var(--foreground)]">
