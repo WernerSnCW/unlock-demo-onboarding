@@ -305,34 +305,43 @@ function WebsiteFactCheckerComponent() {
   return (
     <div className="p-0 max-h-[90vh] overflow-hidden flex flex-col">
       {/* Professional Header */}
-      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white p-6 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-8 py-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <i className="fas fa-shield-alt text-xl text-white" aria-hidden="true"></i>
+              <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <i className="fas fa-shield-alt text-2xl text-white" aria-hidden="true"></i>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-white">Website Fact Checker</h3>
-                <p className="text-white/90 text-sm">Verify claims using AI analysis and trusted sources</p>
+                <h3 className="text-3xl font-bold text-white mb-1">Website Fact Checker</h3>
+                <p className="text-white/90 text-base">Verify claims using AI analysis and trusted sources</p>
               </div>
             </div>
           </div>
           
           {/* Feature Highlights */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-white">AI-Powered</div>
-              <div className="text-xs text-white/80">Analysis</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 text-center border border-white/10 hover:bg-white/25 transition-all duration-200">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i className="fas fa-brain text-xl text-white" aria-hidden="true"></i>
+              </div>
+              <div className="text-xl font-bold text-white mb-1">AI-Powered</div>
+              <div className="text-sm text-white/90">Advanced Analysis</div>
             </div>
-            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-white">Multi-Source</div>
-              <div className="text-xs text-white/80">Verification</div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 text-center border border-white/10 hover:bg-white/25 transition-all duration-200">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i className="fas fa-network-wired text-xl text-white" aria-hidden="true"></i>
+              </div>
+              <div className="text-xl font-bold text-white mb-1">Multi-Source</div>
+              <div className="text-sm text-white/90">Cross Verification</div>
             </div>
-            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-white">Real-time</div>
-              <div className="text-xs text-white/80">Results</div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 text-center border border-white/10 hover:bg-white/25 transition-all duration-200">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i className="fas fa-bolt text-xl text-white" aria-hidden="true"></i>
+              </div>
+              <div className="text-xl font-bold text-white mb-1">Real-time</div>
+              <div className="text-sm text-white/90">Instant Results</div>
             </div>
           </div>
         </div>
