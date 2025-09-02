@@ -113,14 +113,40 @@ export function SimpleAllowanceCalculator() {
   const prevTaxYear = inputs.taxYear === '2024/25' ? '2023/24' : '2024/25';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Calculator className="h-6 w-6 text-[var(--primary)]" />
-        <h1 className="text-2xl font-bold text-[var(--card-foreground)]">
-          SEIS/EIS Allowance Calculator
-        </h1>
+    <div className="p-0 h-[80vh] overflow-y-auto bg-gray-50 dark:bg-gray-900">
+      {/* Professional Header */}
+      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-4 sticky top-0 z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+              <i className="fas fa-calculator text-lg text-white" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">SEIS/EIS Allowance Calculator</h3>
+              <p className="text-white/90 text-xs">Optimize your tax relief across SEIS and EIS investments</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Feature Highlights */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+            <div className="text-sm font-bold text-white">Tax Optimization</div>
+            <div className="text-xs text-white/80">Auto Maximize</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+            <div className="text-sm font-bold text-white">SEIS/EIS Relief</div>
+            <div className="text-xs text-white/80">50% & 30%</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+            <div className="text-sm font-bold text-white">Carry-Back</div>
+            <div className="text-xs text-white/80">Smart Allocation</div>
+          </div>
+        </div>
       </div>
+      
+      {/* Content */}
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
 
       {/* Tax Context - Shared at top */}
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6">
@@ -515,6 +541,7 @@ export function SimpleAllowanceCalculator() {
           <li><strong>Risk Capital:</strong> SEIS/EIS investments carry significant risk - you may lose your capital</li>
           <li><strong>Qualifying Investments:</strong> Ensure your investments qualify for the relief schemes</li>
         </ul>
+      </div>
       </div>
     </div>
   );
