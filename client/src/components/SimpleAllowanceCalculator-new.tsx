@@ -113,7 +113,7 @@ export function SimpleAllowanceCalculator() {
   const prevTaxYear = inputs.taxYear === '2024/25' ? '2023/24' : '2024/25';
 
   return (
-    <div className="p-0 h-[80vh] overflow-y-auto bg-gray-50 dark:bg-gray-900">
+    <div className="p-0 bg-gray-50 dark:bg-gray-900">
       {/* Professional Header */}
       <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between mb-4">
