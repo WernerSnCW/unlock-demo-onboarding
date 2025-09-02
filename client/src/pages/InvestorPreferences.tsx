@@ -954,7 +954,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
             {/* Question */}
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-semibold text-[var(--foreground)] leading-tight">
-                {currentQuestion?.question}
+                {currentQuestion?.prompt}
               </h2>
               <div className="text-sm text-[var(--muted-foreground)]">
                 Scale: 1 (Strongly Disagree) → 5 (Strongly Agree)
