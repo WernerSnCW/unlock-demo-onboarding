@@ -1486,7 +1486,7 @@ export default function InvestorPreferences() {
                 type="submit" 
                 size="lg" 
                 disabled={isSubmitting}
-                className="px-12 py-6 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
+                className="px-12 py-6 text-lg rounded-2xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90"
                 data-testid="button-submit-preferences"
               >
                 {isSubmitting ? (
