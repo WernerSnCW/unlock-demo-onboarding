@@ -368,18 +368,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const prompt = `You are a financial explainer for non-technical UK readers. Produce short, clear, human-sounding explanations of an example portfolio that reflects a specific investor persona and their beliefs. Do not give advice or forecasts.
 
+CRITICAL: Do not mention any economic scenarios (recession, reflation, stagflation, etc.). Focus purely on the persona's characteristics and preferences. The baseline allocation is just a starting point - ignore how it was created.
+
 STYLE GUARDRAILS
 UK English. Friendly, plain language.
 Use everyday terms: shares, government bonds, high-quality corporate bonds, short-term government bonds, property funds, gold, commodities, crypto, cash.
 Max 150 words. No percentages with more than one decimal. No probabilities. End with: "Illustrative example, not advice."
 
 TASK
-Given a persona and their investment beliefs, explain a personalized portfolio allocation that:
-- highlights the key portfolio choices and why they suit this persona
-- explains the biggest changes from a baseline portfolio (only the top 2–3 absolute % moves, rounded)
-- explains why those changes fit the persona's preferences and constraints
-- sets expectations in plain terms (what this portfolio offers / what to watch for)
-- offers one optional consideration the user might think about
+Explain this personalized portfolio allocation focusing on:
+- why the portfolio choices suit this specific persona's characteristics
+- the biggest changes from baseline to personalized (only the top 2–3 absolute % moves, rounded)  
+- why those changes fit the persona's investment style and constraints
+- what this portfolio approach offers and potential considerations
 
 OUTPUT FORMAT (exactly this structure)
 Start with a clear overview sentence explaining the portfolio approach for this persona.
