@@ -1275,8 +1275,8 @@ export default function InvestorPreferences() {
               value="detailed" 
               className={`flex items-center gap-2 rounded-md transition-all duration-300 ${
                 activeTab === "detailed" 
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm" 
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  ? "!bg-[var(--primary)] !text-white shadow-md border-0" 
+                  : "bg-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--background)]"
               }`}
             >
               <Target className="h-4 w-4" />
@@ -1286,8 +1286,8 @@ export default function InvestorPreferences() {
               value="profile" 
               className={`flex items-center gap-2 rounded-md transition-all duration-300 ${
                 activeTab === "profile" 
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm" 
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  ? "!bg-[var(--primary)] !text-white shadow-md border-0" 
+                  : "bg-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--background)]"
               }`}
             >
               <User className="h-4 w-4" />
