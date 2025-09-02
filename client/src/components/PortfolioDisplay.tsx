@@ -61,7 +61,6 @@ export function PortfolioDisplay({
         },
         body: JSON.stringify({
           personaName: personaName,
-          scenario: scenarioName,
           baseAllocation,
           personaAdjustedAllocation,
           rulesApplied: explanations.personaRulesApplied

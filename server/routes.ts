@@ -352,7 +352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio Interpretation endpoint
   app.post('/api/portfolio-interpretation', async (req, res) => {
     try {
-      const { personaName, scenario, baseAllocation, personaAdjustedAllocation, rulesApplied } = req.body;
+      const { personaName, baseAllocation, personaAdjustedAllocation, rulesApplied } = req.body;
 
       // Look up persona traits
       const persona = PERSONA_TRAITS[personaName] || null;
@@ -366,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .join(', ');
       };
 
-      const prompt = `You are a financial explainer for non-technical UK readers. Produce short, clear, human-sounding explanations of an example portfolio that reflect a specific persona and economic scenario. Do not give advice or forecasts.
+      const prompt = `You are a financial explainer for non-technical UK readers. Produce short, clear, human-sounding explanations of an example portfolio that reflects a specific investor persona and their beliefs. Do not give advice or forecasts.
 
 STYLE GUARDRAILS
 UK English. Friendly, plain language.
@@ -374,26 +374,25 @@ Use everyday terms: shares, government bonds, high-quality corporate bonds, shor
 Max 150 words. No percentages with more than one decimal. No probabilities. End with: "Illustrative example, not advice."
 
 TASK
-Given persona, scenario, the scenario Base allocation, the Persona-Adjusted Example allocation, and a list of rules applied, write a concise explanation that:
-- states what you did and why it suits the persona
-- highlights the biggest changes from Base to Example (only the top 2–3 absolute % moves, rounded)
-- explains why those changes fit the persona's needs/limits
-- sets expectations in plain terms (good days / rocky days)
-- offers one optional nudge the user could consider
+Given a persona and their investment beliefs, explain a personalized portfolio allocation that:
+- highlights the key portfolio choices and why they suit this persona
+- explains the biggest changes from a baseline portfolio (only the top 2–3 absolute % moves, rounded)
+- explains why those changes fit the persona's preferences and constraints
+- sets expectations in plain terms (what this portfolio offers / what to watch for)
+- offers one optional consideration the user might think about
 
 OUTPUT FORMAT (exactly this structure; no headings besides these)
-One-sentence overview (persona + scenario, what changed in plain words).
-Why this suits you – 2–3 short bullets linking persona → portfolio choices.
-What to expect – 2 bullets (good days / rocky days).
-Optional nudge – one sentence.
+One-sentence overview explaining the portfolio approach for this persona.
+Why this suits you – 2–3 short bullets linking persona traits → portfolio choices.
+What to expect – 2 bullets (strengths of this approach / things to watch).
+Optional consideration – one sentence.
 Final line: Illustrative example, not advice
 
 DATA:
 Persona: ${persona ? `"${personaName}" - ${persona.notes}. ${persona.liquidityMonths} months liquidity needed, ${persona.concentrationTolerance} concentration tolerance. Property bias: ${persona.propertyBias}, Tech bias: ${persona.techBias}, Alt bias: ${persona.altBias}` : personaName}
-Scenario: "${scenario}"
-Base allocation: [${formatAllocation(baseAllocation)}]
-Example allocation: [${formatAllocation(personaAdjustedAllocation)}]
-Rules applied: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') || 'none'}]`;
+Baseline allocation: [${formatAllocation(baseAllocation)}]
+Personalized allocation: [${formatAllocation(personaAdjustedAllocation)}]
+Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') || 'none'}]`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4-turbo", // using same model as other successful calls in the codebase
