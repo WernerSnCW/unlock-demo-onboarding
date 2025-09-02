@@ -616,6 +616,10 @@ OUTPUT SCHEMA:
           (k) => (extracted.kpis as any)[k] !== null,
         ),
       );
+      console.log("Sections extracted:", extracted.sections?.length || 0, "sections found");
+      if (extracted.sections?.length > 0) {
+        console.log("Section names found:", extracted.sections.map(s => s.name));
+      }
       console.log("Critical KPIs:", {
         raise_amount: extracted.kpis.raise_amount,
         equity_offered_pct: extracted.kpis.equity_offered_pct,
@@ -706,6 +710,10 @@ OUTPUT SCHEMA:
         valuations,
         scores,
       );
+      console.log("Analysis sections generated:", analysis.sections?.length || 0, "sections");
+      if (analysis.sections?.length > 0) {
+        console.log("Analysis section names:", analysis.sections.map(s => s.name));
+      }
 
       // UI flags
       const hasTerms = !!(
