@@ -656,7 +656,7 @@ function PersonaQuizContent() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {INVESTMENT_PERSONAS.slice(0, 6).map((persona) => {
+              {Object.values(INVESTMENT_PERSONAS).slice(0, 6).map((persona) => {
                 const isTopMatch = persona.id === result.topMatch.persona.id;
                 const isRunnerUp = result.runnerUp && persona.id === result.runnerUp.persona.id;
                 const isSelected = selectedPersona?.id === persona.id;
