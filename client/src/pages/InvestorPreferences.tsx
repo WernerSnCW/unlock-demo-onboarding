@@ -2091,12 +2091,16 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
     progress,
     isComplete,
     scenarioWeights,
+    selectedScenarios,
     canGoBack,
     isLastQuestion,
     answerQuestion,
     goBack,
     resetQuestionnaire,
     autoCompleteQuestionnaire,
+    toggleScenarioSelection,
+    selectAllActiveScenarios,
+    deselectAllScenarios,
     totalQuestions
   } = useBeliefQuestionnaire();
 
@@ -2139,63 +2143,120 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
               Scenario Match % (relative to your answers)
             </CardTitle>
             <CardDescription>
-              Based on your economic beliefs, here are the calculated scenario match percentages for stress testing
+              Based on your economic beliefs, here are the calculated scenario match percentages. Select scenarios for stress testing:
             </CardDescription>
+            
+            {/* Selection Controls */}
+            <div className="flex flex-wrap gap-2 pt-4">
+              <Button
+                onClick={selectAllActiveScenarios}
+                size="sm"
+                variant="outline"
+                className="text-xs border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                data-testid="button-select-all-active"
+              >
+                Select All Active
+              </Button>
+              <Button
+                onClick={deselectAllScenarios}
+                size="sm"
+                variant="outline"
+                className="text-xs border border-[var(--muted-foreground)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/10"
+                data-testid="button-deselect-all"
+              >
+                Deselect All
+              </Button>
+              <div className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" />
+                {selectedScenarios.size} scenario{selectedScenarios.size !== 1 ? 's' : ''} selected
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {scenarioWeights.slice(0, 8).map((item, index) => (
-                <div
-                  key={item.scenario}
-                  className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 ${
-                    item.isMasked 
-                      ? 'border-[var(--muted)] bg-[var(--muted)]/10 opacity-60' 
-                      : 'border-[var(--border)] bg-[var(--card)]'
-                  }`}
-                >
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                    item.isMasked 
-                      ? 'bg-[var(--muted)]' 
-                      : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
-                  }`}>
-                    {index + 1}
-                  </div>
-                  <div className="flex-grow">
-                    <div className="font-semibold text-[var(--foreground)] capitalize flex items-center gap-2">
-                      {item.scenario.replace(/_/g, ' ')}
-                      {item.isMasked && (
-                        <span 
-                          className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)] cursor-help"
-                          title="No supporting answers for this scenario"
-                        >
-                          ⓘ Masked
-                        </span>
-                      )}
+              {scenarioWeights.slice(0, 8).map((item, index) => {
+                const isSelected = selectedScenarios.has(item.scenario);
+                return (
+                  <div
+                    key={item.scenario}
+                    className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 cursor-pointer ${
+                      item.isMasked 
+                        ? 'border-[var(--muted)] bg-[var(--muted)]/10 opacity-60' 
+                        : isSelected
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-md'
+                          : 'border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)]/50'
+                    }`}
+                    onClick={() => !item.isMasked && toggleScenarioSelection(item.scenario)}
+                    data-testid={`scenario-${item.scenario}`}
+                  >
+                    {/* Selection Checkbox */}
+                    <div className="flex-shrink-0">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                        item.isMasked
+                          ? 'border-[var(--muted)] bg-[var(--muted)]/20'
+                          : isSelected
+                            ? 'border-[var(--primary)] bg-[var(--primary)]'
+                            : 'border-[var(--border)] hover:border-[var(--primary)]'
+                      }`}>
+                        {isSelected && !item.isMasked && (
+                          <CheckCircle className="h-3 w-3 text-white" />
+                        )}
+                      </div>
                     </div>
-                    <div className="text-sm text-[var(--muted-foreground)]">
-                      Raw weight: {item.weight.toFixed(3)}
-                      {item.isMasked && ' (below threshold)'}
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0 text-right">
-                    <div className={`text-lg font-bold ${
-                      item.isMasked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'
+
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                      item.isMasked 
+                        ? 'bg-[var(--muted)]' 
+                        : isSelected
+                          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] ring-2 ring-[var(--primary)]/20'
+                          : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
                     }`}>
-                      {(item.normalizedWeight * 100).toFixed(1)}%
+                      {index + 1}
                     </div>
-                    <div className="w-24 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${
-                          item.isMasked 
-                            ? 'bg-[var(--muted)]' 
-                            : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
-                        }`}
-                        style={{ width: `${item.normalizedWeight * 100}%` }}
-                      />
+                    <div className="flex-grow">
+                      <div className="font-semibold text-[var(--foreground)] capitalize flex items-center gap-2">
+                        {item.scenario.replace(/_/g, ' ')}
+                        {item.isMasked && (
+                          <span 
+                            className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)] cursor-help"
+                            title="No supporting answers for this scenario"
+                          >
+                            ⓘ Masked
+                          </span>
+                        )}
+                        {isSelected && !item.isMasked && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--primary)] text-white">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-[var(--muted-foreground)]">
+                        Raw weight: {item.weight.toFixed(3)}
+                        {item.isMasked && ' (below threshold)'}
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      <div className={`text-lg font-bold ${
+                        item.isMasked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'
+                      }`}>
+                        {(item.normalizedWeight * 100).toFixed(1)}%
+                      </div>
+                      <div className="w-24 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${
+                            item.isMasked 
+                              ? 'bg-[var(--muted)]' 
+                              : isSelected
+                                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm'
+                                : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
+                          }`}
+                          style={{ width: `${item.normalizedWeight * 100}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="mt-6 space-y-4">

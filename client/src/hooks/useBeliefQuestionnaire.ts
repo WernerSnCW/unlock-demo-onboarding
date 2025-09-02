@@ -25,6 +25,7 @@ export function useBeliefQuestionnaire() {
   const [answers, setAnswers] = useState<BeliefAnswer[]>([]);
   const [isComplete, setIsComplete] = useState(false);
   const [scenarioWeights, setScenarioWeights] = useState<ScenarioWeight[]>([]);
+  const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
 
   const questions = beliefsData.questions as BeliefQuestion[];
   const currentQuestion = questions[currentQuestionIndex];
@@ -45,6 +46,13 @@ export function useBeliefQuestionnaire() {
       // Calculate scenario weights
       const weights = calculateScenarioWeights(newAnswers);
       setScenarioWeights(weights);
+      
+      // Auto-select top scenarios (non-masked ones)
+      const autoSelected = new Set(
+        weights.filter(w => !w.isMasked).map(w => w.scenario)
+      );
+      setSelectedScenarios(autoSelected);
+      
       setIsComplete(true);
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -199,6 +207,7 @@ export function useBeliefQuestionnaire() {
     setAnswers([]);
     setIsComplete(false);
     setScenarioWeights([]);
+    setSelectedScenarios(new Set());
   }, []);
 
   const autoCompleteQuestionnaire = useCallback(() => {
@@ -215,8 +224,36 @@ export function useBeliefQuestionnaire() {
     // Calculate scenario weights with all answers
     const weights = calculateScenarioWeights(allAnswers);
     setScenarioWeights(weights);
+    
+    // Auto-select top scenarios (non-masked ones)
+    const autoSelected = new Set(
+      weights.filter(w => !w.isMasked).map(w => w.scenario)
+    );
+    setSelectedScenarios(autoSelected);
+    
     setIsComplete(true);
   }, [currentQuestionIndex, questions, answers, calculateScenarioWeights]);
+
+  const toggleScenarioSelection = useCallback((scenario: string) => {
+    setSelectedScenarios(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(scenario)) {
+        newSet.delete(scenario);
+      } else {
+        newSet.add(scenario);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const selectAllActiveScenarios = useCallback(() => {
+    const activeScenarios = scenarioWeights.filter(w => !w.isMasked).map(w => w.scenario);
+    setSelectedScenarios(new Set(activeScenarios));
+  }, [scenarioWeights]);
+
+  const deselectAllScenarios = useCallback(() => {
+    setSelectedScenarios(new Set());
+  }, []);
 
   return {
     // State
@@ -226,6 +263,7 @@ export function useBeliefQuestionnaire() {
     isComplete,
     answers,
     scenarioWeights,
+    selectedScenarios,
     canGoBack,
     isLastQuestion,
 
@@ -234,6 +272,9 @@ export function useBeliefQuestionnaire() {
     goBack,
     resetQuestionnaire,
     autoCompleteQuestionnaire,
+    toggleScenarioSelection,
+    selectAllActiveScenarios,
+    deselectAllScenarios,
 
     // Computed
     totalQuestions: questions.length,
