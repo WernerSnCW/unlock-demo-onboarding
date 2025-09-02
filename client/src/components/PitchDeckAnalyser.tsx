@@ -356,7 +356,7 @@ export default function PitchDeckAnalyser() {
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Professional Header */}
-      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-6">
+      <div className="bg-gradient-to-r from-[var(--secondary)] to-[var(--primary)] text-white px-6 py-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
