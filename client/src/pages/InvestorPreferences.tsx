@@ -1823,52 +1823,62 @@ function PersonaQuizContent() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {Object.values(INVESTMENT_PERSONAS).map((persona) => (
-                <div
-                  key={persona.code}
-                  onClick={() => setSelectedPersona(persona)}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg ${
-                    selectedPersona?.code === persona.code
-                      ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-lg'
-                      : result.topMatch.persona.code === persona.code
-                        ? 'border-[var(--secondary)] bg-[var(--secondary)]/10'
-                        : 'border-[var(--border)] hover:border-[var(--accent)] bg-[var(--card)]'
-                  }`}
-                  data-testid={`persona-card-${persona.code}`}
-                >
-                  {/* Match indicator */}
-                  {result.topMatch.persona.code === persona.code && !selectedPersona && (
-                    <div className="absolute -top-2 -right-2 bg-[var(--secondary)] text-white rounded-full p-1">
-                      <Target className="h-3 w-3" />
-                    </div>
-                  )}
-                  
-                  {/* Selection indicator */}
-                  {selectedPersona?.code === persona.code && (
-                    <div className="absolute -top-2 -right-2 bg-[var(--primary)] text-white rounded-full p-1">
-                      <CheckCircle className="h-3 w-3" />
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <div className="text-xs font-bold text-[var(--accent)]">
-                      {persona.code}
-                    </div>
-                    <div className="text-sm font-semibold text-[var(--foreground)] leading-tight">
-                      {persona.name}
-                    </div>
-                    <div className="text-xs text-[var(--muted-foreground)]">
-                      {persona.wealthTier}
-                    </div>
-                    <div className="text-xs text-[var(--muted-foreground)]">
-                      {persona.riskProfile}
-                    </div>
-                    <div className="text-xs font-medium text-[var(--accent)]">
-                      £{(persona.portfolioValue / 1000).toFixed(0)}k
+              {Object.values(INVESTMENT_PERSONAS).map((persona) => {
+                const isMatchedPersona = result.topMatch.persona.code === persona.code;
+                const isSelected = selectedPersona?.code === persona.code;
+                
+                return (
+                  <div
+                    key={persona.code}
+                    onClick={() => setSelectedPersona(persona)}
+                    className={`relative cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                      isMatchedPersona ? 'transform scale-110' : ''
+                    } ${
+                      isSelected
+                        ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-lg border-2 p-4 rounded-xl'
+                        : isMatchedPersona
+                          ? 'border-[var(--secondary)] bg-gradient-to-br from-[var(--secondary)]/20 to-[var(--accent)]/10 shadow-xl border-4 p-4 rounded-xl ring-2 ring-[var(--secondary)]/30'
+                          : 'border-[var(--border)] hover:border-[var(--accent)] bg-[var(--card)] border-2 p-4 rounded-xl'
+                    }`}
+                    data-testid={`persona-card-${persona.code}`}
+                  >
+                    {/* Quiz Match Badge - Always visible for matched persona */}
+                    {isMatchedPersona && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                        <div className="bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                          <Target className="h-3 w-3" />
+                          QUIZ MATCH
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Selection indicator */}
+                    {isSelected && (
+                      <div className="absolute -top-2 -right-2 bg-[var(--primary)] text-white rounded-full p-1 z-10">
+                        <CheckCircle className="h-3 w-3" />
+                      </div>
+                    )}
+                    
+                    <div className={`space-y-2 ${isMatchedPersona ? 'pt-4' : ''}`}>
+                      <div className={`text-xs font-bold ${isMatchedPersona ? 'text-[var(--secondary)]' : 'text-[var(--accent)]'}`}>
+                        {persona.code}
+                      </div>
+                      <div className={`text-sm font-semibold leading-tight ${isMatchedPersona ? 'text-[var(--secondary)] font-bold' : 'text-[var(--foreground)]'}`}>
+                        {persona.name}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {persona.wealthTier}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {persona.riskProfile}
+                      </div>
+                      <div className={`text-xs font-medium ${isMatchedPersona ? 'text-[var(--secondary)]' : 'text-[var(--accent)]'}`}>
+                        £{(persona.portfolioValue / 1000).toFixed(0)}k
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             {selectedPersona && (
