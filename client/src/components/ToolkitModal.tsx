@@ -305,7 +305,7 @@ function WebsiteFactCheckerComponent() {
   return (
     <div className="p-0 h-[80vh] overflow-y-auto bg-gray-50 dark:bg-gray-900">
       {/* Professional Header */}
-      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-4 sticky top-0 z-10">
+      <div className="bg-gradient-to-r from-[var(--secondary)] to-[var(--primary)] text-white px-6 py-4 sticky top-0 z-10">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
             <i className="fas fa-shield-alt text-lg text-white" aria-hidden="true"></i>
@@ -349,7 +349,7 @@ function WebsiteFactCheckerComponent() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 bg-[#5193B3]/10 rounded-lg flex items-center justify-center">
-                <i className="fas fa-globe text-[#5193B3]" aria-hidden="true"></i>
+                <i className="fas fa-globe text-[var(--primary)]" aria-hidden="true"></i>
               </div>
               <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Website Information</h4>
             </div>
@@ -364,7 +364,7 @@ function WebsiteFactCheckerComponent() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Enter website URL (e.g., example.com)"
-                className="w-full pl-10 pr-4 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors shadow-sm"
+                className="w-full pl-10 pr-4 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--ring)] transition-colors shadow-sm"
                 data-testid="input-website-url"
                 required
               />
@@ -391,7 +391,7 @@ function WebsiteFactCheckerComponent() {
                     id="maxClaims"
                     value={maxClaims}
                     onChange={(e) => setMaxClaims(Number(e.target.value))}
-                    className="w-full pl-10 pr-8 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors appearance-none shadow-sm"
+                    className="w-full pl-10 pr-8 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--ring)] transition-colors appearance-none shadow-sm"
                   >
                     <option value={10}>10 claims</option>
                     <option value={25}>25 claims</option>
@@ -411,7 +411,7 @@ function WebsiteFactCheckerComponent() {
                     id="newsTimeWindow"
                     value={newsTimeWindow}
                     onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
-                    className="w-full pl-10 pr-8 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors appearance-none shadow-sm"
+                    className="w-full pl-10 pr-8 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--ring)] transition-colors appearance-none shadow-sm"
                   >
                     <option value={6}>6 months</option>
                     <option value={12}>12 months</option>
@@ -443,7 +443,7 @@ function WebsiteFactCheckerComponent() {
                 value={specificClaims}
                 onChange={(e) => setSpecificClaims(e.target.value)}
                 placeholder="Enter specific claims to verify (e.g., 'Revenue increased by 300%', 'Company has 50+ employees')"
-                className="w-full pl-10 pr-4 pt-4 pb-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors resize-none shadow-sm"
+                className="w-full pl-10 pr-4 pt-4 pb-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[var(--ring)] focus:border-[var(--ring)] transition-colors resize-none shadow-sm"
                 data-testid="textarea-claims"
               />
               <i className="fas fa-quote-left absolute left-3 top-4 text-gray-400" aria-hidden="true"></i>
@@ -471,7 +471,7 @@ function WebsiteFactCheckerComponent() {
                       type="checkbox"
                       checked={selectedFocusAreas.includes(area)}
                       onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
-                      className="mr-3 h-4 w-4 text-[#5193B3] border-gray-300 dark:border-gray-600 rounded focus:ring-[#5193B3]"
+                      className="mr-3 h-4 w-4 text-[var(--primary)] border-gray-300 dark:border-gray-600 rounded focus:ring-[var(--ring)]"
                       data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                     />
                     <i className={`fas ${icons[index]} ${colors[index]} mr-2`} aria-hidden="true"></i>
@@ -489,8 +489,8 @@ function WebsiteFactCheckerComponent() {
               disabled={isAnalyzing}
               className={`px-8 py-4 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg min-w-[200px] ${
                 isAnalyzing
-                  ? 'bg-[#5193B3] cursor-not-allowed text-white'
-                  : 'bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white hover:shadow-xl hover:scale-105'
+                  ? 'bg-[var(--secondary)] cursor-not-allowed text-white'
+                  : 'bg-gradient-to-r from-[var(--secondary)] to-[var(--primary)] hover:from-[var(--secondary)]/90 hover:to-[var(--primary)]/90 text-white hover:shadow-xl hover:scale-105'
               }`}
               data-testid="button-analyze-website"
             >
