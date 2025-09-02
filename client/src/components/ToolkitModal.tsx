@@ -303,170 +303,229 @@ function WebsiteFactCheckerComponent() {
   }
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      {/* Clean Header */}
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2">Website Fact Checker</h2>
-        <p className="text-[var(--muted-foreground)]">Verify claims using AI analysis and trusted sources</p>
+    <div className="p-0 max-h-[90vh] overflow-hidden flex flex-col">
+      {/* Professional Header */}
+      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <i className="fas fa-shield-alt text-xl text-white" aria-hidden="true"></i>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white">Website Fact Checker</h3>
+                <p className="text-white/90 text-sm">Verify claims using AI analysis and trusted sources</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Feature Highlights */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-white">AI-Powered</div>
+              <div className="text-xs text-white/80">Analysis</div>
+            </div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-white">Multi-Source</div>
+              <div className="text-xs text-white/80">Verification</div>
+            </div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-white">Real-time</div>
+              <div className="text-xs text-white/80">Results</div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
-        </div>
-      )}
       
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* URL Input */}
-        <div>
-          <label htmlFor="url" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
-            <i className="fas fa-globe text-[var(--primary)]" aria-hidden="true"></i>
-            Website URL *
-          </label>
-          <div className="relative">
-            <input
-              id="url"
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter website URL (e.g., example.com)"
-              className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
-              data-testid="input-website-url"
-              required
-            />
-            <i className="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
-          </div>
-        </div>
-
-        {/* Settings Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="maxClaims" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
-              <i className="fas fa-list-ol text-[var(--secondary)]" aria-hidden="true"></i>
-              Claims to Extract
-            </label>
-            <div className="relative">
-              <select
-                id="maxClaims"
-                value={maxClaims}
-                onChange={(e) => setMaxClaims(Number(e.target.value))}
-                className="w-full pl-10 pr-8 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors appearance-none"
-              >
-                <option value={10}>10 claims</option>
-                <option value={25}>25 claims</option>
-                <option value={50}>50 claims</option>
-              </select>
-              <i className="fas fa-hashtag absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
-              <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none" aria-hidden="true"></i>
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="newsTimeWindow" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
-              <i className="fas fa-clock text-[var(--brand-accent-bg)]" aria-hidden="true"></i>
-              News Search Period
-            </label>
-            <div className="relative">
-              <select
-                id="newsTimeWindow"
-                value={newsTimeWindow}
-                onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
-                className="w-full pl-10 pr-8 py-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors appearance-none"
-              >
-                <option value={6}>6 months</option>
-                <option value={12}>12 months</option>
-                <option value={24}>24 months</option>
-                <option value={36}>36 months</option>
-              </select>
-              <i className="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true"></i>
-              <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none" aria-hidden="true"></i>
-            </div>
-          </div>
-        </div>
-
-        {/* Specific Claims */}
-        <div>
-          <label htmlFor="specificClaims" className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-2">
-            <i className="fas fa-bullseye text-[var(--warning)]" aria-hidden="true"></i>
-            Specific Claims <span className="text-[var(--muted-foreground)]">(optional)</span>
-          </label>
-          <div className="relative">
-            <textarea
-              id="specificClaims"
-              rows={3}
-              value={specificClaims}
-              onChange={(e) => setSpecificClaims(e.target.value)}
-              placeholder="Enter specific claims to verify (e.g., 'Revenue increased by 300%')"
-              className="w-full pl-10 pr-4 pt-3 pb-3 border border-[var(--border)] rounded-lg bg-[var(--input)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors resize-none"
-              data-testid="textarea-claims"
-            />
-            <i className="fas fa-quote-left absolute left-3 top-3 text-[var(--muted-foreground)]" aria-hidden="true"></i>
-          </div>
-        </div>
-
-        {/* Focus Areas */}
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] mb-3">
-            <i className="fas fa-crosshairs text-[var(--info)]" aria-hidden="true"></i>
-            Focus Areas <span className="text-[var(--muted-foreground)]">(optional)</span>
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {focusAreas.map((area, index) => {
-              const icons = ['fa-dollar-sign', 'fa-history', 'fa-users', 'fa-cog', 'fa-trophy', 'fa-user-tie'];
-              return (
-                <label key={area} className="flex items-center p-3 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)]/50 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={selectedFocusAreas.includes(area)}
-                    onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
-                    className="mr-3 h-4 w-4 text-[var(--primary)] border-[var(--border)] rounded focus:ring-[var(--primary)]"
-                    data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                  />
-                  <i className={`fas ${icons[index]} text-[var(--primary)] mr-2`} aria-hidden="true"></i>
-                  <span className="text-sm text-[var(--foreground)]">{area}</span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isAnalyzing}
-          className={`w-full font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center ${
-            isAnalyzing
-              ? 'bg-blue-600 cursor-not-allowed text-white shadow-lg'
-              : 'bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white'
-          }`}
-          data-testid="button-analyze-website"
-        >
-          {isAnalyzing ? (
-            <>
-              <div className="w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin mr-3"></div>
-              <i className="fas fa-search mr-2 text-white" aria-hidden="true"></i>
-              <span className="text-white font-semibold">Analyzing Website...</span>
-            </>
-          ) : (
-            <>
-              <i className="fas fa-shield-alt mr-2" aria-hidden="true"></i>
-              Start Analysis
-            </>
-          )}
-        </button>
-        
-        {/* Additional Progress Feedback */}
-        {isAnalyzing && (
-          <div className="mt-4 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-blue-700 dark:text-blue-300 text-sm font-medium">
-                Processing your request...
-              </span>
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl shadow-sm">
+            <div className="flex items-center gap-2">
+              <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400" aria-hidden="true"></i>
+              <p className="text-red-800 dark:text-red-200 text-sm font-medium">{error}</p>
             </div>
           </div>
         )}
-      </form>
+        
+        <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto">
+          {/* URL Input */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-[#5193B3]/10 rounded-lg flex items-center justify-center">
+                <i className="fas fa-globe text-[#5193B3]" aria-hidden="true"></i>
+              </div>
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Website Information</h4>
+            </div>
+            
+            <label htmlFor="url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Website URL *
+            </label>
+            <div className="relative">
+              <input
+                id="url"
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Enter website URL (e.g., example.com)"
+                className="w-full pl-10 pr-4 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors shadow-sm"
+                data-testid="input-website-url"
+                required
+              />
+              <i className="fas fa-link absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          {/* Analysis Settings */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-[#62C4C3]/10 rounded-lg flex items-center justify-center">
+                <i className="fas fa-cog text-[#62C4C3]" aria-hidden="true"></i>
+              </div>
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Analysis Settings</h4>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="maxClaims" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Claims to Extract
+                </label>
+                <div className="relative">
+                  <select
+                    id="maxClaims"
+                    value={maxClaims}
+                    onChange={(e) => setMaxClaims(Number(e.target.value))}
+                    className="w-full pl-10 pr-8 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors appearance-none shadow-sm"
+                  >
+                    <option value={10}>10 claims</option>
+                    <option value={25}>25 claims</option>
+                    <option value={50}>50 claims</option>
+                  </select>
+                  <i className="fas fa-hashtag absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                  <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true"></i>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="newsTimeWindow" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  News Search Period
+                </label>
+                <div className="relative">
+                  <select
+                    id="newsTimeWindow"
+                    value={newsTimeWindow}
+                    onChange={(e) => setNewsTimeWindow(Number(e.target.value))}
+                    className="w-full pl-10 pr-8 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors appearance-none shadow-sm"
+                  >
+                    <option value={6}>6 months</option>
+                    <option value={12}>12 months</option>
+                    <option value={24}>24 months</option>
+                    <option value={36}>36 months</option>
+                  </select>
+                  <i className="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                  <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Optional Claims */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-[#F8D49B]/10 rounded-lg flex items-center justify-center">
+                <i className="fas fa-bullseye text-[#F8D49B]" aria-hidden="true"></i>
+              </div>
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                Specific Claims <span className="text-sm font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+              </h4>
+            </div>
+            
+            <div className="relative">
+              <textarea
+                id="specificClaims"
+                rows={4}
+                value={specificClaims}
+                onChange={(e) => setSpecificClaims(e.target.value)}
+                placeholder="Enter specific claims to verify (e.g., 'Revenue increased by 300%', 'Company has 50+ employees')"
+                className="w-full pl-10 pr-4 pt-4 pb-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[#5193B3] focus:border-[#5193B3] transition-colors resize-none shadow-sm"
+                data-testid="textarea-claims"
+              />
+              <i className="fas fa-quote-left absolute left-3 top-4 text-gray-400" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          {/* Focus Areas */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <i className="fas fa-crosshairs text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
+              </div>
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                Focus Areas <span className="text-sm font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+              </h4>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {focusAreas.map((area, index) => {
+                const icons = ['fa-dollar-sign', 'fa-users', 'fa-trophy', 'fa-history', 'fa-cog', 'fa-user-tie'];
+                const colors = ['text-green-600', 'text-blue-600', 'text-yellow-600', 'text-purple-600', 'text-indigo-600', 'text-red-600'];
+                return (
+                  <label key={area} className="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={selectedFocusAreas.includes(area)}
+                      onChange={(e) => handleFocusAreaChange(area, e.target.checked)}
+                      className="mr-3 h-4 w-4 text-[#5193B3] border-gray-300 dark:border-gray-600 rounded focus:ring-[#5193B3]"
+                      data-testid={`checkbox-focus-${area.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                    />
+                    <i className={`fas ${icons[index]} ${colors[index]} mr-2`} aria-hidden="true"></i>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{area}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-center pt-4">
+            <button
+              type="submit"
+              disabled={isAnalyzing}
+              className={`px-8 py-4 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg min-w-[200px] ${
+                isAnalyzing
+                  ? 'bg-[#5193B3] cursor-not-allowed text-white'
+                  : 'bg-gradient-to-r from-[#5193B3] to-[#62C4C3] hover:from-[#4A85A3] hover:to-[#58B4B3] text-white hover:shadow-xl hover:scale-105'
+              }`}
+              data-testid="button-analyze-website"
+            >
+              {isAnalyzing ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin mr-3"></div>
+                  <span>Analyzing Website...</span>
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-shield-alt mr-3 text-lg" aria-hidden="true"></i>
+                  <span>Start Analysis</span>
+                </>
+              )}
+            </button>
+          </div>
+          
+          {/* Additional Progress Feedback */}
+          {isAnalyzing && (
+            <div className="text-center">
+              <div className="inline-flex items-center gap-3 px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl shadow-sm">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-blue-700 dark:text-blue-300 text-sm font-medium">
+                  Processing your request...
+                </span>
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   );
 }
