@@ -310,25 +310,25 @@ export function SimpleAllowanceCalculator() {
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 min-h-[500px]">
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">SEIS Breakdown</h3>
             <div className="space-y-3">
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Previous Year Applied</span>
                 <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToPrev)}</span>
               </div>
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>This Year Applied</span>
                 <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.appliedToThis)}</span>
               </div>
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (Previous)</span>
                 <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingPrev)}</span>
               </div>
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#13683B', color: '#ffffff', borderColor: '#13683B' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (This Year)</span>
                 <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.seis.allowanceRemainingThis)}</span>
               </div>
               
               {result.seis.unusedPotentialLost > 0 && (
-                <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
+                <div className="text-sm p-3 rounded-xl" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
                   <strong>Potential Lost:</strong> {formatCurrency(result.seis.unusedPotentialLost)} relief lost due to insufficient liability
                 </div>
               )}
@@ -422,22 +422,22 @@ export function SimpleAllowanceCalculator() {
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6 min-h-[500px]">
             <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">EIS Breakdown</h3>
             <div className="space-y-3">
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Previous Year Applied</span>
                 <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.eis.appliedToPrev)}</span>
               </div>
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>This Year Applied</span>
                 <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{formatCurrency(result.eis.appliedToThis)}</span>
               </div>
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (Previous)</span>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff', textAlign: 'right' }}>
                   Any: {formatCurrency(result.eis.allowanceRemainingRegular.prev)}<br/>
                   Total: {formatCurrency(result.eis.allowanceRemainingKIC.prev)}
                 </div>
               </div>
-              <div className="p-4 rounded-lg h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
+              <div className="p-4 rounded-xl h-16 flex justify-between items-center border-2" style={{ backgroundColor: '#10B981', color: '#ffffff', borderColor: '#10B981' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#ffffff' }}>Remaining (This Year)</span>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff', textAlign: 'right' }}>
                   Any: {formatCurrency(result.eis.allowanceRemainingRegular.this)}<br/>
@@ -464,7 +464,7 @@ export function SimpleAllowanceCalculator() {
               </div>
               
               {result.eis.unusedPotentialLost > 0 && (
-                <div className="text-sm p-3 rounded-lg" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
+                <div className="text-sm p-3 rounded-xl" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #F59E0B' }}>
                   <strong>Potential Lost:</strong> {formatCurrency(result.eis.unusedPotentialLost)} relief lost due to insufficient liability
                 </div>
               )}
