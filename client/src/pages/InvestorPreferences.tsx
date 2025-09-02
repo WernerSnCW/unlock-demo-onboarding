@@ -2180,35 +2180,35 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
                   <div
                     key={item.scenario}
                     className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 cursor-pointer ${
-                      item.isMasked 
-                        ? 'border-[var(--muted)] bg-[var(--muted)]/10 opacity-60' 
-                        : isSelected
-                          ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-md'
+                      isSelected
+                        ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-md'
+                        : item.isMasked 
+                          ? 'border-[var(--muted)] bg-[var(--muted)]/10 hover:border-[var(--primary)]/30' 
                           : 'border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)]/50'
                     }`}
-                    onClick={() => !item.isMasked && toggleScenarioSelection(item.scenario)}
+                    onClick={() => toggleScenarioSelection(item.scenario)}
                     data-testid={`scenario-${item.scenario}`}
                   >
                     {/* Selection Checkbox */}
                     <div className="flex-shrink-0">
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
-                        item.isMasked
-                          ? 'border-[var(--muted)] bg-[var(--muted)]/20'
-                          : isSelected
-                            ? 'border-[var(--primary)] bg-[var(--primary)]'
+                        isSelected
+                          ? 'border-[var(--primary)] bg-[var(--primary)]'
+                          : item.isMasked
+                            ? 'border-[var(--muted)] bg-[var(--muted)]/20 hover:border-[var(--primary)]'
                             : 'border-[var(--border)] hover:border-[var(--primary)]'
                       }`}>
-                        {isSelected && !item.isMasked && (
+                        {isSelected && (
                           <CheckCircle className="h-3 w-3 text-white" />
                         )}
                       </div>
                     </div>
 
                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                      item.isMasked 
-                        ? 'bg-[var(--muted)]' 
-                        : isSelected
-                          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] ring-2 ring-[var(--primary)]/20'
+                      isSelected
+                        ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] ring-2 ring-[var(--primary)]/20'
+                        : item.isMasked 
+                          ? 'bg-[var(--muted)]' 
                           : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
                     }`}>
                       {index + 1}
@@ -2224,7 +2224,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
                             ⓘ Masked
                           </span>
                         )}
-                        {isSelected && !item.isMasked && (
+                        {isSelected && (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--primary)] text-white">
                             Selected
                           </span>
@@ -2244,10 +2244,10 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
                       <div className="w-24 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
                         <div 
                           className={`h-full transition-all duration-300 ${
-                            item.isMasked 
-                              ? 'bg-[var(--muted)]' 
-                              : isSelected
-                                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm'
+                            isSelected
+                              ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm'
+                              : item.isMasked 
+                                ? 'bg-[var(--muted)]' 
                                 : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
                           }`}
                           style={{ width: `${item.normalizedWeight * 100}%` }}
