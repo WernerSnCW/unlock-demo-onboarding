@@ -373,7 +373,7 @@ CRITICAL: Do not mention any economic scenarios (recession, reflation, stagflati
 STYLE GUARDRAILS
 UK English. Friendly, plain language.
 Use everyday terms: shares, government bonds, high-quality corporate bonds, short-term government bonds, property funds, gold, commodities, crypto, cash.
-Max 150 words. No percentages with more than one decimal. No probabilities. End with: "Illustrative example, not advice."
+Max 150 words total. No percentages with more than one decimal. No probabilities.
 
 TASK
 Explain this personalized portfolio allocation focusing on:
@@ -382,19 +382,21 @@ Explain this personalized portfolio allocation focusing on:
 - why those changes fit the persona's investment style and constraints
 - what this portfolio approach offers and potential considerations
 
-OUTPUT FORMAT (exactly this structure)
-Start with a clear overview sentence explaining the portfolio approach for this persona.
-
-Why this suits you:
-• 2–3 short bullets linking persona traits → portfolio choices
-
-What to expect:
-• Strengths of this approach (1 bullet)  
-• Things to watch (1 bullet)
-
-Consider: One optional consideration sentence.
-
-Illustrative example, not advice
+OUTPUT FORMAT: Return valid JSON with this exact structure:
+{
+  "overview": "Clear overview sentence explaining the portfolio approach for this persona",
+  "suitability": [
+    "Bullet point linking persona trait to portfolio choice",
+    "Another bullet point linking persona trait to portfolio choice",
+    "Optional third bullet point"
+  ],
+  "expectations": {
+    "strengths": "What this approach offers",
+    "considerations": "What to watch for"
+  },
+  "advice": "One optional consideration sentence",
+  "disclaimer": "Illustrative example, not advice"
+}
 
 DATA:
 Persona: ${persona ? `"${personaName}" - ${persona.notes}. ${persona.liquidityMonths} months liquidity needed, ${persona.concentrationTolerance} concentration tolerance. Property bias: ${persona.propertyBias}, Tech bias: ${persona.techBias}, Alt bias: ${persona.altBias}` : personaName}
@@ -407,6 +409,7 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
         messages: [
           { role: "user", content: prompt }
         ],
+        response_format: { type: "json_object" },
         temperature: 0.7
       });
 
