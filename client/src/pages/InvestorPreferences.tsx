@@ -765,14 +765,14 @@ function PersonaQuizContent() {
           </div>
           
           <CardTitle className="text-2xl text-center leading-relaxed max-w-4xl mx-auto">
-            {currentQuestion?.text}
+            {currentQuestion?.text || 'Loading question...'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-8">
           <div className="max-w-3xl mx-auto">
             {/* Question Options */}
             <div className="space-y-4">
-              {currentQuestion?.options.map((option, index) => (
+              {currentQuestion?.options?.map((option, index) => (
                 <div
                   key={index}
                   onClick={() => answerQuestion(index)}
