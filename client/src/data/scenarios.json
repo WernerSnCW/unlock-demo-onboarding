@@ -1,0 +1,500 @@
+{
+  "S001": {
+    "name": "Property Crash (2008-style)",
+    "horizon_years": 5,
+    "mu": {
+      "CASH": 0.02,
+      "BILLS_SHORT_GILTS": 0.04,
+      "GILTS_LONG": 0.08,
+      "IG_CREDIT": -0.08,
+      "HY_CREDIT": -0.2,
+      "GLOBAL_EQUITY": -0.25,
+      "UK_EQUITY_VALUE": -0.2,
+      "GROWTH_TECH": -0.3,
+      "PROPERTY_UK_RESI": -0.15,
+      "COMMODITIES": -0.1,
+      "GOLD": 0.12,
+      "ALTERNATIVES": -0.08,
+      "CRYPTO_BTC": -0.35,
+      "CRYPTO_ETH": -0.45,
+      "COLLECTIBLES_ART": -0.05,
+      "COLLECTIBLES_WINE": -0.08,
+      "COLLECTIBLES_WHISKY": -0.1,
+      "COLLECTIBLES_CARS": -0.06
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.2,
+      "IG_CREDIT": 0.15,
+      "HY_CREDIT": 0.22,
+      "GLOBAL_EQUITY": 0.24,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.3,
+      "PROPERTY_UK_RESI": 0.14,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.18,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 0.85,
+      "CRYPTO_ETH": 0.95,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.18,
+      "COLLECTIBLES_WHISKY": 0.22,
+      "COLLECTIBLES_CARS": 0.3
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "IG_CREDIT",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.45
+      },
+      {
+        "pair": [
+          "HY_CREDIT",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.65
+      },
+      {
+        "pair": [
+          "PROPERTY_UK_RESI",
+          "UK_EQUITY_VALUE"
+        ],
+        "rho": 0.7
+      },
+      {
+        "pair": [
+          "PROPERTY_UK_RESI",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.6
+      },
+      {
+        "pair": [
+          "PROPERTY_UK_RESI",
+          "COLLECTIBLES_ART"
+        ],
+        "rho": 0.3
+      },
+      {
+        "pair": [
+          "COLLECTIBLES_ART",
+          "CASH"
+        ],
+        "rho": 0.35
+      },
+      {
+        "pair": [
+          "COLLECTIBLES_WINE",
+          "CASH"
+        ],
+        "rho": 0.4
+      },
+      {
+        "pair": [
+          "GOLD",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": -0.3
+      }
+    ],
+    "feedback_rules": [
+      "BoE cuts rates; gilt yields fall; long gilts rally; mortgage availability tightens → reinforce property downside",
+      "Credit spreads widen → amplifies IG/HY drawdowns; REIT financing costs rise",
+      "Safe-haven bid lifts gold; FX may support unhedged global equity in GBP terms"
+    ],
+    "notes": "Anchored to 2008 UK HPI falls ~16-19% and gold strength; adds UK-specific credit/property linkages."
+  },
+  "S002": {
+    "name": "AI-Driven Economic Recession",
+    "horizon_years": 5,
+    "mu": {
+      "CASH": 0.03,
+      "BILLS_SHORT_GILTS": 0.05,
+      "GILTS_LONG": 0.1,
+      "IG_CREDIT": -0.06,
+      "HY_CREDIT": -0.15,
+      "GLOBAL_EQUITY": -0.18,
+      "UK_EQUITY_VALUE": -0.12,
+      "GROWTH_TECH": -0.22,
+      "PROPERTY_UK_RESI": -0.1,
+      "COMMODITIES": -0.08,
+      "GOLD": 0.08,
+      "ALTERNATIVES": -0.05,
+      "CRYPTO_BTC": -0.3,
+      "CRYPTO_ETH": -0.38,
+      "COLLECTIBLES_ART": -0.06,
+      "COLLECTIBLES_WINE": -0.06,
+      "COLLECTIBLES_WHISKY": -0.08,
+      "COLLECTIBLES_CARS": -0.05
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.18,
+      "IG_CREDIT": 0.08,
+      "HY_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.22,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.28,
+      "PROPERTY_UK_RESI": 0.1,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.16,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 0.85,
+      "CRYPTO_ETH": 0.95,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.14,
+      "COLLECTIBLES_WHISKY": 0.2,
+      "COLLECTIBLES_CARS": 0.18
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "IG_CREDIT",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.5
+      },
+      {
+        "pair": [
+          "HY_CREDIT",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.7
+      },
+      {
+        "pair": [
+          "PROPERTY_UK_RESI",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.5
+      },
+      {
+        "pair": [
+          "GOLD",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": -0.25
+      }
+    ],
+    "feedback_rules": [
+      "Labour displacement → weaker consumption → housing demand falls",
+      "BoE/DM central banks cut → duration rally offsets equity losses",
+      "Automation capex benefits selective AI/semiconductor supply chain (offset within GROWTH_TECH dispersion)"
+    ],
+    "notes": "IMF 2024: 60% advanced economy job exposure; displacement risk underpins demand shock; duration rally consistent with recessions."
+  },
+  "S003": {
+    "name": "Stagflation (1970s-style)",
+    "horizon_years": 5,
+    "mu": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": -0.02,
+      "GILTS_LONG": -0.18,
+      "IG_CREDIT": -0.1,
+      "HY_CREDIT": -0.2,
+      "GLOBAL_EQUITY": -0.2,
+      "UK_EQUITY_VALUE": -0.05,
+      "GROWTH_TECH": -0.25,
+      "PROPERTY_UK_RESI": 0.02,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.18,
+      "ALTERNATIVES": -0.04,
+      "CRYPTO_BTC": 0.05,
+      "CRYPTO_ETH": 0.08,
+      "COLLECTIBLES_ART": -0.03,
+      "COLLECTIBLES_WINE": -0.05,
+      "COLLECTIBLES_WHISKY": -0.05,
+      "COLLECTIBLES_CARS": -0.02
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.22,
+      "IG_CREDIT": 0.08,
+      "HY_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.22,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.3,
+      "PROPERTY_UK_RESI": 0.1,
+      "COMMODITIES": 0.28,
+      "GOLD": 0.2,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 0.85,
+      "CRYPTO_ETH": 0.95,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.14,
+      "COLLECTIBLES_WHISKY": 0.2,
+      "COLLECTIBLES_CARS": 0.18
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "GLOBAL_EQUITY",
+          "GILTS_LONG"
+        ],
+        "rho": 0.3
+      },
+      {
+        "pair": [
+          "COMMODITIES",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": -0.1
+      },
+      {
+        "pair": [
+          "GOLD",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": -0.2
+      }
+    ],
+    "feedback_rules": [
+      "Supply shocks and sticky inflation → policy constrained → bonds fail as hedge",
+      "Energy/commodities positive; gold hedges inflation and policy credibility risk"
+    ],
+    "notes": "Equity-bond correlation turns positive in high inflation regimes; commodities/gold hedge consistent with 1970s patterns."
+  },
+  "S004": {
+    "name": "Tech & Speculative Asset Burst",
+    "horizon_years": 5,
+    "mu": {
+      "CASH": 0.02,
+      "BILLS_SHORT_GILTS": 0.03,
+      "GILTS_LONG": 0.15,
+      "IG_CREDIT": 0.05,
+      "HY_CREDIT": -0.05,
+      "GLOBAL_EQUITY": -0.22,
+      "UK_EQUITY_VALUE": -0.05,
+      "GROWTH_TECH": -0.4,
+      "PROPERTY_UK_RESI": -0.04,
+      "COMMODITIES": -0.08,
+      "GOLD": 0.1,
+      "ALTERNATIVES": -0.2,
+      "CRYPTO_BTC": -0.7,
+      "CRYPTO_ETH": -0.8,
+      "COLLECTIBLES_ART": -0.08,
+      "COLLECTIBLES_WINE": -0.06,
+      "COLLECTIBLES_WHISKY": -0.08,
+      "COLLECTIBLES_CARS": -0.05
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.18,
+      "IG_CREDIT": 0.08,
+      "HY_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.18,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.35,
+      "PROPERTY_UK_RESI": 0.1,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.16,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 1.0,
+      "CRYPTO_ETH": 1.1,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.14,
+      "COLLECTIBLES_WHISKY": 0.2,
+      "COLLECTIBLES_CARS": 0.18
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "CRYPTO_BTC",
+          "GROWTH_TECH"
+        ],
+        "rho": 0.8
+      },
+      {
+        "pair": [
+          "IG_CREDIT",
+          "GLOBAL_EQUITY"
+        ],
+        "rho": 0.45
+      }
+    ],
+    "feedback_rules": [
+      "Valuation compression → duration rally; safe-haven bid for quality and gold",
+      "VC markdowns spill to private tech; secondary market illiquidity rises"
+    ],
+    "notes": "Captures dot-com style multiple compression; crypto-tech high correlation."
+  },
+  "S005": {
+    "name": "UK Tax Regime Shift",
+    "horizon_years": 5,
+    "mu": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.0,
+      "GILTS_LONG": 0.0,
+      "IG_CREDIT": -0.02,
+      "HY_CREDIT": -0.05,
+      "GLOBAL_EQUITY": -0.05,
+      "UK_EQUITY_VALUE": -0.03,
+      "GROWTH_TECH": 0.0,
+      "PROPERTY_UK_RESI": -0.1,
+      "COMMODITIES": 0.0,
+      "GOLD": 0.02,
+      "ALTERNATIVES": -0.08,
+      "CRYPTO_BTC": 0.0,
+      "CRYPTO_ETH": 0.0,
+      "COLLECTIBLES_ART": 0.0,
+      "COLLECTIBLES_WINE": 0.0,
+      "COLLECTIBLES_WHISKY": 0.0,
+      "COLLECTIBLES_CARS": 0.0
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.1,
+      "IG_CREDIT": 0.08,
+      "HY_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.18,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.24,
+      "PROPERTY_UK_RESI": 0.1,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.16,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 0.85,
+      "CRYPTO_ETH": 0.95,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.14,
+      "COLLECTIBLES_WHISKY": 0.2,
+      "COLLECTIBLES_CARS": 0.18
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "PROPERTY_UK_RESI",
+          "UK_EQUITY_VALUE"
+        ],
+        "rho": 0.4
+      }
+    ],
+    "feedback_rules": [
+      "CGT/IHT increases depress UK asset valuations",
+      "Allowances caps (ISA/SIPP) reduce retail flow; alternatives affected by carried interest/tax policy"
+    ],
+    "notes": "Incorporates 2025 tax policy context via scenario-specific channel."
+  },
+  "S006": {
+    "name": "Rate-Cut Reflation",
+    "horizon_years": 3,
+    "mu": {
+      "CASH": 0.02,
+      "BILLS_SHORT_GILTS": 0.0,
+      "GILTS_LONG": 0.18,
+      "IG_CREDIT": 0.1,
+      "HY_CREDIT": 0.0,
+      "GLOBAL_EQUITY": 0.12,
+      "UK_EQUITY_VALUE": 0.08,
+      "GROWTH_TECH": 0.16,
+      "PROPERTY_UK_RESI": 0.03,
+      "COMMODITIES": 0.05,
+      "GOLD": -0.05,
+      "ALTERNATIVES": 0.0,
+      "CRYPTO_BTC": 0.2,
+      "CRYPTO_ETH": 0.25,
+      "COLLECTIBLES_ART": 0.0,
+      "COLLECTIBLES_WINE": 0.0,
+      "COLLECTIBLES_WHISKY": 0.0,
+      "COLLECTIBLES_CARS": 0.0
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.1,
+      "IG_CREDIT": 0.08,
+      "HY_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.18,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.24,
+      "PROPERTY_UK_RESI": 0.1,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.16,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 0.85,
+      "CRYPTO_ETH": 0.95,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.14,
+      "COLLECTIBLES_WHISKY": 0.2,
+      "COLLECTIBLES_CARS": 0.18
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "GLOBAL_EQUITY",
+          "GILTS_LONG"
+        ],
+        "rho": -0.2
+      }
+    ],
+    "feedback_rules": [
+      "Policy easing → duration and credit rally; animal spirits lift equities and crypto",
+      "Later-cycle re-steepening may weigh on gold as real yields normalise"
+    ],
+    "notes": "Post-tightening rebound dynamics."
+  },
+  "S007": {
+    "name": "Stagflation 2.0 (acute)",
+    "horizon_years": 3,
+    "mu": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.0,
+      "GILTS_LONG": -0.15,
+      "IG_CREDIT": 0.0,
+      "HY_CREDIT": 0.0,
+      "GLOBAL_EQUITY": -0.15,
+      "UK_EQUITY_VALUE": -0.05,
+      "GROWTH_TECH": -0.18,
+      "PROPERTY_UK_RESI": 0.0,
+      "COMMODITIES": 0.2,
+      "GOLD": 0.12,
+      "ALTERNATIVES": 0.0,
+      "CRYPTO_BTC": 0.0,
+      "CRYPTO_ETH": 0.0,
+      "COLLECTIBLES_ART": 0.0,
+      "COLLECTIBLES_WINE": 0.0,
+      "COLLECTIBLES_WHISKY": 0.0,
+      "COLLECTIBLES_CARS": 0.0
+    },
+    "sigma": {
+      "CASH": 0.01,
+      "BILLS_SHORT_GILTS": 0.02,
+      "GILTS_LONG": 0.22,
+      "IG_CREDIT": 0.08,
+      "HY_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.18,
+      "UK_EQUITY_VALUE": 0.18,
+      "GROWTH_TECH": 0.24,
+      "PROPERTY_UK_RESI": 0.1,
+      "COMMODITIES": 0.28,
+      "GOLD": 0.2,
+      "ALTERNATIVES": 0.14,
+      "CRYPTO_BTC": 0.85,
+      "CRYPTO_ETH": 0.95,
+      "COLLECTIBLES_ART": 0.15,
+      "COLLECTIBLES_WINE": 0.14,
+      "COLLECTIBLES_WHISKY": 0.2,
+      "COLLECTIBLES_CARS": 0.18
+    },
+    "correlation_overrides": [
+      {
+        "pair": [
+          "GLOBAL_EQUITY",
+          "GILTS_LONG"
+        ],
+        "rho": 0.3
+      }
+    ],
+    "feedback_rules": [
+      "Inflation remains sticky while growth slows; equity-bond hedge breaks down"
+    ],
+    "notes": "Short-horizon inflation shock; correlation flip preserved."
+  }
+}

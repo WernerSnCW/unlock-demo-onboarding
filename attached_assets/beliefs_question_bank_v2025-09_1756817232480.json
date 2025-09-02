@@ -1,0 +1,128 @@
+{
+  "questions": [
+    {
+      "id": "B1_mobility_views",
+      "text": "Do you expect the next generation to have better financial opportunities than today?",
+      "scale": "1-5",
+      "direction": "lower->recession,property_down,stagflation"
+    },
+    {
+      "id": "B2_job_security_white_collar",
+      "text": "How secure do you feel white-collar jobs are over the next 5 years?",
+      "scale": "1-5",
+      "direction": "lower->recession,tech_correction"
+    },
+    {
+      "id": "B3_remote_work_tenure",
+      "text": "Over the next 3 years, how stable do you expect your remote/hybrid work arrangement to be?",
+      "scale": "1-5",
+      "direction": "lower->property_down,sterling_devaluation"
+    },
+    {
+      "id": "B4_government_confidence",
+      "text": "How confident are you that the UK government will manage debt and inflation effectively?",
+      "scale": "1-5",
+      "direction": "lower->gilt_selloff,stagflation,devaluation"
+    },
+    {
+      "id": "B5_energy_policy",
+      "text": "How likely are energy supply disruptions or higher energy taxes in the next 3 years?",
+      "scale": "1-5",
+      "direction": "higher->energy_spike,stagflation"
+    },
+    {
+      "id": "B6_ai_adoption_speed",
+      "text": "How quickly will your industry adopt AI to replace tasks?",
+      "scale": "1-5",
+      "direction": "higher->recession,tech_correction"
+    },
+    {
+      "id": "B7_renting_vs_buying",
+      "text": "For a 30-year-old today, is renting a better choice than buying over the next 5 years?",
+      "scale": "1-5",
+      "direction": "higher->property_down"
+    },
+    {
+      "id": "B8_local_investment_preference",
+      "text": "How attractive is investing in local businesses/infrastructure versus property?",
+      "scale": "1-5",
+      "direction": "higher->property_down,reflation"
+    },
+    {
+      "id": "B9_geopolitical_risk",
+      "text": "How likely is a major geopolitical shock affecting supply chains?",
+      "scale": "1-5",
+      "direction": "higher->energy_spike,stagflation"
+    },
+    {
+      "id": "B10_fx_view",
+      "text": "How likely is GBP to depreciate against USD/EUR over 2 years?",
+      "scale": "1-5",
+      "direction": "higher->devaluation"
+    },
+    {
+      "id": "B11_credit_availability",
+      "text": "How easy will it be for SMEs/households to get credit in the next 2 years?",
+      "scale": "1-5",
+      "direction": "lower->gilt_selloff,recession"
+    },
+    {
+      "id": "B12_policy_support",
+      "text": "How likely are significant rate cuts or fiscal support in the next 12 months?",
+      "scale": "1-5",
+      "direction": "higher->reflation"
+    }
+  ],
+  "weights": {
+    "B1_mobility_views": {
+      "recession": 0.2,
+      "property_down": 0.1,
+      "stagflation": 0.05
+    },
+    "B2_job_security_white_collar": {
+      "recession": 0.2,
+      "tech_correction": 0.15
+    },
+    "B3_remote_work_tenure": {
+      "property_down": 0.1,
+      "devaluation": 0.05
+    },
+    "B4_government_confidence": {
+      "gilt_selloff": 0.25,
+      "stagflation": 0.1,
+      "devaluation": 0.1
+    },
+    "B5_energy_policy": {
+      "energy_spike": 0.25,
+      "stagflation": 0.15
+    },
+    "B6_ai_adoption_speed": {
+      "recession": 0.15,
+      "tech_correction": 0.15
+    },
+    "B7_renting_vs_buying": {
+      "property_down": 0.2
+    },
+    "B8_local_investment_preference": {
+      "property_down": 0.1,
+      "reflation": 0.05
+    },
+    "B9_geopolitical_risk": {
+      "energy_spike": 0.2,
+      "stagflation": 0.1
+    },
+    "B10_fx_view": {
+      "devaluation": 0.25
+    },
+    "B11_credit_availability": {
+      "gilt_selloff": 0.2,
+      "recession": 0.1
+    },
+    "B12_policy_support": {
+      "reflation": 0.3,
+      "recession": -0.1,
+      "gilt_selloff": -0.1
+    }
+  },
+  "normalize": "softmax"
+}

@@ -19,7 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, X, CheckCircle, BarChart3, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
-import { DIMENSION_LABELS, INVESTMENT_PERSONAS } from '@/data/personas';
+import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
+import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
 
 const preferencesSchema = z.object({
   activeInvestmentInterests: z.array(z.string()).min(1, 'Please select at least one investment interest'),
@@ -1546,7 +1547,9 @@ export default function InvestorPreferences() {
 }
 
 function PersonaQuizContent() {
-  const [selectedPersona, setSelectedPersona] = useState(null);
+  const [selectedPersona, setSelectedPersona] = useState<PersonaDef | null>(null);
+  const [showBeliefQuestionnaire, setShowBeliefQuestionnaire] = useState(false);
+  const [finalPersona, setFinalPersona] = useState<PersonaDef | null>(null);
   
   const {
     currentQuestion,
@@ -1580,6 +1583,20 @@ function PersonaQuizContent() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
   }, [autoCompleteRandomly]);
+
+  // Handle persona selection and proceed to beliefs
+  const handleUsePersona = useCallback(() => {
+    if (!result) return;
+    const chosenPersona = selectedPersona || result.topMatch.persona;
+    setFinalPersona(chosenPersona);
+    setShowBeliefQuestionnaire(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [selectedPersona, result]);
+
+  // Show belief questionnaire if selected
+  if (showBeliefQuestionnaire && finalPersona) {
+    return <BeliefQuestionnaireContent persona={finalPersona} onBack={() => setShowBeliefQuestionnaire(false)} />;
+  }
 
   if (isComplete && result) {
     return (
@@ -1916,6 +1933,7 @@ function PersonaQuizContent() {
                 Take Quiz Again
               </Button>
               <Button 
+                onClick={handleUsePersona}
                 size="lg"
                 className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
                 data-testid="button-use-persona"
@@ -2059,6 +2077,255 @@ function PersonaQuizContent() {
             <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
               {Math.round(progress)}% Complete
             </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; onBack: () => void }) {
+  const {
+    currentQuestion,
+    currentQuestionIndex,
+    progress,
+    isComplete,
+    scenarioWeights,
+    canGoBack,
+    isLastQuestion,
+    answerQuestion,
+    goBack,
+    resetQuestionnaire,
+    totalQuestions
+  } = useBeliefQuestionnaire();
+
+  // Scroll to top when questionnaire is completed
+  useEffect(() => {
+    if (isComplete) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [isComplete]);
+
+  if (isComplete) {
+    return (
+      <div className="space-y-10">
+        {/* Header */}
+        <div className="text-center space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+              Economic Scenario Beliefs
+            </h1>
+            <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto">
+              Your beliefs have been converted to scenario probability weights for stress testing
+            </p>
+          </div>
+          
+          {/* Persona Context */}
+          <div className="max-w-2xl mx-auto p-6 bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--border)]">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Target className="h-5 w-5 text-[var(--primary)]" />
+              <span className="font-semibold text-[var(--foreground)]">Selected Persona: {persona.name}</span>
+            </div>
+            <p className="text-sm text-[var(--muted-foreground)]">{persona.notes}</p>
+          </div>
+        </div>
+
+        {/* Scenario Weights Results */}
+        <Card className="border border-[var(--border)] shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl text-[var(--foreground)] flex items-center gap-2">
+              <BarChart3 className="h-6 w-6 text-[var(--secondary)]" />
+              Scenario Probability Weights
+            </CardTitle>
+            <CardDescription>
+              Based on your beliefs, here are the calculated scenario probabilities for stress testing
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {scenarioWeights.slice(0, 8).map((item, index) => (
+                <div
+                  key={item.scenario}
+                  className="flex items-center gap-4 p-4 rounded-lg border border-[var(--border)] bg-[var(--card)]"
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center text-white font-bold text-sm">
+                    {index + 1}
+                  </div>
+                  <div className="flex-grow">
+                    <div className="font-semibold text-[var(--foreground)] capitalize">
+                      {item.scenario.replace(/_/g, ' ')}
+                    </div>
+                    <div className="text-sm text-[var(--muted-foreground)]">
+                      Raw weight: {item.weight.toFixed(3)}
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <div className="text-lg font-bold text-[var(--foreground)]">
+                      {(item.normalizedWeight * 100).toFixed(1)}%
+                    </div>
+                    <div className="w-24 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
+                        style={{ width: `${item.normalizedWeight * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+              <p className="text-sm text-[var(--muted-foreground)] text-center">
+                These scenario weights will be used to stress test portfolio performance across different economic conditions.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <Card className="border border-[var(--border)] shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={resetQuestionnaire}
+                size="lg"
+                variant="outline"
+                className="flex items-center gap-2 px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--muted-foreground)] transition-all duration-300"
+                data-testid="button-retake-beliefs"
+              >
+                <RotateCcw className="h-5 w-5" />
+                Retake Beliefs Quiz
+              </Button>
+              <Button 
+                onClick={onBack}
+                size="lg"
+                variant="outline"
+                className="flex items-center gap-2 px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--muted-foreground)] transition-all duration-300"
+                data-testid="button-back-to-persona"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                Back to Persona
+              </Button>
+              <Button 
+                size="lg"
+                className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
+                data-testid="button-continue-analysis"
+              >
+                <TrendingUp className="h-5 w-5" />
+                Continue to Portfolio Analysis
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">
+            Economic Beliefs Assessment
+          </h1>
+          <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
+            Answer these questions about your economic outlook to generate scenario weights for stress testing
+          </p>
+        </div>
+        
+        {/* Persona Context */}
+        <div className="max-w-xl mx-auto p-4 bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-xl border border-[var(--border)]">
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <Target className="h-4 w-4 text-[var(--primary)]" />
+            <span className="font-medium">Persona: {persona.name}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Question Card */}
+      <Card className="max-w-4xl mx-auto border border-[var(--border)] shadow-lg">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl text-[var(--foreground)]">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </CardTitle>
+            <div className="text-sm text-[var(--muted-foreground)]">
+              {Math.round(progress)}% complete
+            </div>
+          </div>
+          <div className="w-full bg-[var(--muted)] rounded-full h-2">
+            <div 
+              className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-8">
+            {/* Question */}
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-semibold text-[var(--foreground)] leading-tight">
+                {currentQuestion.text}
+              </h2>
+              <div className="text-sm text-[var(--muted-foreground)]">
+                Scale: 1 (Strongly Disagree) → 5 (Strongly Agree)
+              </div>
+            </div>
+
+            {/* Answer Options */}
+            <div className="grid grid-cols-5 gap-3 max-w-2xl mx-auto">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <Button
+                  key={value}
+                  onClick={() => answerQuestion(value)}
+                  size="lg"
+                  variant="outline"
+                  className="h-16 flex flex-col items-center justify-center gap-2 border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/10 transition-all duration-300"
+                  data-testid={`answer-${value}`}
+                >
+                  <span className="text-2xl font-bold">{value}</span>
+                  <span className="text-xs">
+                    {value === 1 ? 'Strongly Disagree' :
+                     value === 2 ? 'Disagree' :
+                     value === 3 ? 'Neutral' :
+                     value === 4 ? 'Agree' :
+                     'Strongly Agree'}
+                  </span>
+                </Button>
+              ))}
+            </div>
+
+            {/* Navigation */}
+            <div className="flex justify-between items-center max-w-2xl mx-auto pt-4">
+              {canGoBack ? (
+                <Button
+                  onClick={goBack}
+                  size="lg"
+                  variant="outline"
+                  className="px-6 py-3 border-2 border-[var(--border)] hover:border-[var(--muted-foreground)] transition-all duration-300"
+                  data-testid="button-back"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              ) : (
+                <Button
+                  onClick={onBack}
+                  size="lg"
+                  variant="outline"
+                  className="px-6 py-3 border-2 border-[var(--border)] hover:border-[var(--muted-foreground)] transition-all duration-300"
+                  data-testid="button-back-to-persona"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Persona
+                </Button>
+              )}
+              
+              <div className="text-sm text-[var(--muted-foreground)]">
+                {isLastQuestion ? 'Last Question!' : `${totalQuestions - currentQuestionIndex - 1} questions remaining`}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
