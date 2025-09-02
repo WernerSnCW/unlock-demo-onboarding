@@ -306,6 +306,27 @@ export async function extractFundingDetailsEnhanced(
     "pre-money",
     "post-money",
     "DCF",
+    // Add financial keywords to capture projection slides
+    "revenue",
+    "ARR",
+    "MRR", 
+    "financials",
+    "projections",
+    "forecast",
+    "EBITDA",
+    "profit",
+    "business model",
+    "unit economics",
+    "year 1",
+    "year 2",
+    "year 3",
+    "year 4",
+    "year 5",
+    "subscription",
+    "recurring",
+    "growth",
+    "P&L",
+    "income",
   ];
   const relevantSlides = slides.filter((s) =>
     fundingKeywords.some((kw) => s.toLowerCase().includes(kw.toLowerCase())),
@@ -314,12 +335,28 @@ export async function extractFundingDetailsEnhanced(
     .join("\n\n")
     .slice(0, 50000);
 
-  const prompt = `Extract funding- and valuation-related details in STRICT JSON.
-Return raise_amount, equity_offered_pct (decimal), stated_pre_money, stated_post_money,
-revenue_current (if any), ebitda_or_profit, discount_rate_pct (decimal),
-arr_horizon_years, ebitda_horizon_years, valuation_dcf_present if stated,
-funding_terms (instrument/caps/discounts if present), and other_financials[].
-If a field is not present in the text, return null. Do NOT guess.
+  const prompt = `Extract funding- and financial projection details in STRICT JSON.
+Be VERY thorough in finding financial metrics - look for ARR, MRR, revenue, EBITDA in:
+- Financial projection tables (Year 1, Year 2, etc.)
+- Revenue models and forecasts  
+- Subscription metrics and recurring revenue
+- P&L statements and income projections
+- Business model slides with unit economics
+
+Return ALL of these fields (use null if not found):
+- raise_amount, equity_offered_pct (decimal), stated_pre_money, stated_post_money
+- revenue_current (current/Year 0 revenue), revenue_projected (any future year revenue)
+- ebitda_or_profit (current or projected EBITDA/profit)
+- discount_rate_pct (decimal), arr_horizon_years, ebitda_horizon_years
+- valuation_dcf_present (if DCF present value is stated)
+- funding_terms (instrument/caps/discounts) and other_financials[]
+
+IMPORTANT: If you see financial projections for multiple years, extract:
+- revenue_current: current year or Year 1 revenue
+- revenue_projected: any later year revenue (Year 2, 3, 4, 5)
+- ebitda_or_profit: any EBITDA, operating profit, or net profit figure
+
+Do NOT guess numbers, but be flexible with terminology (ARR, recurring revenue, subscription revenue are similar).
 
 Text:
 ${slidesText}`;
