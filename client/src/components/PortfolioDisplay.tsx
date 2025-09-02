@@ -366,9 +366,76 @@ export function PortfolioDisplay({
               </div>
             </div>
           ) : interpretation ? (
-            <div className="bg-white/60 dark:bg-black/20 rounded-lg p-4 border border-[var(--border)]/50">
-              <div className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line font-medium">
-                {interpretation}
+            <div className="bg-white/60 dark:bg-black/20 rounded-lg p-6 border border-[var(--border)]/50">
+              <div className="space-y-4">
+                {interpretation.split('\n').map((paragraph, index) => {
+                  // Skip empty paragraphs
+                  if (!paragraph.trim()) return null;
+                  
+                  // Style different sections
+                  if (paragraph.startsWith('Why this suits you:')) {
+                    return (
+                      <div key={index} className="space-y-2">
+                        <h4 className="font-semibold text-[var(--primary)] flex items-center gap-2 text-sm">
+                          <Shield className="h-4 w-4" />
+                          Why this suits you
+                        </h4>
+                      </div>
+                    );
+                  }
+                  
+                  if (paragraph.startsWith('What to expect:')) {
+                    return (
+                      <div key={index} className="space-y-2 mt-4">
+                        <h4 className="font-semibold text-[var(--accent)] flex items-center gap-2 text-sm">
+                          <TrendingUp className="h-4 w-4" />
+                          What to expect
+                        </h4>
+                      </div>
+                    );
+                  }
+                  
+                  if (paragraph.startsWith('Consider:')) {
+                    return (
+                      <div key={index} className="mt-4 p-3 bg-[var(--muted)]/20 rounded-md border-l-3 border-[var(--secondary)]">
+                        <div className="flex items-start gap-2">
+                          <Brain className="h-4 w-4 text-[var(--secondary)] mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-[var(--foreground)] font-medium">
+                            {paragraph.replace('Consider: ', '')}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  if (paragraph.includes('Illustrative example, not advice')) {
+                    return (
+                      <div key={index} className="mt-6 pt-4 border-t border-[var(--border)]/30">
+                        <p className="text-xs text-[var(--muted-foreground)] italic text-center">
+                          {paragraph}
+                        </p>
+                      </div>
+                    );
+                  }
+                  
+                  if (paragraph.startsWith('•')) {
+                    return (
+                      <div key={index} className="flex items-start gap-3 ml-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] mt-2 flex-shrink-0"></div>
+                        <p className="text-sm text-[var(--foreground)] leading-relaxed">
+                          {paragraph.replace('• ', '')}
+                        </p>
+                      </div>
+                    );
+                  }
+                  
+                  // Default paragraph styling (overview sentence)
+                  return (
+                    <p key={index} className="text-sm text-[var(--foreground)] leading-relaxed font-medium">
+                      {paragraph}
+                    </p>
+                  );
+                })}
               </div>
             </div>
           ) : (

@@ -381,12 +381,19 @@ Given a persona and their investment beliefs, explain a personalized portfolio a
 - sets expectations in plain terms (what this portfolio offers / what to watch for)
 - offers one optional consideration the user might think about
 
-OUTPUT FORMAT (exactly this structure; no headings besides these)
-One-sentence overview explaining the portfolio approach for this persona.
-Why this suits you – 2–3 short bullets linking persona traits → portfolio choices.
-What to expect – 2 bullets (strengths of this approach / things to watch).
-Optional consideration – one sentence.
-Final line: Illustrative example, not advice
+OUTPUT FORMAT (exactly this structure)
+Start with a clear overview sentence explaining the portfolio approach for this persona.
+
+Why this suits you:
+• 2–3 short bullets linking persona traits → portfolio choices
+
+What to expect:
+• Strengths of this approach (1 bullet)  
+• Things to watch (1 bullet)
+
+Consider: One optional consideration sentence.
+
+Illustrative example, not advice
 
 DATA:
 Persona: ${persona ? `"${personaName}" - ${persona.notes}. ${persona.liquidityMonths} months liquidity needed, ${persona.concentrationTolerance} concentration tolerance. Property bias: ${persona.propertyBias}, Tech bias: ${persona.techBias}, Alt bias: ${persona.altBias}` : personaName}
