@@ -784,7 +784,7 @@ function PersonaQuizContent() {
                       {String.fromCharCode(65 + index)}
                     </div>
                     <p className="text-lg text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors font-medium leading-relaxed">
-                      {option}
+                      {option.text}
                     </p>
                   </div>
                 </div>
