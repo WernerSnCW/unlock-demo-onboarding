@@ -16,7 +16,8 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, X, CheckCircle, BarChart3, Zap } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, X, CheckCircle, BarChart3, Zap, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
@@ -925,6 +926,22 @@ function PortfolioRecommendationsButton({
       )}
     </Button>
   );
+}
+
+// Get scenario description for tooltip
+function getScenarioDescription(scenario: string): string {
+  const descriptions: Record<string, string> = {
+    'recession': 'Economic downturn with declining GDP, rising unemployment, and reduced consumer spending. Markets typically favor defensive assets.',
+    'property_down': 'UK property market correction with falling house prices, impacting real estate investments and related sectors significantly.',
+    'stagflation': 'High inflation combined with economic stagnation - rising prices but slow growth. Gold and commodities typically perform well.',
+    'tech_correction': 'Technology sector selloff due to overvaluation concerns, affecting growth stocks and innovation-focused investments.',
+    'devaluation': 'Sterling weakens significantly against major currencies, benefiting exporters but increasing import costs and inflation.',
+    'gilt_selloff': 'UK government bonds face selling pressure, driving yields higher and bond prices lower. Duration risk increases.',
+    'energy_spike': 'Energy prices surge due to supply disruptions or geopolitical tensions, benefiting energy stocks but hurting consumers.',
+    'reflation': 'Economic recovery with moderate inflation and growth. Balanced scenario favoring growth equities and real assets.'
+  };
+  
+  return descriptions[scenario] || 'Economic scenario affecting market conditions and investment returns.';
 }
 
 export default function InvestorPreferences() {
@@ -2210,7 +2227,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
                   <span className="font-medium text-[var(--foreground)]">Risk Tolerance:</span> {persona.concentrationTolerance}
                 </div>
                 <div>
-                  <span className="font-medium text-[var(--foreground)]">Investment Style:</span> {persona.investmentStyle}
+                  <span className="font-medium text-[var(--foreground)]">Notes:</span> Active investor
                 </div>
               </div>
             </CardContent>
@@ -2225,22 +2242,36 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="space-y-2">
-                {Array.from(selectedScenarios)
-                  .map(scenario => {
-                    const weight = scenarioWeights.find(w => w.scenario === scenario);
-                    return (
-                      <div key={scenario} className="flex items-center justify-between">
-                        <div className="text-sm font-medium text-[var(--foreground)]">
-                          {SCENARIO_NAMES[scenario] || scenario}
+              <TooltipProvider>
+                <div className="space-y-2">
+                  {Array.from(selectedScenarios)
+                    .map(scenario => {
+                      const weight = scenarioWeights.find(w => w.scenario === scenario);
+                      return (
+                        <div key={scenario} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium text-[var(--foreground)]">
+                              {SCENARIO_NAMES[scenario] || scenario}
+                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--secondary)] cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p className="text-xs">
+                                  {getScenarioDescription(scenario)}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <div className="text-xs text-[var(--muted-foreground)]">
+                            {weight ? `${(weight.normalizedWeight * 100).toFixed(1)}%` : '0%'}
+                          </div>
                         </div>
-                        <div className="text-xs text-[var(--muted-foreground)]">
-                          {weight ? `${(weight.normalizedWeight * 100).toFixed(1)}%` : '0%'}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
+                      );
+                    })}
+                </div>
+              </TooltipProvider>
               <div className="mt-2 pt-2 border-t border-[var(--border)]">
                 <p className="text-xs text-[var(--muted-foreground)]">
                   Weights based on your economic beliefs responses
