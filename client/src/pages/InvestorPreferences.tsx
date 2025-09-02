@@ -544,7 +544,7 @@ function PersonaQuizContent() {
                 🎯 Best Match
               </Badge>
               <div className="text-3xl font-bold text-[var(--primary)]">
-                {(result.topMatch.matchPercentage * 100).toFixed(0)}%
+                {result.topMatch.matchScore}%
               </div>
             </div>
             <CardTitle className="text-3xl font-bold text-[var(--primary)] mb-2">
@@ -562,8 +562,8 @@ function PersonaQuizContent() {
                   Aligned Dimensions
                 </h4>
                 <div className="space-y-2">
-                  {result.topMatch.alignedDimensions?.map((dim) => (
-                    <div key={dim} className="flex items-center gap-2 text-sm">
+                  {result.topMatch.alignedDimensions?.map((dim, index) => (
+                    <div key={`aligned-${index}`} className="flex items-center gap-2 text-sm">
                       <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
                       <span className="text-[var(--foreground)]">{dimensionLabels[dim]}</span>
                     </div>
@@ -576,8 +576,8 @@ function PersonaQuizContent() {
                   Different Dimensions
                 </h4>
                 <div className="space-y-2">
-                  {result.topMatch.differentDimensions?.map((dim) => (
-                    <div key={dim} className="flex items-center gap-2 text-sm">
+                  {result.topMatch.differentDimensions?.map((dim, index) => (
+                    <div key={`different-${index}`} className="flex items-center gap-2 text-sm">
                       <Minus className="h-4 w-4 text-[var(--warning)]" />
                       <span className="text-[var(--muted-foreground)]">{dimensionLabels[dim]}</span>
                     </div>
@@ -597,7 +597,7 @@ function PersonaQuizContent() {
                   🥈 Runner-up
                 </Badge>
                 <div className="text-xl font-bold text-[var(--muted-foreground)]">
-                  {(result.runnerUp.matchPercentage * 100).toFixed(0)}%
+                  {result.runnerUp.matchScore}%
                 </div>
               </div>
               <CardTitle className="text-xl text-[var(--foreground)]">
@@ -657,13 +657,13 @@ function PersonaQuizContent() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {Object.values(INVESTMENT_PERSONAS).slice(0, 6).map((persona) => {
-                const isTopMatch = persona.id === result.topMatch.persona.id;
-                const isRunnerUp = result.runnerUp && persona.id === result.runnerUp.persona.id;
-                const isSelected = selectedPersona?.id === persona.id;
+                const isTopMatch = persona.code === result.topMatch.persona.code;
+                const isRunnerUp = result.runnerUp && persona.code === result.runnerUp.persona.code;
+                const isSelected = selectedPersona?.code === persona.code;
                 
                 return (
                   <div
-                    key={persona.id}
+                    key={persona.code}
                     onClick={() => setSelectedPersona(persona)}
                     className={`p-4 rounded-lg border cursor-pointer transition-all duration-300 ${
                       isTopMatch 
@@ -674,7 +674,7 @@ function PersonaQuizContent() {
                             ? 'border-[var(--accent)] bg-[var(--accent)]/10'
                             : 'border-[var(--border)] hover:border-[var(--accent)] hover:bg-[var(--accent)]/5'
                     }`}
-                    data-testid={`persona-option-${persona.id}`}
+                    data-testid={`persona-option-${persona.code}`}
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
