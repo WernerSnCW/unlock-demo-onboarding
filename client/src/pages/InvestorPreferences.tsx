@@ -1539,7 +1539,7 @@ export default function InvestorPreferences() {
                         onClick={randomizeAnswers}
                         variant="outline"
                         size="sm"
-                        className="flex items-center gap-2 text-sm rounded-2xl bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border-slate-600 shadow-md hover:shadow-lg transition-all duration-300 px-4 py-2"
+                        className="flex items-center gap-2 text-sm rounded-2xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white border-[var(--primary)] shadow-md hover:shadow-lg transition-all duration-300 px-4 py-2"
                         data-testid="button-randomize-answers"
                       >
                         <Sparkles className="h-4 w-4" />
