@@ -303,7 +303,7 @@ function WebsiteFactCheckerComponent() {
   }
 
   return (
-    <div className="p-0 max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="p-0 h-[85vh] max-h-[85vh] overflow-hidden flex flex-col">
       {/* Professional Header */}
       <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-5 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
