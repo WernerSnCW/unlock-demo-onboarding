@@ -18,18 +18,23 @@ interface PortfolioDisplayProps {
   };
 }
 
-// Chart colors for consistent theming
+// Chart colors for vibrant, professional financial visualization
 const CHART_COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--secondary))', 
-  'hsl(var(--accent))',
-  '#8884d8',
-  '#82ca9d',
-  '#ffc658',
-  '#ff7c7c',
-  '#8dd1e1',
-  '#d084d0',
-  '#ffb366'
+  '#0891b2', // Vibrant cyan (primary equivalent)
+  '#06b6d4', // Bright cyan 
+  '#3b82f6', // Bright blue
+  '#8b5cf6', // Purple
+  '#10b981', // Emerald green
+  '#f59e0b', // Amber
+  '#ef4444', // Red
+  '#f97316', // Orange
+  '#84cc16', // Lime green
+  '#ec4899', // Pink
+  '#6366f1', // Indigo
+  '#14b8a6', // Teal
+  '#a855f7', // Violet
+  '#22c55e', // Green
+  '#eab308'  // Yellow
 ];
 
 export function PortfolioDisplay({ 
