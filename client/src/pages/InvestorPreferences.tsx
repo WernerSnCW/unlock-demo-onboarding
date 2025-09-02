@@ -1270,12 +1270,26 @@ export default function InvestorPreferences() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">        
 
         <Tabs defaultValue="detailed" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="detailed" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-8 bg-[var(--muted)] p-1 rounded-lg">
+            <TabsTrigger 
+              value="detailed" 
+              className={`flex items-center gap-2 rounded-md transition-all duration-300 ${
+                activeTab === "detailed" 
+                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm" 
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
               <Target className="h-4 w-4" />
               Investor Preferences
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="profile" 
+              className={`flex items-center gap-2 rounded-md transition-all duration-300 ${
+                activeTab === "profile" 
+                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm" 
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
               <User className="h-4 w-4" />
               Discover Your Investment Profile
             </TabsTrigger>
