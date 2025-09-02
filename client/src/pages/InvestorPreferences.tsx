@@ -20,7 +20,10 @@ import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTrian
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
+import { useAdditionalBeliefs } from '@/hooks/useAdditionalBeliefs';
 import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
+import { PortfolioDisplay } from '@/components/PortfolioDisplay';
+import { SCENARIO_NAMES } from '@/data/beliefQuestions';
 
 const preferencesSchema = z.object({
   activeInvestmentInterests: z.array(z.string()).min(1, 'Please select at least one investment interest'),
@@ -886,6 +889,76 @@ const questionnaireQuestions: QuestionnaireQuestion[] = [
     ]
   }
 ];
+
+// Portfolio Recommendations Button Component
+function PortfolioRecommendationsButton({ 
+  persona, 
+  selectedScenarios, 
+  scenarioWeights 
+}: { 
+  persona: PersonaDef; 
+  selectedScenarios: string[]; 
+  scenarioWeights: any[];
+}) {
+  const [showPortfolio, setShowPortfolio] = useState(false);
+  const { 
+    portfolioResult, 
+    isComplete: portfolioComplete,
+    skipToNeutral 
+  } = useAdditionalBeliefs();
+
+  const handleShowPortfolio = () => {
+    if (selectedScenarios.length > 0) {
+      // Use the selected scenarios to generate portfolio
+      skipToNeutral(persona); // This will generate the portfolio result
+      setShowPortfolio(true);
+    }
+  };
+
+  if (showPortfolio && portfolioResult) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <Button 
+            onClick={() => setShowPortfolio(false)}
+            variant="outline"
+            size="sm"
+            className="mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Scenario Selection
+          </Button>
+        </div>
+        
+        <PortfolioDisplay
+          baseAllocation={portfolioResult.baseAllocation}
+          personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
+          scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
+          personaName={persona.name}
+          explanations={portfolioResult.explanations}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Button 
+      size="lg"
+      onClick={handleShowPortfolio}
+      disabled={selectedScenarios.length === 0}
+      className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg disabled:opacity-50"
+      data-testid="button-continue-analysis"
+    >
+      <TrendingUp className="h-5 w-5" />
+      Show Portfolio Recommendations
+      {selectedScenarios.length === 0 && (
+        <Badge variant="outline" className="ml-2">
+          Select scenarios first
+        </Badge>
+      )}
+    </Button>
+  );
+}
 
 export default function InvestorPreferences() {
   const { toast } = useToast();
@@ -2307,14 +2380,11 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
                 <ArrowLeft className="h-5 w-5" />
                 Back to Persona
               </Button>
-              <Button 
-                size="lg"
-                className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
-                data-testid="button-continue-analysis"
-              >
-                <TrendingUp className="h-5 w-5" />
-                Continue to Portfolio Analysis
-              </Button>
+              <PortfolioRecommendationsButton 
+                persona={persona}
+                selectedScenarios={Array.from(selectedScenarios)}
+                scenarioWeights={scenarioWeights}
+              />
             </div>
           </CardContent>
         </Card>
