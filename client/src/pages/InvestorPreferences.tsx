@@ -2136,10 +2136,10 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
           <CardHeader>
             <CardTitle className="text-2xl text-[var(--foreground)] flex items-center gap-2">
               <BarChart3 className="h-6 w-6 text-[var(--secondary)]" />
-              Scenario Probability Weights
+              Scenario Match % (relative to your answers)
             </CardTitle>
             <CardDescription>
-              Based on your beliefs, here are the calculated scenario probabilities for stress testing
+              Based on your economic beliefs, here are the calculated scenario match percentages for stress testing
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -2147,26 +2147,49 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
               {scenarioWeights.slice(0, 8).map((item, index) => (
                 <div
                   key={item.scenario}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-[var(--border)] bg-[var(--card)]"
+                  className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 ${
+                    item.isMasked 
+                      ? 'border-[var(--muted)] bg-[var(--muted)]/10 opacity-60' 
+                      : 'border-[var(--border)] bg-[var(--card)]'
+                  }`}
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center text-white font-bold text-sm">
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                    item.isMasked 
+                      ? 'bg-[var(--muted)]' 
+                      : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
+                  }`}>
                     {index + 1}
                   </div>
                   <div className="flex-grow">
-                    <div className="font-semibold text-[var(--foreground)] capitalize">
+                    <div className="font-semibold text-[var(--foreground)] capitalize flex items-center gap-2">
                       {item.scenario.replace(/_/g, ' ')}
+                      {item.isMasked && (
+                        <span 
+                          className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)] cursor-help"
+                          title="No supporting answers for this scenario"
+                        >
+                          ⓘ Masked
+                        </span>
+                      )}
                     </div>
                     <div className="text-sm text-[var(--muted-foreground)]">
                       Raw weight: {item.weight.toFixed(3)}
+                      {item.isMasked && ' (below threshold)'}
                     </div>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <div className="text-lg font-bold text-[var(--foreground)]">
+                    <div className={`text-lg font-bold ${
+                      item.isMasked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'
+                    }`}>
                       {(item.normalizedWeight * 100).toFixed(1)}%
                     </div>
                     <div className="w-24 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
+                        className={`h-full transition-all duration-300 ${
+                          item.isMasked 
+                            ? 'bg-[var(--muted)]' 
+                            : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
+                        }`}
                         style={{ width: `${item.normalizedWeight * 100}%` }}
                       />
                     </div>
@@ -2175,10 +2198,26 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
               ))}
             </div>
             
-            <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
-              <p className="text-sm text-[var(--muted-foreground)] text-center">
-                These scenario weights will be used to stress test portfolio performance across different economic conditions.
-              </p>
+            <div className="mt-6 space-y-4">
+              <div className="p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+                <p className="text-sm text-[var(--muted-foreground)] text-center">
+                  These scenario match percentages will be used to stress test portfolio performance across different economic conditions.
+                </p>
+              </div>
+              
+              {/* Configuration Display */}
+              <details className="p-3 bg-[var(--muted)]/5 rounded-lg border border-[var(--border)]">
+                <summary className="cursor-pointer text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                  Configuration Settings
+                </summary>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-[var(--muted-foreground)]">
+                  <div>Softmax Temperature: 0.5</div>
+                  <div>Mean Centering: Enabled</div>
+                  <div>Mask Threshold: 0.001</div>
+                  <div>Display Cap: 80%</div>
+                  <div className="col-span-2">Question Boosts: Energy Policy (1.3x), FX View (1.25x), Policy Support (1.2x)</div>
+                </div>
+              </details>
             </div>
           </CardContent>
         </Card>

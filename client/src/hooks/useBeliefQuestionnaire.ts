@@ -17,6 +17,7 @@ export interface ScenarioWeight {
   scenario: string;
   weight: number;
   normalizedWeight: number;
+  isMasked: boolean;
 }
 
 export function useBeliefQuestionnaire() {
@@ -58,6 +59,19 @@ export function useBeliefQuestionnaire() {
   }, [canGoBack]);
 
   const calculateScenarioWeights = useCallback((answers: BeliefAnswer[]) => {
+    // Enhanced configuration
+    const config = {
+      softmaxTemperature: 0.5,
+      meanCenterScores: true,
+      maskedSoftmaxThreshold: 0.001,
+      questionBoosts: { 
+        "B5_energy_policy": 1.3, 
+        "B10_fx_view": 1.25, 
+        "B12_policy_support": 1.2 
+      } as Record<string, number>,
+      displayCapPct: 80
+    };
+
     const rawWeights: Record<string, number> = {};
 
     // Initialize scenario weights
@@ -72,7 +86,7 @@ export function useBeliefQuestionnaire() {
       rawWeights[scenario] = 0;
     });
 
-    // Calculate weighted contributions from each answer
+    // Step 1: Build raw scenario scores with question boosts
     answers.forEach(answer => {
       const questionWeights = beliefsData.weights[answer.questionId as keyof typeof beliefsData.weights];
       if (questionWeights) {
@@ -89,28 +103,95 @@ export function useBeliefQuestionnaire() {
           
           // Normalize to 0-1 range
           const normalizedImpact = (impactMultiplier - 1) / 4;
-          rawWeights[scenario] += weight * normalizedImpact;
+          
+          // Step 2: Apply question boosts
+          const boost = config.questionBoosts[answer.questionId] || 1.0;
+          const boostedContribution = weight * normalizedImpact * boost;
+          
+          rawWeights[scenario] += boostedContribution;
         });
       }
     });
 
-    // Apply softmax normalization for probability weights
-    const maxWeight = Math.max(...Object.values(rawWeights));
-    const expWeights = Object.entries(rawWeights).map(([scenario, weight]) => ({
-      scenario,
-      expWeight: Math.exp(weight - maxWeight) // Subtract max for numerical stability
-    }));
+    console.log('Raw weights before processing:', rawWeights);
+
+    // Step 3: Mean-centre scores
+    if (config.meanCenterScores) {
+      const average = Object.values(rawWeights).reduce((sum, weight) => sum + weight, 0) / allScenarios.size;
+      Object.keys(rawWeights).forEach(scenario => {
+        rawWeights[scenario] -= average;
+      });
+    }
+
+    console.log('Weights after mean-centering:', rawWeights);
+
+    // Step 4: Masking - identify scenarios below threshold
+    const activeScenarios = Object.entries(rawWeights)
+      .filter(([, weight]) => weight > config.maskedSoftmaxThreshold)
+      .map(([scenario]) => scenario);
+
+    console.log('Active scenarios:', activeScenarios);
+
+    // Step 5: Temperature-scaled softmax
+    const activeWeights = activeScenarios.map(scenario => rawWeights[scenario]);
+    const maxWeight = Math.max(...activeWeights);
+    
+    const expWeights = activeScenarios.map(scenario => {
+      const tempScaledWeight = (rawWeights[scenario] - maxWeight) / config.softmaxTemperature;
+      return {
+        scenario,
+        expWeight: Math.exp(tempScaledWeight)
+      };
+    });
 
     const sumExpWeights = expWeights.reduce((sum, item) => sum + item.expWeight, 0);
 
-    const normalizedWeights = expWeights.map(({ scenario, expWeight }) => ({
-      scenario,
-      weight: rawWeights[scenario],
-      normalizedWeight: expWeight / sumExpWeights
-    }));
+    // Build final results
+    const results: ScenarioWeight[] = [];
+    
+    // Add active scenarios with calculated percentages
+    expWeights.forEach(({ scenario, expWeight }) => {
+      let normalizedWeight = expWeight / sumExpWeights;
+      
+      // Step 6: Apply display cap
+      if (normalizedWeight > (config.displayCapPct / 100)) {
+        normalizedWeight = config.displayCapPct / 100;
+      }
+      
+      results.push({
+        scenario,
+        weight: rawWeights[scenario],
+        normalizedWeight,
+        isMasked: false
+      });
+    });
+
+    // Add masked scenarios with 0%
+    allScenarios.forEach(scenario => {
+      if (!activeScenarios.includes(scenario)) {
+        results.push({
+          scenario,
+          weight: rawWeights[scenario],
+          normalizedWeight: 0,
+          isMasked: true
+        });
+      }
+    });
+
+    // Rescale to ensure sum is 100% after capping
+    const totalActive = results.filter(r => !r.isMasked).reduce((sum, r) => sum + r.normalizedWeight, 0);
+    if (totalActive > 0) {
+      results.forEach(result => {
+        if (!result.isMasked) {
+          result.normalizedWeight = result.normalizedWeight / totalActive;
+        }
+      });
+    }
+
+    console.log('Final scenario weights:', results);
 
     // Sort by normalized weight descending
-    return normalizedWeights.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
+    return results.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
   }, [questions]);
 
   const resetQuestionnaire = useCallback(() => {

@@ -1,0 +1,86 @@
+Make scenario scores more decisive by:
+
+sharpening softmax (temperature),
+
+mean-centring the raw weights,
+
+masking scenarios that have zero (or near-zero) evidence,
+
+allowing simple reweighting of the most discriminative belief questions.
+
+Config (add these keys)
+
+softmaxTemperature: number, default 0.5 (lower → sharper separation; 1.0 = current behaviour).
+
+meanCenterScores: boolean, default true (subtract the average raw score before softmax).
+
+maskedSoftmaxThreshold: number, default 0.001 (raw scores ≤ threshold are excluded from normalisation).
+
+questionBoosts: map of belief IDs → multiplier (e.g., { "B5": 1.4, "B10": 1.3 }) to strengthen high-signal questions.
+
+displayCapPct: number, default 80 (cap any single scenario’s displayed % at 80 to avoid false certainty).
+
+Processing pipeline (exact steps)
+
+Build raw scenario scores from answers using your existing question→scenario weights.
+
+Apply questionBoosts: multiply the contribution from any boosted question by its multiplier before adding to the scenario totals.
+
+Mean-centre (if meanCenterScores=true): subtract the average of the raw scenario scores from each scenario’s raw score.
+
+Masking: mark any scenario with (post-centering) raw score ≤ maskedSoftmaxThreshold as inactive (excluded from normalisation and displayed as 0%).
+
+Temperature-scaled softmax: divide the remaining raw scores by softmaxTemperature before applying softmax to convert them to percentages that sum to 100.
+
+Cap for display: if any scenario’s % exceeds displayCapPct, set it to that cap and proportionally rescale the remainder so the total is still 100.
+
+Rank, show top list, and apply your existing “pick/blend/neutral” decision rules (e.g., clear winner ≥10 pts over #2; blend if within 3–9 pts).
+
+UI/UX requirements
+
+Show “Scenario Match % (relative to your answers)”—do not label them “probabilities”.
+
+If a scenario was masked, display it with 0% and a small tooltip “No supporting answers for this scenario.”
+
+Surface the config values somewhere admin-visible (read-only) so you know what’s active.
+
+Defaults (what to turn on now)
+
+softmaxTemperature = 0.5
+
+meanCenterScores = true
+
+maskedSoftmaxThreshold = 0.001
+
+questionBoosts = { "B5": 1.3, "B10": 1.25, "B12": 1.2 }
+(Example: B5 = energy disruption belief, B10 = GBP view, B12 = policy stance. Adjust to your IDs.)
+
+Acceptance tests (run these to confirm)
+
+Sharper separation: With the same answers that previously gave ~14/14/13/…%, the top scenario should now be ≥25% and the tail lower.
+
+Masking works: A scenario with raw weight exactly 0 displays 0% (not ~10%).
+
+Boosts move the needle: Temporarily set a big boost on one belief (e.g., B5=2.0); the linked scenario’s % increases meaningfully.
+
+Temperature dial: Raising softmaxTemperature from 0.5 to 0.8 visibly flattens the distribution; lowering to 0.3 makes it spikier.
+
+Sum to 100: After masking and capping, displayed percentages still sum to 100%.
+
+Decision rule sanity: The “Top vs #2 gap” rule triggers Use Top when the gap ≥10 pts and Blend when the gap is 3–9 pts.
+
+Safeguards
+
+If all scenarios are masked (edge case), fall back to Neutral/Base and show a banner: “Answers were too evenly spread or non-committal; running Neutral.”
+
+Log the pre- and post-temperature scores in debug so you can audit why a scenario won.
+
+Keep a config switch to revert to legacy behaviour instantly: softmaxTemperature=1.0, meanCenterScores=false, maskedSoftmaxThreshold=0.
+
+Tuning tips
+
+If the top scenario still feels too low, lower the temperature further (e.g., 0.4).
+
+If too many scenarios show small non-zero %s, raise the mask threshold slightly (e.g., 0.005).
+
+If a few beliefs dominate too much, dial back their questionBoosts to ~1.1–1.2.
