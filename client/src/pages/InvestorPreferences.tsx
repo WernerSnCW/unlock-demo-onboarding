@@ -895,6 +895,9 @@ export default function InvestorPreferences() {
 
   // Persona details modal state
   const [selectedPersonaForDetails, setSelectedPersonaForDetails] = useState<typeof investorPersonas[0] | null>(null);
+  
+  // Active tab state
+  const [activeTab, setActiveTab] = useState("detailed");
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -1192,13 +1195,13 @@ export default function InvestorPreferences() {
       
       toast({
         title: "Preferences Saved!",
-        description: "Your investment preferences have been saved successfully. You can now proceed to the demo simulation.",
+        description: "Your investment preferences have been saved successfully. Switching to investment profile discovery...",
       });
       
-      // Navigate back to demo agenda after a brief delay
+      // Switch to the "Discover Your Investment Profile" tab after a brief delay
       setTimeout(() => {
-        setLocation('/demo/agenda');
-      }, 2000);
+        setActiveTab("profile");
+      }, 1500);
       
     } catch (error) {
       toast({
@@ -1264,7 +1267,7 @@ export default function InvestorPreferences() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">        
 
-        <Tabs defaultValue="detailed" className="w-full">
+        <Tabs defaultValue="detailed" className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="detailed" className="flex items-center gap-2">
               <Target className="h-4 w-4" />
