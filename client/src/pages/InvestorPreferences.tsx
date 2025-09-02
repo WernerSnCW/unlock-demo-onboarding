@@ -1304,8 +1304,7 @@ export default function InvestorPreferences() {
                   });
                 }}
                 size="lg"
-                variant="outline"
-                className="bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] hover:from-[var(--accent)]/90 hover:to-[var(--secondary)]/90 border-[var(--accent)]/50"
+                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0"
                 data-testid="button-demo-autoselect"
               >
                 <Sparkles className="mr-2 h-4 w-4" />
