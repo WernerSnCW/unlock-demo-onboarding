@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, X, CheckCircle, BarChart3, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
-import { DIMENSION_LABELS } from '@/data/personas';
+import { DIMENSION_LABELS, INVESTMENT_PERSONAS } from '@/data/personas';
 
 const preferencesSchema = z.object({
   activeInvestmentInterests: z.array(z.string()).min(1, 'Please select at least one investment interest'),
@@ -1546,6 +1546,8 @@ export default function InvestorPreferences() {
 }
 
 function PersonaQuizContent() {
+  const [selectedPersona, setSelectedPersona] = useState(null);
+  
   const {
     currentQuestion,
     currentQuestionIndex,
@@ -1792,6 +1794,87 @@ function PersonaQuizContent() {
           )}
         </div>
 
+        {/* Alternative Persona Selection */}
+        <Card className="border border-[var(--border)] shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl text-[var(--foreground)]">
+              <Users className="h-5 w-5 text-[var(--secondary)]" />
+              Don't Agree? Choose Your Persona
+            </CardTitle>
+            <CardDescription>
+              Browse all 19 investment personas and select one that better matches your style
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {Object.values(INVESTMENT_PERSONAS).map((persona) => (
+                <div
+                  key={persona.code}
+                  onClick={() => setSelectedPersona(persona)}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                    selectedPersona?.code === persona.code
+                      ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-lg'
+                      : result.topMatch.persona.code === persona.code
+                        ? 'border-[var(--secondary)] bg-[var(--secondary)]/10'
+                        : 'border-[var(--border)] hover:border-[var(--accent)] bg-[var(--card)]'
+                  }`}
+                  data-testid={`persona-card-${persona.code}`}
+                >
+                  {/* Match indicator */}
+                  {result.topMatch.persona.code === persona.code && !selectedPersona && (
+                    <div className="absolute -top-2 -right-2 bg-[var(--secondary)] text-white rounded-full p-1">
+                      <Target className="h-3 w-3" />
+                    </div>
+                  )}
+                  
+                  {/* Selection indicator */}
+                  {selectedPersona?.code === persona.code && (
+                    <div className="absolute -top-2 -right-2 bg-[var(--primary)] text-white rounded-full p-1">
+                      <CheckCircle className="h-3 w-3" />
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <div className="text-xs font-bold text-[var(--accent)]">
+                      {persona.code}
+                    </div>
+                    <div className="text-sm font-semibold text-[var(--foreground)] leading-tight">
+                      {persona.name}
+                    </div>
+                    <div className="text-xs text-[var(--muted-foreground)]">
+                      {persona.wealthTier}
+                    </div>
+                    <div className="text-xs text-[var(--muted-foreground)]">
+                      {persona.riskProfile}
+                    </div>
+                    <div className="text-xs font-medium text-[var(--accent)]">
+                      £{(persona.portfolioValue / 1000).toFixed(0)}k
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {selectedPersona && (
+              <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="font-semibold text-[var(--foreground)]">Selected: {selectedPersona.name}</span>
+                </div>
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  {selectedPersona.notes}
+                </p>
+                <button 
+                  onClick={() => setSelectedPersona(null)}
+                  className="mt-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                >
+                  Clear selection to use quiz result
+                </button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Action Buttons */}
         <Card className="border border-[var(--border)] shadow-lg">
           <CardContent className="pt-6">
@@ -1812,14 +1895,17 @@ function PersonaQuizContent() {
                 data-testid="button-use-persona"
               >
                 <Target className="h-5 w-5" />
-                Use This Persona
+                Use {selectedPersona ? selectedPersona.name : result.topMatch.persona.name}
               </Button>
             </div>
             
             <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
               <p className="text-sm text-[var(--muted-foreground)] text-center flex items-center justify-center gap-2">
                 <Target className="h-4 w-4 text-[var(--accent)]" />
-                This classification helps us tailor investment recommendations and educational content specifically for your profile.
+                {selectedPersona 
+                  ? `You've selected "${selectedPersona.name}" as your investment persona. This will be used to tailor recommendations.`
+                  : 'This classification helps us tailor investment recommendations and educational content specifically for your profile.'
+                }
               </p>
             </div>
           </CardContent>
