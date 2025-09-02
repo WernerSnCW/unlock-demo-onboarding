@@ -78,7 +78,7 @@ export default function Header() {
             {/* Demo Button */}
             <Link 
               href="/demo"
-              className="hidden sm:inline-flex items-center px-4 py-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm"
+              className="hidden sm:inline-flex items-center px-4 py-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-2xl font-semibold hover:opacity-90 transition-opacity shadow-sm"
               data-testid="button-demo"
             >
               <Play className="h-4 w-4 mr-2" />
@@ -200,7 +200,7 @@ export default function Header() {
             {/* Mobile Demo Button */}
             <Link 
               href="/demo"
-              className="flex items-center px-3 py-2 text-base font-medium rounded-md bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white mb-2"
+              className="flex items-center px-3 py-2 text-base font-medium rounded-2xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white mb-2"
               onClick={() => setIsMobileMenuOpen(false)}
               data-testid="button-demo-mobile"
             >
