@@ -1201,6 +1201,8 @@ export default function InvestorPreferences() {
       // Switch to the "Discover Your Investment Profile" tab after a brief delay
       setTimeout(() => {
         setActiveTab("profile");
+        // Scroll to top when switching tabs
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 1500);
       
     } catch (error) {
