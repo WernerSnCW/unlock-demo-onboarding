@@ -306,6 +306,18 @@ export default function AdviceGap() {
                     START ONBOARDING
                     <ArrowRight className="h-8 w-8 ml-4 group-hover:translate-x-2 transition-transform" />
                   </Link>
+                  
+                  <div className="mt-6">
+                    <Link 
+                      href="/investor-preferences"
+                      className="group inline-flex items-center px-10 py-4 bg-white/10 text-white border-2 border-white/30 rounded-2xl font-bold text-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+                      data-testid="button-go-profiling"
+                    >
+                      <Users className="h-6 w-6 mr-3 group-hover:scale-110 transition-transform" />
+                      Go to Profiling
+                      <ChevronRight className="h-6 w-6 ml-3 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
