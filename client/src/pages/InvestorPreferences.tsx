@@ -562,7 +562,7 @@ function PersonaQuizContent() {
                   Aligned Dimensions
                 </h4>
                 <div className="space-y-2">
-                  {result.topMatch.alignedDimensions?.map((dim, index) => (
+                  {result.alignedDimensions?.map((dim, index) => (
                     <div key={`aligned-${index}`} className="flex items-center gap-2 text-sm">
                       <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
                       <span className="text-[var(--foreground)]">{dimensionLabels[dim]}</span>
@@ -576,7 +576,7 @@ function PersonaQuizContent() {
                   Different Dimensions
                 </h4>
                 <div className="space-y-2">
-                  {result.topMatch.differentDimensions?.map((dim, index) => (
+                  {result.notableDifferences?.map((dim, index) => (
                     <div key={`different-${index}`} className="flex items-center gap-2 text-sm">
                       <Minus className="h-4 w-4 text-[var(--warning)]" />
                       <span className="text-[var(--muted-foreground)]">{dimensionLabels[dim]}</span>
