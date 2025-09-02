@@ -903,10 +903,11 @@ export default function DemoPortfolioAnalysis() {
                         'mortgage-type', 'rental-margin', 'property-liquidation',
                         'cash-buffer', 'min-cash-buffer', 'eis-budget', 'eis-timeline', 'tax-rate',
                         'tech-exposure', 'crypto-allocation', 'crypto-storage',
-                        'income-drawdown', 'max-concentration', 'risk-tolerance', 'loss-tolerance'
+                        'income-drawdown', 'max-concentration', 'risk-tolerance', 'loss-tolerance',
+                        'rebalance-frequency'
                       ];
                       
-                      // Randomly select one option from each group
+                      // Randomly select one option from each radio group
                       radioGroups.forEach(groupName => {
                         const radios = document.querySelectorAll(`input[name="${groupName}"]`);
                         if (radios.length > 0) {
@@ -916,6 +917,13 @@ export default function DemoPortfolioAnalysis() {
                           const randomIndex = Math.floor(Math.random() * radios.length);
                           radios[randomIndex].checked = true;
                         }
+                      });
+                      
+                      // Handle checkboxes for inflation spending sensitivity
+                      const inflationCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+                      inflationCheckboxes.forEach(checkbox => {
+                        // Randomly check/uncheck each checkbox (50% chance)
+                        checkbox.checked = Math.random() > 0.5;
                       });
                     }}
                     className="px-6 py-3 bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
