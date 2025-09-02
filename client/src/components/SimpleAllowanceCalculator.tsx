@@ -235,23 +235,47 @@ export default function SimpleAllowanceCalculator() {
   const formatCurrency = (amount: number) => `£${amount.toLocaleString()}`;
 
   return (
-    <div className="p-6 bg-[var(--background)] space-y-6">
-
-      
-      {/* Header with Help Button */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">SEIS/EIS Allowance Calculator</h2>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Optimize your tax relief across SEIS and EIS investments</p>
+    <div className="p-0 h-[80vh] overflow-y-auto bg-gray-50 dark:bg-gray-900">
+      {/* Professional Header */}
+      <div className="bg-gradient-to-r from-[#5193B3] to-[#62C4C3] text-white px-6 py-4 sticky top-0 z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+              <i className="fas fa-calculator text-lg text-white" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">SEIS/EIS Allowance Calculator</h3>
+              <p className="text-white/90 text-xs">Optimize your tax relief across SEIS and EIS investments</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowUserGuide(true)}
+            className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center gap-2 border border-white/10"
+          >
+            <i className="fas fa-question-circle"></i>
+            User Guide
+          </button>
         </div>
-        <button
-          onClick={() => setShowUserGuide(true)}
-          className="bg-[var(--info)] text-[var(--info-foreground)] px-4 py-2 rounded-[var(--radius-sm)] hover:bg-[var(--info)]/90 transition-colors flex items-center gap-2"
-        >
-          <i className="fas fa-question-circle"></i>
-          User Guide
-        </button>
+        
+        {/* Feature Highlights */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+            <div className="text-sm font-bold text-white">Tax Optimization</div>
+            <div className="text-xs text-white/80">Auto Maximize</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+            <div className="text-sm font-bold text-white">SEIS/EIS Relief</div>
+            <div className="text-xs text-white/80">50% & 30%</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+            <div className="text-sm font-bold text-white">Carry-Back</div>
+            <div className="text-xs text-white/80">Smart Allocation</div>
+          </div>
+        </div>
       </div>
+      
+      {/* Content */}
+      <div className="p-6">
 
       {/* User Guide Modal */}
       <UserGuide isOpen={showUserGuide} onClose={() => setShowUserGuide(false)} />
@@ -653,15 +677,16 @@ export default function SimpleAllowanceCalculator() {
         </div>
       </div>
 
-      {/* Important Disclaimers */}
-      <div className="bg-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-[var(--radius-sm)] p-4">
-        <h4 className="font-medium text-[var(--warning)] mb-2">Important Notes</h4>
-        <ul className="text-sm text-[var(--card-foreground)] list-disc list-inside space-y-1">
-          <li><strong>Estimation Only:</strong> This calculator is for planning purposes. Always consult a qualified tax advisor</li>
-          <li><strong>Deadlines:</strong> Tax relief claims must be made by 31st January following the end of the relevant tax year</li>
-          <li><strong>Risk Capital:</strong> SEIS/EIS investments carry significant risk - you may lose your capital</li>
-          <li><strong>Qualifying Investments:</strong> Ensure your investments qualify for the relief schemes</li>
-        </ul>
+        {/* Important Disclaimers */}
+        <div className="bg-[var(--warning)]/10 border border-[var(--warning)]/30 rounded-[var(--radius-sm)] p-4">
+          <h4 className="font-medium text-[var(--warning)] mb-2">Important Notes</h4>
+          <ul className="text-sm text-[var(--card-foreground)] list-disc list-inside space-y-1">
+            <li><strong>Estimation Only:</strong> This calculator is for planning purposes. Always consult a qualified tax advisor</li>
+            <li><strong>Deadlines:</strong> Tax relief claims must be made by 31st January following the end of the relevant tax year</li>
+            <li><strong>Risk Capital:</strong> SEIS/EIS investments carry significant risk - you may lose your capital</li>
+            <li><strong>Qualifying Investments:</strong> Ensure your investments qualify for the relief schemes</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
