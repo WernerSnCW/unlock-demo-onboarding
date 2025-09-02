@@ -16,7 +16,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, Zap, X } from 'lucide-react';
+import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, Zap, X, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { DIMENSION_LABELS } from '@/data/personas';
@@ -25,6 +25,16 @@ const preferencesSchema = z.object({
   activeInvestmentInterests: z.array(z.string()).min(1, 'Please select at least one investment interest'),
   learningCuriosityAreas: z.array(z.string()).min(1, 'Please select at least one area of curiosity'),
   geographicPreferences: z.array(z.string()).min(1, 'Please select at least one geographic preference'),
+  investorObjective: z.enum(['wealth_building', 'wealth_preservation', 'hybrid']).optional(),
+  riskProfile: z.enum(['conservative', 'cautious', 'balanced', 'growth', 'aggressive']).optional(),
+  managementStyle: z.enum(['minimal', 'moderate', 'high']).optional(),
+  decisionMakingStyle: z.enum(['rely_advisors', 'independent_research', 'collaborate_peers']).optional(),
+  liquidityPreference: z.enum(['prefer_liquid', 'mixed_acceptable', 'comfortable_illiquid']).optional(),
+  investmentHorizon: z.enum(['short_term', 'medium_term', 'long_term']).optional(),
+  esgImportance: z.enum(['not_important', 'somewhat_important', 'very_important']).optional(),
+  riskCapacity: z.number().optional(),
+  ticketSizeMin: z.number().optional(),
+  ticketSizeMax: z.number().optional(),
 });
 
 type PreferencesFormData = z.infer<typeof preferencesSchema>;
@@ -667,16 +677,16 @@ function mapAnswersToCsvFormat(answers: QuestionnaireAnswer[]): Record<string, s
 function classifyInvestorPersona(formData: PreferencesFormData): { persona: typeof investorPersonas[0], score: number } {
   // For backwards compatibility, convert form data to questionnaire answers
   const mockAnswers: QuestionnaireAnswer[] = [
-    { questionId: 'investment_objective', response: formData.investorObjective },
-    { questionId: 'risk_profile', response: formData.riskProfile },
-    { questionId: 'time_commitment', response: formData.managementStyle },
+    { questionId: 'investment_objective', response: formData.investorObjective || 'hybrid' },
+    { questionId: 'risk_profile', response: formData.riskProfile || 'balanced' },
+    { questionId: 'time_commitment', response: formData.managementStyle || 'moderate' },
     { questionId: 'decision_making', response: formData.decisionMakingStyle === 'rely_advisors' ? 'advisors' : formData.decisionMakingStyle === 'collaborate_peers' ? 'community' : 'independent' },
-    { questionId: 'liquidity_importance', response: formData.liquidityPreference === 'mixed_acceptable' ? 'mixed' : formData.liquidityPreference },
+    { questionId: 'liquidity_importance', response: formData.liquidityPreference === 'mixed_acceptable' ? 'mixed' : formData.liquidityPreference || 'mixed' },
     { questionId: 'current_portfolio', response: 'diversified_equities' }, // Default
     { questionId: 'asset_interests', response: ['public_equities'] }, // Default
     { questionId: 'biggest_challenge', response: 'lack_time' }, // Default
     { questionId: 'annual_return_target', response: 'eight_to_twelve' }, // Default
-    { questionId: 'esg_importance', response: formData.esgImportance }
+    { questionId: 'esg_importance', response: formData.esgImportance || 'somewhat_important' }
   ];
 
   return classifyInvestorPersonaFromAnswers(mockAnswers);
@@ -1530,6 +1540,7 @@ export default function InvestorPreferences() {
           </TabsContent>
         </Tabs>
       </div>
+      </main>
     </div>
   );
 }
