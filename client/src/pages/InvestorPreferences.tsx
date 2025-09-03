@@ -1891,7 +1891,8 @@ function PersonaQuizContent() {
                 return (
                   <div 
                     key={index} 
-                    className="relative text-center p-4 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 rounded-xl border-2 border-[var(--border)]/30 hover:border-[var(--primary)]/40 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+                    className="text-center p-4 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 rounded-xl border-2 border-[var(--border)]/30 hover:border-[var(--primary)]/40 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+                    style={{ position: 'static' }}
                   >
                     {/* Progress Ring Background */}
                     <div className="absolute inset-0 rounded-xl opacity-10" 
@@ -1910,13 +1911,17 @@ function PersonaQuizContent() {
                             <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-help transition-colors" />
                           </TooltipTrigger>
                           <TooltipContent 
-                            className="max-w-xs p-4 border-2 border-[var(--border)] shadow-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            className="max-w-xs p-4 border-2 border-[var(--border)] shadow-2xl"
                             style={{ 
-                              zIndex: 99999,
-                              position: 'fixed'
+                              backgroundColor: '#ffffff',
+                              color: '#000000',
+                              zIndex: 999999,
+                              position: 'absolute'
                             }}
                             side="top"
-                            sideOffset={5}
+                            sideOffset={10}
+                            avoidCollisions={true}
+                            sticky="always"
                           >
                             <p className="text-sm leading-relaxed font-medium">
                               {getDimensionExplanation(index)}
