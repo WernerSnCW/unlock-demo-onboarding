@@ -1891,8 +1891,7 @@ function PersonaQuizContent() {
                 return (
                   <div 
                     key={index} 
-                    className="text-center p-4 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 rounded-xl border-2 border-[var(--border)]/30 hover:border-[var(--primary)]/40 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
-                    style={{ position: 'static' }}
+                    className="relative text-center p-4 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 rounded-xl border-2 border-[var(--border)]/30 hover:border-[var(--primary)]/40 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
                   >
                     {/* Progress Ring Background */}
                     <div className="absolute inset-0 rounded-xl opacity-10" 
