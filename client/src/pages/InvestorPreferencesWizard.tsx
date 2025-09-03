@@ -985,6 +985,336 @@ function PersonaQuizContentWizard() {
           </CardContent>
         </Card>
 
+        {/* Runner-up Match */}
+        {result.runnerUp && (
+          <Card className="border border-[var(--border)] bg-gradient-to-br from-[var(--secondary)]/5 to-transparent shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="px-3 py-1 border-[var(--secondary)] text-[var(--secondary)]">
+                      📊 RUNNER-UP
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-xl font-bold text-[var(--secondary)]">
+                    {result.runnerUp.persona.name}
+                  </CardTitle>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-[var(--secondary)]">
+                    {result.runnerUp.matchScore}%
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[var(--muted-foreground)] mb-4">
+                {result.runnerUp.persona.notes}
+              </p>
+              <div className="bg-[var(--accent)]/10 rounded-lg p-3 border border-[var(--accent)]/20">
+                <p className="text-sm text-[var(--muted-foreground)] flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-[var(--accent)]" />
+                  We default to the safer option when scores are close for better risk management.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* User Profile Scores */}
+        <Card className="border border-[var(--border)] bg-gradient-to-br from-[var(--accent)]/5 to-transparent shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl text-[var(--foreground)]">
+              <BarChart3 className="h-5 w-5 text-[var(--accent)]" />
+              Your 8-Dimensional Investment Profile
+            </CardTitle>
+            <CardDescription>
+              How you scored across our research-backed investment dimensions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TooltipProvider>
+              <div className="h-96 mb-6">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart 
+                  data={result.userProfile.map((score, index) => ({
+                    dimension: dimensionLabels[index],
+                    value: score,
+                    fullMark: 5
+                  }))}
+                  margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
+                >
+                  <PolarGrid 
+                    stroke="var(--foreground)" 
+                    strokeOpacity={0.2}
+                    strokeWidth={1}
+                  />
+                  <PolarAngleAxis 
+                    dataKey="dimension" 
+                    tick={{ 
+                      fontSize: 12, 
+                      fill: 'var(--foreground)',
+                      fontWeight: 500
+                    }}
+                    className="text-xs"
+                  />
+                  <PolarRadiusAxis 
+                    domain={[0, 5]} 
+                    angle={90} 
+                    tick={{ 
+                      fontSize: 10, 
+                      fill: 'var(--muted-foreground)',
+                    }}
+                    tickCount={6}
+                  />
+                  <Radar
+                    name="Your Profile"
+                    dataKey="value"
+                    stroke="var(--primary)"
+                    fill="var(--primary)"
+                    fillOpacity={0.15}
+                    strokeWidth={3}
+                    dot={{ 
+                      fill: 'var(--accent)', 
+                      strokeWidth: 2, 
+                      stroke: 'var(--primary)',
+                      r: 5
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Score Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              {result.userProfile.map((score, index) => {
+                const percentage = (score / 5) * 100;
+                const getScoreColor = (score: number) => {
+                  if (score >= 4) return 'var(--success)';
+                  if (score >= 3) return 'var(--primary)';
+                  if (score >= 2) return 'var(--warning)';
+                  return 'var(--destructive)';
+                };
+
+                const getDimensionExplanation = (dimensionIndex: number) => {
+                  const explanations = [
+                    "How comfortable you are with investment volatility and potential losses. Higher scores indicate willingness to accept more risk for potentially higher returns.",
+                    "Your preference for property-based investments like real estate, REITs, and property funds. Higher scores indicate strong property allocation preference.",
+                    "Your openness to alternative investments like private equity, hedge funds, commodities, and cryptocurrency. Higher scores indicate greater appetite for non-traditional assets.",
+                    "How much you prioritize tax-efficient investing through ISAs, pensions, EIS/SEIS, and other tax wrappers. Higher scores indicate strong tax optimization focus.",
+                    "Your preference for income-generating vs growth investments. Higher scores indicate preference for dividends, bonds, and regular income streams.",
+                    "Your investment time horizon and legacy planning considerations. Higher scores indicate longer-term outlook and intergenerational wealth planning.",
+                    "How much cash and easily accessible investments you prefer to maintain. Higher scores indicate preference for readily available funds.",
+                    "How much you rely on professional financial advice vs independent decision-making. Higher scores indicate preference for advisor-guided investing."
+                  ];
+                  return explanations[dimensionIndex] || "Investment dimension explanation";
+                };
+                
+                return (
+                  <div 
+                    key={index} 
+                    className="relative text-center p-4 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 rounded-xl border-2 border-[var(--border)]/30 hover:border-[var(--primary)]/40 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+                  >
+                    {/* Progress Ring Background */}
+                    <div className="absolute inset-0 rounded-xl opacity-10" 
+                         style={{ 
+                           background: `conic-gradient(${getScoreColor(score)} ${percentage}%, var(--muted) ${percentage}%)` 
+                         }}>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center gap-1 mb-2">
+                        <div className="text-xs font-semibold text-[var(--muted-foreground)] leading-tight">
+                          {dimensionLabels[index]}
+                        </div>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-pointer transition-colors" />
+                          </PopoverTrigger>
+                          <PopoverContent 
+                            className="w-80 p-4 bg-white dark:bg-gray-900 border shadow-xl"
+                            side="top"
+                            align="center"
+                            sideOffset={8}
+                            style={{ zIndex: 999999 }}
+                          >
+                            <p className="text-sm leading-relaxed text-gray-900 dark:text-gray-100">
+                              {getDimensionExplanation(index)}
+                            </p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div 
+                        className="text-2xl font-bold mb-1"
+                        style={{ color: getScoreColor(score) }}
+                      >
+                        {score.toFixed(1)}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)] font-medium">
+                        / 5.0
+                      </div>
+                      
+                      {/* Mini progress bar */}
+                      <div className="w-full bg-[var(--border)] rounded-full h-1.5 mt-2">
+                        <div 
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: getScoreColor(score)
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              </div>
+            </TooltipProvider>
+          </CardContent>
+        </Card>
+
+        {/* Analysis Deep Dive */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Aligned Dimensions */}
+          <Card className="border border-[var(--success)]/20 bg-gradient-to-br from-[var(--success)]/5 to-transparent shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg text-[var(--success)]">
+                <CheckCircle className="h-5 w-5" />
+                Strong Alignment
+              </CardTitle>
+              <CardDescription>
+                These dimensions match your persona well
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {result.alignedDimensions.map((dimension, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-3 bg-[var(--success)]/5 rounded-lg border border-[var(--success)]/10">
+                    <div className="w-2 h-2 bg-[var(--success)] rounded-full"></div>
+                    <span className="text-[var(--foreground)] font-medium">{dimension}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notable Differences */}
+          {result.notableDifferences.length > 0 && (
+            <Card className="border border-[var(--warning)]/20 bg-gradient-to-br from-[var(--warning)]/5 to-transparent shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg text-[var(--warning)]">
+                  <AlertTriangle className="h-5 w-5" />
+                  Areas of Difference
+                </CardTitle>
+                <CardDescription>
+                  Where you might differ from the typical persona
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {result.notableDifferences.map((dimension, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-[var(--warning)]/5 rounded-lg border border-[var(--warning)]/10">
+                      <div className="w-2 h-2 bg-[var(--warning)] rounded-full"></div>
+                      <span className="text-[var(--foreground)] font-medium">{dimension}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Alternative Persona Selection */}
+        <Card className="border border-[var(--border)] shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl text-[var(--foreground)]">
+              <Users className="h-5 w-5 text-[var(--secondary)]" />
+              Don't Agree? Choose Your Persona
+            </CardTitle>
+            <CardDescription>
+              Browse all 19 investment personas and select one that better matches your style
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {Object.values(INVESTMENT_PERSONAS).map((persona) => {
+                const isMatchedPersona = result.topMatch.persona.code === persona.code;
+                const isSelected = selectedPersona?.code === persona.code;
+                
+                return (
+                  <div
+                    key={persona.code}
+                    onClick={() => setSelectedPersona(persona)}
+                    className={`relative cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                      isMatchedPersona ? 'transform scale-110' : ''
+                    } ${
+                      isSelected
+                        ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-lg border-2 p-4 rounded-xl'
+                        : isMatchedPersona
+                          ? 'border-[var(--secondary)] bg-gradient-to-br from-[var(--secondary)]/20 to-[var(--accent)]/10 shadow-xl border-4 p-4 rounded-xl ring-2 ring-[var(--secondary)]/30'
+                          : 'border-[var(--border)] hover:border-[var(--accent)] bg-[var(--card)] border-2 p-4 rounded-xl'
+                    }`}
+                    data-testid={`persona-card-${persona.code}`}
+                  >
+                    {/* Quiz Match Badge - Always visible for matched persona */}
+                    {isMatchedPersona && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                        <div className="bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                          <Target className="h-3 w-3" />
+                          QUIZ MATCH
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Selection indicator */}
+                    {isSelected && (
+                      <div className="absolute -top-2 -right-2 bg-[var(--primary)] text-white rounded-full p-1 z-10">
+                        <CheckCircle className="h-3 w-3" />
+                      </div>
+                    )}
+                    
+                    <div className={`space-y-2 ${isMatchedPersona ? 'pt-4' : ''}`}>
+                      <div className={`text-xs font-bold ${isMatchedPersona ? 'text-[var(--secondary)]' : 'text-[var(--accent)]'}`}>
+                        {persona.code}
+                      </div>
+                      <div className={`text-sm font-semibold leading-tight ${isMatchedPersona ? 'text-[var(--secondary)] font-bold' : 'text-[var(--foreground)]'}`}>
+                        {persona.name}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {persona.wealthTier}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {persona.riskProfile}
+                      </div>
+                      <div className={`text-xs font-medium ${isMatchedPersona ? 'text-[var(--secondary)]' : 'text-[var(--accent)]'}`}>
+                        £{(persona.portfolioValue / 1000).toFixed(0)}k
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {selectedPersona && (
+              <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="font-semibold text-[var(--foreground)]">Selected: {selectedPersona.name}</span>
+                </div>
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  {selectedPersona.notes}
+                </p>
+                <button 
+                  onClick={() => setSelectedPersona(null)}
+                  className="mt-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                >
+                  Clear selection to use quiz result
+                </button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Action Buttons */}
         <Card className="border border-[var(--border)] shadow-lg">
           <CardContent className="pt-6">
