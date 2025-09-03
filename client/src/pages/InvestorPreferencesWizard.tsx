@@ -177,11 +177,11 @@ export default function InvestorPreferencesWizard() {
       <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-[var(--primary)]" />
+            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <User className="w-5 h-5 text-green-600" />
               Investor Information
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-700 dark:text-gray-300">
               Let's start by capturing your name for personalized investment preferences.
             </DialogDescription>
           </DialogHeader>
@@ -192,15 +192,19 @@ export default function InvestorPreferencesWizard() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel className="text-gray-900 dark:text-gray-100 font-medium">Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your full name" {...field} />
+                      <Input 
+                        placeholder="Enter your full name" 
+                        className="text-gray-900 dark:text-gray-100"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
                 Continue to Preferences
               </Button>
             </form>
