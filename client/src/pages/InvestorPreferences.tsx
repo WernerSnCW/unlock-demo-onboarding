@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, X, CheckCircle, BarChart3, Zap, Info } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
@@ -1905,22 +1906,22 @@ function PersonaQuizContent() {
                         <div className="text-xs font-semibold text-[var(--muted-foreground)] leading-tight">
                           {dimensionLabels[index]}
                         </div>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-help transition-colors" />
-                          </TooltipTrigger>
-                          <TooltipContent 
-                            className="max-w-sm p-4 bg-white dark:bg-gray-900 border-2 shadow-xl"
-                            style={{ zIndex: 999999 }}
-                            side="bottom"
-                            sideOffset={8}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-pointer transition-colors" />
+                          </PopoverTrigger>
+                          <PopoverContent 
+                            className="w-80 p-4 bg-white dark:bg-gray-900 border shadow-xl"
+                            side="top"
                             align="center"
+                            sideOffset={8}
+                            style={{ zIndex: 999999 }}
                           >
                             <p className="text-sm leading-relaxed text-gray-900 dark:text-gray-100">
                               {getDimensionExplanation(index)}
                             </p>
-                          </TooltipContent>
-                        </Tooltip>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                       <div 
                         className="text-2xl font-bold mb-1"
