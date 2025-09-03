@@ -38,6 +38,7 @@ interface BeliefQuestion {
 }
 import { PortfolioDisplay } from '@/components/PortfolioDisplay';
 import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
+import { PERSONA_DEFAULTS, type AssetBucket, type Mix } from '@/data/personaDefaults';
 import { type BeliefQuestionData, SCENARIO_NAMES } from '@/data/beliefQuestions';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -2198,31 +2199,80 @@ function PersonalizedPortfolioAnalysis() {
     );
   }
 
-  // Create portfolio allocation based on persona biases
+  // Get detailed portfolio allocation from persona defaults
+  const personaDefaults = PERSONA_DEFAULTS[matchedPersona.code];
+  if (!personaDefaults) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="text-center py-12">
+            <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Portfolio data not available</h3>
+            <p className="text-[var(--muted-foreground)]">
+              No allocation data found for persona {matchedPersona.code}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Group detailed allocations into major categories
   const portfolioAllocation = [
-    { 
-      name: 'Property & Real Estate', 
-      value: Math.round(matchedPersona.propertyBias * 100), 
-      color: '#8B5CF6',
-      description: 'Direct property, REITs, property development'
-    },
-    { 
-      name: 'Technology & Growth', 
-      value: Math.round(matchedPersona.techBias * 100), 
-      color: '#06B6D4',
-      description: 'Tech stocks, AI, fintech, cryptocurrency'
-    },
-    { 
-      name: 'Alternative Investments', 
-      value: Math.round(matchedPersona.altBias * 100), 
-      color: '#F59E0B',
-      description: 'Private equity, venture capital, collectibles'
-    },
-    { 
-      name: 'Traditional Assets', 
-      value: Math.max(0, 100 - Math.round((matchedPersona.propertyBias + matchedPersona.techBias + matchedPersona.altBias) * 100)), 
+    {
+      name: 'Cash & Fixed Income',
+      value: Math.round((personaDefaults.CASH + personaDefaults.BILLS_SHORT_GILTS + personaDefaults.GILTS_LONG + personaDefaults.IG_CREDIT) * 100),
       color: '#10B981',
-      description: 'Stocks, bonds, index funds, cash'
+      assets: ['Cash', 'Government Bonds', 'Corporate Credit'],
+      description: 'Safe havens providing income and stability'
+    },
+    {
+      name: 'Global Equity',
+      value: Math.round((personaDefaults.GLOBAL_EQUITY + personaDefaults.UK_EQUITY_VALUE) * 100),
+      color: '#3B82F6',
+      assets: ['International Stocks', 'UK Value Stocks'],
+      description: 'Traditional equity investments for growth'
+    },
+    {
+      name: 'Technology & Growth',
+      value: Math.round(personaDefaults.GROWTH_TECH * 100),
+      color: '#06B6D4',
+      assets: ['Tech Stocks', 'Growth Companies'],
+      description: 'High-growth technology investments'
+    },
+    {
+      name: 'Property & Real Estate',
+      value: Math.round(personaDefaults.PROPERTY_UK_RESI * 100),
+      color: '#8B5CF6',
+      assets: ['UK Residential Property'],
+      description: 'Direct property and real estate investments'
+    },
+    {
+      name: 'Commodities & Gold',
+      value: Math.round((personaDefaults.COMMODITIES + personaDefaults.GOLD) * 100),
+      color: '#F59E0B',
+      assets: ['Commodity Futures', 'Gold'],
+      description: 'Inflation hedges and store of value'
+    },
+    {
+      name: 'Alternative Investments',
+      value: Math.round(personaDefaults.ALTERNATIVES * 100),
+      color: '#EF4444',
+      assets: ['Private Equity', 'Hedge Funds'],
+      description: 'Non-traditional investment strategies'
+    },
+    {
+      name: 'Cryptocurrency',
+      value: Math.round((personaDefaults.CRYPTO_BTC + personaDefaults.CRYPTO_ETH) * 100),
+      color: '#F97316',
+      assets: ['Bitcoin', 'Ethereum'],
+      description: 'Digital assets and blockchain investments'
+    },
+    {
+      name: 'Collectibles',
+      value: Math.round((personaDefaults.COLLECTIBLES_ART + personaDefaults.COLLECTIBLES_WINE) * 100),
+      color: '#A855F7',
+      assets: ['Art', 'Fine Wine'],
+      description: 'Luxury collectible investments'
     }
   ].filter(item => item.value > 0);
 
@@ -2255,7 +2305,7 @@ function PersonalizedPortfolioAnalysis() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
                 {portfolioAllocation.map((item, index) => (
-                  <div key={index} className="space-y-2">
+                  <div key={index} className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="font-medium text-[var(--foreground)]">{item.name}</span>
                       <span className="font-semibold text-[var(--foreground)]">{item.value}%</span>
@@ -2269,7 +2319,14 @@ function PersonalizedPortfolioAnalysis() {
                         }}
                       />
                     </div>
-                    <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
+                    <div className="space-y-1">
+                      <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
+                      {'assets' in item && (
+                        <p className="text-xs text-[var(--muted-foreground)]/80">
+                          Includes: {item.assets.join(', ')}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
