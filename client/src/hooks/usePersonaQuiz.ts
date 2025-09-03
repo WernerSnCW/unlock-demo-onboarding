@@ -93,13 +93,21 @@ export function usePersonaQuiz() {
     // Sort by match score (descending)
     matches.sort((a, b) => b.matchScore - a.matchScore);
 
-    // Apply softmax for relative confidence
-    const maxScore = Math.max(...matches.map(m => m.matchScore));
-    const expScores = matches.map(m => Math.exp(m.matchScore - maxScore));
-    const sumExpScores = expScores.reduce((sum, exp) => sum + exp, 0);
-    
+    // Calculate confidence as gap from runner-up (more intuitive)
     matches.forEach((match, index) => {
-      match.confidence = Math.round((expScores[index] / sumExpScores) * 100);
+      if (index === 0) {
+        // Top match: base confidence on absolute score and gap to runner-up
+        const runnerUpScore = matches[1]?.matchScore || 0;
+        const gap = match.matchScore - runnerUpScore;
+        const baseConfidence = Math.min(95, match.matchScore); // Cap at 95%
+        const gapBonus = Math.min(20, gap * 2); // Up to 20% bonus for large gaps
+        match.confidence = Math.min(99, Math.round(baseConfidence + gapBonus));
+      } else {
+        // Other matches: scale down from top match
+        const topConfidence = matches[0].confidence;
+        const scoreRatio = match.matchScore / matches[0].matchScore;
+        match.confidence = Math.round(topConfidence * scoreRatio * 0.8); // Scale down
+      }
     });
 
     return matches;
