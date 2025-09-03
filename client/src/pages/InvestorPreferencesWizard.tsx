@@ -2003,10 +2003,23 @@ function BeliefQuestionnaireComponent({
                         const result = await response.json();
                         console.log('Belief responses saved successfully:', result);
                         
-                        // Navigate to Portfolio Analysis section
+                        // Navigate to Portfolio Analysis section by manually triggering the existing tab logic
                         console.log('Navigating to analysis tab...');
-                        setShowBeliefQuestionnaire(false); // Exit beliefs questionnaire mode
-                        setActiveMainTab('analysis');
+                        
+                        // Trigger the same onValueChange logic that happens when user clicks a tab manually
+                        const tabChangeHandler = (value: string) => {
+                          if (value === 'beliefs') {
+                            setShowBeliefQuestionnaire(true);
+                            setActiveMainTab('beliefs');
+                          } else {
+                            setShowBeliefQuestionnaire(false);
+                            setActiveMainTab(value);
+                          }
+                        };
+                        
+                        // Call the handler directly with 'analysis'
+                        tabChangeHandler('analysis');
+                        
                         console.log('Navigation completed successfully');
                         
                         // Show success message
