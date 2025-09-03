@@ -378,11 +378,8 @@ export default function InvestorPreferencesWizard() {
           </DialogContent>
         </Dialog>
 
-        {/* Conditional: Economic Beliefs Assessment (Section 3) */}
-        {showBeliefQuestionnaire && <BeliefQuestionnaireComponent />}
-
         {/* Main Tab Navigation */}
-        {!showBeliefQuestionnaire && (
+        {!showBeliefQuestionnaire ? (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
             <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
             {/* Enhanced Tab Navigation */}
@@ -851,6 +848,11 @@ export default function InvestorPreferencesWizard() {
             </TabsContent>
           </Tabs>
         </div>
+        ) : (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
+            {/* Economic Beliefs Assessment (Section 3) */}
+            <BeliefQuestionnaireComponent />
+          </div>
         )}
       </main>
       <Footer />
