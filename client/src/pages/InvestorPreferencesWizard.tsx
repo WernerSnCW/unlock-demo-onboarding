@@ -284,28 +284,93 @@ export default function InvestorPreferencesWizard() {
         {/* Main Tab Navigation */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
           <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8 bg-[var(--muted)] p-1 rounded-lg h-auto">
-              {mainTabs.map((tab) => {
-                const IconComponent = tab.icon;
-                return (
-                  <TabsTrigger 
-                    key={tab.id}
-                    value={tab.id} 
-                    className={`flex flex-col items-center gap-2 rounded-md transition-all duration-300 p-4 ${
-                      activeMainTab === tab.id 
-                        ? "!bg-[var(--primary)] !text-white shadow-md border-0" 
-                        : "bg-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--background)]"
-                    }`}
-                  >
-                    <IconComponent className="h-5 w-5" />
-                    <div className="text-center">
-                      <div className="font-medium text-sm">{tab.title}</div>
-                      <div className="text-xs opacity-70">{tab.description}</div>
-                    </div>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+            {/* Enhanced Tab Navigation */}
+            <div className="mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {mainTabs.map((tab, index) => {
+                  const IconComponent = tab.icon;
+                  const isActive = activeMainTab === tab.id;
+                  const isCompleted = index === 0 && completedSteps.size > 0; // Example logic
+                  
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveMainTab(tab.id)}
+                      className={`group relative bg-white dark:bg-gray-800 rounded-2xl p-6 text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 ${
+                        isActive 
+                          ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 shadow-lg' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600'
+                      }`}
+                    >
+                      {/* Step Number */}
+                      <div className={`absolute -top-3 -left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        isActive 
+                          ? 'bg-green-500 text-white' 
+                          : isCompleted 
+                          ? 'bg-green-100 text-green-600 dark:bg-green-800 dark:text-green-200'
+                          : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      
+                      {/* Icon */}
+                      <div className={`mb-4 flex justify-center ${
+                        isActive ? 'text-green-600' : 'text-gray-400 group-hover:text-green-500'
+                      }`}>
+                        <div className={`p-3 rounded-full transition-colors ${
+                          isActive 
+                            ? 'bg-green-100 dark:bg-green-800' 
+                            : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-green-50 dark:group-hover:bg-green-900/20'
+                        }`}>
+                          <IconComponent className="w-6 h-6" />
+                        </div>
+                      </div>
+                      
+                      {/* Title */}
+                      <h3 className={`font-semibold text-base mb-2 ${
+                        isActive 
+                          ? 'text-green-800 dark:text-green-200' 
+                          : 'text-gray-700 dark:text-gray-200 group-hover:text-green-700 dark:group-hover:text-green-300'
+                      }`}>
+                        {tab.title}
+                      </h3>
+                      
+                      {/* Description */}
+                      <p className={`text-sm leading-tight ${
+                        isActive 
+                          ? 'text-green-600 dark:text-green-300' 
+                          : 'text-gray-500 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400'
+                      }`}>
+                        {tab.description}
+                      </p>
+                      
+                      {/* Active Indicator */}
+                      {isActive && (
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+                          <div className="w-4 h-4 bg-green-500 rounded-full border-4 border-white dark:border-gray-800"></div>
+                        </div>
+                      )}
+                      
+                      {/* Completed Badge */}
+                      {isCompleted && !isActive && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              {/* Progress Connector Line */}
+              <div className="hidden md:block relative mt-8">
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-700"></div>
+                <div 
+                  className="absolute top-0 left-0 h-0.5 bg-green-500 transition-all duration-500"
+                  style={{ width: `${(mainTabs.findIndex(tab => tab.id === activeMainTab) / (mainTabs.length - 1)) * 100}%` }}
+                ></div>
+              </div>
+            </div>
 
             {/* Tab Content: Investment Preferences */}
             <TabsContent value="preferences">
