@@ -1994,17 +1994,19 @@ function BeliefQuestionnaireComponent() {
                         const result = await response.json();
                         console.log('Belief responses saved successfully:', result);
                         
-                        // Navigate to Portfolio Analysis section first (before toast)
+                        // Navigate to Portfolio Analysis section
                         console.log('Navigating to analysis tab...');
                         
-                        // Use setTimeout to avoid React state update conflicts
-                        setTimeout(() => {
-                          setShowBeliefQuestionnaire(false); // Exit beliefs questionnaire
+                        // Force navigate by directly triggering the tab click handler  
+                        const analysisTab = document.querySelector('[data-tab="analysis"]');
+                        if (analysisTab) {
+                          (analysisTab as HTMLElement).click();
+                          console.log('Navigation completed via DOM click');
+                        } else {
+                          // Fallback: just update the main tab (let beliefs questionnaire stay active)
                           setActiveMainTab('analysis');
-                          console.log('Navigation completed successfully');
-                        }, 100);
-                        
-                        console.log('Navigation scheduled successfully');
+                          console.log('Navigation completed via state update');
+                        }
                         
                         // Show success message
                         toast({
