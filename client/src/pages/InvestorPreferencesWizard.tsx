@@ -1336,7 +1336,7 @@ function PersonaQuizContentWizard({
                         {persona.riskProfile}
                       </div>
                       <div className={`text-xs font-medium ${isMatchedPersona ? 'text-[var(--secondary)]' : 'text-[var(--accent)]'}`}>
-                        £{(persona.portfolioValue / 1000).toFixed(0)}k
+                        £{(persona.portfolioValue / 1000).toLocaleString()}K
                       </div>
                     </div>
                   </div>
@@ -2513,7 +2513,7 @@ function PersonalizedPortfolioAnalysis() {
             <div className="text-center p-6 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--accent)]/20">
               <h3 className="text-lg font-medium text-[var(--muted-foreground)] mb-2">Recommended Portfolio Size</h3>
               <p className="text-3xl font-bold text-[var(--foreground)]">
-                £{(matchedPersona.portfolioValue / 1000).toFixed(0)}k
+                £{(matchedPersona.portfolioValue / 1000).toLocaleString()}K
               </p>
               <p className="text-sm text-[var(--muted-foreground)] mt-1">{matchedPersona.wealthTier}</p>
             </div>
