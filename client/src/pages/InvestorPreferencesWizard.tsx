@@ -1616,6 +1616,9 @@ function BeliefQuestionnaireComponent() {
     autoCompleteQuestionnaire
   } = beliefData;
 
+  // Get total questions - for now use a fixed number since we need to add to hook
+  const totalQuestions = 15; // Update this when hook is fixed
+
   const { toast } = useToast();
 
   if (isComplete) {
@@ -1694,6 +1697,26 @@ function BeliefQuestionnaireComponent() {
           <CardDescription className="text-base">
             Section 3: Share your views on economic trends to personalize your investment strategy.
           </CardDescription>
+          
+          {/* Question Counter */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-[var(--muted-foreground)]">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </div>
+            <div className="text-sm text-[var(--muted-foreground)]">
+              {Math.round(progress)}% Complete
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mt-2">
+            <div className="w-full bg-[var(--muted)] rounded-full h-2">
+              <div 
+                className="bg-[var(--primary)] h-2 rounded-full transition-all duration-300 ease-out" 
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {/* Question */}
