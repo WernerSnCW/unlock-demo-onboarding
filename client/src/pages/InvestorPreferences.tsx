@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TrendingUp, Shield, Target, Lightbulb, BookOpen, DollarSign, AlertTriangle, Users, Globe, User, Heart, Clock, HelpCircle, Sparkles, Settings, Droplets, Brain, ThumbsUp, ThumbsDown, Minus, RotateCcw, ArrowRight, ArrowLeft, X, CheckCircle, BarChart3, Zap, Info } from 'lucide-react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
@@ -1810,22 +1811,68 @@ function PersonaQuizContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
+            <div className="h-96 mb-6">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart 
+                  data={result.userProfile.map((score, index) => ({
+                    dimension: dimensionLabels[index],
+                    value: score,
+                    fullMark: 5
+                  }))}
+                  margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
+                >
+                  <PolarGrid 
+                    stroke="var(--border)" 
+                    strokeOpacity={0.3}
+                  />
+                  <PolarAngleAxis 
+                    dataKey="dimension" 
+                    tick={{ 
+                      fontSize: 12, 
+                      fill: 'var(--foreground)',
+                      fontWeight: 500
+                    }}
+                    className="text-xs"
+                  />
+                  <PolarRadiusAxis 
+                    domain={[0, 5]} 
+                    angle={90} 
+                    tick={{ 
+                      fontSize: 10, 
+                      fill: 'var(--muted-foreground)',
+                    }}
+                    tickCount={6}
+                  />
+                  <Radar
+                    name="Your Profile"
+                    dataKey="value"
+                    stroke="var(--primary)"
+                    fill="var(--primary)"
+                    fillOpacity={0.15}
+                    strokeWidth={3}
+                    dot={{ 
+                      fill: 'var(--accent)', 
+                      strokeWidth: 2, 
+                      stroke: 'var(--primary)',
+                      r: 5
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Score Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
               {result.userProfile.map((score, index) => (
-                <div key={index} className="bg-[var(--card)] rounded-lg p-4 border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-[var(--foreground)]">
-                      {dimensionLabels[index]}
-                    </span>
-                    <span className="text-sm font-bold text-[var(--accent)]">
-                      {score.toFixed(1)}/5
-                    </span>
+                <div key={index} className="text-center p-3 bg-[var(--muted)]/20 rounded-lg border border-[var(--border)]/50">
+                  <div className="text-xs font-medium text-[var(--muted-foreground)] mb-1">
+                    {dimensionLabels[index]}
                   </div>
-                  <div className="w-full bg-[var(--border)] rounded-full h-3">
-                    <div 
-                      className="bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] h-3 rounded-full transition-all duration-1000 shadow-sm"
-                      style={{ width: `${(score / 5) * 100}%` }}
-                    />
+                  <div className="text-lg font-bold text-[var(--accent)]">
+                    {score.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    / 5.0
                   </div>
                 </div>
               ))}
