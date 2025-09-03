@@ -1909,8 +1909,14 @@ function PersonaQuizContent() {
                           <TooltipTrigger asChild>
                             <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-help transition-colors" />
                           </TooltipTrigger>
-                          <TooltipContent className="max-w-xs p-3 bg-[var(--popover)] border-2 border-[var(--border)] shadow-xl z-50">
-                            <p className="text-sm leading-relaxed text-[var(--popover-foreground)]">
+                          <TooltipContent 
+                            className="max-w-xs p-4 border-2 border-[var(--border)] shadow-2xl z-50" 
+                            style={{ 
+                              backgroundColor: 'var(--card)', 
+                              color: 'var(--card-foreground)' 
+                            }}
+                          >
+                            <p className="text-sm leading-relaxed font-medium" style={{ color: 'var(--card-foreground)' }}>
                               {getDimensionExplanation(index)}
                             </p>
                           </TooltipContent>
