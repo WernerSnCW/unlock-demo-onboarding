@@ -1863,20 +1863,56 @@ function PersonaQuizContent() {
             </div>
             
             {/* Score Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-              {result.userProfile.map((score, index) => (
-                <div key={index} className="text-center p-3 bg-[var(--muted)]/20 rounded-lg border border-[var(--border)]/50">
-                  <div className="text-xs font-medium text-[var(--muted-foreground)] mb-1">
-                    {dimensionLabels[index]}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              {result.userProfile.map((score, index) => {
+                const percentage = (score / 5) * 100;
+                const getScoreColor = (score: number) => {
+                  if (score >= 4) return 'var(--success)';
+                  if (score >= 3) return 'var(--primary)';
+                  if (score >= 2) return 'var(--warning)';
+                  return 'var(--destructive)';
+                };
+                
+                return (
+                  <div 
+                    key={index} 
+                    className="relative text-center p-4 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 rounded-xl border-2 border-[var(--border)]/30 hover:border-[var(--primary)]/40 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+                  >
+                    {/* Progress Ring Background */}
+                    <div className="absolute inset-0 rounded-xl opacity-10" 
+                         style={{ 
+                           background: `conic-gradient(${getScoreColor(score)} ${percentage}%, var(--muted) ${percentage}%)` 
+                         }}>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <div className="text-xs font-semibold text-[var(--muted-foreground)] mb-2 leading-tight">
+                        {dimensionLabels[index]}
+                      </div>
+                      <div 
+                        className="text-2xl font-bold mb-1"
+                        style={{ color: getScoreColor(score) }}
+                      >
+                        {score.toFixed(1)}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)] font-medium">
+                        / 5.0
+                      </div>
+                      
+                      {/* Mini progress bar */}
+                      <div className="w-full bg-[var(--border)] rounded-full h-1.5 mt-2">
+                        <div 
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: getScoreColor(score)
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-lg font-bold text-[var(--accent)]">
-                    {score.toFixed(1)}
-                  </div>
-                  <div className="text-xs text-[var(--muted-foreground)]">
-                    / 5.0
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
