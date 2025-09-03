@@ -279,8 +279,7 @@ export default function InvestorPreferencesWizard() {
       <Header />
       <main className="flex-1 relative z-10">
         {/* Hero Section */}
-        {!showBeliefQuestionnaire && (
-          <div className="relative overflow-hidden py-20">
+        <div className="relative overflow-hidden py-20">
             {/* Dynamic Background Mesh */}
             <div className="absolute inset-0">
               <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
@@ -338,7 +337,6 @@ export default function InvestorPreferencesWizard() {
             )}
           </div>
         </div>
-        )}
 
         {/* Investor Name Dialog */}
         <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
