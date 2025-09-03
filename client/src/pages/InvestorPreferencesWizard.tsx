@@ -395,13 +395,22 @@ export default function InvestorPreferencesWizard() {
               <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {mainTabs.map((tab, index) => {
                   const IconComponent = tab.icon;
-                  const isActive = activeMainTab === tab.id;
+                  // Fix: Check if beliefs questionnaire is shown for proper tab highlighting
+                  const isActive = (showBeliefQuestionnaire && tab.id === 'beliefs') || (!showBeliefQuestionnaire && activeMainTab === tab.id);
                   const isCompleted = index === 0 && completedSteps.size > 0; // Example logic
                   
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveMainTab(tab.id)}
+                      onClick={() => {
+                        if (tab.id === 'beliefs') {
+                          setShowBeliefQuestionnaire(true);
+                          setActiveMainTab('beliefs');
+                        } else {
+                          setShowBeliefQuestionnaire(false);
+                          setActiveMainTab(tab.id);
+                        }
+                      }}
                       className={`group relative bg-white dark:bg-gray-800 rounded-2xl p-6 text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 ${
                         isActive 
                           ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 shadow-lg' 
