@@ -1822,8 +1822,9 @@ function PersonaQuizContent() {
                   margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
                 >
                   <PolarGrid 
-                    stroke="var(--border)" 
-                    strokeOpacity={0.3}
+                    stroke="var(--foreground)" 
+                    strokeOpacity={0.2}
+                    strokeWidth={1}
                   />
                   <PolarAngleAxis 
                     dataKey="dimension" 
