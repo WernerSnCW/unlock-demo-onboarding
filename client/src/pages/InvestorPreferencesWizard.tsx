@@ -100,6 +100,7 @@ export default function InvestorPreferencesWizard() {
   const [showNameDialog, setShowNameDialog] = useState(true);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isAutoCompleted, setIsAutoCompleted] = useState<boolean>(false);
+  const [showBeliefQuestionnaire, setShowBeliefQuestionnaire] = useState<boolean>(false);
   const { toast } = useToast();
 
   // Form for investor name
