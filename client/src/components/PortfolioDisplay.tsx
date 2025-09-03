@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Shield, PieChart, AlertTriangle, Brain, Loader2, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ASSET_NAMES } from '../data/scenarioDefaults';
+import { PERSONA_DEFAULTS, type AssetBucket, type Mix } from '../data/personaDefaults';
 import type { Allocation } from '../utils/personaRules';
 
 interface PortfolioDisplayProps {
@@ -12,6 +13,7 @@ interface PortfolioDisplayProps {
   personaAdjustedAllocation: Allocation;
   scenarioName: string;
   personaName: string;
+  personaCode: string; // Added to lookup default mix
   explanations: {
     scenarioReason: string;
     personaRulesApplied: string[];
@@ -42,6 +44,7 @@ export function PortfolioDisplay({
   personaAdjustedAllocation, 
   scenarioName,
   personaName,
+  personaCode,
   explanations 
 }: PortfolioDisplayProps) {
   const [interpretation, setInterpretation] = useState<string>('');
@@ -114,9 +117,25 @@ export function PortfolioDisplay({
       .sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
   };
 
+  // Get persona default mix
+  const personaDefaults = PERSONA_DEFAULTS[personaCode];
+  
+  // Prepare persona default chart data
+  const preparePersonaDefaultsData = (mix: Mix) => {
+    return Object.entries(mix)
+      .filter(([_, value]) => value > 0.005)
+      .sort(([,a], [,b]) => b - a)
+      .map(([asset, weight], index) => ({
+        name: ASSET_NAMES[asset] || asset.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()),
+        value: Number((weight * 100).toFixed(1)),
+        fill: CHART_COLORS[index % CHART_COLORS.length]
+      }));
+  };
+
   const baseChartData = prepareChartData(baseAllocation);
   const adjustedChartData = prepareChartData(personaAdjustedAllocation);
   const comparisonData = calculateDifferences();
+  const personaDefaultsData = personaDefaults ? preparePersonaDefaultsData(personaDefaults) : [];
 
   return (
     <div className="space-y-6">
@@ -148,6 +167,56 @@ export function PortfolioDisplay({
           </div>
         </CardHeader>
       </Card>
+
+      {/* Persona Default Portfolio Mix */}
+      {personaDefaults && (
+        <Card className="border-2 border-[var(--accent)]/40 bg-gradient-to-br from-[var(--accent)]/10 via-[var(--card)] to-[var(--primary)]/5 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
+              <PieChart className="h-5 w-5 text-[var(--accent)]" />
+              Your {personaName} Portfolio Template
+            </CardTitle>
+            <p className="text-sm text-[var(--muted-foreground)]">
+              This is the ideal baseline portfolio allocation for your investor persona, before any economic scenario adjustments.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie
+                    data={personaDefaultsData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={120}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {personaDefaultsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => [`${value}%`, 'Allocation']} />
+                  <Legend />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+              {personaDefaultsData.slice(0, 6).map((item, index) => (
+                <div key={index} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--muted)]/50">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: item.fill }}
+                  />
+                  <span className="text-sm font-medium text-[var(--foreground)]">{item.name}</span>
+                  <span className="text-sm text-[var(--muted-foreground)] ml-auto">{item.value}%</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Portfolio Comparison Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

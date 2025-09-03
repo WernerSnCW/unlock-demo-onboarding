@@ -1684,6 +1684,7 @@ function BeliefQuestionnaireComponent() {
           personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
           scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
           personaName={matchedPersona.name}
+          personaCode={matchedPersona.code}
           explanations={portfolioResult.explanations}
         />
       </div>
