@@ -1991,6 +1991,9 @@ function BeliefQuestionnaireComponent() {
                       });
 
                       if (response.ok) {
+                        const result = await response.json();
+                        console.log('Belief responses saved successfully:', result);
+                        
                         toast({
                           title: "Economic Beliefs Saved",
                           description: `Selected ${selectedScenarios.size} scenarios for portfolio analysis`,
@@ -2003,7 +2006,8 @@ function BeliefQuestionnaireComponent() {
                         setActiveMainTab('analysis');
                         
                       } else {
-                        throw new Error('Failed to save belief responses');
+                        const errorData = await response.text();
+                        throw new Error(`Failed to save belief responses: ${response.status} - ${errorData}`);
                       }
                     } catch (error) {
                       console.error('Error saving beliefs:', error);
