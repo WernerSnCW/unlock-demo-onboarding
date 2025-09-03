@@ -18,7 +18,9 @@ import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, B
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
+import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
 import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
+import { type BeliefQuestionData } from '@/data/beliefQuestions';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -276,12 +278,13 @@ export default function InvestorPreferencesWizard() {
       <Header />
       <main className="flex-1 relative z-10">
         {/* Hero Section */}
-        <div className="relative overflow-hidden py-20">
-          {/* Dynamic Background Mesh */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
-          </div>
+        {!showBeliefQuestionnaire && (
+          <div className="relative overflow-hidden py-20">
+            {/* Dynamic Background Mesh */}
+            <div className="absolute inset-0">
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
+              <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
+            </div>
           
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             {/* Floating Icon with Glow Effect */}
@@ -334,6 +337,7 @@ export default function InvestorPreferencesWizard() {
             )}
           </div>
         </div>
+        )}
 
         {/* Investor Name Dialog */}
         <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
@@ -374,9 +378,13 @@ export default function InvestorPreferencesWizard() {
           </DialogContent>
         </Dialog>
 
+        {/* Conditional: Economic Beliefs Assessment (Section 3) */}
+        {showBeliefQuestionnaire && <BeliefQuestionnaireComponent />}
+
         {/* Main Tab Navigation */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
-          <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
+        {!showBeliefQuestionnaire && (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
+            <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
             {/* Enhanced Tab Navigation */}
             <div className="mb-12">
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -843,6 +851,7 @@ export default function InvestorPreferencesWizard() {
             </TabsContent>
           </Tabs>
         </div>
+        )}
       </main>
       <Footer />
     </div>
@@ -1537,6 +1546,167 @@ function PersonaQuizContentWizard({
             </div>
             <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
               {Math.round(progress)}% Complete
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Economic Beliefs Assessment Component
+function BeliefQuestionnaireComponent() {
+  const {
+    currentQuestion,
+    currentQuestionIndex,
+    progress,
+    canGoBack,
+    isComplete,
+    answers,
+    scenarioWeights,
+    answerQuestion,
+    goBack,
+    resetQuestionnaire,
+    autoCompleteQuestionnaire
+  } = useBeliefQuestionnaire();
+
+  const { toast } = useToast();
+
+  if (isComplete) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Brain className="w-6 h-6 text-[var(--primary)]" />
+              Economic Beliefs Complete
+            </CardTitle>
+            <CardDescription className="text-base">
+              Your investment strategy has been personalized based on your economic outlook.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-4">Analysis Complete!</h3>
+              <p className="text-[var(--muted-foreground)] mb-6">
+                Your economic beliefs have been analyzed and will be used to tailor your investment portfolio.
+              </p>
+              <div className="space-y-2 mb-6">
+                <h4 className="font-medium">Top Economic Scenarios:</h4>
+                {scenarioWeights.slice(0, 3).map((weight, index) => (
+                  <div key={weight.scenario} className="flex justify-between items-center">
+                    <span className="text-sm text-[var(--muted-foreground)]">{weight.scenario}</span>
+                    <Badge variant="secondary">
+                      {Math.round(weight.normalizedWeight * 100)}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="bg-[var(--primary)] hover:bg-[var(--primary)]/90"
+              >
+                View Full Portfolio Analysis
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <AlertTriangle className="w-12 h-12 text-[var(--warning)] mx-auto mb-4" />
+            <p className="text-lg text-[var(--muted-foreground)]">
+              Loading economic beliefs assessment...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-8">
+      <Card className="border-0 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <Brain className="w-6 h-6 text-[var(--primary)]" />
+            Economic Beliefs Assessment
+          </CardTitle>
+          <CardDescription className="text-base">
+            Section 3: Share your views on economic trends to personalize your investment strategy.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Question */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-6 text-center text-[var(--foreground)]">
+              {(currentQuestion as any).prompt}
+            </h3>
+            
+            {/* Options */}
+            <div className="space-y-4">
+              {Object.entries((currentQuestion as any).options).map(([key, option]: [string, any], index) => (
+                <div
+                  key={key}
+                  className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
+                  onClick={() => answerQuestion(index)}
+                  data-testid={`belief-option-${index}`}
+                >
+                  <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
+                  <label className="flex-1 text-base cursor-pointer">
+                    {option.text}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between items-center">
+            {canGoBack ? (
+              <Button
+                onClick={goBack}
+                size="lg"
+                variant="outline"
+                className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)]"
+                data-testid="button-belief-back"
+              >
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Back
+              </Button>
+            ) : (
+              <div className="w-24" />
+            )}
+            
+            <Button
+              onClick={autoCompleteQuestionnaire}
+              size="lg"
+              variant="outline"
+              className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 text-[var(--warning)]"
+              data-testid="button-belief-auto-complete"
+            >
+              <Zap className="mr-2 h-5 w-5" />
+              Auto Complete
+            </Button>
+          </div>
+
+          {/* Progress */}
+          <div className="mt-8">
+            <div className="w-full bg-[var(--border)] rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+              Question {currentQuestionIndex + 1} - {Math.round(progress)}% Complete
             </p>
           </div>
         </CardContent>
