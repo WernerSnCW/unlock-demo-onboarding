@@ -1556,6 +1556,24 @@ function PersonaQuizContentWizard({
 
 // Economic Beliefs Assessment Component
 function BeliefQuestionnaireComponent() {
+  const beliefData = useBeliefQuestionnaire();
+  
+  // Add safety check for undefined hook data
+  if (!beliefData) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <AlertTriangle className="w-12 h-12 text-[var(--warning)] mx-auto mb-4" />
+            <p className="text-lg text-[var(--muted-foreground)]">
+              Loading belief questionnaire...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const {
     currentQuestion,
     currentQuestionIndex,
@@ -1568,7 +1586,7 @@ function BeliefQuestionnaireComponent() {
     goBack,
     resetQuestionnaire,
     autoCompleteQuestionnaire
-  } = useBeliefQuestionnaire();
+  } = beliefData;
 
   const { toast } = useToast();
 
@@ -1623,8 +1641,14 @@ function BeliefQuestionnaireComponent() {
           <CardContent className="p-8 text-center">
             <AlertTriangle className="w-12 h-12 text-[var(--warning)] mx-auto mb-4" />
             <p className="text-lg text-[var(--muted-foreground)]">
-              Loading economic beliefs assessment...
+              No belief questions available. Please try again later.
             </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+            >
+              Reload Page
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -1647,21 +1671,21 @@ function BeliefQuestionnaireComponent() {
           {/* Question */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-6 text-center text-[var(--foreground)]">
-              {(currentQuestion as any).prompt}
+              {currentQuestion.text || 'Question loading...'}
             </h3>
             
-            {/* Options */}
+            {/* Options - Simple scale for belief questions */}
             <div className="space-y-4">
-              {Object.entries((currentQuestion as any).options).map(([key, option]: [string, any], index) => (
+              {[1, 2, 3, 4, 5].map((value, index) => (
                 <div
-                  key={key}
+                  key={value}
                   className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
-                  onClick={() => answerQuestion(index)}
-                  data-testid={`belief-option-${index}`}
+                  onClick={() => answerQuestion(value)}
+                  data-testid={`belief-option-${value}`}
                 >
                   <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
                   <label className="flex-1 text-base cursor-pointer">
-                    {option.text}
+                    {value} - {value === 1 ? 'Strongly Disagree' : value === 2 ? 'Disagree' : value === 3 ? 'Neutral' : value === 4 ? 'Agree' : 'Strongly Agree'}
                   </label>
                 </div>
               ))}
