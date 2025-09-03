@@ -1587,8 +1587,26 @@ function PersonaQuizContentWizard({
 
 // Economic Beliefs Assessment Component  
 function BeliefQuestionnaireComponent() {
-  // For now, use a default persona - will be passed as prop later
-  const defaultPersona = INVESTMENT_PERSONAS[0]; // Temporary fallback
+  // Get the matched persona from stored quiz data
+  const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
+
+  // Load matched persona from localStorage
+  useEffect(() => {
+    const storedQuizData = localStorage.getItem('investorQuizData');
+    if (storedQuizData) {
+      try {
+        const quizData = JSON.parse(storedQuizData);
+        if (quizData.matchedPersonaCode) {
+          // Convert INVESTMENT_PERSONAS Record to array to find by code
+          const personaArray = Object.values(INVESTMENT_PERSONAS);
+          const persona = personaArray.find(p => p.code === quizData.matchedPersonaCode);
+          setMatchedPersona(persona || null);
+        }
+      } catch (error) {
+        console.error('Failed to load quiz data:', error);
+      }
+    }
+  }, []);
 
   // Use sophisticated beliefs hook instead of basic one
   const beliefData = useAdditionalBeliefs();
@@ -1626,6 +1644,22 @@ function BeliefQuestionnaireComponent() {
 
   const { toast } = useToast();
 
+  // Show loading if persona not loaded yet
+  if (!matchedPersona) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-lg text-[var(--muted-foreground)]">
+              Loading your investor profile...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (isComplete && portfolioResult) {
     // Use the sophisticated portfolio display from the proper implementation
     return (
@@ -1646,7 +1680,7 @@ function BeliefQuestionnaireComponent() {
           baseAllocation={portfolioResult.baseAllocation}
           personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
           scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
-          personaName={defaultPersona.name}
+          personaName={matchedPersona.name}
           explanations={portfolioResult.explanations}
         />
       </div>
@@ -1719,7 +1753,7 @@ function BeliefQuestionnaireComponent() {
                 <div
                   key={value}
                   className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
-                  onClick={() => answerQuestion(value.toString(), defaultPersona)}
+                  onClick={() => answerQuestion(value.toString(), matchedPersona)}
                   data-testid={`belief-option-${value}`}
                 >
                   <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
@@ -1749,7 +1783,7 @@ function BeliefQuestionnaireComponent() {
             )}
             
             <Button
-              onClick={() => autoComplete(defaultPersona)}
+              onClick={() => autoComplete(matchedPersona)}
               size="lg"
               variant="outline"
               className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 text-[var(--warning)]"
