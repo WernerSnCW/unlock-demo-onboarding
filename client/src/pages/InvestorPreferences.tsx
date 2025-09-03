@@ -2286,6 +2286,10 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
   const handleShowPortfolio = () => {
     skipToNeutral(persona);
     setShowPortfolioView(true);
+    // Scroll to top when showing portfolio recommendations
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   // Scroll to top when questionnaire is completed
