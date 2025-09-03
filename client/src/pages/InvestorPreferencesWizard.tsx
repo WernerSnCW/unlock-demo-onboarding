@@ -167,11 +167,37 @@ export default function InvestorPreferencesWizard() {
   const handleStep3Submit = async (data: Step3Data) => {
     const saved = await saveStep(3, data);
     if (saved) {
-      toast({
-        title: "All Done!",
-        description: "Your investment preferences have been saved successfully.",
-      });
-      // TODO: Navigate to next page or show completion
+      // Save complete investment preferences against investor name
+      const completePreferences = {
+        investorName,
+        activeInvestmentInterests: step1Form.getValues().activeInvestmentInterests,
+        learningCuriosityAreas: step2Form.getValues().learningCuriosityAreas,
+        geographicPreferences: data.geographicPreferences,
+        completedAt: new Date().toISOString()
+      };
+      
+      try {
+        // TODO: Implement actual API call to save complete preferences
+        console.log(`Saving complete investment preferences for investor ${investorName}:`, completePreferences);
+        
+        // Mark all steps as completed
+        setCompletedSteps(new Set([1, 2, 3]));
+        
+        // Navigate to Investment Profile Discovery (main tab 2)
+        setActiveMainTab('profile');
+        
+        toast({
+          title: "Investment Preferences Complete!",
+          description: `All preferences saved for ${investorName}. Moving to Investment Profile Discovery.`,
+        });
+        
+      } catch (error) {
+        toast({
+          title: "Save Error",
+          description: "Failed to save complete preferences. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
