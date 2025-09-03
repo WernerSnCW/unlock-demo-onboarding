@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign } from 'lucide-react';
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
@@ -2484,58 +2484,49 @@ function PersonalizedPortfolioAnalysis() {
               </div>
             </div>
 
-            {/* Portfolio Spider Diagram */}
+            {/* Portfolio Allocation Chart */}
             <div className="space-y-4">
               <h4 className="font-semibold text-[var(--foreground)]">Portfolio Allocation Overview</h4>
               <div className="p-6 bg-gradient-to-br from-[var(--accent)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--accent)]/20">
                 <ResponsiveContainer width="100%" height={400}>
-                  <RadarChart data={portfolioAllocation.map(item => ({
-                    category: item.name,
-                    value: item.value,
-                    fullMark: Math.max(...portfolioAllocation.map(p => p.value))
-                  }))}>
-                    <PolarGrid 
-                      stroke="#94a3b8"
-                      strokeWidth={2}
-                      radialLines={true}
-                    />
-                    <PolarAngleAxis 
-                      dataKey="category" 
-                      tick={{ 
-                        fontSize: 11, 
-                        fill: 'hsl(var(--foreground))',
-                        textAnchor: 'middle'
-                      }}
-                      className="text-[var(--foreground)]"
-                    />
-                    <PolarRadiusAxis 
-                      angle={90} 
-                      domain={[0, 100]}
-                      tickCount={6}
-                      tick={{ 
-                        fontSize: 10, 
-                        fill: 'hsl(var(--muted-foreground))' 
-                      }}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Radar
-                      name="Portfolio Allocation"
+                  <PieChart>
+                    <Pie
+                      data={portfolioAllocation}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={120}
+                      innerRadius={60}
+                      paddingAngle={2}
                       dataKey="value"
-                      stroke="#5193B3"
-                      fill="#62C4C3"
-                      fillOpacity={0.4}
-                      strokeWidth={3}
-                      dot={{ 
-                        fill: '#5193B3', 
-                        strokeWidth: 2, 
-                        r: 5,
-                        stroke: '#ffffff'
+                      label={({ name, value }) => `${value}%`}
+                      labelLine={false}
+                    >
+                      {portfolioAllocation.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      formatter={(value, name) => [`${value}%`, name]}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--foreground))'
                       }}
                     />
-                  </RadarChart>
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={36}
+                      formatter={(value) => value}
+                      wrapperStyle={{ 
+                        color: 'hsl(var(--foreground))',
+                        fontSize: '12px'
+                      }}
+                    />
+                  </PieChart>
                 </ResponsiveContainer>
                 <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
-                  Visual representation of your recommended asset allocation percentages
+                  Interactive breakdown of your recommended asset allocation
                 </p>
               </div>
             </div>
