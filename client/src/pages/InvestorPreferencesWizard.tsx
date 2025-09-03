@@ -13,6 +13,8 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 // Schema for each step
 const investorNameSchema = z.object({
@@ -172,7 +174,17 @@ export default function InvestorPreferencesWizard() {
   const progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-lg animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-40 left-20 w-20 h-20 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-10 w-28 h-28 bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] rounded-full blur-xl animate-pulse" style={{animationDelay: '0.5s'}}></div>
+      </div>
+
+      <Header />
+      
       {/* Investor Name Dialog */}
       <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -212,44 +224,51 @@ export default function InvestorPreferencesWizard() {
         </DialogContent>
       </Dialog>
 
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-green-500 to-blue-600 text-white py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="mb-6">
-            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Target className="w-8 h-8 text-white" />
-            </div>
+      <main className="flex-1 relative z-10">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden py-20">
+          {/* Dynamic Background Mesh */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
           </div>
           
-          <div className="mb-2">
-            <p className="text-green-100 text-sm font-medium tracking-wider uppercase">
-              INVESTMENT
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Target className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            
+            <div className="mb-2">
+              <p className="text-[var(--muted-foreground)] text-sm font-medium tracking-wider uppercase">
+                INVESTMENT
+              </p>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-[var(--foreground)]">
+              PREFERENCES
+            </h1>
+            
+            <p className="text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto">
+              Configure your investment profile through{' '}
+              <span className="font-semibold text-[var(--primary)]">detailed preferences</span>{' '}
+              or{' '}
+              <span className="font-semibold text-[var(--primary)]">discover your investment personality</span>
             </p>
+
+            {investorName && (
+              <div className="mt-6">
+                <Badge variant="secondary" className="bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]">
+                  {investorName}
+                </Badge>
+              </div>
+            )}
           </div>
-          
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            PREFERENCES
-          </h1>
-          
-          <p className="text-xl text-green-50 max-w-2xl mx-auto">
-            Configure your investment profile through{' '}
-            <span className="font-semibold text-green-200">detailed preferences</span>{' '}
-            or{' '}
-            <span className="font-semibold text-green-200">discover your investment personality</span>
-          </p>
-
-          {investorName && (
-            <div className="mt-6">
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                {investorName}
-              </Badge>
-            </div>
-          )}
         </div>
-      </div>
 
-      {/* Progress and Step Navigation */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* Progress and Step Navigation */}
+        <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -504,7 +523,9 @@ export default function InvestorPreferencesWizard() {
             )}
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
