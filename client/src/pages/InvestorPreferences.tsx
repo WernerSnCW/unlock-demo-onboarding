@@ -2207,10 +2207,12 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
         {/* Persona & Scenarios Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           {/* Selected Persona */}
-          <Card className="border-2 border-[var(--success)]/40 bg-gradient-to-br from-[var(--success)]/10 via-[var(--primary)]/5 to-[var(--accent)]/10 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-3">
+          <Card className="border-2 border-[var(--success)]/60 bg-gradient-to-br from-[var(--success)]/20 via-[var(--primary)]/15 to-[var(--accent)]/25 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <CardHeader className="pb-3 bg-gradient-to-r from-[var(--success)]/10 to-transparent rounded-t-lg">
               <CardTitle className="flex items-center gap-2 text-[var(--foreground)] text-lg">
-                <User className="h-4 w-4 text-[var(--primary)]" />
+                <div className="p-1.5 rounded-full bg-[var(--success)]/20">
+                  <User className="h-4 w-4 text-[var(--success)]" />
+                </div>
                 Selected Persona: {persona.name}
               </CardTitle>
             </CardHeader>
@@ -2234,10 +2236,12 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
           </Card>
 
           {/* Active Economic Scenarios */}
-          <Card className="border-2 border-[var(--info)]/40 bg-gradient-to-br from-[var(--info)]/10 via-[var(--secondary)]/5 to-[var(--primary)]/10 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-3">
+          <Card className="border-2 border-[var(--info)]/60 bg-gradient-to-br from-[var(--info)]/20 via-[var(--secondary)]/15 to-[var(--warning)]/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <CardHeader className="pb-3 bg-gradient-to-r from-[var(--info)]/10 to-transparent rounded-t-lg">
               <CardTitle className="flex items-center gap-2 text-[var(--foreground)] text-lg">
-                <BarChart3 className="h-4 w-4 text-[var(--secondary)]" />
+                <div className="p-1.5 rounded-full bg-[var(--info)]/20">
+                  <BarChart3 className="h-4 w-4 text-[var(--info)]" />
+                </div>
                 Active Economic Scenarios
               </CardTitle>
             </CardHeader>
