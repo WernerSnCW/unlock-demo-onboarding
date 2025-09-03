@@ -1748,21 +1748,21 @@ function BeliefQuestionnaireComponent() {
           {/* Question */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-6 text-center text-[var(--foreground)]">
-              {currentQuestion.prompt || 'Question loading...'}
+              {currentQuestion.text || 'Question loading...'}
             </h3>
             
-            {/* Options - Simple scale for belief questions */}
+            {/* Options - Use actual question options */}
             <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((value, index) => (
+              {currentQuestion.options.map((option, index) => (
                 <div
-                  key={value}
+                  key={index}
                   className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
-                  onClick={() => answerQuestion(value.toString(), matchedPersona)}
-                  data-testid={`belief-option-${value}`}
+                  onClick={() => answerQuestion(index, matchedPersona)}
+                  data-testid={`belief-option-${index}`}
                 >
                   <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
                   <label className="flex-1 text-base cursor-pointer">
-                    {value} - {value === 1 ? 'Strongly Disagree' : value === 2 ? 'Disagree' : value === 3 ? 'Neutral' : value === 4 ? 'Agree' : 'Strongly Agree'}
+                    {option.text}
                   </label>
                 </div>
               ))}

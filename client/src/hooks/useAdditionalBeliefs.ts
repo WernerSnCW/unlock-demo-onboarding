@@ -1,6 +1,6 @@
 // Additional belief questionnaire hook for scenario → portfolio flow
 import { useState, useCallback } from 'react';
-import { BELIEF_QUESTIONS, SCENARIO_MAPPING } from '../data/beliefQuestions';
+import { CORE_QUESTIONS } from '../data/questions';
 import { SCENARIO_DEFAULTS } from '../data/scenarioDefaults';
 import { 
   inferLatentIndices, 
@@ -19,7 +19,7 @@ import { PersonaDef } from '../data/personas';
 
 export interface BeliefResponse {
   questionId: string;
-  selectedOption: string;
+  selectedOptionIndex: number;
 }
 
 export interface PortfolioResult {
@@ -38,16 +38,16 @@ export function useAdditionalBeliefs() {
   const [isComplete, setIsComplete] = useState(false);
   const [portfolioResult, setPortfolioResult] = useState<PortfolioResult | null>(null);
 
-  const questions = BELIEF_QUESTIONS;
+  const questions = CORE_QUESTIONS;
   const currentQuestion = questions[currentQuestionIndex];
   const progress = (currentQuestionIndex / questions.length) * 100;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const canGoBack = currentQuestionIndex > 0;
 
-  const answerQuestion = useCallback((selectedOption: string, persona: PersonaDef) => {
+  const answerQuestion = useCallback((selectedOptionIndex: number, persona: PersonaDef) => {
     const newResponse: BeliefResponse = {
       questionId: currentQuestion.id,
-      selectedOption
+      selectedOptionIndex
     };
 
     const newResponses = [...responses, newResponse];
@@ -90,9 +90,7 @@ export function useAdditionalBeliefs() {
     const remainingQuestions = questions.slice(currentQuestionIndex);
     const randomResponses: BeliefResponse[] = remainingQuestions.map(question => ({
       questionId: question.id,
-      selectedOption: Object.keys(question.options)[
-        Math.floor(Math.random() * Object.keys(question.options).length)
-      ]
+      selectedOptionIndex: Math.floor(Math.random() * question.options.length)
     }));
 
     const allResponses = [...responses, ...randomResponses];
@@ -129,57 +127,29 @@ export function useAdditionalBeliefs() {
 
 // Process belief questionnaire responses into portfolio recommendations
 function processBeliefQuestionnaire(responses: BeliefResponse[], persona: PersonaDef): PortfolioResult {
-  // Step 1: Infer latent indices from responses
-  const latentIndices = inferLatentIndices(responses, BELIEF_QUESTIONS);
+  // For core questions, use a simpler approach based on responses
+  // Analyze responses to determine appropriate scenario
+  const scenarioCode = determineScenarioFromCoreQuestions(responses);
+  const baseAllocation = SCENARIO_DEFAULTS[scenarioCode] || SCENARIO_DEFAULTS["S006"];
   
-  // Step 2: Calculate scenario probabilities
-  const rawScenarioProbabilities = calculateScenarioProbabilities(responses, BELIEF_QUESTIONS, latentIndices);
-  
-  // Step 3: Apply ML weight updates
-  const adjustedProbabilities = applyMLWeightUpdate(rawScenarioProbabilities, latentIndices);
-  
-  // Step 4: Apply softmax with configuration
-  const config = {
-    softmaxTemperature: 0.5,
-    meanCenterScores: true,
-    maskedSoftmaxThreshold: 0.001,
-    displayCapPct: 80
-  };
-  
-  const scenarioWeights = applySoftmaxWithConfig(adjustedProbabilities, config);
-  
-  // Step 5: Select scenario(s)
-  const scenarioSelection = selectScenario(scenarioWeights);
-  
-  // Step 6: Build base allocation
-  let baseAllocation: Allocation;
-  
-  if (scenarioSelection.decision === 'clear_winner') {
-    const scenarioCode = SCENARIO_MAPPING[scenarioSelection.primary] || scenarioSelection.primary;
-    baseAllocation = SCENARIO_DEFAULTS[scenarioCode] || SCENARIO_DEFAULTS["S006"];
-  } else if (scenarioSelection.decision === 'close' && scenarioSelection.secondary && scenarioSelection.blendRatio) {
-    const primaryCode = SCENARIO_MAPPING[scenarioSelection.primary] || scenarioSelection.primary;
-    const secondaryCode = SCENARIO_MAPPING[scenarioSelection.secondary] || scenarioSelection.secondary;
-    const primaryAllocation = SCENARIO_DEFAULTS[primaryCode] || SCENARIO_DEFAULTS["S006"];
-    const secondaryAllocation = SCENARIO_DEFAULTS[secondaryCode] || SCENARIO_DEFAULTS["S006"];
-    
-    baseAllocation = blendAllocations(
-      primaryAllocation,
-      secondaryAllocation,
-      scenarioSelection.blendRatio[0],
-      scenarioSelection.blendRatio[1]
-    );
-  } else {
-    // Indecisive - use neutral/reflation
-    baseAllocation = SCENARIO_DEFAULTS["S006"];
-  }
-  
-  // Step 7: Apply persona rules
-  const scenarioCode = SCENARIO_MAPPING[scenarioSelection.primary] || scenarioSelection.primary;
+  // Apply persona rules to adjust allocation
   const personaAdjustedAllocation = applyPersonaRules(baseAllocation, persona, scenarioCode);
   
-  // Step 8: Generate explanations
-  const explanations = generateExplanations(scenarioSelection, persona, scenarioCode);
+  // Create scenario selection object
+  const scenarioSelection: ScenarioSelection = {
+    primary: getScenarioNameFromCode(scenarioCode),
+    decision: 'clear_winner'
+  };
+  
+  // Generate explanations
+  const explanations = {
+    scenarioReason: `Portfolio based on your investment profile responses and ${persona.name} persona characteristics`,
+    personaRulesApplied: [
+      `Applied ${persona.name} risk tolerance and liquidity preferences`,
+      `Incorporated ${persona.liquidityMonths}-month liquidity requirement`,
+      `Adjusted for ${persona.concentrationTolerance} concentration tolerance`
+    ]
+  };
   
   return {
     baseAllocation,
@@ -187,6 +157,47 @@ function processBeliefQuestionnaire(responses: BeliefResponse[], persona: Person
     scenarioSelection,
     explanations
   };
+}
+
+// Determine scenario based on core question responses
+function determineScenarioFromCoreQuestions(responses: BeliefResponse[]): string {
+  // Simple scoring based on risk tolerance and time horizon
+  let riskScore = 0;
+  let timeScore = 0;
+  
+  responses.forEach(response => {
+    const question = CORE_QUESTIONS.find(q => q.id === response.questionId);
+    if (!question) return;
+    
+    // Risk-related questions
+    if (response.questionId === 'risk_tolerance' || response.questionId === 'market_crash') {
+      riskScore += response.selectedOptionIndex;
+    }
+    
+    // Time horizon related
+    if (response.questionId === 'time_horizon' || response.questionId === 'investment_purpose') {
+      timeScore += response.selectedOptionIndex;
+    }
+  });
+  
+  // Map to scenarios based on simple rules
+  if (riskScore >= 3) {
+    return "S001"; // High growth scenario for high risk tolerance
+  } else if (riskScore >= 1) {
+    return "S006"; // Balanced scenario for moderate risk
+  } else {
+    return "S008"; // Conservative scenario for low risk
+  }
+}
+
+// Helper to get scenario name from code
+function getScenarioNameFromCode(scenarioCode: string): string {
+  const scenarioNames: Record<string, string> = {
+    "S001": "growth_focus",
+    "S006": "balanced_growth", 
+    "S008": "conservative_income"
+  };
+  return scenarioNames[scenarioCode] || "balanced_growth";
 }
 
 // Process neutral scenario when user skips questionnaire
