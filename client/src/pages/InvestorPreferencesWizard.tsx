@@ -90,6 +90,7 @@ const steps = [
 const mainTabs = [
   { id: 'preferences', title: 'Investment Preferences', icon: Target, description: '3 steps to capture your investment interests' },
   { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
+  { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
   { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Coming soon - analyze your current holdings' },
   { id: 'strategy', title: 'Investment Strategy', icon: TrendingUp, description: 'Coming soon - develop your investment strategy' },
   { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Coming soon - create your personalized action plan' }
@@ -379,12 +380,18 @@ export default function InvestorPreferencesWizard() {
         </Dialog>
 
         {/* Main Tab Navigation */}
-        {!showBeliefQuestionnaire ? (
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
-            <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
+          <Tabs value={showBeliefQuestionnaire ? 'beliefs' : activeMainTab} onValueChange={(value) => {
+            if (value === 'beliefs') {
+              setShowBeliefQuestionnaire(true);
+            } else {
+              setShowBeliefQuestionnaire(false);
+              setActiveMainTab(value);
+            }
+          }} className="w-full">
             {/* Enhanced Tab Navigation */}
             <div className="mb-12">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {mainTabs.map((tab, index) => {
                   const IconComponent = tab.icon;
                   const isActive = activeMainTab === tab.id;
@@ -846,14 +853,15 @@ export default function InvestorPreferencesWizard() {
                 </Card>
               </div>
             </TabsContent>
+            
+            {/* Economic Beliefs Assessment Tab */}
+            <TabsContent value="beliefs" className="mt-8">
+              <div className="space-y-8">
+                <BeliefQuestionnaireComponent />
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
-        ) : (
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
-            {/* Economic Beliefs Assessment (Section 3) */}
-            <BeliefQuestionnaireComponent />
-          </div>
-        )}
       </main>
       <Footer />
     </div>
