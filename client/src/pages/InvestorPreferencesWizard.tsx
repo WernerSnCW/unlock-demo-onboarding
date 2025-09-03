@@ -1996,6 +1996,7 @@ function BeliefQuestionnaireComponent() {
                         
                         // Navigate to Portfolio Analysis section first (before toast)
                         console.log('Navigating to analysis tab...');
+                        setShowBeliefQuestionnaire(false); // Exit beliefs questionnaire
                         setActiveMainTab('analysis');
                         console.log('Navigation completed successfully');
                         
