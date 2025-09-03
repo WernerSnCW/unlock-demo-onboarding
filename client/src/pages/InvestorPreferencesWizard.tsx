@@ -2510,7 +2510,8 @@ function PersonalizedPortfolioAnalysis() {
                     />
                     <PolarRadiusAxis 
                       angle={90} 
-                      domain={[0, Math.max(...portfolioAllocation.map(p => p.value))]}
+                      domain={[0, 100]}
+                      tickCount={6}
                       tick={{ 
                         fontSize: 10, 
                         fill: 'hsl(var(--muted-foreground))' 
