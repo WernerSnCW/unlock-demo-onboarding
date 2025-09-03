@@ -171,7 +171,13 @@ export class DatabaseStorage implements IStorage {
           regions: prefs.regions,
           focusSectors: prefs.focusSectors,
           existingInvestments: prefs.existingInvestments,
-          investmentInterests: prefs.investmentInterests
+          investmentInterests: prefs.investmentInterests,
+          // Add wizard fields
+          investorName: prefs.investorName,
+          activeInvestmentInterests: prefs.activeInvestmentInterests,
+          learningCuriosityAreas: prefs.learningCuriosityAreas,
+          geographicPreferences: prefs.geographicPreferences,
+          wizardCompletedAt: prefs.wizardCompletedAt
         }
       })
       .returning();
