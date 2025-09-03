@@ -202,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         activeInvestmentInterests,
         learningCuriosityAreas,
         geographicPreferences,
-        wizardCompletedAt: new Date().toISOString()
+        wizardCompletedAt: new Date()
       });
       
       const preferences = await storage.upsertInvestorPreferences(validatedData);
