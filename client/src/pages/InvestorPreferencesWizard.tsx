@@ -2191,6 +2191,24 @@ function ActualPortfolioForm({ investorName }: { investorName: string }) {
   const total = calculateTotal();
   const isValid = total === 100 && portfolioValue !== '';
 
+  // Function to get recommended allocation from persona
+  const getRecommendedAllocation = (persona: any) => {
+    const defaults = PERSONA_DEFAULTS[persona.code];
+    if (!defaults?.allocation) return {};
+
+    // Map persona allocation to form structure
+    return {
+      cashFixedIncome: defaults.allocation.cashFixedIncome?.toString() || '0',
+      globalEquity: defaults.allocation.globalEquity?.toString() || '0',
+      techGrowth: defaults.allocation.techGrowth?.toString() || '0',
+      property: defaults.allocation.property?.toString() || '0',
+      commoditiesGold: defaults.allocation.commoditiesGold?.toString() || '0',
+      alternatives: defaults.allocation.alternatives?.toString() || '0',
+      cryptocurrency: defaults.allocation.cryptocurrency?.toString() || '0',
+      collectibles: defaults.allocation.collectibles?.toString() || '0'
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -2283,9 +2301,29 @@ function ActualPortfolioForm({ investorName }: { investorName: string }) {
 
           {/* Asset Allocation Inputs */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-[var(--foreground)]">
-              Asset Allocation (must total 100%)
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-[var(--foreground)]">
+                Asset Allocation (must total 100%)
+              </h4>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Auto-populate with recommended allocation
+                  const recommended = getRecommendedAllocation(matchedPersona);
+                  setAllocations(recommended);
+                  toast({
+                    title: "Form Auto-Populated",
+                    description: "Filled with your recommended portfolio allocation.",
+                  });
+                }}
+                className="text-xs"
+              >
+                <Zap className="h-3 w-3 mr-1" />
+                Use Recommended
+              </Button>
+            </div>
 
             {/* Live Portfolio Chart */}
             {total > 0 && (
