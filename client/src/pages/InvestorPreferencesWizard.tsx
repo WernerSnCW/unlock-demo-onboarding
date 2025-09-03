@@ -19,10 +19,13 @@ import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadius
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
+import { useAdditionalBeliefs } from '@/hooks/useAdditionalBeliefs';
+import { PortfolioDisplay } from '@/components/PortfolioDisplay';
 import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
-import { type BeliefQuestionData } from '@/data/beliefQuestions';
+import { type BeliefQuestionData, SCENARIO_NAMES } from '@/data/beliefQuestions';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+// Context import removed - will get persona from props/state
 
 // Schema for each step
 const investorNameSchema = z.object({
@@ -1582,9 +1585,13 @@ function PersonaQuizContentWizard({
   );
 }
 
-// Economic Beliefs Assessment Component
+// Economic Beliefs Assessment Component  
 function BeliefQuestionnaireComponent() {
-  const beliefData = useBeliefQuestionnaire();
+  // For now, use a default persona - will be passed as prop later
+  const defaultPersona = INVESTMENT_PERSONAS[0]; // Temporary fallback
+
+  // Use sophisticated beliefs hook instead of basic one
+  const beliefData = useAdditionalBeliefs();
   
   // Add safety check for undefined hook data
   if (!beliefData) {
@@ -1608,79 +1615,40 @@ function BeliefQuestionnaireComponent() {
     progress,
     canGoBack,
     isComplete,
-    answers,
-    scenarioWeights,
+    responses,
+    portfolioResult,
     answerQuestion,
     goBack,
     resetQuestionnaire,
-    autoCompleteQuestionnaire
+    autoComplete,
+    totalQuestions
   } = beliefData;
-
-  // Get total questions from the actual hook data
-  const totalQuestions = beliefData.totalQuestions || 12;
 
   const { toast } = useToast();
 
-  if (isComplete) {
+  if (isComplete && portfolioResult) {
+    // Use the sophisticated portfolio display from the proper implementation
     return (
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <Card className="border-0 shadow-lg">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Brain className="w-6 h-6 text-[var(--primary)]" />
-              Economic Beliefs Complete
+              Economic Beliefs Portfolio Analysis Complete
             </CardTitle>
             <CardDescription className="text-base">
-              Your investment strategy has been personalized based on your economic outlook.
+              Your investment strategy has been personalized based on your economic outlook and investor persona.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-4">Analysis Complete!</h3>
-              <p className="text-[var(--muted-foreground)] mb-6">
-                Your economic beliefs have been analyzed and will be used to tailor your investment portfolio.
-              </p>
-              <div className="space-y-4 mb-6">
-                <h4 className="font-medium text-center">Your Economic Outlook Analysis</h4>
-                
-                {/* Active Scenarios */}
-                <div className="space-y-2">
-                  <h5 className="text-sm font-medium text-[var(--muted-foreground)]">Expected Economic Scenarios:</h5>
-                  {scenarioWeights.filter(w => !w.isMasked && w.normalizedWeight > 0).map((weight, index) => (
-                    <div key={weight.scenario} className="flex justify-between items-center py-2 px-3 rounded-lg bg-[var(--muted)]/20">
-                      <span className="text-sm capitalize">{weight.scenario.replace(/_/g, ' ')}</span>
-                      <Badge variant="secondary" className="bg-[var(--primary)]/10 text-[var(--primary)]">
-                        {Math.round(weight.normalizedWeight * 100)}%
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Masked/Low Probability Scenarios */}
-                {scenarioWeights.some(w => w.isMasked || w.normalizedWeight === 0) && (
-                  <div className="space-y-2">
-                    <h5 className="text-sm font-medium text-[var(--muted-foreground)]">Lower Probability Scenarios:</h5>
-                    {scenarioWeights.filter(w => w.isMasked || w.normalizedWeight === 0).map((weight, index) => (
-                      <div key={weight.scenario} className="flex justify-between items-center py-1 px-3 rounded-lg bg-[var(--muted)]/10">
-                        <span className="text-xs text-[var(--muted-foreground)] capitalize">{weight.scenario.replace(/_/g, ' ')}</span>
-                        <Badge variant="outline" className="text-xs">
-                          Not Expected
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <Button 
-                onClick={() => window.location.reload()} 
-                className="bg-[var(--primary)] hover:bg-[var(--primary)]/90"
-              >
-                View Full Portfolio Analysis
-              </Button>
-            </div>
-          </CardContent>
         </Card>
+
+        <PortfolioDisplay
+          baseAllocation={portfolioResult.baseAllocation}
+          personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
+          scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
+          personaName={defaultPersona.name}
+          explanations={portfolioResult.explanations}
+        />
       </div>
     );
   }
@@ -1742,7 +1710,7 @@ function BeliefQuestionnaireComponent() {
           {/* Question */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-6 text-center text-[var(--foreground)]">
-              {currentQuestion.text || 'Question loading...'}
+              {currentQuestion.prompt || 'Question loading...'}
             </h3>
             
             {/* Options - Simple scale for belief questions */}
@@ -1751,7 +1719,7 @@ function BeliefQuestionnaireComponent() {
                 <div
                   key={value}
                   className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
-                  onClick={() => answerQuestion(value)}
+                  onClick={() => answerQuestion(value.toString(), defaultPersona)}
                   data-testid={`belief-option-${value}`}
                 >
                   <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
@@ -1781,7 +1749,7 @@ function BeliefQuestionnaireComponent() {
             )}
             
             <Button
-              onClick={autoCompleteQuestionnaire}
+              onClick={() => autoComplete(defaultPersona)}
               size="lg"
               variant="outline"
               className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 text-[var(--warning)]"
