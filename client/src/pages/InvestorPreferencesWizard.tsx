@@ -11,8 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 // Schema for each step
 const investorNameSchema = z.object({
@@ -172,85 +174,105 @@ export default function InvestorPreferencesWizard() {
   const progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      
-      {/* Investor Name Dialog */}
-      <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <User className="w-5 h-5 text-green-600" />
-              Investor Information
-            </DialogTitle>
-            <DialogDescription className="text-gray-700 dark:text-gray-300">
-              Let's start by capturing your name for personalized investment preferences.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...nameForm}>
-            <form onSubmit={nameForm.handleSubmit(handleNameSubmit)} className="space-y-4">
-              <FormField
-                control={nameForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-900 dark:text-gray-100 font-medium">Full Name</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter your full name" 
-                        className="text-gray-900 dark:text-gray-100"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
-                Continue to Preferences
-              </Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Custom Header Section - Exact Match */}
-      <div className="bg-gray-100 py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="mb-6">
-            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Target className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          
-          <div className="mb-4">
-            <p className="text-gray-500 text-base font-normal tracking-normal">
-              INVESTMENT
-            </p>
-          </div>
-          
-          <h1 className="text-5xl font-bold mb-8 text-green-600">
-            PREFERENCES
-          </h1>
-          
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Configure your investment profile through{' '}
-            <span className="font-semibold text-green-600">detailed preferences</span>{' '}
-            or{' '}
-            <span className="font-semibold text-green-600">discover your investment personality</span>
-          </p>
-
-          {investorName && (
-            <div className="mt-6">
-              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
-                {investorName}
-              </Badge>
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-[var(--accent)] to-[var(--warning)] rounded-full blur-lg animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-40 left-20 w-20 h-20 bg-gradient-to-br from-[var(--secondary)] to-[var(--primary)] rounded-full blur-lg animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-10 w-28 h-28 bg-gradient-to-br from-[var(--warning)] to-[var(--accent)] rounded-full blur-xl animate-pulse" style={{animationDelay: '0.5s'}}></div>
       </div>
 
-      {/* Progress and Step Navigation */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <Header />
+      <main className="flex-1 relative z-10">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden py-20">
+          {/* Dynamic Background Mesh */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-tl from-[var(--accent)] via-transparent to-[var(--warning)] opacity-5"></div>
+          </div>
+          
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            {/* Floating Icon with Glow Effect */}
+            <div className="flex items-center justify-center mb-8 relative">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
+                  <Target className="h-12 w-12" />
+                </div>
+                <div className="absolute -top-2 -right-2 animate-bounce">
+                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
+                </div>
+              </div>
+            </div>
+
+            {/* Revolutionary Typography */}
+            <h1 className="relative mb-8">
+              <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Investment</span>
+              <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
+                PREFERENCES
+              </span>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
+              Configure your investment profile through 
+              <span className="text-[var(--primary)] font-semibold"> detailed preferences</span> or 
+              <span className="text-[var(--secondary)] font-semibold"> discover your investment personality</span>
+            </p>
+
+            {investorName && (
+              <div className="mt-6">
+                <Badge variant="secondary" className="bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]">
+                  {investorName}
+                </Badge>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Investor Name Dialog */}
+        <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                <User className="w-5 h-5 text-green-600" />
+                Investor Information
+              </DialogTitle>
+              <DialogDescription className="text-gray-700 dark:text-gray-300">
+                Let's start by capturing your name for personalized investment preferences.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...nameForm}>
+              <form onSubmit={nameForm.handleSubmit(handleNameSubmit)} className="space-y-4">
+                <FormField
+                  control={nameForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-900 dark:text-gray-100 font-medium">Full Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter your full name" 
+                          className="text-gray-900 dark:text-gray-100"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
+                  Continue to Preferences
+                </Button>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Progress and Step Navigation */}
+        <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -505,7 +527,9 @@ export default function InvestorPreferencesWizard() {
             )}
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
