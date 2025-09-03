@@ -1418,6 +1418,9 @@ function PersonaQuizContentWizard({
                     const result = await response.json();
                     console.log('Quiz data saved successfully:', result);
                     
+                    // CRITICAL: Save quiz data to localStorage for Economic Beliefs component
+                    localStorage.setItem('investorQuizData', JSON.stringify(quizData));
+                    
                     toast({
                       title: "Persona Selected!",
                       description: `Your investment persona (${chosenPersona.name}) has been saved successfully.`,
