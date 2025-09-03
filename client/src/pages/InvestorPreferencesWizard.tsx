@@ -800,33 +800,7 @@ export default function InvestorPreferencesWizard() {
 
             {/* Tab Content: Portfolio Analysis */}
             <TabsContent value="analysis">
-              <div className="max-w-4xl mx-auto px-6 py-8">
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-2xl">
-                      <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
-                      Portfolio Analysis
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Analyze your current investment holdings and performance.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <BarChart3 className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
-                      <p className="text-[var(--muted-foreground)] mb-6">
-                        Advanced portfolio analysis tools will be available after completing your investment preferences and profile discovery.
-                      </p>
-                      <Button variant="outline" disabled>
-                        Analyze Portfolio
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <PersonalizedPortfolioAnalysis />
             </TabsContent>
 
             {/* Tab Content: Investment Strategy */}
@@ -2179,6 +2153,180 @@ function BeliefQuestionnaireComponent({
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Personalized Portfolio Analysis Component
+function PersonalizedPortfolioAnalysis() {
+  const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
+  const [investorName, setInvestorName] = useState<string>('');
+
+  // Load matched persona from localStorage
+  useEffect(() => {
+    const storedQuizData = localStorage.getItem('investorQuizData');
+    if (storedQuizData) {
+      try {
+        const quizData = JSON.parse(storedQuizData);
+        setInvestorName(quizData.investorName || 'Investor');
+        if (quizData.matchedPersonaCode) {
+          const personaArray = Object.values(INVESTMENT_PERSONAS);
+          const persona = personaArray.find(p => p.code === quizData.matchedPersonaCode);
+          setMatchedPersona(persona || null);
+        }
+      } catch (error) {
+        console.error('Failed to load quiz data:', error);
+      }
+    }
+  }, []);
+
+  if (!matchedPersona) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="text-center py-12">
+            <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+              <BarChart3 className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Loading Portfolio Analysis</h3>
+            <p className="text-[var(--muted-foreground)]">
+              Generating your personalized portfolio recommendations...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Create portfolio allocation based on persona biases
+  const portfolioAllocation = [
+    { 
+      name: 'Property & Real Estate', 
+      value: Math.round(matchedPersona.propertyBias * 100), 
+      color: '#8B5CF6',
+      description: 'Direct property, REITs, property development'
+    },
+    { 
+      name: 'Technology & Growth', 
+      value: Math.round(matchedPersona.techBias * 100), 
+      color: '#06B6D4',
+      description: 'Tech stocks, AI, fintech, cryptocurrency'
+    },
+    { 
+      name: 'Alternative Investments', 
+      value: Math.round(matchedPersona.altBias * 100), 
+      color: '#F59E0B',
+      description: 'Private equity, venture capital, collectibles'
+    },
+    { 
+      name: 'Traditional Assets', 
+      value: Math.max(0, 100 - Math.round((matchedPersona.propertyBias + matchedPersona.techBias + matchedPersona.altBias) * 100)), 
+      color: '#10B981',
+      description: 'Stocks, bonds, index funds, cash'
+    }
+  ].filter(item => item.value > 0);
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Portfolio Overview */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
+              Your Portfolio Recommendation
+            </CardTitle>
+            <CardDescription className="text-base">
+              Based on your investment persona: <span className="font-semibold text-[var(--primary)]">{matchedPersona.name}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Portfolio Value Display */}
+              <div className="text-center p-6 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--accent)]/20">
+                <h3 className="text-lg font-medium text-[var(--muted-foreground)] mb-2">Recommended Portfolio Size</h3>
+                <p className="text-3xl font-bold text-[var(--foreground)]">
+                  £{(matchedPersona.portfolioValue / 1000).toFixed(0)}k
+                </p>
+                <p className="text-sm text-[var(--muted-foreground)] mt-1">{matchedPersona.wealthTier}</p>
+              </div>
+
+              {/* Allocation Breakdown */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
+                {portfolioAllocation.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-[var(--foreground)]">{item.name}</span>
+                      <span className="font-semibold text-[var(--foreground)]">{item.value}%</span>
+                    </div>
+                    <div className="w-full bg-[var(--border)] rounded-full h-3">
+                      <div 
+                        className="h-3 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${item.value}%`,
+                          backgroundColor: item.color 
+                        }}
+                      />
+                    </div>
+                    <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Persona Insights */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <User className="w-6 h-6 text-[var(--primary)]" />
+              Your Investment Profile
+            </CardTitle>
+            <CardDescription className="text-base">
+              Key characteristics and recommendations for {investorName}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Key Metrics */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Risk Profile</h5>
+                  <p className="text-xl font-semibold text-[var(--primary)]">{matchedPersona.riskProfile}</p>
+                </div>
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Approach</h5>
+                  <p className="text-xl font-semibold text-[var(--primary)]">
+                    {matchedPersona.approach.replace('_', ' ')}
+                  </p>
+                </div>
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Liquidity Buffer</h5>
+                  <p className="text-xl font-semibold text-[var(--primary)]">{matchedPersona.liquidityMonths} months</p>
+                </div>
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Max Drawdown</h5>
+                  <p className="text-xl font-semibold text-[var(--primary)]">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</p>
+                </div>
+              </div>
+
+              {/* Persona Description */}
+              <div className="p-6 bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--primary)]/20">
+                <h5 className="font-semibold text-[var(--foreground)] mb-3">Portfolio Notes</h5>
+                <p className="text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
+              </div>
+
+              {/* Action Button */}
+              <Button className="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold py-3">
+                <TrendingUp className="w-5 h-5 mr-2" />
+                Implement This Strategy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
