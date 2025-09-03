@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,6 +21,21 @@ import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
 import { useAdditionalBeliefs } from '@/hooks/useAdditionalBeliefs';
+import beliefsData from '@/data/beliefs.json';
+
+// Types for beliefs data
+interface BeliefsData {
+  questions: BeliefQuestion[];
+  weights: Record<string, Record<string, number>>;
+  normalize: string;
+}
+
+interface BeliefQuestion {
+  id: string;
+  text: string;
+  scale: string;
+  direction: string;
+}
 import { PortfolioDisplay } from '@/components/PortfolioDisplay';
 import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
 import { type BeliefQuestionData, SCENARIO_NAMES } from '@/data/beliefQuestions';
@@ -1664,29 +1680,284 @@ function BeliefQuestionnaireComponent() {
   }
 
   if (isComplete && portfolioResult) {
-    // Use the sophisticated portfolio display from the proper implementation
+    // Show Economic Scenario Beliefs interface with scenario selection
+    // IMPORTANT: This should match the interface from the original /investor-preferences route
+    const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
+    const [scenarioWeights, setScenarioWeights] = useState<any[]>([]);
+
+    // Calculate scenario weights from belief responses
+    useEffect(() => {
+      if (responses.length > 0) {
+        // Calculate scenario scores from beliefs responses using weights from beliefs.json
+        const typedBeliefsData = beliefsData as BeliefsData;
+        const scenarioScores: Record<string, number> = {};
+        
+        responses.forEach(response => {
+          const question = typedBeliefsData.questions.find((q: BeliefQuestion) => q.id === response.questionId);
+          if (!question) return;
+          
+          const weights = typedBeliefsData.weights[response.questionId];
+          if (!weights) return;
+          
+          // Convert 0-based index to 1-5 scale value
+          const scaleValue = response.selectedOptionIndex + 1;
+          
+          // Apply weights based on the direction logic
+          Object.entries(weights).forEach(([scenario, weight]) => {
+            let contribution = 0;
+            const weightValue = weight as number;
+            
+            // Parse direction to determine how scale value affects scenario
+            if (question.direction.includes('lower->')) {
+              // Lower values increase scenario probability
+              contribution = weightValue * (6 - scaleValue); // Invert: 5->1, 4->2, etc.
+            } else if (question.direction.includes('higher->')) {
+              // Higher values increase scenario probability  
+              contribution = weightValue * scaleValue;
+            }
+            
+            scenarioScores[scenario] = (scenarioScores[scenario] || 0) + contribution;
+          });
+        });
+
+        // Convert to scenario weights array and normalize
+        const scenarioArray = Object.entries(scenarioScores).map(([scenario, score]) => ({
+          scenario,
+          weight: Math.max(0, score),
+          normalizedWeight: 0, // Will be calculated below
+          isMasked: false
+        }));
+
+        // Normalize weights to sum to 1
+        const totalWeight = scenarioArray.reduce((sum, item) => sum + item.weight, 0);
+        scenarioArray.forEach(item => {
+          item.normalizedWeight = totalWeight > 0 ? item.weight / totalWeight : 0;
+          item.isMasked = item.normalizedWeight < 0.01; // Mask scenarios below 1%
+        });
+
+        // Sort by normalized weight descending
+        scenarioArray.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
+        
+        setScenarioWeights(scenarioArray);
+        
+        // Auto-select top 3 non-masked scenarios
+        const topScenarios = scenarioArray.filter(s => !s.isMasked).slice(0, 3);
+        setSelectedScenarios(new Set(topScenarios.map(s => s.scenario)));
+      }
+    }, [responses]);
+
+    const selectAllActiveScenarios = () => {
+      const activeScenarios = scenarioWeights.filter(s => !s.isMasked).map(s => s.scenario);
+      setSelectedScenarios(new Set(activeScenarios));
+    };
+
+    const deselectAllScenarios = () => {
+      setSelectedScenarios(new Set());
+    };
+
+    const toggleScenarioSelection = (scenario: string) => {
+      const newSelection = new Set(selectedScenarios);
+      if (newSelection.has(scenario)) {
+        newSelection.delete(scenario);
+      } else {
+        newSelection.add(scenario);
+      }
+      setSelectedScenarios(newSelection);
+    };
+
     return (
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <Card className="border-0 shadow-lg mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Brain className="w-6 h-6 text-[var(--primary)]" />
-              Economic Beliefs Portfolio Analysis Complete
-            </CardTitle>
-            <CardDescription className="text-base">
-              Your investment strategy has been personalized based on your economic outlook and investor persona.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <div className="space-y-10">
+          {/* Header */}
+          <div className="text-center space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                Economic Scenario Beliefs
+              </h1>
+              <p className="text-xl text-[var(--muted-foreground)] max-w-3xl mx-auto">
+                Your beliefs have been converted to scenario probability weights for stress testing
+              </p>
+            </div>
+            
+            {/* Persona Context */}
+            <div className="max-w-2xl mx-auto p-6 bg-gradient-to-r from-[var(--accent)]/20 via-[var(--warning)]/10 to-[var(--accent)]/20 rounded-2xl border-2 border-[var(--accent)]/30 shadow-lg">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <Target className="h-5 w-5 text-[var(--primary)]" />
+                <span className="font-semibold text-[var(--foreground)]">Selected Persona: {matchedPersona.name}</span>
+              </div>
+              <p className="text-sm text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
+            </div>
+          </div>
 
-        <PortfolioDisplay
-          baseAllocation={portfolioResult.baseAllocation}
-          personaAdjustedAllocation={portfolioResult.personaAdjustedAllocation}
-          scenarioName={SCENARIO_NAMES[portfolioResult.scenarioSelection.primary] || portfolioResult.scenarioSelection.primary}
-          personaName={matchedPersona.name}
-          personaCode={matchedPersona.code}
-          explanations={portfolioResult.explanations}
-        />
+          {/* Scenario Weights Results */}
+          <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="text-2xl text-[var(--foreground)] flex items-center gap-2">
+                <BarChart3 className="h-6 w-6 text-[var(--secondary)]" />
+                Scenario Match % (relative to your answers)
+              </CardTitle>
+              <CardDescription>
+                Based on your economic beliefs, here are the calculated scenario match percentages. Select scenarios for stress testing:
+              </CardDescription>
+              
+              {/* Selection Controls */}
+              <div className="flex flex-wrap gap-2 pt-4">
+                <Button
+                  onClick={selectAllActiveScenarios}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                  data-testid="button-select-all-active"
+                >
+                  Select All Active
+                </Button>
+                <Button
+                  onClick={deselectAllScenarios}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs border border-[var(--muted-foreground)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/10"
+                  data-testid="button-deselect-all"
+                >
+                  Deselect All
+                </Button>
+                <div className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  {selectedScenarios.size} scenario{selectedScenarios.size !== 1 ? 's' : ''} selected
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {scenarioWeights.slice(0, 8).map((item, index) => {
+                  const isSelected = selectedScenarios.has(item.scenario);
+                  return (
+                    <div
+                      key={item.scenario}
+                      className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 cursor-pointer ${
+                        isSelected
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/10 shadow-md'
+                          : item.isMasked 
+                            ? 'border-[var(--muted)] bg-[var(--muted)]/10 hover:border-[var(--primary)]/30' 
+                            : 'border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)]/50'
+                      }`}
+                      onClick={() => toggleScenarioSelection(item.scenario)}
+                      data-testid={`scenario-${item.scenario}`}
+                    >
+                      {/* Selection Checkbox */}
+                      <div className="flex-shrink-0">
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                          isSelected
+                            ? 'border-[var(--primary)] bg-[var(--primary)]'
+                            : item.isMasked
+                              ? 'border-[var(--muted)] bg-[var(--muted)]/20 hover:border-[var(--primary)]'
+                              : 'border-[var(--border)] hover:border-[var(--primary)]'
+                        }`}>
+                          {isSelected && (
+                            <CheckCircle className="h-3 w-3 text-white" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] ring-2 ring-[var(--primary)]/20'
+                          : item.isMasked 
+                            ? 'bg-[var(--muted)]' 
+                            : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="font-semibold text-[var(--foreground)] capitalize flex items-center gap-2">
+                          {item.scenario.replace(/_/g, ' ')}
+                          {item.isMasked && (
+                            <span 
+                              className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)] cursor-help"
+                              title="No supporting answers for this scenario"
+                            >
+                              ⓘ Masked
+                            </span>
+                          )}
+                          {isSelected && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--primary)] text-white">
+                              Selected
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-[var(--muted-foreground)]">
+                          Raw weight: {item.weight.toFixed(3)}
+                          {item.isMasked && ' (below threshold)'}
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        <div className={`text-lg font-bold ${
+                          item.isMasked ? 'text-[var(--muted-foreground)]' : 'text-[var(--foreground)]'
+                        }`}>
+                          {(item.normalizedWeight * 100).toFixed(1)}%
+                        </div>
+                        <div className="w-24 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-300 ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm'
+                                : item.isMasked 
+                                  ? 'bg-[var(--muted)]' 
+                                  : 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]'
+                            }`}
+                            style={{ width: `${item.normalizedWeight * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              <div className="mt-6 space-y-4">
+                <div className="p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+                  <p className="text-sm text-[var(--muted-foreground)] text-center">
+                    These scenario match percentages will be used to stress test portfolio performance across different economic conditions.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <Card className="border border-[var(--border)] shadow-lg">
+            <CardContent className="pt-6">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={resetQuestionnaire}
+                  size="lg"
+                  variant="outline"
+                  className="flex items-center gap-2 px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--muted-foreground)] transition-all duration-300"
+                  data-testid="button-retake-beliefs"
+                >
+                  <RotateCcw className="h-5 w-5" />
+                  Retake Beliefs Quiz
+                </Button>
+                <Button 
+                  onClick={() => {
+                    // Navigate to portfolio analysis or next step
+                    console.log('Portfolio recommendations with selected scenarios:', Array.from(selectedScenarios));
+                    // For now, just show a toast
+                    toast({
+                      title: "Scenario Selection Complete",
+                      description: `Selected ${selectedScenarios.size} scenarios for portfolio stress testing`,
+                    });
+                  }}
+                  size="lg"
+                  className="flex items-center gap-2 px-6 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
+                  data-testid="button-view-portfolio"
+                >
+                  <Target className="h-5 w-5" />
+                  View Portfolio Recommendations
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
