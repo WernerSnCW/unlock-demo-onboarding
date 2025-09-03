@@ -2484,6 +2484,59 @@ function PersonalizedPortfolioAnalysis() {
               </div>
             </div>
 
+            {/* Portfolio Spider Diagram */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-[var(--foreground)]">Portfolio Allocation Overview</h4>
+              <div className="p-6 bg-gradient-to-br from-[var(--accent)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--accent)]/20">
+                <ResponsiveContainer width="100%" height={400}>
+                  <RadarChart data={portfolioAllocation.map(item => ({
+                    category: item.name,
+                    value: item.value,
+                    fullMark: Math.max(...portfolioAllocation.map(p => p.value))
+                  }))}>
+                    <PolarGrid 
+                      stroke="hsl(var(--border))"
+                      strokeWidth={1}
+                    />
+                    <PolarAngleAxis 
+                      dataKey="category" 
+                      tick={{ 
+                        fontSize: 12, 
+                        fill: 'hsl(var(--foreground))',
+                        textAnchor: 'middle'
+                      }}
+                      className="text-[var(--foreground)]"
+                    />
+                    <PolarRadiusAxis 
+                      angle={90} 
+                      domain={[0, Math.max(...portfolioAllocation.map(p => p.value))]}
+                      tick={{ 
+                        fontSize: 10, 
+                        fill: 'hsl(var(--muted-foreground))' 
+                      }}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <Radar
+                      name="Portfolio Allocation"
+                      dataKey="value"
+                      stroke="hsl(var(--primary))"
+                      fill="hsl(var(--primary)/0.2)"
+                      fillOpacity={0.3}
+                      strokeWidth={2}
+                      dot={{ 
+                        fill: 'hsl(var(--primary))', 
+                        strokeWidth: 2, 
+                        r: 4 
+                      }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+                <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+                  Visual representation of your recommended asset allocation percentages
+                </p>
+              </div>
+            </div>
+
             {/* Allocation Breakdown */}
             <div className="space-y-4">
               <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
