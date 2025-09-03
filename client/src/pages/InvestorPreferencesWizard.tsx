@@ -1641,16 +1641,36 @@ function BeliefQuestionnaireComponent() {
               <p className="text-[var(--muted-foreground)] mb-6">
                 Your economic beliefs have been analyzed and will be used to tailor your investment portfolio.
               </p>
-              <div className="space-y-2 mb-6">
-                <h4 className="font-medium">Top Economic Scenarios:</h4>
-                {scenarioWeights.slice(0, 3).map((weight, index) => (
-                  <div key={weight.scenario} className="flex justify-between items-center">
-                    <span className="text-sm text-[var(--muted-foreground)]">{weight.scenario}</span>
-                    <Badge variant="secondary">
-                      {Math.round(weight.normalizedWeight * 100)}%
-                    </Badge>
+              <div className="space-y-4 mb-6">
+                <h4 className="font-medium text-center">Your Economic Outlook Analysis</h4>
+                
+                {/* Active Scenarios */}
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-[var(--muted-foreground)]">Expected Economic Scenarios:</h5>
+                  {scenarioWeights.filter(w => !w.isMasked && w.normalizedWeight > 0).map((weight, index) => (
+                    <div key={weight.scenario} className="flex justify-between items-center py-2 px-3 rounded-lg bg-[var(--muted)]/20">
+                      <span className="text-sm capitalize">{weight.scenario.replace(/_/g, ' ')}</span>
+                      <Badge variant="secondary" className="bg-[var(--primary)]/10 text-[var(--primary)]">
+                        {Math.round(weight.normalizedWeight * 100)}%
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Masked/Low Probability Scenarios */}
+                {scenarioWeights.some(w => w.isMasked || w.normalizedWeight === 0) && (
+                  <div className="space-y-2">
+                    <h5 className="text-sm font-medium text-[var(--muted-foreground)]">Lower Probability Scenarios:</h5>
+                    {scenarioWeights.filter(w => w.isMasked || w.normalizedWeight === 0).map((weight, index) => (
+                      <div key={weight.scenario} className="flex justify-between items-center py-1 px-3 rounded-lg bg-[var(--muted)]/10">
+                        <span className="text-xs text-[var(--muted-foreground)] capitalize">{weight.scenario.replace(/_/g, ' ')}</span>
+                        <Badge variant="outline" className="text-xs">
+                          Not Expected
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
               <Button 
                 onClick={() => window.location.reload()} 
