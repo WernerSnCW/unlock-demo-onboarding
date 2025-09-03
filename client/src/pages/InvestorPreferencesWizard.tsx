@@ -801,7 +801,7 @@ export default function InvestorPreferencesWizard() {
 
             {/* Tab Content: Portfolio Analysis */}
             <TabsContent value="analysis">
-              <PersonalizedPortfolioAnalysis />
+              <PersonalizedPortfolioAnalysis onTabChange={setActiveMainTab} />
             </TabsContent>
 
             {/* Tab Content: Investment Strategy */}
@@ -2470,7 +2470,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 }
 
 // Personalized Portfolio Analysis Component
-function PersonalizedPortfolioAnalysis() {
+function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: string) => void }) {
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
   const [investorName, setInvestorName] = useState<string>('');
 
