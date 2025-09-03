@@ -1,0 +1,129 @@
+Executive Summary
+
+Scores
+
+Completeness: 9/10 – Clear problem–solution fit, market sizing, roadmap, pricing tiers, competitive context, and financial model are all present. 
+
+Clarity: 10/10 – Narrative is crisp: “discovery → diligence → syndication,” reinforced by investor-centred workflows and visuals. 
+
+Valuation Reality: 8/10 – DCF anchored in Year-5 EBITDA with conservative multiples shows discipline for stage; pre/post terms to be finalised. 
+
+Top Strengths
+
+Tackles a well-evidenced trust gap in alternatives (fraud losses; only ~4% retail participation), giving Unlock a compelling mission and timing. 
+
+Differentiated “AI + expert” diligence engine with structured Q&A and modular tools that span discovery → decision → completion. 
+
+Tiered pricing for individuals and institutions with clear expansion paths (EMIs/PSPs, family offices) and white-label/API options. 
+
+Traction signals (pre-alpha demos, LOIs, early funding) and a phased, test-and-learn roadmap. 
+
+Key Watch-outs (minor)
+
+Round terms (raise size, pre/post) not explicitly stated in the deck. 
+
+Execution depends on integrations/partnerships in compliance and payments—partners identified; timelines matter. 
+
+Valuation Analysis
+
+Deck Indication (DCF / EBITDA-anchored):
+
+Assumptions: 25% discount rate; 8× EBITDA exit (low end of peer range 8–15×).
+
+Year-5 EBITDA: £6.75m → Implied Value ~£20.5m. 
+
+Methods & Commentary
+
+Revenue/ARR view: £7–9m ARR by Year 5 supports EBITDA-based approach; early years remain build/validation focused. 
+
+EBITDA multiple: Uses cautious end of comparable ranges stated in-deck—positive signal against over-promising. 
+
+DCF reasonableness: Assumptions align with staged GTM and operating leverage from automation and report unit-cost reduction. 
+
+Illustrative Investor Case (for feel only; terms TBD)
+Assumption: £1.5m raise at £6.0m pre (20% stake). If business reaches deck’s implied value £20.5m in Year 5, the holding would be worth ~£4.1m → 2.73× MOIC and ~22% IRR over 5 years. (Illustrative, pending actual round terms.) 
+
+Assessment Summary
+
+Positioning: Unlock is one of the few investor-first platforms unifying discovery, independent diligence, and syndication—with a strong “transparency moat.” 
+
+Market: Large, growing UK investor base; clear adjacent B2B demand (EMIs/PSPs; family offices). 
+
+Model: Recurring tiers (+ credits, API, white-label), then high-margin expansion via institutional DD-as-a-Service. 
+
+Trajectory: Sensible, phased roadmap from Alpha → Beta → vertical deepening; early signals of product–market fit via demos and LOIs. 
+
+Investor ROI Projection (Illustrative)
+
+Equity Stake (assumed): 20%
+
+MOIC (Year-5, deck value): ~2.7×
+
+IRR (5 years): ~22%
+
+Upside Levers: Institutional contracts (EMIs/PSPs), family-office suite, partner distribution, and marketplace carry. 
+
+Please treat as directional pending confirmed raise terms.
+
+Key Investor Questions (high-leverage, positive framing)
+
+What milestones gate the Alpha→Beta transition and unlock institutional pilots (EMIs/PSPs)? 
+
+Which compliance/KYC partners are first for “digital completion,” and what is the co-selling plan? 
+
+How quickly does analyst time per report fall with workflow automation, and how does that move gross margin? 
+
+What are the first three data sources powering “Cognisense” risk surfacing, and how are confidence scores reported to users? 
+
+Which segments of the investor directory (by asset type) will seed network effects fastest? 
+
+Section-by-Section Analysis
+Problem
+
+Extracted signal: UK investors face opaque, fragmented, and often risky alternative opportunities; fraud and low retail participation underscore a trust deficit. 
+
+Strengths: Quantified pain (fraud stats, low alts penetration), first-person investor quotes, and clear “jobs to be done.” 
+
+Benchmark: High — sharp articulation with credible data points.
+Helpful questions: What 2–3 metrics will you publish (publicly) as “trust signals” to compound credibility quarterly? 
+
+Solution
+
+Extracted signal: Unified hub for curated discovery, AI + expert diligence, structured Q&A, and digital completion, delivered as modular tools. 
+
+Strengths: End-to-end flow; interactive diligence workflows; expert-governed reports; seamless partner execution. 
+
+Benchmark: High — differentiated vs. pitch-only or compliance-only point solutions.
+Helpful questions: Which diligence modules will be self-serve first (valuation, verification, competitor scan), and what’s the beta success metric? 
+
+Market & Go-to-Market
+
+Extracted signal: 22.8m UK investors; staged GTM from investor tiers to EMIs/PSPs and family offices; white-label/API for scale. 
+
+Strengths: Clear wedges with quantified expansion markets (£50–70m EMI/PSP DD; £30–84m family-office intelligence). 
+
+Benchmark: High — credible bottoms-up snapshots and realistic penetration targets.
+
+Traction
+
+Extracted signal: Functional pre-alpha, live demos, LOIs, initial funding, weekly user sessions guiding roadmap. 
+
+Benchmark: Medium-High — early but purposeful; good momentum for stage.
+
+Business Model & Financials
+
+Extracted signal: Recurring tiers (£0/£99/£249/institutional), staged verticals, and a 5-year plan to £7–9m ARR and £6.75m EBITDA. 
+
+Benchmark: High — diversified lines with operating leverage from automation; disciplined valuation slide. 
+
+Terms/Valuation
+
+Extracted signal: Deck provides a DCF/EBITDA-based value indication (~£20.5m), using conservative multiples. Round terms to be specified. 
+
+Benchmark: Medium-High — thoughtful, conservative framing; add explicit pre/post to complete the picture.
+
+Risk Indicators (balanced, presently moderate)
+
+Execution: Reliant on timely partner integrations (KYC/AML/SPV/payment) to complete the “from insight to action” promise. Mitigation: named partner categories and staged rollout. 
+
+Data Quality: Early versions must maintain high precision/recall in red-flag surfacing and confidence scoring. Mitigation: expert-governed reports + layered AI.

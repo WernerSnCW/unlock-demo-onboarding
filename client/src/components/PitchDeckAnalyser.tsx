@@ -98,9 +98,161 @@ export default function PitchDeckAnalyser() {
   const [sector, setSector] = useState('');
   const [stage, setStage] = useState('');
   const [geography, setGeography] = useState('');
+  const [selectedPreviousAnalysis, setSelectedPreviousAnalysis] = useState<string | null>(null);
+
+  // Hardcoded example: Unlock Pitch Deck Analysis
+  const unlockPitchDeckAnalysis: AnalysisResult = {
+    id: "unlock-pitch-deck-june-2025",
+    fileName: "Unlock Pitch Deck - June 2025.pdf",
+    overallScore: {
+      completeness: 9,
+      clarity: 10,
+      valuationPlausibility: 8
+    },
+    executiveSummary: {
+      topStrengths: [
+        "Tackles a well-evidenced trust gap in alternatives (fraud losses; only ~4% retail participation), giving Unlock a compelling mission and timing.",
+        "Differentiated \"AI + expert\" diligence engine with structured Q&A and modular tools that span discovery → decision → completion.",
+        "Tiered pricing for individuals and institutions with clear expansion paths (EMIs/PSPs, family offices) and white-label/API options.",
+        "Traction signals (pre-alpha demos, LOIs, early funding) and a phased, test-and-learn roadmap."
+      ],
+      topWeaknesses: [
+        "Round terms (raise size, pre/post) not explicitly stated in the deck.",
+        "Execution depends on integrations/partnerships in compliance and payments—partners identified; timelines matter."
+      ],
+      investorQuestions: [
+        "What milestones gate the Alpha→Beta transition and unlock institutional pilots (EMIs/PSPs)?",
+        "Which compliance/KYC partners are first for \"digital completion,\" and what is the co-selling plan?",
+        "How quickly does analyst time per report fall with workflow automation, and how does that move gross margin?",
+        "What are the first three data sources powering \"Cognisense\" risk surfacing, and how are confidence scores reported to users?",
+        "Which segments of the investor directory (by asset type) will seed network effects fastest?"
+      ]
+    },
+    sections: [
+      {
+        name: 'Problem',
+        status: 'Present',
+        extracted: 'UK investors face opaque, fragmented, and often risky alternative opportunities; fraud and low retail participation underscore a trust deficit.',
+        strengths: ['Quantified pain (fraud stats, low alts penetration)', 'First-person investor quotes', 'Clear "jobs to be done"'],
+        weaknesses: [],
+        questions: ['What 2–3 metrics will you publish (publicly) as "trust signals" to compound credibility quarterly?'],
+        benchmark: 'High — sharp articulation with credible data points'
+      },
+      {
+        name: 'Solution',
+        status: 'Present', 
+        extracted: 'Unified hub for curated discovery, AI + expert diligence, structured Q&A, and digital completion, delivered as modular tools.',
+        strengths: ['End-to-end flow', 'Interactive diligence workflows', 'Expert-governed reports', 'Seamless partner execution'],
+        weaknesses: [],
+        questions: ['Which diligence modules will be self-serve first (valuation, verification, competitor scan), and what\'s the beta success metric?'],
+        benchmark: 'High — differentiated vs. pitch-only or compliance-only point solutions'
+      },
+      {
+        name: 'Market Size',
+        status: 'Present',
+        extracted: '22.8m UK investors; staged GTM from investor tiers to EMIs/PSPs and family offices; white-label/API for scale.',
+        strengths: ['Clear wedges with quantified expansion markets (£50–70m EMI/PSP DD; £30–84m family-office intelligence)'],
+        weaknesses: [],
+        questions: [],
+        benchmark: 'High — credible bottoms-up snapshots and realistic penetration targets'
+      },
+      {
+        name: 'Traction',
+        status: 'Present',
+        extracted: 'Functional pre-alpha, live demos, LOIs, initial funding, weekly user sessions guiding roadmap.',
+        strengths: ['Early but purposeful', 'Good momentum for stage'],
+        weaknesses: [],
+        questions: [],
+        benchmark: 'Medium-High — early but purposeful; good momentum for stage'
+      },
+      {
+        name: 'Business Model',
+        status: 'Present',
+        extracted: 'Recurring tiers (£0/£99/£249/institutional), staged verticals, and a 5-year plan to £7–9m ARR and £6.75m EBITDA.',
+        strengths: ['Diversified lines with operating leverage from automation', 'Disciplined valuation slide'],
+        weaknesses: [],
+        questions: [],
+        benchmark: 'High — diversified lines with operating leverage from automation; disciplined valuation slide'
+      },
+      {
+        name: 'Terms/Valuation',
+        status: 'Present',
+        extracted: 'Deck provides a DCF/EBITDA-based value indication (~£20.5m), using conservative multiples. Round terms to be specified.',
+        strengths: ['Thoughtful, conservative framing'],
+        weaknesses: ['Add explicit pre/post to complete the picture'],
+        questions: [],
+        benchmark: 'Medium-High — thoughtful, conservative framing; add explicit pre/post to complete the picture'
+      }
+    ],
+    valuation: {
+      declared: 20500000,
+      benchmarkMin: 15000000,
+      benchmarkMax: 25000000,
+      assessment: 'DCF anchored in Year-5 EBITDA with conservative multiples shows discipline for stage',
+      methods: {
+        preMoney: 20500000,
+        postMoney: 20500000,
+        revenueMultiple: {
+          base: 8000000,
+          baseLabel: "ARR (Year 5)",
+          horizonYears: 5,
+          multiple: 2.5,
+          impliedValue: 20000000
+        },
+        ebitdaMultiple: {
+          ebitda: 6750000,
+          baseLabel: "EBITDA (Year 5)",
+          horizonYears: 5,
+          multiple: 8,
+          impliedValue: 54000000
+        },
+        roiProjection: {
+          equityStake: 20,
+          roiMultiple: 2.73,
+          irr: 22,
+          projectedExit: 20500000,
+          investorReturn: 4100000
+        }
+      },
+      suggestedQuestions: [
+        "How are growth projections supported beyond current revenue figures?",
+        "What benchmarks inform the conservative EBITDA multiples?", 
+        "How does the DCF compare to comparable transaction data?"
+      ]
+    },
+    riskFlags: [
+      {
+        level: 'Medium',
+        issue: 'Execution: Reliant on timely partner integrations (KYC/AML/SPV/payment) to complete the "from insight to action" promise'
+      },
+      {
+        level: 'Medium', 
+        issue: 'Data Quality: Early versions must maintain high precision/recall in red-flag surfacing and confidence scoring'
+      }
+    ]
+  };
+
+  const previousAnalyses = [
+    {
+      id: "unlock-pitch-deck-june-2025",
+      title: "Unlock Pitch Deck - June 2025",
+      date: "June 2025",
+      scores: { completeness: 9, clarity: 10, valuation: 8 },
+      summary: "AI-powered investment due diligence platform tackling trust gap in alternatives market"
+    }
+  ];
+
+  const handleSelectPreviousAnalysis = (analysisId: string) => {
+    if (analysisId === "unlock-pitch-deck-june-2025") {
+      setResult(unlockPitchDeckAnalysis);
+      setSelectedPreviousAnalysis(analysisId);
+      setFile(null); // Clear any uploaded file
+    }
+  };
 
   const analyseDocument = async (uploadedFile: File) => {
     setIsAnalysing(true);
+    setSelectedPreviousAnalysis(null); // Clear any selected previous analysis
     
     try {
       const formData = new FormData();
@@ -567,24 +719,54 @@ export default function PitchDeckAnalyser() {
           Review completed analyses and compare different pitch decks
         </p>
 
-        {/* Hardcoded Example - Placeholder for now */}
         <div className="space-y-4">
-          <div className="bg-[var(--muted)]/10 rounded-[var(--radius-md)] p-4 border border-[var(--border)]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-[var(--radius-md)] flex items-center justify-center">
-                  <i className="fas fa-file-pdf text-white text-sm" aria-hidden="true"></i>
+          {previousAnalyses.map((analysis) => (
+            <div 
+              key={analysis.id} 
+              className={`bg-[var(--muted)]/10 rounded-[var(--radius-md)] p-4 border cursor-pointer transition-all duration-200 hover:shadow-md ${
+                selectedPreviousAnalysis === analysis.id 
+                  ? 'border-[var(--primary)] bg-[var(--primary)]/5' 
+                  : 'border-[var(--border)] hover:border-[var(--primary)]/50'
+              }`}
+              onClick={() => handleSelectPreviousAnalysis(analysis.id)}
+              data-testid={`previous-analysis-${analysis.id}`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-[var(--radius-md)] flex items-center justify-center">
+                    <i className="fas fa-file-pdf text-white text-sm" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[var(--card-foreground)]">{analysis.title}</h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">{analysis.summary}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs text-[var(--muted-foreground)]">{analysis.date}</span>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded">
+                          Completeness: {analysis.scores.completeness}/10
+                        </span>
+                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 rounded">
+                          Clarity: {analysis.scores.clarity}/10
+                        </span>
+                        <span className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 px-2 py-0.5 rounded">
+                          Valuation: {analysis.scores.valuation}/10
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-[var(--card-foreground)]">Coming Soon</h3>
-                  <p className="text-sm text-[var(--muted-foreground)]">Previous analyses will appear here</p>
+                <div className="flex items-center gap-2">
+                  {selectedPreviousAnalysis === analysis.id && (
+                    <div className="text-[var(--primary)] text-sm font-medium">
+                      <i className="fas fa-check-circle mr-1" aria-hidden="true"></i>
+                      Selected
+                    </div>
+                  )}
+                  <i className="fas fa-chevron-right text-[var(--muted-foreground)]" aria-hidden="true"></i>
                 </div>
-              </div>
-              <div className="text-sm text-[var(--muted-foreground)]">
-                Ready for hardcoded example
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
