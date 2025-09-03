@@ -1609,6 +1609,10 @@ function BeliefQuestionnaireComponent() {
   // Get the matched persona from stored quiz data
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
 
+  // State for scenario selection interface (moved to top level to avoid hooks rule violation)
+  const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
+  const [scenarioWeights, setScenarioWeights] = useState<any[]>([]);
+
   // Load matched persona from localStorage
   useEffect(() => {
     const storedQuizData = localStorage.getItem('investorQuizData');
@@ -1663,6 +1667,87 @@ function BeliefQuestionnaireComponent() {
 
   const { toast } = useToast();
 
+  // Calculate scenario weights from belief responses (moved to top level)
+  useEffect(() => {
+    if (isComplete && responses.length > 0) {
+      // Calculate scenario scores from beliefs responses using weights from beliefs.json
+      const typedBeliefsData = beliefsData as BeliefsData;
+      const scenarioScores: Record<string, number> = {};
+      
+      responses.forEach(response => {
+        const question = typedBeliefsData.questions.find((q: BeliefQuestion) => q.id === response.questionId);
+        if (!question) return;
+        
+        const weights = typedBeliefsData.weights[response.questionId];
+        if (!weights) return;
+        
+        // Convert 0-based index to 1-5 scale value
+        const scaleValue = response.selectedOptionIndex + 1;
+        
+        // Apply weights based on the direction logic
+        Object.entries(weights).forEach(([scenario, weight]) => {
+          let contribution = 0;
+          const weightValue = weight as number;
+          
+          // Parse direction to determine how scale value affects scenario
+          if (question.direction.includes('lower->')) {
+            // Lower values increase scenario probability
+            contribution = weightValue * (6 - scaleValue); // Invert: 5->1, 4->2, etc.
+          } else if (question.direction.includes('higher->')) {
+            // Higher values increase scenario probability  
+            contribution = weightValue * scaleValue;
+          }
+          
+          scenarioScores[scenario] = (scenarioScores[scenario] || 0) + contribution;
+        });
+      });
+
+      // Convert to scenario weights array and normalize
+      const scenarioArray = Object.entries(scenarioScores).map(([scenario, score]) => ({
+        scenario,
+        weight: Math.max(0, score),
+        normalizedWeight: 0, // Will be calculated below
+        isMasked: false
+      }));
+
+      // Normalize weights to sum to 1
+      const totalWeight = scenarioArray.reduce((sum, item) => sum + item.weight, 0);
+      scenarioArray.forEach(item => {
+        item.normalizedWeight = totalWeight > 0 ? item.weight / totalWeight : 0;
+        item.isMasked = item.normalizedWeight < 0.01; // Mask scenarios below 1%
+      });
+
+      // Sort by normalized weight descending
+      scenarioArray.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
+      
+      setScenarioWeights(scenarioArray);
+      
+      // Auto-select top 3 non-masked scenarios
+      const topScenarios = scenarioArray.filter(s => !s.isMasked).slice(0, 3);
+      setSelectedScenarios(new Set(topScenarios.map(s => s.scenario)));
+    }
+  }, [isComplete, responses]);
+
+  // Helper functions for scenario selection
+  const selectAllActiveScenarios = useCallback(() => {
+    const activeScenarios = scenarioWeights.filter(s => !s.isMasked).map(s => s.scenario);
+    setSelectedScenarios(new Set(activeScenarios));
+  }, [scenarioWeights]);
+
+  const deselectAllScenarios = useCallback(() => {
+    setSelectedScenarios(new Set());
+  }, []);
+
+  const toggleScenarioSelection = useCallback((scenario: string) => {
+    const newSelection = new Set(selectedScenarios);
+    if (newSelection.has(scenario)) {
+      newSelection.delete(scenario);
+    } else {
+      newSelection.add(scenario);
+    }
+    setSelectedScenarios(newSelection);
+  }, [selectedScenarios]);
+
   // Show loading if persona not loaded yet
   if (!matchedPersona) {
     return (
@@ -1682,88 +1767,6 @@ function BeliefQuestionnaireComponent() {
   if (isComplete && portfolioResult) {
     // Show Economic Scenario Beliefs interface with scenario selection
     // IMPORTANT: This should match the interface from the original /investor-preferences route
-    const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
-    const [scenarioWeights, setScenarioWeights] = useState<any[]>([]);
-
-    // Calculate scenario weights from belief responses
-    useEffect(() => {
-      if (responses.length > 0) {
-        // Calculate scenario scores from beliefs responses using weights from beliefs.json
-        const typedBeliefsData = beliefsData as BeliefsData;
-        const scenarioScores: Record<string, number> = {};
-        
-        responses.forEach(response => {
-          const question = typedBeliefsData.questions.find((q: BeliefQuestion) => q.id === response.questionId);
-          if (!question) return;
-          
-          const weights = typedBeliefsData.weights[response.questionId];
-          if (!weights) return;
-          
-          // Convert 0-based index to 1-5 scale value
-          const scaleValue = response.selectedOptionIndex + 1;
-          
-          // Apply weights based on the direction logic
-          Object.entries(weights).forEach(([scenario, weight]) => {
-            let contribution = 0;
-            const weightValue = weight as number;
-            
-            // Parse direction to determine how scale value affects scenario
-            if (question.direction.includes('lower->')) {
-              // Lower values increase scenario probability
-              contribution = weightValue * (6 - scaleValue); // Invert: 5->1, 4->2, etc.
-            } else if (question.direction.includes('higher->')) {
-              // Higher values increase scenario probability  
-              contribution = weightValue * scaleValue;
-            }
-            
-            scenarioScores[scenario] = (scenarioScores[scenario] || 0) + contribution;
-          });
-        });
-
-        // Convert to scenario weights array and normalize
-        const scenarioArray = Object.entries(scenarioScores).map(([scenario, score]) => ({
-          scenario,
-          weight: Math.max(0, score),
-          normalizedWeight: 0, // Will be calculated below
-          isMasked: false
-        }));
-
-        // Normalize weights to sum to 1
-        const totalWeight = scenarioArray.reduce((sum, item) => sum + item.weight, 0);
-        scenarioArray.forEach(item => {
-          item.normalizedWeight = totalWeight > 0 ? item.weight / totalWeight : 0;
-          item.isMasked = item.normalizedWeight < 0.01; // Mask scenarios below 1%
-        });
-
-        // Sort by normalized weight descending
-        scenarioArray.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
-        
-        setScenarioWeights(scenarioArray);
-        
-        // Auto-select top 3 non-masked scenarios
-        const topScenarios = scenarioArray.filter(s => !s.isMasked).slice(0, 3);
-        setSelectedScenarios(new Set(topScenarios.map(s => s.scenario)));
-      }
-    }, [responses]);
-
-    const selectAllActiveScenarios = () => {
-      const activeScenarios = scenarioWeights.filter(s => !s.isMasked).map(s => s.scenario);
-      setSelectedScenarios(new Set(activeScenarios));
-    };
-
-    const deselectAllScenarios = () => {
-      setSelectedScenarios(new Set());
-    };
-
-    const toggleScenarioSelection = (scenario: string) => {
-      const newSelection = new Set(selectedScenarios);
-      if (newSelection.has(scenario)) {
-        newSelection.delete(scenario);
-      } else {
-        newSelection.add(scenario);
-      }
-      setSelectedScenarios(newSelection);
-    };
 
     return (
       <div className="max-w-6xl mx-auto px-6 py-8">
