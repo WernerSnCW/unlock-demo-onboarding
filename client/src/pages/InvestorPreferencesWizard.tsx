@@ -2242,28 +2242,34 @@ function ActualPortfolioForm({ investorName, matchedPersona }: { investorName: s
         }),
       });
 
+      const result = await response.json();
+      console.log('Portfolio API response:', result);
+
       if (!response.ok) {
-        throw new Error('Failed to save portfolio');
+        throw new Error(result.message || 'Failed to save portfolio');
       }
 
-      const result = await response.json();
-      console.log('Portfolio saved successfully:', result);
+      if (result.success) {
+        console.log('Portfolio saved successfully:', result);
 
-      toast({
-        title: "Portfolio Saved",
-        description: "Your actual portfolio has been recorded successfully.",
-      });
+        toast({
+          title: "Portfolio Saved",
+          description: "Your actual portfolio has been recorded successfully.",
+        });
 
-      // Move to next section after successful save
-      setTimeout(() => {
-        onTabChange('pitch');
-      }, 500);
+        // Move to next section after successful save
+        setTimeout(() => {
+          onTabChange('pitch');
+        }, 500);
+      } else {
+        throw new Error(result.message || 'Save operation was not successful');
+      }
 
     } catch (error) {
       console.error('Error saving portfolio:', error);
       toast({
         title: "Error",
-        description: "Failed to save portfolio. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save portfolio. Please try again.",
         variant: "destructive",
       });
     }
