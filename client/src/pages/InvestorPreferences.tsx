@@ -1714,9 +1714,6 @@ function PersonaQuizContent() {
                 <div className="text-4xl font-black text-[var(--primary)]">
                   {result.topMatch.matchScore}%
                 </div>
-                <div className="text-sm text-[var(--muted-foreground)]">
-                  {result.topMatch.confidence}% confidence
-                </div>
               </div>
             </div>
           </CardHeader>
