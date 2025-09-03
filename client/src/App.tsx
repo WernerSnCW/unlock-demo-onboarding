@@ -30,6 +30,7 @@ import InvestorOnboarding from "@/pages/InvestorOnboarding";
 import PortfolioAnalysis from "@/pages/PortfolioAnalysis";
 import DemoPortfolioAnalysis from "@/pages/DemoPortfolioAnalysis";
 import InvestorPreferences from "@/pages/InvestorPreferences";
+import InvestorPreferencesWizard from "@/pages/InvestorPreferencesWizard";
 
 
 function Router() {
@@ -60,6 +61,7 @@ function Router() {
       <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
       <Route path="/demo-portfolio-analysis" component={DemoPortfolioAnalysis} />
       <Route path="/investor-preferences" component={InvestorPreferences} />
+      <Route path="/investor-preferences-v2" component={InvestorPreferencesWizard} />
       <Route component={NotFound} />
     </Switch>
   );
