@@ -2191,6 +2191,20 @@ function ActualPortfolioForm({ investorName, matchedPersona }: { investorName: s
   const total = calculateTotal();
   const isValid = total === 100 && portfolioValue !== '';
 
+  // Function to get userId from localStorage or generate new one
+  const getUserId = () => {
+    try {
+      const storedQuizData = localStorage.getItem('investorQuizData');
+      if (storedQuizData) {
+        const quizData = JSON.parse(storedQuizData);
+        return quizData.userId;
+      }
+    } catch (error) {
+      console.error('Failed to get userId from localStorage:', error);
+    }
+    return `demo-${Date.now()}`;
+  };
+
   // Function to get recommended allocation from persona
   const getRecommendedAllocation = (persona: any) => {
     const defaults = PERSONA_DEFAULTS[persona.code];
@@ -2237,7 +2251,7 @@ function ActualPortfolioForm({ investorName, matchedPersona }: { investorName: s
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: data?.userId || `demo-${Date.now()}`,
+          userId: getUserId(),
           ...portfolioData
         }),
       });
