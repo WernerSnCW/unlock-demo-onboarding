@@ -29,7 +29,7 @@ export function useBeliefQuestionnaire() {
 
   const questions = beliefsData.questions as BeliefQuestion[];
   const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + answers.length) / questions.length) * 100;
+  const progress = (currentQuestionIndex / questions.length) * 100;
   const canGoBack = currentQuestionIndex > 0;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
 

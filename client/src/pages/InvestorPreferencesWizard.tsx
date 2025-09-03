@@ -1616,8 +1616,8 @@ function BeliefQuestionnaireComponent() {
     autoCompleteQuestionnaire
   } = beliefData;
 
-  // Get total questions - for now use a fixed number since we need to add to hook
-  const totalQuestions = 15; // Update this when hook is fixed
+  // Get total questions from the actual hook data
+  const totalQuestions = beliefData.totalQuestions || 12;
 
   const { toast } = useToast();
 
