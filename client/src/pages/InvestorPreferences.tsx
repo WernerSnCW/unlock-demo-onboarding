@@ -1905,7 +1905,22 @@ function PersonaQuizContent() {
                         <div className="text-xs font-semibold text-[var(--muted-foreground)] leading-tight">
                           {dimensionLabels[index]}
                         </div>
-                        <Info className="h-3 w-3 text-[var(--muted-foreground)]" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-help transition-colors" />
+                          </TooltipTrigger>
+                          <TooltipContent 
+                            className="max-w-sm p-4 bg-white dark:bg-gray-900 border-2 shadow-xl"
+                            style={{ zIndex: 999999 }}
+                            side="bottom"
+                            sideOffset={8}
+                            align="center"
+                          >
+                            <p className="text-sm leading-relaxed text-gray-900 dark:text-gray-100">
+                              {getDimensionExplanation(index)}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <div 
                         className="text-2xl font-bold mb-1"
