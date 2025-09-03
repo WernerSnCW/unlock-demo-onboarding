@@ -1997,11 +1997,10 @@ function BeliefQuestionnaireComponent() {
                         });
                         
                         // Navigate to Portfolio Analysis section
-                        // For now, we'll move to a portfolio analysis tab or page
                         console.log('Moving to Portfolio Analysis with data:', beliefsData);
                         
-                        // TODO: Navigate to portfolio analysis section
-                        // This could be a new tab in the wizard or a separate page
+                        // Navigate to portfolio analysis tab
+                        setActiveMainTab('analysis');
                         
                       } else {
                         throw new Error('Failed to save belief responses');
