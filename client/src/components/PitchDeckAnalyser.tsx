@@ -53,6 +53,37 @@ interface AnalysisResult {
       };
     };
     suggestedQuestions: string[];
+    // Enhanced valuation data from backend
+    revenue_multiple?: {
+      base: number;
+      base_label: string;
+      multiple_low: number;
+      multiple_mid: number;
+      multiple_high: number;
+      implied_low: number;
+      implied_mid: number;
+      implied_high: number;
+      horizon_years: number;
+      discounted: boolean;
+    };
+    ebitda_multiple?: {
+      base: number;
+      base_label: string;
+      multiple_low: number;
+      multiple_mid: number;
+      multiple_high: number;
+      implied_low: number;
+      implied_mid: number;
+      implied_high: number;
+      horizon_years: number;
+      discounted: boolean;
+    };
+    implied_from_terms?: {
+      pre_money: number;
+      post_money: number;
+      raise: number;
+      equity_pct: number;
+    };
   };
   riskFlags: {
     level: 'Low' | 'Medium' | 'High';
@@ -90,6 +121,11 @@ export default function PitchDeckAnalyser() {
       const result = await response.json();
       console.log("API Response received:", result);
       console.log("Declared valuation from API:", result?.valuation?.declared);
+      console.log("Enhanced valuation data:", {
+        revenue_multiple: result?.valuation?.revenue_multiple,
+        ebitda_multiple: result?.valuation?.ebitda_multiple,
+        implied_from_terms: result?.valuation?.implied_from_terms
+      });
       setResult(result);
     } catch (error) {
       console.error('Pitch deck analysis failed:', error);
@@ -779,54 +815,54 @@ export default function PitchDeckAnalyser() {
             </div>
 
             {/* Enhanced Valuation Methods from enhanced engine */}
-            {((result.valuation as any).revenue_multiple || (result.valuation as any).ebitda_multiple || (result.valuation as any).implied_from_stated) && (
+            {(result.valuation.revenue_multiple || result.valuation.ebitda_multiple || result.valuation.implied_from_terms) && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-[var(--card-foreground)] mb-4 flex items-center gap-2">
                   <i className="fas fa-chart-line text-[var(--primary)]" aria-hidden="true"></i>
                   Enhanced Valuation Calculations
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {(result.valuation as any).revenue_multiple && (
+                  {result.valuation.revenue_multiple && (
                     <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
                       <h4 className="font-medium text-[var(--card-foreground)] mb-2">Revenue Multiple Range</h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-[var(--muted-foreground)]">Low:</span>
-                          <span className="text-[var(--foreground)]">{formatCurrency((result.valuation as any).revenue_multiple.implied_low)}</span>
+                          <span className="text-[var(--muted-foreground)]">Low ({result.valuation.revenue_multiple.multiple_low}x):</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.revenue_multiple.implied_low)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[var(--muted-foreground)]">Mid:</span>
-                          <span className="text-[var(--primary)] font-medium">{formatCurrency((result.valuation as any).revenue_multiple.implied_mid)}</span>
+                          <span className="text-[var(--muted-foreground)]">Mid ({result.valuation.revenue_multiple.multiple_mid}x):</span>
+                          <span className="text-[var(--primary)] font-medium">{formatCurrency(result.valuation.revenue_multiple.implied_mid)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[var(--muted-foreground)]">High:</span>
-                          <span className="text-[var(--foreground)]">{formatCurrency((result.valuation as any).revenue_multiple.implied_high)}</span>
+                          <span className="text-[var(--muted-foreground)]">High ({result.valuation.revenue_multiple.multiple_high}x):</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.revenue_multiple.implied_high)}</span>
                         </div>
                         <div className="text-xs text-[var(--muted-foreground)] mt-2">
-                          Based on {formatCurrency((result.valuation as any).revenue_multiple.arr)} ARR
+                          Based on {formatCurrency(result.valuation.revenue_multiple.base)} {result.valuation.revenue_multiple.base_label}
                         </div>
                       </div>
                     </div>
                   )}
                   
-                  {(result.valuation as any).ebitda_multiple && (
+                  {result.valuation.ebitda_multiple && (
                     <div className="bg-[var(--muted)] p-4 rounded-[var(--radius-md)] border border-[var(--border)]">
                       <h4 className="font-medium text-[var(--card-foreground)] mb-2">EBITDA Multiple Range</h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-[var(--muted-foreground)]">Low:</span>
-                          <span className="text-[var(--foreground)]">{formatCurrency((result.valuation as any).ebitda_multiple.implied_low)}</span>
+                          <span className="text-[var(--muted-foreground)]">Low ({result.valuation.ebitda_multiple.multiple_low}x):</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.ebitda_multiple.implied_low)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[var(--muted-foreground)]">Mid:</span>
-                          <span className="text-[var(--secondary)] font-medium">{formatCurrency((result.valuation as any).ebitda_multiple.implied_mid)}</span>
+                          <span className="text-[var(--muted-foreground)]">Mid ({result.valuation.ebitda_multiple.multiple_mid}x):</span>
+                          <span className="text-[var(--secondary)] font-medium">{formatCurrency(result.valuation.ebitda_multiple.implied_mid)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[var(--muted-foreground)]">High:</span>
-                          <span className="text-[var(--foreground)]">{formatCurrency((result.valuation as any).ebitda_multiple.implied_high)}</span>
+                          <span className="text-[var(--muted-foreground)]">High ({result.valuation.ebitda_multiple.multiple_high}x):</span>
+                          <span className="text-[var(--foreground)]">{formatCurrency(result.valuation.ebitda_multiple.implied_high)}</span>
                         </div>
                         <div className="text-xs text-[var(--muted-foreground)] mt-2">
-                          Based on {formatCurrency((result.valuation as any).ebitda_multiple.ebitda)} EBITDA
+                          Based on {formatCurrency(result.valuation.ebitda_multiple.base)} {result.valuation.ebitda_multiple.base_label}
                         </div>
                       </div>
                     </div>
