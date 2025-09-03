@@ -894,7 +894,7 @@ export default function InvestorPreferencesWizard() {
             {/* Economic Beliefs Assessment Tab */}
             <TabsContent value="beliefs" className="mt-8">
               <div className="space-y-8">
-                <BeliefQuestionnaireComponent />
+                <BeliefQuestionnaireComponent setActiveMainTab={setActiveMainTab} />
               </div>
             </TabsContent>
           </Tabs>
@@ -1610,7 +1610,11 @@ function PersonaQuizContentWizard({
 }
 
 // Economic Beliefs Assessment Component  
-function BeliefQuestionnaireComponent() {
+function BeliefQuestionnaireComponent({ 
+  setActiveMainTab 
+}: { 
+  setActiveMainTab: (tab: string) => void; 
+}) {
   // Get the matched persona from stored quiz data
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
 
