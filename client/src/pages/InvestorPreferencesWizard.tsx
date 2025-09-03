@@ -15,7 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -2158,6 +2158,168 @@ function BeliefQuestionnaireComponent({
   );
 }
 
+// Actual Portfolio Form Component
+function ActualPortfolioForm({ investorName }: { investorName: string }) {
+  const [portfolioValue, setPortfolioValue] = useState<string>('');
+  const [allocations, setAllocations] = useState({
+    cashFixedIncome: '',
+    globalEquity: '',
+    techGrowth: '',
+    property: '',
+    commoditiesGold: '',
+    alternatives: '',
+    cryptocurrency: '',
+    collectibles: ''
+  });
+
+  const { toast } = useToast();
+
+  const handleAllocationChange = (field: string, value: string) => {
+    setAllocations(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const calculateTotal = () => {
+    return Object.values(allocations).reduce((sum, value) => {
+      const num = parseFloat(value) || 0;
+      return sum + num;
+    }, 0);
+  };
+
+  const total = calculateTotal();
+  const isValid = total === 100 && portfolioValue !== '';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isValid) {
+      toast({
+        title: "Invalid Portfolio",
+        description: "Portfolio allocations must total exactly 100% and portfolio value is required.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Here we would save the actual portfolio data
+    console.log('Saving actual portfolio:', {
+      investorName,
+      portfolioValue: parseFloat(portfolioValue),
+      allocations
+    });
+
+    toast({
+      title: "Portfolio Saved",
+      description: "Your actual portfolio has been recorded successfully.",
+    });
+  };
+
+  return (
+    <Card className="border-0 shadow-lg">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-2xl">
+          <DollarSign className="w-6 h-6 text-[var(--primary)]" />
+          Your Actual Portfolio
+        </CardTitle>
+        <CardDescription className="text-base">
+          Tell us about your current investment portfolio for {investorName}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Portfolio Value Input */}
+          <div className="space-y-2">
+            <label htmlFor="portfolioValue" className="text-sm font-medium text-[var(--foreground)]">
+              Total Portfolio Value (£)
+            </label>
+            <input
+              id="portfolioValue"
+              type="number"
+              value={portfolioValue}
+              onChange={(e) => setPortfolioValue(e.target.value)}
+              placeholder="e.g., 500000"
+              className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              data-testid="input-portfolio-value"
+              required
+            />
+          </div>
+
+          {/* Asset Allocation Inputs */}
+          <div className="space-y-4">
+            <h4 className="font-semibold text-[var(--foreground)]">
+              Asset Allocation (must total 100%)
+            </h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { key: 'cashFixedIncome', label: 'Cash & Fixed Income', placeholder: '25' },
+                { key: 'globalEquity', label: 'Global Equity', placeholder: '35' },
+                { key: 'techGrowth', label: 'Technology & Growth', placeholder: '15' },
+                { key: 'property', label: 'Property & Real Estate', placeholder: '10' },
+                { key: 'commoditiesGold', label: 'Commodities & Gold', placeholder: '5' },
+                { key: 'alternatives', label: 'Alternative Investments', placeholder: '5' },
+                { key: 'cryptocurrency', label: 'Cryptocurrency', placeholder: '3' },
+                { key: 'collectibles', label: 'Collectibles', placeholder: '2' }
+              ].map((field) => (
+                <div key={field.key} className="space-y-1">
+                  <label htmlFor={field.key} className="text-sm font-medium text-[var(--foreground)]">
+                    {field.label} (%)
+                  </label>
+                  <input
+                    id={field.key}
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={allocations[field.key as keyof typeof allocations]}
+                    onChange={(e) => handleAllocationChange(field.key, e.target.value)}
+                    placeholder={field.placeholder}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    data-testid={`input-${field.key}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Total Display */}
+            <div className="flex justify-between items-center p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+              <span className="font-medium text-[var(--foreground)]">Total Allocation:</span>
+              <span className={`text-xl font-bold ${
+                total === 100 ? 'text-green-600' : 
+                total > 100 ? 'text-red-600' : 'text-[var(--muted-foreground)]'
+              }`}>
+                {total.toFixed(1)}%
+              </span>
+            </div>
+            
+            {total !== 100 && (
+              <p className="text-sm text-[var(--muted-foreground)]">
+                {total < 100 ? 
+                  `You need ${(100 - total).toFixed(1)}% more to reach 100%` :
+                  `You are ${(total - 100).toFixed(1)}% over 100%`
+                }
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <Button 
+            type="submit" 
+            disabled={!isValid}
+            className="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            data-testid="button-save-portfolio"
+          >
+            <Save className="w-5 h-5 mr-2" />
+            Save My Portfolio
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Personalized Portfolio Analysis Component
 function PersonalizedPortfolioAnalysis() {
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
@@ -2277,113 +2439,92 @@ function PersonalizedPortfolioAnalysis() {
   ].filter(item => item.value > 0);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Portfolio Overview */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
-              Your Portfolio Recommendation
-            </CardTitle>
-            <CardDescription className="text-base">
-              Based on your investment persona: <span className="font-semibold text-[var(--primary)]">{matchedPersona.name}</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Portfolio Value Display */}
-              <div className="text-center p-6 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--accent)]/20">
-                <h3 className="text-lg font-medium text-[var(--muted-foreground)] mb-2">Recommended Portfolio Size</h3>
-                <p className="text-3xl font-bold text-[var(--foreground)]">
-                  £{(matchedPersona.portfolioValue / 1000).toFixed(0)}k
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      {/* Portfolio Overview */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
+            Your Portfolio Recommendation
+          </CardTitle>
+          <CardDescription className="text-base">
+            Based on your investment persona: <span className="font-semibold text-[var(--primary)]">{matchedPersona.name}</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {/* Portfolio Value Display */}
+            <div className="text-center p-6 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--accent)]/20">
+              <h3 className="text-lg font-medium text-[var(--muted-foreground)] mb-2">Recommended Portfolio Size</h3>
+              <p className="text-3xl font-bold text-[var(--foreground)]">
+                £{(matchedPersona.portfolioValue / 1000).toFixed(0)}k
+              </p>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">{matchedPersona.wealthTier}</p>
+            </div>
+
+            {/* Key Metrics */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                <h5 className="font-medium text-[var(--foreground)] mb-1">Risk Profile</h5>
+                <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.riskProfile}</p>
+              </div>
+              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                <h5 className="font-medium text-[var(--foreground)] mb-1">Approach</h5>
+                <p className="text-lg font-semibold text-[var(--primary)]">
+                  {matchedPersona.approach.replace('_', ' ')}
                 </p>
-                <p className="text-sm text-[var(--muted-foreground)] mt-1">{matchedPersona.wealthTier}</p>
               </div>
+              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                <h5 className="font-medium text-[var(--foreground)] mb-1">Liquidity Buffer</h5>
+                <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.liquidityMonths} months</p>
+              </div>
+              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                <h5 className="font-medium text-[var(--foreground)] mb-1">Max Drawdown</h5>
+                <p className="text-lg font-semibold text-[var(--primary)]">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</p>
+              </div>
+            </div>
 
-              {/* Allocation Breakdown */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
-                {portfolioAllocation.map((item, index) => (
-                  <div key={index} className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-[var(--foreground)]">{item.name}</span>
-                      <span className="font-semibold text-[var(--foreground)]">{item.value}%</span>
-                    </div>
-                    <div className="w-full bg-[var(--border)] rounded-full h-3">
-                      <div 
-                        className="h-3 rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${item.value}%`,
-                          backgroundColor: item.color 
-                        }}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
-                      {'assets' in item && (
-                        <p className="text-xs text-[var(--muted-foreground)]/80">
-                          Includes: {item.assets.join(', ')}
-                        </p>
-                      )}
-                    </div>
+            {/* Allocation Breakdown */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
+              {portfolioAllocation.map((item, index) => (
+                <div key={index} className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-[var(--foreground)]">{item.name}</span>
+                    <span className="font-semibold text-[var(--foreground)]">{item.value}%</span>
                   </div>
-                ))}
-              </div>
+                  <div className="w-full bg-[var(--border)] rounded-full h-3">
+                    <div 
+                      className="h-3 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${item.value}%`,
+                        backgroundColor: item.color 
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
+                    {'assets' in item && (
+                      <p className="text-xs text-[var(--muted-foreground)]/80">
+                        Includes: {item.assets.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Persona Insights */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <User className="w-6 h-6 text-[var(--primary)]" />
-              Your Investment Profile
-            </CardTitle>
-            <CardDescription className="text-base">
-              Key characteristics and recommendations for {investorName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Key Metrics */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Risk Profile</h5>
-                  <p className="text-xl font-semibold text-[var(--primary)]">{matchedPersona.riskProfile}</p>
-                </div>
-                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Approach</h5>
-                  <p className="text-xl font-semibold text-[var(--primary)]">
-                    {matchedPersona.approach.replace('_', ' ')}
-                  </p>
-                </div>
-                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Liquidity Buffer</h5>
-                  <p className="text-xl font-semibold text-[var(--primary)]">{matchedPersona.liquidityMonths} months</p>
-                </div>
-                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Max Drawdown</h5>
-                  <p className="text-xl font-semibold text-[var(--primary)]">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</p>
-                </div>
-              </div>
-
-              {/* Persona Description */}
-              <div className="p-6 bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--primary)]/20">
-                <h5 className="font-semibold text-[var(--foreground)] mb-3">Portfolio Notes</h5>
-                <p className="text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
-              </div>
-
-              {/* Action Button */}
-              <Button className="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold py-3">
-                <TrendingUp className="w-5 h-5 mr-2" />
-                Implement This Strategy
-              </Button>
+            {/* Persona Description */}
+            <div className="p-6 bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--primary)]/20">
+              <h5 className="font-semibold text-[var(--foreground)] mb-3">Portfolio Notes</h5>
+              <p className="text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Actual Portfolio Form */}
+      <ActualPortfolioForm investorName={investorName} />
     </div>
   );
 }
