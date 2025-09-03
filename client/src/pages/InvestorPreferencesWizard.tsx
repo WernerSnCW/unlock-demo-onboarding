@@ -194,9 +194,13 @@ export default function InvestorPreferencesWizard() {
       'Global Diversified', 'Emerging Markets'
     ]);
     
+    // Mark steps 1 and 2 as completed and navigate to step 3
+    setCompletedSteps(new Set([1, 2]));
+    setCurrentStep(3);
+    
     toast({
       title: "Demo Preferences Auto-Captured!",
-      description: "Sample preferences have been filled across all 3 steps for demonstration purposes.",
+      description: "Sample preferences filled and navigated to final step.",
     });
   };
 
