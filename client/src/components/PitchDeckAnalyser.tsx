@@ -556,6 +556,38 @@ export default function PitchDeckAnalyser() {
         </button>
       </div>
 
+      {/* Completed Analyses Section */}
+      <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-md)]">
+        <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-6 flex items-center gap-2">
+          <i className="fas fa-history text-[var(--primary)]" aria-hidden="true"></i>
+          Previous Pitch Deck Analyses
+        </h2>
+        
+        <p className="text-[var(--muted-foreground)] text-sm mb-6">
+          Review completed analyses and compare different pitch decks
+        </p>
+
+        {/* Hardcoded Example - Placeholder for now */}
+        <div className="space-y-4">
+          <div className="bg-[var(--muted)]/10 rounded-[var(--radius-md)] p-4 border border-[var(--border)]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-[var(--radius-md)] flex items-center justify-center">
+                  <i className="fas fa-file-pdf text-white text-sm" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <h3 className="font-medium text-[var(--card-foreground)]">Coming Soon</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">Previous analyses will appear here</p>
+                </div>
+              </div>
+              <div className="text-sm text-[var(--muted-foreground)]">
+                Ready for hardcoded example
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Results */}
       {result && (
         <div className="space-y-8">
@@ -1282,7 +1314,7 @@ export default function PitchDeckAnalyser() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {result.riskFlags.map((risk, index) => (
+              {result.riskFlags?.map((risk, index) => (
                 <div key={index} className="p-4 border border-[var(--border)] bg-[var(--muted)] rounded-[var(--radius-md)]">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(risk.level)} bg-[var(--background)] border border-[var(--border)]`}>
@@ -1291,7 +1323,7 @@ export default function PitchDeckAnalyser() {
                   </div>
                   <p className="text-sm text-[var(--foreground)]">{risk.issue}</p>
                 </div>
-              ))}
+              )) || <p className="text-[var(--muted-foreground)]">No risks to display</p>}
             </div>
           </div>
 

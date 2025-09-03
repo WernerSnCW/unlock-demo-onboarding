@@ -868,7 +868,6 @@ OUTPUT SCHEMA:
     valuations: any,
     scores: any
   ): { level: 'Low' | 'Medium' | 'High'; issue: string }[] {
-    console.log("Generating risk flags with scores:", scores, "valuations.peer_gap_pct:", valuations.peer_gap_pct);
     const risks: { level: 'Low' | 'Medium' | 'High'; issue: string }[] = [];
 
     // Valuation reality check
@@ -939,7 +938,6 @@ OUTPUT SCHEMA:
     }
 
     // Cap at 6 risks maximum
-    console.log("Generated risks:", risks);
     return risks.slice(0, 6);
   }
 }
