@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -79,7 +80,16 @@ const steps = [
   { id: 3, title: 'Geographic Focus', subtitle: 'Geographic Preferences' }
 ];
 
+const mainTabs = [
+  { id: 'preferences', title: 'Investment Preferences', icon: Target, description: '3 steps to capture your investment interests' },
+  { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
+  { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Coming soon - analyze your current holdings' },
+  { id: 'strategy', title: 'Investment Strategy', icon: TrendingUp, description: 'Coming soon - develop your investment strategy' },
+  { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Coming soon - create your personalized action plan' }
+];
+
 export default function InvestorPreferencesWizard() {
+  const [activeMainTab, setActiveMainTab] = useState('preferences');
   const [currentStep, setCurrentStep] = useState(1);
   const [investorName, setInvestorName] = useState<string>('');
   const [showNameDialog, setShowNameDialog] = useState(true);
@@ -271,9 +281,37 @@ export default function InvestorPreferencesWizard() {
           </DialogContent>
         </Dialog>
 
-        {/* Progress and Step Navigation */}
-        <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="mb-8">
+        {/* Main Tab Navigation */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
+          <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5 mb-8 bg-[var(--muted)] p-1 rounded-lg h-auto">
+              {mainTabs.map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <TabsTrigger 
+                    key={tab.id}
+                    value={tab.id} 
+                    className={`flex flex-col items-center gap-2 rounded-md transition-all duration-300 p-4 ${
+                      activeMainTab === tab.id 
+                        ? "!bg-[var(--primary)] !text-white shadow-md border-0" 
+                        : "bg-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--background)]"
+                    }`}
+                  >
+                    <IconComponent className="h-5 w-5" />
+                    <div className="text-center">
+                      <div className="font-medium text-sm">{tab.title}</div>
+                      <div className="text-xs opacity-70">{tab.description}</div>
+                    </div>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
+            {/* Tab Content: Investment Preferences */}
+            <TabsContent value="preferences">
+              {/* Progress and Step Navigation */}
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Step {currentStep} of {steps.length}: {steps[currentStep - 1]?.title}
@@ -526,7 +564,134 @@ export default function InvestorPreferencesWizard() {
               </Form>
             )}
           </CardContent>
-        </Card>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Tab Content: Investment Profile Discovery */}
+            <TabsContent value="profile">
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                <Card className="border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <User className="w-6 h-6 text-[var(--primary)]" />
+                      Investment Profile Discovery
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Discover your investment personality through a comprehensive assessment.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <User className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
+                      <p className="text-[var(--muted-foreground)] mb-6">
+                        Complete the investment preferences first, then discover your unique investment personality through our advanced profiling system.
+                      </p>
+                      <Button variant="outline" disabled>
+                        Start Profile Discovery
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Tab Content: Portfolio Analysis */}
+            <TabsContent value="analysis">
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                <Card className="border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
+                      Portfolio Analysis
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Analyze your current investment holdings and performance.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <BarChart3 className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
+                      <p className="text-[var(--muted-foreground)] mb-6">
+                        Advanced portfolio analysis tools will be available after completing your investment preferences and profile discovery.
+                      </p>
+                      <Button variant="outline" disabled>
+                        Analyze Portfolio
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Tab Content: Investment Strategy */}
+            <TabsContent value="strategy">
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                <Card className="border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <TrendingUp className="w-6 h-6 text-[var(--primary)]" />
+                      Investment Strategy
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Develop a personalized investment strategy based on your profile.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <TrendingUp className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
+                      <p className="text-[var(--muted-foreground)] mb-6">
+                        Get personalized investment strategy recommendations tailored to your preferences and risk profile.
+                      </p>
+                      <Button variant="outline" disabled>
+                        Build Strategy
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Tab Content: Action Plan */}
+            <TabsContent value="action">
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                <Card className="border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <CheckCircle className="w-6 h-6 text-[var(--primary)]" />
+                      Action Plan
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Create your personalized investment action plan.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
+                      <p className="text-[var(--muted-foreground)] mb-6">
+                        Receive a detailed action plan with specific steps to implement your investment strategy.
+                      </p>
+                      <Button variant="outline" disabled>
+                        Generate Action Plan
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       <Footer />
