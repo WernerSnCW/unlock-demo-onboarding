@@ -126,6 +126,10 @@ export default function PitchDeckAnalyser() {
         ebitda_multiple: result?.valuation?.ebitda_multiple,
         implied_from_terms: result?.valuation?.implied_from_terms
       });
+      console.log("Methods data:", {
+        revenueBase: result?.valuation?.methods?.revenueMultiple?.base,
+        ebitdaBase: result?.valuation?.methods?.ebitdaMultiple?.ebitda
+      });
       setResult(result);
     } catch (error) {
       console.error('Pitch deck analysis failed:', error);
@@ -1034,7 +1038,8 @@ export default function PitchDeckAnalyser() {
               </div>
             )}
 
-            {/* Method Details */}
+            {/* Method Details - Only show if we have revenue/EBITDA multiples */}
+            {(result.valuation.methods.revenueMultiple.base > 0 || result.valuation.methods.ebitdaMultiple.ebitda > 0) && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-[var(--radius-md)]">
                 <h4 className="font-semibold text-[var(--card-foreground)] mb-3 flex items-center gap-2">
@@ -1091,6 +1096,7 @@ export default function PitchDeckAnalyser() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* ROI Analysis - Only show if roiProjection exists */}
             {result.valuation.methods.roiProjection && (
