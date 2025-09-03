@@ -2188,9 +2188,9 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
             onClick={() => setShowPortfolioView(false)}
             variant="outline"
             size="sm"
-            className="mb-4"
+            className="mb-4 text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2 text-[var(--foreground)]" />
             Back to Scenario Selection
           </Button>
           
