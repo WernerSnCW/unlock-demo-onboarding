@@ -397,7 +397,15 @@ export default function InvestorPreferencesWizard() {
                   const IconComponent = tab.icon;
                   // Fix: Check if beliefs questionnaire is shown for proper tab highlighting
                   const isActive = (showBeliefQuestionnaire && tab.id === 'beliefs') || (!showBeliefQuestionnaire && activeMainTab === tab.id);
-                  const isCompleted = index === 0 && completedSteps.size > 0; // Example logic
+                  
+                  // Fix: Proper completion logic for each tab
+                  let isCompleted = false;
+                  if (tab.id === 'preferences') {
+                    isCompleted = completedSteps.size > 0; // Card 1 completed when wizard steps done
+                  } else if (tab.id === 'profile') {
+                    // Card 2 completed when we're on Economic Beliefs (meaning quiz was finished)
+                    isCompleted = showBeliefQuestionnaire;
+                  }
                   
                   return (
                     <button
