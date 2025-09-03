@@ -291,12 +291,25 @@ export default function InvestorPreferencesWizard() {
               </div>
             </div>
 
-            {/* Revolutionary Typography */}
+            {/* Revolutionary Typography - Dynamic Header */}
             <h1 className="relative mb-8">
-              <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">Investment</span>
-              <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
-                PREFERENCES
-              </span>
+              {(() => {
+                const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
+                const titleParts = currentTab?.title.split(' ') || ['Investment', 'Preferences'];
+                const firstPart = titleParts.slice(0, -1).join(' ');
+                const lastPart = titleParts[titleParts.length - 1];
+                
+                return (
+                  <>
+                    <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">
+                      {firstPart}
+                    </span>
+                    <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
+                      {lastPart.toUpperCase()}
+                    </span>
+                  </>
+                );
+              })()}
               <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
             </h1>
 
