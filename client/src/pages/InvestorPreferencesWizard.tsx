@@ -2203,17 +2203,52 @@ function ActualPortfolioForm({ investorName }: { investorName: string }) {
       return;
     }
 
-    // Here we would save the actual portfolio data
-    console.log('Saving actual portfolio:', {
+    // Save the actual portfolio data
+    const portfolioData = {
       investorName,
       portfolioValue: parseFloat(portfolioValue),
       allocations
-    });
+    };
+    
+    console.log('Saving actual portfolio:', portfolioData);
 
-    toast({
-      title: "Portfolio Saved",
-      description: "Your actual portfolio has been recorded successfully.",
-    });
+    try {
+      const response = await fetch('/api/investors/actual-portfolio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: data?.userId || `demo-${Date.now()}`,
+          ...portfolioData
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save portfolio');
+      }
+
+      const result = await response.json();
+      console.log('Portfolio saved successfully:', result);
+
+      toast({
+        title: "Portfolio Saved",
+        description: "Your actual portfolio has been recorded successfully.",
+      });
+
+      // Move to next section after successful save
+      setTimeout(() => {
+        onTabChange('pitch');
+      }, 500);
+
+    } catch (error) {
+      console.error('Error saving portfolio:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save portfolio. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

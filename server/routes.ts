@@ -320,6 +320,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Actual portfolio endpoint - saves user's actual portfolio allocation
+  app.post('/api/investors/actual-portfolio', async (req, res) => {
+    try {
+      console.log('Received actual portfolio data:', req.body);
+      const { userId, investorName, portfolioValue, allocations } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+
+      if (!investorName) {
+        return res.status(400).json({ message: 'Investor name is required' });
+      }
+
+      if (!portfolioValue || portfolioValue <= 0) {
+        return res.status(400).json({ message: 'Valid portfolio value is required' });
+      }
+
+      if (!allocations) {
+        return res.status(400).json({ message: 'Portfolio allocations are required' });
+      }
+
+      // Use the provided userId to update existing record
+      const dataToSave = {
+        userId,
+        investorName,
+        actualPortfolioValue: portfolioValue,
+        actualPortfolioAllocations: JSON.stringify(allocations),
+        actualPortfolioCompletedAt: new Date(),
+        completionMethod: 'manual'
+      };
+      
+      console.log('Actual portfolio data to save:', dataToSave);
+      
+      const preferences = await storage.upsertInvestorPreferences(dataToSave);
+      res.json({ 
+        success: true, 
+        userId,
+        preferences,
+        message: `Actual portfolio saved successfully for ${investorName}` 
+      });
+    } catch (error) {
+      console.error('Actual portfolio save error:', error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid portfolio data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to save actual portfolio' });
+    }
+  });
+
   // Tax Profile routes
   app.get('/api/investors/:userId/tax-profile', async (req, res) => {
     try {

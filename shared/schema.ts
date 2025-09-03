@@ -44,6 +44,10 @@ export const investorPreferences = pgTable("investor_preferences", {
   selectedScenarios: text("selected_scenarios"), // JSON array of selected economic scenarios
   scenarioWeights: text("scenario_weights"), // JSON array of scenario probability weights
   beliefsCompletedAt: timestamp("beliefs_completed_at"), // When beliefs questionnaire was completed
+  // Actual portfolio fields
+  actualPortfolioValue: numeric("actual_portfolio_value"), // User's actual portfolio value in GBP
+  actualPortfolioAllocations: text("actual_portfolio_allocations"), // JSON string of actual allocation percentages
+  actualPortfolioCompletedAt: timestamp("actual_portfolio_completed_at"), // When actual portfolio was saved
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
