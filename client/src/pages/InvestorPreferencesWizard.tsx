@@ -303,7 +303,9 @@ export default function InvestorPreferencesWizard() {
             {/* Revolutionary Typography - Dynamic Header */}
             <h1 className="relative mb-8">
               {(() => {
-                const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
+                // Determine which tab is currently active - if beliefs questionnaire is shown, use 'beliefs'
+                const currentTabId = showBeliefQuestionnaire ? 'beliefs' : activeMainTab;
+                const currentTab = mainTabs.find(tab => tab.id === currentTabId);
                 const titleParts = currentTab?.title.split(' ') || ['Investment', 'Preferences'];
                 const firstPart = titleParts.slice(0, -1).join(' ');
                 const lastPart = titleParts[titleParts.length - 1];
@@ -382,6 +384,7 @@ export default function InvestorPreferencesWizard() {
           <Tabs value={showBeliefQuestionnaire ? 'beliefs' : activeMainTab} onValueChange={(value) => {
             if (value === 'beliefs') {
               setShowBeliefQuestionnaire(true);
+              setActiveMainTab('beliefs'); // Also update activeMainTab for consistent header
             } else {
               setShowBeliefQuestionnaire(false);
               setActiveMainTab(value);
