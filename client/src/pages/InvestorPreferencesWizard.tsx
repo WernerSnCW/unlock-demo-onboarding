@@ -894,7 +894,10 @@ export default function InvestorPreferencesWizard() {
             {/* Economic Beliefs Assessment Tab */}
             <TabsContent value="beliefs" className="mt-8">
               <div className="space-y-8">
-                <BeliefQuestionnaireComponent setActiveMainTab={setActiveMainTab} />
+                <BeliefQuestionnaireComponent 
+                  setActiveMainTab={setActiveMainTab} 
+                  setShowBeliefQuestionnaire={setShowBeliefQuestionnaire} 
+                />
               </div>
             </TabsContent>
           </Tabs>
@@ -1611,9 +1614,11 @@ function PersonaQuizContentWizard({
 
 // Economic Beliefs Assessment Component  
 function BeliefQuestionnaireComponent({ 
-  setActiveMainTab 
+  setActiveMainTab,
+  setShowBeliefQuestionnaire 
 }: { 
-  setActiveMainTab: (tab: string) => void; 
+  setActiveMainTab: (tab: string) => void;
+  setShowBeliefQuestionnaire: (show: boolean) => void; 
 }) {
   // Get the matched persona from stored quiz data
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
@@ -2000,6 +2005,7 @@ function BeliefQuestionnaireComponent({
                         
                         // Navigate to Portfolio Analysis section
                         console.log('Navigating to analysis tab...');
+                        setShowBeliefQuestionnaire(false); // Exit beliefs questionnaire mode
                         setActiveMainTab('analysis');
                         console.log('Navigation completed successfully');
                         
