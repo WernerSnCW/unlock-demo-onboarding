@@ -165,19 +165,20 @@ export class DatabaseStorage implements IStorage {
       .onConflictDoUpdate({
         target: investorPreferences.userId,
         set: {
-          riskBand: prefs.riskBand,
-          ticketMinGbp: prefs.ticketMinGbp,
-          ticketMaxGbp: prefs.ticketMaxGbp,
-          regions: prefs.regions,
-          focusSectors: prefs.focusSectors,
-          existingInvestments: prefs.existingInvestments,
-          investmentInterests: prefs.investmentInterests,
-          // Add wizard fields
-          investorName: prefs.investorName,
-          activeInvestmentInterests: prefs.activeInvestmentInterests,
-          learningCuriosityAreas: prefs.learningCuriosityAreas,
-          geographicPreferences: prefs.geographicPreferences,
-          wizardCompletedAt: prefs.wizardCompletedAt
+          // Only set fields that are actually provided
+          ...(prefs.riskBand !== undefined && { riskBand: prefs.riskBand }),
+          ...(prefs.ticketMinGbp !== undefined && { ticketMinGbp: prefs.ticketMinGbp }),
+          ...(prefs.ticketMaxGbp !== undefined && { ticketMaxGbp: prefs.ticketMaxGbp }),
+          ...(prefs.regions !== undefined && { regions: prefs.regions }),
+          ...(prefs.focusSectors !== undefined && { focusSectors: prefs.focusSectors }),
+          ...(prefs.existingInvestments !== undefined && { existingInvestments: prefs.existingInvestments }),
+          ...(prefs.investmentInterests !== undefined && { investmentInterests: prefs.investmentInterests }),
+          // Wizard fields
+          ...(prefs.investorName !== undefined && { investorName: prefs.investorName }),
+          ...(prefs.activeInvestmentInterests !== undefined && { activeInvestmentInterests: prefs.activeInvestmentInterests }),
+          ...(prefs.learningCuriosityAreas !== undefined && { learningCuriosityAreas: prefs.learningCuriosityAreas }),
+          ...(prefs.geographicPreferences !== undefined && { geographicPreferences: prefs.geographicPreferences }),
+          ...(prefs.wizardCompletedAt !== undefined && { wizardCompletedAt: prefs.wizardCompletedAt }),
         }
       })
       .returning();
