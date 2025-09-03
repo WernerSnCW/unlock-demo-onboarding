@@ -1943,9 +1943,34 @@ function BeliefQuestionnaireComponent() {
                 <Button 
                   onClick={async () => {
                     try {
+                      // Get the userId from stored quiz data to update existing record
+                      const storedQuizData = localStorage.getItem('investorQuizData');
+                      let userId = null;
+                      let investorName = null;
+                      
+                      if (storedQuizData) {
+                        try {
+                          const quizData = JSON.parse(storedQuizData);
+                          userId = quizData.userId;
+                          investorName = quizData.investorName;
+                        } catch (error) {
+                          console.error('Failed to parse quiz data:', error);
+                        }
+                      }
+
+                      if (!userId || !investorName) {
+                        toast({
+                          title: "Error",
+                          description: "Session data not found. Please restart the wizard.",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+
                       // Save economic beliefs responses to backend
                       const beliefsData = {
-                        investorName: matchedPersona.name,
+                        userId: userId, // Use existing userId to update same record
+                        investorName: investorName, // Use actual investor name, not persona name
                         beliefResponses: responses,
                         selectedScenarios: Array.from(selectedScenarios),
                         scenarioWeights: scenarioWeights,

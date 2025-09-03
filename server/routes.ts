@@ -281,17 +281,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/investors/belief-responses', async (req, res) => {
     try {
       console.log('Received belief responses:', req.body);
-      const { investorName, beliefResponses, selectedScenarios, scenarioWeights, completionMethod } = req.body;
+      const { userId, investorName, beliefResponses, selectedScenarios, scenarioWeights, completionMethod } = req.body;
       
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+
       if (!investorName) {
         return res.status(400).json({ message: 'Investor name is required' });
       }
 
-      // Find existing record for this investor, otherwise create new userId
-      const existingRecords = await db.select().from(investorPreferences).where(eq(investorPreferences.investorName, investorName));
-      const userId = existingRecords.length > 0 ? existingRecords[0].userId : `demo-${Date.now()}`;
-      
-      // Prepare belief data to save
+      // Use the provided userId to update existing record
       const dataToSave = {
         userId,
         investorName,
