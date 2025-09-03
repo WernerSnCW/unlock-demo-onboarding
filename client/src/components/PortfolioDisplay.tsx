@@ -152,7 +152,7 @@ export function PortfolioDisplay({
       {/* Portfolio Comparison Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Base Allocation Chart */}
-        <Card className="shadow-md">
+        <Card className="border-2 border-[var(--secondary)]/40 bg-gradient-to-br from-[var(--muted)]/30 via-[var(--card)] to-[var(--secondary)]/10 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
               <Shield className="h-4 w-4 text-[var(--muted-foreground)]" />
@@ -188,7 +188,7 @@ export function PortfolioDisplay({
         </Card>
 
         {/* Persona-Adjusted Chart */}
-        <Card className="shadow-md border-[var(--accent)]/30">
+        <Card className="border-2 border-[var(--warning)]/40 bg-gradient-to-br from-[var(--warning)]/10 via-[var(--accent)]/5 to-[var(--primary)]/10 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
               <PieChart className="h-4 w-4 text-[var(--accent)]" />
@@ -225,7 +225,7 @@ export function PortfolioDisplay({
       </div>
 
       {/* Comparison Table */}
-      <Card className="shadow-lg">
+      <Card className="border-2 border-[var(--info)]/40 bg-gradient-to-br from-[var(--info)]/8 via-[var(--card)] to-[var(--secondary)]/8 shadow-lg hover:shadow-xl transition-all duration-300">
         <CardHeader className="pb-3">
           <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-[var(--accent)]" />

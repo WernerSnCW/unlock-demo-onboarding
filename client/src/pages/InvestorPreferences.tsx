@@ -2207,7 +2207,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
         {/* Persona & Scenarios Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           {/* Selected Persona */}
-          <Card className="border border-[var(--primary)]/30 bg-[var(--primary)]/5">
+          <Card className="border-2 border-[var(--success)]/40 bg-gradient-to-br from-[var(--success)]/10 via-[var(--primary)]/5 to-[var(--accent)]/10 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-[var(--foreground)] text-lg">
                 <User className="h-4 w-4 text-[var(--primary)]" />
@@ -2234,7 +2234,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
           </Card>
 
           {/* Active Economic Scenarios */}
-          <Card className="border border-[var(--secondary)]/30 bg-[var(--secondary)]/5">
+          <Card className="border-2 border-[var(--info)]/40 bg-gradient-to-br from-[var(--info)]/10 via-[var(--secondary)]/5 to-[var(--primary)]/10 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-[var(--foreground)] text-lg">
                 <BarChart3 className="h-4 w-4 text-[var(--secondary)]" />
@@ -2307,7 +2307,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
           </div>
           
           {/* Persona Context */}
-          <div className="max-w-2xl mx-auto p-6 bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--border)]">
+          <div className="max-w-2xl mx-auto p-6 bg-gradient-to-r from-[var(--accent)]/20 via-[var(--warning)]/10 to-[var(--accent)]/20 rounded-2xl border-2 border-[var(--accent)]/30 shadow-lg">
             <div className="flex items-center justify-center gap-3 mb-2">
               <Target className="h-5 w-5 text-[var(--primary)]" />
               <span className="font-semibold text-[var(--foreground)]">Selected Persona: {persona.name}</span>
@@ -2317,7 +2317,7 @@ function BeliefQuestionnaireContent({ persona, onBack }: { persona: PersonaDef; 
         </div>
 
         {/* Scenario Weights Results */}
-        <Card className="border border-[var(--border)] shadow-lg">
+        <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 shadow-xl hover:shadow-2xl transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-2xl text-[var(--foreground)] flex items-center gap-2">
               <BarChart3 className="h-6 w-6 text-[var(--secondary)]" />
