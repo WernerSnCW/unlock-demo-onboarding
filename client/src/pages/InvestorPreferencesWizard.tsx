@@ -1996,17 +1996,8 @@ function BeliefQuestionnaireComponent() {
                         
                         // Navigate to Portfolio Analysis section
                         console.log('Navigating to analysis tab...');
-                        
-                        // Force navigate by directly triggering the tab click handler  
-                        const analysisTab = document.querySelector('[data-tab="analysis"]');
-                        if (analysisTab) {
-                          (analysisTab as HTMLElement).click();
-                          console.log('Navigation completed via DOM click');
-                        } else {
-                          // Fallback: just update the main tab (let beliefs questionnaire stay active)
-                          setActiveMainTab('analysis');
-                          console.log('Navigation completed via state update');
-                        }
+                        setActiveMainTab('analysis');
+                        console.log('Navigation completed successfully');
                         
                         // Show success message
                         toast({
