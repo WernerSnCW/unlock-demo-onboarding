@@ -2251,6 +2251,62 @@ function ActualPortfolioForm({ investorName }: { investorName: string }) {
             <h4 className="font-semibold text-[var(--foreground)]">
               Asset Allocation (must total 100%)
             </h4>
+
+            {/* Live Portfolio Chart */}
+            {total > 0 && (
+              <div className="p-4 bg-gradient-to-br from-[var(--accent)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--accent)]/20">
+                <h5 className="font-medium text-[var(--foreground)] mb-4">Your Portfolio Visualization</h5>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Cash & Fixed Income', value: parseFloat(allocations.cashFixedIncome) || 0, color: '#10B981' },
+                        { name: 'Global Equity', value: parseFloat(allocations.globalEquity) || 0, color: '#3B82F6' },
+                        { name: 'Technology & Growth', value: parseFloat(allocations.techGrowth) || 0, color: '#06B6D4' },
+                        { name: 'Property & Real Estate', value: parseFloat(allocations.property) || 0, color: '#8B5CF6' },
+                        { name: 'Commodities & Gold', value: parseFloat(allocations.commoditiesGold) || 0, color: '#F59E0B' },
+                        { name: 'Alternative Investments', value: parseFloat(allocations.alternatives) || 0, color: '#EF4444' },
+                        { name: 'Cryptocurrency', value: parseFloat(allocations.cryptocurrency) || 0, color: '#F97316' },
+                        { name: 'Collectibles', value: parseFloat(allocations.collectibles) || 0, color: '#A855F7' }
+                      ].filter(item => item.value > 0)}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      innerRadius={50}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ value }) => value > 0 ? `${value}%` : ''}
+                      labelLine={false}
+                    >
+                      {[
+                        { name: 'Cash & Fixed Income', value: parseFloat(allocations.cashFixedIncome) || 0, color: '#10B981' },
+                        { name: 'Global Equity', value: parseFloat(allocations.globalEquity) || 0, color: '#3B82F6' },
+                        { name: 'Technology & Growth', value: parseFloat(allocations.techGrowth) || 0, color: '#06B6D4' },
+                        { name: 'Property & Real Estate', value: parseFloat(allocations.property) || 0, color: '#8B5CF6' },
+                        { name: 'Commodities & Gold', value: parseFloat(allocations.commoditiesGold) || 0, color: '#F59E0B' },
+                        { name: 'Alternative Investments', value: parseFloat(allocations.alternatives) || 0, color: '#EF4444' },
+                        { name: 'Cryptocurrency', value: parseFloat(allocations.cryptocurrency) || 0, color: '#F97316' },
+                        { name: 'Collectibles', value: parseFloat(allocations.collectibles) || 0, color: '#A855F7' }
+                      ].filter(item => item.value > 0).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      formatter={(value, name) => [`${value}%`, name]}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--foreground))'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+                  Live preview of your portfolio allocation • {total.toFixed(1)}% allocated
+                </p>
+              </div>
+            )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
