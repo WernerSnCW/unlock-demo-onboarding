@@ -2159,7 +2159,7 @@ function BeliefQuestionnaireComponent({
 }
 
 // Actual Portfolio Form Component
-function ActualPortfolioForm({ investorName, matchedPersona }: { investorName: string; matchedPersona: any }) {
+function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { investorName: string; matchedPersona: any; onTabChange: (tab: string) => void }) {
   const [portfolioValue, setPortfolioValue] = useState<string>('');
   const [allocations, setAllocations] = useState({
     cashFixedIncome: '',
@@ -2720,7 +2720,7 @@ function PersonalizedPortfolioAnalysis() {
       </Card>
 
       {/* Actual Portfolio Form */}
-      <ActualPortfolioForm investorName={investorName} matchedPersona={matchedPersona} />
+      <ActualPortfolioForm investorName={investorName} matchedPersona={matchedPersona} onTabChange={onTabChange} />
     </div>
   );
 }
