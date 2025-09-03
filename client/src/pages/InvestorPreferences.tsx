@@ -1811,7 +1811,8 @@ function PersonaQuizContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-96 mb-6">
+            <TooltipProvider>
+              <div className="h-96 mb-6">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart 
                   data={result.userProfile.map((score, index) => ({
@@ -1872,6 +1873,20 @@ function PersonaQuizContent() {
                   if (score >= 2) return 'var(--warning)';
                   return 'var(--destructive)';
                 };
+
+                const getDimensionExplanation = (dimensionIndex: number) => {
+                  const explanations = [
+                    "How comfortable you are with investment volatility and potential losses. Higher scores indicate willingness to accept more risk for potentially higher returns.",
+                    "Your preference for property-based investments like real estate, REITs, and property funds. Higher scores indicate strong property allocation preference.",
+                    "Your openness to alternative investments like private equity, hedge funds, commodities, and cryptocurrency. Higher scores indicate greater appetite for non-traditional assets.",
+                    "How much you prioritize tax-efficient investing through ISAs, pensions, EIS/SEIS, and other tax wrappers. Higher scores indicate strong tax optimization focus.",
+                    "Your preference for income-generating vs growth investments. Higher scores indicate preference for dividends, bonds, and regular income streams.",
+                    "Your investment time horizon and legacy planning considerations. Higher scores indicate longer-term outlook and intergenerational wealth planning.",
+                    "How much cash and easily accessible investments you prefer to maintain. Higher scores indicate preference for readily available funds.",
+                    "How much you rely on professional financial advice vs independent decision-making. Higher scores indicate preference for advisor-guided investing."
+                  ];
+                  return explanations[dimensionIndex] || "Investment dimension explanation";
+                };
                 
                 return (
                   <div 
@@ -1886,8 +1901,20 @@ function PersonaQuizContent() {
                     </div>
                     
                     <div className="relative z-10">
-                      <div className="text-xs font-semibold text-[var(--muted-foreground)] mb-2 leading-tight">
-                        {dimensionLabels[index]}
+                      <div className="flex items-center justify-center gap-1 mb-2">
+                        <div className="text-xs font-semibold text-[var(--muted-foreground)] leading-tight">
+                          {dimensionLabels[index]}
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-help transition-colors" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs p-3">
+                            <p className="text-sm leading-relaxed">
+                              {getDimensionExplanation(index)}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <div 
                         className="text-2xl font-bold mb-1"
@@ -1913,7 +1940,8 @@ function PersonaQuizContent() {
                   </div>
                 );
               })}
-            </div>
+              </div>
+            </TooltipProvider>
           </CardContent>
         </Card>
 
