@@ -184,6 +184,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wizard preferences endpoint - saves complete wizard data
+  app.post('/api/investors/wizard-preferences', async (req, res) => {
+    try {
+      const { investorName, activeInvestmentInterests, learningCuriosityAreas, geographicPreferences } = req.body;
+      
+      if (!investorName) {
+        return res.status(400).json({ message: 'Investor name is required' });
+      }
+
+      // Create a unique userId based on investor name for demo purposes
+      const userId = `demo-${Date.now()}`;
+      
+      const validatedData = insertInvestorPreferencesSchema.parse({
+        userId,
+        investorName,
+        activeInvestmentInterests,
+        learningCuriosityAreas,
+        geographicPreferences,
+        wizardCompletedAt: new Date().toISOString()
+      });
+      
+      const preferences = await storage.upsertInvestorPreferences(validatedData);
+      res.json({ 
+        success: true, 
+        userId,
+        preferences,
+        message: `Wizard preferences saved successfully for ${investorName}` 
+      });
+    } catch (error) {
+      console.error('Wizard preferences save error:', error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid wizard data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to save wizard preferences' });
+    }
+  });
+
   // Tax Profile routes
   app.get('/api/investors/:userId/tax-profile', async (req, res) => {
     try {

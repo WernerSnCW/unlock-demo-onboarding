@@ -27,6 +27,13 @@ export const investorPreferences = pgTable("investor_preferences", {
   focusSectors: integer("focus_sectors").array(), // FK -> sectors(id)
   existingInvestments: text("existing_investments").array(), // Types of investments they currently have
   investmentInterests: text("investment_interests").array(), // Types of investments they're interested in
+  // New wizard fields
+  investorName: text("investor_name"), // Name captured in wizard
+  activeInvestmentInterests: text("active_investment_interests").array(), // Step 1 wizard data
+  learningCuriosityAreas: text("learning_curiosity_areas").array(), // Step 2 wizard data
+  geographicPreferences: text("geographic_preferences").array(), // Step 3 wizard data
+  wizardCompletedAt: timestamp("wizard_completed_at"), // When wizard was completed
+  updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
 export const taxProfile = pgTable("tax_profile", {
@@ -222,7 +229,9 @@ export const insertInvestorSchema = createInsertSchema(investors).omit({
   createdAt: true,
 });
 
-export const insertInvestorPreferencesSchema = createInsertSchema(investorPreferences);
+export const insertInvestorPreferencesSchema = createInsertSchema(investorPreferences).omit({
+  updatedAt: true,
+});
 
 export const insertTaxProfileSchema = createInsertSchema(taxProfile);
 

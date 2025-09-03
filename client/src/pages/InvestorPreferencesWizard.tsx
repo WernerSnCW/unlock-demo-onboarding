@@ -177,8 +177,21 @@ export default function InvestorPreferencesWizard() {
       };
       
       try {
-        // TODO: Implement actual API call to save complete preferences
-        console.log(`Saving complete investment preferences for investor ${investorName}:`, completePreferences);
+        // Save complete investment preferences via API
+        const response = await fetch('/api/investors/wizard-preferences', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(completePreferences),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Wizard preferences saved successfully:', result);
         
         // Mark all steps as completed
         setCompletedSteps(new Set([1, 2, 3]));
@@ -192,6 +205,7 @@ export default function InvestorPreferencesWizard() {
         });
         
       } catch (error) {
+        console.error('Save error:', error);
         toast({
           title: "Save Error",
           description: "Failed to save complete preferences. Please try again.",
