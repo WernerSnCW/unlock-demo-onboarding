@@ -34,6 +34,11 @@ export const investorPreferences = pgTable("investor_preferences", {
   geographicPreferences: text("geographic_preferences").array(), // Step 3 wizard data
   wizardCompletedAt: timestamp("wizard_completed_at"), // When wizard was completed
   completionMethod: text("completion_method"), // 'auto' or 'manual' - tracks how wizard was completed
+  // Persona quiz fields
+  quizAnswers: text("quiz_answers"), // JSON string of quiz answers array
+  matchedPersonaCode: text("matched_persona_code"), // e.g., 'P003' 
+  personaMatchScore: numeric("persona_match_score"), // Confidence score 0-1
+  quizCompletedAt: timestamp("quiz_completed_at"), // When persona quiz was completed
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 

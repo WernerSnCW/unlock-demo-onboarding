@@ -180,6 +180,11 @@ export class DatabaseStorage implements IStorage {
           ...(prefs.geographicPreferences !== undefined && { geographicPreferences: prefs.geographicPreferences }),
           ...(prefs.wizardCompletedAt !== undefined && { wizardCompletedAt: prefs.wizardCompletedAt }),
           ...(prefs.completionMethod !== undefined && { completionMethod: prefs.completionMethod }),
+          // Quiz fields
+          ...(prefs.quizAnswers !== undefined && { quizAnswers: prefs.quizAnswers }),
+          ...(prefs.matchedPersonaCode !== undefined && { matchedPersonaCode: prefs.matchedPersonaCode }),
+          ...(prefs.personaMatchScore !== undefined && { personaMatchScore: prefs.personaMatchScore }),
+          ...(prefs.quizCompletedAt !== undefined && { quizCompletedAt: prefs.quizCompletedAt }),
         }
       })
       .returning();

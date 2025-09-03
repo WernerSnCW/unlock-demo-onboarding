@@ -741,7 +741,10 @@ export default function InvestorPreferencesWizard() {
             {/* Tab Content: Investment Profile Discovery */}
             <TabsContent value="profile">
               <div className="max-w-6xl mx-auto px-6 py-8">
-                <PersonaQuizContentWizard />
+                <PersonaQuizContentWizard 
+                  investorName={investorName}
+                  setShowBeliefQuestionnaire={setShowBeliefQuestionnaire}
+                />
               </div>
             </TabsContent>
 
@@ -845,8 +848,17 @@ export default function InvestorPreferencesWizard() {
   );
 }
 
-function PersonaQuizContentWizard() {
+function PersonaQuizContentWizard({ 
+  investorName, 
+  setShowBeliefQuestionnaire 
+}: { 
+  investorName: string; 
+  setShowBeliefQuestionnaire: (show: boolean) => void; 
+}) {
   const [selectedPersona, setSelectedPersona] = useState<PersonaDef | null>(null);
+  
+  const [isAutoCompleted, setIsAutoCompleted] = useState(false); // Track auto completion
+  const { toast } = useToast();
   
   const {
     currentQuestion,
@@ -862,7 +874,8 @@ function PersonaQuizContentWizard() {
     resetQuiz,
     autoCompleteRandomly,
     totalQuestions,
-    dimensionLabels
+    dimensionLabels,
+    answers // Add answers array from hook
   } = usePersonaQuiz();
 
   // Scroll to top when quiz is completed
@@ -874,6 +887,7 @@ function PersonaQuizContentWizard() {
 
   // Handle auto complete with scroll to top
   const handleAutoComplete = useCallback(() => {
+    setIsAutoCompleted(true); // Mark as auto completed
     autoCompleteRandomly();
     // Small delay to ensure state update, then scroll
     setTimeout(() => {
@@ -1330,9 +1344,55 @@ function PersonaQuizContentWizard() {
                 Take Quiz Again
               </Button>
               <Button 
-                onClick={() => {
-                  // For the wizard, we can continue to next section or save the persona result
-                  console.log('Persona selected:', selectedPersona || result.topMatch.persona);
+                onClick={async () => {
+                  // Save quiz data when persona is selected
+                  const chosenPersona = selectedPersona || result.topMatch.persona;
+                  const matchScore = selectedPersona ? 1.0 : result.topMatch.matchScore;
+                  
+                  try {
+                    // Prepare quiz data to save
+                    const quizData = {
+                      investorName,
+                      quizAnswers: answers, // Quiz answers from usePersonaQuiz hook
+                      matchedPersonaCode: chosenPersona.code,
+                      personaMatchScore: matchScore,
+                      completionMethod: isAutoCompleted ? 'auto' : 'manual'
+                    };
+
+                    console.log('Saving quiz data:', quizData);
+
+                    // Save quiz data to database
+                    const response = await fetch('/api/investors/quiz-data', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(quizData),
+                    });
+
+                    if (!response.ok) {
+                      throw new Error(`API error: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('Quiz data saved successfully:', result);
+                    
+                    toast({
+                      title: "Persona Selected!",
+                      description: `Your investment persona (${chosenPersona.name}) has been saved successfully.`,
+                    });
+
+                    // Continue to next section
+                    setShowBeliefQuestionnaire(true);
+                    
+                  } catch (error) {
+                    console.error('Failed to save quiz data:', error);
+                    toast({
+                      title: "Save Failed",
+                      description: "Unable to save persona selection. Please try again.",
+                      variant: "destructive",
+                    });
+                  }
                 }}
                 size="lg"
                 className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"

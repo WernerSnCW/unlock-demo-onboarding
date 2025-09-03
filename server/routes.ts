@@ -228,6 +228,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Quiz data endpoint - saves persona quiz results
+  app.post('/api/investors/quiz-data', async (req, res) => {
+    try {
+      console.log('Received quiz data:', req.body);
+      const { investorName, quizAnswers, matchedPersonaCode, personaMatchScore, completionMethod } = req.body;
+      
+      if (!investorName) {
+        return res.status(400).json({ message: 'Investor name is required' });
+      }
+
+      if (!matchedPersonaCode) {
+        return res.status(400).json({ message: 'Matched persona code is required' });
+      }
+
+      // Create a unique userId based on investor name for demo purposes
+      const userId = `demo-${Date.now()}`;
+      
+      // Prepare quiz data to save
+      const dataToSave = {
+        userId,
+        investorName,
+        quizAnswers: JSON.stringify(quizAnswers || []),
+        matchedPersonaCode,
+        personaMatchScore: personaMatchScore || 0,
+        quizCompletedAt: new Date(),
+        completionMethod: completionMethod || 'manual'
+      };
+      
+      console.log('Quiz data to save:', dataToSave);
+      
+      const preferences = await storage.upsertInvestorPreferences(dataToSave);
+      res.json({ 
+        success: true, 
+        userId,
+        preferences,
+        message: `Quiz data saved successfully for ${investorName}` 
+      });
+    } catch (error) {
+      console.error('Quiz data save error:', error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid quiz data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to save quiz data' });
+    }
+  });
+
   // Tax Profile routes
   app.get('/api/investors/:userId/tax-profile', async (req, res) => {
     try {
