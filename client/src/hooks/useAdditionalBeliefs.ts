@@ -1,6 +1,20 @@
 // Additional belief questionnaire hook for scenario → portfolio flow
 import { useState, useCallback } from 'react';
-import { CORE_QUESTIONS } from '../data/questions';
+import beliefsData from '../data/beliefs.json';
+
+// Types for beliefs data
+interface BeliefQuestion {
+  id: string;
+  text: string;
+  scale: string;
+  direction: string;
+}
+
+interface BeliefsData {
+  questions: BeliefQuestion[];
+  weights: Record<string, Record<string, number>>;
+  normalize: string;
+}
 import { SCENARIO_DEFAULTS } from '../data/scenarioDefaults';
 import { 
   inferLatentIndices, 
@@ -38,7 +52,19 @@ export function useAdditionalBeliefs() {
   const [isComplete, setIsComplete] = useState(false);
   const [portfolioResult, setPortfolioResult] = useState<PortfolioResult | null>(null);
 
-  const questions = CORE_QUESTIONS;
+  // Transform beliefs.json format to question format
+  const typedBeliefsData = beliefsData as BeliefsData;
+  const questions = typedBeliefsData.questions.map(q => ({
+    id: q.id,
+    text: q.text,
+    options: [
+      { text: "1 - Strongly Disagree" },
+      { text: "2 - Disagree" },
+      { text: "3 - Neutral" },
+      { text: "4 - Agree" },
+      { text: "5 - Strongly Agree" }
+    ]
+  }));
   const currentQuestion = questions[currentQuestionIndex];
   const progress = (currentQuestionIndex / questions.length) * 100;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -159,35 +185,63 @@ function processBeliefQuestionnaire(responses: BeliefResponse[], persona: Person
   };
 }
 
-// Determine scenario based on core question responses
+// Determine scenario based on beliefs responses using the weights from beliefs.json
 function determineScenarioFromCoreQuestions(responses: BeliefResponse[]): string {
-  // Simple scoring based on risk tolerance and time horizon
-  let riskScore = 0;
-  let timeScore = 0;
+  const scenarioScores: Record<string, number> = {};
+  const typedBeliefsData = beliefsData as BeliefsData;
   
   responses.forEach(response => {
-    const question = CORE_QUESTIONS.find(q => q.id === response.questionId);
+    const question = typedBeliefsData.questions.find(q => q.id === response.questionId);
     if (!question) return;
     
-    // Risk-related questions
-    if (response.questionId === 'risk_tolerance' || response.questionId === 'market_crash') {
-      riskScore += response.selectedOptionIndex;
-    }
+    const weights = typedBeliefsData.weights[response.questionId];
+    if (!weights) return;
     
-    // Time horizon related
-    if (response.questionId === 'time_horizon' || response.questionId === 'investment_purpose') {
-      timeScore += response.selectedOptionIndex;
+    // Convert 0-based index to 1-5 scale value
+    const scaleValue = response.selectedOptionIndex + 1;
+    
+    // Apply weights based on the direction logic
+    Object.entries(weights).forEach(([scenario, weight]) => {
+      let contribution = 0;
+      const weightValue = weight as number;
+      
+      // Parse direction to determine how scale value affects scenario
+      if (question.direction.includes('lower->')) {
+        // Lower values increase scenario probability
+        contribution = weightValue * (6 - scaleValue); // Invert: 5->1, 4->2, etc.
+      } else if (question.direction.includes('higher->')) {
+        // Higher values increase scenario probability  
+        contribution = weightValue * scaleValue;
+      }
+      
+      scenarioScores[scenario] = (scenarioScores[scenario] || 0) + contribution;
+    });
+  });
+  
+  // Find the scenario with highest score
+  let topScenario = 'reflation'; // default
+  let maxScore = -1;
+  
+  Object.entries(scenarioScores).forEach(([scenario, score]) => {
+    if (score > maxScore) {
+      maxScore = score;
+      topScenario = scenario;
     }
   });
   
-  // Map to scenarios based on simple rules
-  if (riskScore >= 3) {
-    return "S001"; // High growth scenario for high risk tolerance
-  } else if (riskScore >= 1) {
-    return "S006"; // Balanced scenario for moderate risk
-  } else {
-    return "S008"; // Conservative scenario for low risk
-  }
+  // Map scenario names to codes
+  const scenarioMap: Record<string, string> = {
+    'recession': 'S001',
+    'property_down': 'S002', 
+    'stagflation': 'S003',
+    'gilt_selloff': 'S004',
+    'tech_correction': 'S005',
+    'reflation': 'S006',
+    'energy_spike': 'S007',
+    'devaluation': 'S008'
+  };
+  
+  return scenarioMap[topScenario] || 'S006';
 }
 
 // Helper to get scenario name from code
