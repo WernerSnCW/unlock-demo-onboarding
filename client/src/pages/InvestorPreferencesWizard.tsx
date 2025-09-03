@@ -1996,9 +1996,15 @@ function BeliefQuestionnaireComponent() {
                         
                         // Navigate to Portfolio Analysis section first (before toast)
                         console.log('Navigating to analysis tab...');
-                        setShowBeliefQuestionnaire(false); // Exit beliefs questionnaire
-                        setActiveMainTab('analysis');
-                        console.log('Navigation completed successfully');
+                        
+                        // Use setTimeout to avoid React state update conflicts
+                        setTimeout(() => {
+                          setShowBeliefQuestionnaire(false); // Exit beliefs questionnaire
+                          setActiveMainTab('analysis');
+                          console.log('Navigation completed successfully');
+                        }, 100);
+                        
+                        console.log('Navigation scheduled successfully');
                         
                         // Show success message
                         toast({
