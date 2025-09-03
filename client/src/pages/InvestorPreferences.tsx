@@ -1910,10 +1910,11 @@ function PersonaQuizContent() {
                             <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-help transition-colors" />
                           </TooltipTrigger>
                           <TooltipContent 
-                            className="max-w-xs p-4 border-2 border-[var(--border)] shadow-2xl z-50" 
+                            className="max-w-xs p-4 border-2 border-[var(--border)] shadow-2xl" 
                             style={{ 
                               backgroundColor: 'var(--card)', 
-                              color: 'var(--card-foreground)' 
+                              color: 'var(--card-foreground)',
+                              zIndex: 9999
                             }}
                           >
                             <p className="text-sm leading-relaxed font-medium" style={{ color: 'var(--card-foreground)' }}>
