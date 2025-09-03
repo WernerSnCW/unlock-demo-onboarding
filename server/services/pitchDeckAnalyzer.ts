@@ -843,7 +843,7 @@ OUTPUT SCHEMA:
           suggestedQuestions: analysis.key_questions?.valuation || [],
           headlineLabel,
         },
-        riskFlags: analysis.risks || [],
+        riskFlags: PitchDeckAnalyzer.generateRiskFlags(extracted, valuations, scores),
       };
 
       // Hide ROI card if terms are missing
@@ -861,6 +861,84 @@ OUTPUT SCHEMA:
         }`,
       );
     }
+  }
+
+  private static generateRiskFlags(
+    extracted: any,
+    valuations: any,
+    scores: any
+  ): { level: 'Low' | 'Medium' | 'High'; issue: string }[] {
+    const risks: { level: 'Low' | 'Medium' | 'High'; issue: string }[] = [];
+
+    // Valuation reality check
+    if (scores.valuation_reality <= 3) {
+      risks.push({
+        level: 'High',
+        issue: 'Valuation appears significantly overvalued vs. market comparables'
+      });
+    } else if (scores.valuation_reality <= 6) {
+      risks.push({
+        level: 'Medium', 
+        issue: 'Valuation stretches above typical market ranges'
+      });
+    }
+
+    // Gap between valuation methods
+    if (valuations.peer_gap_pct && Math.abs(valuations.peer_gap_pct) > 0.5) {
+      risks.push({
+        level: 'High',
+        issue: `${Math.abs(valuations.peer_gap_pct * 100).toFixed(0)}% gap between revenue/EBITDA valuations`
+      });
+    }
+
+    // Missing financial data
+    if (!extracted.kpis.revenue_current || extracted.kpis.revenue_current < 100000) {
+      risks.push({
+        level: 'Medium',
+        issue: 'Limited revenue traction makes valuation difficult to justify'
+      });
+    }
+
+    // Missing key terms
+    if (!extracted.kpis.raise_amount || !extracted.kpis.equity_offered_pct) {
+      risks.push({
+        level: 'Medium',
+        issue: 'Investment terms and structure not clearly defined'
+      });
+    }
+
+    // EBITDA concerns
+    if (extracted.kpis.ebitda && extracted.kpis.ebitda < 0) {
+      risks.push({
+        level: 'High',
+        issue: 'Company is loss-making with negative EBITDA'
+      });
+    }
+
+    // Completeness concerns
+    if (scores.completeness < 7) {
+      risks.push({
+        level: 'Medium',
+        issue: 'Pitch deck missing several key sections for due diligence'
+      });
+    }
+
+    // If no major risks, add some standard ones
+    if (risks.length === 0) {
+      risks.push(
+        {
+          level: 'Low',
+          issue: 'Market competition risk in established sector'
+        },
+        {
+          level: 'Low', 
+          issue: 'Execution risk on ambitious growth projections'
+        }
+      );
+    }
+
+    // Cap at 6 risks maximum
+    return risks.slice(0, 6);
   }
 }
 
