@@ -19,7 +19,8 @@ import {
   propertyPriceData,
   ukHpi,
   postcodeLadMapping,
-  investors
+  investors,
+  investorPreferences
 } from "@shared/schema";
 import { marketDataService } from "./services/marketData.js";
 import OpenAI from 'openai';
@@ -194,8 +195,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Investor name is required' });
       }
 
-      // Create a unique userId based on investor name for demo purposes
-      const userId = `demo-${Date.now()}`;
+      // Check if investor already exists, otherwise create new userId
+      const existingRecords = await db.select().from(investorPreferences).where(eq(investorPreferences.investorName, investorName));
+      const userId = existingRecords.length > 0 ? existingRecords[0].userId : `demo-${Date.now()}`;
       
       // Map frontend field names to backend field names
       const dataToSave = {
@@ -242,8 +244,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Matched persona code is required' });
       }
 
-      // Create a unique userId based on investor name for demo purposes
-      const userId = `demo-${Date.now()}`;
+      // Find existing record for this investor, otherwise create new userId
+      const existingRecords = await db.select().from(investorPreferences).where(eq(investorPreferences.investorName, investorName));
+      const userId = existingRecords.length > 0 ? existingRecords[0].userId : `demo-${Date.now()}`;
       
       // Prepare quiz data to save
       const dataToSave = {
