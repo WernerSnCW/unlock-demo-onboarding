@@ -175,6 +175,31 @@ export default function InvestorPreferencesWizard() {
     }
   };
 
+  const handleAutoCapture = () => {
+    // Auto-fill all three steps with sample data
+    step1Form.setValue('activeInvestmentInterests', [
+      'Venture Capital', 'Angel Investing', 'Cryptocurrency', 
+      'AI & Technology', 'EIS/SEIS Opportunities', 'Private Equity',
+      'Real Estate Investment', 'Green Energy'
+    ]);
+    
+    step2Form.setValue('learningCuriosityAreas', [
+      'Market Analysis & Research', 'Venture Capital Ecosystem', 
+      'Risk Management', 'Cryptocurrency Fundamentals', 'Valuation Methods',
+      'Portfolio Diversification', 'ESG Investment Principles'
+    ]);
+    
+    step3Form.setValue('geographicPreferences', [
+      'United Kingdom', 'United States', 'European Union', 
+      'Global Diversified', 'Emerging Markets'
+    ]);
+    
+    toast({
+      title: "Demo Preferences Auto-Captured!",
+      description: "Sample preferences have been filled across all 3 steps for demonstration purposes.",
+    });
+  };
+
   const goToStep = (step: number) => {
     if (step <= currentStep || completedSteps.has(step - 1)) {
       setCurrentStep(step);
@@ -374,6 +399,19 @@ export default function InvestorPreferencesWizard() {
 
             {/* Tab Content: Investment Preferences */}
             <TabsContent value="preferences">
+              {/* Auto-Capture Demo Button */}
+              <div className="flex justify-center mb-8">
+                <Button
+                  type="button"
+                  onClick={handleAutoCapture}
+                  size="lg"
+                  className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border-0"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Auto-Capture Demo Preferences (All Steps)
+                </Button>
+              </div>
+
               {/* Progress and Step Navigation */}
               <div className="max-w-4xl mx-auto px-6 py-8">
                 <div className="mb-8">
