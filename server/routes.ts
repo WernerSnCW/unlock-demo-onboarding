@@ -277,6 +277,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Belief responses endpoint - saves economic beliefs questionnaire results
+  app.post('/api/investors/belief-responses', async (req, res) => {
+    try {
+      console.log('Received belief responses:', req.body);
+      const { investorName, beliefResponses, selectedScenarios, scenarioWeights, completionMethod } = req.body;
+      
+      if (!investorName) {
+        return res.status(400).json({ message: 'Investor name is required' });
+      }
+
+      // Find existing record for this investor, otherwise create new userId
+      const existingRecords = await db.select().from(investorPreferences).where(eq(investorPreferences.investorName, investorName));
+      const userId = existingRecords.length > 0 ? existingRecords[0].userId : `demo-${Date.now()}`;
+      
+      // Prepare belief data to save
+      const dataToSave = {
+        userId,
+        investorName,
+        beliefResponses: JSON.stringify(beliefResponses || []),
+        selectedScenarios: JSON.stringify(selectedScenarios || []),
+        scenarioWeights: JSON.stringify(scenarioWeights || []),
+        beliefsCompletedAt: new Date(),
+        completionMethod: completionMethod || 'manual'
+      };
+      
+      console.log('Belief data to save:', dataToSave);
+      
+      const preferences = await storage.upsertInvestorPreferences(dataToSave);
+      res.json({ 
+        success: true, 
+        userId,
+        preferences,
+        message: `Belief responses saved successfully for ${investorName}` 
+      });
+    } catch (error) {
+      console.error('Belief responses save error:', error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid belief data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to save belief responses' });
+    }
+  });
+
   // Tax Profile routes
   app.get('/api/investors/:userId/tax-profile', async (req, res) => {
     try {

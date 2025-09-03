@@ -39,6 +39,11 @@ export const investorPreferences = pgTable("investor_preferences", {
   matchedPersonaCode: text("matched_persona_code"), // e.g., 'P003' 
   personaMatchScore: numeric("persona_match_score"), // Confidence score 0-1
   quizCompletedAt: timestamp("quiz_completed_at"), // When persona quiz was completed
+  // Economic beliefs fields
+  beliefResponses: text("belief_responses"), // JSON string of belief questionnaire responses
+  selectedScenarios: text("selected_scenarios"), // JSON array of selected economic scenarios
+  scenarioWeights: text("scenario_weights"), // JSON array of scenario probability weights
+  beliefsCompletedAt: timestamp("beliefs_completed_at"), // When beliefs questionnaire was completed
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 

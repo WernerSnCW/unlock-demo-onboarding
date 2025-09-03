@@ -1941,21 +1941,56 @@ function BeliefQuestionnaireComponent() {
                   Retake Beliefs Quiz
                 </Button>
                 <Button 
-                  onClick={() => {
-                    // Navigate to portfolio analysis or next step
-                    console.log('Portfolio recommendations with selected scenarios:', Array.from(selectedScenarios));
-                    // For now, just show a toast
-                    toast({
-                      title: "Scenario Selection Complete",
-                      description: `Selected ${selectedScenarios.size} scenarios for portfolio stress testing`,
-                    });
+                  onClick={async () => {
+                    try {
+                      // Save economic beliefs responses to backend
+                      const beliefsData = {
+                        investorName: matchedPersona.name,
+                        beliefResponses: responses,
+                        selectedScenarios: Array.from(selectedScenarios),
+                        scenarioWeights: scenarioWeights,
+                        completionMethod: responses.length === totalQuestions ? 'manual' : 'auto'
+                      };
+
+                      const response = await fetch('/api/investors/belief-responses', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(beliefsData),
+                      });
+
+                      if (response.ok) {
+                        toast({
+                          title: "Economic Beliefs Saved",
+                          description: `Selected ${selectedScenarios.size} scenarios for portfolio analysis`,
+                        });
+                        
+                        // Navigate to Portfolio Analysis section
+                        // For now, we'll move to a portfolio analysis tab or page
+                        console.log('Moving to Portfolio Analysis with data:', beliefsData);
+                        
+                        // TODO: Navigate to portfolio analysis section
+                        // This could be a new tab in the wizard or a separate page
+                        
+                      } else {
+                        throw new Error('Failed to save belief responses');
+                      }
+                    } catch (error) {
+                      console.error('Error saving beliefs:', error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to save economic beliefs. Please try again.",
+                        variant: "destructive"
+                      });
+                    }
                   }}
                   size="lg"
                   className="flex items-center gap-2 px-6 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
-                  data-testid="button-view-portfolio"
+                  data-testid="button-perform-portfolio-analysis"
                 >
                   <Target className="h-5 w-5" />
-                  View Portfolio Recommendations
+                  Perform Portfolio Analysis
                 </Button>
               </div>
             </CardContent>
