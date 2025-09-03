@@ -231,6 +231,7 @@ export const insertInvestorSchema = createInsertSchema(investors).omit({
 
 export const insertInvestorPreferencesSchema = createInsertSchema(investorPreferences).omit({
   updatedAt: true,
+  wizardCompletedAt: true,
 });
 
 export const insertTaxProfileSchema = createInsertSchema(taxProfile);

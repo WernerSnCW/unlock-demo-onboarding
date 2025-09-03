@@ -201,11 +201,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         investorName,
         activeInvestmentInterests,
         learningCuriosityAreas,
-        geographicPreferences,
-        wizardCompletedAt: new Date()
+        geographicPreferences
       });
       
-      const preferences = await storage.upsertInvestorPreferences(validatedData);
+      // Add timestamp after validation
+      const dataWithTimestamp = {
+        ...validatedData,
+        wizardCompletedAt: new Date()
+      };
+      
+      const preferences = await storage.upsertInvestorPreferences(dataWithTimestamp);
       res.json({ 
         success: true, 
         userId,
