@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/investors/wizard-preferences', async (req, res) => {
     try {
       console.log('Received wizard data:', req.body);
-      const { investorName, activeInvestmentInterests, learningCuriosityAreas, geographicPreferences } = req.body;
+      const { investorName, activeInvestmentInterests, learningCuriosityAreas, geographicPreferences, completedAt } = req.body;
       
       if (!investorName) {
         return res.status(400).json({ message: 'Investor name is required' });
@@ -197,15 +197,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create a unique userId based on investor name for demo purposes
       const userId = `demo-${Date.now()}`;
       
-      // Skip validation temporarily to debug
+      // Map frontend field names to backend field names
       const dataToSave = {
         userId,
         investorName,
         activeInvestmentInterests: activeInvestmentInterests || [],
         learningCuriosityAreas: learningCuriosityAreas || [],
         geographicPreferences: geographicPreferences || [],
-        wizardCompletedAt: new Date()
+        wizardCompletedAt: completedAt ? new Date(completedAt) : new Date()
       };
+      
+      console.log('Data to save:', dataToSave);
       
       const preferences = await storage.upsertInvestorPreferences(dataToSave);
       res.json({ 
