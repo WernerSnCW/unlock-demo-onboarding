@@ -202,8 +202,8 @@ export function PortfolioDisplay({
                 </RechartsPieChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
-              {personaDefaultsData.slice(0, 6).map((item, index) => (
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {personaDefaultsData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--muted)]/50">
                   <div 
                     className="w-3 h-3 rounded-full" 
