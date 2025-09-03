@@ -1994,16 +1994,18 @@ function BeliefQuestionnaireComponent() {
                         const result = await response.json();
                         console.log('Belief responses saved successfully:', result);
                         
+                        // Navigate to Portfolio Analysis section first (before toast)
+                        console.log('Navigating to analysis tab...');
+                        setActiveMainTab('analysis');
+                        console.log('Navigation completed successfully');
+                        
+                        // Show success message
                         toast({
                           title: "Economic Beliefs Saved",
                           description: `Selected ${selectedScenarios.size} scenarios for portfolio analysis`,
                         });
                         
-                        // Navigate to Portfolio Analysis section
                         console.log('Moving to Portfolio Analysis with data:', beliefsData);
-                        
-                        // Navigate to portfolio analysis tab
-                        setActiveMainTab('analysis');
                         
                       } else {
                         const errorData = await response.text();
