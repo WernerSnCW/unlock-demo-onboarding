@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,8 +12,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info } from 'lucide-react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
+import { DIMENSION_LABELS, INVESTMENT_PERSONAS, type PersonaDef } from '@/data/personas';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -735,32 +740,8 @@ export default function InvestorPreferencesWizard() {
 
             {/* Tab Content: Investment Profile Discovery */}
             <TabsContent value="profile">
-              <div className="max-w-4xl mx-auto px-6 py-8">
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-2xl">
-                      <User className="w-6 h-6 text-[var(--primary)]" />
-                      Investment Profile Discovery
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Discover your investment personality through a comprehensive assessment.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <User className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
-                      <p className="text-[var(--muted-foreground)] mb-6">
-                        Complete the investment preferences first, then discover your unique investment personality through our advanced profiling system.
-                      </p>
-                      <Button variant="outline" disabled>
-                        Start Profile Discovery
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+              <div className="max-w-6xl mx-auto px-6 py-8">
+                <PersonaQuizContentWizard />
               </div>
             </TabsContent>
 
@@ -860,6 +841,315 @@ export default function InvestorPreferencesWizard() {
         </div>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+function PersonaQuizContentWizard() {
+  const [selectedPersona, setSelectedPersona] = useState<PersonaDef | null>(null);
+  
+  const {
+    currentQuestion,
+    currentQuestionIndex,
+    progress,
+    isComplete,
+    result,
+    canGoBack,
+    isLastQuestion,
+    answerQuestion,
+    goBack,
+    skipQuestion,
+    resetQuiz,
+    autoCompleteRandomly,
+    totalQuestions,
+    dimensionLabels
+  } = usePersonaQuiz();
+
+  // Scroll to top when quiz is completed
+  useEffect(() => {
+    if (isComplete && result) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [isComplete, result]);
+
+  // Handle auto complete with scroll to top
+  const handleAutoComplete = useCallback(() => {
+    autoCompleteRandomly();
+    // Small delay to ensure state update, then scroll
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  }, [autoCompleteRandomly]);
+
+  if (isComplete && result) {
+    return (
+      <div className="space-y-10">
+        {/* Hero Results Header */}
+        <div className="text-center space-y-4 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-transparent to-[var(--secondary)]/10 rounded-3xl blur-3xl -z-10"></div>
+          
+          <div className="relative bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm border border-[var(--primary)]/20 rounded-3xl p-8 shadow-2xl">
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75"></div>
+                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-4">
+                  <Target className="h-8 w-8" />
+                </div>
+                <div className="absolute -top-2 -right-2 animate-bounce">
+                  <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
+                </div>
+              </div>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent mb-4">
+              Analysis Complete!
+            </h1>
+            <p className="text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto">
+              Your personality matches our research-backed investor profiles with sophisticated 8-dimensional analysis
+            </p>
+          </div>
+        </div>
+
+        {/* Primary Match - Hero Card */}
+        <Card className="relative overflow-hidden border-2 border-[var(--primary)] shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--secondary)]/5"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-bl-3xl"></div>
+          
+          <CardHeader className="relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-xl text-white">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                  <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30">
+                    🏆 BEST MATCH
+                  </Badge>
+                </div>
+                <CardTitle className="text-3xl md:text-4xl font-black text-[var(--primary)] leading-tight">
+                  {result.topMatch.persona.name}
+                </CardTitle>
+                <CardDescription className="text-lg text-[var(--muted-foreground)]">
+                  Your primary investment personality match
+                </CardDescription>
+              </div>
+              
+              <div className="text-right space-y-2">
+                <div className="text-4xl font-black text-[var(--primary)]">
+                  {result.topMatch.matchScore}%
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="relative space-y-6">
+            <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10">
+              <p className="text-lg leading-relaxed text-[var(--foreground)]">
+                {result.topMatch.persona.notes}
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Wealth Tier</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.wealthTier}</p>
+              </div>
+              
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-4 w-4 text-[var(--secondary)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Risk Profile</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.riskProfile}</p>
+              </div>
+              
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="h-4 w-4 text-[var(--accent)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Approach</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.approach}</p>
+              </div>
+              
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Droplets className="h-4 w-4 text-[var(--warning)]" />
+                  <span className="font-semibold text-[var(--foreground)] text-sm">Liquidity</span>
+                </div>
+                <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.liquidityMonths} months</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <Card className="border border-[var(--border)] shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={resetQuiz}
+                variant="outline"
+                size="lg"
+                className="flex items-center gap-2 px-8 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all duration-300"
+                data-testid="button-retake-quiz"
+              >
+                <RotateCcw className="h-5 w-5" />
+                Take Quiz Again
+              </Button>
+              <Button 
+                onClick={() => {
+                  // For the wizard, we can continue to next section or save the persona result
+                  console.log('Persona selected:', selectedPersona || result.topMatch.persona);
+                }}
+                size="lg"
+                className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
+                data-testid="button-use-persona"
+              >
+                <Target className="h-5 w-5" />
+                Use {selectedPersona ? selectedPersona.name : result.topMatch.persona.name}
+              </Button>
+            </div>
+            
+            <div className="mt-6 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
+              <p className="text-sm text-[var(--muted-foreground)] text-center flex items-center justify-center gap-2">
+                <Target className="h-4 w-4 text-[var(--accent)]" />
+                {selectedPersona 
+                  ? `You've selected "${selectedPersona.name}" as your investment persona. This will be used to tailor recommendations.`
+                  : 'This classification helps us tailor investment recommendations and educational content specifically for your profile.'
+                }
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Quiz Intro */}
+      {currentQuestionIndex === 0 && (
+        <Card className="border-2 border-[var(--border)] bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 backdrop-blur-sm shadow-xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-[var(--primary)]">
+              Discover Your Investment Persona
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Answer 10 questions to find your ideal investor profile from our 19 research-backed personas
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="bg-[var(--accent)]/10 rounded-lg p-4 border border-[var(--accent)]/20 mb-6">
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Our 8-dimensional analysis covers Risk Tolerance, Property Exposure, Alternatives Orientation, 
+                Tax Optimisation, Income Source Bias, Investment Horizon, Liquidity Preference, and Advisor Reliance.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quiz Question */}
+      <Card className="border-2 border-[var(--border)] hover:border-[var(--primary)] bg-[var(--card)] backdrop-blur-sm shadow-2xl transition-all duration-500">
+        <CardHeader className="text-center">
+          <div className="flex items-center justify-between mb-4">
+            <Badge variant="outline" className="text-sm">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </Badge>
+            <div className="flex gap-1">
+              {Array.from({ length: totalQuestions }, (_, index) => (
+                <div
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index <= currentQuestionIndex 
+                      ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] shadow-sm' 
+                      : 'bg-[var(--border)]'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <CardTitle className="text-2xl text-center leading-relaxed max-w-4xl mx-auto">
+            {currentQuestion?.text}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-8">
+          <div className="max-w-3xl mx-auto">
+            {/* Question Options */}
+            <div className="space-y-4">
+              {currentQuestion?.options.map((option, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-3 p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/5 transition-all duration-300 cursor-pointer"
+                  onClick={() => answerQuestion(index)}
+                  data-testid={`option-${index}`}
+                >
+                  <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] bg-[var(--background)]"></div>
+                  <label className="flex-1 text-base cursor-pointer">
+                    {option.text}
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto">
+              {canGoBack ? (
+                <Button
+                  onClick={goBack}
+                  size="lg"
+                  variant="outline"
+                  className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--accent)]/10 transition-all duration-300"
+                  data-testid="button-back"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Back
+                </Button>
+              ) : (
+                <div className="w-24" />
+              )}
+              
+              <Button
+                onClick={handleAutoComplete}
+                size="lg"
+                variant="outline"
+                className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
+                data-testid="button-auto-complete"
+              >
+                <Zap className="mr-2 h-5 w-5" />
+                Auto Complete
+              </Button>
+              
+              <Button
+                onClick={skipQuestion}
+                size="lg"
+                variant="outline"
+                className="px-6 py-4 text-lg border-2 border-[var(--border)] hover:border-[var(--secondary)] hover:bg-[var(--accent)]/10 transition-all duration-300"
+                data-testid="button-skip"
+              >
+                Skip
+              </Button>
+            </div>
+          </div>
+          
+          {/* Progress Indicator */}
+          <div className="mt-8">
+            <div className="w-full bg-[var(--border)] rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+              {Math.round(progress)}% Complete
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
