@@ -2495,13 +2495,14 @@ function PersonalizedPortfolioAnalysis() {
                     fullMark: Math.max(...portfolioAllocation.map(p => p.value))
                   }))}>
                     <PolarGrid 
-                      stroke="hsl(var(--border))"
-                      strokeWidth={1}
+                      stroke="#94a3b8"
+                      strokeWidth={2}
+                      radialLines={true}
                     />
                     <PolarAngleAxis 
                       dataKey="category" 
                       tick={{ 
-                        fontSize: 12, 
+                        fontSize: 11, 
                         fill: 'hsl(var(--foreground))',
                         textAnchor: 'middle'
                       }}
@@ -2519,14 +2520,15 @@ function PersonalizedPortfolioAnalysis() {
                     <Radar
                       name="Portfolio Allocation"
                       dataKey="value"
-                      stroke="hsl(var(--primary))"
-                      fill="hsl(var(--primary)/0.2)"
-                      fillOpacity={0.3}
-                      strokeWidth={2}
+                      stroke="#5193B3"
+                      fill="#62C4C3"
+                      fillOpacity={0.4}
+                      strokeWidth={3}
                       dot={{ 
-                        fill: 'hsl(var(--primary))', 
+                        fill: '#5193B3', 
                         strokeWidth: 2, 
-                        r: 4 
+                        r: 5,
+                        stroke: '#ffffff'
                       }}
                     />
                   </RadarChart>
