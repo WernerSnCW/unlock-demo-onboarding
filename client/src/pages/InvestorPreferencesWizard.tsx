@@ -94,6 +94,7 @@ export default function InvestorPreferencesWizard() {
   const [investorName, setInvestorName] = useState<string>('');
   const [showNameDialog, setShowNameDialog] = useState(true);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [isAutoCompleted, setIsAutoCompleted] = useState<boolean>(false);
   const { toast } = useToast();
 
   // Form for investor name
@@ -173,7 +174,8 @@ export default function InvestorPreferencesWizard() {
         activeInvestmentInterests: step1Form.getValues().activeInvestmentInterests,
         learningCuriosityAreas: step2Form.getValues().learningCuriosityAreas,
         geographicPreferences: data.geographicPreferences,
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
+        completionMethod: isAutoCompleted ? 'auto' : 'manual' // Track completion method
       };
       
       try {
@@ -237,6 +239,9 @@ export default function InvestorPreferencesWizard() {
     // Mark steps 1 and 2 as completed and navigate to step 3
     setCompletedSteps(new Set([1, 2]));
     setCurrentStep(3);
+    
+    // Track that auto-complete was used
+    setIsAutoCompleted(true);
     
     toast({
       title: "Demo Preferences Auto-Captured!",

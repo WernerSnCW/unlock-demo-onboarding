@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/investors/wizard-preferences', async (req, res) => {
     try {
       console.log('Received wizard data:', req.body);
-      const { investorName, activeInvestmentInterests, learningCuriosityAreas, geographicPreferences, completedAt } = req.body;
+      const { investorName, activeInvestmentInterests, learningCuriosityAreas, geographicPreferences, completedAt, completionMethod } = req.body;
       
       if (!investorName) {
         return res.status(400).json({ message: 'Investor name is required' });
@@ -204,7 +204,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         activeInvestmentInterests: activeInvestmentInterests || [],
         learningCuriosityAreas: learningCuriosityAreas || [],
         geographicPreferences: geographicPreferences || [],
-        wizardCompletedAt: completedAt ? new Date(completedAt) : new Date()
+        wizardCompletedAt: completedAt ? new Date(completedAt) : new Date(),
+        completionMethod: completionMethod || 'manual' // Track auto vs manual completion
       };
       
       console.log('Data to save:', dataToSave);

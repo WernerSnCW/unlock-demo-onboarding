@@ -179,6 +179,7 @@ export class DatabaseStorage implements IStorage {
           ...(prefs.learningCuriosityAreas !== undefined && { learningCuriosityAreas: prefs.learningCuriosityAreas }),
           ...(prefs.geographicPreferences !== undefined && { geographicPreferences: prefs.geographicPreferences }),
           ...(prefs.wizardCompletedAt !== undefined && { wizardCompletedAt: prefs.wizardCompletedAt }),
+          ...(prefs.completionMethod !== undefined && { completionMethod: prefs.completionMethod }),
         }
       })
       .returning();

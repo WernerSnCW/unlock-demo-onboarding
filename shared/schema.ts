@@ -33,6 +33,7 @@ export const investorPreferences = pgTable("investor_preferences", {
   learningCuriosityAreas: text("learning_curiosity_areas").array(), // Step 2 wizard data
   geographicPreferences: text("geographic_preferences").array(), // Step 3 wizard data
   wizardCompletedAt: timestamp("wizard_completed_at"), // When wizard was completed
+  completionMethod: text("completion_method"), // 'auto' or 'manual' - tracks how wizard was completed
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
