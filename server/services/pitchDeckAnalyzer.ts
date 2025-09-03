@@ -719,7 +719,6 @@ OUTPUT SCHEMA:
       const hasTerms = !!(
         extracted.kpis.raise_amount && extracted.kpis.equity_offered_pct
       );
-      console.log("hasTerms check:", hasTerms, "raise_amount:", extracted.kpis.raise_amount, "equity_offered_pct:", extracted.kpis.equity_offered_pct);
       const headlineLabel = hasTerms
         ? "Pre-Money Valuation"
         : ValuationConfig.labelWhenNoTerms;
@@ -847,19 +846,12 @@ OUTPUT SCHEMA:
         riskFlags: analysis.risks || [],
       };
 
-      console.log("Generated roiProjection:", (result.valuation as any).methods?.roiProjection);
-      console.log("Generated peer_analysis:", (result.valuation as any).peer_analysis);
-      console.log("hasTerms before hiding logic:", hasTerms);
-
       // Hide ROI card if terms are missing
       if (!hasTerms) {
-        console.log("Hiding ROI card because hasTerms is false");
         if ((result.valuation as any).methods) {
           ((result.valuation as any).methods as any).roiProjection = undefined;
         }
       }
-
-      console.log("Final roiProjection before return:", (result.valuation as any).methods?.roiProjection);
       return result;
     } catch (error) {
       console.error("Pitch deck analysis failed:", error);

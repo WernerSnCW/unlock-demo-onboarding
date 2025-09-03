@@ -126,13 +126,6 @@ export default function PitchDeckAnalyser() {
         ebitda_multiple: result?.valuation?.ebitda_multiple,
         implied_from_terms: result?.valuation?.implied_from_terms
       });
-      console.log("Methods data:", {
-        revenueBase: result?.valuation?.methods?.revenueMultiple?.base,
-        ebitdaBase: result?.valuation?.methods?.ebitdaMultiple?.ebitda
-      });
-      console.log("Full valuation object structure:", result?.valuation);
-      console.log("Looking for peer_analysis:", result?.valuation?.peer_analysis);
-      console.log("Looking for roiProjection:", result?.valuation?.methods?.roiProjection);
       setResult(result);
     } catch (error) {
       console.error('Pitch deck analysis failed:', error);
