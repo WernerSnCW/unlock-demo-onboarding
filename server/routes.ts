@@ -208,6 +208,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completionMethod: completionMethod || 'manual' // Track auto vs manual completion
       };
       
+      console.log('Completion method extracted:', completionMethod);
+      
       console.log('Data to save:', dataToSave);
       
       const preferences = await storage.upsertInvestorPreferences(dataToSave);
