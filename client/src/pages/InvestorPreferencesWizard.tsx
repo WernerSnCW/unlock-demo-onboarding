@@ -2184,7 +2184,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
     return `demo-${Date.now()}`;
   };
 
-  // Function to get recommended allocation from persona
+  // Function to get recommended allocation - MUST use same targetMix as Recommendations/Actions
   const getRecommendedAllocation = (persona: any) => {
     // Default empty allocation structure
     const emptyAllocation = {
@@ -2198,7 +2198,30 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       collectibles: '0'
     };
 
-    // Gap analysis uses persona defaults - this is correct behavior
+    // CRITICAL: Use exact targetMix from /api/target (same as Recommendations/Actions)
+    const apiTargetData = (window as any).targetDataFromAPI;
+    if (apiTargetData?.targetMix) {
+      console.log('Gap Analysis: Using targetMix from /api/target (same as Recommendations/Actions)');
+      const targetMix = apiTargetData.targetMix;
+      
+      // Map /api/target result to form fields and convert to percentages
+      const allocation = {
+        cashFixedIncome: Math.round((targetMix.CASH + targetMix.BILLS_SHORT_GILTS + targetMix.GILTS_LONG + targetMix.IG_CREDIT) * 100).toString(),
+        globalEquity: Math.round((targetMix.GLOBAL_EQUITY + targetMix.UK_EQUITY_VALUE) * 100).toString(),
+        techGrowth: Math.round(targetMix.GROWTH_TECH * 100).toString(),
+        property: Math.round(targetMix.PROPERTY_UK_RESI * 100).toString(),
+        commoditiesGold: Math.round((targetMix.COMMODITIES + targetMix.GOLD) * 100).toString(),
+        alternatives: Math.round(targetMix.ALTERNATIVES * 100).toString(),
+        cryptocurrency: Math.round((targetMix.CRYPTO_BTC + targetMix.CRYPTO_ETH) * 100).toString(),
+        collectibles: Math.round((targetMix.COLLECTIBLES_ART + targetMix.COLLECTIBLES_WINE) * 100).toString()
+      };
+
+      console.log('Gap Analysis: Generated allocation from /api/target targetMix:', allocation);
+      return allocation;
+    }
+
+    // Fallback to persona defaults only if /api/target data not available
+    console.log('Gap Analysis: Falling back to persona defaults (targetMix not available)');
     if (!persona?.code) {
       console.log('No persona code found');
       return emptyAllocation;
@@ -2222,7 +2245,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       collectibles: Math.round((defaults.COLLECTIBLES_ART + defaults.COLLECTIBLES_WINE) * 100).toString()
     };
 
-    console.log('Generated allocation from persona defaults:', allocation);
+    console.log('Gap Analysis: Generated allocation from persona defaults:', allocation);
     return allocation;
   };
 
@@ -3409,6 +3432,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       const result = await response.json();
       console.log('Target API result:', result);
       setTargetData(result);
+      
+      // CRITICAL: Store targetMix for Gap Analysis to use same data as Recommendations/Actions
+      (window as any).targetDataFromAPI = result;
+      console.log('Stored targetMix for Gap Analysis:', result.targetMix);
       
       toast({
         title: "Recommendations Generated",
