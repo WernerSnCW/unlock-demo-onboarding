@@ -3368,8 +3368,6 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         formattedScenarioWeights.S003 = 0.31;  // Inflation Hedges
       }
       
-      console.log('Raw scenario weights:', scenarioWeights);
-      console.log('Mapped scenario weights for simulation:', formattedScenarioWeights);
       
       const simulationRequest = {
         currentMix,
@@ -3394,7 +3392,6 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       }
       
       const result = await response.json();
-      console.log('Setting simulation data:', result);
       setSimulationData(result);
       
     } catch (error) {

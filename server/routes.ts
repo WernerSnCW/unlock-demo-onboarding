@@ -556,26 +556,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { simulate } = await import('./lib/simulate/engine');
       const body = req.body;
       
-      console.log('=== SIMULATION REQUEST DEBUG ===');
-      console.log('Full body:', JSON.stringify(body, null, 2));
-      console.log('Scenario weights:', body.scenarioWeights);
-      console.log('Current mix sample:', {
-        CASH: body.currentMix?.CASH,
-        GLOBAL_EQUITY: body.currentMix?.GLOBAL_EQUITY
-      });
-      
       if (!body?.currentMix || !body?.targetMix || !body?.scenarioWeights) {
         return res.status(400).json({ error: "currentMix, targetMix and scenarioWeights are required" });
       }
       
       const result = simulate(body);
-      
-      console.log('Simulation result:', {
-        portfolioReturnCurrent: result.portfolioReturnCurrent,
-        portfolioReturnTarget: result.portfolioReturnTarget,
-        nonZeroShocks: Object.entries(result.blendedShocks).filter(([k,v]) => v !== 0)
-      });
-      console.log('=== END SIMULATION DEBUG ===');
       
       return res.json(result);
     } catch (error) {
