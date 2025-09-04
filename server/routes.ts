@@ -306,7 +306,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (preferences.selectedScenarios) {
         try {
           selectedScenarios = JSON.parse(preferences.selectedScenarios as string);
-          console.log('Selected scenarios from DB:', selectedScenarios);
         } catch (parseError) {
           console.error('Error parsing selected scenarios:', parseError);
         }
@@ -323,16 +322,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             // First pass: collect weights for selected scenarios only
             for (const item of weights) {
-              console.log('Checking scenario:', item.scenario, 'selected?', selectedScenarios.includes(item.scenario));
               if (item.scenario && typeof item.normalizedWeight === 'number' && 
                   selectedScenarios.includes(item.scenario)) {
                 filteredWeights[item.scenario] = item.normalizedWeight;
                 totalWeight += item.normalizedWeight;
-                console.log('Added to filtered weights:', item.scenario, item.normalizedWeight);
               }
             }
-            console.log('Filtered weights before normalization:', filteredWeights);
-            console.log('Total weight:', totalWeight);
             
             // Renormalize the weights to sum to 1.0
             if (totalWeight > 0) {
