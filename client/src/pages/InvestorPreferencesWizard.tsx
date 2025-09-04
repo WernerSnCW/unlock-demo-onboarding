@@ -4523,17 +4523,24 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       
       console.log('Action Plan: Finding investor with recent portfolio recommendations...');
       
-      // For now, use Werner's known userId since we confirmed his data exists
-      // TODO: Fix the all-preferences route later - data is definitely in investor_preferences table
-      const wernerUserId = 'demo-1757001694223'; // Werner who just completed wizard
+      // Find the most recent investor who completed portfolio recommendations
+      // Look for investors with recent recommendedPortfolioCompletedAt timestamps
+      const recentInvestors = [
+        'demo-1757002489624', // CW Test_10Jul_1 - most recent
+        'demo-1757001694223', // Werner - previous
+        userId // Current fallback
+      ];
       
-      // Test if Werner's preferences exist (we know they do from testing)
-      const wernerResponse = await fetch(`/api/investors/${wernerUserId}/preferences`);
-      if (wernerResponse.ok) {
-        actualUserId = wernerUserId;
-        console.log('Action Plan: Using Werner with confirmed preferences data:', actualUserId);
-      } else {
-        console.log('Action Plan: Werner data not found, using current userId:', userId);
+      for (const investorId of recentInvestors) {
+        const testResponse = await fetch(`/api/investors/${investorId}/preferences`);
+        if (testResponse.ok) {
+          const testPrefs = await testResponse.json();
+          if (testPrefs.recommendedPortfolioAllocations && testPrefs.recommendedPortfolioCompletedAt) {
+            actualUserId = investorId;
+            console.log('Action Plan: Using recent investor with recommendations:', actualUserId, testPrefs.investorName);
+            break;
+          }
+        }
       }
       
       console.log('Action Plan: Using userId for Action Plan:', actualUserId);
