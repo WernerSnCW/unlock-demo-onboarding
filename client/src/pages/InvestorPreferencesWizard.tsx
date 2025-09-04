@@ -3895,37 +3895,49 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                   {simulationData && simulationData.series && simulationData.series.length > 0 && (
                     <>
                       {/* Key Metrics */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Current Portfolio</div>
-                          <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
+                          <div className="flex items-center gap-2 mb-3">
+                            <i className="fas fa-user text-[var(--info)] text-lg"></i>
+                            <div className="text-sm font-medium text-[var(--muted-foreground)]">Current Portfolio</div>
+                          </div>
+                          <div className="text-3xl font-bold text-[var(--info)] mb-2">
                             {simulationData.portfolioReturnCurrent >= 0 ? '+' : ''}{(simulationData.portfolioReturnCurrent * 100).toFixed(2)}%
                           </div>
-                          <div className="text-xs text-blue-600 dark:text-blue-400">over {horizonMonths} months</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">over {horizonMonths} months</div>
                         </div>
                         
-                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                          <div className="text-sm font-medium text-green-900 dark:text-green-200">Recommended Portfolio</div>
-                          <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                        <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
+                          <div className="flex items-center gap-2 mb-3">
+                            <i className="fas fa-bullseye text-[var(--success)] text-lg"></i>
+                            <div className="text-sm font-medium text-[var(--muted-foreground)]">Recommended Portfolio</div>
+                          </div>
+                          <div className="text-3xl font-bold text-[var(--success)] mb-2">
                             {simulationData.portfolioReturnTarget >= 0 ? '+' : ''}{(simulationData.portfolioReturnTarget * 100).toFixed(2)}%
                           </div>
-                          <div className="text-xs text-green-600 dark:text-green-400">over {horizonMonths} months</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">over {horizonMonths} months</div>
                         </div>
                         
-                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                          <div className="text-sm font-medium text-purple-900 dark:text-purple-200">Difference</div>
-                          <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                        <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
+                          <div className="flex items-center gap-2 mb-3">
+                            <i className="fas fa-arrow-up text-[var(--primary)] text-lg"></i>
+                            <div className="text-sm font-medium text-[var(--muted-foreground)]">Difference</div>
+                          </div>
+                          <div className="text-3xl font-bold text-[var(--primary)] mb-2">
                             {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100) >= 0 ? '+' : ''}
                             {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100).toFixed(2)} pp
                           </div>
-                          <div className="text-xs text-purple-600 dark:text-purple-400">potential improvement</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">potential improvement</div>
                         </div>
                       </div>
 
                       {/* Simulation Methodology Explainer */}
-                      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-3">How This Simulation Works</h4>
-                        <div className="text-sm text-blue-800 dark:text-blue-300 space-y-2">
+                      <div className="mb-6 p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)]">
+                        <h4 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                          <i className="fas fa-chart-line text-[var(--info)]"></i>
+                          How This Simulation Works
+                        </h4>
+                        <div className="text-sm text-[var(--muted-foreground)] space-y-3">
                           <p>
                             <strong>Monte Carlo Analysis:</strong> We run 5,000+ different market scenarios over your chosen time horizon, 
                             comparing how your current portfolio allocation would perform against our recommended allocation.
@@ -3948,12 +3960,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         {/* £ Impact */}
                         {simulationData.endValue && (
-                          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                            <div className="text-sm font-medium text-emerald-900 dark:text-emerald-200">£ Impact</div>
-                            <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
+                          <div className="p-6 bg-[var(--card)] rounded-[var(--radius-md)] border border-[var(--border)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow">
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-pound-sign text-[var(--success)] text-lg"></i>
+                              <div className="text-sm font-medium text-[var(--muted-foreground)]">£ Impact</div>
+                            </div>
+                            <div className="text-2xl font-bold text-[var(--success)] mb-1">
                               £{((simulationData.endValue.diffGBP * (investorPrefs?.actualPortfolioValue || 500000) / 100) / 1000).toFixed(1)}k
                             </div>
-                            <div className="text-xs text-emerald-600 dark:text-emerald-400">
+                            <div className="text-xs text-[var(--muted-foreground)]">
                               median uplift at horizon
                             </div>
                           </div>
@@ -3961,12 +3976,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
                         {/* Win Probability */}
                         {simulationData.probTargetBeatsCurrent !== undefined && (
-                          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                            <div className="text-sm font-medium text-amber-900 dark:text-amber-200">Win Probability</div>
-                            <div className="text-xl font-bold text-amber-700 dark:text-amber-300">
+                          <div className="p-6 bg-[var(--card)] rounded-[var(--radius-md)] border border-[var(--border)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow">
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-trophy text-[var(--warning)] text-lg"></i>
+                              <div className="text-sm font-medium text-[var(--muted-foreground)]">Win Probability</div>
+                            </div>
+                            <div className="text-2xl font-bold text-[var(--warning)] mb-1">
                               {(simulationData.probTargetBeatsCurrent * 100).toFixed(1)}%
                             </div>
-                            <div className="text-xs text-amber-600 dark:text-amber-400">
+                            <div className="text-xs text-[var(--muted-foreground)]">
                               recommended beats current
                             </div>
                           </div>
@@ -3974,12 +3992,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
                         {/* Breakeven */}
                         {simulationData.breakevenMonthMed !== undefined && (
-                          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Breakeven</div>
-                            <div className="text-xl font-bold text-blue-700 dark:text-blue-300">
+                          <div className="p-6 bg-[var(--card)] rounded-[var(--radius-md)] border border-[var(--border)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow">
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-calendar-check text-[var(--info)] text-lg"></i>
+                              <div className="text-sm font-medium text-[var(--muted-foreground)]">Breakeven</div>
+                            </div>
+                            <div className="text-2xl font-bold text-[var(--info)] mb-1">
                               {simulationData.breakevenMonthMed ? `Month ${simulationData.breakevenMonthMed}` : '> Horizon'}
                             </div>
-                            <div className="text-xs text-blue-600 dark:text-blue-400">
+                            <div className="text-xs text-[var(--muted-foreground)]">
                               target overtakes current
                             </div>
                           </div>
@@ -3987,12 +4008,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
                         {/* Downside Risk */}
                         {simulationData.downside && (
-                          <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                            <div className="text-sm font-medium text-red-900 dark:text-red-200">Downside Risk</div>
-                            <div className="text-sm font-bold text-red-700 dark:text-red-300">
-                              Loss: {(simulationData.downside.probLoss.current * 100).toFixed(1)}% → {(simulationData.downside.probLoss.target * 100).toFixed(1)}%
+                          <div className="p-6 bg-[var(--card)] rounded-[var(--radius-md)] border border-[var(--border)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow">
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fas fa-shield-alt text-[var(--destructive)] text-lg"></i>
+                              <div className="text-sm font-medium text-[var(--muted-foreground)]">Downside Risk</div>
                             </div>
-                            <div className="text-xs text-red-600 dark:text-red-400">
+                            <div className="text-lg font-bold text-[var(--destructive)] mb-1">
+                              {(simulationData.downside.probLoss.current * 100).toFixed(1)}% → {(simulationData.downside.probLoss.target * 100).toFixed(1)}%
+                            </div>
+                            <div className="text-xs text-[var(--muted-foreground)]">
                               probability of loss
                             </div>
                           </div>
