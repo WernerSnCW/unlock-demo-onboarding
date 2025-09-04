@@ -2302,9 +2302,9 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 
       // Build scenario weights from belief responses if available
       let scenarioWeights: Record<string, number> | undefined;
-      if (beliefData?.selectedScenarios) {
+      if (beliefsData?.selectedScenarios) {
         scenarioWeights = {};
-        const scenarios = JSON.parse(beliefData.selectedScenarios);
+        const scenarios = JSON.parse(beliefsData.selectedScenarios);
         
         // Map our belief scenarios to the canonical scenario IDs
         const scenarioMapping: Record<string, string> = {
@@ -2938,7 +2938,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
         {gapData.headlineFlags.length > 0 && (
           <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
             <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Portfolio Alerts</h4>
-            {gapData.headlineFlags.map((flag, index) => (
+            {gapData.headlineFlags.map((flag: string, index: number) => (
               <p key={index} className="text-amber-800 dark:text-amber-300 text-sm">{flag}</p>
             ))}
           </div>
@@ -2997,10 +2997,10 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
               </tr>
             </thead>
             <tbody>
-              {gapData.rows.map((row, index) => (
+              {gapData.rows.map((row: any, index: number) => (
                 <tr key={row.bucket} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
                   <td className="p-3 font-medium text-[var(--foreground)]">
-                    {row.bucket.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                    {row.bucket.replace('_', ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
                   </td>
                   <td className="p-3 text-right text-[var(--foreground)]">
                     {(row.currentPct * 100).toFixed(1)}%
