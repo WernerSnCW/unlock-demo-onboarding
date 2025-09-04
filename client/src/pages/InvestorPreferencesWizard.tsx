@@ -3172,10 +3172,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
           console.log('Belief data:', beliefData);
           
           if (beliefData.scenarioWeights) {
-            const weights = JSON.parse(beliefData.scenarioWeights);
-            weights.forEach((w: any) => {
-              scenarioWeights[w.scenario] = w.normalizedWeight;
-            });
+            // scenarioWeights is already a parsed object, not a JSON string
+            scenarioWeights = beliefData.scenarioWeights;
           }
         }
       } catch (beliefError) {
