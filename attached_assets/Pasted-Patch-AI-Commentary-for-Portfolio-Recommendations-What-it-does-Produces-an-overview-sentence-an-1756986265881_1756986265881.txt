@@ -1,0 +1,167 @@
+Patch — “AI Commentary” for Portfolio Recommendations
+What it does
+
+Produces an overview sentence and 4–6 bullets that explain:
+
+the selected scenarios and tilt strength,
+
+the top increases/decreases vs. persona base,
+
+the liquidity change (cash + short gilts),
+
+any house-rule adjustments (from your adjustments/flags).
+
+(Optional) Sends those bullets to an LLM only for style—never for numbers.
+
+Files to add
+src/lib/recommend/narrate.ts
+
+src/lib/recommend/narrate.ts
+// Deterministic commentary builder for the Portfolio Recommendations screen.
+// Inputs are the TargetResponse you already return from /api/target.
+
+import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+import { SCENARIO_LABELS } from "../../config/scenarios";
+
+export interface TargetResponse {
+  personaId: string;
+  scenarioWeights: Record<string, number>;     // normalised 0..1 in your engine
+  tiltStrength: number;                        // 0..1
+  baseMix: Record<Bucket, number>;
+  scenarioBlend: Record<Bucket, number>;
+  preRulesMix: Record<Bucket, number>;
+  targetMix: Record<Bucket, number>;
+  flags: string[];
+  adjustments: string[];
+}
+
+export interface Narrative {
+  overview: string;        // single sentence
+  bullets: string[];       // 3–6 human-readable bullets
+  topAdds: { bucket: Bucket; pp: number }[];     // for UI chips if desired
+  topTrims: { bucket: Bucket; pp: number }[];
+}
+
+function pct(x: number) { return +(x * 100).toFixed(1); }
+function sortByAbsDelta(d: Record<Bucket, number>) {
+  return [...CANONICAL_BUCKETS].sort((a,b)=>Math.abs(d[b]) - Math.abs(d[a]));
+}
+
+function scenarioLabelString(weights: Record<string, number>) {
+  const parts = Object.entries(weights)
+    .filter(([,w])=>w>0)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k,w]) => `${(w*100).toFixed(1)}% ${SCENARIO_LABELS[k] || k}`);
+  return parts.join(" • ");
+}
+
+export function buildNarrative(t: TargetResponse): Narrative {
+  // 1) deltas vs base (pre-rules insight optional, final target for display)
+  const deltaBase: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) {
+    deltaBase[b] = (t.targetMix[b] ?? 0) - (t.baseMix[b] ?? 0);
+  }
+  const ordered = sortByAbsDelta(deltaBase);
+  const adds = ordered.filter(b => deltaBase[b] > 0).slice(0,3).map(b => ({ bucket: b, pp: pct(deltaBase[b]) }));
+  const trims= ordered.filter(b => deltaBase[b] < 0).slice(0,3).map(b => ({ bucket: b, pp: pct(Math.abs(deltaBase[b])) }));
+
+  // 2) liquidity story
+  const liqBase   = (t.baseMix.CASH + t.baseMix.BILLS_SHORT_GILTS);
+  const liqTarget = (t.targetMix.CASH + t.targetMix.BILLS_SHORT_GILTS);
+
+  // 3) scenario headline
+  const sceno = scenarioLabelString(t.scenarioWeights);
+
+  // 4) overview sentence (no promises)
+  const overview =
+    `Built from your persona and tilted ${pct(t.tiltStrength)}% towards your scenarios ` +
+    `(${sceno}). The mix aims to balance resilience and opportunity while keeping sensible liquidity and diversification.`;
+
+  // 5) bullets – deterministic, UK English, no new numbers
+  const bullets: string[] = [];
+
+  // Tilt + biggest narrative
+  if (adds.length) {
+    bullets.push(`Largest additions: ${adds.map(a => `**${a.bucket.replace(/_/g," ")}** (~${a.pp} pp)`).join("; ")}.`);
+  }
+  if (trims.length) {
+    bullets.push(`Largest reductions: ${trims.map(a => `**${a.bucket.replace(/_/g," ")}** (~${a.pp} pp)`).join("; ")}.`);
+  }
+
+  // Liquidity change
+  bullets.push(`Liquidity (cash + short gilts) shifts from **${pct(liqBase)}% → ${pct(liqTarget)}%** to support flexibility in drawdowns.`);
+
+  // Rules applied
+  if (t.adjustments.length > 0) {
+    bullets.push(`Applied house rules: ${t.adjustments.slice(0,3).join("; ")}${t.adjustments.length>3 ? " …" : ""}.`);
+  }
+
+  // Any headline flags (surface, but do not restate numbers)
+  for (const f of t.flags) {
+    if (/Liquidity floor/i.test(f)) bullets.push(`Meets the liquidity floor after adjustments.`);
+    if (/cap/i.test(f)) bullets.push(`Caps prevent over-concentration in a single bucket.`);
+    if (/S007/i.test(f)) bullets.push(`Kept the real-asset hedge for stagflation risk.`);
+    if (/S009/i.test(f)) bullets.push(`Avoided adding long-duration exposure under gilt sell-off views.`);
+  }
+
+  // Keep it tight
+  return { overview, bullets: bullets.slice(0,6), topAdds: adds, topTrims: trims };
+}
+
+
+This module does not call an LLM. It only formats numbers you already computed.
+
+(Optional) LLM polish layer
+
+If you want nicer wording, add a client-side call that rewrites overview + bullets with a strict prompt. Reject the LLM text if it introduces numbers that don’t already appear.
+
+Prompt (safe):
+
+Rewrite the following in UK English. Keep it concise (max 1 sentence + 4 bullets).
+Do NOT invent numbers, percentages or asset names. Do NOT imply guarantees or advice.
+Only rephrase; preserve all figures exactly as written.
+
+Overview:
+{{overview}}
+
+Bullets:
+- {{bullet 1}}
+- {{bullet 2}}
+- {{bullet 3}}
+- {{bullet 4}}
+
+
+Guardrail check (pseudocode):
+
+// If the rewritten text contains a number not present in original strings, discard.
+function safeAdopt(originalStrings: string[], rewritten: string) {
+  const nums = new Set(originalStrings.join(" ").match(/\d+(\.\d+)?/g) || []);
+  const newNums = (rewritten.match(/\d+(\.\d+)?/g) || []).filter(x => !nums.has(x));
+  return newNums.length === 0 ? rewritten : originalStrings.join("\n");
+}
+
+How to use in your API
+
+In your existing /api/target handler, after you build the target mix:
+
+import { buildNarrative } from "@/lib/recommend/narrate";
+
+// ...
+const result = buildTarget(body);      // your existing engine output
+const narrative = buildNarrative(result);
+return res.json({ ...result, narrative });   // include {overview, bullets, topAdds, topTrims}
+
+
+Then render narrative.overview under the green “Blended recommendation” card, and the bullets under “Strategic Commentary”. Optionally show topAdds/topTrims as small chips by the pie chart.
+
+Acceptance checklist
+
+ Commentary appears even when no house rules fired (then it simply lists additions/reductions and liquidity change).
+
+ No numbers are generated by the LLM; all figures originate from TargetResponse.
+
+ If the LLM step is unavailable, the deterministic text from buildNarrative is shown.
+
+ UK English throughout.
+
+ No performance promises or advice language.

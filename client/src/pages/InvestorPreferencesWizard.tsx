@@ -3372,10 +3372,25 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
-                  <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
-                    Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice.
-                  </p>
+                  <div className="space-y-3">
+                    <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
+                      {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
+                    </p>
+                    
+                    {targetData.narrative?.bullets && targetData.narrative.bullets.length > 0 && (
+                      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                        <h4 className="font-medium text-purple-900 dark:text-purple-200 text-sm mb-2">💡 Strategic Commentary</h4>
+                        <ul className="space-y-1">
+                          {targetData.narrative.bullets.map((bullet, index) => (
+                            <li key={index} className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                              • {bullet.replace(/\*\*(.*?)\*\*/g, '$1')}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(targetData.scenarioWeights)

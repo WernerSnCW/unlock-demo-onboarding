@@ -452,6 +452,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Target API called with request:', req.body);
       const { buildTarget } = await import('./lib/recommend/targetEngine');
+      const { buildNarrative } = await import('./lib/recommend/narrate');
       const targetRequest = req.body;
       
       // Validate required fields
@@ -466,7 +467,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Building target with request:', targetRequest);
       const result = buildTarget(targetRequest);
       console.log('Target generation result:', result);
-      res.json(result);
+      
+      // Generate narrative commentary
+      const narrative = buildNarrative(result);
+      
+      res.json({ ...result, narrative });
       
     } catch (error) {
       console.error('Target generation error:', error);
