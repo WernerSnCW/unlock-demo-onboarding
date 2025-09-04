@@ -26,6 +26,7 @@ import { marketDataService } from "./services/marketData.js";
 import { computeGap, type GapRequest } from './lib/gap/computeGap';
 import { buildWhy, type WhyContext } from './lib/gap/why';
 import { SCENARIO_LABELS } from './config/scenarios';
+import { type SimV2Request } from './lib/simulate/engine_v2';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -567,6 +568,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Simulation error:', error);
       res.status(500).json({ 
         error: 'Failed to run simulation',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Portfolio Simulation V2 endpoint (enhanced with Monte Carlo)
+  app.post('/api/simulate-v2', async (req, res) => {
+    try {
+      const { simulateV2 } = await import('./lib/simulate/engine_v2');
+      const body = req.body as SimV2Request;
+      
+      if (!body?.currentMix || !body?.targetMix || !body?.scenarioWeights) {
+        return res.status(400).json({ error: "currentMix, targetMix and scenarioWeights are required" });
+      }
+      
+      const result = simulateV2(body);
+      
+      return res.json(result);
+    } catch (error) {
+      console.error('Simulation V2 error:', error);
+      res.status(500).json({ 
+        error: 'Failed to run enhanced simulation',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }

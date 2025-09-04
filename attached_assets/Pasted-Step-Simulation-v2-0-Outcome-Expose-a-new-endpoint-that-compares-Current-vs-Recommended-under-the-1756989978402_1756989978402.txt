@@ -1,0 +1,372 @@
+Step: Simulation v2
+0) Outcome
+
+Expose a new endpoint that compares Current vs Recommended under the user’s scenario view and returns:
+
+expected total return over the chosen horizon,
+
+a fan chart (median, p05, p95) for each portfolio,
+
+probability the recommended beats current,
+
+max drawdown statistics,
+
+top contributors (as before), now computed with the horizon scaling.
+
+Everything is reproducible from config + inputs (no AI maths).
+
+1) Files to add
+src/
+  config/
+    scenarioShocks.ts          // (keep as your mean 12m shocks)
+    scenarioVols.ts            // NEW: per-scenario, per-bucket 12m vol assumptions
+    correlations.ts            // NEW: optional correlation matrix over buckets
+  lib/
+    simulate/
+      engine_v2.ts             // NEW: deterministic + Monte Carlo
+  api/
+    simulate_v2.ts             // NEW route
+
+2) Configs (light, editable by you)
+src/config/scenarioVols.ts
+
+Stylised 12-month volatilities (not promises). Keep sparse; missing entries default to a sensible baseline.
+
+import { Bucket } from "./buckets";
+
+type VolVector = Partial<Record<Bucket, number>>; // 12m stdev, e.g., 0.18 = 18%/yr
+export const SCENARIO_VOLS: Record<string, VolVector> = {
+  S001: { GLOBAL_EQUITY:0.18, UK_EQUITY_VALUE:0.16, GROWTH_TECH:0.30, IG_CREDIT:0.06, GILTS_LONG:0.10, BILLS_SHORT_GILTS:0.01, GOLD:0.15, COMMODITIES:0.22 },
+  S002: { GLOBAL_EQUITY:0.20, GROWTH_TECH:0.32, IG_CREDIT:0.07, GILTS_LONG:0.11, BILLS_SHORT_GILTS:0.01 },
+  S003: { COMMODITIES:0.28, GOLD:0.18, GLOBAL_EQUITY:0.20, GILTS_LONG:0.12, IG_CREDIT:0.07 },
+  S004: { GLOBAL_EQUITY:0.17, IG_CREDIT:0.06, GILTS_LONG:0.09, BILLS_SHORT_GILTS:0.01 },
+  S005: { GLOBAL_EQUITY:0.18, UK_EQUITY_VALUE:0.16, IG_CREDIT:0.06, GROWTH_TECH:0.27 },
+  S006: { GROWTH_TECH:0.35, GLOBAL_EQUITY:0.20, IG_CREDIT:0.07 },
+  S007: { COMMODITIES:0.30, GOLD:0.20, GLOBAL_EQUITY:0.24, UK_EQUITY_VALUE:0.18, IG_CREDIT:0.09, GILTS_LONG:0.14, BILLS_SHORT_GILTS:0.02, GROWTH_TECH:0.38 },
+  S008: { COMMODITIES:0.20, GOLD:0.16, GLOBAL_EQUITY:0.18, IG_CREDIT:0.06, GILTS_LONG:0.10 },
+  S009: { GILTS_LONG:0.16, GLOBAL_EQUITY:0.20, UK_EQUITY_VALUE:0.17, COMMODITIES:0.24, IG_CREDIT:0.08, BILLS_SHORT_GILTS:0.02 },
+  S010:{ COMMODITIES:0.30, GOLD:0.20, GLOBAL_EQUITY:0.18, IG_CREDIT:0.07, GILTS_LONG:0.12 }
+};
+
+src/config/correlations.ts
+
+Optional; start with independent shocks (identity). You can later add a simple structure (e.g., equity–equity 0.7, equity–credit 0.4, equity–gold −0.1, etc.).
+
+import { CANONICAL_BUCKETS, Bucket } from "./buckets";
+// Identity = independent by default
+export function defaultCorrelation(): number[][] {
+  const n = CANONICAL_BUCKETS.length;
+  const M = Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=> i===j ? 1 : 0));
+  return M;
+}
+export const CORRELATION = defaultCorrelation(); // replace with your matrix when ready
+export const BUCKET_ORDER: Bucket[] = CANONICAL_BUCKETS; // must match matrix ordering
+
+
+(If you later supply a real matrix, keep it symmetric, diag=1, positive-definite.)
+
+3) Engine v2
+
+Key upgrades
+
+Treat SCENARIO_SHOCKS as 12-month means. For horizon H months:
+R_H[b] = (1 + R_12[b])^(H/12) − 1
+Monthly mean: (1 + R_12[b])^(1/12) − 1
+Monthly vol ≈ vol12 / √12.
+
+Toggle: buy-and-hold (weights fixed) vs rebalance monthly to target/current.
+
+Monte Carlo: draw monthly shocks per bucket (Normal) with optional correlation. Produce median/p05/p95, probability recommended > current, and max drawdown stats.
+
+src/lib/simulate/engine_v2.ts
+
+import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+import { SCENARIO_SHOCKS } from "../../config/scenarioShocks";
+import { SCENARIO_VOLS } from "../../config/scenarioVols";
+import { CORRELATION, BUCKET_ORDER } from "../../config/correlations";
+
+export type RebalanceMode = "hold" | "rebalanceMonthly";
+
+export interface SimV2Request {
+  currentMix: Record<string, number>;
+  targetMix:  Record<string, number>;
+  scenarioWeights: Record<string, number>;   // e.g., { S007:0.6, S009:0.4 }
+  horizonMonths?: number;                    // default 12
+  startValueGBP?: number;                    // default 100
+  shockMultiplier?: number;                  // default 1.0 (scales both mean & vol)
+  mode?: RebalanceMode;                      // default "hold"
+  mc?: { paths: number; seed?: number };     // optional Monte Carlo (e.g., {paths: 5000})
+}
+
+export interface FanPoint { t:number; current:{p05:number;p50:number;p95:number}; target:{p05:number;p50:number;p95:number}; }
+export interface SimV2Response {
+  horizonMonths: number;
+  expectedReturnCurrent: number;   // from blended means RH
+  expectedReturnTarget:  number;
+  diffPp: number;                  // expectedReturnTarget - expectedReturnCurrent
+  contributionsCurrent: Record<Bucket, number>;
+  contributionsTarget:  Record<Bucket, number>;
+  fan: FanPoint[];                 // if mc enabled; else single deterministic series in p50
+  probTargetBeatsCurrent?: number; // MC: P(final_T > final_C)
+  maxDrawdownMed?: { current:number; target:number }; // MC: median max DD
+  mode: RebalanceMode;
+}
+
+// ---------- helpers ----------
+function harmonise(m: Partial<Record<string,number>>): Record<Bucket, number> {
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = Number(m[b] ?? 0);
+  return out;
+}
+function normaliseW(w: Record<string, number>) {
+  const s = Object.values(w||{}).reduce((a,b)=>a+b,0) || 0;
+  const out: Record<string, number> = {};
+  for (const [k,v] of Object.entries(w||{})) out[k] = s ? v/s : 0;
+  return out;
+}
+function blend<T extends Record<string, number>>(parts: Record<string, T>, weights: Record<string, number>): Record<string, number> {
+  const w = normaliseW(weights);
+  const acc: Record<string, number> = {};
+  for (const [sid, ws] of Object.entries(w)) {
+    const vec = parts[sid]; if (!vec || ws<=0) continue;
+    for (const [k, v] of Object.entries(vec)) acc[k] = (acc[k]||0) + v*ws;
+  }
+  return acc;
+}
+function pow1p(x:number, p:number){ return Math.pow(1+x, p) - 1; }
+function dot(a: Record<Bucket, number>, b: Record<Bucket, number>) {
+  return CANONICAL_BUCKETS.reduce((s,k)=>s + (a[k]||0)*(b[k]||0), 0);
+}
+function cholesky(A:number[][]){ // minimal; assumes PD
+  const n=A.length, L=Array.from({length:n},()=>Array(n).fill(0));
+  for (let i=0;i<n;i++){
+    for (let j=0;j<=i;j++){
+      let sum=0; for (let k=0;k<j;k++) sum+=L[i][k]*L[j][k];
+      L[i][j] = (i===j) ? Math.sqrt(Math.max(A[i][i]-sum,0)) : (A[i][j]-sum)/L[j][i];
+    }
+  }
+  return L;
+}
+function rng(seed=1234567){ // simple LCG for reproducibility
+  let s = seed>>>0;
+  return ()=> (s = (1664525*s + 1013904223)>>>0, (s>>>8)/0x01000000);
+}
+function randn(seedGen:()=>number){ // Box-Muller
+  let spare: number|undefined;
+  return ()=> {
+    if (spare!==undefined){ const v=spare; spare=undefined; return v; }
+    let u=0,v=0; while(u<=1e-12) u=seedGen(); while(v<=1e-12) v=seedGen();
+    const mag = Math.sqrt(-2*Math.log(u)); const z0 = mag*Math.cos(2*Math.PI*v); const z1 = mag*Math.sin(2*Math.PI*v);
+    spare=z1; return z0;
+  };
+}
+
+// ---------- main ----------
+export function simulateV2(req: SimV2Request): SimV2Response {
+  const H = Math.max(1, Math.round(req.horizonMonths ?? 12));
+  const startV = req.startValueGBP ?? 100;
+  const k = req.shockMultiplier ?? 1.0;
+  const mode: RebalanceMode = req.mode ?? "hold";
+
+  const cur = harmonise(req.currentMix);
+  const tgt = harmonise(req.targetMix);
+
+  // 1) Blend 12m means & vols across scenarios, then scale
+  const mean12 = harmonise( blend(SCENARIO_SHOCKS, req.scenarioWeights) );
+  const vol12  = harmonise( blend(SCENARIO_VOLS,   req.scenarioWeights) ) as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS){ mean12[b]*=k; vol12[b]*=(k || 1); } // scale both if multiplier used
+
+  const meanMonth: Record<Bucket, number> = {} as any;
+  const volMonth:  Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS){
+    meanMonth[b] = Math.pow(1 + (mean12[b]||0), 1/12) - 1;
+    volMonth[b]  = (vol12[b] || 0) / Math.sqrt(12);
+  }
+
+  // 2) Expected (deterministic) horizon returns using 12m means
+  const RH: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) RH[b] = pow1p(mean12[b]||0, H/12);
+  const contributionsCurrent = {} as Record<Bucket, number>;
+  const contributionsTarget  = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS){
+    contributionsCurrent[b] = (cur[b]||0) * RH[b];
+    contributionsTarget[b]  = (tgt[b]||0) * RH[b];
+  }
+  const expectedReturnCurrent = dot(cur, RH);
+  const expectedReturnTarget  = dot(tgt, RH);
+
+  // 3) Monte Carlo fan (optional)
+  const fan: FanPoint[] = [];
+  let probTargetBeatsCurrent: number | undefined;
+  let maxDDMed: {current:number; target:number} | undefined;
+
+  if (req.mc && req.mc.paths>0) {
+    const paths = Math.min(20000, Math.max(100, Math.round(req.mc.paths)));
+    const R = rng(req.mc.seed ?? 12345);
+    const N01 = randn(R);
+
+    // Build Cholesky for correlation (assumes BUCKET_ORDER matches)
+    const L = cholesky(CORRELATION);
+    const n = BUCKET_ORDER.length;
+
+    const pathValsC = Array.from({length:paths},()=>startV);
+    const pathValsT = Array.from({length:paths},()=>startV);
+    const pathSeriesC = Array.from({length:paths},()=>Array(H+1).fill(0).map((_,i)=> i===0? startV : 0));
+    const pathSeriesT = Array.from({length:paths},()=>Array(H+1).fill(0).map((_,i)=> i===0? startV : 0));
+    const maxDrawC = Array(paths).fill(0), maxDrawT = Array(paths).fill(0);
+
+    function stepOneMonth(weights: Record<Bucket,number>, idx:number){
+      // draw correlated Z
+      const z = Array(n).fill(0).map(()=>N01());
+      const zc = Array(n).fill(0);
+      for (let i=0;i<n;i++){ let s=0; for (let j=0;j<=i;j++) s += L[i][j]*z[j]; zc[i]=s; }
+      // map to bucket order
+      const r: Record<Bucket, number> = {} as any;
+      for (let i=0;i<n;i++){
+        const b = BUCKET_ORDER[i];
+        r[b] = meanMonth[b] + volMonth[b]*zc[i];
+      }
+      return r;
+    }
+
+    for (let p=0;p<paths;p++){
+      let wC = {...cur}, wT = {...tgt};
+      let vC = startV, vT = startV;
+      let peakC = startV, peakT = startV;
+
+      for (let m=1;m<=H;m++){
+        const r = stepOneMonth(cur, p); // same shock vector applied to both mixes
+
+        // month portfolio returns
+        let rc = 0, rt = 0;
+        for (const b of CANONICAL_BUCKETS){ rc += wC[b]*r[b]; rt += wT[b]*r[b]; }
+        vC *= (1 + rc); vT *= (1 + rt);
+
+        // track drawdowns
+        peakC = Math.max(peakC, vC); peakT = Math.max(peakT, vT);
+        maxDrawC[p] = Math.max(maxDrawC[p], 1 - vC/peakC);
+        maxDrawT[p] = Math.max(maxDrawT[p], 1 - vT/peakT);
+
+        pathSeriesC[p][m] = vC;
+        pathSeriesT[p][m] = vT;
+
+        // rebalance monthly if selected
+        if (mode === "rebalanceMonthly"){ wC = {...cur}; wT = {...tgt}; }
+        else { /* buy-and-hold: weights drift automatically via compounding */ }
+      }
+    }
+
+    // Build fan (p05/p50/p95) over time
+    function pctile(arr:number[], p:number){ const a=[...arr].sort((x,y)=>x-y); const i=Math.floor((a.length-1)*p); return a[i]; }
+    for (let m=0;m<=H;m++){
+      const sliceC = pathSeriesC.map(a=>a[m]);
+      const sliceT = pathSeriesT.map(a=>a[m]);
+      fan.push({
+        t:m,
+        current:{ p05:pctile(sliceC,0.05), p50:pctile(sliceC,0.50), p95:pctile(sliceC,0.95) },
+        target: { p05:pctile(sliceT,0.05), p50:pctile(sliceT,0.50), p95:pctile(sliceT,0.95) }
+      });
+    }
+    const finalsC = pathSeriesC.map(a=>a[H]);
+    const finalsT = pathSeriesT.map(a=>a[H]);
+    let wins=0; for (let i=0;i<paths;i++) if (finalsT[i] > finalsC[i]) wins++;
+    probTargetBeatsCurrent = wins/paths;
+
+    const mdMed = (xs:number[])=> pctile(xs,0.50);
+    maxDDMed = { current: mdMed(maxDrawC), target: mdMed(maxDrawT) };
+  } else {
+    // deterministic series using means only (median path)
+    const fanTmp: FanPoint[] = [];
+    let vC = startV, vT = startV;
+    fanTmp.push({ t:0, current:{p05:vC,p50:vC,p95:vC}, target:{p05:vT,p50:vT,p95:vT} });
+    for (let m=1;m<=H;m++){
+      // monthly means only
+      let rc=0, rt=0; for (const b of CANONICAL_BUCKETS){ rc += cur[b]*meanMonth[b]; rt += tgt[b]*meanMonth[b]; }
+      vC *= (1+rc); vT *= (1+rt);
+      fanTmp.push({ t:m, current:{p05:vC,p50:vC,p95:vC}, target:{p05:vT,p50:vT,p95:vT} });
+    }
+    fan.push(...fanTmp);
+  }
+
+  return {
+    horizonMonths: H,
+    expectedReturnCurrent,
+    expectedReturnTarget,
+    diffPp: expectedReturnTarget - expectedReturnCurrent,
+    contributionsCurrent,
+    contributionsTarget,
+    fan,
+    probTargetBeatsCurrent,
+    maxDrawdownMed: maxDDMed,
+    mode
+  };
+}
+
+4) API route
+
+src/api/simulate_v2.ts
+
+import express from "express";
+import { simulateV2, SimV2Request } from "../lib/simulate/engine_v2";
+export const simulateV2Router = express.Router();
+
+simulateV2Router.post("/api/simulate/v2", (req, res) => {
+  const body = req.body as SimV2Request;
+  if (!body?.currentMix || !body?.targetMix || !body?.scenarioWeights) {
+    return res.status(400).json({ error: "currentMix, targetMix and scenarioWeights are required" });
+  }
+  const result = simulateV2(body);
+  return res.json(result);
+});
+
+
+Add to your server:
+
+import { simulateV2Router } from "./api/simulate_v2";
+app.use(simulateV2Router);
+
+5) UI additions
+
+Keep your Current / Recommended / Difference cards, but:
+
+add a Mode toggle: Buy-and-Hold vs Rebalance monthly.
+
+show Prob. target outperforms (if MC on), e.g., “62%”.
+
+show Median max drawdown chips (current vs recommended).
+
+Replace the single line with a fan chart using fan (p05–p95 shaded band; p50 as the line).
+
+Keep the Top contributors bars (use contributions* from RH).
+
+6) Example request (with MC)
+POST /api/simulate/v2
+{
+  "currentMix": { "...": 0.12 },
+  "targetMix":  { "...": 0.11 },
+  "scenarioWeights": { "S002": 0.45, "S008": 0.30, "S003": 0.25 },
+  "horizonMonths": 12,
+  "startValueGBP": 700000,
+  "mode": "rebalanceMonthly",
+  "mc": { "paths": 5000, "seed": 42 }
+}
+
+7) Acceptance criteria
+
+ Final point changes with horizon (6m vs 24m) because shocks are treated as 12-month and scaled to H.
+
+ “Buy-and-Hold” vs “Rebalance monthly” produce different paths.
+
+ With MC on:
+
+Fan chart shows p05/p50/p95 for both portfolios.
+
+probTargetBeatsCurrent is returned in [0,1].
+
+maxDrawdownMed is returned for both.
+
+ With MC off: p50 equals the deterministic mean path; p05/p95 equal p50.
+
+ Top contributors sum to the expected return for each portfolio.
+
+ No AI used for numbers; randomness is seeded for reproducibility.
