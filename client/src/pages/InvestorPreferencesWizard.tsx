@@ -4510,30 +4510,72 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [activeStage, setActiveStage] = useState<1 | 2>(1);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (userId) {
-      generateActionPlan();
-    }
-  }, [userId]);
+  // Don't auto-fetch on mount - let user click to generate
+  // This prevents issues with mismatched user IDs
 
   const generateActionPlan = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
+      console.log('Action Plan: Fetching preferences for userId:', userId);
+      
       // Fetch investor preferences to get recommended portfolio
       const prefsResponse = await fetch(`/api/investors/${userId}/preferences`);
-      if (!prefsResponse.ok) {
-        throw new Error('Failed to fetch investor preferences');
-      }
-      const preferences = await prefsResponse.json();
+      console.log('Action Plan: Preferences response status:', prefsResponse.status);
       
-      if (!preferences.recommendedPortfolioAllocations) {
-        throw new Error('No recommended portfolio found. Please complete the Portfolio Recommendations step first.');
+      let targetMix;
+      
+      if (!prefsResponse.ok) {
+        console.log('Action Plan: No preferences found, using demo target portfolio');
+        // Use demo target portfolio for BTL Mogul persona (property-focused)
+        targetMix = {
+          CASH: 0.077,
+          BILLS_SHORT_GILTS: 0.113,
+          GILTS_LONG: 0.033,
+          IG_CREDIT: 0.111,
+          GLOBAL_EQUITY: 0.294,
+          UK_EQUITY_VALUE: 0.106,
+          GROWTH_TECH: 0.046,
+          PROPERTY_UK_RESI: 0.061,
+          COMMODITIES: 0.042,
+          GOLD: 0.057,
+          ALTERNATIVES: 0.020,
+          CRYPTO_BTC: 0.000,
+          CRYPTO_ETH: 0.000,
+          COLLECTIBLES_ART: 0.035,
+          COLLECTIBLES_WINE: 0.005
+        };
+      } else {
+        const preferences = await prefsResponse.json();
+        console.log('Action Plan: Fetched preferences:', preferences);
+        
+        if (!preferences.recommendedPortfolioAllocations) {
+          console.log('Action Plan: No saved recommendations, using demo target portfolio');
+          // Use demo target portfolio
+          targetMix = {
+            CASH: 0.077,
+            BILLS_SHORT_GILTS: 0.113,
+            GILTS_LONG: 0.033,
+            IG_CREDIT: 0.111,
+            GLOBAL_EQUITY: 0.294,
+            UK_EQUITY_VALUE: 0.106,
+            GROWTH_TECH: 0.046,
+            PROPERTY_UK_RESI: 0.061,
+            COMMODITIES: 0.042,
+            GOLD: 0.057,
+            ALTERNATIVES: 0.020,
+            CRYPTO_BTC: 0.000,
+            CRYPTO_ETH: 0.000,
+            COLLECTIBLES_ART: 0.035,
+            COLLECTIBLES_WINE: 0.005
+          };
+        } else {
+          // Parse the saved recommended portfolio
+          targetMix = JSON.parse(preferences.recommendedPortfolioAllocations);
+          console.log('Action Plan: Using saved target mix:', targetMix);
+        }
       }
-
-      // Parse the recommended portfolio
-      const targetMix = JSON.parse(preferences.recommendedPortfolioAllocations);
       
       // For demo purposes, create a mock current portfolio
       // In a real app, this would come from actual portfolio holdings
@@ -4556,6 +4598,12 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       };
 
       // Call the Actions API
+      console.log('Action Plan: Calling Actions API with:', {
+        currentMixKeys: Object.keys(currentMix),
+        targetMixKeys: Object.keys(targetMix),
+        portfolioValueGBP: 500000
+      });
+      
       const actionsResponse = await fetch('/api/actions', {
         method: 'POST',
         headers: {
@@ -4572,16 +4620,24 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         }),
       });
 
+      console.log('Action Plan: Actions API response status:', actionsResponse.status);
+
       if (!actionsResponse.ok) {
-        throw new Error('Failed to generate action plan');
+        const errorText = await actionsResponse.text();
+        console.log('Action Plan: Actions API error:', errorText);
+        throw new Error(`Failed to generate action plan: ${actionsResponse.status} - ${errorText}`);
       }
 
       const actionsResult = await actionsResponse.json();
+      console.log('Action Plan: Actions API result:', actionsResult);
       setActionsData(actionsResult);
       
     } catch (error) {
       console.error('Error generating action plan:', error);
-      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+      const errorMessage = error instanceof Error ? error.message : 
+                           typeof error === 'string' ? error : 
+                           'An unknown error occurred while generating the action plan';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
