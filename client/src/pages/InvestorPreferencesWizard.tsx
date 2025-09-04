@@ -3600,12 +3600,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Random Portfolio Allocation</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Portfolio Recommendations</h3>
               <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
-                Generate a completely random portfolio allocation across all asset classes for demonstration and testing purposes.
+                Get a sophisticated portfolio allocation that combines your investor profile with your economic beliefs and professional house rules.
               </p>
               <Button 
-                onClick={generateRandomAllocation}
+                onClick={generateRecommendations}
                 disabled={loading}
                 className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3 disabled:opacity-70"
               >
@@ -3617,7 +3617,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5 mr-2" />
-                    Generate Random Allocation
+                    Generate Recommendations
                   </>
                 )}
               </Button>
@@ -3634,9 +3634,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generating Random Allocation</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generating Recommendations</h3>
               <p className="text-[var(--muted-foreground)] mb-6">
-                Creating a random portfolio allocation across all asset classes...
+                Analyzing your profile and market beliefs to create your optimal portfolio allocation...
               </p>
               <div className="w-64 mx-auto">
                 <Progress value={undefined} className="h-2" />
@@ -3652,7 +3652,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <h3 className="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">Generation Failed</h3>
               <p className="text-[var(--muted-foreground)] mb-6">{error}</p>
               <Button 
-                onClick={generateRandomAllocation}
+                onClick={generateRecommendations}
                 variant="outline"
                 className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
               >
@@ -3982,12 +3982,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               {/* Regenerate Button */}
               <div className="text-center pt-6">
                 <Button 
-                  onClick={generateRandomAllocation}
+                  onClick={generateRecommendations}
                   variant="outline"
                   className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Generate New Random Allocation
+                  Regenerate Recommendations
                 </Button>
               </div>
               </TabsContent>
