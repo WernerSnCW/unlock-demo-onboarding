@@ -3342,10 +3342,16 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         }
       }
       
+      // Ensure scenario weights are properly formatted
+      const formattedScenarioWeights: Record<string, number> = {};
+      for (const [key, value] of Object.entries(scenarioWeights)) {
+        formattedScenarioWeights[key] = Number(value);
+      }
+      
       const simulationRequest = {
         currentMix,
         targetMix: targetData.targetMix,
-        scenarioWeights,
+        scenarioWeights: formattedScenarioWeights,
         horizonMonths,
         startValueGBP: 100,
         shockMultiplier: 1.0,
