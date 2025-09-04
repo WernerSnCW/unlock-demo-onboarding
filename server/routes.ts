@@ -33,7 +33,30 @@ import path from 'path';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Simplified persona data (key traits for interpretation)
+// Persona ID to name mapping (matches client/src/data/personas.ts)
+const PERSONA_ID_TO_NAME: Record<string, string> = {
+  "P001": "The Retirement Planner",
+  "P002": "The Property Lover", 
+  "P003": "The Crypto Enthusiast",
+  "P004": "The Old Fashioned Saver",
+  "P005": "The Legacy Builder",
+  "P006": "The Tech Worker",
+  "P007": "The Dividend Seeker",
+  "P008": "The Young Professional",
+  "P009": "The Global Nomad",
+  "P010": "The Financial Advisor",
+  "P011": "The ISA/SIPP Maximiser",
+  "P012": "The Defined Benefit Heavy",
+  "P013": "The Cautious Accumulator",
+  "P014": "The High Net Worth Inheritor",
+  "P015": "The Entrepreneur",
+  "P016": "The BTL Mogul",
+  "P017": "The Pension Drawdown Specialist",
+  "P018": "The Concentrated Stock Holder",
+  "P019": "The Ultra-Conservative Saver"
+};
+
+// Simplified persona data (key traits for interpretation) - mapped by persona name
 const PERSONA_TRAITS: Record<string, any> = {
   "The Retirement Planner": { liquidityMonths: 9, concentrationTolerance: "med", notes: "Pension-focused diversified", propertyBias: 0.30, techBias: 0.30, altBias: 0.25 },
   "The Property Lover": { liquidityMonths: 6, concentrationTolerance: "high", notes: "78% property tilt", propertyBias: 0.85, techBias: 0.10, altBias: 0.15 },
@@ -808,10 +831,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio Interpretation endpoint
   app.post('/api/portfolio-interpretation', async (req, res) => {
     try {
-      const { personaName, baseAllocation, personaAdjustedAllocation, rulesApplied } = req.body;
+      const { personaName, personaId, baseAllocation, personaAdjustedAllocation, rulesApplied } = req.body;
 
+      // Convert persona ID to name if needed
+      const actualPersonaName = personaId ? PERSONA_ID_TO_NAME[personaId] : personaName;
+      
       // Look up persona traits
-      const persona = PERSONA_TRAITS[personaName] || null;
+      const persona = PERSONA_TRAITS[actualPersonaName] || null;
 
       // Format allocations for the prompt
       const formatAllocation = (allocation: Record<string, number>): string => {
@@ -855,7 +881,7 @@ OUTPUT FORMAT: Return valid JSON with this exact structure:
 }
 
 DATA:
-Persona: ${persona ? `"${personaName}" - ${persona.notes}. ${persona.liquidityMonths} months liquidity needed, ${persona.concentrationTolerance} concentration tolerance. Property bias: ${persona.propertyBias}, Tech bias: ${persona.techBias}, Alt bias: ${persona.altBias}` : personaName}
+Persona: ${persona ? `"${actualPersonaName}" - ${persona.notes}. ${persona.liquidityMonths} months liquidity needed, ${persona.concentrationTolerance} concentration tolerance. Property bias: ${persona.propertyBias}, Tech bias: ${persona.techBias}, Alt bias: ${persona.altBias}` : actualPersonaName}
 Baseline allocation: [${formatAllocation(baseAllocation)}]
 Personalized allocation: [${formatAllocation(personaAdjustedAllocation)}]
 Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') || 'none'}]`;
