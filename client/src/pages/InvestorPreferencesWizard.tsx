@@ -3369,15 +3369,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       }
       
       
-      // Get actual portfolio value from user data
-      const actualPortfolioValue = investorPrefs?.actualPortfolioValue || 500000;
-      
       const simulationRequest = {
         currentMix,
         targetMix: targetData.targetMix,
         scenarioWeights: formattedScenarioWeights,
         horizonMonths,
-        startValueGBP: actualPortfolioValue,
+        startValueGBP: 100,
         shockMultiplier: 1.0,
         band: { low: 0.5, high: 1.5 }
       };
@@ -3903,6 +3900,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                               <YAxis 
                                 stroke="var(--muted-foreground)"
                                 label={{ value: 'Portfolio Value', angle: -90, position: 'insideLeft', style: { fill: 'var(--muted-foreground)' } }}
+                                tickFormatter={(value) => {
+                                  const actualValue = value * (investorPrefs?.actualPortfolioValue || 500000) / 100;
+                                  return `£${(actualValue / 1000).toFixed(0)}k`;
+                                }}
                               />
                               <RechartsTooltip 
                                 contentStyle={{ 
@@ -3911,10 +3912,19 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                                   borderRadius: '8px',
                                   color: 'var(--foreground)'
                                 }}
-                                formatter={(value: any, name: string) => [
-                                  `£${value.toFixed(2)}`,
-                                  name === 'current' ? 'Current Portfolio' : 'Recommended Portfolio'
-                                ]}
+                                formatter={(value: any, name: string) => {
+                                  const actualValue = value * (investorPrefs?.actualPortfolioValue || 500000) / 100;
+                                  const formattedValue = new Intl.NumberFormat('en-GB', {
+                                    style: 'currency',
+                                    currency: 'GBP',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                  }).format(actualValue);
+                                  return [
+                                    formattedValue,
+                                    name === 'current' ? 'Current Portfolio' : 'Recommended Portfolio'
+                                  ];
+                                }}
                                 labelFormatter={(label) => `Month ${label}`}
                               />
                               <Line 
