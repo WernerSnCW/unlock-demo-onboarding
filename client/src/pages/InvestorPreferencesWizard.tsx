@@ -3345,7 +3345,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
             <div className="space-y-8">
               {/* Economic Scenarios Section */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
+                  <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended Recommendation:</span> Your portfolio is designed to perform well across multiple economic scenarios based on your beliefs. Rather than betting on a single outcome, this approach provides <span className="font-medium">downside protection and upside capture</span> regardless of which scenario actually unfolds.
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(targetData.scenarioWeights)
                     .filter(([, weight]) => weight > 0)
@@ -3392,9 +3397,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                   <p className="text-xs text-blue-600 dark:text-blue-400">Based on your quiz results</p>
                 </div>
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <h4 className="font-semibold text-green-900 dark:text-green-200 text-sm">Tilt Strength</h4>
+                  <h4 className="font-semibold text-green-900 dark:text-green-200 text-sm">Scenario Blending</h4>
                   <p className="text-xl font-bold text-green-700 dark:text-green-300">{(targetData.tiltStrength * 100).toFixed(0)}%</p>
-                  <p className="text-xs text-green-600 dark:text-green-400">Scenario influence on allocation</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">Weighted across scenarios for uncertainty management</p>
                 </div>
                 <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                   <h4 className="font-semibold text-purple-900 dark:text-purple-200 text-sm">Adjustments</h4>
