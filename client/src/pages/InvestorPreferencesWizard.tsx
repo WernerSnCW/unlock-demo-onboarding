@@ -4523,25 +4523,9 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       
       console.log('Action Plan: Finding investor with recent portfolio recommendations...');
       
-      // Find the most recent investor who completed portfolio recommendations
-      // Look for investors with recent recommendedPortfolioCompletedAt timestamps
-      const recentInvestors = [
-        'demo-1757002489624', // CW Test_10Jul_1 - most recent
-        'demo-1757001694223', // Werner - previous
-        userId // Current fallback
-      ];
-      
-      for (const investorId of recentInvestors) {
-        const testResponse = await fetch(`/api/investors/${investorId}/preferences`);
-        if (testResponse.ok) {
-          const testPrefs = await testResponse.json();
-          if (testPrefs.recommendedPortfolioAllocations && testPrefs.recommendedPortfolioCompletedAt) {
-            actualUserId = investorId;
-            console.log('Action Plan: Using recent investor with recommendations:', actualUserId, testPrefs.investorName);
-            break;
-          }
-        }
-      }
+      // Use the current investor's data - the person going through the process
+      actualUserId = userId;
+      console.log('Action Plan: Using current investor data:', actualUserId);
       
       console.log('Action Plan: Using userId for Action Plan:', actualUserId);
       
