@@ -3358,6 +3358,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         band: { low: 0.5, high: 1.5 }
       };
       
+      console.log('Final simulation request:', JSON.stringify(simulationRequest, null, 2));
+      
       
       const response = await fetch('/api/simulate', {
         method: 'POST',
@@ -3374,9 +3376,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       
     } catch (error) {
       console.error('Simulation error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       toast({
         title: "Simulation Failed",
-        description: "Could not run portfolio simulation. Please try again.",
+        description: `Could not run portfolio simulation: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -3387,14 +3390,14 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
   const convertToDetailedBuckets = (allocations: any) => {
     // Convert high-level allocations to detailed bucket allocations
     const detailed: Record<string, number> = {};
-    const cashFixedIncome = parseFloat(allocations.cashFixedIncome || 0) / 100;
-    const globalEquity = parseFloat(allocations.globalEquity || 0) / 100;
-    const techGrowth = parseFloat(allocations.techGrowth || 0) / 100;
-    const property = parseFloat(allocations.property || 0) / 100;
-    const commoditiesGold = parseFloat(allocations.commoditiesGold || 0) / 100;
-    const alternatives = parseFloat(allocations.alternatives || 0) / 100;
-    const cryptocurrency = parseFloat(allocations.cryptocurrency || 0) / 100;
-    const collectibles = parseFloat(allocations.collectibles || 0) / 100;
+    const cashFixedIncome = parseFloat(allocations.cashFixedIncome || '0') / 100;
+    const globalEquity = parseFloat(allocations.globalEquity || '0') / 100;
+    const techGrowth = parseFloat(allocations.techGrowth || '0') / 100;
+    const property = parseFloat(allocations.property || '0') / 100;
+    const commoditiesGold = parseFloat(allocations.commoditiesGold || '0') / 100;
+    const alternatives = parseFloat(allocations.alternatives || '0') / 100;
+    const cryptocurrency = parseFloat(allocations.cryptocurrency || '0') / 100;
+    const collectibles = parseFloat(allocations.collectibles || '0') / 100;
     
     // Map to detailed buckets with better distribution
     detailed.CASH = cashFixedIncome * 0.5;
