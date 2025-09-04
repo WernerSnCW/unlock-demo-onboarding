@@ -550,6 +550,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Portfolio Simulation endpoint
+  app.post('/api/simulate', async (req, res) => {
+    try {
+      const { simulate } = await import('./lib/simulate/engine');
+      const body = req.body;
+      
+      if (!body?.currentMix || !body?.targetMix || !body?.scenarioWeights) {
+        return res.status(400).json({ error: "currentMix, targetMix and scenarioWeights are required" });
+      }
+      
+      const result = simulate(body);
+      return res.json(result);
+    } catch (error) {
+      console.error('Simulation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to run simulation',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Tax Profile routes
   app.get('/api/investors/:userId/tax-profile', async (req, res) => {
     try {

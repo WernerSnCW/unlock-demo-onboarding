@@ -1,0 +1,264 @@
+Step: Simulation (“What if your outlook plays out?”)
+0) Outcome
+
+Expose an endpoint that, given:
+
+the current mix
+
+the recommended target mix
+
+the user’s scenario weights
+
+produces a blended scenario shock per bucket and shows how each portfolio might move over a chosen horizon (e.g., 12 months). Output includes % return, £ change (optional), bucket contributions, and a simple time path for a line chart.
+
+No AI maths. Numbers are fully reproducible from config + inputs.
+
+1) Files to add
+src/
+  config/
+    buckets.ts            // already in your project
+    scenarios.ts          // already in your project (S001..S010 priors + labels)
+    scenarioShocks.ts     // NEW: per-scenario bucket return shocks
+  lib/
+    simulate/
+      engine.ts           // simulation maths
+  api/
+    simulate.ts           // HTTP route
+
+2) Config: scenario shocks (editable by you)
+
+src/config/scenarioShocks.ts
+
+These are placeholder illustrative shocks for a ~12-month horizon. They’re relative (not guarantees) and should be tuned by your team. Buckets not listed default to 0.
+
+import { Bucket } from "./buckets";
+
+type ShockVector = Partial<Record<Bucket, number>>; // expected total return over horizon, e.g. 0.12 = +12%
+export type ScenarioShocks = Record<string, ShockVector>;
+
+export const SCENARIO_SHOCKS: ScenarioShocks = {
+  // S001 – Base Growth
+  S001: { GLOBAL_EQUITY: 0.10, UK_EQUITY_VALUE: 0.06, GROWTH_TECH: 0.12, IG_CREDIT: 0.03, GILTS_LONG: 0.02 },
+
+  // S002 – Policy Support / Cuts
+  S002: { GLOBAL_EQUITY: 0.12, GROWTH_TECH: 0.15, IG_CREDIT: 0.04, GILTS_LONG: 0.05, BILLS_SHORT_GILTS: 0.01 },
+
+  // S003 – Inflation Hedges
+  S003: { COMMODITIES: 0.15, GOLD: 0.10, GLOBAL_EQUITY: -0.03, GILTS_LONG: -0.08, IG_CREDIT: -0.02, UK_EQUITY_VALUE: 0.02 },
+
+  // S004 – Rates Normalisation
+  S004: { GLOBAL_EQUITY: 0.05, IG_CREDIT: 0.03, GILTS_LONG: 0.02, BILLS_SHORT_GILTS: 0.01 },
+
+  // S005 – Quality Growth
+  S005: { GLOBAL_EQUITY: 0.09, UK_EQUITY_VALUE: 0.07, IG_CREDIT: 0.03, GROWTH_TECH: 0.08 },
+
+  // S006 – Tech-led Growth
+  S006: { GROWTH_TECH: 0.20, GLOBAL_EQUITY: 0.10, IG_CREDIT: 0.02, GILTS_LONG: 0.00 },
+
+  // S007 – Stagflation Tilt
+  S007: { COMMODITIES: 0.18, GOLD: 0.12, GLOBAL_EQUITY: -0.12, UK_EQUITY_VALUE: -0.05,
+          IG_CREDIT: -0.06, GILTS_LONG: -0.10, BILLS_SHORT_GILTS: 0.02, PROPERTY_UK_RESI: -0.08, GROWTH_TECH: -0.20 },
+
+  // S008 – Soft-ish Inflation
+  S008: { COMMODITIES: 0.06, GOLD: 0.04, GLOBAL_EQUITY: 0.05, IG_CREDIT: 0.02, GILTS_LONG: -0.02 },
+
+  // S009 – Gilt Sell-off / Duration Shock
+  S009: { GILTS_LONG: -0.12, BILLS_SHORT_GILTS: 0.02, GLOBAL_EQUITY: -0.05, UK_EQUITY_VALUE: -0.03,
+          COMMODITIES: 0.05, GOLD: -0.02, IG_CREDIT: -0.03 },
+
+  // S010 – Commodity Upswing
+  S010: { COMMODITIES: 0.20, GOLD: 0.12, GLOBAL_EQUITY: 0.02, IG_CREDIT: 0.00, GILTS_LONG: -0.04 }
+} as const;
+
+
+These shocks are inputs to the engine. If you later calibrate them from research, drop them in here—no code changes elsewhere.
+
+3) Engine: deterministic “what-if” paths
+
+src/lib/simulate/engine.ts
+
+import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+import { SCENARIO_SHOCKS } from "../../config/scenarioShocks";
+
+export interface SimRequest {
+  currentMix: Record<string, number>;
+  targetMix:  Record<string, number>;
+  scenarioWeights: Record<string, number>;     // e.g., { S007:0.6, S009:0.4 }
+  horizonMonths?: number;                       // default 12
+  startValueGBP?: number;                       // default 100
+  shockMultiplier?: number;                     // default 1.0 (scale all shocks)
+  band?: { low: number; high: number };         // optional confidence-style band multipliers, e.g., {low:0.5, high:1.5}
+}
+
+export interface SimSeriesPoint { t: number; current: number; target: number; currentLow?: number; currentHigh?: number; targetLow?: number; targetHigh?: number; }
+
+export interface SimResponse {
+  blendedShocks: Record<Bucket, number>;           // per-bucket expected return over horizon
+  contributionsCurrent: Record<Bucket, number>;    // bucket contribution (pp) to portfolio return
+  contributionsTarget:  Record<Bucket, number>;
+  portfolioReturnCurrent: number;                  // expected return over horizon (e.g., 0.042 = +4.2%)
+  portfolioReturnTarget:  number;
+  series: SimSeriesPoint[];                        // monthly path for chart (deterministic compounding)
+}
+
+function harmonise(mix: Partial<Record<string,number>>): Record<Bucket, number> {
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = Number(mix[b] ?? 0);
+  return out;
+}
+function normalise(weights: Record<string, number>) {
+  const tot = Object.values(weights||{}).reduce((a,b)=>a+b,0) || 0;
+  const out: Record<string, number> = {};
+  for (const [k,v] of Object.entries(weights||{})) out[k] = tot ? v/tot : 0;
+  return out;
+}
+
+export function simulate(req: SimRequest): SimResponse {
+  const horizon = Math.max(1, Math.round(req.horizonMonths ?? 12));
+  const shockMult = req.shockMultiplier ?? 1.0;
+  const scenW = normalise(req.scenarioWeights);
+
+  // 1) Blend shocks across scenarios
+  const blended: Record<Bucket, number> = harmonise({});
+  for (const [sid, w] of Object.entries(scenW)) {
+    const sv = SCENARIO_SHOCKS[sid]; if (!sv || w <= 0) continue;
+    for (const [bk, r] of Object.entries(sv)) blended[bk as Bucket] += (r as number) * w * shockMult;
+  }
+
+  // 2) Portfolio returns (dot product) and contributions
+  const cur = harmonise(req.currentMix);
+  const tgt = harmonise(req.targetMix);
+
+  const contrC: Record<Bucket, number> = {} as any;
+  const contrT: Record<Bucket, number> = {} as any;
+  let rC = 0, rT = 0;
+  for (const b of CANONICAL_BUCKETS) {
+    contrC[b] = cur[b] * blended[b];
+    contrT[b] = tgt[b] * blended[b];
+    rC += contrC[b]; rT += contrT[b];
+  }
+
+  // 3) Build a smooth path (deterministic compounding)
+  // Assume each bucket's horizon return arrives evenly each month: r_month_b = (1 + R_b)^(1/h) - 1
+  const rMonth: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) rMonth[b] = Math.pow(1 + blended[b], 1 / horizon) - 1;
+
+  const start = req.startValueGBP ?? 100;
+  let valC = start, valT = start;
+  let valCL = start, valCH = start, valTL = start, valTH = start;
+
+  const series: SimSeriesPoint[] = [{ t: 0, current: valC, target: valT }];
+  for (let m = 1; m <= horizon; m++) {
+    // deterministic compounding using fixed mixes
+    let monthRC = 0, monthRT = 0;
+    for (const b of CANONICAL_BUCKETS) { monthRC += cur[b] * rMonth[b]; monthRT += tgt[b] * rMonth[b]; }
+    valC *= (1 + monthRC);
+    valT *= (1 + monthRT);
+
+    // Optional “band” paths (scale shocks)
+    if (req.band) {
+      const low = req.band.low ?? 1.0, high = req.band.high ?? 1.0;
+      let monthRCL = 0, monthRCH = 0, monthRTL = 0, monthRTH = 0;
+      for (const b of CANONICAL_BUCKETS) {
+        const rm = rMonth[b];
+        monthRCL += cur[b] * (low * rm);
+        monthRCH += cur[b] * (high* rm);
+        monthRTL += tgt[b] * (low * rm);
+        monthRTH += tgt[b] * (high* rm);
+      }
+      valCL *= (1 + monthRCL); valCH *= (1 + monthRCH);
+      valTL *= (1 + monthRTL); valTH *= (1 + monthRTH);
+      series.push({ t: m, current: valC, target: valT, currentLow: valCL, currentHigh: valCH, targetLow: valTL, targetHigh: valTH });
+    } else {
+      series.push({ t: m, current: valC, target: valT });
+    }
+  }
+
+  return {
+    blendedShocks: blended,
+    contributionsCurrent: contrC,
+    contributionsTarget: contrT,
+    portfolioReturnCurrent: rC,
+    portfolioReturnTarget: rT,
+    series
+  };
+}
+
+4) API route
+
+src/api/simulate.ts (Express-style; adapt if using Fastify)
+
+import express from "express";
+import { simulate, SimRequest } from "../lib/simulate/engine";
+
+export const simulateRouter = express.Router();
+
+simulateRouter.post("/api/simulate", (req, res) => {
+  const body = req.body as SimRequest;
+  if (!body?.currentMix || !body?.targetMix || !body?.scenarioWeights) {
+    return res.status(400).json({ error: "currentMix, targetMix and scenarioWeights are required" });
+  }
+  const result = simulate(body);
+  return res.json(result);
+});
+
+
+Add to your server:
+
+import { simulateRouter } from "./api/simulate";
+app.use(simulateRouter);
+
+5) Example request
+POST /api/simulate
+Content-Type: application/json
+
+{
+  "currentMix":  { "CASH":0.045,"BILLS_SHORT_GILTS":0.12,"GILTS_LONG":0.039,"IG_CREDIT":0.148,"GLOBAL_EQUITY":0.305,"UK_EQUITY_VALUE":0.117,"GROWTH_TECH":0.026,"PROPERTY_UK_RESI":0.052,"COMMODITIES":0.037,"GOLD":0.053,"ALTERNATIVES":0.007,"COLLECTIBLES_ART":0.007 },
+  "targetMix":   { "CASH":0.095,"BILLS_SHORT_GILTS":0.115,"GILTS_LONG":0.039,"IG_CREDIT":0.148,"GLOBAL_EQUITY":0.305,"UK_EQUITY_VALUE":0.117,"GROWTH_TECH":0.026,"PROPERTY_UK_RESI":0.052,"COMMODITIES":0.037,"GOLD":0.053,"ALTERNATIVES":0.007,"COLLECTIBLES_ART":0.007 },
+  "scenarioWeights": { "S002":0.449, "S008":0.297, "S003":0.254 },
+  "horizonMonths": 12,
+  "startValueGBP": 100,
+  "shockMultiplier": 1.0,
+  "band": { "low": 0.5, "high": 1.5 }
+}
+
+
+What you’ll get back (abridged):
+
+portfolioReturnCurrent: e.g., +4.2%, portfolioReturnTarget: +6.0%
+
+contributionsCurrent/Target: bucket-level contributions (pp) for waterfall bars
+
+series: monthly path for current vs target (and optional low/high bands) to draw a line chart
+
+6) UI spec (minimal)
+
+Header question: “If your outlook plays out, how might your portfolios move?”
+
+Key chips:
+
+Current: +X% (over N months)
+
+Recommended: +Y%
+
+Difference: +(Y−X) pp
+
+Chart: line chart of series.current vs series.target (optional band shading).
+
+Waterfall / contribution bars: top 5 positive and negative contributors for each portfolio (use contributions*).
+
+Footnote: “Scenario shocks are illustrative and not guarantees. Figures are rounded.”
+
+7) Acceptance criteria
+
+ /api/simulate returns 200 with all fields for valid inputs.
+
+ Blended shock per bucket equals the weighted average of SCENARIO_SHOCKS by scenarioWeights × shockMultiplier.
+
+ Portfolio returns equal the dot product of mix and blended shocks.
+
+ series compounding is deterministic: (1+R_b)^(1/h)−1 per month, fixed mix.
+
+ Optional band scales the monthly rate by provided multipliers (no randomness).
+
+ No AI used for numbers; all parameters are explicit in config or request.

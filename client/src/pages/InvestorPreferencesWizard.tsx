@@ -9,14 +9,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign } from 'lucide-react';
-import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
@@ -3068,11 +3070,31 @@ interface TargetResponse {
   };
 }
 
+interface SimulationResponse {
+  blendedShocks: Record<string, number>;
+  contributionsCurrent: Record<string, number>;
+  contributionsTarget: Record<string, number>;
+  portfolioReturnCurrent: number;
+  portfolioReturnTarget: number;
+  series: Array<{
+    t: number;
+    current: number;
+    target: number;
+    currentLow?: number;
+    currentHigh?: number;
+    targetLow?: number;
+    targetHigh?: number;
+  }>;
+}
+
 function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendationsProps) {
   const [targetData, setTargetData] = useState<TargetResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [simulationData, setSimulationData] = useState<SimulationResponse | null>(null);
+  const [simulationLoading, setSimulationLoading] = useState(false);
+  const [horizonMonths, setHorizonMonths] = useState(12);
   const { toast } = useToast();
 
   // Get investor preferences to extract persona and scenario weights
@@ -3290,6 +3312,102 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
   const formatPercentage = (value: number) => {
     return `${(value * 100).toFixed(1)}%`;
+  };
+
+  const runSimulation = async () => {
+    if (!targetData || !investorPrefs) return;
+    
+    setSimulationLoading(true);
+    try {
+      // Get current portfolio mix from actual portfolio data
+      const actualPortfolioResponse = await fetch(`/api/investors/${actualUserId}/preferences`);
+      let currentMix = targetData.baseMix; // fallback to base mix
+      
+      if (actualPortfolioResponse.ok) {
+        const actualData = await actualPortfolioResponse.json();
+        if (actualData.actualPortfolioAllocations) {
+          const allocations = JSON.parse(actualData.actualPortfolioAllocations);
+          // Convert high-level allocations to detailed bucket allocations
+          currentMix = convertToDetailedBuckets(allocations);
+        }
+      }
+      
+      const beliefResponse = await fetch(`/api/investors/${actualUserId}/belief-responses`);
+      let scenarioWeights: Record<string, number> = {};
+      
+      if (beliefResponse.ok) {
+        const beliefData = await beliefResponse.json();
+        if (beliefData.scenarioWeights) {
+          scenarioWeights = beliefData.scenarioWeights;
+        }
+      }
+      
+      const simulationRequest = {
+        currentMix,
+        targetMix: targetData.targetMix,
+        scenarioWeights,
+        horizonMonths,
+        startValueGBP: 100,
+        shockMultiplier: 1.0,
+        band: { low: 0.5, high: 1.5 }
+      };
+      
+      const response = await fetch('/api/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(simulationRequest)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Simulation failed');
+      }
+      
+      const result = await response.json();
+      setSimulationData(result);
+      
+    } catch (error) {
+      console.error('Simulation error:', error);
+      toast({
+        title: "Simulation Failed",
+        description: "Could not run portfolio simulation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSimulationLoading(false);
+    }
+  };
+
+  const convertToDetailedBuckets = (allocations: any) => {
+    // Convert high-level allocations to detailed bucket allocations
+    // This is a simplified mapping - you can enhance based on your needs
+    const detailed: Record<string, number> = {};
+    const cashFixedIncome = parseFloat(allocations.cashFixedIncome || 0) / 100;
+    const globalEquity = parseFloat(allocations.globalEquity || 0) / 100;
+    const techGrowth = parseFloat(allocations.techGrowth || 0) / 100;
+    const property = parseFloat(allocations.property || 0) / 100;
+    const commoditiesGold = parseFloat(allocations.commoditiesGold || 0) / 100;
+    const alternatives = parseFloat(allocations.alternatives || 0) / 100;
+    const cryptocurrency = parseFloat(allocations.cryptocurrency || 0) / 100;
+    const collectibles = parseFloat(allocations.collectibles || 0) / 100;
+    
+    // Map to detailed buckets
+    detailed.CASH = cashFixedIncome * 0.4;
+    detailed.BILLS_SHORT_GILTS = cashFixedIncome * 0.4;
+    detailed.GILTS_LONG = cashFixedIncome * 0.2;
+    detailed.IG_CREDIT = cashFixedIncome * 0.0;
+    detailed.GLOBAL_EQUITY = globalEquity * 0.8;
+    detailed.UK_EQUITY_VALUE = globalEquity * 0.2;
+    detailed.GROWTH_TECH = techGrowth;
+    detailed.PROPERTY_UK_RESI = property;
+    detailed.COMMODITIES = commoditiesGold * 0.7;
+    detailed.GOLD = commoditiesGold * 0.3;
+    detailed.ALTERNATIVES = alternatives;
+    detailed.CRYPTO_BTC = cryptocurrency * 0.6;
+    detailed.CRYPTO_ETH = cryptocurrency * 0.4;
+    detailed.COLLECTIBLES_ART = collectibles * 0.8;
+    detailed.COLLECTIBLES_WINE = collectibles * 0.2;
+    
+    return detailed;
   };
 
   return (
@@ -3664,18 +3782,184 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               </TabsContent>
               
               <TabsContent value="simulation" className="space-y-8 mt-6">
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
-                    <BarChart3 className="w-8 h-8 text-white" />
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="text-center">
+                    <h3 className="text-xl font-semibold mb-2 text-[var(--foreground)]">Portfolio Simulation</h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">
+                      If your outlook plays out, how might your portfolios move?
+                    </p>
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Portfolio Simulation</h3>
-                  <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
-                    Interactive portfolio simulation and stress testing capabilities will be available soon. Test your portfolio against various market scenarios and economic conditions.
-                  </p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--muted)] rounded-lg">
-                    <Sparkles className="w-4 h-4 text-[var(--muted-foreground)]" />
-                    <span className="text-sm text-[var(--muted-foreground)]">Coming Soon</span>
+
+                  {/* Controls */}
+                  <div className="flex items-center justify-center gap-4 p-4 bg-[var(--muted)]/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="horizon">Time Horizon:</Label>
+                      <Select value={horizonMonths.toString()} onValueChange={(value) => setHorizonMonths(parseInt(value))}>
+                        <SelectTrigger className="w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="6">6m</SelectItem>
+                          <SelectItem value="12">12m</SelectItem>
+                          <SelectItem value="18">18m</SelectItem>
+                          <SelectItem value="24">24m</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button 
+                      onClick={runSimulation}
+                      disabled={simulationLoading || !targetData}
+                      className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white"
+                    >
+                      {simulationLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Running...
+                        </>
+                      ) : (
+                        <>
+                          <BarChart3 className="w-4 h-4 mr-2" />
+                          Run Simulation
+                        </>
+                      )}
+                    </Button>
                   </div>
+
+                  {simulationData && (
+                    <>
+                      {/* Key Metrics */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Current Portfolio</div>
+                          <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                            {simulationData.portfolioReturnCurrent >= 0 ? '+' : ''}{(simulationData.portfolioReturnCurrent * 100).toFixed(1)}%
+                          </div>
+                          <div className="text-xs text-blue-600 dark:text-blue-400">over {horizonMonths} months</div>
+                        </div>
+                        
+                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                          <div className="text-sm font-medium text-green-900 dark:text-green-200">Recommended Portfolio</div>
+                          <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                            {simulationData.portfolioReturnTarget >= 0 ? '+' : ''}{(simulationData.portfolioReturnTarget * 100).toFixed(1)}%
+                          </div>
+                          <div className="text-xs text-green-600 dark:text-green-400">over {horizonMonths} months</div>
+                        </div>
+                        
+                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <div className="text-sm font-medium text-purple-900 dark:text-purple-200">Difference</div>
+                          <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                            {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100) >= 0 ? '+' : ''}
+                            {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100).toFixed(1)} pp
+                          </div>
+                          <div className="text-xs text-purple-600 dark:text-purple-400">potential improvement</div>
+                        </div>
+                      </div>
+
+                      {/* Portfolio Evolution Chart */}
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-semibold text-[var(--foreground)]">Portfolio Evolution</h4>
+                        <div className="h-80">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={simulationData.series}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                              <XAxis 
+                                dataKey="t" 
+                                stroke="var(--muted-foreground)"
+                                label={{ value: 'Months', position: 'insideBottom', offset: -5, style: { fill: 'var(--muted-foreground)' } }}
+                              />
+                              <YAxis 
+                                stroke="var(--muted-foreground)"
+                                label={{ value: 'Portfolio Value', angle: -90, position: 'insideLeft', style: { fill: 'var(--muted-foreground)' } }}
+                              />
+                              <RechartsTooltip 
+                                contentStyle={{ 
+                                  backgroundColor: 'var(--background)', 
+                                  border: '1px solid var(--border)', 
+                                  borderRadius: '8px',
+                                  color: 'var(--foreground)'
+                                }}
+                                formatter={(value: any, name: string) => [
+                                  `£${value.toFixed(2)}`,
+                                  name === 'current' ? 'Current Portfolio' : 'Recommended Portfolio'
+                                ]}
+                                labelFormatter={(label) => `Month ${label}`}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="current" 
+                                stroke="#3b82f6" 
+                                strokeWidth={2}
+                                dot={false}
+                                name="current"
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="target" 
+                                stroke="#10b981" 
+                                strokeWidth={2}
+                                dot={false}
+                                name="target"
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Top Contributors */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold text-[var(--foreground)]">Current Portfolio - Top Contributors</h4>
+                          <div className="space-y-2">
+                            {Object.entries(simulationData.contributionsCurrent)
+                              .sort(([,a], [,b]) => Math.abs(b) - Math.abs(a))
+                              .slice(0, 5)
+                              .filter(([,value]) => Math.abs(value) > 0.001)
+                              .map(([bucket, contribution]) => (
+                                <div key={bucket} className="flex items-center justify-between p-2 bg-[var(--muted)]/30 rounded">
+                                  <span className="text-sm font-medium">{formatBucketName(bucket)}</span>
+                                  <span className={`text-sm font-semibold ${contribution >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {contribution >= 0 ? '+' : ''}{(contribution * 100).toFixed(1)} pp
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold text-[var(--foreground)]">Recommended Portfolio - Top Contributors</h4>
+                          <div className="space-y-2">
+                            {Object.entries(simulationData.contributionsTarget)
+                              .sort(([,a], [,b]) => Math.abs(b) - Math.abs(a))
+                              .slice(0, 5)
+                              .filter(([,value]) => Math.abs(value) > 0.001)
+                              .map(([bucket, contribution]) => (
+                                <div key={bucket} className="flex items-center justify-between p-2 bg-[var(--muted)]/30 rounded">
+                                  <span className="text-sm font-medium">{formatBucketName(bucket)}</span>
+                                  <span className={`text-sm font-semibold ${contribution >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {contribution >= 0 ? '+' : ''}{(contribution * 100).toFixed(1)} pp
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footnote */}
+                      <div className="text-xs text-[var(--muted-foreground)] text-center p-4 bg-[var(--muted)]/20 rounded-lg">
+                        Scenario shocks are illustrative and not guarantees. Figures are rounded. 
+                        Simulation uses deterministic compounding based on your economic outlook.
+                      </div>
+                    </>
+                  )}
+
+                  {!simulationData && !simulationLoading && targetData && (
+                    <div className="text-center py-8">
+                      <div className="text-[var(--muted-foreground)]">
+                        Run a simulation to see how your portfolios might perform under your economic outlook.
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
