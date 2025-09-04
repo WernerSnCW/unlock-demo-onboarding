@@ -458,6 +458,7 @@ export default function InvestorPreferencesWizard() {
                   return (
                     <button
                       key={tab.id}
+                      data-tab={tab.id}
                       onClick={() => {
                         if (tab.id === 'beliefs') {
                           setShowBeliefQuestionnaire(true);
@@ -4480,8 +4481,11 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                     console.log('=== SAVE SUCCESS ===');
                     console.log('Recommended portfolio saved successfully:', result);
 
-                    // Navigate to Action Plan tab
-                    setActiveMainTab('action');
+                    // Navigate to Action Plan tab - force navigation
+                    const tabButtons = document.querySelectorAll('[data-tab="action"]');
+                    if (tabButtons.length > 0) {
+                      (tabButtons[0] as HTMLElement).click();
+                    }
                     
                     // Show success message
                     toast({
@@ -4504,8 +4508,11 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       variant: "destructive",
                     });
                     
-                    // Still navigate even if save fails
-                    setActiveMainTab('action');
+                    // Still navigate even if save fails - force navigation
+                    const tabButtons = document.querySelectorAll('[data-tab="action"]');
+                    if (tabButtons.length > 0) {
+                      (tabButtons[0] as HTMLElement).click();
+                    }
                   }
                 }}
                 className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
