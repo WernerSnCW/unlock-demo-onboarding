@@ -31,6 +31,21 @@ export interface GapResponse {
   // light scenario insights (present iff scenarioWeights provided)
   beliefAlignmentNow?: number;          // 0..100
   beliefAlignmentTarget?: number;       // 0..100
+
+  // Always safe to compute
+  diversification: {
+    hhiNow: number;                    // Σ w^2 (0..1)
+    hhiTarget: number;
+    deltaHhi: number;                  // hhiNow - hhiTarget
+    nEffNow: number;                   // 1/hhiNow
+    nEffTarget: number;                // 1/hhiTarget
+  };
+
+  turnoverPp: number;                  // 0.5 * Σ|Δ| * 100
+  estCostPct?: number;                 // if friction rates available
+
+  // Only if spend & PV known
+  liquidityRunwayMonths?: { now: number; target: number; };
 }
 
 function harmonise(mix: Partial<Record<string, number>>): Record<Bucket, number> {
@@ -78,10 +93,28 @@ export function computeGap(req: GapRequest): GapResponse {
   const absGapSum = +rows.reduce((s, r) => s + Math.abs(r.deltaPct), 0).toFixed(4);
   rows.sort((a, b) => Math.abs(b.deltaPct) - Math.abs(a.deltaPct));
 
+  // Compute diversification metrics
+  const hhiNow = +CANONICAL_BUCKETS.reduce((sum, b) => sum + current[b] * current[b], 0).toFixed(4);
+  const hhiTarget = +CANONICAL_BUCKETS.reduce((sum, b) => sum + target[b] * target[b], 0).toFixed(4);
+  const deltaHhi = +(hhiNow - hhiTarget).toFixed(4);
+  const nEffNow = +(1 / hhiNow).toFixed(2);
+  const nEffTarget = +(1 / hhiTarget).toFixed(2);
+
+  // Compute turnover (half sum of absolute deltas, in percentage points)
+  const turnoverPp = +(0.5 * absGapSum * 100).toFixed(1);
+
   const resp: GapResponse = {
     rows,
     totals: { absGapSum, cashBillsNow, cashBillsTarget },
     headlineFlags,
+    diversification: {
+      hhiNow,
+      hhiTarget,
+      deltaHhi,
+      nEffNow,
+      nEffTarget
+    },
+    turnoverPp,
   };
 
   // --- Light scenarios (optional) ---

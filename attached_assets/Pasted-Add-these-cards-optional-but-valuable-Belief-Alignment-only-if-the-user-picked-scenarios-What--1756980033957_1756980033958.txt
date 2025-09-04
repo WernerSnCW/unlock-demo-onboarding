@@ -1,0 +1,103 @@
+Add these cards (optional but valuable)
+
+Belief Alignment (only if the user picked scenarios)
+
+What to show: Belief alignment: X → Y (↑ +Δ)
+
+How:
+
+Blend the scenario priors into a single vector S.
+
+L1 distances: d_now = Σ|current - S|, d_tgt = Σ|target - S|.
+
+Score: align = 100 × (1 − d/2) → alignmentNow, alignmentTarget.
+
+If alignmentTarget > alignmentNow, show the green “+Δ”.
+
+Diversification
+
+What to show: Diversification: +ΔHHI (lower is better) and/or Effective N: N_now → N_tgt
+
+How:
+
+HHI_now = Σ w_now^2, HHI_tgt = Σ w_tgt^2, ΔHHI = HHI_now − HHI_tgt (positive = improvement).
+
+N_eff = 1 / HHI.
+
+Turnover (and optional cost)
+
+What to show: Turnover: T pp and (if you have friction rates) Est. cost: ~c% of portfolio.
+
+How:
+
+T = 0.5 × Σ|Δ| (in percentage points).
+
+Cost (if you have a per-bucket round-trip rate f_b): cost = Σ (|Δ_b|/2 × f_b).
+
+Liquidity Runway (only if you know monthly spend & portfolio value)
+
+What to show: Liquidity runway: m_now → m_tgt months.
+
+How:
+
+cash_like = (CASH + BILLS_SHORT_GILTS)
+
+runway = (cash_like × portfolioValue) / monthlySpend.
+
+Scenario sanity chip (only if scenarios provided)
+
+What to show (if triggered):
+
+S007: keep real-asset hedge (commodities + gold) when target would reduce it and current <35%.
+
+S009: don’t increase duration (gilts long) when target > current.
+
+Where to place them
+
+Keep your three cards. Add a slim row above the table with up to two more cards:
+
+Belief Alignment and Diversification by default.
+
+Show Turnover/Cost as a small pill or tooltip next to Total Changes.
+
+Liquidity Runway only if you have spend; otherwise keep the copy you already show in the commentary.
+
+Micro-spec (fields to add to your /api/gap response)
+// Present iff scenarioWeights supplied
+beliefAlignmentNow?: number;      // 0..100
+beliefAlignmentTarget?: number;   // 0..100
+
+// Always safe to compute
+diversification: {
+  hhiNow: number;                 // Σ w^2 (0..1)
+  hhiTarget: number;
+  deltaHhi: number;               // hhiNow - hhiTarget
+  nEffNow: number;                // 1/hhiNow
+  nEffTarget: number;             // 1/hhiTarget
+}
+
+turnoverPp: number;               // 0.5 * Σ|Δ| * 100
+estCostPct?: number;              // if friction rates available
+
+// Only if spend & PV known
+liquidityRunwayMonths?: { now: number; target: number; }
+
+Quick validation checklist for your current screen
+
+Total Changes equals Σ|Δ(pp)| (looks right at 32.0%).
+
+Liquidity cards equal cash + bills in the columns (your 10.5% → 14.0% matches).
+
+Each row uses Δ = target − current (signs/colours look correct).
+
+After rounding to 0.1%, renormalise the displayed target column to 100.0% (prevents 99.9/100.1% drift).
+
+Suggested copy for the new cards (UK English)
+
+Belief Alignment: “How closely your mix matches your outlook.”
+
+Diversification: “Lower HHI = less concentration (Effective N estimates spread).”
+
+Turnover: “Approximate trading required to reach the target mix.”
+
+Liquidity Runway: “Months of typical spending covered by cash & short gilts.”

@@ -2944,12 +2944,15 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
           </div>
         )}
 
-        {/* Enhanced Summary Totals */}
-        <div className={`grid grid-cols-1 md:grid-cols-${hasBeliefAlignment ? '4' : '3'} gap-4 mb-6`}>
+        {/* Core Summary Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
             <h4 className="font-semibold text-blue-900 dark:text-blue-200">Total Changes</h4>
-            <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+            <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
               {(gapData.totals.absGapSum * 100).toFixed(1)}%
+              <span className="text-xs bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">
+                {gapData.turnoverPp}pp turnover
+              </span>
             </p>
             <p className="text-sm text-blue-600 dark:text-blue-400">Portfolio rebalancing required</p>
           </div>
@@ -2967,18 +2970,38 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
             </p>
             <p className="text-sm text-purple-600 dark:text-purple-400">Recommended level</p>
           </div>
+        </div>
 
-          {/* Belief Alignment Score */}
+        {/* Enhanced Metrics Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Belief Alignment Card */}
           {hasBeliefAlignment && (
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-              <h4 className="font-semibold text-amber-900 dark:text-amber-200">Belief Alignment</h4>
-              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-                {gapData.beliefAlignmentNow}/100 → {gapData.beliefAlignmentTarget}/100
+              <h4 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">Belief Alignment</h4>
+              <p className="text-xl font-bold text-amber-700 dark:text-amber-300">
+                {gapData.beliefAlignmentNow}/100 → {gapData.beliefAlignmentTarget}/100 
+                {gapData.beliefAlignmentTarget > gapData.beliefAlignmentNow && (
+                  <span className="text-green-600 dark:text-green-400 ml-1">
+                    (↑ +{gapData.beliefAlignmentTarget - gapData.beliefAlignmentNow})
+                  </span>
+                )}
               </p>
-              <p className="text-sm text-amber-600 dark:text-amber-400">
-                {gapData.beliefAlignmentTarget > gapData.beliefAlignmentNow 
-                  ? `Improvement: +${gapData.beliefAlignmentTarget - gapData.beliefAlignmentNow}` 
-                  : 'Scenario alignment score'}
+              <p className="text-xs text-amber-600 dark:text-amber-400">How closely your mix matches your outlook</p>
+            </div>
+          )}
+
+          {/* Diversification Card */}
+          {gapData.diversification && (
+            <div className="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
+              <h4 className="font-semibold text-teal-900 dark:text-teal-200 text-sm">Diversification</h4>
+              <p className="text-xl font-bold text-teal-700 dark:text-teal-300">
+                {gapData.diversification.deltaHhi > 0 ? '+' : ''}{(gapData.diversification.deltaHhi * 1000).toFixed(1)} HHI
+                <span className="text-sm ml-2">
+                  (N: {gapData.diversification.nEffNow} → {gapData.diversification.nEffTarget})
+                </span>
+              </p>
+              <p className="text-xs text-teal-600 dark:text-teal-400">
+                {gapData.diversification.deltaHhi > 0 ? 'Less concentrated' : 'More concentrated'} • Lower HHI = better spread
               </p>
             </div>
           )}
