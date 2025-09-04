@@ -3922,6 +3922,28 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         </div>
                       </div>
 
+                      {/* Simulation Methodology Explainer */}
+                      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-3">How This Simulation Works</h4>
+                        <div className="text-sm text-blue-800 dark:text-blue-300 space-y-2">
+                          <p>
+                            <strong>Monte Carlo Analysis:</strong> We run 5,000+ different market scenarios over your chosen time horizon, 
+                            comparing how your current portfolio allocation would perform against our recommended allocation.
+                          </p>
+                          <p>
+                            <strong>Current Mix:</strong> Your actual portfolio holdings (e.g., {Math.round((simulationData.contributionsCurrent?.['GLOBAL_EQUITY'] || 0) * 100)}% Global Equity, {Math.round((simulationData.contributionsCurrent?.['CASH'] || 0) * 100)}% Cash, etc.)
+                          </p>
+                          <p>
+                            <strong>Recommended Mix:</strong> Our AI-driven allocation based on your investor profile, risk preferences, and economic beliefs 
+                            (e.g., {Math.round((simulationData.contributionsTarget?.['GLOBAL_EQUITY'] || 0) * 100)}% Global Equity, {Math.round((simulationData.contributionsTarget?.['CASH'] || 0) * 100)}% Cash, plus diversification into real assets, etc.)
+                          </p>
+                          <p>
+                            <strong>Key Insight:</strong> This shows the potential performance difference between maintaining your current strategy 
+                            versus implementing our personalized recommendations over {simulationData.horizonMonths} months.
+                          </p>
+                        </div>
+                      </div>
+
                       {/* Enhanced Analytics */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         {/* £ Impact */}
