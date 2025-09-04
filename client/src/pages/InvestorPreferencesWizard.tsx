@@ -4520,6 +4520,44 @@ function ActionPlanComponent({ userId }: { userId: string }) {
     try {
       console.log('Action Plan: Fetching preferences for userId:', userId);
       
+      // Fetch portfolio data to calculate actual portfolio value
+      const [portfolioResponse, propertiesResponse, alternativesResponse] = await Promise.all([
+        fetch(`/api/investors/${userId}/portfolio-holdings`),
+        fetch(`/api/properties/${userId}`),
+        fetch(`/api/alternatives/${userId}`)
+      ]);
+      
+      let portfolioValue = 100000; // Default fallback if no data
+      
+      if (portfolioResponse.ok && propertiesResponse.ok && alternativesResponse.ok) {
+        const [portfolioHoldings, properties, alternatives] = await Promise.all([
+          portfolioResponse.json(),
+          propertiesResponse.json(),
+          alternativesResponse.json()
+        ]);
+        
+        const holdingsValue = portfolioHoldings.reduce((sum: number, holding: any) => 
+          sum + parseFloat(holding.currentValueGbp || '0'), 0);
+        const propertyValue = properties.reduce((sum: number, property: any) => 
+          sum + parseFloat(property.currentValueGbp || '0'), 0);
+        const alternativeValue = alternatives.reduce((sum: number, alt: any) => 
+          sum + parseFloat(alt.currentValueGbp || '0'), 0);
+        
+        const totalValue = holdingsValue + propertyValue + alternativeValue;
+        
+        // Use calculated value if > 0, otherwise use demo value for testing
+        if (totalValue > 0) {
+          portfolioValue = totalValue;
+          console.log('Action Plan: Using actual portfolio value:', portfolioValue);
+        } else {
+          portfolioValue = 350000; // Demo value (reduced from 500k for more realistic demo)
+          console.log('Action Plan: Using demo portfolio value:', portfolioValue);
+        }
+      } else {
+        portfolioValue = 350000; // Demo value for users without portfolio data
+        console.log('Action Plan: Using fallback demo portfolio value:', portfolioValue);
+      }
+      
       // Fetch investor preferences to get recommended portfolio
       const prefsResponse = await fetch(`/api/investors/${userId}/preferences`);
       console.log('Action Plan: Preferences response status:', prefsResponse.status);
@@ -4641,7 +4679,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       console.log('Action Plan: Calling Actions API with:', {
         currentMixKeys: Object.keys(currentMix),
         targetMixKeys: Object.keys(targetMix),
-        portfolioValueGBP: 500000
+        portfolioValueGBP: portfolioValue
       });
       
       const actionsResponse = await fetch('/api/actions', {
@@ -4652,7 +4690,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         body: JSON.stringify({
           currentMix,
           targetMix,
-          portfolioValueGBP: 500000, // Demo portfolio value
+          portfolioValueGBP: portfolioValue, // Calculated or demo portfolio value
           liquidityFloorPct: 0.10,
           minTradePct: 0.005,
           maxMoves: 8,
