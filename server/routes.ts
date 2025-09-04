@@ -23,6 +23,7 @@ import {
   investorPreferences
 } from "@shared/schema";
 import { marketDataService } from "./services/marketData.js";
+import { computeGap, type GapRequest } from './lib/gap/computeGap';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -367,6 +368,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid portfolio data', errors: error });
       }
       res.status(500).json({ message: 'Failed to save actual portfolio' });
+    }
+  });
+
+  // Gap Analysis endpoint - compares current vs target portfolio allocation
+  app.post('/api/gap', async (req, res) => {
+    try {
+      const body = req.body as GapRequest;
+
+      if (!body || !body.currentMix || !body.targetMix) {
+        return res.status(400).json({ error: "currentMix and targetMix are required" });
+      }
+
+      const result = computeGap(body);
+      return res.json(result);
+    } catch (e: any) {
+      console.error('Gap analysis error:', e);
+      return res.status(500).json({ error: "Internal error" });
     }
   });
 

@@ -42,6 +42,25 @@ import { PERSONA_DEFAULTS, type AssetBucket, type Mix } from '@/data/personaDefa
 import { type BeliefQuestionData, SCENARIO_NAMES } from '@/data/beliefQuestions';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+
+// Gap Analysis Types
+interface GapRow {
+  bucket: string;
+  currentPct: number;
+  targetPct: number;
+  deltaPct: number;
+  flags: string[];
+}
+
+interface GapResponse {
+  rows: GapRow[];
+  totals: {
+    absGapSum: number;
+    cashBillsNow: number;
+    cashBillsTarget: number;
+  };
+  headlineFlags: string[];
+}
 // Context import removed - will get persona from props/state
 
 // Schema for each step
@@ -2171,6 +2190,8 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
     cryptocurrency: '',
     collectibles: ''
   });
+  const [gapAnalysisData, setGapAnalysisData] = useState<GapResponse | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const { toast } = useToast();
 
@@ -2246,6 +2267,76 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
     return allocation;
   };
 
+  // Map portfolio allocation to canonical buckets format
+  const mapToCanonicalBuckets = (allocations: any): Record<string, number> => {
+    return {
+      CASH: (parseFloat(allocations.cashFixedIncome) || 0) * 0.3 / 100, // Portion of cash/fixed income as cash
+      BILLS_SHORT_GILTS: (parseFloat(allocations.cashFixedIncome) || 0) * 0.4 / 100, // Portion as bills
+      GILTS_LONG: (parseFloat(allocations.cashFixedIncome) || 0) * 0.2 / 100, // Portion as gilts
+      IG_CREDIT: (parseFloat(allocations.cashFixedIncome) || 0) * 0.1 / 100, // Portion as credit
+      GLOBAL_EQUITY: (parseFloat(allocations.globalEquity) || 0) * 0.7 / 100, // Majority as global equity
+      UK_EQUITY_VALUE: (parseFloat(allocations.globalEquity) || 0) * 0.3 / 100, // Portion as UK equity
+      GROWTH_TECH: (parseFloat(allocations.techGrowth) || 0) / 100,
+      PROPERTY_UK_RESI: (parseFloat(allocations.property) || 0) / 100,
+      COMMODITIES: (parseFloat(allocations.commoditiesGold) || 0) * 0.6 / 100, // Majority as commodities
+      GOLD: (parseFloat(allocations.commoditiesGold) || 0) * 0.4 / 100, // Portion as gold
+      ALTERNATIVES: (parseFloat(allocations.alternatives) || 0) / 100,
+      CRYPTO_BTC: (parseFloat(allocations.cryptocurrency) || 0) * 0.6 / 100, // Majority as BTC
+      CRYPTO_ETH: (parseFloat(allocations.cryptocurrency) || 0) * 0.4 / 100, // Portion as ETH
+      COLLECTIBLES_ART: (parseFloat(allocations.collectibles) || 0) * 0.7 / 100, // Majority as art
+      COLLECTIBLES_WINE: (parseFloat(allocations.collectibles) || 0) * 0.3 / 100, // Portion as wine
+    };
+  };
+
+  // Perform gap analysis
+  const performGapAnalysis = async () => {
+    if (!matchedPersona) return;
+
+    setIsAnalyzing(true);
+    try {
+      const currentMix = mapToCanonicalBuckets(allocations);
+      const targetMix = mapToCanonicalBuckets(getRecommendedAllocation(matchedPersona));
+      
+      console.log('Current portfolio mix:', currentMix);
+      console.log('Target portfolio mix:', targetMix);
+
+      const response = await fetch('/api/gap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentMix,
+          targetMix,
+          riskProfile: matchedPersona.riskProfile || 'Moderate',
+          drawdownCap: matchedPersona.drawdownCap || 0.15
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gap analysis failed: ${response.statusText}`);
+      }
+
+      const gapData = await response.json();
+      console.log('Gap analysis results:', gapData);
+      setGapAnalysisData(gapData);
+      
+      toast({
+        title: "Gap Analysis Complete",
+        description: "Portfolio analysis shows recommendations vs your current allocation.",
+      });
+    } catch (error) {
+      console.error('Gap analysis error:', error);
+      toast({
+        title: "Analysis Error", 
+        description: "Failed to perform gap analysis. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -2294,10 +2385,13 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
           description: "Your actual portfolio has been recorded successfully.",
         });
 
-        // Move to next section after successful save
+        // Perform gap analysis after successful save
+        await performGapAnalysis();
+
+        // Move to next section after successful save and analysis
         setTimeout(() => {
           onTabChange('pitch');
-        }, 500);
+        }, 1500);
       } else {
         throw new Error(result.message || 'Save operation was not successful');
       }
@@ -2495,6 +2589,21 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
             Save My Portfolio
           </Button>
         </form>
+
+        {/* Show Gap Analysis Results */}
+        {gapAnalysisData && <GapAnalysisResults gapData={gapAnalysisData} />}
+        
+        {/* Loading State for Gap Analysis */}
+        {isAnalyzing && (
+          <Card className="mt-6">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[var(--primary)]"></div>
+                <p className="text-[var(--foreground)]">Analyzing portfolio gap...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </CardContent>
     </Card>
   );
@@ -2753,5 +2862,98 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
       {/* Actual Portfolio Form */}
       <ActualPortfolioForm investorName={investorName} matchedPersona={matchedPersona} onTabChange={onTabChange} />
     </div>
+  );
+}
+
+// Gap Analysis Results Component
+function GapAnalysisResults({ gapData }: { gapData: GapResponse }) {
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-xl">
+          <TrendingUp className="w-5 h-5 text-[var(--primary)]" />
+          Portfolio Gap Analysis
+        </CardTitle>
+        <CardDescription>
+          Analysis of differences between your current and recommended allocation
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {/* Headline Flags */}
+        {gapData.headlineFlags.length > 0 && (
+          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Alerts</h4>
+            {gapData.headlineFlags.map((flag, index) => (
+              <p key={index} className="text-amber-800 dark:text-amber-300 text-sm">{flag}</p>
+            ))}
+          </div>
+        )}
+
+        {/* Summary Totals */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-200">Total Changes</h4>
+            <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              {(gapData.totals.absGapSum * 100).toFixed(1)}%
+            </p>
+            <p className="text-sm text-blue-600 dark:text-blue-400">Portfolio rebalancing required</p>
+          </div>
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+            <h4 className="font-semibold text-green-900 dark:text-green-200">Current Liquidity</h4>
+            <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+              {(gapData.totals.cashBillsNow * 100).toFixed(1)}%
+            </p>
+            <p className="text-sm text-green-600 dark:text-green-400">Cash & short-term bonds</p>
+          </div>
+          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            <h4 className="font-semibold text-purple-900 dark:text-purple-200">Target Liquidity</h4>
+            <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+              {(gapData.totals.cashBillsTarget * 100).toFixed(1)}%
+            </p>
+            <p className="text-sm text-purple-600 dark:text-purple-400">Recommended level</p>
+          </div>
+        </div>
+
+        {/* Gap Analysis Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--border)]">
+                <th className="text-left p-3 font-semibold text-[var(--foreground)]">Asset Class</th>
+                <th className="text-right p-3 font-semibold text-[var(--foreground)]">Current %</th>
+                <th className="text-right p-3 font-semibold text-[var(--foreground)]">Target %</th>
+                <th className="text-right p-3 font-semibold text-[var(--foreground)]">Δ (pp)</th>
+                <th className="text-left p-3 font-semibold text-[var(--foreground)]">Flags</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gapData.rows.map((row, index) => (
+                <tr key={row.bucket} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
+                  <td className="p-3 font-medium text-[var(--foreground)]">
+                    {row.bucket.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                  </td>
+                  <td className="p-3 text-right text-[var(--foreground)]">
+                    {(row.currentPct * 100).toFixed(1)}%
+                  </td>
+                  <td className="p-3 text-right text-[var(--foreground)]">
+                    {(row.targetPct * 100).toFixed(1)}%
+                  </td>
+                  <td className={`p-3 text-right font-semibold ${
+                    row.deltaPct < 0 ? 'text-red-600 dark:text-red-400' : 
+                    row.deltaPct > 0 ? 'text-green-600 dark:text-green-400' : 
+                    'text-[var(--foreground)]'
+                  }`}>
+                    {row.deltaPct > 0 ? '+' : ''}{(row.deltaPct * 100).toFixed(1)}
+                  </td>
+                  <td className="p-3 text-sm text-[var(--muted-foreground)]">
+                    {row.flags.join(', ') || '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

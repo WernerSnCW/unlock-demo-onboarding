@@ -1,0 +1,301 @@
+Step “Show the gap (target vs current)”
+0) Outcome
+
+Expose an HTTP endpoint and a tiny UI helper that:
+
+accepts a current portfolio mix and a target portfolio mix
+
+returns per-bucket deltas, liquidity/concentration warnings, and a couple of totals
+
+sorts rows by biggest difference first
+
+is deterministic (no AI maths)
+
+No other files (personas, scenarios, CSVs) are needed for this step.
+
+1) One-time setup (Replit)
+
+Create a Node.js + TypeScript Replit.
+
+Install deps:
+
+npm i express
+npm i -D typescript ts-node @types/node @types/express
+
+
+Create tsconfig.json in project root:
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+
+
+Update package.json scripts:
+
+{
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  }
+}
+
+2) Files to add
+src/
+  config/buckets.ts
+  lib/gap/computeGap.ts
+  server.ts
+  demo/client.html          (optional quick UI to eyeball results)
+
+3) Canonical buckets (copy-paste)
+
+src/config/buckets.ts
+
+export const CANONICAL_BUCKETS = [
+  "CASH","BILLS_SHORT_GILTS","GILTS_LONG","IG_CREDIT",
+  "GLOBAL_EQUITY","UK_EQUITY_VALUE","GROWTH_TECH","PROPERTY_UK_RESI",
+  "COMMODITIES","GOLD","ALTERNATIVES",
+  "CRYPTO_BTC","CRYPTO_ETH","COLLECTIBLES_ART","COLLECTIBLES_WINE",
+] as const;
+
+export type Bucket = typeof CANONICAL_BUCKETS[number];
+
+4) Core gap logic (copy-paste)
+
+src/lib/gap/computeGap.ts
+
+import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+
+export interface GapRequest {
+  currentMix: Record<string, number>;  // bucket -> 0..1 (can omit buckets)
+  targetMix:  Record<string, number>;  // bucket -> 0..1 (can omit buckets)
+  // Optional guard-rail hints for warnings:
+  riskProfile?: string;                // e.g., "Income" | "Conservative" | ...
+  drawdownCap?: number;                // e.g., 0.20 (20% worst-case tolerance)
+}
+
+export interface GapRow {
+  bucket: Bucket;
+  currentPct: number;                  // 0..1
+  targetPct: number;                   // 0..1
+  deltaPct: number;                    // target - current
+  flags: string[];                     // per-row flags
+}
+
+export interface GapResponse {
+  rows: GapRow[];                      // sorted by |delta| desc
+  totals: {
+    absGapSum: number;                 // Σ |delta|
+    cashBillsNow: number;              // CASH + BILLS_SHORT_GILTS
+    cashBillsTarget: number;           // same for target
+  };
+  headlineFlags: string[];             // e.g., liquidity floor shortfall
+}
+
+function harmonise(mix: Partial<Record<string, number>>): Record<Bucket, number> {
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = Number(mix[b] ?? 0);
+  return out;
+}
+
+function isCautious(rp?: string, dd?: number): boolean {
+  const s = (rp || "").toLowerCase();
+  return s.includes("conservative") || s.includes("income") || s.includes("defensive")
+      || (typeof dd === "number" && dd <= 0.20);
+}
+
+export function computeGap(req: GapRequest): GapResponse {
+  const current = harmonise(req.currentMix);
+  const target  = harmonise(req.targetMix);
+
+  const rows: GapRow[] = CANONICAL_BUCKETS.map((bucket) => {
+    const currentPct = current[bucket];
+    const targetPct  = target[bucket];
+    const deltaPct   = +(targetPct - currentPct).toFixed(4);
+    const flags: string[] = [];
+    // Simple concentration flag (>35% of portfolio in any one bucket)
+    if (currentPct > 0.35) flags.push(`Concentration: ${bucket} > 35%`);
+    return { bucket, currentPct, targetPct, deltaPct, flags };
+  });
+
+  const cashBillsNow    = current.CASH + current.BILLS_SHORT_GILTS;
+  const cashBillsTarget = target.CASH + target.BILLS_SHORT_GILTS;
+
+  // Liquidity floor warning: 10% default, 20% if cautious/income/defensive or drawdown <= 20%
+  const floor = isCautious(req.riskProfile, req.drawdownCap) ? 0.20 : 0.10;
+
+  const headlineFlags: string[] = [];
+  if (cashBillsNow < floor) {
+    headlineFlags.push(
+      `Liquidity floor shortfall: have ${(cashBillsNow*100).toFixed(1)}%, need ≥ ${(floor*100).toFixed(0)}%`
+    );
+  }
+
+  // Totals and ordering
+  const absGapSum = +rows.reduce((s, r) => s + Math.abs(r.deltaPct), 0).toFixed(4);
+  rows.sort((a, b) => Math.abs(b.deltaPct) - Math.abs(a.deltaPct));
+
+  return {
+    rows,
+    totals: { absGapSum, cashBillsNow, cashBillsTarget },
+    headlineFlags,
+  };
+}
+
+5) HTTP server (copy-paste)
+
+src/server.ts
+
+import express from "express";
+import { computeGap, GapRequest } from "./lib/gap/computeGap";
+
+const app = express();
+app.use(express.json());
+
+// Health
+app.get("/", (_req, res) => res.send("Gap service alive"));
+
+// Core endpoint
+app.post("/api/gap", (req, res) => {
+  try {
+    const body = req.body as GapRequest;
+
+    if (!body || !body.currentMix || !body.targetMix) {
+      return res.status(400).json({ error: "currentMix and targetMix are required" });
+    }
+
+    const result = computeGap(body);
+    return res.json(result);
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).json({ error: "Internal error" });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Gap server listening on http://localhost:${PORT}`));
+
+
+Run it:
+
+npm run dev
+
+6) Test quickly (curl / Postman)
+
+Request
+
+curl -s -X POST http://localhost:3000/api/gap \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currentMix": {
+      "CASH": 0.03, "BILLS_SHORT_GILTS": 0.05, "GILTS_LONG": 0.09, "IG_CREDIT": 0.12,
+      "GLOBAL_EQUITY": 0.38, "UK_EQUITY_VALUE": 0.07, "GROWTH_TECH": 0.12, "PROPERTY_UK_RESI": 0.08,
+      "COMMODITIES": 0.02, "GOLD": 0.01, "ALTERNATIVES": 0.02
+    },
+    "targetMix": {
+      "CASH": 0.06, "BILLS_SHORT_GILTS": 0.09, "GILTS_LONG": 0.06, "IG_CREDIT": 0.19,
+      "GLOBAL_EQUITY": 0.23, "UK_EQUITY_VALUE": 0.19, "GROWTH_TECH": 0.02, "PROPERTY_UK_RESI": 0.10,
+      "COMMODITIES": 0.01, "GOLD": 0.03, "ALTERNATIVES": 0.02
+    },
+    "riskProfile": "Income",
+    "drawdownCap": 0.20
+  }' | jq .
+
+
+You should see (abridged):
+
+{
+  "rows": [
+    {"bucket":"GLOBAL_EQUITY","currentPct":0.38,"targetPct":0.23,"deltaPct":-0.15,"flags":[]},
+    {"bucket":"UK_EQUITY_VALUE","currentPct":0.07,"targetPct":0.19,"deltaPct":0.12,"flags":[]},
+    {"bucket":"IG_CREDIT","currentPct":0.12,"targetPct":0.19,"deltaPct":0.07,"flags":[]},
+    {"bucket":"BILLS_SHORT_GILTS","currentPct":0.05,"targetPct":0.09,"deltaPct":0.04,"flags":[]},
+    {"bucket":"CASH","currentPct":0.03,"targetPct":0.06,"deltaPct":0.03,"flags":[]}
+    // ...
+  ],
+  "totals": { "absGapSum": 0.46, "cashBillsNow": 0.08, "cashBillsTarget": 0.15 },
+  "headlineFlags": [ "Liquidity floor shortfall: have 8.0%, need ≥ 20%" ]
+}
+
+7) (Optional) Tiny demo UI to eyeball
+
+src/demo/client.html (open with Replit webview)
+
+<!doctype html>
+<meta charset="utf-8"/>
+<title>Gap demo</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .neg { color: #b00020; } .pos { color: #00695c; }
+</style>
+<h1>Gap (target vs current)</h1>
+<button id="run">Run sample</button>
+<pre id="warn"></pre>
+<table id="tbl"><thead><tr>
+  <th>Bucket</th><th>Current %</th><th>Target %</th><th>Δ (pp)</th><th>Flags</th>
+</tr></thead><tbody></tbody></table>
+<script>
+async function run() {
+  const body = {
+    currentMix: { CASH:0.03,BILLS_SHORT_GILTS:0.05,GILTS_LONG:0.09,IG_CREDIT:0.12,GLOBAL_EQUITY:0.38,UK_EQUITY_VALUE:0.07,GROWTH_TECH:0.12,PROPERTY_UK_RESI:0.08,COMMODITIES:0.02,GOLD:0.01,ALTERNATIVES:0.02 },
+    targetMix:  { CASH:0.06,BILLS_SHORT_GILTS:0.09,GILTS_LONG:0.06,IG_CREDIT:0.19,GLOBAL_EQUITY:0.23,UK_EQUITY_VALUE:0.19,GROWTH_TECH:0.02,PROPERTY_UK_RESI:0.10,COMMODITIES:0.01,GOLD:0.03,ALTERNATIVES:0.02 },
+    riskProfile: "Income",
+    drawdownCap: 0.20
+  };
+  const res = await fetch("/api/gap", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+  const data = await res.json();
+  document.getElementById("warn").textContent =
+    `Total move: ${(data.totals.absGapSum*100).toFixed(1)} pp\n` +
+    `Cash/Bills: ${(data.totals.cashBillsNow*100).toFixed(1)}% → ${(data.totals.cashBillsTarget*100).toFixed(1)}%\n` +
+    (data.headlineFlags||[]).join("\n");
+  const tbody = document.querySelector("#tbl tbody");
+  tbody.innerHTML = "";
+  for (const r of data.rows) {
+    const tr = document.createElement("tr");
+    const pp = (x)=> (x*100).toFixed(1);
+    tr.innerHTML = `
+      <td>${r.bucket}</td>
+      <td>${pp(r.currentPct)}</td>
+      <td>${pp(r.targetPct)}</td>
+      <td class="${r.deltaPct<0?'neg':'pos'}">${(r.deltaPct*100).toFixed(1)}</td>
+      <td>${(r.flags||[]).join("; ")}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+document.getElementById("run").onclick = run;
+</script>
+
+
+Add this static route to src/server.ts (below app.use(express.json())):
+
+import path from "path";
+app.use("/demo", express.static(path.join(__dirname, "demo")));
+
+
+Open: https://<your-repl-url>/demo/client.html
+
+8) Acceptance criteria
+
+ POST /api/gap returns 200 with rows, totals, headlineFlags.
+
+ Rows sorted by absolute delta (largest first).
+
+ Liquidity warning shows 10% default, 20% if conservative/income/defensive or drawdown ≤ 20%.
+
+ Any current bucket > 35% is flagged for concentration.
+
+ Totals include absGapSum, cashBillsNow, cashBillsTarget.
+
+ All arithmetic is deterministic; no AI used for calculations.
