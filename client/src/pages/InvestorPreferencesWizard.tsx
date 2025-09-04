@@ -2618,7 +2618,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
         {gapAnalysisData && (
           <GapAnalysisResults 
             gapData={gapAnalysisData} 
-            onContinue={() => onTabChange('pitch')}
+            onContinue={() => onTabChange('strategy')}
           />
         )}
         
