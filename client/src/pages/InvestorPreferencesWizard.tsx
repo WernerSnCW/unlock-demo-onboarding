@@ -3376,12 +3376,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         horizonMonths,
         startValueGBP: 100,
         shockMultiplier: 1.0,
-        band: { low: 0.5, high: 1.5 }
+        mode: "hold",
+        mc: { paths: 5000, seed: 12345 }
       };
       
+      console.log('=== ENHANCED SIMULATION REQUEST ===');
+      console.log('Horizon months:', horizonMonths);
+      console.log('Request:', simulationRequest);
       
-      
-      const response = await fetch('/api/simulate', {
+      const response = await fetch('/api/simulate-v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(simulationRequest)
@@ -3392,7 +3395,33 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       }
       
       const result = await response.json();
-      setSimulationData(result);
+      console.log('=== ENHANCED SIMULATION RESULT ===');
+      console.log('Expected returns:', result.expectedReturnCurrent, result.expectedReturnTarget);
+      console.log('Probability target beats current:', result.probTargetBeatsCurrent);
+      console.log('Max drawdown median:', result.maxDrawdownMed);
+      console.log('Fan chart points:', result.fan?.length);
+      
+      // Convert enhanced simulation result to display format
+      const enhancedSimulationData = {
+        portfolioReturnCurrent: result.expectedReturnCurrent,
+        portfolioReturnTarget: result.expectedReturnTarget,
+        contributionsCurrent: result.contributionsCurrent,
+        contributionsTarget: result.contributionsTarget,
+        series: result.fan?.map(point => ({
+          t: point.t,
+          current: point.current.p50,
+          target: point.target.p50,
+          currentLow: point.current.p05,
+          currentHigh: point.current.p95,
+          targetLow: point.target.p05,
+          targetHigh: point.target.p95
+        })) || [],
+        probTargetBeatsCurrent: result.probTargetBeatsCurrent,
+        maxDrawdownMed: result.maxDrawdownMed,
+        horizonMonths: result.horizonMonths
+      };
+      
+      setSimulationData(enhancedSimulationData);
       
     } catch (error) {
       console.error('Simulation error:', error);
@@ -3884,6 +3913,32 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                           <div className="text-xs text-purple-600 dark:text-purple-400">potential improvement</div>
                         </div>
                       </div>
+
+                      {/* Enhanced Analytics */}
+                      {simulationData.probTargetBeatsCurrent !== undefined && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                            <div className="text-sm font-medium text-amber-900 dark:text-amber-200">Win Probability</div>
+                            <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                              {(simulationData.probTargetBeatsCurrent * 100).toFixed(1)}%
+                            </div>
+                            <div className="text-xs text-amber-600 dark:text-amber-400">
+                              recommended beats current
+                            </div>
+                          </div>
+                          {simulationData.maxDrawdownMed && (
+                            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                              <div className="text-sm font-medium text-red-900 dark:text-red-200">Max Drawdown (Median)</div>
+                              <div className="text-lg font-bold text-red-700 dark:text-red-300">
+                                {(simulationData.maxDrawdownMed.current * 100).toFixed(1)}% → {(simulationData.maxDrawdownMed.target * 100).toFixed(1)}%
+                              </div>
+                              <div className="text-xs text-red-600 dark:text-red-400">
+                                current → recommended
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Portfolio Evolution Chart */}
                       <div className="space-y-4">
