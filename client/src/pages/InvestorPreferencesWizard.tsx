@@ -3358,7 +3358,6 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         band: { low: 0.5, high: 1.5 }
       };
       
-      console.log('Final simulation request:', JSON.stringify(simulationRequest, null, 2));
       
       
       const response = await fetch('/api/simulate', {
@@ -3372,6 +3371,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       }
       
       const result = await response.json();
+      console.log('Setting simulation data:', result);
       setSimulationData(result);
       
     } catch (error) {
@@ -3835,14 +3835,14 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                     </Button>
                   </div>
 
-                  {simulationData && (
+                  {simulationData && simulationData.series && simulationData.series.length > 0 && (
                     <>
                       {/* Key Metrics */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                           <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Current Portfolio</div>
                           <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                            {simulationData.portfolioReturnCurrent >= 0 ? '+' : ''}{(simulationData.portfolioReturnCurrent * 100).toFixed(1)}%
+                            {simulationData.portfolioReturnCurrent >= 0 ? '+' : ''}{(simulationData.portfolioReturnCurrent * 100).toFixed(2)}%
                           </div>
                           <div className="text-xs text-blue-600 dark:text-blue-400">over {horizonMonths} months</div>
                         </div>
@@ -3850,7 +3850,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                           <div className="text-sm font-medium text-green-900 dark:text-green-200">Recommended Portfolio</div>
                           <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                            {simulationData.portfolioReturnTarget >= 0 ? '+' : ''}{(simulationData.portfolioReturnTarget * 100).toFixed(1)}%
+                            {simulationData.portfolioReturnTarget >= 0 ? '+' : ''}{(simulationData.portfolioReturnTarget * 100).toFixed(2)}%
                           </div>
                           <div className="text-xs text-green-600 dark:text-green-400">over {horizonMonths} months</div>
                         </div>
@@ -3859,7 +3859,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                           <div className="text-sm font-medium text-purple-900 dark:text-purple-200">Difference</div>
                           <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                             {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100) >= 0 ? '+' : ''}
-                            {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100).toFixed(1)} pp
+                            {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100).toFixed(2)} pp
                           </div>
                           <div className="text-xs text-purple-600 dark:text-purple-400">potential improvement</div>
                         </div>
