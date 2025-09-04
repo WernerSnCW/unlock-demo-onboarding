@@ -3126,26 +3126,43 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     setError(null);
 
     try {
-      // Parse belief answers to get scenario weights
-      const beliefAnswers = investorPrefs.beliefAnswers ? JSON.parse(investorPrefs.beliefAnswers) : [];
-      const scenarioWeights: Record<string, number> = {};
-      
-      // Extract scenario weights from belief answers
-      beliefAnswers.forEach((answer: any) => {
-        if (answer.scenarios) {
-          Object.entries(answer.scenarios).forEach(([scenario, weight]) => {
-            scenarioWeights[scenario] = (scenarioWeights[scenario] || 0) + (weight as number);
-          });
-        }
-      });
+      console.log('Generating recommendations with prefs:', investorPrefs);
 
-      // Normalize scenario weights
-      const totalWeight = Object.values(scenarioWeights).reduce((sum, weight) => sum + weight, 0);
-      if (totalWeight > 0) {
-        Object.keys(scenarioWeights).forEach(scenario => {
-          scenarioWeights[scenario] = scenarioWeights[scenario] / totalWeight;
-        });
+      // Get belief responses from separate API call if needed
+      let scenarioWeights: Record<string, number> = {};
+      
+      try {
+        const beliefResponse = await fetch(`/api/investors/${actualUserId}/belief-responses`);
+        if (beliefResponse.ok) {
+          const beliefData = await beliefResponse.json();
+          console.log('Belief data:', beliefData);
+          
+          if (beliefData.scenarioWeights) {
+            const weights = JSON.parse(beliefData.scenarioWeights);
+            weights.forEach((w: any) => {
+              scenarioWeights[w.scenario] = w.normalizedWeight;
+            });
+          }
+        }
+      } catch (beliefError) {
+        console.log('Could not fetch belief responses, using default weights');
       }
+
+      // If no scenario weights, use default equal weighting
+      if (Object.keys(scenarioWeights).length === 0) {
+        scenarioWeights = {
+          "reflation": 0.125,
+          "devaluation": 0.125,
+          "recession": 0.125,
+          "property_down": 0.125,
+          "tech_correction": 0.125,
+          "gilt_selloff": 0.125,
+          "energy_spike": 0.125,
+          "stagflation": 0.125
+        };
+      }
+
+      console.log('Using scenario weights:', scenarioWeights);
 
       const requestData = {
         personaId: investorPrefs.detectedPersona,
@@ -3154,6 +3171,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         riskProfile: investorPrefs.riskBand || "Moderate",
         drawdownCap: 0.20
       };
+
+      console.log('Target API request:', requestData);
 
       const response = await fetch('/api/target', {
         method: 'POST',
@@ -3164,10 +3183,13 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to generate recommendations: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Target API error:', response.status, errorText);
+        throw new Error(`Failed to generate recommendations: ${response.statusText} - ${errorText}`);
       }
 
       const result = await response.json();
+      console.log('Target API result:', result);
       setTargetData(result);
       
       toast({
@@ -3176,6 +3198,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate recommendations';
+      console.error('Generation error:', error);
       setError(errorMessage);
       toast({
         title: "Generation Failed",
