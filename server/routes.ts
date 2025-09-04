@@ -298,23 +298,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'User preferences not found' });
       }
 
-      // Parse selected scenarios from database
+      // Parse scenario weights from database  
       let scenarioWeights: Record<string, number> = {};
-      if (preferences.selectedScenarios) {
+      if (preferences.scenarioWeights) {
         try {
-          const selectedScenarios = JSON.parse(preferences.selectedScenarios as string);
-          // Convert selected scenarios array to weights object
-          if (Array.isArray(selectedScenarios) && selectedScenarios.length > 0) {
-            const weight = 1.0 / selectedScenarios.length; // Equal weight among selected scenarios
+          const weights = JSON.parse(preferences.scenarioWeights as string);
+          // Convert from array format to object format
+          if (Array.isArray(weights)) {
             scenarioWeights = {};
-            for (const scenario of selectedScenarios) {
-              if (typeof scenario === 'string') {
-                scenarioWeights[scenario] = weight;
+            for (const item of weights) {
+              if (item.scenario && typeof item.normalizedWeight === 'number') {
+                scenarioWeights[item.scenario] = item.normalizedWeight;
               }
             }
           }
         } catch (parseError) {
-          console.error('Error parsing selected scenarios:', parseError);
+          console.error('Error parsing scenario weights:', parseError);
         }
       }
 
