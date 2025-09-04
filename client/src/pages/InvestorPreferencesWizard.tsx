@@ -3065,6 +3065,7 @@ interface TargetResponse {
 function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendationsProps) {
   const [targetData, setTargetData] = useState<TargetResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -3157,6 +3158,20 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
     setLoading(true);
     setError(null);
+    setTargetData(null); // Clear previous results
+
+    // Add realistic processing delay with messages
+    const processingMessages = [
+      'Analyzing your investment profile...',
+      'Processing economic scenarios...',
+      'Calculating optimal asset allocation...',
+      'Generating personalized recommendations...'
+    ];
+
+    for (let i = 0; i < processingMessages.length; i++) {
+      setLoadingMessage(processingMessages[i]);
+      await new Promise(resolve => setTimeout(resolve, 800)); // 800ms per message = 3.2 seconds total
+    }
 
     try {
       console.log('=== Starting Portfolio Recommendations Generation ===');
@@ -3259,6 +3274,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       });
     } finally {
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -3294,11 +3310,20 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               </p>
               <Button 
                 onClick={generateRecommendations}
-                disabled={false}
-                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
+                disabled={loading}
+                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3 disabled:opacity-70"
               >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Generate Recommendations
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    {loadingMessage || 'Processing...'}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Generate Recommendations
+                  </>
+                )}
               </Button>
               {/* Debug info */}
               <div className="mt-4 text-xs text-gray-500">
