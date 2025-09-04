@@ -2283,9 +2283,9 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 
       // Build scenario weights from belief responses if available
       let scenarioWeights: Record<string, number> | undefined;
-      if (beliefsData?.selectedScenarios) {
+      if ((beliefsData as any)?.selectedScenarios) {
         scenarioWeights = {};
-        const scenarios = JSON.parse(beliefsData.selectedScenarios);
+        const scenarios = JSON.parse((beliefsData as any).selectedScenarios);
         
         // Map our belief scenarios to the canonical scenario IDs
         const scenarioMapping: Record<string, string> = {

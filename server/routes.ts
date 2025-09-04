@@ -376,6 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio Target Generation API endpoint
   app.post('/api/target', async (req, res) => {
     try {
+      console.log('Target API called with request:', req.body);
       const { buildTarget } = await import('./lib/recommend/targetEngine');
       const targetRequest = req.body;
       
@@ -384,7 +385,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'personaId is required' });
       }
       
+      if (!targetRequest.scenarioWeights) {
+        return res.status(400).json({ message: 'scenarioWeights is required' });
+      }
+      
+      console.log('Building target with request:', targetRequest);
       const result = buildTarget(targetRequest);
+      console.log('Target generation result:', result);
       res.json(result);
       
     } catch (error) {
