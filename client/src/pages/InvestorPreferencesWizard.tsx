@@ -3368,6 +3368,19 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         "S009": "Gilt Sell-off",
                         "S010": "Commodity Upswing"
                       };
+
+                      const scenarioDescriptions: Record<string, string> = {
+                        "S001": "Steady economic growth with balanced inflation and employment",
+                        "S002": "Government stimulus drives market expansion and investment", 
+                        "S003": "Rising inflation favors commodities and inflation-protected assets",
+                        "S004": "Interest rates return to historical norms after period of change",
+                        "S005": "High-quality companies outperform in selective market conditions",
+                        "S006": "Technology sector leads broad economic transformation",
+                        "S007": "Persistent inflation combined with economic stagnation",
+                        "S008": "Moderate inflation rises but remains economically manageable",
+                        "S009": "Bond market sell-off drives yields higher across duration",
+                        "S010": "Commodity cycle upswing benefits resource-based investments"
+                      };
                       
                       return (
                         <div key={scenarioId} className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -3381,6 +3394,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                           </div>
                           <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                             {scenarioId}
+                          </div>
+                          <div className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-2 leading-relaxed">
+                            {scenarioDescriptions[scenarioId] || "Economic scenario analysis"}
                           </div>
                         </div>
                       );
