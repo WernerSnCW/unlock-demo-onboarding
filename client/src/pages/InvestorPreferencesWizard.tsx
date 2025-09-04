@@ -2207,20 +2207,31 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 
   // Function to get recommended allocation from persona
   const getRecommendedAllocation = (persona: any) => {
-    const defaults = PERSONA_DEFAULTS[persona.code];
-    if (!defaults?.allocation) return {};
+    if (!persona?.code) {
+      console.log('No persona code found');
+      return {};
+    }
 
-    // Map persona allocation to form structure
-    return {
-      cashFixedIncome: defaults.allocation.cashFixedIncome?.toString() || '0',
-      globalEquity: defaults.allocation.globalEquity?.toString() || '0',
-      techGrowth: defaults.allocation.techGrowth?.toString() || '0',
-      property: defaults.allocation.property?.toString() || '0',
-      commoditiesGold: defaults.allocation.commoditiesGold?.toString() || '0',
-      alternatives: defaults.allocation.alternatives?.toString() || '0',
-      cryptocurrency: defaults.allocation.cryptocurrency?.toString() || '0',
-      collectibles: defaults.allocation.collectibles?.toString() || '0'
+    const defaults = PERSONA_DEFAULTS[persona.code];
+    if (!defaults) {
+      console.log('No defaults found for persona code:', persona.code);
+      return {};
+    }
+
+    // Map PERSONA_DEFAULTS structure to form fields and convert to percentages
+    const allocation = {
+      cashFixedIncome: Math.round((defaults.CASH + defaults.BILLS_SHORT_GILTS + defaults.GILTS_LONG + defaults.IG_CREDIT) * 100).toString(),
+      globalEquity: Math.round((defaults.GLOBAL_EQUITY + defaults.UK_EQUITY_VALUE) * 100).toString(),
+      techGrowth: Math.round(defaults.GROWTH_TECH * 100).toString(),
+      property: Math.round(defaults.PROPERTY_UK_RESI * 100).toString(),
+      commoditiesGold: Math.round((defaults.COMMODITIES + defaults.GOLD) * 100).toString(),
+      alternatives: Math.round(defaults.ALTERNATIVES * 100).toString(),
+      cryptocurrency: Math.round((defaults.CRYPTO_BTC + defaults.CRYPTO_ETH) * 100).toString(),
+      collectibles: Math.round((defaults.COLLECTIBLES_ART + defaults.COLLECTIBLES_WINE) * 100).toString()
     };
+
+    console.log('Generated allocation:', allocation);
+    return allocation;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
