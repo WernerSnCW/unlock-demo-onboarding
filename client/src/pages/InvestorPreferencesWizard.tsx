@@ -3409,7 +3409,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <h4 className="font-semibold text-blue-900 dark:text-blue-200 text-sm">Investor Profile</h4>
-                  <p className="text-xl font-bold text-blue-700 dark:text-blue-300">{targetData.personaId}</p>
+                  <p className="text-xl font-bold text-blue-700 dark:text-blue-300">
+                    {INVESTMENT_PERSONAS[targetData.personaId]?.name || targetData.personaId}
+                  </p>
                   <p className="text-xs text-blue-600 dark:text-blue-400">Based on your quiz results</p>
                 </div>
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
