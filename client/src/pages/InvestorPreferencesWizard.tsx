@@ -4416,11 +4416,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                     });
 
                     if (!response.ok) {
-                      throw new Error('Failed to save recommended portfolio');
+                      const errorText = await response.text();
+                      throw new Error(`Failed to save recommended portfolio: ${response.status} ${errorText}`);
                     }
 
                     const result = await response.json();
-                    console.log('Recommended portfolio saved:', result);
+                    console.log('Recommended portfolio saved successfully:', result);
 
                     // Navigate to Action Plan tab
                     setActiveMainTab('action');
