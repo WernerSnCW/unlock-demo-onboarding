@@ -3346,7 +3346,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       const beliefToScenarioMap: Record<string, string> = {
         'recession': 'S002',
         'energy_spike': 'S008', 
-        'property_down': 'S003'
+        'property_down': 'S003',
+        'reflation': 'S005',
+        'devaluation': 'S010',
+        'tech_correction': 'S006',
+        'gilt_selloff': 'S009',
+        'stagflation': 'S007'
       };
       
       // Ensure scenario weights are properly formatted and not empty
@@ -3363,7 +3368,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         formattedScenarioWeights.S003 = 0.31;  // Inflation Hedges
       }
       
-      console.log('Final scenario weights for simulation:', formattedScenarioWeights);
+      console.log('Raw scenario weights:', scenarioWeights);
+      console.log('Mapped scenario weights for simulation:', formattedScenarioWeights);
       
       const simulationRequest = {
         currentMix,
