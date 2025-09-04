@@ -46,16 +46,34 @@ function normalise(weights: Record<string, number>) {
 }
 
 export function simulate(req: SimRequest): SimResponse {
+  console.log('=== SIMULATION DEBUG ===');
+  console.log('Raw scenario weights:', req.scenarioWeights);
+  
   const horizon = Math.max(1, Math.round(req.horizonMonths ?? 12));
   const shockMult = req.shockMultiplier ?? 1.0;
   const scenW = normalise(req.scenarioWeights);
+  
+  console.log('Normalized scenario weights:', scenW);
+  console.log('Available scenarios:', Object.keys(SCENARIO_SHOCKS));
 
   // 1) Blend shocks across scenarios
   const blended: Record<Bucket, number> = harmonise({});
   for (const [sid, w] of Object.entries(scenW)) {
-    const sv = SCENARIO_SHOCKS[sid]; if (!sv || w <= 0) continue;
-    for (const [bk, r] of Object.entries(sv)) blended[bk as Bucket] += (r as number) * w * shockMult;
+    const sv = SCENARIO_SHOCKS[sid];
+    console.log(`Processing scenario ${sid}: weight=${w}, found=${!!sv}`);
+    if (sv) console.log(`Scenario ${sid} shocks:`, sv);
+    if (!sv || w <= 0) continue;
+    for (const [bk, r] of Object.entries(sv)) {
+      const contribution = (r as number) * w * shockMult;
+      blended[bk as Bucket] += contribution;
+      if (contribution !== 0) {
+        console.log(`  ${bk}: ${r} * ${w} = ${contribution}`);
+      }
+    }
   }
+  
+  console.log('Final blended shocks:', blended);
+  console.log('=== END SIMULATION DEBUG ===');
 
   // 2) Portfolio returns (dot product) and contributions
   const cur = harmonise(req.currentMix);
