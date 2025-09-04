@@ -1,0 +1,319 @@
+Ticket: Simulation — Multi-Horizon + Scenario Fade
+Goal
+
+Enhance /api/simulate/v2 so investors can see 6m / 12m / 24m outcomes side-by-side, and so longer horizons fade towards a neutral prior rather than assuming the scenario dominates for years. The existing single-horizon chart and fan stay unchanged.
+
+Multi-horizon summaries in one response (multi array).
+
+Scenario fade: at horizon 
+𝐻
+H, blend scenario shocks towards a base prior using
+
+𝛼
+(
+𝐻
+)
+=
+1
+−
+𝑒
+−
+𝐻
+/
+𝜏
+,
+𝑅
+~
+12
+(
+𝐻
+)
+=
+(
+1
+−
+𝛼
+)
+𝑅
+12
+scenario
++
+𝛼
+𝑅
+12
+base
+α(H)=1−e
+−H/τ
+,
+R
+~
+12
+	​
+
+(H)=(1−α)R
+12
+scenario
+	​
+
++αR
+12
+base
+	​
+
+
+Default 
+𝜏
+=
+24
+τ=24 months, base prior = zero returns.
+
+No AI; all deterministic.
+
+1) Update request/response types
+In src/lib/simulate/engine_v2.ts
+
+Add new request options:
+
+export interface SimV2Request {
+  currentMix: Record<string, number>;
+  targetMix:  Record<string, number>;
+  scenarioWeights: Record<string, number>;
+  horizonMonths?: number;                 // existing (default 12)
+  startValueGBP?: number;                 // existing
+  shockMultiplier?: number;               // existing
+  mode?: "hold" | "rebalanceMonthly";     // existing
+  mc?: { paths: number; seed?: number };  // existing
+
+  // NEW:
+  multiHorizons?: number[];               // e.g., [6, 12, 24]
+  fade?: {
+    tauMonths?: number;                   // default 24
+    // base prior for 12m shocks; if omitted, zeros
+    basePrior12?: Partial<Record<Bucket, number>>;
+  };
+
+  // optional pass-through (if you have it)
+  costs?: { estTurnoverPp: number; estCostPct: number };
+}
+
+export interface MultiHorizonSummary {
+  horizonMonths: number;
+  expectedReturnCurrent: number;
+  expectedReturnTarget: number;
+  diffPp: number;
+  endValue: { current: number; target: number; diffGBP: number };
+  breakevenMonthMed: number | null;       // computed on deterministic median path
+  costs?: { estTurnoverPp: number; estCostPct: number; diffAfterCostsPp: number };
+}
+
+export interface SimV2Response {
+  // existing fields…
+  // NEW:
+  multi?: MultiHorizonSummary[];
+}
+
+2) Code changes (engine)
+Edit src/lib/simulate/engine_v2.ts
+
+A. Helpers (add near the top):
+
+function alphaFade(H: number, tau: number) {
+  return 1 - Math.exp(-(H) / Math.max(1, tau)); // H, tau in months
+}
+function buildBasePrior12(req: SimV2Request): Record<Bucket, number> {
+  const base = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) base[b] = Number(req.fade?.basePrior12?.[b] ?? 0);
+  return base;
+}
+// Given scenario-mean 12m shocks and horizon H, return faded 12m shocks for that horizon
+function fadedMean12ForH(mean12Scenario: Record<Bucket, number>, base12: Record<Bucket, number>, H: number, tau: number) {
+  const a = alphaFade(H, tau);
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = (1 - a)*(mean12Scenario[b] || 0) + a*(base12[b] || 0);
+  return out;
+}
+// Deterministic median path breakeven (no MC): month index where target >= current; else null
+function breakevenOnMedian(H: number, start: number, curW: Record<Bucket,number>, tgtW: Record<Bucket,number>, meanMonth: Record<Bucket,number>) {
+  let vC = start, vT = start;
+  if (H <= 0) return 0;
+  for (let m=1; m<=H; m++) {
+    let rc = 0, rt = 0;
+    for (const b of CANONICAL_BUCKETS) { rc += curW[b]*meanMonth[b]; rt += tgtW[b]*meanMonth[b]; }
+    vC *= (1+rc); vT *= (1+rt);
+    if (vT >= vC) return m;
+  }
+  return null;
+}
+
+
+B. Inside simulateV2(req) compute scenario means once (before fade):
+
+// (existing) scenario blend to 12m means & vols
+const mean12Scenario = harmonise( blend(SCENARIO_SHOCKS, req.scenarioWeights) );
+const vol12          = harmonise( blend(SCENARIO_VOLS,   req.scenarioWeights) ) as Record<Bucket, number>;
+for (const b of CANONICAL_BUCKETS){ mean12Scenario[b] *= (req.shockMultiplier ?? 1.0); vol12[b] *= (req.shockMultiplier ?? 1.0); }
+
+const tau = req.fade?.tauMonths ?? 24;
+const basePrior12 = buildBasePrior12(req);
+
+
+C. Replace the places where you used mean12 with a faded version for the main horizon H:
+
+const H = Math.max(1, Math.round(req.horizonMonths ?? 12));
+
+// Fade *for the main horizon H*
+const mean12 = fadedMean12ForH(mean12Scenario, basePrior12, H, tau);
+
+// Continue as before:
+const meanMonth: Record<Bucket, number> = {} as any;
+const volMonth:  Record<Bucket, number> = {} as any;
+for (const b of CANONICAL_BUCKETS){
+  meanMonth[b] = Math.pow(1 + (mean12[b]||0), 1/12) - 1;
+  volMonth[b]  = (vol12[b] || 0) / Math.sqrt(12);
+}
+
+// Horizon-scaled returns RH using *faded* mean12 for H
+const RH: Record<Bucket, number> = {} as any;
+for (const b of CANONICAL_BUCKETS) RH[b] = Math.pow(1 + (mean12[b]||0), H/12) - 1;
+
+
+Your existing fan chart / MC now reflects fade at the selected horizonMonths. No other MC code changes are needed.
+
+D. Build the multi grid if requested (place near the end, before return):
+
+if (req.multiHorizons && req.multiHorizons.length) {
+  const startV = req.startValueGBP ?? 100;
+  const uniq = Array.from(new Set(req.multiHorizons.filter(h => h > 0))).sort((a,b)=>a-b);
+  const multi: MultiHorizonSummary[] = [];
+
+  for (const h of uniq) {
+    const mean12H = fadedMean12ForH(mean12Scenario, basePrior12, h, tau);
+    const RHh: Record<Bucket, number> = {} as any;
+    for (const b of CANONICAL_BUCKETS) RHh[b] = Math.pow(1 + (mean12H[b]||0), h/12) - 1;
+
+    // expected returns at horizon h
+    const erC = dot(cur, RHh);
+    const erT = dot(tgt, RHh);
+    const diff = erT - erC;
+
+    // deterministic monthly mean for breakeven calc at horizon h
+    const meanMonthH: Record<Bucket, number> = {} as any;
+    for (const b of CANONICAL_BUCKETS) meanMonthH[b] = Math.pow(1 + (mean12H[b]||0), 1/12) - 1;
+
+    const be = breakevenOnMedian(h, startV, cur, tgt, meanMonthH);
+
+    const endC = startV * (1 + erC);
+    const endT = startV * (1 + erT);
+
+    const summary: MultiHorizonSummary = {
+      horizonMonths: h,
+      expectedReturnCurrent: erC,
+      expectedReturnTarget: erT,
+      diffPp: diff,
+      endValue: { current: endC, target: endT, diffGBP: endT - endC },
+      breakevenMonthMed: be
+    };
+
+    if (req.costs) {
+      summary.costs = {
+        estTurnoverPp: req.costs.estTurnoverPp,
+        estCostPct: req.costs.estCostPct,
+        diffAfterCostsPp: diff - req.costs.estCostPct
+      };
+    }
+
+    multi.push(summary);
+  }
+
+  (res as any).multi = multi; // attach to response
+}
+
+
+res is your existing response object. Keep all the single-horizon fields you already return (fan, contributions, etc.).
+
+3) API route (no breaking change)
+
+src/api/simulate_v2.ts — no change besides accepting the new fields and returning them. Example request:
+
+POST /api/simulate/v2
+{
+  "currentMix": { "...": 0.12 },
+  "targetMix":  { "...": 0.11 },
+  "scenarioWeights": { "S007": 0.6, "S009": 0.4 },
+  "horizonMonths": 12,
+  "startValueGBP": 700000,
+  "mode": "hold",
+  "mc": { "paths": 5000, "seed": 42 },
+  "multiHorizons": [6, 12, 24],
+  "fade": { "tauMonths": 24 },
+  "costs": { "estTurnoverPp": 28.5, "estCostPct": 0.0018 }
+}
+
+
+Response (new bit only):
+
+{
+  "multi": [
+    {
+      "horizonMonths": 6,
+      "expectedReturnCurrent": 0.012,
+      "expectedReturnTarget": 0.018,
+      "diffPp": 0.006,
+      "endValue": { "current": 708400, "target": 712600, "diffGBP": 4200 },
+      "breakevenMonthMed": 5,
+      "costs": { "estTurnoverPp": 28.5, "estCostPct": 0.0018, "diffAfterCostsPp": 0.0042 }
+    },
+    { "horizonMonths": 12, "...": "…" },
+    { "horizonMonths": 24, "...": "…" }
+  ]
+}
+
+
+(Numbers above are illustrative.)
+
+4) UI wiring (quick)
+
+Add a row titled “Horizon snapshots” with three mini cards (6m / 12m / 24m). Each shows:
+
+Current % and £ end value (median)
+
+Recommended % and £ end value
+
+Difference (pp and £)
+
+Breakeven month (if any)
+
+After costs (only if multi[i].costs present)
+
+Keep your existing chart/fan for the selected horizonMonths (the drop-down still controls the big chart). The grid gives instant context without switching screens.
+
+Add a small caption:
+
+“We fade scenario effects for longer horizons (τ = 24m) to reflect uncertainty. Not a guarantee.”
+
+5) Acceptance criteria
+
+ With multiHorizons: [6,12,24], response includes multi with three summaries.
+
+ The single-horizon chart and fan still reflect the selected horizonMonths and include fade for that horizon.
+
+ For each multi entry 
+ℎ
+h:
+
+expectedReturn* equals the dot product of weights and faded 
+𝑅
+𝐻
+R
+H
+	​
+
+.
+
+endValue.* = startValue × (1 + expectedReturn*).
+
+breakevenMonthMed computed on the deterministic median path at that horizon.
+
+ If costs provided, diffAfterCostsPp = diffPp − estCostPct.
+
+ No AI; behaviour is fully deterministic and reproducible.

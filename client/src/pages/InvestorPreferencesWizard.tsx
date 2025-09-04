@@ -3377,7 +3377,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         startValueGBP: 100,
         shockMultiplier: 1.0,
         mode: "hold",
-        mc: { paths: 5000, seed: 12345 }
+        mc: { paths: 5000, seed: 12345 },
+        multiHorizons: [6, 12, 24],
+        fade: { tauMonths: 24 }
       };
       
       console.log('=== ENHANCED SIMULATION REQUEST ===');
@@ -3426,7 +3428,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         downside: result.downside,
         costs: result.costs,
         diffAttribution: result.diffAttribution,
-        stresses: result.stresses
+        stresses: result.stresses,
+        // NEW: Multi-horizon snapshots
+        multi: result.multi
       };
       
       setSimulationData(enhancedSimulationData);
@@ -3955,6 +3959,66 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                           </p>
                         </div>
                       </div>
+
+                      {/* Multi-Horizon Snapshots */}
+                      {simulationData.multi && simulationData.multi.length > 0 && (
+                        <div className="mb-8">
+                          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
+                            <h4 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                              <i className="fas fa-clock text-[var(--primary)]"></i>
+                              Horizon Snapshots
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              {simulationData.multi.map((horizon, idx) => (
+                                <div key={idx} className="p-4 bg-[var(--muted)]/10 rounded-[var(--radius-md)] border border-[var(--border)] hover:shadow-[var(--shadow-sm)] transition-shadow">
+                                  <div className="text-center mb-3">
+                                    <div className="text-lg font-bold text-[var(--primary)]">{horizon.horizonMonths} Months</div>
+                                  </div>
+                                  <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-[var(--muted-foreground)]">Current:</span>
+                                      <div className="text-right">
+                                        <div className="font-mono text-[var(--foreground)]">{(horizon.expectedReturnCurrent * 100).toFixed(2)}%</div>
+                                        <div className="text-xs text-[var(--muted-foreground)]">£{((horizon.endValue.current * (investorPrefs?.actualPortfolioValue || 500000) / 100) / 1000).toFixed(0)}k</div>
+                                      </div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-[var(--muted-foreground)]">Target:</span>
+                                      <div className="text-right">
+                                        <div className="font-mono text-[var(--foreground)]">{(horizon.expectedReturnTarget * 100).toFixed(2)}%</div>
+                                        <div className="text-xs text-[var(--muted-foreground)]">£{((horizon.endValue.target * (investorPrefs?.actualPortfolioValue || 500000) / 100) / 1000).toFixed(0)}k</div>
+                                      </div>
+                                    </div>
+                                    <div className="border-t border-[var(--border)] pt-2">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-[var(--muted-foreground)] font-medium">Difference:</span>
+                                        <div className="text-right">
+                                          <div className={`font-mono font-bold ${horizon.diffPp >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                                            {horizon.diffPp >= 0 ? '+' : ''}{(horizon.diffPp * 100).toFixed(2)}%
+                                          </div>
+                                          <div className={`text-xs ${horizon.diffPp >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                                            £{((horizon.endValue.diffGBP * (investorPrefs?.actualPortfolioValue || 500000) / 100) / 1000).toFixed(1)}k
+                                          </div>
+                                        </div>
+                                      </div>
+                                      {horizon.breakevenMonthMed && (
+                                        <div className="flex justify-between mt-1">
+                                          <span className="text-[var(--muted-foreground)] text-xs">Breakeven:</span>
+                                          <span className="text-xs text-[var(--info)]">Month {horizon.breakevenMonthMed}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-xs text-[var(--muted-foreground)] text-center bg-[var(--muted)]/20 p-3 rounded-[var(--radius-sm)]">
+                              <i className="fas fa-info-circle mr-1"></i>
+                              We fade scenario effects for longer horizons (τ = 24m) to reflect uncertainty. Not a guarantee.
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Enhanced Analytics */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

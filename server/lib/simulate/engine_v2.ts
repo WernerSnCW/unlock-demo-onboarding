@@ -39,12 +39,29 @@ export interface SimV2Request {
   mode?: RebalanceMode;                      // default "hold"
   mc?: { paths: number; seed?: number };     // optional Monte Carlo (e.g., {paths: 5000})
   costs?: { estTurnoverPp: number; estCostPct: number }; // optional after-costs analysis
+  
+  // NEW: Multi-horizon + scenario fade
+  multiHorizons?: number[];                  // e.g., [6, 12, 24]
+  fade?: {
+    tauMonths?: number;                      // default 24
+    basePrior12?: Partial<Record<Bucket, number>>; // base prior for 12m shocks; if omitted, zeros
+  };
 }
 
 export interface FanPoint { 
   t:number; 
   current:{p05:number;p50:number;p95:number}; 
   target:{p05:number;p50:number;p95:number}; 
+}
+
+export interface MultiHorizonSummary {
+  horizonMonths: number;
+  expectedReturnCurrent: number;
+  expectedReturnTarget: number;
+  diffPp: number;
+  endValue: { current: number; target: number; diffGBP: number };
+  breakevenMonthMed: number | null;       // computed on deterministic median path
+  costs?: { estTurnoverPp: number; estCostPct: number; diffAfterCostsPp: number };
 }
 
 export interface SimV2Response {
@@ -70,6 +87,9 @@ export interface SimV2Response {
   costs?: { estTurnoverPp:number; estCostPct:number; diffAfterCostsPp:number };
   diffAttribution: Array<{ factor:string; pp:number }>;
   stresses?: Array<{ id:string; label:string; retCurrent:number; retTarget:number; diffPp:number }>;
+  
+  // NEW: Multi-horizon analysis
+  multi?: MultiHorizonSummary[];
 }
 
 // ---------- helpers ----------
@@ -138,6 +158,38 @@ function computeRHForPureScenario(scenarioId: string, H: number, k: number): Rec
   return RH;
 }
 
+// Scenario fade helpers
+function alphaFade(H: number, tau: number) {
+  return 1 - Math.exp(-(H) / Math.max(1, tau)); // H, tau in months
+}
+
+function buildBasePrior12(req: SimV2Request): Record<Bucket, number> {
+  const base = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) base[b] = Number(req.fade?.basePrior12?.[b] ?? 0);
+  return base;
+}
+
+// Given scenario-mean 12m shocks and horizon H, return faded 12m shocks for that horizon
+function fadedMean12ForH(mean12Scenario: Record<Bucket, number>, base12: Record<Bucket, number>, H: number, tau: number): Record<Bucket, number> {
+  const a = alphaFade(H, tau);
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = (1 - a)*(mean12Scenario[b] || 0) + a*(base12[b] || 0);
+  return out;
+}
+
+// Deterministic median path breakeven (no MC): month index where target >= current; else null
+function breakevenOnMedian(H: number, start: number, curW: Record<Bucket,number>, tgtW: Record<Bucket,number>, meanMonth: Record<Bucket,number>): number | null {
+  let vC = start, vT = start;
+  if (H <= 0) return 0;
+  for (let m=1; m<=H; m++) {
+    let rc = 0, rt = 0;
+    for (const b of CANONICAL_BUCKETS) { rc += (curW[b]||0)*(meanMonth[b]||0); rt += (tgtW[b]||0)*(meanMonth[b]||0); }
+    vC *= (1+rc); vT *= (1+rt);
+    if (vT >= vC) return m;
+  }
+  return null;
+}
+
 // ---------- main ----------
 export function simulateV2(req: SimV2Request): SimV2Response {
   const H = Math.max(1, Math.round(req.horizonMonths ?? 12));
@@ -148,10 +200,17 @@ export function simulateV2(req: SimV2Request): SimV2Response {
   const cur = harmonise(req.currentMix);
   const tgt = harmonise(req.targetMix);
 
-  // 1) Blend 12m means & vols across scenarios, then scale
-  const mean12 = harmonise( blend(SCENARIO_SHOCKS, req.scenarioWeights) );
+  // 1) Compute scenario means once (before fade)
+  const mean12Scenario = harmonise( blend(SCENARIO_SHOCKS, req.scenarioWeights) );
   const vol12  = harmonise( blend(SCENARIO_VOLS,   req.scenarioWeights) ) as Record<Bucket, number>;
-  for (const b of CANONICAL_BUCKETS){ mean12[b]*=k; vol12[b]*=(k || 1); } // scale both if multiplier used
+  for (const b of CANONICAL_BUCKETS){ mean12Scenario[b]*=k; vol12[b]*=(k || 1); } // scale both if multiplier used
+  
+  // Set up fade parameters
+  const tau = req.fade?.tauMonths ?? 24;
+  const basePrior12 = buildBasePrior12(req);
+  
+  // Apply fade for the main horizon H
+  const mean12 = fadedMean12ForH(mean12Scenario, basePrior12, H, tau);
 
   const meanMonth: Record<Bucket, number> = {} as any;
   const volMonth:  Record<Bucket, number> = {} as any;
@@ -338,6 +397,53 @@ export function simulateV2(req: SimV2Request): SimV2Response {
     };
   });
 
+  // ========== MULTI-HORIZON ANALYSIS ==========
+  let multi: MultiHorizonSummary[] | undefined;
+  if (req.multiHorizons && req.multiHorizons.length) {
+    const startV = req.startValueGBP ?? 100;
+    const uniq = Array.from(new Set(req.multiHorizons.filter(h => h > 0))).sort((a,b)=>a-b);
+    multi = [];
+
+    for (const h of uniq) {
+      const mean12H = fadedMean12ForH(mean12Scenario, basePrior12, h, tau);
+      const RHh: Record<Bucket, number> = {} as any;
+      for (const b of CANONICAL_BUCKETS) RHh[b] = pow1p(mean12H[b]||0, h/12);
+
+      // expected returns at horizon h
+      const erC = dot(cur, RHh);
+      const erT = dot(tgt, RHh);
+      const diff = erT - erC;
+
+      // deterministic monthly mean for breakeven calc at horizon h
+      const meanMonthH: Record<Bucket, number> = {} as any;
+      for (const b of CANONICAL_BUCKETS) meanMonthH[b] = Math.pow(1 + (mean12H[b]||0), 1/12) - 1;
+
+      const be = breakevenOnMedian(h, startV, cur, tgt, meanMonthH);
+
+      const endC = startV * (1 + erC);
+      const endT = startV * (1 + erT);
+
+      const summary: MultiHorizonSummary = {
+        horizonMonths: h,
+        expectedReturnCurrent: erC,
+        expectedReturnTarget: erT,
+        diffPp: diff,
+        endValue: { current: endC, target: endT, diffGBP: endT - endC },
+        breakevenMonthMed: be
+      };
+
+      if (req.costs) {
+        summary.costs = {
+          estTurnoverPp: req.costs.estTurnoverPp,
+          estCostPct: req.costs.estCostPct,
+          diffAfterCostsPp: diff - req.costs.estCostPct
+        };
+      }
+
+      multi.push(summary);
+    }
+  }
+
   return {
     horizonMonths: H,
     expectedReturnCurrent,
@@ -357,6 +463,9 @@ export function simulateV2(req: SimV2Request): SimV2Response {
     downside,
     costs,
     diffAttribution,
-    stresses
+    stresses,
+    
+    // NEW: Multi-horizon analysis
+    multi
   };
 }
