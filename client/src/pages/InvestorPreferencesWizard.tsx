@@ -4395,8 +4395,40 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
             {/* Continue to Actions Button */}
             <div className="text-center pt-8 pb-4">
               <Button 
-                onClick={() => {
-                  setActiveMainTab('action');
+                onClick={async () => {
+                  if (!targetData?.targetMix || !profileData?.investorName) {
+                    console.error('Missing required data for saving recommendations');
+                    return;
+                  }
+
+                  try {
+                    // Save the recommended portfolio allocations
+                    const response = await fetch('/api/investors/recommended-portfolio', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        userId: userId,
+                        investorName: profileData.investorName,
+                        targetMix: targetData.targetMix
+                      }),
+                    });
+
+                    if (!response.ok) {
+                      throw new Error('Failed to save recommended portfolio');
+                    }
+
+                    const result = await response.json();
+                    console.log('Recommended portfolio saved:', result);
+
+                    // Navigate to Action Plan tab
+                    setActiveMainTab('action');
+                  } catch (error) {
+                    console.error('Error saving recommended portfolio:', error);
+                    // Still navigate even if save fails
+                    setActiveMainTab('action');
+                  }
                 }}
                 className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
               >

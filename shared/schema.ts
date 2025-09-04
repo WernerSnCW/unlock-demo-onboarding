@@ -48,6 +48,9 @@ export const investorPreferences = pgTable("investor_preferences", {
   actualPortfolioValue: numeric("actual_portfolio_value"), // User's actual portfolio value in GBP
   actualPortfolioAllocations: text("actual_portfolio_allocations"), // JSON string of actual allocation percentages
   actualPortfolioCompletedAt: timestamp("actual_portfolio_completed_at"), // When actual portfolio was saved
+  // Recommended portfolio fields
+  recommendedPortfolioAllocations: text("recommended_portfolio_allocations"), // JSON string of target allocation percentages from recommendation engine
+  recommendedPortfolioCompletedAt: timestamp("recommended_portfolio_completed_at"), // When recommendations were saved to Actions
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 

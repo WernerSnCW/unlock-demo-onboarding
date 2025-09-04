@@ -448,6 +448,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Recommended portfolio endpoint - saves user's recommended portfolio allocation from targetMix
+  app.post('/api/investors/recommended-portfolio', async (req, res) => {
+    try {
+      console.log('Received recommended portfolio data:', req.body);
+      const { userId, investorName, targetMix } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+
+      if (!investorName) {
+        return res.status(400).json({ message: 'Investor name is required' });
+      }
+
+      if (!targetMix) {
+        return res.status(400).json({ message: 'Target allocation mix is required' });
+      }
+
+      // Use the provided userId to update existing record
+      const dataToSave = {
+        userId,
+        investorName,
+        recommendedPortfolioAllocations: JSON.stringify(targetMix),
+        recommendedPortfolioCompletedAt: new Date(),
+        completionMethod: 'manual'
+      };
+      
+      console.log('Recommended portfolio data to save:', dataToSave);
+      
+      const preferences = await storage.upsertInvestorPreferences(dataToSave);
+      res.json({ 
+        success: true, 
+        userId,
+        preferences,
+        message: `Recommended portfolio saved successfully for ${investorName}` 
+      });
+    } catch (error) {
+      console.error('Recommended portfolio save error:', error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid recommended portfolio data', errors: error });
+      }
+      res.status(500).json({ message: 'Failed to save recommended portfolio' });
+    }
+  });
+
   // Portfolio Target Generation API endpoint
   app.post('/api/target', async (req, res) => {
     try {
