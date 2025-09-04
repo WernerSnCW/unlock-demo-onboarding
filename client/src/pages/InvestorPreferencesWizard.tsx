@@ -143,6 +143,7 @@ export default function InvestorPreferencesWizard() {
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isAutoCompleted, setIsAutoCompleted] = useState<boolean>(false);
   const [showBeliefQuestionnaire, setShowBeliefQuestionnaire] = useState<boolean>(false);
+  const [userId] = useState<string>(() => `demo-${Date.now()}`);
   const { toast } = useToast();
 
   // Form for investor name
@@ -831,33 +832,7 @@ export default function InvestorPreferencesWizard() {
 
             {/* Tab Content: Investment Strategy */}
             <TabsContent value="strategy">
-              <div className="max-w-4xl mx-auto px-6 py-8">
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-2xl">
-                      <TrendingUp className="w-6 h-6 text-[var(--primary)]" />
-                      Portfolio Recommendations
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Develop a personalized investment strategy based on your profile.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <TrendingUp className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
-                      <p className="text-[var(--muted-foreground)] mb-6">
-                        Get personalized investment strategy recommendations tailored to your preferences and risk profile.
-                      </p>
-                      <Button variant="outline" disabled>
-                        Build Strategy
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <PortfolioRecommendations userId={userId} />
             </TabsContent>
 
             {/* Tab Content: Action Plan */}
@@ -3067,5 +3042,350 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// Portfolio Recommendations Component
+interface PortfolioRecommendationsProps {
+  userId: string;
+}
+
+interface TargetResponse {
+  personaId: string;
+  scenarioWeights: Record<string, number>;
+  tiltStrength: number;
+  baseMix: Record<string, number>;
+  scenarioBlend: Record<string, number>;
+  preRulesMix: Record<string, number>;
+  targetMix: Record<string, number>;
+  flags: string[];
+  adjustments: string[];
+}
+
+function PortfolioRecommendations({ userId }: PortfolioRecommendationsProps) {
+  const [targetData, setTargetData] = useState<TargetResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Get investor preferences to extract persona and scenario weights
+  const [investorPrefs, setInvestorPrefs] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const response = await fetch(`/api/investors/${userId}/preferences`);
+        if (response.ok) {
+          const prefs = await response.json();
+          setInvestorPrefs(prefs);
+        }
+      } catch (error) {
+        console.error('Failed to fetch investor preferences:', error);
+      }
+    };
+    
+    if (userId) {
+      fetchPreferences();
+    }
+  }, [userId]);
+
+  const generateRecommendations = async () => {
+    if (!investorPrefs?.detectedPersona) {
+      toast({
+        title: "Missing Profile Data",
+        description: "Please complete your investor profile first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Parse belief answers to get scenario weights
+      const beliefAnswers = investorPrefs.beliefAnswers ? JSON.parse(investorPrefs.beliefAnswers) : [];
+      const scenarioWeights: Record<string, number> = {};
+      
+      // Extract scenario weights from belief answers
+      beliefAnswers.forEach((answer: any) => {
+        if (answer.scenarios) {
+          Object.entries(answer.scenarios).forEach(([scenario, weight]) => {
+            scenarioWeights[scenario] = (scenarioWeights[scenario] || 0) + (weight as number);
+          });
+        }
+      });
+
+      // Normalize scenario weights
+      const totalWeight = Object.values(scenarioWeights).reduce((sum, weight) => sum + weight, 0);
+      if (totalWeight > 0) {
+        Object.keys(scenarioWeights).forEach(scenario => {
+          scenarioWeights[scenario] = scenarioWeights[scenario] / totalWeight;
+        });
+      }
+
+      const requestData = {
+        personaId: investorPrefs.detectedPersona,
+        scenarioWeights: scenarioWeights,
+        tiltStrength: 0.35,
+        riskProfile: investorPrefs.riskBand || "Moderate",
+        drawdownCap: 0.20
+      };
+
+      const response = await fetch('/api/target', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate recommendations: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      setTargetData(result);
+      
+      toast({
+        title: "Recommendations Generated",
+        description: "Your personalized portfolio recommendations are ready!",
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate recommendations';
+      setError(errorMessage);
+      toast({
+        title: "Generation Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatBucketName = (bucket: string) => {
+    return bucket.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${(value * 100).toFixed(1)}%`;
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8">
+      <Card className="border-0 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <TrendingUp className="w-6 h-6 text-[var(--primary)]" />
+            Portfolio Recommendations
+          </CardTitle>
+          <CardDescription className="text-base">
+            AI-powered portfolio allocation based on your investment profile and market beliefs.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!targetData && !loading && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Portfolio Recommendations</h3>
+              <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
+                Get a sophisticated portfolio allocation that combines your investor profile with your economic beliefs and professional house rules.
+              </p>
+              <Button 
+                onClick={generateRecommendations}
+                disabled={loading || !investorPrefs?.detectedPersona}
+                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Generate Recommendations
+              </Button>
+            </div>
+          )}
+
+          {loading && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generating Recommendations</h3>
+              <p className="text-[var(--muted-foreground)] mb-6">
+                Analyzing your profile and market beliefs to create your optimal portfolio allocation...
+              </p>
+              <div className="w-64 mx-auto">
+                <Progress value={undefined} className="h-2" />
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">Generation Failed</h3>
+              <p className="text-[var(--muted-foreground)] mb-6">{error}</p>
+              <Button 
+                onClick={generateRecommendations}
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          )}
+
+          {targetData && (
+            <div className="space-y-8">
+              {/* Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-200 text-sm">Investor Profile</h4>
+                  <p className="text-xl font-bold text-blue-700 dark:text-blue-300">{targetData.personaId}</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Based on your quiz results</p>
+                </div>
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <h4 className="font-semibold text-green-900 dark:text-green-200 text-sm">Tilt Strength</h4>
+                  <p className="text-xl font-bold text-green-700 dark:text-green-300">{(targetData.tiltStrength * 100).toFixed(0)}%</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">Scenario influence on allocation</p>
+                </div>
+                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <h4 className="font-semibold text-purple-900 dark:text-purple-200 text-sm">Adjustments</h4>
+                  <p className="text-xl font-bold text-purple-700 dark:text-purple-300">{targetData.adjustments.length}</p>
+                  <p className="text-xs text-purple-600 dark:text-purple-400">House rules applied</p>
+                </div>
+              </div>
+
+              {/* Target Portfolio Chart */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">Recommended Portfolio Allocation</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={Object.entries(targetData.targetMix)
+                          .filter(([, value]) => value > 0.001)
+                          .map(([bucket, value]) => ({
+                            name: formatBucketName(bucket),
+                            value: value * 100,
+                            bucket
+                          }))
+                        }
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value.toFixed(1)}%`}
+                      >
+                        {Object.entries(targetData.targetMix)
+                          .filter(([, value]) => value > 0.001)
+                          .map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
+                          ))
+                        }
+                      </Pie>
+                      <RechartsTooltip formatter={(value: any) => [`${value.toFixed(1)}%`, 'Allocation']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Portfolio Breakdown Table */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">Detailed Allocation Breakdown</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        <th className="text-left p-3 font-semibold text-[var(--foreground)]">Asset Class</th>
+                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">Base %</th>
+                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">Scenario Blend %</th>
+                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">Final Target %</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(targetData.targetMix)
+                        .filter(([, value]) => value > 0.001)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([bucket, target]) => (
+                          <tr key={bucket} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
+                            <td className="p-3 font-medium text-[var(--foreground)]">
+                              {formatBucketName(bucket)}
+                            </td>
+                            <td className="p-3 text-right text-[var(--muted-foreground)]">
+                              {formatPercentage(targetData.baseMix[bucket] || 0)}
+                            </td>
+                            <td className="p-3 text-right text-[var(--muted-foreground)]">
+                              {formatPercentage(targetData.scenarioBlend[bucket] || 0)}
+                            </td>
+                            <td className="p-3 text-right font-semibold text-[var(--foreground)]">
+                              {formatPercentage(target)}
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Flags and Adjustments */}
+              {(targetData.flags.length > 0 || targetData.adjustments.length > 0) && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Strategic Commentary</h3>
+                  
+                  {targetData.flags.length > 0 && (
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2 flex items-center">
+                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        Portfolio Flags
+                      </h4>
+                      <ul className="space-y-1">
+                        {targetData.flags.map((flag, index) => (
+                          <li key={index} className="text-sm text-yellow-800 dark:text-yellow-300">
+                            • {flag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {targetData.adjustments.length > 0 && (
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center">
+                        <Shield className="w-4 h-4 mr-2" />
+                        House Rules Applied
+                      </h4>
+                      <ul className="space-y-1">
+                        {targetData.adjustments.map((adjustment, index) => (
+                          <li key={index} className="text-sm text-blue-800 dark:text-blue-300">
+                            • {adjustment}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Regenerate Button */}
+              <div className="text-center pt-6">
+                <Button 
+                  onClick={generateRecommendations}
+                  variant="outline"
+                  className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Regenerate Recommendations
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
