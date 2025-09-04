@@ -3060,6 +3060,12 @@ interface TargetResponse {
   targetMix: Record<string, number>;
   flags: string[];
   adjustments: string[];
+  narrative?: {
+    overview: string;
+    bullets: string[];
+    topAdds: { bucket: string; pp: number }[];
+    topTrims: { bucket: string; pp: number }[];
+  };
 }
 
 function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendationsProps) {
@@ -3367,16 +3373,28 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
           )}
 
           {targetData && (
-            <div className="space-y-8">
-              {/* Economic Scenarios Section */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
-                  <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
-                    {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
-                  </p>
-                </div>
+            <Tabs defaultValue="recommendations" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="recommendations" className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Recommendations
+                </TabsTrigger>
+                <TabsTrigger value="simulation" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Simulation
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="recommendations" className="space-y-8 mt-6">
+                {/* Economic Scenarios Section */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
+                    <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
+                      {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
+                    </p>
+                  </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(targetData.scenarioWeights)
                     .filter(([, weight]) => weight > 0)
@@ -3632,18 +3650,35 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 )}
               </div>
 
-              {/* Regenerate Button */}
-              <div className="text-center pt-6">
-                <Button 
-                  onClick={generateRecommendations}
-                  variant="outline"
-                  className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Regenerate Recommendations
-                </Button>
-              </div>
-            </div>
+                {/* Regenerate Button */}
+                <div className="text-center pt-6">
+                  <Button 
+                    onClick={generateRecommendations}
+                    variant="outline"
+                    className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Regenerate Recommendations
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="simulation" className="space-y-8 mt-6">
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <BarChart3 className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Portfolio Simulation</h3>
+                  <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
+                    Interactive portfolio simulation and stress testing capabilities will be available soon. Test your portfolio against various market scenarios and economic conditions.
+                  </p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--muted)] rounded-lg">
+                    <Sparkles className="w-4 h-4 text-[var(--muted-foreground)]" />
+                    <span className="text-sm text-[var(--muted-foreground)]">Coming Soon</span>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           )}
         </CardContent>
       </Card>
