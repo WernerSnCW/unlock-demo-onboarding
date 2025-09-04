@@ -4835,10 +4835,16 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           <Button
             variant={activeStage === 1 ? "default" : "outline"}
             onClick={() => setActiveStage(1)}
-            className="flex items-center gap-2"
+            className={`flex items-center gap-2 ${
+              activeStage === 1 
+                ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90' 
+                : 'text-[var(--foreground)] hover:text-[var(--foreground)] border-[var(--border)]'
+            }`}
           >
-            <Play className="w-4 h-4" />
-            Stage 1: Do Now ({actionsData.staged.stage1.length} actions)
+            <Play className={`w-4 h-4 ${activeStage === 1 ? 'text-white' : 'text-[var(--foreground)]'}`} />
+            <span className={activeStage === 1 ? 'text-white' : 'text-[var(--foreground)]'}>
+              Stage 1: Do Now ({actionsData.staged.stage1.length} actions)
+            </span>
           </Button>
           <Button
             variant={activeStage === 2 ? "default" : "outline"}
@@ -4846,11 +4852,13 @@ function ActionPlanComponent({ userId }: { userId: string }) {
             className={`flex items-center gap-2 ${
               activeStage === 2 
                 ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90' 
-                : ''
+                : 'text-[var(--foreground)] hover:text-[var(--foreground)] border-[var(--border)]'
             }`}
           >
-            <Pause className="w-4 h-4" />
-            Stage 2: Later ({actionsData.staged.stage2.length} actions)
+            <Pause className={`w-4 h-4 ${activeStage === 2 ? 'text-white' : 'text-[var(--foreground)]'}`} />
+            <span className={activeStage === 2 ? 'text-white' : 'text-[var(--foreground)]'}>
+              Stage 2: Later ({actionsData.staged.stage2.length} actions)
+            </span>
           </Button>
         </div>
         
