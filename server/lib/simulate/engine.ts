@@ -51,22 +51,11 @@ export function simulate(req: SimRequest): SimResponse {
   const scenW = normalise(req.scenarioWeights);
 
   // 1) Blend shocks across scenarios
-  console.log('Scenario weights:', scenW);
-  console.log('Available scenarios in SCENARIO_SHOCKS:', Object.keys(SCENARIO_SHOCKS));
-  
   const blended: Record<Bucket, number> = harmonise({});
   for (const [sid, w] of Object.entries(scenW)) {
-    const sv = SCENARIO_SHOCKS[sid]; 
-    console.log(`Processing scenario ${sid} with weight ${w}:`, sv);
-    if (!sv || w <= 0) continue;
-    for (const [bk, r] of Object.entries(sv)) {
-      const contribution = (r as number) * w * shockMult;
-      blended[bk as Bucket] += contribution;
-      console.log(`  ${bk}: ${r} * ${w} * ${shockMult} = ${contribution}`);
-    }
+    const sv = SCENARIO_SHOCKS[sid]; if (!sv || w <= 0) continue;
+    for (const [bk, r] of Object.entries(sv)) blended[bk as Bucket] += (r as number) * w * shockMult;
   }
-  
-  console.log('Final blended shocks:', blended);
 
   // 2) Portfolio returns (dot product) and contributions
   const cur = harmonise(req.currentMix);
