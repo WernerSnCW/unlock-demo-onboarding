@@ -3062,7 +3062,7 @@ interface TargetResponse {
   adjustments: string[];
 }
 
-function PortfolioRecommendations({ userId }: PortfolioRecommendationsProps) {
+function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendationsProps) {
   const [targetData, setTargetData] = useState<TargetResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -3070,11 +3070,33 @@ function PortfolioRecommendations({ userId }: PortfolioRecommendationsProps) {
 
   // Get investor preferences to extract persona and scenario weights
   const [investorPrefs, setInvestorPrefs] = useState<any>(null);
+  const [actualUserId, setActualUserId] = useState<string | null>(null);
+
+  // Get the correct userId from localStorage
+  useEffect(() => {
+    const getUserId = () => {
+      try {
+        const storedQuizData = localStorage.getItem('investorQuizData');
+        if (storedQuizData) {
+          const quizData = JSON.parse(storedQuizData);
+          return quizData.userId;
+        }
+      } catch (error) {
+        console.error('Failed to parse quiz data:', error);
+      }
+      return propUserId; // fallback to prop userId
+    };
+
+    const userId = getUserId();
+    setActualUserId(userId);
+  }, [propUserId]);
 
   useEffect(() => {
     const fetchPreferences = async () => {
+      if (!actualUserId) return;
+      
       try {
-        const response = await fetch(`/api/investors/${userId}/preferences`);
+        const response = await fetch(`/api/investors/${actualUserId}/preferences`);
         if (response.ok) {
           const prefs = await response.json();
           setInvestorPrefs(prefs);
@@ -3084,10 +3106,8 @@ function PortfolioRecommendations({ userId }: PortfolioRecommendationsProps) {
       }
     };
     
-    if (userId) {
-      fetchPreferences();
-    }
-  }, [userId]);
+    fetchPreferences();
+  }, [actualUserId]);
 
   const generateRecommendations = async () => {
     if (!investorPrefs?.detectedPersona) {
