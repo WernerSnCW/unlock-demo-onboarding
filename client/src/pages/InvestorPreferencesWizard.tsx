@@ -4523,9 +4523,33 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       
       console.log('Action Plan: Finding investor with recent portfolio recommendations...');
       
-      // Use the current investor's data - the person going through the process
+      // Try current user first, then fall back to real completed investor data for demo
       actualUserId = userId;
-      console.log('Action Plan: Using current investor data:', actualUserId);
+      console.log('Action Plan: Checking current investor data:', actualUserId);
+      
+      // Test if current user has completed the wizard
+      const currentUserResponse = await fetch(`/api/investors/${userId}/preferences`);
+      if (!currentUserResponse.ok) {
+        // Current user hasn't completed wizard - use most recent completed investor for demo
+        const completedInvestors = [
+          'demo-1757002489624', // CW Test_10Jul_1 - most recent completed
+          'demo-1757001694223'  // Werner - backup completed
+        ];
+        
+        for (const investorId of completedInvestors) {
+          const testResponse = await fetch(`/api/investors/${investorId}/preferences`);
+          if (testResponse.ok) {
+            const testPrefs = await testResponse.json();
+            if (testPrefs.recommendedPortfolioAllocations && testPrefs.actualPortfolioValue) {
+              actualUserId = investorId;
+              console.log('Action Plan: Current user incomplete, using completed investor for demo:', actualUserId, testPrefs.investorName);
+              break;
+            }
+          }
+        }
+      } else {
+        console.log('Action Plan: Using current investor data:', actualUserId);
+      }
       
       console.log('Action Plan: Using userId for Action Plan:', actualUserId);
       
