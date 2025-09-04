@@ -190,6 +190,10 @@ export class DatabaseStorage implements IStorage {
           ...(prefs.selectedScenarios !== undefined && { selectedScenarios: prefs.selectedScenarios }),
           ...(prefs.scenarioWeights !== undefined && { scenarioWeights: prefs.scenarioWeights }),
           ...(prefs.beliefsCompletedAt !== undefined && { beliefsCompletedAt: prefs.beliefsCompletedAt }),
+          // Actual portfolio fields
+          ...(prefs.actualPortfolioValue !== undefined && { actualPortfolioValue: prefs.actualPortfolioValue }),
+          ...(prefs.actualPortfolioAllocations !== undefined && { actualPortfolioAllocations: prefs.actualPortfolioAllocations }),
+          ...(prefs.actualPortfolioCompletedAt !== undefined && { actualPortfolioCompletedAt: prefs.actualPortfolioCompletedAt }),
         }
       })
       .returning();
