@@ -4657,12 +4657,56 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           targetMix = JSON.parse(preferences.recommendedPortfolioAllocations);
           hasRealData = true;
           console.log('Action Plan: Using saved target mix:', targetMix);
+          
+          // CRITICAL: Use the actualPortfolioValue from preferences if available
+          if (preferences.actualPortfolioValue) {
+            portfolioValue = parseFloat(preferences.actualPortfolioValue);
+            console.log('Action Plan: Using actualPortfolioValue from preferences:', portfolioValue);
+            
+            // Also override the stored portfolio data to indicate we have real data
+            window.actionPlanPortfolioData = {
+              portfolioHoldings: [],
+              properties: [],
+              alternatives: [],
+              totalValue: portfolioValue,
+              hasRealData: true,
+              actualPortfolioAllocations: preferences.actualPortfolioAllocations
+            };
+          }
         }
       }
       
       // Calculate actual current portfolio mix from real data
       const calculateCurrentMix = (portfolioData: any) => {
-        const { portfolioHoldings, properties, alternatives, totalValue, hasRealData } = portfolioData;
+        const { portfolioHoldings, properties, alternatives, totalValue, hasRealData, actualPortfolioAllocations } = portfolioData;
+        
+        // If we have actualPortfolioAllocations from preferences, use those
+        if (hasRealData && actualPortfolioAllocations) {
+          console.log('Action Plan: Using actualPortfolioAllocations from preferences');
+          const allocations = JSON.parse(actualPortfolioAllocations);
+          
+          // Convert percentages to decimals and map to canonical buckets
+          const currentMix = {
+            CASH: parseFloat(allocations.cashFixedIncome || '0') / 100,
+            BILLS_SHORT_GILTS: 0, // Not in Werner's categories
+            GILTS_LONG: 0, // Not in Werner's categories  
+            IG_CREDIT: 0, // Not in Werner's categories
+            GLOBAL_EQUITY: parseFloat(allocations.globalEquity || '0') / 100,
+            UK_EQUITY_VALUE: 0, // Not in Werner's categories
+            GROWTH_TECH: parseFloat(allocations.techGrowth || '0') / 100,
+            PROPERTY_UK_RESI: parseFloat(allocations.property || '0') / 100,
+            COMMODITIES: parseFloat(allocations.commoditiesGold || '0') / 100,
+            GOLD: 0, // Commodities includes gold in Werner's data
+            ALTERNATIVES: parseFloat(allocations.alternatives || '0') / 100,
+            CRYPTO_BTC: parseFloat(allocations.cryptocurrency || '0') / 100,
+            CRYPTO_ETH: 0, // All crypto in one bucket for Werner
+            COLLECTIBLES_ART: parseFloat(allocations.collectibles || '0') / 100,
+            COLLECTIBLES_WINE: 0 // All collectibles in one bucket for Werner
+          };
+          
+          console.log('Action Plan: Calculated current mix from preferences:', currentMix);
+          return currentMix;
+        }
         
         if (!hasRealData || totalValue === 0) {
           // Use varied demo current portfolios to show different gaps
