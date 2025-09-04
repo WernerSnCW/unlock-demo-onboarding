@@ -373,6 +373,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Portfolio Target Generation API endpoint
+  app.post('/api/target', async (req, res) => {
+    try {
+      const { buildTarget } = await import('./lib/recommend/targetEngine');
+      const targetRequest = req.body;
+      
+      // Validate required fields
+      if (!targetRequest.personaId) {
+        return res.status(400).json({ message: 'personaId is required' });
+      }
+      
+      const result = buildTarget(targetRequest);
+      res.json(result);
+      
+    } catch (error) {
+      console.error('Target generation error:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate target portfolio',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Enhanced Gap Analysis endpoint - compares current vs target portfolio allocation with belief alignment
   app.post('/api/gap', async (req, res) => {
     try {
