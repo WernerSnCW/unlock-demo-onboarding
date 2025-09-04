@@ -2207,15 +2207,27 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 
   // Function to get recommended allocation from persona
   const getRecommendedAllocation = (persona: any) => {
+    // Default empty allocation structure
+    const emptyAllocation = {
+      cashFixedIncome: '0',
+      globalEquity: '0',
+      techGrowth: '0',
+      property: '0',
+      commoditiesGold: '0',
+      alternatives: '0',
+      cryptocurrency: '0',
+      collectibles: '0'
+    };
+
     if (!persona?.code) {
       console.log('No persona code found');
-      return {};
+      return emptyAllocation;
     }
 
     const defaults = PERSONA_DEFAULTS[persona.code];
     if (!defaults) {
       console.log('No defaults found for persona code:', persona.code);
-      return {};
+      return emptyAllocation;
     }
 
     // Map PERSONA_DEFAULTS structure to form fields and convert to percentages
@@ -2343,11 +2355,19 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
                 onClick={() => {
                   // Auto-populate with recommended allocation
                   const recommended = getRecommendedAllocation(matchedPersona);
-                  setAllocations(recommended);
-                  toast({
-                    title: "Form Auto-Populated",
-                    description: "Filled with your recommended portfolio allocation.",
-                  });
+                  if (Object.keys(recommended).length > 0) {
+                    setAllocations(recommended);
+                    toast({
+                      title: "Form Auto-Populated",
+                      description: "Filled with your recommended portfolio allocation.",
+                    });
+                  } else {
+                    toast({
+                      title: "Error",
+                      description: "Unable to load recommended allocation. Please check your persona data.",
+                      variant: "destructive"
+                    });
+                  }
                 }}
                 className="text-xs"
               >
