@@ -4518,13 +4518,36 @@ function ActionPlanComponent({ userId }: { userId: string }) {
     setError(null);
     
     try {
-      console.log('Action Plan: Fetching preferences for userId:', userId);
+      // First try to find the most recent investor who completed portfolio recommendations
+      let actualUserId = userId;
+      
+      console.log('Action Plan: Finding investor with recent portfolio recommendations...');
+      
+      // Try to find an investor with saved recommendations (they just completed the wizard)
+      const searchResponse = await fetch('/api/investors');
+      if (searchResponse.ok) {
+        const allInvestors = await searchResponse.json();
+        
+        // Find the most recent investor with completed portfolio recommendations
+        const recentInvestor = allInvestors
+          .filter((inv: any) => inv.recommendedPortfolioAllocations && inv.recommendedPortfolioCompletedAt)
+          .sort((a: any, b: any) => new Date(b.recommendedPortfolioCompletedAt).getTime() - new Date(a.recommendedPortfolioCompletedAt).getTime())[0];
+        
+        if (recentInvestor) {
+          actualUserId = recentInvestor.userId;
+          console.log('Action Plan: Found recent investor with recommendations:', actualUserId, recentInvestor.investorName);
+        } else {
+          console.log('Action Plan: No recent investor with recommendations found, using current userId:', userId);
+        }
+      }
+      
+      console.log('Action Plan: Using userId for Action Plan:', actualUserId);
       
       // Fetch portfolio data to calculate actual portfolio value
       const [portfolioResponse, propertiesResponse, alternativesResponse] = await Promise.all([
-        fetch(`/api/investors/${userId}/portfolio-holdings`),
-        fetch(`/api/properties/${userId}`),
-        fetch(`/api/alternatives/${userId}`)
+        fetch(`/api/investors/${actualUserId}/portfolio-holdings`),
+        fetch(`/api/properties/${actualUserId}`),
+        fetch(`/api/alternatives/${actualUserId}`)
       ]);
       
       let portfolioValue = 100000; // Default fallback if no data
@@ -4577,7 +4600,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       }
       
       // Fetch investor preferences to get recommended portfolio
-      const prefsResponse = await fetch(`/api/investors/${userId}/preferences`);
+      const prefsResponse = await fetch(`/api/investors/${actualUserId}/preferences`);
       console.log('Action Plan: Preferences response status:', prefsResponse.status);
       
       let targetMix;
