@@ -3500,10 +3500,54 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-[var(--border)]">
-                        <th className="text-left p-3 font-semibold text-[var(--foreground)]">Asset Class</th>
-                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">Base %</th>
-                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">Scenario Blend %</th>
-                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">Final Target %</th>
+                        <th className="text-left p-3 font-semibold text-[var(--foreground)]">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-help underline decoration-dotted">
+                                Asset Class
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Investment categories such as equities, bonds, property, and alternatives</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </th>
+                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-help underline decoration-dotted">
+                                Base %
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Starting allocation based on your investor persona before any adjustments</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </th>
+                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-help underline decoration-dotted">
+                                Scenario Blend %
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Allocation tilted towards your selected economic scenarios and beliefs</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </th>
+                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-help underline decoration-dotted">
+                                Final Target %
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Recommended allocation after applying professional house rules and constraints</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
