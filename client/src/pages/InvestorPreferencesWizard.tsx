@@ -4525,77 +4525,117 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       console.log('Action Plan: Preferences response status:', prefsResponse.status);
       
       let targetMix;
+      let hasRealData = false;
       
       if (!prefsResponse.ok) {
         console.log('Action Plan: No preferences found, using demo target portfolio');
-        // Use demo target portfolio for BTL Mogul persona (property-focused)
-        targetMix = {
-          CASH: 0.077,
-          BILLS_SHORT_GILTS: 0.113,
-          GILTS_LONG: 0.033,
-          IG_CREDIT: 0.111,
-          GLOBAL_EQUITY: 0.294,
-          UK_EQUITY_VALUE: 0.106,
-          GROWTH_TECH: 0.046,
-          PROPERTY_UK_RESI: 0.061,
-          COMMODITIES: 0.042,
-          GOLD: 0.057,
-          ALTERNATIVES: 0.020,
-          CRYPTO_BTC: 0.000,
-          CRYPTO_ETH: 0.000,
-          COLLECTIBLES_ART: 0.035,
-          COLLECTIBLES_WINE: 0.005
-        };
+        // Use varied demo based on random selection to show different results
+        const demoPortfolios = [
+          // BTL Mogul (property-focused)
+          {
+            CASH: 0.077, BILLS_SHORT_GILTS: 0.113, GILTS_LONG: 0.033, IG_CREDIT: 0.111,
+            GLOBAL_EQUITY: 0.294, UK_EQUITY_VALUE: 0.106, GROWTH_TECH: 0.046, PROPERTY_UK_RESI: 0.061,
+            COMMODITIES: 0.042, GOLD: 0.057, ALTERNATIVES: 0.020, CRYPTO_BTC: 0.000,
+            CRYPTO_ETH: 0.000, COLLECTIBLES_ART: 0.035, COLLECTIBLES_WINE: 0.005
+          },
+          // Tech Worker (growth-focused)
+          {
+            CASH: 0.050, BILLS_SHORT_GILTS: 0.080, GILTS_LONG: 0.020, IG_CREDIT: 0.100,
+            GLOBAL_EQUITY: 0.400, UK_EQUITY_VALUE: 0.150, GROWTH_TECH: 0.120, PROPERTY_UK_RESI: 0.030,
+            COMMODITIES: 0.025, GOLD: 0.015, ALTERNATIVES: 0.010, CRYPTO_BTC: 0.000,
+            CRYPTO_ETH: 0.000, COLLECTIBLES_ART: 0.000, COLLECTIBLES_WINE: 0.000
+          },
+          // Conservative Saver (bonds-focused)
+          {
+            CASH: 0.200, BILLS_SHORT_GILTS: 0.250, GILTS_LONG: 0.150, IG_CREDIT: 0.200,
+            GLOBAL_EQUITY: 0.150, UK_EQUITY_VALUE: 0.050, GROWTH_TECH: 0.000, PROPERTY_UK_RESI: 0.000,
+            COMMODITIES: 0.000, GOLD: 0.000, ALTERNATIVES: 0.000, CRYPTO_BTC: 0.000,
+            CRYPTO_ETH: 0.000, COLLECTIBLES_ART: 0.000, COLLECTIBLES_WINE: 0.000
+          }
+        ];
+        targetMix = demoPortfolios[Math.floor(Math.random() * demoPortfolios.length)];
       } else {
         const preferences = await prefsResponse.json();
         console.log('Action Plan: Fetched preferences:', preferences);
         
         if (!preferences.recommendedPortfolioAllocations) {
           console.log('Action Plan: No saved recommendations, using demo target portfolio');
-          // Use demo target portfolio
-          targetMix = {
-            CASH: 0.077,
-            BILLS_SHORT_GILTS: 0.113,
-            GILTS_LONG: 0.033,
-            IG_CREDIT: 0.111,
-            GLOBAL_EQUITY: 0.294,
-            UK_EQUITY_VALUE: 0.106,
-            GROWTH_TECH: 0.046,
-            PROPERTY_UK_RESI: 0.061,
-            COMMODITIES: 0.042,
-            GOLD: 0.057,
-            ALTERNATIVES: 0.020,
-            CRYPTO_BTC: 0.000,
-            CRYPTO_ETH: 0.000,
-            COLLECTIBLES_ART: 0.035,
-            COLLECTIBLES_WINE: 0.005
-          };
+          // Use varied demo portfolio
+          const demoPortfolios = [
+            // BTL Mogul (property-focused)
+            {
+              CASH: 0.077, BILLS_SHORT_GILTS: 0.113, GILTS_LONG: 0.033, IG_CREDIT: 0.111,
+              GLOBAL_EQUITY: 0.294, UK_EQUITY_VALUE: 0.106, GROWTH_TECH: 0.046, PROPERTY_UK_RESI: 0.061,
+              COMMODITIES: 0.042, GOLD: 0.057, ALTERNATIVES: 0.020, CRYPTO_BTC: 0.000,
+              CRYPTO_ETH: 0.000, COLLECTIBLES_ART: 0.035, COLLECTIBLES_WINE: 0.005
+            },
+            // Tech Worker (growth-focused)
+            {
+              CASH: 0.050, BILLS_SHORT_GILTS: 0.080, GILTS_LONG: 0.020, IG_CREDIT: 0.100,
+              GLOBAL_EQUITY: 0.400, UK_EQUITY_VALUE: 0.150, GROWTH_TECH: 0.120, PROPERTY_UK_RESI: 0.030,
+              COMMODITIES: 0.025, GOLD: 0.015, ALTERNATIVES: 0.010, CRYPTO_BTC: 0.000,
+              CRYPTO_ETH: 0.000, COLLECTIBLES_ART: 0.000, COLLECTIBLES_WINE: 0.000
+            }
+          ];
+          targetMix = demoPortfolios[Math.floor(Math.random() * demoPortfolios.length)];
         } else {
           // Parse the saved recommended portfolio
           targetMix = JSON.parse(preferences.recommendedPortfolioAllocations);
+          hasRealData = true;
           console.log('Action Plan: Using saved target mix:', targetMix);
         }
       }
       
-      // For demo purposes, create a mock current portfolio
+      // Create varied current portfolio based on whether we have real data
       // In a real app, this would come from actual portfolio holdings
-      const currentMix = {
-        CASH: 0.15,
-        BILLS_SHORT_GILTS: 0.05,
-        GILTS_LONG: 0.05,
-        IG_CREDIT: 0.10,
-        GLOBAL_EQUITY: 0.25,
-        UK_EQUITY_VALUE: 0.15,
-        GROWTH_TECH: 0.10,
-        PROPERTY_UK_RESI: 0.08,
-        COMMODITIES: 0.03,
-        GOLD: 0.02,
-        ALTERNATIVES: 0.01,
-        CRYPTO_BTC: 0.01,
-        CRYPTO_ETH: 0.00,
-        COLLECTIBLES_ART: 0.00,
-        COLLECTIBLES_WINE: 0.00
-      };
+      let currentMix;
+      
+      if (hasRealData) {
+        // Use a realistic starting portfolio that differs meaningfully from target
+        currentMix = {
+          CASH: 0.20,  // Higher cash than most targets
+          BILLS_SHORT_GILTS: 0.10,
+          GILTS_LONG: 0.05,
+          IG_CREDIT: 0.15,
+          GLOBAL_EQUITY: 0.30,
+          UK_EQUITY_VALUE: 0.12,
+          GROWTH_TECH: 0.05,
+          PROPERTY_UK_RESI: 0.03,
+          COMMODITIES: 0.00,
+          GOLD: 0.00,
+          ALTERNATIVES: 0.00,
+          CRYPTO_BTC: 0.00,
+          CRYPTO_ETH: 0.00,
+          COLLECTIBLES_ART: 0.00,
+          COLLECTIBLES_WINE: 0.00
+        };
+      } else {
+        // Use varied demo current portfolios to show different gaps
+        const demoCurrentPortfolios = [
+          // Conservative starting position
+          {
+            CASH: 0.25, BILLS_SHORT_GILTS: 0.15, GILTS_LONG: 0.10, IG_CREDIT: 0.20,
+            GLOBAL_EQUITY: 0.20, UK_EQUITY_VALUE: 0.10, GROWTH_TECH: 0.00, PROPERTY_UK_RESI: 0.00,
+            COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
+            CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+          },
+          // Equity-heavy starting position
+          {
+            CASH: 0.10, BILLS_SHORT_GILTS: 0.05, GILTS_LONG: 0.05, IG_CREDIT: 0.10,
+            GLOBAL_EQUITY: 0.40, UK_EQUITY_VALUE: 0.20, GROWTH_TECH: 0.08, PROPERTY_UK_RESI: 0.02,
+            COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
+            CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+          },
+          // Balanced starting position  
+          {
+            CASH: 0.15, BILLS_SHORT_GILTS: 0.10, GILTS_LONG: 0.08, IG_CREDIT: 0.15,
+            GLOBAL_EQUITY: 0.25, UK_EQUITY_VALUE: 0.15, GROWTH_TECH: 0.07, PROPERTY_UK_RESI: 0.05,
+            COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
+            CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+          }
+        ];
+        currentMix = demoCurrentPortfolios[Math.floor(Math.random() * demoCurrentPortfolios.length)];
+      }
 
       // Call the Actions API
       console.log('Action Plan: Calling Actions API with:', {
