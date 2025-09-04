@@ -3352,6 +3352,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         band: { low: 0.5, high: 1.5 }
       };
       
+      console.log('Simulation request:', simulationRequest);
+      
       const response = await fetch('/api/simulate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3380,7 +3382,6 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
   const convertToDetailedBuckets = (allocations: any) => {
     // Convert high-level allocations to detailed bucket allocations
-    // This is a simplified mapping - you can enhance based on your needs
     const detailed: Record<string, number> = {};
     const cashFixedIncome = parseFloat(allocations.cashFixedIncome || 0) / 100;
     const globalEquity = parseFloat(allocations.globalEquity || 0) / 100;
@@ -3391,11 +3392,14 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     const cryptocurrency = parseFloat(allocations.cryptocurrency || 0) / 100;
     const collectibles = parseFloat(allocations.collectibles || 0) / 100;
     
-    // Map to detailed buckets
-    detailed.CASH = cashFixedIncome * 0.4;
-    detailed.BILLS_SHORT_GILTS = cashFixedIncome * 0.4;
-    detailed.GILTS_LONG = cashFixedIncome * 0.2;
-    detailed.IG_CREDIT = cashFixedIncome * 0.0;
+    console.log('Converting allocations:', allocations);
+    console.log('Parsed values:', { cashFixedIncome, globalEquity, techGrowth, property, commoditiesGold, alternatives, cryptocurrency, collectibles });
+    
+    // Map to detailed buckets with better distribution
+    detailed.CASH = cashFixedIncome * 0.5;
+    detailed.BILLS_SHORT_GILTS = cashFixedIncome * 0.3;
+    detailed.GILTS_LONG = cashFixedIncome * 0.1;
+    detailed.IG_CREDIT = cashFixedIncome * 0.1;
     detailed.GLOBAL_EQUITY = globalEquity * 0.8;
     detailed.UK_EQUITY_VALUE = globalEquity * 0.2;
     detailed.GROWTH_TECH = techGrowth;
@@ -3407,6 +3411,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     detailed.CRYPTO_ETH = cryptocurrency * 0.4;
     detailed.COLLECTIBLES_ART = collectibles * 0.8;
     detailed.COLLECTIBLES_WINE = collectibles * 0.2;
+    
+    console.log('Converted to detailed buckets:', detailed);
+    
+    // Ensure values sum roughly to 1
+    const total = Object.values(detailed).reduce((sum, val) => sum + val, 0);
+    console.log('Total allocation:', total);
     
     return detailed;
   };
