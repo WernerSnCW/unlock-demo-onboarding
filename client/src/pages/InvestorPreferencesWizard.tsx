@@ -4553,9 +4553,27 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           portfolioValue = 350000; // Demo value (reduced from 500k for more realistic demo)
           console.log('Action Plan: Using demo portfolio value:', portfolioValue);
         }
+        
+        // Store the actual portfolio data for calculating current mix
+        window.actionPlanPortfolioData = {
+          portfolioHoldings,
+          properties,
+          alternatives,
+          totalValue,
+          hasRealData: totalValue > 0
+        };
       } else {
         portfolioValue = 350000; // Demo value for users without portfolio data
         console.log('Action Plan: Using fallback demo portfolio value:', portfolioValue);
+        
+        // No real data available
+        window.actionPlanPortfolioData = {
+          portfolioHoldings: [],
+          properties: [],
+          alternatives: [],
+          totalValue: 0,
+          hasRealData: false
+        };
       }
       
       // Fetch investor preferences to get recommended portfolio
@@ -4624,56 +4642,112 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         }
       }
       
-      // Create varied current portfolio based on whether we have real data
-      // In a real app, this would come from actual portfolio holdings
-      let currentMix;
-      
-      if (hasRealData) {
-        // Use a realistic starting portfolio that differs meaningfully from target
-        currentMix = {
-          CASH: 0.20,  // Higher cash than most targets
-          BILLS_SHORT_GILTS: 0.10,
-          GILTS_LONG: 0.05,
-          IG_CREDIT: 0.15,
-          GLOBAL_EQUITY: 0.30,
-          UK_EQUITY_VALUE: 0.12,
-          GROWTH_TECH: 0.05,
-          PROPERTY_UK_RESI: 0.03,
-          COMMODITIES: 0.00,
-          GOLD: 0.00,
-          ALTERNATIVES: 0.00,
-          CRYPTO_BTC: 0.00,
-          CRYPTO_ETH: 0.00,
-          COLLECTIBLES_ART: 0.00,
-          COLLECTIBLES_WINE: 0.00
+      // Calculate actual current portfolio mix from real data
+      const calculateCurrentMix = (portfolioData: any) => {
+        const { portfolioHoldings, properties, alternatives, totalValue, hasRealData } = portfolioData;
+        
+        if (!hasRealData || totalValue === 0) {
+          // Use varied demo current portfolios to show different gaps
+          const demoCurrentPortfolios = [
+            // Conservative starting position
+            {
+              CASH: 0.25, BILLS_SHORT_GILTS: 0.15, GILTS_LONG: 0.10, IG_CREDIT: 0.20,
+              GLOBAL_EQUITY: 0.20, UK_EQUITY_VALUE: 0.10, GROWTH_TECH: 0.00, PROPERTY_UK_RESI: 0.00,
+              COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
+              CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+            },
+            // Equity-heavy starting position
+            {
+              CASH: 0.10, BILLS_SHORT_GILTS: 0.05, GILTS_LONG: 0.05, IG_CREDIT: 0.10,
+              GLOBAL_EQUITY: 0.40, UK_EQUITY_VALUE: 0.20, GROWTH_TECH: 0.08, PROPERTY_UK_RESI: 0.02,
+              COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
+              CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+            },
+            // Balanced starting position  
+            {
+              CASH: 0.15, BILLS_SHORT_GILTS: 0.10, GILTS_LONG: 0.08, IG_CREDIT: 0.15,
+              GLOBAL_EQUITY: 0.25, UK_EQUITY_VALUE: 0.15, GROWTH_TECH: 0.07, PROPERTY_UK_RESI: 0.05,
+              COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
+              CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+            }
+          ];
+          return demoCurrentPortfolios[Math.floor(Math.random() * demoCurrentPortfolios.length)];
+        }
+        
+        // Calculate actual allocation from real holdings
+        const currentMix = {
+          CASH: 0, BILLS_SHORT_GILTS: 0, GILTS_LONG: 0, IG_CREDIT: 0,
+          GLOBAL_EQUITY: 0, UK_EQUITY_VALUE: 0, GROWTH_TECH: 0, PROPERTY_UK_RESI: 0,
+          COMMODITIES: 0, GOLD: 0, ALTERNATIVES: 0, CRYPTO_BTC: 0,
+          CRYPTO_ETH: 0, COLLECTIBLES_ART: 0, COLLECTIBLES_WINE: 0
         };
-      } else {
-        // Use varied demo current portfolios to show different gaps
-        const demoCurrentPortfolios = [
-          // Conservative starting position
-          {
-            CASH: 0.25, BILLS_SHORT_GILTS: 0.15, GILTS_LONG: 0.10, IG_CREDIT: 0.20,
-            GLOBAL_EQUITY: 0.20, UK_EQUITY_VALUE: 0.10, GROWTH_TECH: 0.00, PROPERTY_UK_RESI: 0.00,
-            COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
-            CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
-          },
-          // Equity-heavy starting position
-          {
-            CASH: 0.10, BILLS_SHORT_GILTS: 0.05, GILTS_LONG: 0.05, IG_CREDIT: 0.10,
-            GLOBAL_EQUITY: 0.40, UK_EQUITY_VALUE: 0.20, GROWTH_TECH: 0.08, PROPERTY_UK_RESI: 0.02,
-            COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
-            CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
-          },
-          // Balanced starting position  
-          {
-            CASH: 0.15, BILLS_SHORT_GILTS: 0.10, GILTS_LONG: 0.08, IG_CREDIT: 0.15,
-            GLOBAL_EQUITY: 0.25, UK_EQUITY_VALUE: 0.15, GROWTH_TECH: 0.07, PROPERTY_UK_RESI: 0.05,
-            COMMODITIES: 0.00, GOLD: 0.00, ALTERNATIVES: 0.00, CRYPTO_BTC: 0.00,
-            CRYPTO_ETH: 0.00, COLLECTIBLES_ART: 0.00, COLLECTIBLES_WINE: 0.00
+        
+        // Map portfolio holdings to asset buckets
+        portfolioHoldings.forEach((holding: any) => {
+          const value = parseFloat(holding.currentValueGbp || '0');
+          const percentage = value / totalValue;
+          const category = holding.category?.toLowerCase() || holding.assetType?.toLowerCase() || '';
+          
+          // Map holding categories to canonical buckets
+          if (category.includes('cash') || category.includes('money market')) {
+            currentMix.CASH += percentage;
+          } else if (category.includes('gilt') && (category.includes('short') || category.includes('bill'))) {
+            currentMix.BILLS_SHORT_GILTS += percentage;
+          } else if (category.includes('gilt') && category.includes('long')) {
+            currentMix.GILTS_LONG += percentage;
+          } else if (category.includes('credit') || category.includes('bond') || category.includes('fixed income')) {
+            currentMix.IG_CREDIT += percentage;
+          } else if (category.includes('equity') && category.includes('uk')) {
+            currentMix.UK_EQUITY_VALUE += percentage;
+          } else if (category.includes('tech') || category.includes('growth')) {
+            currentMix.GROWTH_TECH += percentage;
+          } else if (category.includes('property') || category.includes('reit') || category.includes('real estate')) {
+            currentMix.PROPERTY_UK_RESI += percentage;
+          } else if (category.includes('commodit')) {
+            currentMix.COMMODITIES += percentage;
+          } else if (category.includes('gold')) {
+            currentMix.GOLD += percentage;
+          } else if (category.includes('bitcoin') || category.includes('btc')) {
+            currentMix.CRYPTO_BTC += percentage;
+          } else if (category.includes('ethereum') || category.includes('eth')) {
+            currentMix.CRYPTO_ETH += percentage;
+          } else {
+            // Default to global equity for unmatched equity holdings
+            currentMix.GLOBAL_EQUITY += percentage;
           }
-        ];
-        currentMix = demoCurrentPortfolios[Math.floor(Math.random() * demoCurrentPortfolios.length)];
-      }
+        });
+        
+        // Add property allocations
+        properties.forEach((property: any) => {
+          const value = parseFloat(property.currentValueGbp || '0');
+          const percentage = value / totalValue;
+          currentMix.PROPERTY_UK_RESI += percentage;
+        });
+        
+        // Add alternative investments
+        alternatives.forEach((alt: any) => {
+          const value = parseFloat(alt.currentValueGbp || '0');
+          const percentage = value / totalValue;
+          const category = alt.category?.toLowerCase() || alt.type?.toLowerCase() || '';
+          
+          if (category.includes('art')) {
+            currentMix.COLLECTIBLES_ART += percentage;
+          } else if (category.includes('wine')) {
+            currentMix.COLLECTIBLES_WINE += percentage;
+          } else if (category.includes('crypto') || category.includes('bitcoin')) {
+            currentMix.CRYPTO_BTC += percentage;
+          } else if (category.includes('ethereum')) {
+            currentMix.CRYPTO_ETH += percentage;
+          } else {
+            currentMix.ALTERNATIVES += percentage;
+          }
+        });
+        
+        console.log('Action Plan: Calculated actual current mix:', currentMix);
+        return currentMix;
+      };
+      
+      const currentMix = calculateCurrentMix(window.actionPlanPortfolioData);
 
       // Call the Actions API
       console.log('Action Plan: Calling Actions API with:', {
