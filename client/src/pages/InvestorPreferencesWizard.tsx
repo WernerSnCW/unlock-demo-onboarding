@@ -3955,6 +3955,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                               <YAxis 
                                 stroke="var(--muted-foreground)"
                                 label={{ value: 'Portfolio Value', angle: -90, position: 'insideLeft', style: { fill: 'var(--muted-foreground)' } }}
+                                domain={['dataMin - 2', 'dataMax + 2']}
                                 tickFormatter={(value) => {
                                   const actualValue = value * (investorPrefs?.actualPortfolioValue || 500000) / 100;
                                   return `£${(actualValue / 1000).toFixed(0)}k`;
