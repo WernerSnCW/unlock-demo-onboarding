@@ -4865,10 +4865,10 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         <Button
           variant="outline"
           onClick={exportToCSV}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-[var(--foreground)] hover:text-[var(--foreground)] border-[var(--border)]"
         >
-          <Download className="w-4 h-4" />
-          Export CSV
+          <Download className="w-4 h-4 text-[var(--foreground)]" />
+          <span className="text-[var(--foreground)]">Export CSV</span>
         </Button>
       </div>
 
