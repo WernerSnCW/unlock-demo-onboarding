@@ -2288,7 +2288,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
     };
   };
 
-  // Perform gap analysis
+  // Perform enhanced gap analysis with belief alignment
   const performGapAnalysis = async () => {
     if (!matchedPersona) return;
 
@@ -2300,6 +2300,32 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       console.log('Current portfolio mix:', currentMix);
       console.log('Target portfolio mix:', targetMix);
 
+      // Build scenario weights from belief responses if available
+      let scenarioWeights: Record<string, number> | undefined;
+      if (beliefData?.selectedScenarios) {
+        scenarioWeights = {};
+        const scenarios = JSON.parse(beliefData.selectedScenarios);
+        
+        // Map our belief scenarios to the canonical scenario IDs
+        const scenarioMapping: Record<string, string> = {
+          'property_down': 'S003', // Inflation hedges scenario
+          'energy_spike': 'S008', // Soft inflation scenario  
+          'recession': 'S002', // Policy support scenario
+          'reflation': 'S005', // Quality growth scenario
+          'stagflation': 'S007', // Stagflation tilt scenario
+          'tech_correction': 'S006', // Tech-led growth scenario
+          'gilt_selloff': 'S009', // Gilt sell-off scenario
+          'devaluation': 'S010' // Commodity upswing scenario
+        };
+
+        scenarios.forEach((scenario: string) => {
+          const canonicalId = scenarioMapping[scenario];
+          if (canonicalId) {
+            scenarioWeights![canonicalId] = 0.3; // Equal weight for selected scenarios
+          }
+        });
+      }
+
       const response = await fetch('/api/gap', {
         method: 'POST',
         headers: {
@@ -2309,7 +2335,10 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
           currentMix,
           targetMix,
           riskProfile: matchedPersona.riskProfile || 'Moderate',
-          drawdownCap: matchedPersona.drawdownCap || 0.15
+          drawdownCap: matchedPersona.drawdownCap || 0.15,
+          scenarioWeights,
+          personaLabel: matchedPersona.title,
+          investorName
         }),
       });
 
@@ -2865,32 +2894,58 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
   );
 }
 
-// Gap Analysis Results Component
-function GapAnalysisResults({ gapData, onContinue }: { gapData: GapResponse; onContinue?: () => void }) {
+// Enhanced Gap Analysis Results Component
+function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?: () => void }) {
+  const hasBeliefAlignment = gapData.beliefAlignmentNow !== undefined && gapData.beliefAlignmentTarget !== undefined;
+  const hasCommentary = gapData.commentary && gapData.commentary.whyBullets;
+
   return (
     <Card className="mt-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <TrendingUp className="w-5 h-5 text-[var(--primary)]" />
-          Portfolio Gap Analysis
+          Enhanced Portfolio Gap Analysis
         </CardTitle>
         <CardDescription>
-          Analysis of differences between your current and recommended allocation
+          Sophisticated comparison with belief alignment and strategic commentary
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Strategic Commentary */}
+        {hasCommentary && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-lg border">
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+              <Brain className="w-5 h-5 text-[var(--primary)]" />
+              Strategic Commentary
+              {gapData.commentary.scenarioLabel && (
+                <span className="text-sm text-[var(--muted-foreground)] font-normal">
+                  • {gapData.commentary.scenarioLabel}
+                </span>
+              )}
+            </h3>
+            <div className="space-y-3">
+              {gapData.commentary.whyBullets.map((bullet: string, index: number) => (
+                <div key={index} className="flex items-start gap-3 text-sm">
+                  <div className="w-2 h-2 rounded-full bg-[var(--primary)] mt-2 flex-shrink-0"></div>
+                  <div className="text-[var(--foreground)]" dangerouslySetInnerHTML={{ __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Headline Flags */}
         {gapData.headlineFlags.length > 0 && (
           <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-            <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Alerts</h4>
+            <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Portfolio Alerts</h4>
             {gapData.headlineFlags.map((flag, index) => (
               <p key={index} className="text-amber-800 dark:text-amber-300 text-sm">{flag}</p>
             ))}
           </div>
         )}
 
-        {/* Summary Totals */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Enhanced Summary Totals */}
+        <div className={`grid grid-cols-1 md:grid-cols-${hasBeliefAlignment ? '4' : '3'} gap-4 mb-6`}>
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
             <h4 className="font-semibold text-blue-900 dark:text-blue-200">Total Changes</h4>
             <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
@@ -2912,6 +2967,21 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: GapResponse; onC
             </p>
             <p className="text-sm text-purple-600 dark:text-purple-400">Recommended level</p>
           </div>
+
+          {/* Belief Alignment Score */}
+          {hasBeliefAlignment && (
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+              <h4 className="font-semibold text-amber-900 dark:text-amber-200">Belief Alignment</h4>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                {gapData.beliefAlignmentNow}/100 → {gapData.beliefAlignmentTarget}/100
+              </p>
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                {gapData.beliefAlignmentTarget > gapData.beliefAlignmentNow 
+                  ? `Improvement: +${gapData.beliefAlignmentTarget - gapData.beliefAlignmentNow}` 
+                  : 'Scenario alignment score'}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Gap Analysis Table */}

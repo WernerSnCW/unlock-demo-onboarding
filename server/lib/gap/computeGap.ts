@@ -1,11 +1,14 @@
 import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+import { blendScenarioTemplates } from "../../config/scenarios";
 
 export interface GapRequest {
-  currentMix: Record<string, number>;  // bucket -> 0..1 (can omit buckets)
-  targetMix:  Record<string, number>;  // bucket -> 0..1 (can omit buckets)
-  // Optional guard-rail hints for warnings:
-  riskProfile?: string;                // e.g., "Income" | "Conservative" | ...
-  drawdownCap?: number;                // e.g., 0.20 (20% worst-case tolerance)
+  currentMix: Record<string, number>;   // bucket -> 0..1 (can omit)
+  targetMix:  Record<string, number>;   // bucket -> 0..1 (can omit)
+  // optional hints for warnings
+  riskProfile?: string;                 // e.g., "Income" | "Conservative" | ...
+  drawdownCap?: number;                 // e.g., 0.20 (20% worst-case)
+  // optional light scenarios
+  scenarioWeights?: Record<string, number>; // e.g., { S007:0.6, S009:0.4 }
 }
 
 export interface GapRow {
@@ -21,9 +24,13 @@ export interface GapResponse {
   totals: {
     absGapSum: number;                 // Σ |delta|
     cashBillsNow: number;              // CASH + BILLS_SHORT_GILTS
-    cashBillsTarget: number;           // same for target
+    cashBillsTarget: number;
   };
   headlineFlags: string[];             // e.g., liquidity floor shortfall
+
+  // light scenario insights (present iff scenarioWeights provided)
+  beliefAlignmentNow?: number;          // 0..100
+  beliefAlignmentTarget?: number;       // 0..100
 }
 
 function harmonise(mix: Partial<Record<string, number>>): Record<Bucket, number> {
@@ -36,6 +43,9 @@ function isCautious(rp?: string, dd?: number): boolean {
   const s = (rp || "").toLowerCase();
   return s.includes("conservative") || s.includes("income") || s.includes("defensive")
       || (typeof dd === "number" && dd <= 0.20);
+}
+function l1(a: Record<Bucket,number>, b: Record<Bucket,number>) {
+  return CANONICAL_BUCKETS.reduce((sum, k) => sum + Math.abs(a[k] - b[k]), 0);
 }
 
 export function computeGap(req: GapRequest): GapResponse {
@@ -65,13 +75,39 @@ export function computeGap(req: GapRequest): GapResponse {
     );
   }
 
-  // Totals and ordering
   const absGapSum = +rows.reduce((s, r) => s + Math.abs(r.deltaPct), 0).toFixed(4);
   rows.sort((a, b) => Math.abs(b.deltaPct) - Math.abs(a.deltaPct));
 
-  return {
+  const resp: GapResponse = {
     rows,
     totals: { absGapSum, cashBillsNow, cashBillsTarget },
     headlineFlags,
   };
+
+  // --- Light scenarios (optional) ---
+  if (req.scenarioWeights && Object.values(req.scenarioWeights).some(w => w > 0)) {
+    const S = harmonise(blendScenarioTemplates(req.scenarioWeights));
+    const dNow = l1(current, S);
+    const dTgt = l1(target,  S);
+    // Alignment: 100 * (1 - L1/2). (Max L1 distance is 2.)
+    resp.beliefAlignmentNow    = Math.round(100 * (1 - dNow/2));
+    resp.beliefAlignmentTarget = Math.round(100 * (1 - dTgt/2));
+
+    // Scenario sanity checks (add only if violated)
+    const scenos = Object.keys(req.scenarioWeights).filter(k => (req.scenarioWeights![k]||0) > 0.001);
+    if (scenos.includes("S007")) {
+      const realNow = current.COMMODITIES + current.GOLD;
+      const realTgt = target.COMMODITIES + target.GOLD;
+      if (realTgt < realNow && realNow < 0.35) {
+        resp.headlineFlags.push("S007 check: don't reduce (commodities + gold) unless already ≥ 35%.");
+      }
+    }
+    if (scenos.includes("S009")) {
+      if (target.GILTS_LONG > current.GILTS_LONG) {
+        resp.headlineFlags.push("S009 check: don't increase long duration (GILTS_LONG).");
+      }
+    }
+  }
+
+  return resp;
 }

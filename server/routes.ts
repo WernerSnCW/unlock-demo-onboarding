@@ -24,6 +24,8 @@ import {
 } from "@shared/schema";
 import { marketDataService } from "./services/marketData.js";
 import { computeGap, type GapRequest } from './lib/gap/computeGap';
+import { buildWhy, type WhyContext } from './lib/gap/why';
+import { SCENARIO_LABELS } from './config/scenarios';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -371,20 +373,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Gap Analysis endpoint - compares current vs target portfolio allocation
+  // Enhanced Gap Analysis endpoint - compares current vs target portfolio allocation with belief alignment
   app.post('/api/gap', async (req, res) => {
     try {
-      const body = req.body as GapRequest;
+      const { 
+        currentMix, 
+        targetMix, 
+        riskProfile, 
+        drawdownCap, 
+        scenarioWeights,
+        personaLabel,
+        investorName 
+      } = req.body;
 
-      if (!body || !body.currentMix || !body.targetMix) {
+      if (!currentMix || !targetMix) {
         return res.status(400).json({ error: "currentMix and targetMix are required" });
       }
 
-      const result = computeGap(body);
-      return res.json(result);
+      // Build the gap request with enhanced parameters
+      const gapRequest: GapRequest = {
+        currentMix,
+        targetMix,
+        riskProfile,
+        drawdownCap,
+        scenarioWeights
+      };
+
+      // Compute the enhanced gap analysis
+      const gapResult = computeGap(gapRequest);
+
+      // Generate scenario label for commentary
+      let scenarioLabel: string | undefined;
+      if (scenarioWeights && Object.keys(scenarioWeights).length > 0) {
+        const activeScenarios = Object.entries(scenarioWeights)
+          .filter(([_, weight]) => (weight as number) > 0.001)
+          .sort(([_, a], [__, b]) => (b as number) - (a as number))
+          .slice(0, 3) // Top 3 scenarios
+          .map(([id, weight]) => `${Math.round((weight as number) * 100)}% ${SCENARIO_LABELS[id] || id}`);
+        
+        if (activeScenarios.length > 0) {
+          scenarioLabel = activeScenarios.join(' / ');
+        }
+      }
+
+      // Build why commentary
+      const whyContext: WhyContext = {
+        personaLabel: personaLabel || investorName || "Investor",
+        scenarioLabel
+      };
+
+      const whyBullets = buildWhy(gapResult, whyContext);
+
+      // Enhanced response
+      const enhancedResult = {
+        ...gapResult,
+        commentary: {
+          whyBullets,
+          scenarioLabel,
+          personaLabel: whyContext.personaLabel
+        }
+      };
+
+      return res.json(enhancedResult);
     } catch (e: any) {
       console.error('Gap analysis error:', e);
-      return res.status(500).json({ error: "Internal error" });
+      return res.status(500).json({ error: "Internal error", details: e.message });
     }
   });
 
