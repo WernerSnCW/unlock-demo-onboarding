@@ -3345,6 +3345,47 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
           {targetData && (
             <div className="space-y-8">
+              {/* Economic Scenarios Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(targetData.scenarioWeights)
+                    .filter(([, weight]) => weight > 0)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([scenarioId, weight]) => {
+                      const scenarioLabels: Record<string, string> = {
+                        "S001": "Base Growth",
+                        "S002": "Policy Support", 
+                        "S003": "Inflation Hedges",
+                        "S004": "Rates Normalisation",
+                        "S005": "Quality Growth",
+                        "S006": "Tech-led Growth",
+                        "S007": "Stagflation Tilt",
+                        "S008": "Soft-ish Inflation",
+                        "S009": "Gilt Sell-off",
+                        "S010": "Commodity Upswing"
+                      };
+                      
+                      return (
+                        <div key={scenarioId} className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium text-blue-900 dark:text-blue-200">
+                              {scenarioLabels[scenarioId] || scenarioId}
+                            </span>
+                            <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                              {(weight * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                            {scenarioId}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+
               {/* Overview */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
