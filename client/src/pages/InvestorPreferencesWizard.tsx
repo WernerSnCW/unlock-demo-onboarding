@@ -3455,7 +3455,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               {/* Target Portfolio Chart */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[var(--foreground)]">Recommended Portfolio Allocation</h3>
-                <div className="h-64">
+                <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -3468,10 +3468,11 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                           }))
                         }
                         cx="50%"
-                        cy="50%"
+                        cy="40%"
                         outerRadius={80}
                         dataKey="value"
-                        label={({ name, value }) => `${name}: ${value.toFixed(1)}%`}
+                        label={({ value }) => `${value.toFixed(1)}%`}
+                        labelLine={false}
                       >
                         {Object.entries(targetData.targetMix)
                           .filter(([, value]) => value > 0.001)
@@ -3480,6 +3481,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                           ))
                         }
                       </Pie>
+                      <Legend 
+                        verticalAlign="bottom" 
+                        height={36}
+                        formatter={(value: string) => value}
+                        wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                      />
                       <RechartsTooltip formatter={(value: any) => [`${value.toFixed(1)}%`, 'Allocation']} />
                     </PieChart>
                   </ResponsiveContainer>
