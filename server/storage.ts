@@ -193,6 +193,9 @@ export class DatabaseStorage implements IStorage {
           ...(prefs.actualPortfolioValue !== undefined && { actualPortfolioValue: prefs.actualPortfolioValue }),
           ...(prefs.actualPortfolioAllocations !== undefined && { actualPortfolioAllocations: prefs.actualPortfolioAllocations }),
           ...(prefs.actualPortfolioCompletedAt !== undefined && { actualPortfolioCompletedAt: prefs.actualPortfolioCompletedAt }),
+          // Recommended portfolio fields
+          ...(prefs.recommendedPortfolioAllocations !== undefined && { recommendedPortfolioAllocations: prefs.recommendedPortfolioAllocations }),
+          ...(prefs.recommendedPortfolioCompletedAt !== undefined && { recommendedPortfolioCompletedAt: prefs.recommendedPortfolioCompletedAt }),
         }
       })
       .returning();
