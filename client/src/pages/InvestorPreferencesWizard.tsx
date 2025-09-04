@@ -2454,26 +2454,49 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  // Auto-populate with recommended allocation
-                  const recommended = getRecommendedAllocation(matchedPersona);
-                  if (Object.keys(recommended).length > 0) {
-                    setAllocations(recommended);
-                    toast({
-                      title: "Form Auto-Populated",
-                      description: "Filled with your recommended portfolio allocation.",
-                    });
-                  } else {
-                    toast({
-                      title: "Error",
-                      description: "Unable to load recommended allocation. Please check your persona data.",
-                      variant: "destructive"
-                    });
+                  // Generate random allocation
+                  const allocationCategories = [
+                    'cashFixedIncome',
+                    'globalEquity', 
+                    'techGrowth',
+                    'property',
+                    'commoditiesGold',
+                    'alternatives',
+                    'cryptocurrency',
+                    'collectibles'
+                  ];
+
+                  // Generate random weights
+                  const randomWeights = allocationCategories.map(() => Math.random());
+                  const weightSum = randomWeights.reduce((sum, weight) => sum + weight, 0);
+                  
+                  // Normalize to sum to 100%
+                  const normalizedWeights = randomWeights.map(weight => (weight / weightSum) * 100);
+                  
+                  // Create random allocation object
+                  const randomAllocation: any = {};
+                  allocationCategories.forEach((category, index) => {
+                    randomAllocation[category] = Math.round(normalizedWeights[index]).toString();
+                  });
+
+                  // Ensure total is exactly 100% by adjusting the largest allocation
+                  const total = Object.values(randomAllocation).reduce((sum: number, val: any) => sum + parseInt(val), 0);
+                  if (total !== 100) {
+                    const largest = Object.entries(randomAllocation).reduce((max, [key, val]: [string, any]) => 
+                      parseInt(val) > parseInt(max[1]) ? [key, val] : max, ['', '0']);
+                    randomAllocation[largest[0]] = (parseInt(largest[1]) + (100 - total)).toString();
                   }
+
+                  setAllocations(randomAllocation);
+                  toast({
+                    title: "Random Allocation Generated",
+                    description: "Filled with a random portfolio allocation for testing.",
+                  });
                 }}
                 className="text-xs"
               >
                 <Zap className="h-3 w-3 mr-1" />
-                Use Recommended
+                Use Random
               </Button>
             </div>
 
