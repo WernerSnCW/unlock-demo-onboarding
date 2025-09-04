@@ -142,11 +142,6 @@ export default function InvestorPreferencesWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [investorName, setInvestorName] = useState<string>('');
   const [showNameDialog, setShowNameDialog] = useState(true);
-  
-  // Navigation handler to ensure scope access
-  const navigateToActions = () => {
-    setActiveMainTab('action');
-  };
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isAutoCompleted, setIsAutoCompleted] = useState<boolean>(false);
   const [showBeliefQuestionnaire, setShowBeliefQuestionnaire] = useState<boolean>(false);
@@ -4486,7 +4481,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                     console.log('Recommended portfolio saved successfully:', result);
 
                     // Navigate to Action Plan tab
-                    navigateToActions();
+                    setActiveMainTab('action');
                     
                     // Show success message
                     toast({
@@ -4510,7 +4505,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                     });
                     
                     // Still navigate even if save fails
-                    navigateToActions();
+                    setActiveMainTab('action');
                   }
                 }}
                 className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
