@@ -444,6 +444,12 @@ export default function InvestorPreferencesWizard() {
                   } else if (tab.id === 'profile') {
                     // Card 2 completed when we're on Economic Beliefs (meaning quiz was finished)
                     isCompleted = showBeliefQuestionnaire;
+                  } else if (tab.id === 'beliefs') {
+                    // Card 3 completed when belief responses are saved (and we're on analysis)
+                    isCompleted = activeMainTab === 'analysis' || gapAnalysisData || actualPortfolioData;
+                  } else if (tab.id === 'analysis') {
+                    // Card 4 completed when gap analysis is done
+                    isCompleted = gapAnalysisData !== null;
                   }
                   
                   return (
