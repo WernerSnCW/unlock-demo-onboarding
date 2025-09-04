@@ -4396,7 +4396,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
             <div className="text-center pt-8 pb-4">
               <Button 
                 onClick={async () => {
-                  if (!targetData?.targetMix || !profileData?.investorName) {
+                  if (!targetData?.targetMix || !investorPrefs?.investorName || !actualUserId) {
                     console.error('Missing required data for saving recommendations');
                     return;
                   }
@@ -4409,8 +4409,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify({
-                        userId: userId,
-                        investorName: profileData.investorName,
+                        userId: actualUserId,
+                        investorName: investorPrefs.investorName,
                         targetMix: targetData.targetMix
                       }),
                     });
