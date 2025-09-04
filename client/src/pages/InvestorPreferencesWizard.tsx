@@ -3418,7 +3418,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         })) || [],
         probTargetBeatsCurrent: result.probTargetBeatsCurrent,
         maxDrawdownMed: result.maxDrawdownMed,
-        horizonMonths: result.horizonMonths
+        horizonMonths: result.horizonMonths,
+        // NEW enhanced fields:
+        endValue: result.endValue,
+        endValueBand: result.endValueBand,
+        breakevenMonthMed: result.breakevenMonthMed,
+        downside: result.downside,
+        costs: result.costs,
+        diffAttribution: result.diffAttribution,
+        stresses: result.stresses
       };
       
       setSimulationData(enhancedSimulationData);
@@ -3915,28 +3923,98 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       </div>
 
                       {/* Enhanced Analytics */}
-                      {simulationData.probTargetBeatsCurrent !== undefined && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        {/* £ Impact */}
+                        {simulationData.endValue && (
+                          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                            <div className="text-sm font-medium text-emerald-900 dark:text-emerald-200">£ Impact</div>
+                            <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
+                              £{((simulationData.endValue.diffGBP * (investorPrefs?.actualPortfolioValue || 500000) / 100) / 1000).toFixed(1)}k
+                            </div>
+                            <div className="text-xs text-emerald-600 dark:text-emerald-400">
+                              median uplift at horizon
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Win Probability */}
+                        {simulationData.probTargetBeatsCurrent !== undefined && (
                           <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                             <div className="text-sm font-medium text-amber-900 dark:text-amber-200">Win Probability</div>
-                            <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                            <div className="text-xl font-bold text-amber-700 dark:text-amber-300">
                               {(simulationData.probTargetBeatsCurrent * 100).toFixed(1)}%
                             </div>
                             <div className="text-xs text-amber-600 dark:text-amber-400">
                               recommended beats current
                             </div>
                           </div>
-                          {simulationData.maxDrawdownMed && (
-                            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                              <div className="text-sm font-medium text-red-900 dark:text-red-200">Max Drawdown (Median)</div>
-                              <div className="text-lg font-bold text-red-700 dark:text-red-300">
-                                {(simulationData.maxDrawdownMed.current * 100).toFixed(1)}% → {(simulationData.maxDrawdownMed.target * 100).toFixed(1)}%
-                              </div>
-                              <div className="text-xs text-red-600 dark:text-red-400">
-                                current → recommended
-                              </div>
+                        )}
+
+                        {/* Breakeven */}
+                        {simulationData.breakevenMonthMed !== undefined && (
+                          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Breakeven</div>
+                            <div className="text-xl font-bold text-blue-700 dark:text-blue-300">
+                              {simulationData.breakevenMonthMed ? `Month ${simulationData.breakevenMonthMed}` : '> Horizon'}
                             </div>
-                          )}
+                            <div className="text-xs text-blue-600 dark:text-blue-400">
+                              target overtakes current
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Downside Risk */}
+                        {simulationData.downside && (
+                          <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                            <div className="text-sm font-medium text-red-900 dark:text-red-200">Downside Risk</div>
+                            <div className="text-sm font-bold text-red-700 dark:text-red-300">
+                              Loss: {(simulationData.downside.probLoss.current * 100).toFixed(1)}% → {(simulationData.downside.probLoss.target * 100).toFixed(1)}%
+                            </div>
+                            <div className="text-xs text-red-600 dark:text-red-400">
+                              probability of loss
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Attribution Analysis */}
+                      {simulationData.diffAttribution && simulationData.diffAttribution.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="text-lg font-semibold text-[var(--foreground)] mb-3">Why the Difference?</h4>
+                          <div className="space-y-2">
+                            {simulationData.diffAttribution.map((attr, idx) => (
+                              <div key={idx} className="flex items-center justify-between p-3 bg-[var(--muted)]/30 rounded-lg">
+                                <span className="font-medium text-[var(--foreground)]">{attr.factor}</span>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-20 h-2 rounded ${attr.pp >= 0 ? 'bg-green-500' : 'bg-red-500'}`} 
+                                       style={{width: `${Math.abs(attr.pp) * 1000}px`}}>
+                                  </div>
+                                  <span className={`text-sm font-mono ${attr.pp >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {attr.pp >= 0 ? '+' : ''}{(attr.pp * 100).toFixed(2)}%
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Stress Testing */}
+                      {simulationData.stresses && simulationData.stresses.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="text-lg font-semibold text-[var(--foreground)] mb-3">Stress Tests</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {simulationData.stresses.map((stress, idx) => (
+                              <div key={idx} className="p-4 bg-[var(--muted)]/20 rounded-lg border">
+                                <div className="text-sm font-medium text-[var(--foreground)] mb-2">{stress.label}</div>
+                                <div className="text-xs text-[var(--muted-foreground)] mb-1">Current: {(stress.retCurrent * 100).toFixed(2)}%</div>
+                                <div className="text-xs text-[var(--muted-foreground)] mb-1">Target: {(stress.retTarget * 100).toFixed(2)}%</div>
+                                <div className={`text-sm font-bold ${stress.diffPp >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                  Diff: {stress.diffPp >= 0 ? '+' : ''}{(stress.diffPp * 100).toFixed(2)}%
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
 

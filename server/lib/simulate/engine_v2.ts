@@ -3,6 +3,30 @@ import { SCENARIO_SHOCKS } from "../../config/scenarioShocks";
 import { SCENARIO_VOLS } from "../../config/scenarioVols";
 import { CORRELATION, BUCKET_ORDER } from "../../config/correlations";
 
+// Scenario labels for stress testing
+const SCENARIO_LABELS: Record<string, string> = {
+  S001: "Base Case",
+  S002: "Recession", 
+  S003: "Inflation Spike",
+  S004: "Recovery",
+  S005: "Reflation",
+  S006: "Tech Crash",
+  S007: "Stagflation", 
+  S008: "Energy Crisis",
+  S009: "Gilt Sell-off",
+  S010: "Commodity Boom"
+};
+
+// Factor groupings for attribution analysis
+const FACTORS: Record<string, string[]> = {
+  "Equities": ["GLOBAL_EQUITY","UK_EQUITY_VALUE","GROWTH_TECH"],
+  "Credit/Income": ["IG_CREDIT"],
+  "Duration": ["GILTS_LONG"],
+  "Liquidity": ["CASH","BILLS_SHORT_GILTS"],
+  "Real Assets": ["GOLD","COMMODITIES","PROPERTY_UK_RESI"],
+  "Other": ["ALTERNATIVES","COLLECTIBLES_ART","COLLECTIBLES_WINE","CRYPTO_BTC","CRYPTO_ETH"]
+};
+
 export type RebalanceMode = "hold" | "rebalanceMonthly";
 
 export interface SimV2Request {
@@ -14,6 +38,7 @@ export interface SimV2Request {
   shockMultiplier?: number;                  // default 1.0 (scales both mean & vol)
   mode?: RebalanceMode;                      // default "hold"
   mc?: { paths: number; seed?: number };     // optional Monte Carlo (e.g., {paths: 5000})
+  costs?: { estTurnoverPp: number; estCostPct: number }; // optional after-costs analysis
 }
 
 export interface FanPoint { 
@@ -33,6 +58,18 @@ export interface SimV2Response {
   probTargetBeatsCurrent?: number; // MC: P(final_T > final_C)
   maxDrawdownMed?: { current:number; target:number }; // MC: median max DD
   mode: RebalanceMode;
+  
+  // NEW investor-ready fields:
+  endValue: { current: number; target: number; diffGBP: number };
+  endValueBand?: { current:{p05:number;p50:number;p95:number}; target:{p05:number;p50:number;p95:number} };
+  breakevenMonthMed?: number | null;
+  downside?: {
+    probLoss: { current:number; target:number }; // P(final return < 0)
+    es5:      { current:number; target:number }; // Expected Shortfall at 5%
+  };
+  costs?: { estTurnoverPp:number; estCostPct:number; diffAfterCostsPp:number };
+  diffAttribution: Array<{ factor:string; pp:number }>;
+  stresses?: Array<{ id:string; label:string; retCurrent:number; retTarget:number; diffPp:number }>;
 }
 
 // ---------- helpers ----------
@@ -91,6 +128,16 @@ function randn(seedGen:()=>number){ // Box-Muller
   };
 }
 
+// Helper to compute horizon returns for a pure scenario
+function computeRHForPureScenario(scenarioId: string, H: number, k: number): Record<Bucket, number> {
+  const mean12 = harmonise(SCENARIO_SHOCKS[scenarioId] || {});
+  const RH: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) {
+    RH[b] = pow1p((mean12[b] || 0) * k, H/12);
+  }
+  return RH;
+}
+
 // ---------- main ----------
 export function simulateV2(req: SimV2Request): SimV2Response {
   const H = Math.max(1, Math.round(req.horizonMonths ?? 12));
@@ -129,6 +176,8 @@ export function simulateV2(req: SimV2Request): SimV2Response {
   const fan: FanPoint[] = [];
   let probTargetBeatsCurrent: number | undefined;
   let maxDDMed: {current:number; target:number} | undefined;
+  let mcFinalReturnsCurrent: number[] | undefined;
+  let mcFinalReturnsTarget: number[] | undefined;
 
   if (req.mc && req.mc.paths>0) {
     const paths = Math.min(20000, Math.max(100, Math.round(req.mc.paths)));
@@ -202,6 +251,10 @@ export function simulateV2(req: SimV2Request): SimV2Response {
     let wins=0; for (let i=0;i<paths;i++) if (finalsT[i] > finalsC[i]) wins++;
     probTargetBeatsCurrent = wins/paths;
 
+    // Store final returns for downside analysis
+    mcFinalReturnsCurrent = finalsC.map(v => (v - startV) / startV);
+    mcFinalReturnsTarget = finalsT.map(v => (v - startV) / startV);
+
     const mdMed = (xs:number[])=> pctile(xs,0.50);
     maxDDMed = { current: mdMed(maxDrawC), target: mdMed(maxDrawT) };
   } else {
@@ -218,6 +271,73 @@ export function simulateV2(req: SimV2Request): SimV2Response {
     fan.push(...fanTmp);
   }
 
+  // ========== NEW INVESTOR-READY FEATURES ==========
+  
+  // 1) £ impact & range
+  const last = fan[fan.length - 1];
+  const p50C = last.current.p50;
+  const p50T = last.target.p50;
+  const endValue = { current: p50C, target: p50T, diffGBP: p50T - p50C };
+  const endValueBand = { current: last.current, target: last.target };
+
+  // 2) Breakeven month (median)
+  let breakevenMonthMed: number | null = null;
+  for (const pt of fan) { 
+    if (pt.target.p50 >= pt.current.p50) { 
+      breakevenMonthMed = pt.t; 
+      break; 
+    } 
+  }
+
+  // 3) Downside risk (only if MC enabled)
+  let downside: SimV2Response['downside'] | undefined;
+  if (mcFinalReturnsCurrent && mcFinalReturnsTarget) {
+    const prob = (arr:number[]) => arr.filter(x => x < 0).length / arr.length;
+    const es5 = (arr:number[]) => {
+      const s = [...arr].sort((a,b)=>a-b);
+      const k = Math.max(1, Math.floor(s.length * 0.05));
+      const worst = s.slice(0, k);
+      return worst.reduce((a,x)=>a+x,0) / worst.length;
+    };
+    downside = {
+      probLoss: { current: prob(mcFinalReturnsCurrent), target: prob(mcFinalReturnsTarget) },
+      es5:      { current: es5(mcFinalReturnsCurrent), target: es5(mcFinalReturnsTarget) }
+    };
+  }
+
+  // 4) After-costs uplift (optional)
+  let costs: SimV2Response['costs'] | undefined;
+  if (req.costs) {
+    costs = {
+      estTurnoverPp: req.costs.estTurnoverPp,
+      estCostPct:    req.costs.estCostPct,
+      diffAfterCostsPp: (expectedReturnTarget - expectedReturnCurrent) - req.costs.estCostPct
+    };
+  }
+
+  // 5) Difference attribution (factor buckets)
+  const diffAttribution = Object.entries(FACTORS).map(([name, bs])=>{
+    const pp = bs.reduce((s,b)=> {
+      const bucket = b as Bucket;
+      return s + ((tgt[bucket]-cur[bucket]) * (RH[bucket] || 0));
+    }, 0);
+    return { factor: name, pp };
+  }).sort((a,b)=> Math.abs(b.pp) - Math.abs(a.pp));
+
+  // 6) Stresses (pure scenarios)
+  const stresses = ["S003","S007","S009"].map(id => {
+    const RHstress = computeRHForPureScenario(id, H, k);
+    const retC = CANONICAL_BUCKETS.reduce((s,b)=> s + (cur[b]||0)*(RHstress[b]||0), 0);
+    const retT = CANONICAL_BUCKETS.reduce((s,b)=> s + (tgt[b]||0)*(RHstress[b]||0), 0);
+    return { 
+      id, 
+      label: SCENARIO_LABELS[id] || id, 
+      retCurrent: retC, 
+      retTarget: retT, 
+      diffPp: retT - retC 
+    };
+  });
+
   return {
     horizonMonths: H,
     expectedReturnCurrent,
@@ -228,6 +348,15 @@ export function simulateV2(req: SimV2Request): SimV2Response {
     fan,
     probTargetBeatsCurrent,
     maxDrawdownMed: maxDDMed,
-    mode
+    mode,
+    
+    // NEW investor-ready fields:
+    endValue,
+    endValueBand,
+    breakevenMonthMed,
+    downside,
+    costs,
+    diffAttribution,
+    stresses
   };
 }

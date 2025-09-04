@@ -1,0 +1,184 @@
+Ticket: Upgrade Simulation Output (Investor-ready)
+Goal
+
+Make the existing /api/simulate/v2 response more useful to investors by adding:
+
+£ impact & range
+
+After-costs uplift
+
+Breakeven month (median)
+
+Downside risk (prob. of loss & ES(5%)) when MC is on
+
+Difference attribution by factor buckets
+
+Stress buttons (pure scenarios)
+
+All maths is deterministic. No AI.
+
+Files touched
+
+src/lib/simulate/engine_v2.ts (compute new fields)
+
+src/api/simulate_v2.ts (no change beyond returning new fields)
+
+(Optional) UI layer to render new cards/buttons
+
+Request (unchanged)
+interface SimV2Request {
+  currentMix: Record<string, number>;
+  targetMix:  Record<string, number>;
+  scenarioWeights: Record<string, number>;
+  horizonMonths?: number;          // default 12
+  startValueGBP?: number;          // default 100
+  shockMultiplier?: number;        // default 1.0
+  mode?: "hold" | "rebalanceMonthly"; // default "hold"
+  mc?: { paths: number; seed?: number }; // optional Monte Carlo
+  // Optional pass-through from Gap/Actions if you have it:
+  costs?: { estTurnoverPp: number; estCostPct: number }; // see “After-costs”
+}
+
+Response — new fields to add
+interface SimV2Response {
+  // already returned today:
+  horizonMonths: number;
+  expectedReturnCurrent: number;   // over horizon
+  expectedReturnTarget:  number;
+  diffPp: number;                  // target - current (pp)
+  contributionsCurrent: Record<string, number>;
+  contributionsTarget:  Record<string, number>;
+  fan: Array<{ t:number; current:{p05:number;p50:number;p95:number}; target:{p05:number;p50:number;p95:number} }>;
+  probTargetBeatsCurrent?: number;
+  maxDrawdownMed?: { current:number; target:number };
+  mode: "hold" | "rebalanceMonthly";
+
+  // NEW:
+  endValue: { current: number; target: number; diffGBP: number };
+  endValueBand?: { current:{p05:number;p50:number;p95:number}; target:{p05:number;p50:number;p95:number} };
+  breakevenMonthMed?: number | null;
+  downside?: {
+    probLoss: { current:number; target:number }; // P(final return < 0)
+    es5:      { current:number; target:number }; // Expected Shortfall at 5%
+  };
+  costs?: { estTurnoverPp:number; estCostPct:number; diffAfterCostsPp:number }; // optional if request.costs present
+  diffAttribution: Array<{ factor:string; pp:number }>;
+  stresses?: Array<{ id:string; label:string; retCurrent:number; retTarget:number; diffPp:number }>;
+}
+
+How to compute (drop-in steps inside simulateV2)
+
+Assume you already compute:
+
+blended 12-month mean shocks per bucket (mean12[b])
+
+horizon-scaled per-bucket returns RH[b] = (1+mean12[b])^(H/12) − 1
+
+contributions (dot product) and fan (p05/50/95) from MC or deterministic means
+
+Add the following after you build fan:
+
+// 1) £ impact & range (always)
+const last = fan[fan.length - 1];
+const p50C = last.current.p50;
+const p50T = last.target.p50;
+res.endValue = { current: p50C, target: p50T, diffGBP: p50T - p50C };
+res.endValueBand = { current: last.current, target: last.target };
+
+// 2) Breakeven month (median)
+res.breakevenMonthMed = null;
+for (const pt of fan) { if (pt.target.p50 >= pt.current.p50) { res.breakevenMonthMed = pt.t; break; } }
+
+// 3) Downside risk (only if MC ON and you have final return arrays)
+if (mcFinalReturnsCurrent && mcFinalReturnsTarget) {
+  const prob = (arr:number[]) => arr.filter(x => x < 0).length / arr.length;
+  const es5 = (arr:number[]) => {
+    const s = [...arr].sort((a,b)=>a-b);
+    const k = Math.max(1, Math.floor(s.length * 0.05));
+    const worst = s.slice(0, k);
+    return worst.reduce((a,x)=>a+x,0) / worst.length;
+  };
+  res.downside = {
+    probLoss: { current: prob(mcFinalReturnsCurrent), target: prob(mcFinalReturnsTarget) },
+    es5:      { current: es5(mcFinalReturnsCurrent), target: es5(mcFinalReturnsTarget) }
+  };
+}
+
+// 4) After-costs uplift (optional passthrough from request.costs)
+if (req.costs) {
+  res.costs = {
+    estTurnoverPp: req.costs.estTurnoverPp,
+    estCostPct:    req.costs.estCostPct,
+    diffAfterCostsPp: (res.expectedReturnTarget - res.expectedReturnCurrent) - req.costs.estCostPct
+  };
+}
+
+// 5) Difference attribution (factor buckets)
+const FACTORS: Record<string, string[]> = {
+  "Equities": ["GLOBAL_EQUITY","UK_EQUITY_VALUE","GROWTH_TECH"],
+  "Credit/Income": ["IG_CREDIT"],
+  "Duration": ["GILTS_LONG"],
+  "Liquidity": ["CASH","BILLS_SHORT_GILTS"],
+  "Real Assets": ["GOLD","COMMODITIES","PROPERTY_UK_RESI"],
+  "Other": ["ALTERNATIVES","COLLECTIBLES_ART","COLLECTIBLES_WINE","CRYPTO_BTC","CRYPTO_ETH"]
+};
+res.diffAttribution = Object.entries(FACTORS).map(([name, bs])=>{
+  const pp = bs.reduce((s,b)=> s + ((tgt[b]-cur[b]) * (RH[b] || 0)), 0);
+  return { factor: name, pp };
+}).sort((a,b)=> Math.abs(b.pp) - Math.abs(a.pp));
+
+// 6) Stresses (pure scenarios, headline only)
+res.stresses = ["S003","S007","S009"].map(id => {
+  // Reuse same engine with scenarioWeights = { [id]: 1 }
+  const RHstress: Record<string, number> = computeRHForPureScenario(id); // same RH formula with mean12 from that scenario
+  const retC = CANONICAL_BUCKETS.reduce((s,b)=> s + cur[b]*(RHstress[b]||0), 0);
+  const retT = CANONICAL_BUCKETS.reduce((s,b)=> s + tgt[b]*(RHstress[b]||0), 0);
+  return { id, label: SCENARIO_LABELS[id] || id, retCurrent: retC, retTarget: retT, diffPp: retT - retC };
+});
+
+
+You’ll need to (a) keep arrays of final returns in MC (for downside); and (b) implement a tiny helper computeRHForPureScenario(id) that builds mean12 for {[id]:1} and scales to horizon as you already do.
+
+UI wiring (one row each; simple)
+
+£ Impact
+
+Add a small card: “≈ £{diffGBP} median uplift at horizon.”
+
+Tooltip: show p05/p50/p95 for current & recommended (if present).
+
+After-costs
+
+Sub-line on the “Difference” card: “After costs: +{diffAfterCostsPp} pp” (only when costs present).
+
+Breakeven
+
+Small chip near “Difference”: “Breakeven: month {breakevenMonthMed}” (or “> horizon” if null).
+
+Downside risk
+
+Card: “Prob. loss X% → Y% | ES(5%) −a% → −b%” (show only if downside present).
+
+Attribution
+
+Horizontal bar list: each factor with {pp} (green/red). Title: “Why the difference?”.
+
+Stresses
+
+Three buttons (S003/S007/S009). Clicking swaps headline cards to the stress values (no re-run needed; use stresses[]).
+
+Acceptance tests
+
+Changing horizon (6m vs 24m) changes end values (because shocks are 12-month means scaled to H/12).
+
+endValue.diffGBP equals endValue.target − endValue.current.
+
+With MC on:
+
+downside.probLoss.* in [0,1]; downside.es5.* negative numbers (returns).
+
+breakevenMonthMed matches intersection of median lines.
+
+diffAttribution bars sum ≈ diffPp (small rounding drift OK).
+
+Clicking a stress button replaces headline % with the stress values; the base simulation is unaffected.
