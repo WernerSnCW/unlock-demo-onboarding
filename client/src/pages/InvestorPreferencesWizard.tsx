@@ -3369,12 +3369,15 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       }
       
       
+      // Get actual portfolio value from user data
+      const actualPortfolioValue = investorPrefs?.actualPortfolioValue || 500000;
+      
       const simulationRequest = {
         currentMix,
         targetMix: targetData.targetMix,
         scenarioWeights: formattedScenarioWeights,
         horizonMonths,
-        startValueGBP: 100,
+        startValueGBP: actualPortfolioValue,
         shockMultiplier: 1.0,
         band: { low: 0.5, high: 1.5 }
       };
