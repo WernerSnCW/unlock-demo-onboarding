@@ -3118,14 +3118,40 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     console.log('investorPrefs:', investorPrefs);
     console.log('detectedPersona:', investorPrefs?.detectedPersona);
     
-    if (!investorPrefs?.detectedPersona) {
-      console.log('ERROR: Missing detectedPersona');
-      toast({
-        title: "Missing Profile Data",
-        description: "Please complete your investor profile first.",
-        variant: "destructive"
-      });
-      return;
+    // Extract persona from quiz answers if detectedPersona is missing
+    let personaId = investorPrefs?.detectedPersona;
+    
+    if (!personaId && investorPrefs?.quizAnswers) {
+      console.log('Extracting persona from quiz answers...');
+      try {
+        const quizAnswers = JSON.parse(investorPrefs.quizAnswers);
+        console.log('Quiz answers:', quizAnswers);
+        
+        // Simple persona detection based on risk tolerance (first question)
+        const riskQuestion = quizAnswers.find((q: any) => q.questionId === 'risk_tolerance');
+        if (riskQuestion) {
+          // Map risk tolerance to personas (basic mapping)
+          const riskToPersona: Record<number, string> = {
+            0: 'P001', // Conservative -> The Old Fashioned Saver
+            1: 'P001', // Slightly conservative -> The Old Fashioned Saver
+            2: 'P016', // Balanced -> The Legacy Builder
+            3: 'P003', // Growth -> The Crypto Enthusiast 
+            4: 'P003'  // Aggressive -> The Crypto Enthusiast
+          };
+          
+          personaId = riskToPersona[riskQuestion.optionIndex] || 'P016';
+          console.log('Detected persona from quiz:', personaId);
+        }
+      } catch (error) {
+        console.error('Failed to parse quiz answers:', error);
+      }
+    }
+    
+    if (!personaId) {
+      console.log('ERROR: Still missing persona after extraction attempt');
+      // Use default persona instead of blocking
+      personaId = 'P016'; // Default to Legacy Builder
+      console.log('Using default persona:', personaId);
     }
 
     setLoading(true);
@@ -3172,7 +3198,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       console.log('Using scenario weights:', scenarioWeights);
 
       const requestData = {
-        personaId: investorPrefs.detectedPersona,
+        personaId: personaId,
         scenarioWeights: scenarioWeights,
         tiltStrength: 0.35,
         riskProfile: investorPrefs.riskBand || "Moderate",
