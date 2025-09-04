@@ -3373,7 +3373,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
                   <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended Recommendation:</span> Your portfolio is designed to perform well across multiple economic scenarios based on your beliefs. Rather than betting on a single outcome, this approach provides <span className="font-medium">downside protection and upside capture</span> regardless of which scenario actually unfolds.
+                    <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
+                    Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
