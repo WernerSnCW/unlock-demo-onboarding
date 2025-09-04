@@ -3250,29 +3250,43 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     console.log('detectedPersona:', investorPrefs?.detectedPersona);
     console.log('matched_persona_code:', (investorPrefs as any)?.matched_persona_code);
     
-    // Use matched_persona_code field (that's where persona is actually saved)
-    let personaId = (investorPrefs as any)?.matched_persona_code || investorPrefs?.detectedPersona;
+    // Check all possible persona fields that might be saved in the database
+    let personaId = (investorPrefs as any)?.matched_persona_code || 
+                   (investorPrefs as any)?.matchedPersonaCode || 
+                   investorPrefs?.detectedPersona;
     
+    console.log('Retrieved persona fields:', {
+      matched_persona_code: (investorPrefs as any)?.matched_persona_code,
+      matchedPersonaCode: (investorPrefs as any)?.matchedPersonaCode,
+      detectedPersona: investorPrefs?.detectedPersona
+    });
+    
+    // Only fall back to quiz analysis if NO persona is saved
     if (!personaId && investorPrefs?.quizAnswers) {
-      console.log('Extracting persona from quiz answers...');
+      console.log('No saved persona found, extracting from quiz answers...');
       try {
         const quizAnswers = JSON.parse(investorPrefs.quizAnswers);
         console.log('Quiz answers:', quizAnswers);
         
-        // Simple persona detection based on risk tolerance (first question)
-        const riskQuestion = quizAnswers.find((q: any) => q.questionId === 'risk_tolerance');
-        if (riskQuestion) {
-          // Map risk tolerance to personas (basic mapping)
-          const riskToPersona: Record<number, string> = {
-            0: 'P001', // Conservative -> The Old Fashioned Saver
-            1: 'P001', // Slightly conservative -> The Old Fashioned Saver
-            2: 'P016', // Balanced -> The Legacy Builder
-            3: 'P003', // Growth -> The Crypto Enthusiast 
-            4: 'P003'  // Aggressive -> The Crypto Enthusiast
-          };
-          
-          personaId = riskToPersona[riskQuestion.optionIndex] || 'P016';
-          console.log('Detected persona from quiz:', personaId);
+        // Look for the quiz data that might contain the persona
+        if (quizAnswers.length > 0 && quizAnswers[0].matchedPersonaCode) {
+          personaId = quizAnswers[0].matchedPersonaCode;
+          console.log('Found persona in quiz data:', personaId);
+        } else {
+          // Last resort: basic risk tolerance mapping
+          const riskQuestion = quizAnswers.find((q: any) => q.questionId === 'risk_tolerance');
+          if (riskQuestion) {
+            const riskToPersona: Record<number, string> = {
+              0: 'P004', // Conservative -> The Old Fashioned Saver
+              1: 'P001', // Moderate Conservative -> The Retirement Planner  
+              2: 'P009', // Balanced -> The Global Nomad
+              3: 'P008', // Growth -> The Young Professional
+              4: 'P003'  // Aggressive -> The Crypto Enthusiast
+            };
+            
+            personaId = riskToPersona[riskQuestion.optionIndex] || 'P009';
+            console.log('Detected persona from risk tolerance:', personaId);
+          }
         }
       } catch (error) {
         console.error('Failed to parse quiz answers:', error);
