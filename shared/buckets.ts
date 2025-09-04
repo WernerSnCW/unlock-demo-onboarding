@@ -1,0 +1,19 @@
+export const CANONICAL_BUCKETS = [
+  "CASH",
+  "BILLS_SHORT_GILTS", 
+  "GILTS_LONG",
+  "IG_CREDIT",
+  "GLOBAL_EQUITY",
+  "UK_EQUITY_VALUE",
+  "GROWTH_TECH", 
+  "PROPERTY_UK_RESI",
+  "COMMODITIES",
+  "GOLD",
+  "ALTERNATIVES",
+  "CRYPTO_BTC",
+  "CRYPTO_ETH",
+  "COLLECTIBLES_ART",
+  "COLLECTIBLES_WINE"
+] as const;
+
+export type Bucket = typeof CANONICAL_BUCKETS[number];

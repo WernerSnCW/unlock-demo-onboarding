@@ -1,0 +1,334 @@
+eplit Requirement — Step: Actions (What to do) + Tiny Playbook
+0) Outcome
+
+Expose an endpoint that turns the gap (target vs current) into a prioritised, staged action list and a tiny playbook (5–7 bullets).
+Deterministic only. No AI maths.
+
+1) Files to add
+src/
+  config/
+    buckets.ts           // already in project
+    frictions.ts         // NEW (optional costs + “illiquid” tags)
+  lib/
+    actions/
+      engine.ts          // core action builder
+  api/
+    actions.ts           // HTTP route
+
+2) Config (defaults you can edit)
+
+src/config/frictions.ts
+
+import { Bucket } from "./buckets";
+
+export const FRICTION_RATE: Partial<Record<Bucket, number>> = {
+  // round-trip trading cost assumptions (very rough defaults)
+  GLOBAL_EQUITY: 0.0015,
+  UK_EQUITY_VALUE: 0.0015,
+  GROWTH_TECH: 0.0018,
+  IG_CREDIT: 0.0010,
+  GILTS_LONG: 0.0006,
+  BILLS_SHORT_GILTS: 0.0002,
+  COMMODITIES: 0.0010,
+  GOLD: 0.0010,
+  ALTERNATIVES: 0.0025,
+  PROPERTY_UK_RESI: 0.0100,      // assume illiquid/fees
+  COLLECTIBLES_ART: 0.0200,
+  COLLECTIBLES_WINE: 0.0200,
+  CRYPTO_BTC: 0.0030,
+  CRYPTO_ETH: 0.0030,
+  CASH: 0
+};
+
+export const ILLIQUID_BUCKETS: Bucket[] = [
+  "PROPERTY_UK_RESI","ALTERNATIVES","COLLECTIBLES_ART","COLLECTIBLES_WINE"
+];
+
+3) Contract
+Request → POST /api/actions
+interface ActionsRequest {
+  currentMix: Record<string, number>;      // 0..1
+  targetMix:  Record<string, number>;      // 0..1
+  portfolioValueGBP: number;               // used for £ sizes
+  // house rules (optional; default sensible values)
+  liquidityFloorPct?: number;              // default 0.10 (10%)
+  donorOrder?: string[];                   // default sensible list (see code)
+  minTradePct?: number;                    // ignore changes smaller than this (default 0.5 pp => 0.005)
+  maxMoves?: number;                       // hard cap number of actions in Stage 1 (default 8)
+  stageIlliquids?: boolean;                // default true (move to Stage 2)
+}
+
+Response
+interface Action {
+  type: "TRIM" | "ADD" | "TRANSFER";       // transfer = cash rebalance move
+  bucket: string;
+  deltaPct: number;                         // + for add, - for trim (pp as fraction, e.g., 0.012 = 1.2 pp)
+  amountGBP: number;
+  rationale: string;                        // short deterministic reason
+  stage: 1 | 2;                             // 1 = do now, 2 = later (illiquid/low-priority)
+  estCostPct?: number;                      // optional cost % of portfolio
+}
+
+interface ActionsResponse {
+  summary: {
+    totalAbsChangePp: number;               // Σ|Δ| in pp
+    estTurnoverPp: number;                  // 0.5 * Σ|Δ| in pp
+    estCostPct: number;                     // ∑ |trade| × friction
+    liquidityNowPct: number;
+    liquidityTargetPct: number;
+    liquidityFixPp?: number;                // if floor requires top-up
+  };
+  staged: { stage1: Action[]; stage2: Action[] };
+  playbook: string[];                       // 5–7 bullets in plain English
+}
+
+4) Engine
+
+src/lib/actions/engine.ts
+
+import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+import { FRICTION_RATE, ILLIQUID_BUCKETS } from "../../config/frictions";
+
+export interface ActionsRequest {
+  currentMix: Record<string, number>;
+  targetMix:  Record<string, number>;
+  portfolioValueGBP: number;
+  liquidityFloorPct?: number;
+  donorOrder?: string[];
+  minTradePct?: number;
+  maxMoves?: number;
+  stageIlliquids?: boolean;
+}
+export interface Action {
+  type: "TRIM" | "ADD" | "TRANSFER";
+  bucket: string;
+  deltaPct: number;   // fraction of portfolio (pp/100)
+  amountGBP: number;
+  rationale: string;
+  stage: 1 | 2;
+  estCostPct?: number;
+}
+export interface ActionsResponse {
+  summary: {
+    totalAbsChangePp: number;
+    estTurnoverPp: number;
+    estCostPct: number;
+    liquidityNowPct: number;
+    liquidityTargetPct: number;
+    liquidityFixPp?: number;
+  };
+  staged: { stage1: Action[]; stage2: Action[] };
+  playbook: string[];
+}
+
+function harmonise(m: Partial<Record<string, number>>): Record<Bucket, number> {
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = Number(m[b] ?? 0);
+  return out;
+}
+const pct = (x:number)=> +(x*100).toFixed(1);
+
+export function buildActions(req: ActionsRequest): ActionsResponse {
+  const current = harmonise(req.currentMix);
+  const target  = harmonise(req.targetMix);
+  const pv      = Math.max(0, req.portfolioValueGBP || 0);
+
+  const minTrade = req.minTradePct ?? 0.005;           // 0.5 pp
+  const maxMoves = req.maxMoves ?? 8;
+  const liqFloor = req.liquidityFloorPct ?? 0.10;
+  const donorsDefault: Bucket[] = [
+    "GROWTH_TECH","GLOBAL_EQUITY","ALTERNATIVES","PROPERTY_UK_RESI",
+    "COMMODITIES","GOLD","UK_EQUITY_VALUE","IG_CREDIT","GILTS_LONG",
+    "CRYPTO_BTC","CRYPTO_ETH","COLLECTIBLES_ART","COLLECTIBLES_WINE"
+  ];
+  const donors = (req.donorOrder as Bucket[] | undefined) ?? donorsDefault;
+  const stageIlliq = req.stageIlliquids ?? true;
+
+  // 1) deltas
+  const deltas: Record<Bucket, number> = {} as any;
+  let abs = 0;
+  for (const b of CANONICAL_BUCKETS) {
+    deltas[b] = +(target[b] - current[b]).toFixed(6);
+    abs += Math.abs(deltas[b]);
+  }
+
+  // 2) liquidity
+  const liqNow = current.CASH + current.BILLS_SHORT_GILTS;
+  const liqTgt = target.CASH + target.BILLS_SHORT_GILTS;
+  const needLiq = Math.max(0, liqFloor - liqNow); // how much floor requires right now
+
+  // 3) stage 1 priorities
+  const stage1: Action[] = [];
+  const stage2: Action[] = [];
+  let moves = 0;
+
+  // 3a) Liquidity fix first (if needed)
+  if (needLiq > 1e-6) {
+    let remaining = needLiq;
+    for (const d of donors) {
+      if (remaining <= 1e-6) break;
+      const canGive = Math.min(current[d], remaining);
+      if (canGive <= 1e-6) continue;
+      const gbp = canGive * pv;
+      const cost = (FRICTION_RATE[d] ?? 0) * canGive;
+      stage1.push({
+        type: "TRIM", bucket: d, deltaPct: -canGive, amountGBP: gbp,
+        estCostPct: cost,
+        rationale: "Raise liquidity to reach floor",
+        stage: 1
+      });
+      remaining -= canGive; moves++;
+      if (moves >= maxMoves) break;
+    }
+    // receive into Bills first, then Cash
+    const recvEach = Math.max(0, needLiq - Math.max(0, remaining));
+    const toBills = Math.min(recvEach, 1 - current.BILLS_SHORT_GILTS);
+    const toCash  = Math.max(0, recvEach - toBills);
+    if (toBills > 1e-6) stage1.push({
+      type: "ADD", bucket: "BILLS_SHORT_GILTS", deltaPct: toBills, amountGBP: toBills*pv,
+      rationale: "Raise liquidity (short gilts)", stage: 1
+    });
+    if (toCash > 1e-6) stage1.push({
+      type: "ADD", bucket: "CASH", deltaPct: toCash, amountGBP: toCash*pv,
+      rationale: "Raise liquidity (cash)", stage: 1
+    });
+  }
+
+  // 3b) Biggest gaps next (ignoring tiny trades)
+  const order = [...CANONICAL_BUCKETS].sort((a,b)=>Math.abs(deltas[b]) - Math.abs(deltas[a]));
+  for (const b of order) {
+    const d = deltas[b];
+    if (Math.abs(d) < minTrade) continue;
+    const isIlliq = stageIlliq && ILLIQUID_BUCKETS.includes(b);
+    const action: Action = {
+      type: d > 0 ? "ADD" : "TRIM",
+      bucket: b,
+      deltaPct: d,
+      amountGBP: Math.abs(d) * pv,
+      estCostPct: (FRICTION_RATE[b] ?? 0) * Math.abs(d),
+      rationale: d > 0
+        ? "Increase allocation towards target"
+        : "Reduce allocation towards target",
+      stage: isIlliq ? 2 : 1
+    };
+    if (!isIlliq && moves < maxMoves) { stage1.push(action); moves++; }
+    else { stage2.push(action); }
+  }
+
+  // 4) Totals / turnover / cost
+  const estTurnoverPp = +(0.5 * abs * 100).toFixed(1);
+  let estCostPct = 0;
+  for (const a of [...stage1, ...stage2]) estCostPct += (a.estCostPct || 0);
+  estCostPct = +estCostPct.toFixed(4);
+
+  // 5) Tiny playbook (5–7 bullets)
+  const bullets: string[] = [];
+  bullets.push(
+    needLiq > 1e-6
+      ? `Top up liquidity by ~${pct(needLiq)} pp (Bills/Cash) before other moves.`
+      : `Liquidity already meets the floor (${pct(liqNow)}%).`
+  );
+  const adds = stage1.filter(a=>a.type==="ADD").slice(0,3).map(a=>`add **${a.bucket.replace(/_/g," ")}** ~${pct(a.deltaPct)} pp`);
+  const trims= stage1.filter(a=>a.type==="TRIM").slice(0,3).map(a=>`trim **${a.bucket.replace(/_/g," ")}** ~${pct(Math.abs(a.deltaPct))} pp`);
+  if (trims.length) bullets.push(`Largest reductions now: ${trims.join("; ")}.`);
+  if (adds.length)  bullets.push(`Largest additions now: ${adds.join("; ")}.`);
+  if (stage2.some(a=>ILLiq(a.bucket))) bullets.push(`Defer illiquid changes (property/alternatives/collectibles) to **Stage 2** or next review.`);
+  bullets.push(`Keep individual trades above ${pct(minTrade)} pp to avoid noise.`);
+  bullets.push(`Estimated turnover: ~${estTurnoverPp} pp; indicative cost: ~${(estCostPct*100).toFixed(2)}% of portfolio.`);
+
+  function ILLiq(b: string){ return ILLIQUID_BUCKETS.includes(b as Bucket); }
+
+  return {
+    summary: {
+      totalAbsChangePp: +(abs*100).toFixed(1),
+      estTurnoverPp,
+      estCostPct,
+      liquidityNowPct: +(liqNow*100).toFixed(1),
+      liquidityTargetPct: +(liqTgt*100).toFixed(1),
+      liquidityFixPp: needLiq > 1e-6 ? +(needLiq*100).toFixed(1) : undefined,
+    },
+    staged: { stage1, stage2 },
+    playbook: bullets
+  };
+}
+
+5) Route
+
+src/api/actions.ts
+
+import express from "express";
+import { buildActions, ActionsRequest } from "../lib/actions/engine";
+export const actionsRouter = express.Router();
+
+actionsRouter.post("/api/actions", (req, res) => {
+  const body = req.body as ActionsRequest;
+  if (!body?.currentMix || !body?.targetMix || !body?.portfolioValueGBP) {
+    return res.status(400).json({ error: "currentMix, targetMix, portfolioValueGBP are required" });
+  }
+  const result = buildActions(body);
+  return res.json(result);
+});
+
+
+Add to server.ts:
+
+import { actionsRouter } from "./api/actions";
+app.use(actionsRouter);
+
+6) Example request (curl / Postman)
+curl -s -X POST http://localhost:3000/api/actions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currentMix": { "GLOBAL_EQUITY":0.245, "GROWTH_TECH":0.024, "UK_EQUITY_VALUE":0.105, "IG_CREDIT":0.120, "BILLS_SHORT_GILTS":0.060, "CASH":0.045, "GILTS_LONG":0.039, "PROPERTY_UK_RESI":0.120, "COMMODITIES":0.042, "GOLD":0.028, "ALTERNATIVES":0.010, "COLLECTIBLES_ART":0.010 },
+    "targetMix":  { "GLOBAL_EQUITY":0.305, "GROWTH_TECH":0.026, "UK_EQUITY_VALUE":0.117, "IG_CREDIT":0.148, "BILLS_SHORT_GILTS":0.115, "CASH":0.095, "GILTS_LONG":0.039, "PROPERTY_UK_RESI":0.052, "COMMODITIES":0.037, "GOLD":0.053, "ALTERNATIVES":0.007, "COLLECTIBLES_ART":0.007 },
+    "portfolioValueGBP": 500000,
+    "liquidityFloorPct": 0.10,
+    "minTradePct": 0.005,
+    "maxMoves": 8,
+    "stageIlliquids": true
+  }' | jq .
+
+
+You’ll get:
+
+summary with total change, turnover, costs, liquidity fix
+
+staged.stage1 (do now) and staged.stage2 (defer) actions, each with pp and £
+
+a playbook like:
+
+“Top up liquidity by ~3.0 pp (Bills/Cash) before other moves.”
+
+“Largest reductions now: trim PROPERTY UK RESI ~6.8 pp; trim GLOBAL EQUITY ~? pp …”
+
+“Largest additions now: add BILLS SHORT GILTS ~5.5 pp; add IG CREDIT ~2.8 pp …”
+
+“Defer illiquid changes …”
+
+“Keep trades above 0.5 pp …”
+
+“Estimated turnover ~28.5 pp; indicative cost ~0.18% …”
+
+7) UI wiring (minimal)
+
+Action table (Stage 1 by default; Stage 2 in a tab):
+
+Columns: Action, Asset, Δ (pp), £ Amount, Rationale, Est. cost.
+
+Tiny playbook box above the table (render playbook bullets).
+
+Download: include a JSON/CSV export of Stage 1 list.
+
+8) Acceptance criteria
+
+ Stage 1 starts with liquidity fix (if needed), then largest gaps, respecting minTradePct and maxMoves.
+
+ Illiquid buckets are Stage 2 when stageIlliquids = true.
+
+ Σ Stage1+Stage2 delta ≈ target − current (tolerate rounding).
+
+ Turnover and cost computed deterministically from deltas and frictions.
+
+ Playbook contains 5–7 concise, UK-English bullets.
+
+ No AI used for calculations; all figures derived from inputs/config.

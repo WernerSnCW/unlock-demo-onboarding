@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -840,33 +840,7 @@ export default function InvestorPreferencesWizard() {
 
             {/* Tab Content: Action Plan */}
             <TabsContent value="action">
-              <div className="max-w-4xl mx-auto px-6 py-8">
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-2xl">
-                      <CheckCircle className="w-6 h-6 text-[var(--primary)]" />
-                      Action Plan
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Create your personalized investment action plan.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Coming Soon</h3>
-                      <p className="text-[var(--muted-foreground)] mb-6">
-                        Receive a detailed action plan with specific steps to implement your investment strategy.
-                      </p>
-                      <Button variant="outline" disabled>
-                        Generate Action Plan
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <ActionPlanComponent userId={userId} />
             </TabsContent>
             
             {/* Economic Beliefs Assessment Tab */}
@@ -4525,6 +4499,378 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Action Plan Component
+function ActionPlanComponent({ userId }: { userId: string }) {
+  const [actionsData, setActionsData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeStage, setActiveStage] = useState<1 | 2>(1);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (userId) {
+      generateActionPlan();
+    }
+  }, [userId]);
+
+  const generateActionPlan = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch investor preferences to get recommended portfolio
+      const prefsResponse = await fetch(`/api/investors/${userId}/preferences`);
+      if (!prefsResponse.ok) {
+        throw new Error('Failed to fetch investor preferences');
+      }
+      const preferences = await prefsResponse.json();
+      
+      if (!preferences.recommendedPortfolioAllocations) {
+        throw new Error('No recommended portfolio found. Please complete the Portfolio Recommendations step first.');
+      }
+
+      // Parse the recommended portfolio
+      const targetMix = JSON.parse(preferences.recommendedPortfolioAllocations);
+      
+      // For demo purposes, create a mock current portfolio
+      // In a real app, this would come from actual portfolio holdings
+      const currentMix = {
+        CASH: 0.15,
+        BILLS_SHORT_GILTS: 0.05,
+        GILTS_LONG: 0.05,
+        IG_CREDIT: 0.10,
+        GLOBAL_EQUITY: 0.25,
+        UK_EQUITY_VALUE: 0.15,
+        GROWTH_TECH: 0.10,
+        PROPERTY_UK_RESI: 0.08,
+        COMMODITIES: 0.03,
+        GOLD: 0.02,
+        ALTERNATIVES: 0.01,
+        CRYPTO_BTC: 0.01,
+        CRYPTO_ETH: 0.00,
+        COLLECTIBLES_ART: 0.00,
+        COLLECTIBLES_WINE: 0.00
+      };
+
+      // Call the Actions API
+      const actionsResponse = await fetch('/api/actions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentMix,
+          targetMix,
+          portfolioValueGBP: 500000, // Demo portfolio value
+          liquidityFloorPct: 0.10,
+          minTradePct: 0.005,
+          maxMoves: 8,
+          stageIlliquids: true
+        }),
+      });
+
+      if (!actionsResponse.ok) {
+        throw new Error('Failed to generate action plan');
+      }
+
+      const actionsResult = await actionsResponse.json();
+      setActionsData(actionsResult);
+      
+    } catch (error) {
+      console.error('Error generating action plan:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatBucketName = (bucket: string) => {
+    return bucket.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const getActionIcon = (type: string) => {
+    switch (type) {
+      case 'ADD': return <ArrowUp className="w-4 h-4 text-green-600" />;
+      case 'TRIM': return <ArrowDown className="w-4 h-4 text-red-600" />;
+      case 'TRANSFER': return <ArrowRight className="w-4 h-4 text-blue-600" />;
+      default: return <Activity className="w-4 h-4" />;
+    }
+  };
+
+  const exportToCSV = () => {
+    if (!actionsData) return;
+    
+    const stage1Actions = actionsData.staged.stage1;
+    const csvContent = [
+      ['Action', 'Asset Class', 'Change (pp)', 'Amount (GBP)', 'Rationale', 'Est. Cost %'].join(','),
+      ...stage1Actions.map((action: any) => [
+        action.type,
+        formatBucketName(action.bucket),
+        (action.deltaPct * 100).toFixed(1),
+        action.amountGBP,
+        action.rationale,
+        ((action.estCostPct || 0) * 100).toFixed(3)
+      ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'action-plan.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <CheckCircle className="w-8 h-8 text-white" />
+          </div>
+          <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generating Action Plan</h3>
+          <p className="text-[var(--muted-foreground)] mb-6">
+            Analyzing your portfolio gaps and creating prioritized action steps...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Error Generating Action Plan</h3>
+              <p className="text-[var(--muted-foreground)] mb-6">{error}</p>
+              <Button onClick={generateActionPlan} variant="outline">
+                <ArrowRight className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!actionsData) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <CheckCircle className="w-16 h-16 text-[var(--primary)] mx-auto mb-6" />
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Ready to Generate Action Plan</h3>
+              <p className="text-[var(--muted-foreground)] mb-6">
+                Create a detailed, prioritized action plan to implement your investment strategy.
+              </p>
+              <Button onClick={generateActionPlan}>
+                <Play className="w-4 h-4 mr-2" />
+                Generate Action Plan
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const currentActions = activeStage === 1 ? actionsData.staged.stage1 : actionsData.staged.stage2;
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">Your Action Plan</h1>
+        <p className="text-[var(--muted-foreground)]">
+          Prioritized steps to implement your investment strategy
+        </p>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <TrendingUp className="w-8 h-8 text-[var(--primary)] mx-auto mb-2" />
+              <div className="text-2xl font-bold">{actionsData.summary.totalAbsChangePp}pp</div>
+              <div className="text-sm text-[var(--muted-foreground)]">Total Change</div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Activity className="w-8 h-8 text-[var(--secondary)] mx-auto mb-2" />
+              <div className="text-2xl font-bold">{actionsData.summary.estTurnoverPp}pp</div>
+              <div className="text-sm text-[var(--muted-foreground)]">Est. Turnover</div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <DollarSign className="w-8 h-8 text-[var(--accent)] mx-auto mb-2" />
+              <div className="text-2xl font-bold">{(actionsData.summary.estCostPct * 100).toFixed(2)}%</div>
+              <div className="text-sm text-[var(--muted-foreground)]">Est. Cost</div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <PiggyBank className="w-8 h-8 text-green-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold">{actionsData.summary.liquidityNowPct}%</div>
+              <div className="text-sm text-[var(--muted-foreground)]">Current Liquidity</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Playbook */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5" />
+            Investment Playbook
+          </CardTitle>
+          <CardDescription>
+            Key strategic guidance for implementing your action plan
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {actionsData.playbook.map((bullet: string, index: number) => (
+              <div key={index} className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-semibold mt-0.5">
+                  {index + 1}
+                </div>
+                <p className="text-[var(--foreground)] leading-relaxed" dangerouslySetInnerHTML={{
+                  __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                }} />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stage Toggle */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant={activeStage === 1 ? "default" : "outline"}
+            onClick={() => setActiveStage(1)}
+            className="flex items-center gap-2"
+          >
+            <Play className="w-4 h-4" />
+            Stage 1: Do Now ({actionsData.staged.stage1.length} actions)
+          </Button>
+          <Button
+            variant={activeStage === 2 ? "default" : "outline"}
+            onClick={() => setActiveStage(2)}
+            className="flex items-center gap-2"
+          >
+            <Pause className="w-4 h-4" />
+            Stage 2: Later ({actionsData.staged.stage2.length} actions)
+          </Button>
+        </div>
+        
+        <Button
+          variant="outline"
+          onClick={exportToCSV}
+          className="flex items-center gap-2"
+        >
+          <Download className="w-4 h-4" />
+          Export CSV
+        </Button>
+      </div>
+
+      {/* Actions Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {activeStage === 1 ? 'Immediate Actions' : 'Deferred Actions'}
+          </CardTitle>
+          <CardDescription>
+            {activeStage === 1 
+              ? 'Priority actions to implement immediately'
+              : 'Lower priority or illiquid actions to consider later'
+            }
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4">Action</th>
+                  <th className="text-left py-3 px-4">Asset Class</th>
+                  <th className="text-right py-3 px-4">Change (pp)</th>
+                  <th className="text-right py-3 px-4">Amount</th>
+                  <th className="text-left py-3 px-4">Rationale</th>
+                  <th className="text-right py-3 px-4">Est. Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentActions.map((action: any, index: number) => (
+                  <tr key={index} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {getActionIcon(action.type)}
+                        <span className="font-medium">{action.type}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 font-medium">
+                      {formatBucketName(action.bucket)}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className={`font-semibold ${action.deltaPct > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {action.deltaPct > 0 ? '+' : ''}{(action.deltaPct * 100).toFixed(1)}%
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right font-semibold">
+                      {formatCurrency(action.amountGBP)}
+                    </td>
+                    <td className="py-3 px-4 text-[var(--muted-foreground)]">
+                      {action.rationale}
+                    </td>
+                    <td className="py-3 px-4 text-right text-[var(--muted-foreground)]">
+                      {((action.estCostPct || 0) * 100).toFixed(3)}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Refresh Button */}
+      <div className="text-center">
+        <Button onClick={generateActionPlan} variant="outline">
+          <ArrowRight className="w-4 h-4 mr-2" />
+          Regenerate Action Plan
+        </Button>
+      </div>
     </div>
   );
 }

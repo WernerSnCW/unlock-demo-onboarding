@@ -27,6 +27,7 @@ import { computeGap, type GapRequest } from './lib/gap/computeGap';
 import { buildWhy, type WhyContext } from './lib/gap/why';
 import { SCENARIO_LABELS } from './config/scenarios';
 import { type SimV2Request } from './lib/simulate/engine_v2';
+import { buildActions, type ActionsRequest } from './lib/actions/engine';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -2243,6 +2244,43 @@ Return as JSON with this exact structure:
       res.status(500).json({ 
         message: 'Failed to fetch quote',
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Actions API Route - Convert portfolio gaps into staged action plans
+  app.post("/api/actions", (req, res) => {
+    try {
+      const body = req.body as ActionsRequest;
+      if (!body?.currentMix || !body?.targetMix || !body?.portfolioValueGBP) {
+        return res.status(400).json({ 
+          error: "currentMix, targetMix, portfolioValueGBP are required" 
+        });
+      }
+      
+      console.log('Actions API called with request:', {
+        portfolioValueGBP: body.portfolioValueGBP,
+        liquidityFloorPct: body.liquidityFloorPct,
+        minTradePct: body.minTradePct,
+        maxMoves: body.maxMoves,
+        stageIlliquids: body.stageIlliquids
+      });
+      
+      const result = buildActions(body);
+      
+      console.log('Actions API result:', {
+        totalChangePp: result.summary.totalAbsChangePp,
+        stage1Actions: result.staged.stage1.length,
+        stage2Actions: result.staged.stage2.length,
+        estCostPct: result.summary.estCostPct
+      });
+      
+      return res.json(result);
+    } catch (error) {
+      console.error('Actions API error:', error);
+      return res.status(500).json({ 
+        error: 'Failed to generate action plan',
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
