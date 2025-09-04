@@ -3141,6 +3141,85 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     fetchPreferences();
   }, [actualUserId]);
 
+  const generateRandomAllocation = async () => {
+    console.log('=== Generate Random Allocation Button Clicked ===');
+    console.log('actualUserId:', actualUserId);
+    
+    setLoading(true);
+    setError(null);
+    setLoadingMessage("Generating random portfolio allocation...");
+
+    try {
+      // Define all asset buckets
+      const assetBuckets = [
+        'CASH',
+        'BILLS_SHORT_GILTS', 
+        'GILTS_LONG',
+        'IG_CREDIT',
+        'GLOBAL_EQUITY',
+        'UK_EQUITY_VALUE',
+        'GROWTH_TECH',
+        'PROPERTY_UK_RESI',
+        'COMMODITIES',
+        'GOLD',
+        'ALTERNATIVES',
+        'CRYPTO_BTC',
+        'CRYPTO_ETH',
+        'COLLECTIBLES_ART',
+        'COLLECTIBLES_WINE'
+      ];
+
+      // Generate random weights
+      const randomWeights = assetBuckets.map(() => Math.random());
+      const weightSum = randomWeights.reduce((sum, weight) => sum + weight, 0);
+      
+      // Normalize to sum to 1 (100%)
+      const normalizedWeights = randomWeights.map(weight => weight / weightSum);
+      
+      // Create the random allocation
+      const randomAllocation: any = {};
+      assetBuckets.forEach((bucket, index) => {
+        randomAllocation[bucket] = normalizedWeights[index];
+      });
+
+      // Create mock target data structure
+      const randomTargetData = {
+        personaId: 'RANDOM',
+        scenarioWeights: {},
+        tiltStrength: 0,
+        baseMix: randomAllocation,
+        scenarioBlend: randomAllocation,
+        preRulesMix: randomAllocation,
+        targetMix: randomAllocation,
+        flags: ['Random allocation generated'],
+        adjustments: ['No house rules applied to random allocation'],
+        narrative: {
+          overview: 'This is a completely random portfolio allocation for demonstration purposes. Each asset class has been assigned a random percentage that sums to 100%. This is not based on any investment strategy or recommendation.',
+          bullets: [
+            'Random allocation across all asset classes',
+            'No consideration of risk profile or economic beliefs',
+            'Purely for demonstration and testing purposes',
+            'Not suitable for actual investment decisions'
+          ]
+        }
+      };
+
+      setTargetData(randomTargetData);
+      
+      toast({
+        title: "Random Allocation Generated",
+        description: "A random portfolio allocation has been created for demonstration!",
+      });
+
+    } catch (error) {
+      console.error('Error generating random allocation:', error);
+      setError('Failed to generate random allocation. Please try again.');
+    } finally {
+      setLoading(false);
+      setLoadingMessage(null);
+    }
+  };
+
   const generateRecommendations = async () => {
     console.log('=== Generate Recommendations Button Clicked ===');
     console.log('actualUserId:', actualUserId);
@@ -3498,12 +3577,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Portfolio Recommendations</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Random Portfolio Allocation</h3>
               <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
-                Get a sophisticated portfolio allocation that combines your investor profile with your economic beliefs and professional house rules.
+                Generate a completely random portfolio allocation across all asset classes for demonstration and testing purposes.
               </p>
               <Button 
-                onClick={generateRecommendations}
+                onClick={generateRandomAllocation}
                 disabled={loading}
                 className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3 disabled:opacity-70"
               >
@@ -3515,7 +3594,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5 mr-2" />
-                    Generate Recommendations
+                    Generate Random Allocation
                   </>
                 )}
               </Button>
@@ -3532,9 +3611,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generating Recommendations</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generating Random Allocation</h3>
               <p className="text-[var(--muted-foreground)] mb-6">
-                Analyzing your profile and market beliefs to create your optimal portfolio allocation...
+                Creating a random portfolio allocation across all asset classes...
               </p>
               <div className="w-64 mx-auto">
                 <Progress value={undefined} className="h-2" />
@@ -3550,7 +3629,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <h3 className="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">Generation Failed</h3>
               <p className="text-[var(--muted-foreground)] mb-6">{error}</p>
               <Button 
-                onClick={generateRecommendations}
+                onClick={generateRandomAllocation}
                 variant="outline"
                 className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
               >
@@ -3880,12 +3959,12 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               {/* Regenerate Button */}
               <div className="text-center pt-6">
                 <Button 
-                  onClick={generateRecommendations}
+                  onClick={generateRandomAllocation}
                   variant="outline"
                   className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Regenerate Recommendations
+                  Generate New Random Allocation
                 </Button>
               </div>
               </TabsContent>
