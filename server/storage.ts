@@ -37,6 +37,7 @@ export interface IStorage {
   deleteInvestor(userId: string): Promise<boolean>;
   
   // Investor Preferences methods
+  getAllInvestorPreferences(): Promise<InvestorPreferences[]>;
   getInvestorPreferences(userId: string): Promise<InvestorPreferences | undefined>;
   upsertInvestorPreferences(prefs: InsertInvestorPreferences): Promise<InvestorPreferences>;
   
@@ -153,6 +154,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Investor Preferences methods
+  async getAllInvestorPreferences(): Promise<InvestorPreferences[]> {
+    return await db.select().from(investorPreferences).orderBy(desc(investorPreferences.updatedAt));
+  }
+
   async getInvestorPreferences(userId: string): Promise<InvestorPreferences | undefined> {
     const [prefs] = await db.select().from(investorPreferences).where(eq(investorPreferences.userId, userId));
     return prefs || undefined;

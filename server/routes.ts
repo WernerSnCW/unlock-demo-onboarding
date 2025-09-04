@@ -196,6 +196,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/investors/all-preferences', async (req, res) => {
+    try {
+      const allPreferences = await storage.getAllInvestorPreferences();
+      res.json(allPreferences);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch all preferences' });
+    }
+  });
+
   app.put('/api/investors/:userId/preferences', async (req, res) => {
     try {
       const { userId } = req.params;
@@ -501,33 +510,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Recommended portfolio data to save:', dataToSave);
       
-      // First, ensure the investor record exists in the main investors table
-      let investor = await storage.getInvestor(userId);
-      if (!investor) {
-        // Create investor record if it doesn't exist
-        investor = await storage.createInvestor({
-          userId,
-          investorName,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
-        console.log('Created new investor record:', investor);
-      } else {
-        // Update existing investor record with latest name
-        investor = await storage.updateInvestor(userId, {
-          investorName,
-          updatedAt: new Date()
-        });
-        console.log('Updated existing investor record:', investor);
-      }
-      
-      // Then save the preferences
       const preferences = await storage.upsertInvestorPreferences(dataToSave);
       res.json({ 
         success: true, 
         userId,
         preferences,
-        investor,
         message: `Recommended portfolio saved successfully for ${investorName}` 
       });
     } catch (error) {

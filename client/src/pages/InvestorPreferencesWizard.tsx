@@ -4523,19 +4523,19 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       
       console.log('Action Plan: Finding investor with recent portfolio recommendations...');
       
-      // Try to find an investor with saved recommendations (they just completed the wizard)
-      const searchResponse = await fetch('/api/investors');
+      // Try to find an investor preferences record with saved recommendations (they just completed the wizard)
+      const searchResponse = await fetch('/api/investors/all-preferences');
       if (searchResponse.ok) {
-        const allInvestors = await searchResponse.json();
+        const allPreferences = await searchResponse.json();
         
         // Find the most recent investor with completed portfolio recommendations
-        const recentInvestor = allInvestors
-          .filter((inv: any) => inv.recommendedPortfolioAllocations && inv.recommendedPortfolioCompletedAt)
+        const recentPrefs = allPreferences
+          .filter((prefs: any) => prefs.recommendedPortfolioAllocations && prefs.recommendedPortfolioCompletedAt)
           .sort((a: any, b: any) => new Date(b.recommendedPortfolioCompletedAt).getTime() - new Date(a.recommendedPortfolioCompletedAt).getTime())[0];
         
-        if (recentInvestor) {
-          actualUserId = recentInvestor.userId;
-          console.log('Action Plan: Found recent investor with recommendations:', actualUserId, recentInvestor.investorName);
+        if (recentPrefs) {
+          actualUserId = recentPrefs.userId;
+          console.log('Action Plan: Found recent investor with recommendations:', actualUserId, recentPrefs.investorName);
         } else {
           console.log('Action Plan: No recent investor with recommendations found, using current userId:', userId);
         }
