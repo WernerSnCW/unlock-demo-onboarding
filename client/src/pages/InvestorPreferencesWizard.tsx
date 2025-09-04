@@ -446,10 +446,10 @@ export default function InvestorPreferencesWizard() {
                     isCompleted = showBeliefQuestionnaire;
                   } else if (tab.id === 'beliefs') {
                     // Card 3 completed when belief responses are saved (and we're on analysis)
-                    isCompleted = activeMainTab === 'analysis' || gapAnalysisData || actualPortfolioData;
+                    isCompleted = activeMainTab === 'analysis';
                   } else if (tab.id === 'analysis') {
-                    // Card 4 completed when gap analysis is done
-                    isCompleted = gapAnalysisData !== null;
+                    // Card 4 completed when we're on strategy tab (meaning analysis was done)
+                    isCompleted = activeMainTab === 'strategy';
                   }
                   
                   return (
