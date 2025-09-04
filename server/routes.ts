@@ -280,6 +280,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GET belief responses for a specific user
+  app.get('/api/investors/:userId/belief-responses', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+
+      const [preferences] = await db
+        .select()
+        .from(investorPreferences)
+        .where(eq(investorPreferences.userId, userId));
+
+      if (!preferences) {
+        return res.status(404).json({ message: 'User preferences not found' });
+      }
+
+      // Parse selected scenarios from database
+      let scenarioWeights: Record<string, number> = {};
+      if (preferences.selectedScenarios) {
+        try {
+          const selectedScenarios = JSON.parse(preferences.selectedScenarios as string);
+          // Convert selected scenarios array to weights object
+          if (Array.isArray(selectedScenarios) && selectedScenarios.length > 0) {
+            const weight = 1.0 / selectedScenarios.length; // Equal weight among selected scenarios
+            scenarioWeights = {};
+            for (const scenario of selectedScenarios) {
+              if (typeof scenario === 'string') {
+                scenarioWeights[scenario] = weight;
+              }
+            }
+          }
+        } catch (parseError) {
+          console.error('Error parsing selected scenarios:', parseError);
+        }
+      }
+
+      res.json({
+        userId: preferences.userId,
+        scenarioWeights,
+        beliefResponsesCompletedAt: preferences.beliefResponsesCompletedAt
+      });
+
+    } catch (error) {
+      console.error('Error fetching belief responses:', error);
+      res.status(500).json({ message: 'Failed to fetch belief responses' });
+    }
+  });
+
   // Belief responses endpoint - saves economic beliefs questionnaire results
   app.post('/api/investors/belief-responses', async (req, res) => {
     try {
