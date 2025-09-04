@@ -4447,6 +4447,13 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                   }
 
                   try {
+                    console.log('=== SAVING RECOMMENDED PORTFOLIO ===');
+                    console.log('Data to save:', {
+                      userId: actualUserId,
+                      investorName: investorPrefs.investorName,
+                      targetMixKeys: Object.keys(targetData.targetMix)
+                    });
+
                     // Save the recommended portfolio allocations
                     const response = await fetch('/api/investors/recommended-portfolio', {
                       method: 'POST',
@@ -4460,18 +4467,43 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       }),
                     });
 
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+
                     if (!response.ok) {
                       const errorText = await response.text();
+                      console.error('Response error text:', errorText);
                       throw new Error(`Failed to save recommended portfolio: ${response.status} ${errorText}`);
                     }
 
                     const result = await response.json();
+                    console.log('=== SAVE SUCCESS ===');
                     console.log('Recommended portfolio saved successfully:', result);
 
                     // Navigate to Action Plan tab
                     setActiveMainTab('action');
+                    
+                    // Show success message
+                    toast({
+                      title: "Recommendations Saved",
+                      description: "Your portfolio recommendations have been saved successfully!",
+                    });
+
                   } catch (error) {
-                    console.error('Error saving recommended portfolio:', error);
+                    console.error('=== SAVE ERROR ===');
+                    console.error('Error type:', typeof error);
+                    console.error('Error name:', error?.name);
+                    console.error('Error message:', error?.message);
+                    console.error('Full error object:', error);
+                    console.error('Error stack:', error?.stack);
+                    
+                    // Show error message to user
+                    toast({
+                      title: "Save Error",
+                      description: "There was an issue saving your recommendations, but you can still continue.",
+                      variant: "destructive",
+                    });
+                    
                     // Still navigate even if save fails
                     setActiveMainTab('action');
                   }
