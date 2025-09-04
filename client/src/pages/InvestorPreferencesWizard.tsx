@@ -131,7 +131,7 @@ const mainTabs = [
   { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
   { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
   { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Coming soon - analyze your current holdings' },
-  { id: 'strategy', title: 'Investment Strategy', icon: TrendingUp, description: 'Coming soon - develop your investment strategy' },
+  { id: 'strategy', title: 'Portfolio Recommendations', icon: TrendingUp, description: 'Coming soon - develop your investment strategy' },
   { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Coming soon - create your personalized action plan' }
 ];
 
@@ -830,7 +830,7 @@ export default function InvestorPreferencesWizard() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-2xl">
                       <TrendingUp className="w-6 h-6 text-[var(--primary)]" />
-                      Investment Strategy
+                      Portfolio Recommendations
                     </CardTitle>
                     <CardDescription className="text-base">
                       Develop a personalized investment strategy based on your profile.
@@ -3055,7 +3055,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
               className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
             >
               <ArrowRight className="w-5 h-5 mr-2" />
-              Continue to Pitch Deck Analysis
+              Continue to Portfolio Recommendations
             </Button>
           </div>
         )}
