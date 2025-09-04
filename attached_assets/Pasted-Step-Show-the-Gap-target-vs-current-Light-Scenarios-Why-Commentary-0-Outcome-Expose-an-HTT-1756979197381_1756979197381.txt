@@ -1,0 +1,492 @@
+Step “Show the Gap (target vs current)” + Light Scenarios + Why Commentary
+0) Outcome
+
+Expose an HTTP endpoint and a small demo UI that:
+
+accepts the user’s current portfolio mix and a target portfolio mix
+
+computes per-bucket deltas, liquidity/concentration warnings, Belief Alignment (if scenarios provided), and scenario sanity checks
+
+generates 3–6 why-style bullets (deterministic text; optional LLM polish)
+
+is fully deterministic for numbers (no AI maths)
+
+1) One-time project setup (Replit)
+
+Create a Node.js + TypeScript repl.
+
+Install deps:
+
+npm i express
+npm i -D typescript ts-node @types/node @types/express
+
+
+tsconfig.json (project root):
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+
+
+package.json scripts:
+
+{
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  }
+}
+
+2) Files to add (exact layout)
+src/
+  config/
+    buckets.ts
+    scenarios.ts
+  lib/
+    gap/
+      computeGap.ts
+      why.ts
+  server.ts
+  demo/
+    client.html
+
+3) Canonical buckets (copy/paste)
+
+src/config/buckets.ts
+
+export const CANONICAL_BUCKETS = [
+  "CASH","BILLS_SHORT_GILTS","GILTS_LONG","IG_CREDIT",
+  "GLOBAL_EQUITY","UK_EQUITY_VALUE","GROWTH_TECH","PROPERTY_UK_RESI",
+  "COMMODITIES","GOLD","ALTERNATIVES",
+  "CRYPTO_BTC","CRYPTO_ETH","COLLECTIBLES_ART","COLLECTIBLES_WINE",
+] as const;
+
+export type Bucket = typeof CANONICAL_BUCKETS[number];
+
+4) Light scenario priors + blender (IDs only; friendly names are optional)
+
+src/config/scenarios.ts
+
+import { CANONICAL_BUCKETS, Bucket } from "./buckets";
+
+// Scenario templates (IDs S001..S010). These are priors by bucket.
+// Note: buckets not listed are implicitly 0 for that scenario.
+export const SCENARIO_PRIORS: Record<string, Partial<Record<Bucket, number>>> = {
+  S001: { CASH:0.10, GILTS_LONG:0.10, IG_CREDIT:0.15, GLOBAL_EQUITY:0.50, UK_EQUITY_VALUE:0.15 },
+  S002: { CASH:0.15, BILLS_SHORT_GILTS:0.20, IG_CREDIT:0.20, GLOBAL_EQUITY:0.35, UK_EQUITY_VALUE:0.10 },
+  S003: { CASH:0.10, IG_CREDIT:0.10, GLOBAL_EQUITY:0.30, UK_EQUITY_VALUE:0.15, COMMODITIES:0.15, GOLD:0.20 },
+  S004: { BILLS_SHORT_GILTS:0.15, GILTS_LONG:0.15, IG_CREDIT:0.20, GLOBAL_EQUITY:0.35, UK_EQUITY_VALUE:0.15 },
+  S005: { CASH:0.10, GILTS_LONG:0.15, IG_CREDIT:0.15, GLOBAL_EQUITY:0.40, UK_EQUITY_VALUE:0.20 },
+  S006: { CASH:0.05, GILTS_LONG:0.15, IG_CREDIT:0.10, GLOBAL_EQUITY:0.45, UK_EQUITY_VALUE:0.10, GROWTH_TECH:0.15 },
+  S007: { CASH:0.10, BILLS_SHORT_GILTS:0.10, IG_CREDIT:0.08, GLOBAL_EQUITY:0.25, UK_EQUITY_VALUE:0.15, COMMODITIES:0.20, GOLD:0.12 },
+  S008: { CASH:0.10, BILLS_SHORT_GILTS:0.05, IG_CREDIT:0.10, GLOBAL_EQUITY:0.40, UK_EQUITY_VALUE:0.10, COMMODITIES:0.10, GOLD:0.15 },
+  S009: { CASH:0.15, BILLS_SHORT_GILTS:0.20, GILTS_LONG:0.05, IG_CREDIT:0.10, GLOBAL_EQUITY:0.35, UK_EQUITY_VALUE:0.10, COMMODITIES:0.05 },
+  S010:{ CASH:0.07, BILLS_SHORT_GILTS:0.05, IG_CREDIT:0.08, GLOBAL_EQUITY:0.22, UK_EQUITY_VALUE:0.18, COMMODITIES:0.25, GOLD:0.15 },
+} as const;
+
+// Optional UI labels if you want friendlier names (display only)
+export const SCENARIO_LABELS: Record<string, string> = {
+  S001:"Base Growth", S002:"Policy Support", S003:"Inflation Hedges", S004:"Rates Normalisation",
+  S005:"Quality Growth", S006:"Tech-led Growth", S007:"Stagflation Tilt", S008:"Soft-ish Inflation",
+  S009:"Gilt Sell-off", S010:"Commodity Upswing",
+};
+
+// Blend a user-selected mix of scenario IDs into one bucket vector
+export function blendScenarioTemplates(
+  weights: Record<string, number>
+): Record<Bucket, number> {
+  const total = Object.values(weights || {}).reduce((a,b)=>a+b,0) || 0;
+  const norm  = Object.fromEntries(Object.entries(weights||{}).map(([k,v])=>[k, total ? v/total : 0]));
+  const out: Record<Bucket, number> = Object.fromEntries(CANONICAL_BUCKETS.map(b => [b, 0])) as any;
+  for (const [sid, w] of Object.entries(norm)) {
+    const prior = SCENARIO_PRIORS[sid]; if (!prior || w <= 0) continue;
+    for (const [b, p] of Object.entries(prior)) out[b as Bucket] += (p as number) * w;
+  }
+  return out;
+}
+
+5) Core Gap maths (+ light scenarios)
+
+src/lib/gap/computeGap.ts
+
+import { CANONICAL_BUCKETS, Bucket } from "../../config/buckets";
+import { blendScenarioTemplates } from "../../config/scenarios";
+
+export interface GapRequest {
+  currentMix: Record<string, number>;   // bucket -> 0..1 (can omit)
+  targetMix:  Record<string, number>;   // bucket -> 0..1 (can omit)
+  // optional hints for warnings
+  riskProfile?: string;                 // e.g., "Income" | "Conservative" | ...
+  drawdownCap?: number;                 // e.g., 0.20 (20% worst-case)
+  // optional light scenarios
+  scenarioWeights?: Record<string, number>; // e.g., { S007:0.6, S009:0.4 }
+}
+
+export interface GapRow {
+  bucket: Bucket;
+  currentPct: number;
+  targetPct: number;
+  deltaPct: number;                     // target - current
+  flags: string[];                      // per-row flags (e.g., concentration)
+}
+
+export interface GapResponse {
+  rows: GapRow[];                       // sorted by |delta| desc
+  totals: {
+    absGapSum: number;                  // Σ |delta|
+    cashBillsNow: number;               // CASH + BILLS_SHORT_GILTS
+    cashBillsTarget: number;
+  };
+  headlineFlags: string[];              // e.g., liquidity floor shortfall
+
+  // light scenario insights (present iff scenarioWeights provided)
+  beliefAlignmentNow?: number;          // 0..100
+  beliefAlignmentTarget?: number;       // 0..100
+}
+
+function harmonise(mix: Partial<Record<string, number>>): Record<Bucket, number> {
+  const out = {} as Record<Bucket, number>;
+  for (const b of CANONICAL_BUCKETS) out[b] = Number(mix[b] ?? 0);
+  return out;
+}
+function isCautious(rp?: string, dd?: number): boolean {
+  const s = (rp || "").toLowerCase();
+  return s.includes("conservative") || s.includes("income") || s.includes("defensive")
+      || (typeof dd === "number" && dd <= 0.20);
+}
+function l1(a: Record<Bucket,number>, b: Record<Bucket,number>) {
+  return CANONICAL_BUCKETS.reduce((sum, k) => sum + Math.abs(a[k] - b[k]), 0);
+}
+
+export function computeGap(req: GapRequest): GapResponse {
+  const current = harmonise(req.currentMix);
+  const target  = harmonise(req.targetMix);
+
+  const rows: GapRow[] = CANONICAL_BUCKETS.map((bucket) => {
+    const currentPct = current[bucket];
+    const targetPct  = target[bucket];
+    const deltaPct   = +(targetPct - currentPct).toFixed(4);
+    const flags: string[] = [];
+    if (currentPct > 0.35) flags.push(`Concentration: ${bucket} > 35%`);
+    return { bucket, currentPct, targetPct, deltaPct, flags };
+  });
+
+  const cashBillsNow    = current.CASH + current.BILLS_SHORT_GILTS;
+  const cashBillsTarget = target.CASH + target.BILLS_SHORT_GILTS;
+  const floor = isCautious(req.riskProfile, req.drawdownCap) ? 0.20 : 0.10;
+
+  const headlineFlags: string[] = [];
+  if (cashBillsNow < floor) {
+    headlineFlags.push(`Liquidity floor shortfall: have ${(cashBillsNow*100).toFixed(1)}%, need ≥ ${(floor*100).toFixed(0)}%`);
+  }
+
+  const absGapSum = +rows.reduce((s, r) => s + Math.abs(r.deltaPct), 0).toFixed(4);
+  rows.sort((a, b) => Math.abs(b.deltaPct) - Math.abs(a.deltaPct));
+
+  const resp: GapResponse = {
+    rows,
+    totals: { absGapSum, cashBillsNow, cashBillsTarget },
+    headlineFlags,
+  };
+
+  // --- Light scenarios (optional) ---
+  if (req.scenarioWeights && Object.values(req.scenarioWeights).some(w => w > 0)) {
+    const S = harmonise(blendScenarioTemplates(req.scenarioWeights));
+    const dNow = l1(current, S);
+    const dTgt = l1(target,  S);
+    // Alignment: 100 * (1 - L1/2). (Max L1 distance is 2.)
+    resp.beliefAlignmentNow    = Math.round(100 * (1 - dNow/2));
+    resp.beliefAlignmentTarget = Math.round(100 * (1 - dTgt/2));
+
+    // Scenario sanity checks (add only if violated)
+    const scenos = Object.keys(req.scenarioWeights).filter(k => (req.scenarioWeights![k]||0) > 0.001);
+    if (scenos.includes("S007")) {
+      const realNow = current.COMMODITIES + current.GOLD;
+      const realTgt = target.COMMODITIES + target.GOLD;
+      if (realTgt < realNow && realNow < 0.35) {
+        resp.headlineFlags.push("S007 check: don’t reduce (commodities + gold) unless already ≥ 35%.");
+      }
+    }
+    if (scenos.includes("S009")) {
+      if (target.GILTS_LONG > current.GILTS_LONG) {
+        resp.headlineFlags.push("S009 check: don’t increase long duration (GILTS_LONG).");
+      }
+    }
+  }
+
+  return resp;
+}
+
+6) Why-style commentary (deterministic; optional LLM polish later)
+
+src/lib/gap/why.ts
+
+type Row = { bucket: string; currentPct: number; targetPct: number; deltaPct: number; flags: string[] };
+type GapResponse = {
+  rows: Row[];
+  totals: { absGapSum: number; cashBillsNow: number; cashBillsTarget: number };
+  headlineFlags: string[];
+  beliefAlignmentNow?: number;
+  beliefAlignmentTarget?: number;
+};
+
+export interface WhyContext {
+  personaLabel: string;      // e.g., "Retirement Planner"
+  scenarioLabel?: string;    // e.g., "60% S007 / 40% S009"
+}
+
+const BUCKET_REASON: Record<string, string> = {
+  CASH: "keeps money instantly available for spend and shocks",
+  BILLS_SHORT_GILTS: "adds liquidity with low interest-rate sensitivity",
+  GILTS_LONG: "adds duration exposure which can be volatile when yields move",
+  IG_CREDIT: "adds income and quality credit exposure",
+  GLOBAL_EQUITY: "diversifies across world markets",
+  UK_EQUITY_VALUE: "tilts to cheaper, more defensive UK shares",
+  GROWTH_TECH: "adds innovation and tech exposure (higher volatility)",
+  PROPERTY_UK_RESI: "is illiquid and concentrated in UK housing",
+  COMMODITIES: "adds real-asset inflation protection",
+  GOLD: "adds crisis and inflation hedge",
+  ALTERNATIVES: "broadens diversification beyond listed markets",
+  CRYPTO_BTC: "is highly volatile and speculative",
+  CRYPTO_ETH: "is highly volatile and speculative",
+  COLLECTIBLES_ART: "is niche and illiquid",
+  COLLECTIBLES_WINE: "is niche and illiquid"
+};
+
+function topMoves(rows: Row[], sign: "ADD" | "TRIM", max = 3) {
+  const filtered = rows
+    .filter(r => (sign === "ADD" ? r.deltaPct > 0 : r.deltaPct < 0))
+    .sort((a,b) => Math.abs(b.deltaPct) - Math.abs(a.deltaPct))
+    .slice(0, max);
+  return filtered.map(r => ({ bucket: r.bucket, pp: +(r.deltaPct*100).toFixed(1) }));
+}
+
+export function buildWhy(gap: GapResponse, ctx: WhyContext): string[] {
+  const bullets: string[] = [];
+
+  // Belief alignment (if present)
+  if (typeof gap.beliefAlignmentNow === "number" && typeof gap.beliefAlignmentTarget === "number") {
+    const delta = gap.beliefAlignmentTarget - gap.beliefAlignmentNow;
+    const arrow = delta > 0 ? ` (↑ +${delta})` : delta < 0 ? ` (↓ ${delta})` : "";
+    bullets.push(
+      `Aligns with your outlook${ctx.scenarioLabel ? ` **${ctx.scenarioLabel}**` : ""}: `
+      + `Belief alignment **${gap.beliefAlignmentNow}/100 → ${gap.beliefAlignmentTarget}/100**${arrow}.`
+    );
+  }
+
+  // Liquidity story (always relevant)
+  const now = +(gap.totals.cashBillsNow*100).toFixed(1);
+  const tgt = +(gap.totals.cashBillsTarget*100).toFixed(1);
+  bullets.push(`Liquidity shifts from **${now}% → ${tgt}%** (cash + short gilts) for more flexibility in drawdowns.`);
+
+  // Top trims / adds with plain reasons
+  const trims = topMoves(gap.rows, "TRIM");
+  const adds  = topMoves(gap.rows, "ADD");
+  if (trims.length) {
+    const t = trims.map(x => `trim **${x.bucket.replace(/_/g," ")}** (~${x.pp} pp: ${BUCKET_REASON[x.bucket] || "right-size exposure"})`);
+    bullets.push(`Largest reductions: ${t.join("; ")}.`);
+  }
+  if (adds.length) {
+    const a = adds.map(x => `add **${x.bucket.replace(/_/g," ")}** (~${x.pp} pp: ${BUCKET_REASON[x.bucket] || "strengthen balance"})`);
+    bullets.push(`Largest additions: ${a.join("; ")}.`);
+  }
+
+  // Surface any headline flags as reassurance
+  for (const f of gap.headlineFlags || []) {
+    if (/Liquidity floor/i.test(f)) bullets.push(`Meets the liquidity floor requirement once changes are applied.`);
+    if (/Concentration/i.test(f))  bullets.push(`Reduces single-bucket concentration risk.`);
+  }
+
+  return bullets.slice(0, 6); // keep it tight
+}
+
+
+If you want LLM polish later: send these bullets to your model with a strict prompt (“rewrite in UK English; no new numbers; no advice”). If the model introduces any new numbers, fall back to the raw bullets.
+
+7) HTTP server (Express) + static demo page
+
+src/server.ts
+
+import express from "express";
+import path from "path";
+import { computeGap, GapRequest } from "./lib/gap/computeGap";
+import { buildWhy } from "./lib/gap/why";
+import { SCENARIO_LABELS } from "./config/scenarios";
+
+const app = express();
+app.use(express.json());
+
+// Health
+app.get("/", (_req, res) => res.send("Gap service alive"));
+
+// Core endpoint
+app.post("/api/gap", (req, res) => {
+  try {
+    const body = req.body as GapRequest;
+    if (!body || !body.currentMix || !body.targetMix) {
+      return res.status(400).json({ error: "currentMix and targetMix are required" });
+    }
+
+    const result = computeGap(body);
+
+    // Optional: make a simple scenario label string for the client
+    let scenarioLabel: string | undefined;
+    if (body.scenarioWeights) {
+      const parts = Object.entries(body.scenarioWeights)
+        .filter(([,w]) => w > 0)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([k,w]) => `${(w*100).toFixed(0)}% ${SCENARIO_LABELS[k] || k}`);
+      scenarioLabel = parts.join(" / ");
+    }
+
+    // Build deterministic “why” bullets server-side
+    const bullets = buildWhy(result, {
+      personaLabel: "Persona",           // plug your actual persona label here if you have it
+      scenarioLabel,
+    });
+
+    return res.json({ ...result, why: bullets, scenarioLabel });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).json({ error: "Internal error" });
+  }
+});
+
+// Demo UI
+app.use("/demo", express.static(path.join(__dirname, "demo")));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Gap server listening on http://localhost:${PORT}`));
+
+
+src/demo/client.html (quick eyeball UI)
+
+<!doctype html>
+<meta charset="utf-8"/>
+<title>Gap demo</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 12px;}
+  th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .neg { color: #b00020; } .pos { color: #00695c; }
+  .chips { display:flex; gap:8px; flex-wrap: wrap; margin: 8px 0 12px; }
+  .chip { background:#f3f4f6; padding:6px 10px; border-radius:999px; font-size:14px; }
+  .flags { color:#b00020; margin: 8px 0; }
+</style>
+<h1>Gap (target vs current)</h1>
+<button id="run">Run sample</button>
+<div class="chips" id="chips"></div>
+<div class="flags" id="flags"></div>
+<ol id="why"></ol>
+<table id="tbl"><thead><tr>
+  <th>Bucket</th><th>Current %</th><th>Target %</th><th>Δ (pp)</th><th>Row flags</th>
+</tr></thead><tbody></tbody></table>
+<script>
+async function run() {
+  const body = {
+    currentMix: {
+      CASH:0.03,BILLS_SHORT_GILTS:0.05,GILTS_LONG:0.09,IG_CREDIT:0.12,
+      GLOBAL_EQUITY:0.38,UK_EQUITY_VALUE:0.07,GROWTH_TECH:0.12,PROPERTY_UK_RESI:0.08,
+      COMMODITIES:0.02,GOLD:0.01,ALTERNATIVES:0.02
+    },
+    targetMix: {
+      CASH:0.06,BILLS_SHORT_GILTS:0.09,GILTS_LONG:0.06,IG_CREDIT:0.19,
+      GLOBAL_EQUITY:0.23,UK_EQUITY_VALUE:0.19,GROWTH_TECH:0.02,PROPERTY_UK_RESI:0.10,
+      COMMODITIES:0.01,GOLD:0.03,ALTERNATIVES:0.02
+    },
+    riskProfile: "Income",
+    drawdownCap: 0.20,
+    scenarioWeights: { S007: 0.6, S009: 0.4 }
+  };
+  const res = await fetch("/api/gap", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+  const data = await res.json();
+
+  // Chips
+  const chips = document.getElementById("chips");
+  const abs = (data.totals.absGapSum*100).toFixed(1);
+  const liq = `${(data.totals.cashBillsNow*100).toFixed(1)}% → ${(data.totals.cashBillsTarget*100).toFixed(1)}%`;
+  chips.innerHTML = `
+    <div class="chip">Total changes: ${abs} pp</div>
+    <div class="chip">Liquidity: ${liq}</div>
+    ${data.beliefAlignmentNow!==undefined ? `<div class="chip">Belief alignment: ${data.beliefAlignmentNow} → ${data.beliefAlignmentTarget}</div>` : ""}
+    ${data.scenarioLabel ? `<div class="chip">${data.scenarioLabel}</div>` : ""}
+  `;
+
+  // Flags
+  document.getElementById("flags").textContent = (data.headlineFlags||[]).join(" • ");
+
+  // Why bullets
+  const why = document.getElementById("why"); why.innerHTML = "";
+  (data.why||[]).forEach(s => { const li = document.createElement("li"); li.textContent = s; why.appendChild(li); });
+
+  // Table
+  const tbody = document.querySelector("#tbl tbody");
+  tbody.innerHTML = "";
+  for (const r of data.rows) {
+    const tr = document.createElement("tr");
+    const pp = (x)=> (x*100).toFixed(1);
+    tr.innerHTML = `
+      <td>${r.bucket}</td>
+      <td>${pp(r.currentPct)}</td>
+      <td>${pp(r.targetPct)}</td>
+      <td class="${r.deltaPct<0?'neg':'pos'}">${(r.deltaPct*100).toFixed(1)}</td>
+      <td>${(r.flags||[]).join("; ")}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+document.getElementById("run").onclick = run;
+</script>
+
+
+Run:
+
+npm run dev
+
+
+Open: https://<your-repl-url>/demo/client.html
+
+8) What to POST (example)
+POST /api/gap
+{
+  "currentMix": {
+    "CASH": 0.03, "BILLS_SHORT_GILTS": 0.05, "GILTS_LONG": 0.09, "IG_CREDIT": 0.12,
+    "GLOBAL_EQUITY": 0.38, "UK_EQUITY_VALUE": 0.07, "GROWTH_TECH": 0.12, "PROPERTY_UK_RESI": 0.08,
+    "COMMODITIES": 0.02, "GOLD": 0.01, "ALTERNATIVES": 0.02
+  },
+  "targetMix": {
+    "CASH": 0.06, "BILLS_SHORT_GILTS": 0.09, "GILTS_LONG": 0.06, "IG_CREDIT": 0.19,
+    "GLOBAL_EQUITY": 0.23, "UK_EQUITY_VALUE": 0.19, "GROWTH_TECH": 0.02, "PROPERTY_UK_RESI": 0.10,
+    "COMMODITIES": 0.01, "GOLD": 0.03, "ALTERNATIVES": 0.02
+  },
+  "riskProfile": "Income",
+  "drawdownCap": 0.20,
+  "scenarioWeights": { "S007": 0.6, "S009": 0.4 }
+}
+
+
+You should see: rows sorted by biggest |Δ|, liquidity warning if below floor, chips for Total Changes & Liquidity, plus Belief Alignment and Why bullets.
+
+9) Acceptance criteria
+
+ Deterministic maths: deltas = target − current; totals = Σ|Δ|; liquidity cards = CASH+BILLS.
+
+ Warnings: liquidity floor (10% default; 20% if conservative/income/defensive or drawdown ≤ 20%); concentration > 35% flagged per row.
+
+ Light scenarios: if scenarioWeights provided, response includes beliefAlignmentNow and beliefAlignmentTarget; adds sanity flags for S007 (don’t reduce real-asset hedge <35%) and S009 (don’t increase long duration).
+
+ Why commentary: 3–6 bullets are returned, based only on computed outputs (no new numbers).
+
+ UI demo renders chips, flags, bullets, and the table; rows sorted by |Δ| desc.
+
+ No AI used for any numeric computation (LLM, if used later, is formatting only).
