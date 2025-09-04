@@ -4843,7 +4843,11 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           <Button
             variant={activeStage === 2 ? "default" : "outline"}
             onClick={() => setActiveStage(2)}
-            className="flex items-center gap-2"
+            className={`flex items-center gap-2 ${
+              activeStage === 2 
+                ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90' 
+                : ''
+            }`}
           >
             <Pause className="w-4 h-4" />
             Stage 2: Later ({actionsData.staged.stage2.length} actions)
