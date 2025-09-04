@@ -2198,6 +2198,34 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       collectibles: '0'
     };
 
+    // CRITICAL FIX: Use investor's actual saved recommendations instead of static persona defaults
+    // This ensures gap analysis uses the same source as Action Plan
+    const investorPrefs = (window as any).actionPlanInvestorPreferences;
+    if (investorPrefs?.recommendedPortfolioAllocations) {
+      console.log('Using investor saved recommendations for gap analysis');
+      try {
+        const savedRecommendations = JSON.parse(investorPrefs.recommendedPortfolioAllocations);
+        
+        // Map saved recommendations to form fields and convert to percentages
+        const allocation = {
+          cashFixedIncome: Math.round((savedRecommendations.CASH + savedRecommendations.BILLS_SHORT_GILTS + savedRecommendations.GILTS_LONG + savedRecommendations.IG_CREDIT) * 100).toString(),
+          globalEquity: Math.round((savedRecommendations.GLOBAL_EQUITY + savedRecommendations.UK_EQUITY_VALUE) * 100).toString(),
+          techGrowth: Math.round(savedRecommendations.GROWTH_TECH * 100).toString(),
+          property: Math.round(savedRecommendations.PROPERTY_UK_RESI * 100).toString(),
+          commoditiesGold: Math.round((savedRecommendations.COMMODITIES + savedRecommendations.GOLD) * 100).toString(),
+          alternatives: Math.round(savedRecommendations.ALTERNATIVES * 100).toString(),
+          cryptocurrency: Math.round((savedRecommendations.CRYPTO_BTC + savedRecommendations.CRYPTO_ETH) * 100).toString(),
+          collectibles: Math.round((savedRecommendations.COLLECTIBLES_ART + savedRecommendations.COLLECTIBLES_WINE) * 100).toString()
+        };
+
+        console.log('Generated allocation from saved recommendations:', allocation);
+        return allocation;
+      } catch (error) {
+        console.log('Error parsing saved recommendations, falling back to persona defaults');
+      }
+    }
+
+    // Fallback to persona defaults if no saved recommendations
     if (!persona?.code) {
       console.log('No persona code found');
       return emptyAllocation;
@@ -2221,7 +2249,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       collectibles: Math.round((defaults.COLLECTIBLES_ART + defaults.COLLECTIBLES_WINE) * 100).toString()
     };
 
-    console.log('Generated allocation:', allocation);
+    console.log('Generated allocation from persona defaults:', allocation);
     return allocation;
   };
 
@@ -4670,6 +4698,9 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           if (preferences.actualPortfolioValue) {
             portfolioValue = parseFloat(preferences.actualPortfolioValue);
             console.log('Action Plan: Using actualPortfolioValue from preferences:', portfolioValue);
+            
+            // Store investor preferences for gap analysis to use same data source
+            (window as any).actionPlanInvestorPreferences = preferences;
             
             // Also override the stored portfolio data to indicate we have real data
             window.actionPlanPortfolioData = {
