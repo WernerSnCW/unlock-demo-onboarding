@@ -3117,9 +3117,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     console.log('actualUserId:', actualUserId);
     console.log('investorPrefs:', investorPrefs);
     console.log('detectedPersona:', investorPrefs?.detectedPersona);
+    console.log('matched_persona_code:', (investorPrefs as any)?.matched_persona_code);
     
-    // Extract persona from quiz answers if detectedPersona is missing
-    let personaId = investorPrefs?.detectedPersona;
+    // Use matched_persona_code field (that's where persona is actually saved)
+    let personaId = (investorPrefs as any)?.matched_persona_code || investorPrefs?.detectedPersona;
     
     if (!personaId && investorPrefs?.quizAnswers) {
       console.log('Extracting persona from quiz answers...');
