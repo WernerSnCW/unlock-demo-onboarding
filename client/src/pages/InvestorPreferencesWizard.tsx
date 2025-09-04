@@ -15,7 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -2387,11 +2387,6 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 
         // Perform gap analysis after successful save
         await performGapAnalysis();
-
-        // Move to next section after successful save and analysis
-        setTimeout(() => {
-          onTabChange('pitch');
-        }, 1500);
       } else {
         throw new Error(result.message || 'Save operation was not successful');
       }
@@ -2591,7 +2586,12 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
         </form>
 
         {/* Show Gap Analysis Results */}
-        {gapAnalysisData && <GapAnalysisResults gapData={gapAnalysisData} />}
+        {gapAnalysisData && (
+          <GapAnalysisResults 
+            gapData={gapAnalysisData} 
+            onContinue={() => onTabChange('pitch')}
+          />
+        )}
         
         {/* Loading State for Gap Analysis */}
         {isAnalyzing && (
@@ -2866,7 +2866,7 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
 }
 
 // Gap Analysis Results Component
-function GapAnalysisResults({ gapData }: { gapData: GapResponse }) {
+function GapAnalysisResults({ gapData, onContinue }: { gapData: GapResponse; onContinue?: () => void }) {
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -2953,6 +2953,19 @@ function GapAnalysisResults({ gapData }: { gapData: GapResponse }) {
             </tbody>
           </table>
         </div>
+
+        {/* Continue Button */}
+        {onContinue && (
+          <div className="mt-6 flex justify-center">
+            <Button 
+              onClick={onContinue}
+              className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
+            >
+              <ArrowRight className="w-5 h-5 mr-2" />
+              Continue to Pitch Deck Analysis
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
