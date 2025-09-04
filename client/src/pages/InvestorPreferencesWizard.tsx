@@ -3099,7 +3099,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         const response = await fetch(`/api/investors/${actualUserId}/preferences`);
         if (response.ok) {
           const prefs = await response.json();
+          console.log('Portfolio Recommendations - Fetched preferences:', prefs);
           setInvestorPrefs(prefs);
+        } else {
+          console.log('Portfolio Recommendations - Failed to fetch preferences:', response.status);
         }
       } catch (error) {
         console.error('Failed to fetch investor preferences:', error);
@@ -3222,6 +3225,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 <Sparkles className="w-5 h-5 mr-2" />
                 Generate Recommendations
               </Button>
+              {/* Debug info */}
+              <div className="mt-4 text-xs text-gray-500">
+                Debug: actualUserId={actualUserId}, hasPrefs={!!investorPrefs}, detectedPersona={investorPrefs?.detectedPersona}, loading={loading}
+              </div>
             </div>
           )}
 
