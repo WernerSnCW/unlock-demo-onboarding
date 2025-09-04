@@ -3342,11 +3342,28 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         }
       }
       
-      // Ensure scenario weights are properly formatted
+      // Map belief scenario names to scenario codes
+      const beliefToScenarioMap: Record<string, string> = {
+        'recession': 'S002',
+        'energy_spike': 'S008', 
+        'property_down': 'S003'
+      };
+      
+      // Ensure scenario weights are properly formatted and not empty
       const formattedScenarioWeights: Record<string, number> = {};
       for (const [key, value] of Object.entries(scenarioWeights)) {
-        formattedScenarioWeights[key] = Number(value);
+        const scenarioCode = beliefToScenarioMap[key] || key;
+        formattedScenarioWeights[scenarioCode] = Number(value);
       }
+      
+      // If no scenario weights, use sensible defaults that match our shocks config
+      if (Object.keys(formattedScenarioWeights).length === 0) {
+        formattedScenarioWeights.S002 = 0.35;  // Policy Support
+        formattedScenarioWeights.S008 = 0.34;  // Soft Inflation  
+        formattedScenarioWeights.S003 = 0.31;  // Inflation Hedges
+      }
+      
+      console.log('Final scenario weights for simulation:', formattedScenarioWeights);
       
       const simulationRequest = {
         currentMix,
