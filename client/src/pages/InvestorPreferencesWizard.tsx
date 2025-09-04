@@ -3113,7 +3113,13 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
   }, [actualUserId]);
 
   const generateRecommendations = async () => {
+    console.log('=== Generate Recommendations Button Clicked ===');
+    console.log('actualUserId:', actualUserId);
+    console.log('investorPrefs:', investorPrefs);
+    console.log('detectedPersona:', investorPrefs?.detectedPersona);
+    
     if (!investorPrefs?.detectedPersona) {
+      console.log('ERROR: Missing detectedPersona');
       toast({
         title: "Missing Profile Data",
         description: "Please complete your investor profile first.",
@@ -3126,6 +3132,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     setError(null);
 
     try {
+      console.log('=== Starting Portfolio Recommendations Generation ===');
       console.log('Generating recommendations with prefs:', investorPrefs);
 
       // Get belief responses from separate API call if needed
