@@ -3372,25 +3372,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
-                  <div className="space-y-3">
-                    <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
-                      {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
-                    </p>
-                    
-                    {targetData.narrative?.bullets && targetData.narrative.bullets.length > 0 && (
-                      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
-                        <h4 className="font-medium text-purple-900 dark:text-purple-200 text-sm mb-2">💡 Strategic Commentary</h4>
-                        <ul className="space-y-1">
-                          {targetData.narrative.bullets.map((bullet, index) => (
-                            <li key={index} className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-                              • {bullet.replace(/\*\*(.*?)\*\*/g, '$1')}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+                  <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
+                    {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
+                  </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(targetData.scenarioWeights)
@@ -3591,44 +3576,61 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 </div>
               </div>
 
-              {/* Flags and Adjustments */}
-              {(targetData.flags.length > 0 || targetData.adjustments.length > 0) && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Strategic Commentary</h3>
-                  
-                  {targetData.flags.length > 0 && (
-                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2 flex items-center">
-                        <AlertTriangle className="w-4 h-4 mr-2" />
-                        Portfolio Flags
-                      </h4>
-                      <ul className="space-y-1">
-                        {targetData.flags.map((flag, index) => (
-                          <li key={index} className="text-sm text-yellow-800 dark:text-yellow-300">
-                            • {flag}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+              {/* Strategic Commentary */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">Strategic Commentary</h3>
+                
+                {/* AI-Generated Commentary */}
+                {targetData.narrative?.bullets && targetData.narrative.bullets.length > 0 && (
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <h4 className="font-medium text-purple-900 dark:text-purple-200 text-sm mb-3 flex items-center">
+                      <Brain className="w-4 h-4 mr-2" />
+                      Portfolio Analysis
+                    </h4>
+                    <ul className="space-y-2">
+                      {targetData.narrative.bullets.map((bullet, index) => (
+                        <li key={index} className="text-sm text-[var(--foreground)] leading-relaxed flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 flex-shrink-0"></div>
+                          <span dangerouslySetInnerHTML={{ __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Flags and Adjustments */}
+                {targetData.flags.length > 0 && (
+                  <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2 flex items-center">
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      Portfolio Flags
+                    </h4>
+                    <ul className="space-y-1">
+                      {targetData.flags.map((flag, index) => (
+                        <li key={index} className="text-sm text-yellow-800 dark:text-yellow-300">
+                          • {flag}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-                  {targetData.adjustments.length > 0 && (
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center">
-                        <Shield className="w-4 h-4 mr-2" />
-                        House Rules Applied
-                      </h4>
-                      <ul className="space-y-1">
-                        {targetData.adjustments.map((adjustment, index) => (
-                          <li key={index} className="text-sm text-blue-800 dark:text-blue-300">
-                            • {adjustment}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
+                {targetData.adjustments.length > 0 && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center">
+                      <Shield className="w-4 h-4 mr-2" />
+                      House Rules Applied
+                    </h4>
+                    <ul className="space-y-1">
+                      {targetData.adjustments.map((adjustment, index) => (
+                        <li key={index} className="text-sm text-blue-800 dark:text-blue-300">
+                          • {adjustment}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
 
               {/* Regenerate Button */}
               <div className="text-center pt-6">
