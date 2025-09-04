@@ -3375,12 +3375,43 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
       console.log('Using scenario weights:', scenarioWeights);
 
+      // Calculate dynamic tilt strength based on persona characteristics
+      const persona = INVESTMENT_PERSONAS[personaId];
+      let tiltStrength = 0.35; // Default fallback
+      let drawdownCap = 0.20; // Default fallback
+      
+      if (persona) {
+        // Use persona's actual drawdown capacity
+        drawdownCap = persona.drawdownCap;
+        
+        // Calculate tilt strength based on persona risk profile and characteristics
+        // Higher risk tolerance = higher tilt strength (more scenario influence)
+        // Lower risk tolerance = lower tilt strength (closer to base allocation)
+        const riskScore = persona.scores[0]; // First score is risk tolerance (0-5)
+        const concentrationTolerance = persona.concentrationTolerance;
+        
+        // Base calculation: map risk score (0-5) to tilt strength (0.15-0.55)
+        tiltStrength = 0.15 + (riskScore / 5) * 0.40;
+        
+        // Adjust based on concentration tolerance
+        if (concentrationTolerance === 'low') {
+          tiltStrength *= 0.8; // More conservative
+        } else if (concentrationTolerance === 'high') {
+          tiltStrength *= 1.2; // More aggressive
+        }
+        
+        // Cap between reasonable bounds
+        tiltStrength = Math.max(0.15, Math.min(0.65, tiltStrength));
+        
+        console.log(`Calculated tilt strength for ${persona.name}: ${(tiltStrength * 100).toFixed(1)}% (risk score: ${riskScore}, concentration: ${concentrationTolerance})`);
+      }
+
       const requestData = {
         personaId: personaId,
         scenarioWeights: scenarioWeights,
-        tiltStrength: 0.35,
-        riskProfile: investorPrefs.riskBand || "Moderate",
-        drawdownCap: 0.20
+        tiltStrength: tiltStrength,
+        riskProfile: investorPrefs.riskBand || persona?.riskProfile || "Moderate",
+        drawdownCap: drawdownCap
       };
 
       console.log('Target API request:', requestData);
