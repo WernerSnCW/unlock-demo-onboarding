@@ -183,6 +183,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Investor Preferences routes
+  // IMPORTANT: Specific routes must come before parameterized routes
+  app.get('/api/investors/all-preferences', async (req, res) => {
+    try {
+      const allPreferences = await storage.getAllInvestorPreferences();
+      res.json(allPreferences);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch all preferences' });
+    }
+  });
+
   app.get('/api/investors/:userId/preferences', async (req, res) => {
     try {
       const { userId } = req.params;
@@ -193,15 +203,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(preferences);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch preferences' });
-    }
-  });
-
-  app.get('/api/investors/all-preferences', async (req, res) => {
-    try {
-      const allPreferences = await storage.getAllInvestorPreferences();
-      res.json(allPreferences);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to fetch all preferences' });
     }
   });
 
