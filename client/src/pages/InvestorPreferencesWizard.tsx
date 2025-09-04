@@ -3663,17 +3663,18 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
           )}
 
           {targetData && (
-            <Tabs defaultValue="recommendations" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="recommendations" className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Recommendations
-                </TabsTrigger>
-                <TabsTrigger value="simulation" className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Simulation
-                </TabsTrigger>
-              </TabsList>
+            <>
+              <Tabs defaultValue="recommendations" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="recommendations" className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Recommendations
+                  </TabsTrigger>
+                  <TabsTrigger value="simulation" className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    Simulation
+                  </TabsTrigger>
+                </TabsList>
               
               <TabsContent value="recommendations" className="space-y-8 mt-6">
                 {/* Economic Scenarios Section */}
@@ -4390,6 +4391,20 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 </div>
               </TabsContent>
             </Tabs>
+            
+            {/* Continue to Actions Button */}
+            <div className="text-center pt-8 pb-4">
+              <Button 
+                onClick={() => {
+                  setActiveMainTab('action');
+                }}
+                className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
+              >
+                <ArrowRight className="w-5 h-5 mr-2" />
+                Continue to Actions
+              </Button>
+            </div>
+            </>
           )}
         </CardContent>
       </Card>
