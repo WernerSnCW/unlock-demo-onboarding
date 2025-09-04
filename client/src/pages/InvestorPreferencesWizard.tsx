@@ -3185,16 +3185,36 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       // If no scenario weights, use default equal weighting
       if (Object.keys(scenarioWeights).length === 0) {
         scenarioWeights = {
-          "reflation": 0.125,
-          "devaluation": 0.125,
-          "recession": 0.125,
-          "property_down": 0.125,
-          "tech_correction": 0.125,
-          "gilt_selloff": 0.125,
-          "energy_spike": 0.125,
-          "stagflation": 0.125
+          "S005": 0.125, // Quality Growth (reflation)
+          "S010": 0.125, // Commodity Upswing (devaluation)
+          "S002": 0.125, // Policy Support (recession)
+          "S003": 0.125, // Inflation Hedges (property_down)
+          "S006": 0.125, // Tech-led Growth (tech_correction)
+          "S009": 0.125, // Gilt Sell-off (gilt_selloff)
+          "S008": 0.125, // Soft-ish Inflation (energy_spike)
+          "S007": 0.125  // Stagflation Tilt (stagflation)
         };
       }
+      
+      // Convert scenario names to S-codes if needed
+      const scenarioNameToCode: Record<string, string> = {
+        "reflation": "S005",     // Quality Growth
+        "devaluation": "S010",   // Commodity Upswing
+        "recession": "S002",     // Policy Support
+        "property_down": "S003", // Inflation Hedges
+        "tech_correction": "S006", // Tech-led Growth
+        "gilt_selloff": "S009",  // Gilt Sell-off
+        "energy_spike": "S008",  // Soft-ish Inflation
+        "stagflation": "S007"    // Stagflation Tilt
+      };
+      
+      // Convert any scenario names to proper S-codes
+      const convertedWeights: Record<string, number> = {};
+      for (const [scenario, weight] of Object.entries(scenarioWeights)) {
+        const scenarioCode = scenarioNameToCode[scenario] || scenario;
+        convertedWeights[scenarioCode] = weight;
+      }
+      scenarioWeights = convertedWeights;
 
       console.log('Using scenario weights:', scenarioWeights);
 
