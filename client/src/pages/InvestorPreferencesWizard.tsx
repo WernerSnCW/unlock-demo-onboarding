@@ -3363,6 +3363,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       }
       
       const result = await response.json();
+      console.log('Simulation result:', result);
       setSimulationData(result);
       
     } catch (error) {
@@ -3828,6 +3829,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
                   {simulationData && (
                     <>
+                      {console.log('Rendering simulation data:', simulationData)}
                       {/* Key Metrics */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -3958,6 +3960,26 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       <div className="text-[var(--muted-foreground)]">
                         Run a simulation to see how your portfolios might perform under your economic outlook.
                       </div>
+                    </div>
+                  )}
+                  
+                  {/* Debug info */}
+                  {simulationData && Object.keys(simulationData).length === 0 && (
+                    <div className="text-center py-8 text-yellow-600">
+                      Simulation data is empty. Debug: {JSON.stringify(simulationData, null, 2)}
+                    </div>
+                  )}
+                  
+                  {/* Fallback display for any simulation data */}
+                  {simulationData && !simulationData.series && (
+                    <div className="text-center py-8 text-red-600">
+                      Simulation data received but missing expected structure. 
+                      <details className="mt-2">
+                        <summary>Debug Data</summary>
+                        <pre className="text-xs text-left mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                          {JSON.stringify(simulationData, null, 2)}
+                        </pre>
+                      </details>
                     </div>
                   )}
                 </div>
