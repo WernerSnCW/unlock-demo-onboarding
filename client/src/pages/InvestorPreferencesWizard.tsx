@@ -3575,93 +3575,117 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               
               <TabsContent value="recommendations" className="space-y-8 mt-6">
                 {/* Economic Scenarios Section */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold text-[var(--foreground)]">Economic Scenario Analysis</h3>
-                    <p className="text-sm text-[var(--muted-foreground)] bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <span className="font-medium text-blue-900 dark:text-blue-200">📊 Blended recommendation</span><br />
-                      {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
-                    </p>
-                  </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(targetData.scenarioWeights)
-                    .filter(([, weight]) => weight > 0)
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([scenarioId, weight]) => {
-                      const scenarioLabels: Record<string, string> = {
-                        "S001": "Base Growth",
-                        "S002": "Policy Support", 
-                        "S003": "Inflation Hedges",
-                        "S004": "Rates Normalisation",
-                        "S005": "Quality Growth",
-                        "S006": "Tech-led Growth",
-                        "S007": "Stagflation Tilt",
-                        "S008": "Soft-ish Inflation",
-                        "S009": "Gilt Sell-off",
-                        "S010": "Commodity Upswing"
-                      };
-
-                      const scenarioDescriptions: Record<string, string> = {
-                        "S001": "Steady economic growth with balanced inflation and employment",
-                        "S002": "Government stimulus drives market expansion and investment", 
-                        "S003": "Rising inflation favors commodities and inflation-protected assets",
-                        "S004": "Interest rates return to historical norms after period of change",
-                        "S005": "High-quality companies outperform in selective market conditions",
-                        "S006": "Technology sector leads broad economic transformation",
-                        "S007": "Persistent inflation combined with economic stagnation",
-                        "S008": "Moderate inflation rises but remains economically manageable",
-                        "S009": "Bond market sell-off drives yields higher across duration",
-                        "S010": "Commodity cycle upswing benefits resource-based investments"
-                      };
-                      
-                      return (
-                        <div key={scenarioId} className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium text-blue-900 dark:text-blue-200">
-                              {scenarioLabels[scenarioId] || scenarioId}
-                            </span>
-                            <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
-                              {(weight * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                            {scenarioId}
-                          </div>
-                          <div className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-2 leading-relaxed">
-                            {scenarioDescriptions[scenarioId] || "Economic scenario analysis"}
-                          </div>
+                <div className="mb-8">
+                  <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
+                    <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                      <i className="fas fa-chart-line text-[var(--info)]"></i>
+                      Economic Scenario Analysis
+                    </h3>
+                    <div className="bg-[var(--info)]/10 border border-[var(--info)]/20 rounded-[var(--radius-md)] p-4 mb-6">
+                      <div className="flex items-start gap-2">
+                        <i className="fas fa-info-circle text-[var(--info)] mt-1"></i>
+                        <div>
+                          <span className="font-semibold text-[var(--info)]">📊 Blended Recommendation</span>
+                          <p className="text-sm text-[var(--muted-foreground)] mt-1 leading-relaxed">
+                            {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
+                          </p>
                         </div>
-                      );
-                    })
-                  }
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(targetData.scenarioWeights)
+                        .filter(([, weight]) => weight > 0)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([scenarioId, weight]) => {
+                          const scenarioLabels: Record<string, string> = {
+                            "S001": "Base Growth",
+                            "S002": "Policy Support", 
+                            "S003": "Inflation Hedges",
+                            "S004": "Rates Normalisation",
+                            "S005": "Quality Growth",
+                            "S006": "Tech-led Growth",
+                            "S007": "Stagflation Tilt",
+                            "S008": "Soft-ish Inflation",
+                            "S009": "Gilt Sell-off",
+                            "S010": "Commodity Upswing"
+                          };
+
+                          const scenarioDescriptions: Record<string, string> = {
+                            "S001": "Steady economic growth with balanced inflation and employment",
+                            "S002": "Government stimulus drives market expansion and investment", 
+                            "S003": "Rising inflation favors commodities and inflation-protected assets",
+                            "S004": "Interest rates return to historical norms after period of change",
+                            "S005": "High-quality companies outperform in selective market conditions",
+                            "S006": "Technology sector leads broad economic transformation",
+                            "S007": "Persistent inflation combined with economic stagnation",
+                            "S008": "Moderate inflation rises but remains economically manageable",
+                            "S009": "Bond market sell-off drives yields higher across duration",
+                            "S010": "Commodity cycle upswing benefits resource-based investments"
+                          };
+                          
+                          return (
+                            <div key={scenarioId} className="p-4 bg-[var(--muted)]/20 rounded-[var(--radius-md)] border border-[var(--border)] hover:shadow-[var(--shadow-sm)] transition-shadow">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                                  <i className="fas fa-chart-area text-[var(--secondary)] text-sm"></i>
+                                  {scenarioLabels[scenarioId] || scenarioId}
+                                </span>
+                                <div className="bg-[var(--secondary)] text-[var(--secondary-foreground)] px-2 py-1 rounded-[var(--radius-sm)] text-sm font-bold">
+                                  {(weight * 100).toFixed(1)}%
+                                </div>
+                              </div>
+                              <div className="text-xs text-[var(--muted-foreground)] mb-2 font-mono">
+                                {scenarioId}
+                              </div>
+                              <div className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                                {scenarioDescriptions[scenarioId] || "Economic scenario analysis"}
+                              </div>
+                            </div>
+                          );
+                        })
+                      }
+                    </div>
+                  </div>
                 </div>
-              </div>
 
               {/* Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h4 className="font-semibold text-blue-900 dark:text-blue-200 text-sm">Investor Profile</h4>
-                  <p className="text-xl font-bold text-blue-700 dark:text-blue-300">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
+                  <div className="flex items-center gap-2 mb-3">
+                    <i className="fas fa-user-circle text-[var(--info)] text-lg"></i>
+                    <h4 className="font-semibold text-[var(--muted-foreground)] text-sm">Investor Profile</h4>
+                  </div>
+                  <p className="text-2xl font-bold text-[var(--info)] mb-2">
                     {INVESTMENT_PERSONAS[targetData.personaId]?.name || targetData.personaId}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Based on your quiz results</p>
+                  <p className="text-xs text-[var(--muted-foreground)]">Based on your quiz results</p>
                 </div>
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <h4 className="font-semibold text-green-900 dark:text-green-200 text-sm">Scenario Blending</h4>
-                  <p className="text-xl font-bold text-green-700 dark:text-green-300">{(targetData.tiltStrength * 100).toFixed(0)}%</p>
-                  <p className="text-xs text-green-600 dark:text-green-400">Weighted across scenarios for uncertainty management</p>
+                <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
+                  <div className="flex items-center gap-2 mb-3">
+                    <i className="fas fa-balance-scale text-[var(--success)] text-lg"></i>
+                    <h4 className="font-semibold text-[var(--muted-foreground)] text-sm">Scenario Blending</h4>
+                  </div>
+                  <p className="text-2xl font-bold text-[var(--success)] mb-2">{(targetData.tiltStrength * 100).toFixed(0)}%</p>
+                  <p className="text-xs text-[var(--muted-foreground)]">Weighted across scenarios for uncertainty management</p>
                 </div>
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                  <h4 className="font-semibold text-purple-900 dark:text-purple-200 text-sm">Adjustments</h4>
-                  <p className="text-xl font-bold text-purple-700 dark:text-purple-300">{targetData.adjustments.length}</p>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">House rules applied</p>
+                <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
+                  <div className="flex items-center gap-2 mb-3">
+                    <i className="fas fa-cogs text-[var(--warning)] text-lg"></i>
+                    <h4 className="font-semibold text-[var(--muted-foreground)] text-sm">Adjustments</h4>
+                  </div>
+                  <p className="text-2xl font-bold text-[var(--warning)] mb-2">{targetData.adjustments.length}</p>
+                  <p className="text-xs text-[var(--muted-foreground)]">House rules applied</p>
                 </div>
               </div>
 
               {/* Target Portfolio Chart */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[var(--foreground)]">Recommended Portfolio Allocation</h3>
-                <div className="h-80">
+              <div className="mb-8">
+                <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6 flex items-center gap-2">
+                    <i className="fas fa-pie-chart text-[var(--primary)]"></i>
+                    Recommended Portfolio Allocation
+                  </h3>
+                  <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -3696,159 +3720,174 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       <RechartsTooltip formatter={(value: any) => [`${value.toFixed(1)}%`, 'Allocation']} />
                     </PieChart>
                   </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 
               {/* Portfolio Breakdown Table */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[var(--foreground)]">Detailed Allocation Breakdown</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b border-[var(--border)]">
-                        <th className="text-left p-3 font-semibold text-[var(--foreground)]">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger className="cursor-help underline decoration-dotted">
-                                Asset Class
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Investment categories such as equities, bonds, property, and alternatives</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </th>
-                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger className="cursor-help underline decoration-dotted">
-                                Base %
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Starting allocation based on your investor persona before any adjustments</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </th>
-                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger className="cursor-help underline decoration-dotted">
-                                Scenario Blend %
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Allocation tilted towards your selected economic scenarios and beliefs</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </th>
-                        <th className="text-right p-3 font-semibold text-[var(--foreground)]">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger className="cursor-help underline decoration-dotted">
-                                Final Target %
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Recommended allocation after applying professional house rules and constraints</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.entries(targetData.targetMix)
-                        .filter(([, value]) => value > 0.001)
-                        .sort(([, a], [, b]) => b - a)
-                        .map(([bucket, target]) => (
-                          <tr key={bucket} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
-                            <td className="p-3 font-medium text-[var(--foreground)]">
-                              {formatBucketName(bucket)}
-                            </td>
-                            <td className="p-3 text-right text-[var(--muted-foreground)]">
-                              {formatPercentage(targetData.baseMix[bucket] || 0)}
-                            </td>
-                            <td className="p-3 text-right text-[var(--muted-foreground)]">
-                              {formatPercentage(targetData.scenarioBlend[bucket] || 0)}
-                            </td>
-                            <td className="p-3 text-right font-semibold text-[var(--foreground)]">
-                              {formatPercentage(target)}
-                            </td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
+              <div className="mb-8">
+                <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6 flex items-center gap-2">
+                    <i className="fas fa-table text-[var(--primary)]"></i>
+                    Detailed Allocation Breakdown
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse bg-[var(--background)] rounded-[var(--radius-md)] overflow-hidden">
+                      <thead>
+                        <tr className="bg-[var(--muted)]/30 border-b border-[var(--border)]">
+                          <th className="text-left p-4 font-semibold text-[var(--foreground)]">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1">
+                                  <i className="fas fa-layer-group text-[var(--info)] text-sm"></i>
+                                  Asset Class
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Investment categories such as equities, bonds, property, and alternatives</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </th>
+                          <th className="text-right p-4 font-semibold text-[var(--foreground)]">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1 justify-end">
+                                  <i className="fas fa-user text-[var(--info)] text-sm"></i>
+                                  Base %
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Starting allocation based on your investor persona before any adjustments</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </th>
+                          <th className="text-right p-4 font-semibold text-[var(--foreground)]">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1 justify-end">
+                                  <i className="fas fa-chart-line text-[var(--secondary)] text-sm"></i>
+                                  Scenario Blend %
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Allocation tilted towards your selected economic scenarios and beliefs</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </th>
+                          <th className="text-right p-4 font-semibold text-[var(--foreground)]">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1 justify-end">
+                                  <i className="fas fa-target text-[var(--primary)] text-sm"></i>
+                                  Final Target %
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Recommended allocation after applying professional house rules and constraints</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(targetData.targetMix)
+                          .filter(([, value]) => value > 0.001)
+                          .sort(([, a], [, b]) => b - a)
+                          .map(([bucket, target]) => (
+                            <tr key={bucket} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/10 transition-colors">
+                              <td className="p-4 font-medium text-[var(--foreground)]">
+                                {formatBucketName(bucket)}
+                              </td>
+                              <td className="p-4 text-right text-[var(--muted-foreground)] font-mono">
+                                {formatPercentage(targetData.baseMix[bucket] || 0)}
+                              </td>
+                              <td className="p-4 text-right text-[var(--muted-foreground)] font-mono">
+                                {formatPercentage(targetData.scenarioBlend[bucket] || 0)}
+                              </td>
+                              <td className="p-4 text-right font-bold text-[var(--primary)]">
+                                {formatPercentage(target)}
+                              </td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
 
               {/* Strategic Commentary */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[var(--foreground)]">Strategic Commentary</h3>
-                
-                {/* AI-Generated Commentary */}
-                {targetData.narrative?.bullets && targetData.narrative.bullets.length > 0 && (
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <h4 className="font-medium text-purple-900 dark:text-purple-200 text-sm mb-3 flex items-center">
-                      <Brain className="w-4 h-4 mr-2" />
-                      Portfolio Analysis
-                    </h4>
-                    <ul className="space-y-2">
-                      {targetData.narrative.bullets.map((bullet, index) => (
-                        <li key={index} className="text-sm text-[var(--foreground)] leading-relaxed flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 flex-shrink-0"></div>
-                          <span dangerouslySetInnerHTML={{ __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+              <div className="mb-8">
+                <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6 flex items-center gap-2">
+                    <i className="fas fa-lightbulb text-[var(--warning)]"></i>
+                    Strategic Commentary
+                  </h3>
+                  
+                  {/* AI-Generated Commentary */}
+                  {targetData.narrative?.bullets && targetData.narrative.bullets.length > 0 && (
+                    <div className="bg-[var(--warning)]/10 border border-[var(--warning)]/20 rounded-[var(--radius-md)] p-4 mb-6">
+                      <h4 className="font-medium text-[var(--warning)] text-sm mb-3 flex items-center">
+                        <Brain className="w-4 h-4 mr-2" />
+                        Portfolio Analysis
+                      </h4>
+                      <ul className="space-y-2">
+                        {targetData.narrative.bullets.map((bullet, index) => (
+                          <li key={index} className="text-sm text-[var(--muted-foreground)] leading-relaxed flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[var(--warning)] mt-2 flex-shrink-0"></div>
+                            <span dangerouslySetInnerHTML={{ __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                 )}
                 
-                {/* Flags and Adjustments */}
-                {targetData.flags.length > 0 && (
-                  <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                    <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2 flex items-center">
-                      <AlertTriangle className="w-4 h-4 mr-2" />
-                      Portfolio Flags
-                    </h4>
-                    <ul className="space-y-1">
-                      {targetData.flags.map((flag, index) => (
-                        <li key={index} className="text-sm text-yellow-800 dark:text-yellow-300">
-                          • {flag}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  {/* Flags and Adjustments */}
+                  {targetData.flags.length > 0 && (
+                    <div className="bg-[var(--warning)]/15 border border-[var(--warning)]/30 rounded-[var(--radius-md)] p-4 mb-4">
+                      <h4 className="font-semibold text-[var(--warning)] mb-2 flex items-center">
+                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        Portfolio Flags
+                      </h4>
+                      <ul className="space-y-1">
+                        {targetData.flags.map((flag, index) => (
+                          <li key={index} className="text-sm text-[var(--muted-foreground)]">
+                            • {flag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                {targetData.adjustments.length > 0 && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center">
-                      <Shield className="w-4 h-4 mr-2" />
-                      House Rules Applied
-                    </h4>
-                    <ul className="space-y-1">
-                      {targetData.adjustments.map((adjustment, index) => (
-                        <li key={index} className="text-sm text-blue-800 dark:text-blue-300">
-                          • {adjustment}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  {targetData.adjustments.length > 0 && (
+                    <div className="bg-[var(--info)]/15 border border-[var(--info)]/30 rounded-[var(--radius-md)] p-4">
+                      <h4 className="font-semibold text-[var(--info)] mb-2 flex items-center">
+                        <Shield className="w-4 h-4 mr-2" />
+                        House Rules Applied
+                      </h4>
+                      <ul className="space-y-1">
+                        {targetData.adjustments.map((adjustment, index) => (
+                          <li key={index} className="text-sm text-[var(--muted-foreground)]">
+                            • {adjustment}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
 
-                {/* Regenerate Button */}
-                <div className="text-center pt-6">
-                  <Button 
-                    onClick={generateRecommendations}
-                    variant="outline"
-                    className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Regenerate Recommendations
-                  </Button>
-                </div>
+              {/* Regenerate Button */}
+              <div className="text-center pt-6">
+                <Button 
+                  onClick={generateRecommendations}
+                  variant="outline"
+                  className="border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Regenerate Recommendations
+                </Button>
+              </div>
               </TabsContent>
               
               <TabsContent value="simulation" className="space-y-8 mt-6">
