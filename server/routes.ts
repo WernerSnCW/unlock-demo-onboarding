@@ -298,17 +298,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'User preferences not found' });
       }
 
-      // Parse scenario weights from database  
+      // Parse scenario weights from database, but only for selected scenarios
       let scenarioWeights: Record<string, number> = {};
-      if (preferences.scenarioWeights) {
+      
+      // First get the selected scenarios
+      let selectedScenarios: string[] = [];
+      if (preferences.selectedScenarios) {
+        try {
+          selectedScenarios = JSON.parse(preferences.selectedScenarios as string);
+        } catch (parseError) {
+          console.error('Error parsing selected scenarios:', parseError);
+        }
+      }
+      
+      // Now get weights only for the selected scenarios
+      if (preferences.scenarioWeights && selectedScenarios.length > 0) {
         try {
           const weights = JSON.parse(preferences.scenarioWeights as string);
-          // Convert from array format to object format
+          // Convert from array format to object format, but only for selected scenarios
           if (Array.isArray(weights)) {
-            scenarioWeights = {};
+            const filteredWeights: Record<string, number> = {};
+            let totalWeight = 0;
+            
+            // First pass: collect weights for selected scenarios only
             for (const item of weights) {
-              if (item.scenario && typeof item.normalizedWeight === 'number') {
-                scenarioWeights[item.scenario] = item.normalizedWeight;
+              if (item.scenario && typeof item.normalizedWeight === 'number' && 
+                  selectedScenarios.includes(item.scenario)) {
+                filteredWeights[item.scenario] = item.normalizedWeight;
+                totalWeight += item.normalizedWeight;
+              }
+            }
+            
+            // Renormalize the weights to sum to 1.0
+            if (totalWeight > 0) {
+              scenarioWeights = {};
+              for (const [scenario, weight] of Object.entries(filteredWeights)) {
+                scenarioWeights[scenario] = weight / totalWeight;
               }
             }
           }
