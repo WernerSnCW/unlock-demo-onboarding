@@ -3172,22 +3172,23 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
   const [investorPrefs, setInvestorPrefs] = useState<any>(null);
   const [actualUserId, setActualUserId] = useState<string | null>(null);
 
-  // Get the correct userId from localStorage
+  // Get the correct userId from localStorage - SAME as Action Plan getUserId logic
   useEffect(() => {
     const getUserId = () => {
       try {
         const storedQuizData = localStorage.getItem('investorQuizData');
         if (storedQuizData) {
           const quizData = JSON.parse(storedQuizData);
-          return quizData.userId;
+          return quizData.userId || `demo-${Date.now()}`;
         }
       } catch (error) {
-        console.error('Failed to parse quiz data:', error);
+        console.log('Error reading quiz data for userId:', error);
       }
-      return propUserId; // fallback to prop userId
+      return `demo-${Date.now()}`;
     };
 
     const userId = getUserId();
+    console.log('actualUserId:', userId);
     setActualUserId(userId);
   }, [propUserId]);
 
@@ -3196,16 +3197,21 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       if (!actualUserId) return;
       
       try {
+        console.log('=== Generate Recommendations Button Clicked ===');
+        console.log('actualUserId:', actualUserId);
         const response = await fetch(`/api/investors/${actualUserId}/preferences`);
+        console.log('investorPrefs:', response.ok ? 'found' : null);
         if (response.ok) {
           const prefs = await response.json();
           console.log('Portfolio Recommendations - Fetched preferences:', prefs);
           setInvestorPrefs(prefs);
         } else {
           console.log('Portfolio Recommendations - Failed to fetch preferences:', response.status);
+          setInvestorPrefs(null);
         }
       } catch (error) {
         console.error('Failed to fetch investor preferences:', error);
+        setInvestorPrefs(null);
       }
     };
     
@@ -3368,6 +3374,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     try {
       console.log('=== Starting Portfolio Recommendations Generation ===');
       console.log('Generating recommendations with prefs:', investorPrefs);
+      console.log('actualUserId:', actualUserId);
+      console.log('investorPrefs full object:', investorPrefs);
 
       // Get belief responses from separate API call if needed
       let scenarioWeights: Record<string, number> = {};
