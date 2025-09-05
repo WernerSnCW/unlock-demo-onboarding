@@ -491,7 +491,11 @@ export default function SnapshotReport() {
                           <div className="text-xs text-white/70">{category.data.score}/100</div>
                         </td>
                         <td className="py-4 px-3 text-sm text-white/80">
-                          {category.description}
+                          {/* Show custom summary for Unlock Services, otherwise generic description */}
+                          {reportData?.id === "biz_045" && (category.data as any)?.keyPoints ? 
+                            (category.data as any).keyPoints[0] : 
+                            category.description
+                          }
                         </td>
                       </tr>
                     ))}
