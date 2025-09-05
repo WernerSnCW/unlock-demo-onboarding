@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface FilterState {
   sectors: string[];
   sizes: string[];
-  risk: string;
   eligibility: {
     EIS: boolean;
     SEIS: boolean;
@@ -19,16 +18,41 @@ interface BusinessFiltersProps {
 }
 
 const SECTORS = [
+  'AI & Machine Learning',
+  'Automotive & Mobility',
+  'B2B Software',
   'Biotechnology',
-  'Fintech',
-  'Sustainable Materials',
-  'CleanTech',
-  'HealthTech',
+  'CleanTech & Sustainability',
+  'Consumer Goods',
+  'Cryptocurrency & Blockchain',
+  'Cybersecurity',
   'DeepTech',
+  'E-commerce & Retail',
   'EdTech',
-  'PropTech',
+  'Energy & Utilities',
+  'Entertainment & Gaming',
+  'Fashion & Lifestyle',
+  'Financial Services',
+  'Fintech',
+  'Food & Beverage',
   'FoodTech',
-  'Cybersecurity'
+  'Hardware & Robotics',
+  'HealthTech',
+  'Insurance',
+  'IoT & Smart Devices',
+  'Legal Tech',
+  'Logistics & Supply Chain',
+  'Manufacturing',
+  'Marketing & AdTech',
+  'Media & Content',
+  'Pharmaceuticals',
+  'PropTech',
+  'Real Estate',
+  'Space Technology',
+  'Sports & Fitness',
+  'Sustainable Materials',
+  'Telecommunications',
+  'Travel & Hospitality'
 ];
 
 const SIZES = [
@@ -38,7 +62,6 @@ const SIZES = [
   'Large (250+)'
 ];
 
-const RISKS = ['Any', 'Low', 'Medium', 'High'];
 
 export default function BusinessFilters({ filters, onFiltersChange }: BusinessFiltersProps) {
   const updateFilters = (updates: Partial<FilterState>) => {
@@ -72,14 +95,12 @@ export default function BusinessFilters({ filters, onFiltersChange }: BusinessFi
     onFiltersChange({
       sectors: [],
       sizes: [],
-      risk: 'Any',
       eligibility: { EIS: false, SEIS: false }
     });
   };
 
   const hasActiveFilters = filters.sectors.length > 0 || 
                           filters.sizes.length > 0 || 
-                          filters.risk !== 'Any' || 
                           filters.eligibility.EIS || 
                           filters.eligibility.SEIS;
 
@@ -148,27 +169,6 @@ export default function BusinessFilters({ filters, onFiltersChange }: BusinessFi
           </div>
         </div>
 
-        {/* Risk Profile */}
-        <div>
-          <Label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 block">
-            Risk Profile
-          </Label>
-          <Select
-            value={filters.risk}
-            onValueChange={(value) => updateFilters({ risk: value })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {RISKS.map((risk) => (
-                <SelectItem key={risk} value={risk}>
-                  {risk}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Eligibility */}
         <div>

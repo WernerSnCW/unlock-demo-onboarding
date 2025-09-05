@@ -11,7 +11,6 @@ import businessesData from '../mocks/businesses.json';
 interface FilterState {
   sectors: string[];
   sizes: string[];
-  risk: string;
   eligibility: {
     EIS: boolean;
     SEIS: boolean;
@@ -25,7 +24,6 @@ export default function Businesses() {
   const [filters, setFilters] = useState<FilterState>({
     sectors: [],
     sizes: [],
-    risk: 'Any',
     eligibility: { EIS: false, SEIS: false }
   });
 
@@ -58,10 +56,6 @@ export default function Businesses() {
         }
       }
 
-      // Risk filter
-      if (filters.risk !== 'Any' && business.risk !== filters.risk) {
-        return false;
-      }
 
       // Eligibility filter
       if (filters.eligibility.EIS && !business.eligibility.EIS) {
@@ -83,9 +77,6 @@ export default function Businesses() {
           return new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
         case 'most-discussed':
           return b.community.questionsCount - a.community.questionsCount;
-        case 'lowest-risk':
-          const riskOrder: Record<string, number> = { 'Low': 0, 'Medium': 1, 'High': 2 };
-          return (riskOrder[a.risk] || 0) - (riskOrder[b.risk] || 0);
         case 'relevance':
         default:
           // Relevance: verified first, then by peer interest
@@ -99,7 +90,6 @@ export default function Businesses() {
 
   const hasActiveFilters = filters.sectors.length > 0 || 
                           filters.sizes.length > 0 || 
-                          filters.risk !== 'Any' || 
                           filters.eligibility.EIS || 
                           filters.eligibility.SEIS;
 
@@ -107,7 +97,6 @@ export default function Businesses() {
     setFilters({
       sectors: [],
       sizes: [],
-      risk: 'Any',
       eligibility: { EIS: false, SEIS: false }
     });
     setSearchTerm('');
@@ -154,7 +143,6 @@ export default function Businesses() {
                       <SelectItem value="most-discussed">Most Discussed</SelectItem>
                       <SelectItem value="newest">Newest</SelectItem>
                       <SelectItem value="oldest">Oldest</SelectItem>
-                      <SelectItem value="lowest-risk">Lowest Risk</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -216,15 +204,6 @@ export default function Businesses() {
                         <i className="fas fa-times" aria-hidden="true"></i>
                       </span>
                     ))}
-                    {filters.risk !== 'Any' && (
-                      <span
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-[#F8D49B] text-gray-800 text-xs rounded-md cursor-pointer hover:bg-[#f6c877]"
-                        onClick={() => setFilters(prev => ({ ...prev, risk: 'Any' }))}
-                      >
-                        {filters.risk} Risk
-                        <i className="fas fa-times" aria-hidden="true"></i>
-                      </span>
-                    )}
                     {(filters.eligibility.EIS || filters.eligibility.SEIS) && (
                       <span
                         className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-md cursor-pointer hover:bg-purple-600"
