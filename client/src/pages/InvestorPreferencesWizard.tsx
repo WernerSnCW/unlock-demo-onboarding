@@ -5762,7 +5762,20 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--success)]/5 border-[var(--success)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--success)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--success)]/10">
+        <Card 
+          className="bg-gradient-to-br from-[var(--card)] to-[var(--success)]/5 border-[var(--success)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--success)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--success)]/10"
+          onClick={() => {
+            // Open Syndication in popup window
+            const popup = window.open(
+              '/syndication',
+              'Syndication',
+              'width=1200,height=800,scrollbars=yes,resizable=yes,location=no,menubar=no,toolbar=no'
+            );
+            if (popup) {
+              popup.focus();
+            }
+          }}
+        >
           <CardContent className="p-6 text-center relative">
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--success)]/0 via-[var(--success)]/5 to-[var(--success)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative z-10">
