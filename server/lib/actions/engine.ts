@@ -59,84 +59,158 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
   const donors = (req.donorOrder as Bucket[] | undefined) ?? donorsDefault;
   const stageIlliq = req.stageIlliquids ?? true;
 
-  // 1) deltas
-  const deltas: Record<Bucket, number> = {} as any;
-  let abs = 0;
+  // 1) Calculate exact need for each bucket (target - current)
+  const need: Record<Bucket, number> = {} as any;
+  let totalAbsNeed = 0;
   for (const b of CANONICAL_BUCKETS) {
-    deltas[b] = +(target[b] - current[b]).toFixed(6);
-    abs += Math.abs(deltas[b]);
+    need[b] = +(target[b] - current[b]).toFixed(6);
+    totalAbsNeed += Math.abs(need[b]);
   }
 
-  // 2) liquidity
+  // 2) liquidity analysis
   const liqNow = current.CASH + current.BILLS_SHORT_GILTS;
   const liqTgt = target.CASH + target.BILLS_SHORT_GILTS;
-  const needLiq = Math.max(0, liqFloor - liqNow); // how much floor requires right now
+  const needLiq = Math.max(0, liqFloor - liqNow);
 
-  // 3) stage 1 priorities
-  const stage1: Action[] = [];
-  const stage2: Action[] = [];
-  let moves = 0;
+  // 3) Build preliminary actions (liquidity + rebalancing)
+  const prelim: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) prelim[b] = 0;
 
-  // 3a) Liquidity fix first (if needed)
+  // 3a) Liquidity fix contributions
   if (needLiq > 1e-6) {
     let remaining = needLiq;
     for (const d of donors) {
       if (remaining <= 1e-6) break;
       const canGive = Math.min(current[d], remaining);
       if (canGive <= 1e-6) continue;
-      const gbp = canGive * pv;
-      const cost = (FRICTION_RATE[d] ?? 0) * canGive;
-      stage1.push({
-        type: "TRIM", bucket: d, deltaPct: -canGive, amountGBP: gbp,
-        estCostPct: cost,
-        rationale: "Raise liquidity to reach floor",
-        stage: 1
-      });
-      remaining -= canGive; moves++;
-      if (moves >= maxMoves) break;
+      prelim[d] -= canGive; // trim from donor
+      remaining -= canGive;
     }
     // receive into Bills first, then Cash
-    const recvEach = Math.max(0, needLiq - Math.max(0, remaining));
+    const recvEach = needLiq - Math.max(0, remaining);
     const toBills = Math.min(recvEach, 1 - current.BILLS_SHORT_GILTS);
     const toCash  = Math.max(0, recvEach - toBills);
-    if (toBills > 1e-6) stage1.push({
-      type: "ADD", bucket: "BILLS_SHORT_GILTS", deltaPct: toBills, amountGBP: toBills*pv,
-      rationale: "Raise liquidity (short gilts)", stage: 1
-    });
-    if (toCash > 1e-6) stage1.push({
-      type: "ADD", bucket: "CASH", deltaPct: toCash, amountGBP: toCash*pv,
-      rationale: "Raise liquidity (cash)", stage: 1
-    });
+    if (toBills > 1e-6) prelim.BILLS_SHORT_GILTS += toBills;
+    if (toCash > 1e-6) prelim.CASH += toCash;
   }
 
-  // 3b) Biggest gaps next (ignoring tiny trades)
-  const order = [...CANONICAL_BUCKETS].sort((a,b)=>Math.abs(deltas[b]) - Math.abs(deltas[a]));
+  // 3b) Add biggest gaps to preliminary actions
+  const order = [...CANONICAL_BUCKETS].sort((a,b)=>Math.abs(need[b]) - Math.abs(need[a]));
+  let moves = 0;
   for (const b of order) {
-    const d = deltas[b];
-    if (Math.abs(d) < minTrade) continue;
+    const n = need[b];
+    if (Math.abs(n) < minTrade) continue;
     const isIlliq = stageIlliq && ILLIQUID_BUCKETS.includes(b);
-    const action: Action = {
-      type: d > 0 ? "ADD" : "TRIM",
-      bucket: b,
-      deltaPct: d,
-      amountGBP: Math.abs(d) * pv,
-      estCostPct: (FRICTION_RATE[b] ?? 0) * Math.abs(d),
-      rationale: d > 0
-        ? "Increase allocation towards target"
-        : "Reduce allocation towards target",
-      stage: isIlliq ? 2 : 1
-    };
-    if (!isIlliq && moves < maxMoves) { stage1.push(action); moves++; }
-    else { stage2.push(action); }
+    if (!isIlliq && moves < maxMoves) {
+      prelim[b] += n; // add the full need to preliminary
+      moves++;
+    }
   }
 
-  // 4) Totals / turnover / cost
-  const estTurnoverPp = +(0.5 * abs * 100).toFixed(1);
+  // 4) Clamp each bucket to exact required net move
+  const stage1Net: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) {
+    const d = prelim[b], n = need[b];
+    stage1Net[b] = n >= 0 ? Math.min(Math.max(0, d), n)   // for adds: clamp between 0 and need
+                          : Math.max(Math.min(0, d), n);  // for trims: clamp between need and 0
+  }
+
+  // 5) Move illiquids to Stage-2
+  if (stageIlliq) {
+    for (const b of ILLIQUID_BUCKETS) {
+      if (b in stage1Net) {
+        stage1Net[b as Bucket] = 0;
+      }
+    }
+  }
+
+  // 6) Make Stage-1 self-funded (Σ adds ≈ Σ trims)
+  let adds  = CANONICAL_BUCKETS.reduce((s,b)=> s + Math.max(0, stage1Net[b]), 0);
+  let trims = CANONICAL_BUCKETS.reduce((s,b)=> s - Math.min(0, stage1Net[b]), 0);
+  const eps = 0.003;  // 0.3 pp tolerance
+
+  if (adds > trims + eps) {
+    // scale down adds proportionally
+    const k = trims / adds;
+    for (const b of CANONICAL_BUCKETS) if (stage1Net[b] > 0) stage1Net[b] *= k;
+  }
+  if (trims > adds + eps) {
+    // scale down trims proportionally
+    const k = adds / trims;
+    for (const b of CANONICAL_BUCKETS) if (stage1Net[b] < 0) stage1Net[b] *= k;
+  }
+
+  // 7) Everything not done in Stage-1 goes to Stage-2
+  const stage2Net: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) {
+    stage2Net[b] = need[b] - stage1Net[b];
+  }
+
+  // 8) Rebuild actions table from stage1Net (single row per bucket)
+  const stage1: Action[] = [];
+  const stage2: Action[] = [];
+
+  for (const b of CANONICAL_BUCKETS) {
+    const s1 = stage1Net[b];
+    if (Math.abs(s1) > 1e-6) {
+      const isLiquidityBucket = (b === "CASH" || b === "BILLS_SHORT_GILTS");
+      stage1.push({
+        type: s1 > 0 ? "ADD" : "TRIM",
+        bucket: b,
+        deltaPct: s1,
+        amountGBP: Math.abs(s1) * pv,
+        estCostPct: (FRICTION_RATE[b] ?? 0) * Math.abs(s1),
+        rationale: isLiquidityBucket 
+          ? (s1 > 0 ? "Raise liquidity (short gilts)" : "Reduce liquidity")
+          : (s1 > 0 ? "Increase allocation towards target" : "Reduce allocation towards target"),
+        stage: 1
+      });
+    }
+
+    const s2 = stage2Net[b];
+    if (Math.abs(s2) > 1e-6) {
+      stage2.push({
+        type: s2 > 0 ? "ADD" : "TRIM",
+        bucket: b,
+        deltaPct: s2,
+        amountGBP: Math.abs(s2) * pv,
+        estCostPct: (FRICTION_RATE[b] ?? 0) * Math.abs(s2),
+        rationale: s2 > 0 ? "Increase allocation towards target" : "Reduce allocation towards target",
+        stage: 2
+      });
+    }
+  }
+
+  // 9) Final guardrails (assertions)
+  for (const b of CANONICAL_BUCKETS) {
+    const total = stage1Net[b] + stage2Net[b];
+    if (Math.abs(total - need[b]) > 1e-6) {
+      console.warn(`Bucket ${b}: Stage1+Stage2 (${total.toFixed(6)}) != need (${need[b].toFixed(6)})`);
+    }
+  }
+
+  const stage1Sum = CANONICAL_BUCKETS.reduce((s,b)=> s + stage1Net[b], 0);
+  if (Math.abs(stage1Sum) > eps) {
+    console.warn(`Stage-1 not self-funded: net = ${stage1Sum.toFixed(6)} (should be ~0)`);
+  }
+
+  for (const b of CANONICAL_BUCKETS) {
+    const s1 = stage1Net[b], n = need[b];
+    if (n >= 0 && (s1 > n + 1e-6 || s1 < -1e-6)) {
+      console.warn(`Bucket ${b} overshoots positive need: stage1=${s1.toFixed(6)}, need=${n.toFixed(6)}`);
+    }
+    if (n < 0 && (s1 < n - 1e-6 || s1 > 1e-6)) {
+      console.warn(`Bucket ${b} overshoots negative need: stage1=${s1.toFixed(6)}, need=${n.toFixed(6)}`);
+    }
+  }
+
+  // 10) Totals / turnover / cost
+  const estTurnoverPp = +(0.5 * totalAbsNeed * 100).toFixed(1);
   let estCostPct = 0;
   for (const a of [...stage1, ...stage2]) estCostPct += (a.estCostPct || 0);
   estCostPct = +estCostPct.toFixed(4);
 
-  // 5) Tiny playbook (5–7 bullets)
+  // 11) Playbook bullets
   const bullets: string[] = [];
   
   // Calculate after-stage-1 liquidity for bullet 1
@@ -153,19 +227,17 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
       ? `Top up liquidity by ~${pct(needLiq)} pp (from ${pct(liqNow)}% to ${pct(afterStage1Liquidity)}%) before other moves.`
       : `Liquidity already meets the floor (${pct(liqNow)}%).`
   );
-  const adds = stage1.filter(a=>a.type==="ADD").slice(0,3).map(a=>`add **${a.bucket.replace(/_/g," ")}** ~${pct(a.deltaPct)} pp`);
-  const trims= stage1.filter(a=>a.type==="TRIM").slice(0,3).map(a=>`trim **${a.bucket.replace(/_/g," ")}** ~${pct(Math.abs(a.deltaPct))} pp`);
-  if (trims.length) bullets.push(`Largest reductions now: ${trims.join("; ")}.`);
-  if (adds.length)  bullets.push(`Largest additions now: ${adds.join("; ")}.`);
-  if (stage2.some(a=>ILLiq(a.bucket))) bullets.push(`Defer illiquid changes (property/alternatives/collectibles) to **Stage 2** or next review.`);
+  const addActions = stage1.filter(a=>a.type==="ADD").slice(0,3).map(a=>`add **${a.bucket.replace(/_/g," ")}** ~${pct(a.deltaPct)} pp`);
+  const trimActions = stage1.filter(a=>a.type==="TRIM").slice(0,3).map(a=>`trim **${a.bucket.replace(/_/g," ")}** ~${pct(Math.abs(a.deltaPct))} pp`);
+  if (trimActions.length) bullets.push(`Largest reductions now: ${trimActions.join("; ")}.`);
+  if (addActions.length)  bullets.push(`Largest additions now: ${addActions.join("; ")}.`);
+  if (stage2.some(a=>ILLIQUID_BUCKETS.includes(a.bucket as Bucket))) bullets.push(`Defer illiquid changes (property/alternatives/collectibles) to **Stage 2** or next review.`);
   bullets.push(`Keep individual trades above ${pct(minTrade)} pp to avoid noise.`);
   bullets.push(`Estimated turnover: ~${estTurnoverPp} pp; indicative cost: ~${(estCostPct*100).toFixed(2)}% of portfolio.`);
 
-  function ILLiq(b: string){ return ILLIQUID_BUCKETS.includes(b as Bucket); }
-
   return {
     summary: {
-      totalAbsChangePp: +(abs*100).toFixed(1),
+      totalAbsChangePp: +(totalAbsNeed*100).toFixed(1),
       estTurnoverPp,
       estCostPct,
       liquidityNowPct: +(liqNow*100).toFixed(1),

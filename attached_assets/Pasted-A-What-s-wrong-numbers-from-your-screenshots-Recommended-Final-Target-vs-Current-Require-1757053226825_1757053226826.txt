@@ -1,0 +1,123 @@
+A) What’s wrong (numbers from your screenshots)
+
+Recommended (Final Target %) vs Current % ⇒ Required net move
+Actions (Stage-1) ⇒ What you’re actually doing
+
+Global Equity: need +20.9 pp (9.8 → 30.7).
+Actions +16.7 pp → short by 4.2 pp.
+
+IG Credit: need +14.9 pp (0.2 → 15.1).
+Actions +15.1 pp → over by 0.2 pp.
+
+UK Equity Value: need +8.8 pp (4.2 → 13.0).
+Actions +13.0 pp → over by 4.2 pp.
+
+Bills Short Gilts: need +9.4 pp (0.8 → 10.2).
+Actions +8.0 pp and +10.2 pp (two rows) = +18.2 pp → over by 8.8 pp.
+
+Cash: need +8.9 pp (0.6 → 9.5).
+Actions +7.5 pp → short by 1.4 pp.
+
+Gilts Long: need +5.0 pp (0.4 → 5.4).
+Actions 0.0 pp → missing +5.0 pp.
+
+Commodities: need −4.0 pp (7.2 → 3.2).
+Actions −8.8 pp → over-trim by 4.8 pp.
+
+Growth Tech: need −16.6 pp (19.0 → 2.4).
+Actions −8.0 pp (liquidity) and −16.6 pp (rebalance) = −24.6 pp → over-trim by 8.0 pp (duplicate rows).
+
+(Illiquids like Property/Alternatives/Collectibles look intentionally deferred to Stage-2—fine. But then Stage-1 must still land exactly on the target for the buckets it touches, and be self-funded.)
+
+B) Why it’s happening
+
+You create separate rows for “liquidity top-up” and “rebalance”, then sum them without limiting to the required net move 
+𝑡
+𝑎
+𝑟
+𝑔
+𝑒
+𝑡
+−
+𝑐
+𝑢
+𝑟
+𝑟
+𝑒
+𝑛
+𝑡
+target−current.
+
+There’s no final clamp to ensure each bucket’s Stage-1 net change doesn’t overshoot/undershoot the requirement.
+
+You aren’t enforcing Stage-1 funding balance (Σ adds ≈ Σ trims), so Stage-1 can’t be executed as a self-contained set.
+
+C) The fix (deterministic, copy-paste spec)
+
+After you build your preliminary Stage-1 list (liquidity + rebalancing candidates), aggregate, clamp to need, and balance funding.
+
+1) Aggregate to one row per bucket
+const prelim: Record<Bucket, number> = {}; // signed pp
+for (const a of stage1Draft) prelim[a.bucket] = (prelim[a.bucket] ?? 0) + a.deltaPct;
+
+2) Clamp each bucket to the exact required net move
+const need: Record<Bucket, number> = {}; // target - current
+for (const b of BUCKETS) need[b] = target[b] - current[b];
+
+const stage1: Record<Bucket, number> = {};
+for (const b of BUCKETS) {
+  const d = prelim[b] ?? 0, n = need[b];
+  stage1[b] = n >= 0 ? Math.min(Math.max(0, d), n)   // for adds
+                     : Math.max(Math.min(0, d), n);  // for trims
+}
+
+3) Move illiquids to Stage-2 (if that’s your rule)
+for (const b of ILLIQUIDS) { stage1[b] = 0; }          // Property, Alternatives, Collectibles, etc.
+
+4) Make Stage-1 self-funded (Σ adds ≈ Σ trims)
+let adds  = BUCKETS.reduce((s,b)=> s + Math.max(0, stage1[b]), 0);
+let trims = BUCKETS.reduce((s,b)=> s - Math.min(0, stage1[b]), 0);
+const eps = 0.003;  // 0.3 pp tolerance
+
+if (adds > trims + eps) {
+  // scale down adds proportionally
+  const k = (trims) / adds;
+  for (const b of BUCKETS) if (stage1[b] > 0) stage1[b] *= k;
+}
+if (trims > adds + eps) {
+  // scale down trims proportionally
+  const k = (adds) / trims;
+  for (const b of BUCKETS) if (stage1[b] < 0) stage1[b] *= k;
+}
+
+5) Everything not done in Stage-1 goes to Stage-2
+const stage2: Record<Bucket, number> = {};
+for (const b of BUCKETS) stage2[b] = need[b] - stage1[b];
+
+6) Rebuild the actions table from stage1 (single row per bucket)
+
+Type = ADD if stage1[b] > 0, else TRIM if < 0.
+
+Change (pp) = stage1[b] × 100.
+
+Amount (£) = abs(stage1[b]) × portfolioValueGBP.
+
+Rationale =
+
+if bucket ∈ {Cash, Bills}: Raise liquidity (short gilts) / Increase liquidity
+
+else: Increase/Reduce allocation towards target.
+
+7) Final asserts (guardrails)
+// For every bucket, Stage-1 + Stage-2 = need (no drift)
+for (const b of BUCKETS) console.assert(Math.abs(stage1[b] + stage2[b] - need[b]) <= 1e-6);
+
+// Stage-1 self-funded
+const net = BUCKETS.reduce((s,b)=> s + stage1[b], 0);
+console.assert(Math.abs(net) <= eps);
+
+// No bucket overshoots its requirement
+for (const b of BUCKETS) {
+  if (need[b] >= 0) console.assert(stage1[b] <= need[b] + 1e-6 && stage1[b] >= 0 - 1e-6);
+  else              console.assert(stage1[b] >= need[b] - 1e-6 && stage1[b] <= 0 + 1e-6);
+}
