@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useInvestor } from '../contexts/InvestorContext';
 import { SimpleAllowanceCalculator } from './SimpleAllowanceCalculator-new';
+import AllowanceCalculator from './AllowanceCalculator';
 import PitchDeckAnalyser from './PitchDeckAnalyser';
 import PropertyCharts from './PropertyCharts';
 
@@ -1605,11 +1606,7 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
   const renderContent = () => {
     switch (toolType) {
       case 'allowance-calculator':
-        return (
-          <div className="p-6">
-            <SimpleAllowanceCalculator />
-          </div>
-        );
+        return <AllowanceCalculator />;
         
       case 'pitch-deck-analyser':
         return <PitchDeckAnalyser />;

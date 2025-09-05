@@ -5670,7 +5670,8 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           setIsToolkitModalOpen(false);
           setActiveToolId(null);
         }}
-        activeToolId={activeToolId}
+        toolType={activeToolId || ''}
+        title="EIS Allowance Calculator"
       />
 
     </div>
