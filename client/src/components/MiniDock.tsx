@@ -13,10 +13,8 @@ interface MiniDockProps {
 }
 
 const tools: Tool[] = [
-  { id: 'company_search', name: 'Company Search', icon: 'fas fa-search' },
-  { id: 'eis_allowance', name: 'EIS Allowance', icon: 'fas fa-calculator' },
-  { id: 'risk_profiler', name: 'Risk Profiler', icon: 'fas fa-chart-line' },
-  { id: 'sector_insights', name: 'Sector Insights', icon: 'fas fa-industry' },
+  { id: 'eis_allowance', name: 'EIS Allowance Calculator', icon: 'fas fa-calculator' },
+  { id: 'pitch_deck_analyser', name: 'Pitch Deck Analyser', icon: 'fas fa-presentation' },
   { id: 'dd_snapshot', name: 'DD Snapshot', icon: 'fas fa-file-alt' },
   { id: 'property_valuation', name: 'Property Valuation', icon: 'fas fa-home' }
 ];
