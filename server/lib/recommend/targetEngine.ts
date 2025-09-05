@@ -284,12 +284,14 @@ export function buildTarget(req: TargetRequest): TargetResponse {
     }
   }
 
-  // Final normalise and apply consistent mapping
+  // Final normalise - keep target close to persona intent
   mix = normalise(mix);
-  const highLevelTarget = aggregateToHighLevel(mix);
-  const finalMix = normalise(harmonise(mapBackToCanonical(highLevelTarget)));
+  
+  // Apply minimal adjustment only if needed for Action Plan compatibility
+  // Keep the target very close to the original persona values
+  const finalMix = mix; // No aggressive transformation
 
-  adjustments.push("Applied consistent mapping ratios to match current portfolio structure");
+  adjustments.push("Preserved persona-based allocation structure");
 
   return {
     personaId: req.personaId,
