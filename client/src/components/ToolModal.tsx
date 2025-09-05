@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useInvestor } from '../contexts/InvestorContext';
-import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
+import { SimpleAllowanceCalculator } from './SimpleAllowanceCalculator-new';
 import { RequestForm } from './due/RequestForm';
 
 interface ToolModalProps {
