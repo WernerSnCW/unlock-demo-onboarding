@@ -4763,16 +4763,60 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         }
       }
       
+      // Store current form allocations globally for Action Plan to use (same source as Gap Analysis)
+      (window as any).currentFormAllocations = allocations;
+      
       // Calculate actual current portfolio mix from real data
       const calculateCurrentMix = (portfolioData: any) => {
         const { portfolioHoldings, properties, alternatives, totalValue, hasRealData, actualPortfolioAllocations } = portfolioData;
         
-        // If we have actualPortfolioAllocations from preferences, use those
+        // CRITICAL: Always use current form allocations (same as Gap Analysis) instead of saved database values
+        console.log('Action Plan: Using current form allocations (same source as Gap Analysis)');
+        
+        // Get the current form allocations (same as Gap Analysis)
+        const currentFormAllocations = (window as any).currentFormAllocations;
+        
+        if (currentFormAllocations) {
+          // Use same mapping logic as Gap Analysis (mapToCanonicalBuckets)
+          const currentMix = {
+            // Cash & Fixed Income breakdown (same ratios as current portfolio)
+            CASH: (parseFloat(currentFormAllocations.cashFixedIncome) || 0) * 0.3 / 100,
+            BILLS_SHORT_GILTS: (parseFloat(currentFormAllocations.cashFixedIncome) || 0) * 0.4 / 100,
+            GILTS_LONG: (parseFloat(currentFormAllocations.cashFixedIncome) || 0) * 0.2 / 100,
+            IG_CREDIT: (parseFloat(currentFormAllocations.cashFixedIncome) || 0) * 0.1 / 100,
+            
+            // Global Equity breakdown (same ratios as current portfolio)
+            GLOBAL_EQUITY: (parseFloat(currentFormAllocations.globalEquity) || 0) * 0.7 / 100,
+            UK_EQUITY_VALUE: (parseFloat(currentFormAllocations.globalEquity) || 0) * 0.3 / 100,
+            
+            // Direct mappings
+            GROWTH_TECH: (parseFloat(currentFormAllocations.techGrowth) || 0) / 100,
+            PROPERTY_UK_RESI: (parseFloat(currentFormAllocations.property) || 0) / 100,
+            ALTERNATIVES: (parseFloat(currentFormAllocations.alternatives) || 0) / 100,
+            
+            // Commodities & Gold breakdown (same ratios as current portfolio)
+            COMMODITIES: (parseFloat(currentFormAllocations.commoditiesGold) || 0) * 0.6 / 100,
+            GOLD: (parseFloat(currentFormAllocations.commoditiesGold) || 0) * 0.4 / 100,
+            
+            // Cryptocurrency breakdown (same ratios as current portfolio)
+            CRYPTO_BTC: (parseFloat(currentFormAllocations.cryptocurrency) || 0) * 0.6 / 100,
+            CRYPTO_ETH: (parseFloat(currentFormAllocations.cryptocurrency) || 0) * 0.4 / 100,
+            
+            // Collectibles breakdown (same ratios as current portfolio)
+            COLLECTIBLES_ART: (parseFloat(currentFormAllocations.collectibles) || 0) * 0.7 / 100,
+            COLLECTIBLES_WINE: (parseFloat(currentFormAllocations.collectibles) || 0) * 0.3 / 100,
+          };
+          
+          console.log('Action Plan: Calculated current mix from FORM DATA (same as Gap Analysis):', currentMix);
+          return currentMix;
+        }
+        
+        // Fallback: Use saved portfolio allocations if form data not available
         if (hasRealData && actualPortfolioAllocations) {
-          console.log('Action Plan: Using actualPortfolioAllocations from preferences');
+          console.log('Action Plan: Fallback to actualPortfolioAllocations from preferences');
           const allocations = JSON.parse(actualPortfolioAllocations);
           
-          // Convert percentages to decimals and map to canonical buckets
+          // Convert percentages to decimals and map to canonical buckets (old mapping)
           const currentMix = {
             CASH: parseFloat(allocations.cashFixedIncome || '0') / 100,
             BILLS_SHORT_GILTS: 0, // Not in Werner's categories
@@ -4791,7 +4835,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
             COLLECTIBLES_WINE: 0 // All collectibles in one bucket for Werner
           };
           
-          console.log('Action Plan: Calculated current mix from preferences:', currentMix);
+          console.log('Action Plan: Calculated current mix from saved preferences:', currentMix);
           return currentMix;
         }
         
