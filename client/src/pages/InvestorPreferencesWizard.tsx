@@ -5221,7 +5221,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
       {/* Refresh Button */}
       <div className="text-center mt-6 mb-8">
-        <Button onClick={generateActionPlan} variant="outline">
+        <Button onClick={generateActionPlan} variant="outline" className="text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]">
           <ArrowRight className="w-4 h-4 mr-2" />
           Regenerate Action Plan
         </Button>
