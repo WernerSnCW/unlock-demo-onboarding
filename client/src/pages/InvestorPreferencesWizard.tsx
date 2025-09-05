@@ -3671,10 +3671,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
     const cryptocurrency = parseFloat(allocations.cryptocurrency || '0') / 100;
     const collectibles = parseFloat(allocations.collectibles || '0') / 100;
     
-    // Map to detailed buckets with better distribution
-    detailed.CASH = cashFixedIncome * 0.5;
-    detailed.BILLS_SHORT_GILTS = cashFixedIncome * 0.3;
-    detailed.GILTS_LONG = cashFixedIncome * 0.1;
+    // Map to detailed buckets - SAME as Gap Analysis mapToCanonicalBuckets for consistency
+    detailed.CASH = cashFixedIncome * 0.3; // 30% of Cash & Fixed Income as cash
+    detailed.BILLS_SHORT_GILTS = cashFixedIncome * 0.4; // 40% of Cash & Fixed Income as bills  
+    detailed.GILTS_LONG = cashFixedIncome * 0.2; // 20% of Cash & Fixed Income as gilts
     detailed.IG_CREDIT = cashFixedIncome * 0.1;
     detailed.GLOBAL_EQUITY = globalEquity * 0.8;
     detailed.UK_EQUITY_VALUE = globalEquity * 0.2;

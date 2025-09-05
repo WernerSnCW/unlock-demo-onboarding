@@ -138,9 +138,19 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
 
   // 5) Tiny playbook (5–7 bullets)
   const bullets: string[] = [];
+  
+  // Calculate after-stage-1 liquidity for bullet 1
+  let stage1LiquidityDelta = 0;
+  for (const action of stage1) {
+    if (action.bucket === "CASH" || action.bucket === "BILLS_SHORT_GILTS") {
+      stage1LiquidityDelta += action.deltaPct;
+    }
+  }
+  const afterStage1Liquidity = liqNow + stage1LiquidityDelta;
+  
   bullets.push(
     needLiq > 1e-6
-      ? `Top up liquidity by ~${pct(needLiq)} pp (Bills/Cash) before other moves.`
+      ? `Top up liquidity by ~${pct(needLiq)} pp (from ${pct(liqNow)}% to ${pct(afterStage1Liquidity)}%) before other moves.`
       : `Liquidity already meets the floor (${pct(liqNow)}%).`
   );
   const adds = stage1.filter(a=>a.type==="ADD").slice(0,3).map(a=>`add **${a.bucket.replace(/_/g," ")}** ~${pct(a.deltaPct)} pp`);
