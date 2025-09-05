@@ -233,14 +233,6 @@ export default function SnapshotReport() {
     }
   };
 
-  // Debug logging
-  console.log("SnapshotReport Debug:", { 
-    businessId: business?.id, 
-    businessName: business?.name,
-    isDueRequest: !!dueRequest,
-    hasCustomContent: !!unlockHardcodedReport.customContent
-  });
-
   // Use hardcoded report for Unlock Services Limited, otherwise use dynamic system
   const reportData = business?.id === "biz_045" ? unlockHardcodedReport : 
                      dueRequest ? mockBusinessFromDueRequest : business;
@@ -569,20 +561,53 @@ export default function SnapshotReport() {
                   </div>
 
                   <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">KEY FINDINGS:</h4>
-                      <p>{category.description} Assessment shows {(category.data.status || 'standard').toLowerCase()} performance with verification score of {category.data.score}/100.</p>
-                    </div>
+                    {/* Show custom key points if available, otherwise generic text */}
+                    {(category.data as any)?.keyPoints && (category.data as any).keyPoints.length > 0 ? (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">KEY STRENGTHS:</h4>
+                        <ul className="space-y-2">
+                          {(category.data as any).keyPoints.map((point: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <i className="fas fa-check-circle text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">KEY FINDINGS:</h4>
+                        <p>{category.description} Assessment shows {(category.data.status || 'standard').toLowerCase()} performance with verification score of {category.data.score}/100.</p>
+                      </div>
+                    )}
 
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">STRATEGIC IMPLICATIONS:</h4>
-                      <p>{category.data.score >= 80 ? 
-                        `Strong performance in ${(category.title || 'this area').toLowerCase()} enhances overall investment confidence and reduces associated risks. This area demonstrates reliable verification standards that support positive valuation considerations.` :
-                        category.data.score >= 60 ?
-                        `Moderate performance in ${(category.title || 'this area').toLowerCase()} requires ongoing monitoring and potential enhancement. While meeting basic requirements, additional verification may strengthen investment positioning.` :
-                        `${category.title} performance below optimal standards presents potential risk factors that warrant comprehensive review and remediation before investment consideration.`
-                      }</p>
-                    </div>
+                    {/* Show custom concerns if available */}
+                    {(category.data as any)?.concerns && (category.data as any).concerns.length > 0 && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">AREAS FOR ATTENTION:</h4>
+                        <ul className="space-y-2">
+                          {(category.data as any).concerns.map((concern: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <i className="fas fa-exclamation-circle text-amber-600 dark:text-amber-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
+                              <span>{concern}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Strategic implications - show generic text when no custom content */}
+                    {!(category.data as any)?.keyPoints && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">STRATEGIC IMPLICATIONS:</h4>
+                        <p>{category.data.score >= 80 ? 
+                          `Strong performance in ${(category.title || 'this area').toLowerCase()} enhances overall investment confidence and reduces associated risks. This area demonstrates reliable verification standards that support positive valuation considerations.` :
+                          category.data.score >= 60 ?
+                          `Moderate performance in ${(category.title || 'this area').toLowerCase()} requires ongoing monitoring and potential enhancement. While meeting basic requirements, additional verification may strengthen investment positioning.` :
+                          `${category.title} performance below optimal standards presents potential risk factors that warrant comprehensive review and remediation before investment consideration.`
+                        }</p>
+                      </div>
+                    )}
 
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">INVESTOR CONSIDERATIONS:</h4>
