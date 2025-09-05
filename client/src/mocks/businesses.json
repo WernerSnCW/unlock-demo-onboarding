@@ -1482,5 +1482,2327 @@
       "questions": []
     },
     "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_017",
+    "name": "Oxa Autonomy Limited",
+    "ch_number": "09242359",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Medium",
+    "employees": 300,
+    "revenueBand": "£10m–£50m",
+    "location": "Oxford, UK",
+    "foundedYear": 2014,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 4,
+      "webScore": 84,
+      "redFlags": 1,
+      "summary": "Autonomy stack provider (formerly Oxbotica) with steady filings.",
+      "tags": [
+        "Autonomy",
+        "Robotics"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 81,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 87,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 94,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 58,
+        "followers": 540,
+        "leadInvestors": 3,
+        "avgChequeGBP": 2500000,
+        "history": [
+          46,
+          49,
+          52,
+          54,
+          56,
+          57,
+          58
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_018",
+    "name": "Graphcore Limited",
+    "ch_number": "10185006",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Medium",
+    "employees": 600,
+    "revenueBand": "£50m–£100m",
+    "location": "Bristol, UK",
+    "foundedYear": 2016,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Adequate",
+      "lastFilingDate": "2025-08-15",
+      "directors": 2,
+      "webScore": 89,
+      "redFlags": 1,
+      "summary": "AI semiconductor company; filings reflect scale-up dynamics.",
+      "tags": [
+        "AI Chips",
+        "Hardware"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 70,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 95,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 92,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 60,
+        "followers": 710,
+        "leadInvestors": 5,
+        "avgChequeGBP": 4000000,
+        "history": [
+          48,
+          51,
+          54,
+          56,
+          58,
+          59,
+          60
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_019",
+    "name": "Faculty Science Limited",
+    "ch_number": "08867781",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Medium",
+    "employees": 300,
+    "revenueBand": "£50m–£100m",
+    "location": "London, UK",
+    "foundedYear": 2014,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 98,
+      "redFlags": 2,
+      "summary": "Applied AI consultancy with government and enterprise clients; steady governance.",
+      "tags": [
+        "Applied AI",
+        "Consulting"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 88,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 88,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 90,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 55,
+        "followers": 410,
+        "leadInvestors": 2,
+        "avgChequeGBP": 1500000,
+        "history": [
+          45,
+          47,
+          49,
+          51,
+          52,
+          54,
+          55
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_020",
+    "name": "Cazoo Limited",
+    "ch_number": "16618450",
+    "verified": true,
+    "sector": "Automotive & Mobility",
+    "size": "Medium",
+    "employees": 300,
+    "revenueBand": "£50m–£100m",
+    "location": "Kington, UK",
+    "foundedYear": 2024,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Watch",
+      "lastFilingDate": "2025-08-15",
+      "directors": 2,
+      "webScore": 62,
+      "redFlags": 2,
+      "summary": "Used-car marketplace brand; corporate restructuring history.",
+      "tags": [
+        "Marketplace",
+        "Automotive"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 97,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in automotive & mobility",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 98,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 91,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 39,
+        "followers": 210,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          42,
+          41,
+          40,
+          39,
+          39,
+          39,
+          39
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_021",
+    "name": "Copper Technologies (UK) Limited",
+    "ch_number": "11148681",
+    "verified": true,
+    "sector": "Cryptocurrency & Blockchain",
+    "size": "Medium",
+    "employees": 350,
+    "revenueBand": "£10m–£50m",
+    "location": "London, UK",
+    "foundedYear": 2018,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Adequate",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 66,
+      "redFlags": 1,
+      "summary": "Institutional digital asset custody and prime services.",
+      "tags": [
+        "Custody",
+        "Prime Brokerage"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 87,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in cryptocurrency & blockchain",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 84,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 56,
+        "followers": 390,
+        "leadInvestors": 3,
+        "avgChequeGBP": 3000000,
+        "history": [
+          45,
+          48,
+          50,
+          52,
+          54,
+          55,
+          56
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_022",
+    "name": "Blockchain Access UK Ltd",
+    "ch_number": "11337627",
+    "verified": true,
+    "sector": "Cryptocurrency & Blockchain",
+    "size": "Small",
+    "employees": 50,
+    "revenueBand": "£1m–£5m",
+    "location": "Stockport, UK",
+    "foundedYear": 2018,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Adequate",
+      "lastFilingDate": "2025-08-15",
+      "directors": 6,
+      "webScore": 77,
+      "redFlags": 0,
+      "summary": "UK affiliate associated with a major crypto wallet/brand; check FCA status history.",
+      "tags": [
+        "Wallet",
+        "Payments"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 86,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in cryptocurrency & blockchain",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 98,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 94,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 41,
+        "followers": 210,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          45,
+          44,
+          43,
+          42,
+          41,
+          41,
+          41
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_023",
+    "name": "boohoo.com UK Limited",
+    "ch_number": "05723154",
+    "verified": true,
+    "sector": "E-commerce & Retail",
+    "size": "Large",
+    "employees": 3000,
+    "revenueBand": "£1bn+",
+    "location": "Manchester, UK",
+    "foundedYear": 2006,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 87,
+      "redFlags": 1,
+      "summary": "Fast-fashion e-commerce brand; active filings.",
+      "tags": [
+        "Fast Fashion",
+        "Retail"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 95,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in e-commerce & retail",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 94,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 90,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 49,
+        "followers": 390,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          44,
+          45,
+          46,
+          47,
+          48,
+          48,
+          49
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_024",
+    "name": "Frontier Developments plc",
+    "ch_number": "02892559",
+    "verified": true,
+    "sector": "Entertainment & Gaming",
+    "size": "Medium",
+    "employees": 800,
+    "revenueBand": "£100m–£500m",
+    "location": "Cambridge, UK",
+    "foundedYear": 1993,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 9,
+      "webScore": 99,
+      "redFlags": 0,
+      "summary": "UK game developer/publisher with consistent plc filings.",
+      "tags": [
+        "Gaming",
+        "Publishing"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 94,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in entertainment & gaming",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 97,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 98,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 51,
+        "followers": 360,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_025",
+    "name": "Team17 Digital Limited",
+    "ch_number": "02621976",
+    "verified": true,
+    "sector": "Entertainment & Gaming",
+    "size": "Medium",
+    "employees": 400,
+    "revenueBand": "£50m–£100m",
+    "location": "Wakefield, UK",
+    "foundedYear": 1991,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 87,
+      "redFlags": 0,
+      "summary": "Indie games publisher with stable filings via group structure.",
+      "tags": [
+        "Indie",
+        "Publishing"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 80,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in entertainment & gaming",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 81,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 95,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 50,
+        "followers": 330,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_026",
+    "name": "Gymshark Ltd",
+    "ch_number": "08130873",
+    "verified": true,
+    "sector": "Fashion & Lifestyle",
+    "size": "Large",
+    "employees": 1000,
+    "revenueBand": "£500m–£1bn",
+    "location": "Solihull, UK",
+    "foundedYear": 2012,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 4,
+      "webScore": 63,
+      "redFlags": 0,
+      "summary": "Direct-to-consumer fitness apparel brand; active filings.",
+      "tags": [
+        "D2C",
+        "Athleisure"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 72,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in fashion & lifestyle",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 81,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 62,
+        "followers": 720,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          52,
+          55,
+          57,
+          59,
+          60,
+          61,
+          62
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_027",
+    "name": "Raspberry Pi Ltd",
+    "ch_number": "08207441",
+    "verified": true,
+    "sector": "Hardware & Robotics",
+    "size": "Medium",
+    "employees": 300,
+    "revenueBand": "£100m–£500m",
+    "location": "Cambridge, UK",
+    "foundedYear": 2012,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 7,
+      "webScore": 92,
+      "redFlags": 2,
+      "summary": "Single-board computers and accessories; consistent filings.",
+      "tags": [
+        "Computing",
+        "STEM"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 92,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in hardware & robotics",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 95,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 90,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 67,
+        "followers": 900,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          58,
+          60,
+          62,
+          64,
+          65,
+          66,
+          67
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_028",
+    "name": "Admiral Group plc",
+    "ch_number": "03849958",
+    "verified": true,
+    "sector": "Insurance",
+    "size": "Large",
+    "employees": 11000,
+    "revenueBand": "£1bn+",
+    "location": "Cardiff, UK",
+    "foundedYear": 1999,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 61,
+      "redFlags": 2,
+      "summary": "FTSE insurer with robust filings and governance.",
+      "tags": [
+        "Insurance",
+        "FTSE"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 72,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in insurance",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 96,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 97,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 52,
+        "followers": 410,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_029",
+    "name": "Aviva plc",
+    "ch_number": "02468686",
+    "verified": true,
+    "sector": "Insurance",
+    "size": "Large",
+    "employees": 22000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 1990,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 2,
+      "webScore": 93,
+      "redFlags": 2,
+      "summary": "Multinational insurer with comprehensive plc reporting.",
+      "tags": [
+        "Insurance",
+        "Savings"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 77,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in insurance",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 88,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 90,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 50,
+        "followers": 380,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_030",
+    "name": "Imagination Technologies Limited",
+    "ch_number": "01306335",
+    "verified": true,
+    "sector": "IoT & Smart Devices",
+    "size": "Large",
+    "employees": 1200,
+    "revenueBand": "£100m–£500m",
+    "location": "Kings Langley, UK",
+    "foundedYear": 1977,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 2,
+      "webScore": 80,
+      "redFlags": 0,
+      "summary": "GPU/IP licensing for chips powering IoT and devices.",
+      "tags": [
+        "Semiconductors",
+        "IP Licensing"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 89,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in iot & smart devices",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 81,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 92,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 47,
+        "followers": 300,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_031",
+    "name": "Luminance Technologies Ltd",
+    "ch_number": "09857705",
+    "verified": true,
+    "sector": "Legal Tech",
+    "size": "Medium",
+    "employees": 200,
+    "revenueBand": "£10m–£50m",
+    "location": "London, UK",
+    "foundedYear": 2015,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 73,
+      "redFlags": 1,
+      "summary": "AI for legal document review; frequent filings.",
+      "tags": [
+        "Legal AI",
+        "DD"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 71,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in legal tech",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 98,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 60,
+        "followers": 430,
+        "leadInvestors": 2,
+        "avgChequeGBP": 1500000,
+        "history": [
+          49,
+          52,
+          55,
+          57,
+          58,
+          59,
+          60
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_032",
+    "name": "Deliveroo plc",
+    "ch_number": "13227665",
+    "verified": true,
+    "sector": "Logistics & Supply Chain",
+    "size": "Large",
+    "employees": 4000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 2013,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 8,
+      "webScore": 62,
+      "redFlags": 0,
+      "summary": "Online food delivery marketplace with plc-level disclosures.",
+      "tags": [
+        "Delivery",
+        "Marketplace"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 80,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in logistics & supply chain",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 80,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 94,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 51,
+        "followers": 360,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          44,
+          45,
+          46,
+          47,
+          49,
+          50,
+          51
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_033",
+    "name": "Parcel2Go.com Limited",
+    "ch_number": "02591405",
+    "verified": true,
+    "sector": "Logistics & Supply Chain",
+    "size": "Medium",
+    "employees": 400,
+    "revenueBand": "£100m–£500m",
+    "location": "Bolton, UK",
+    "foundedYear": 1991,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 7,
+      "webScore": 72,
+      "redFlags": 1,
+      "summary": "Parcel comparison and booking platform with long filing history.",
+      "tags": [
+        "Shipping",
+        "Marketplace"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 92,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in logistics & supply chain",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 82,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 90,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 48,
+        "followers": 280,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          48
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_034",
+    "name": "Rolls-Royce Holdings plc",
+    "ch_number": "07524813",
+    "verified": true,
+    "sector": "Manufacturing",
+    "size": "Large",
+    "employees": 40000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 2011,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 7,
+      "webScore": 60,
+      "redFlags": 1,
+      "summary": "Aerospace & power systems group; extensive plc filings.",
+      "tags": [
+        "Aerospace",
+        "Engineering"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 77,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in manufacturing",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 83,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 97,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 55,
+        "followers": 520,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          47,
+          48,
+          50,
+          52,
+          53,
+          54,
+          55
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_035",
+    "name": "Captify Technologies Ltd",
+    "ch_number": "07620174",
+    "verified": true,
+    "sector": "Marketing & AdTech",
+    "size": "Medium",
+    "employees": 350,
+    "revenueBand": "£50m–£100m",
+    "location": "London, UK",
+    "foundedYear": 2011,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 9,
+      "webScore": 86,
+      "redFlags": 1,
+      "summary": "Search-powered programmatic advertising platform.",
+      "tags": [
+        "AdTech",
+        "Programmatic"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 95,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in marketing & adtech",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 87,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 97,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 52,
+        "followers": 300,
+        "leadInvestors": 2,
+        "avgChequeGBP": 1200000,
+        "history": [
+          44,
+          46,
+          48,
+          49,
+          50,
+          51,
+          52
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_036",
+    "name": "ITV plc",
+    "ch_number": "04967001",
+    "verified": true,
+    "sector": "Media & Content",
+    "size": "Large",
+    "employees": 6000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 2003,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 9,
+      "webScore": 97,
+      "redFlags": 0,
+      "summary": "UK broadcaster and production group with plc reporting.",
+      "tags": [
+        "Broadcast",
+        "Production"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 79,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in media & content",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 83,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 92,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 49,
+        "followers": 340,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_037",
+    "name": "GSK plc",
+    "ch_number": "03888792",
+    "verified": true,
+    "sector": "Pharmaceuticals",
+    "size": "Large",
+    "employees": 70000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 1999,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 5,
+      "webScore": 80,
+      "redFlags": 0,
+      "summary": "Global pharmaceuticals and vaccines company; extensive plc filings.",
+      "tags": [
+        "Pharma",
+        "Vaccines"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 94,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in pharmaceuticals",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 99,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 54,
+        "followers": 520,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          47,
+          48,
+          49,
+          50,
+          51,
+          53,
+          54
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_038",
+    "name": "Rightmove plc",
+    "ch_number": "06426485",
+    "verified": true,
+    "sector": "Real Estate",
+    "size": "Large",
+    "employees": 700,
+    "revenueBand": "£500m–£1bn",
+    "location": "Milton Keynes, UK",
+    "foundedYear": 2007,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 99,
+      "redFlags": 1,
+      "summary": "UK property portal with stable plc filings.",
+      "tags": [
+        "PropTech",
+        "Marketplace"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 90,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in real estate",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 91,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 93,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 53,
+        "followers": 370,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          46,
+          47,
+          48,
+          50,
+          51,
+          52,
+          53
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_039",
+    "name": "OneWeb Limited",
+    "ch_number": "06948001",
+    "verified": true,
+    "sector": "Space Technology",
+    "size": "Large",
+    "employees": 1500,
+    "revenueBand": "£100m–£500m",
+    "location": "London, UK",
+    "foundedYear": 2009,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Adequate",
+      "lastFilingDate": "2025-08-15",
+      "directors": 6,
+      "webScore": 75,
+      "redFlags": 0,
+      "summary": "LEO satellite communications network operator.",
+      "tags": [
+        "LEO",
+        "Connectivity"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 84,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in space technology",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 97,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 96,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 56,
+        "followers": 420,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          48,
+          50,
+          52,
+          53,
+          54,
+          55,
+          56
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_040",
+    "name": "Orbital Express Launch Limited",
+    "ch_number": "09580714",
+    "verified": true,
+    "sector": "Space Technology",
+    "size": "Small",
+    "employees": 100,
+    "revenueBand": "£1m–£5m",
+    "location": "Forres, UK",
+    "foundedYear": 2015,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 9,
+      "webScore": 85,
+      "redFlags": 0,
+      "summary": "Orbex small-launch vehicle company with regular filings.",
+      "tags": [
+        "Launch",
+        "Aerospace"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 73,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in space technology",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 98,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 97,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 63,
+        "followers": 510,
+        "leadInvestors": 3,
+        "avgChequeGBP": 1200000,
+        "history": [
+          49,
+          53,
+          57,
+          59,
+          61,
+          62,
+          63
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_041",
+    "name": "PureGym Limited",
+    "ch_number": "06690189",
+    "verified": true,
+    "sector": "Sports & Fitness",
+    "size": "Large",
+    "employees": 4000,
+    "revenueBand": "£500m–£1bn",
+    "location": "Leeds, UK",
+    "foundedYear": 2008,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 6,
+      "webScore": 61,
+      "redFlags": 2,
+      "summary": "Largest UK private gym operator with consistent filings.",
+      "tags": [
+        "Fitness",
+        "D2C"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 73,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in sports & fitness",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 92,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 91,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 58,
+        "followers": 600,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          49,
+          51,
+          53,
+          55,
+          56,
+          57,
+          58
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_042",
+    "name": "Vodafone Group Plc",
+    "ch_number": "01833679",
+    "verified": true,
+    "sector": "Telecommunications",
+    "size": "Large",
+    "employees": 95000,
+    "revenueBand": "£1bn+",
+    "location": "Newbury, UK",
+    "foundedYear": 1984,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 5,
+      "webScore": 98,
+      "redFlags": 0,
+      "summary": "Global telecoms group with extensive plc filings.",
+      "tags": [
+        "Telecoms",
+        "Mobile"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 88,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in telecommunications",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 98,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 96,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 49,
+        "followers": 360,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_043",
+    "name": "easyJet plc",
+    "ch_number": "03959649",
+    "verified": true,
+    "sector": "Travel & Hospitality",
+    "size": "Large",
+    "employees": 13000,
+    "revenueBand": "£1bn+",
+    "location": "Luton, UK",
+    "foundedYear": 2000,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 73,
+      "redFlags": 0,
+      "summary": "Low-cost airline with plc-level disclosure.",
+      "tags": [
+        "Airlines",
+        "Travel"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 94,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in travel & hospitality",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 96,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 50,
+        "followers": 370,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_044",
+    "name": "InterContinental Hotels Group PLC",
+    "ch_number": "05134420",
+    "verified": true,
+    "sector": "Travel & Hospitality",
+    "size": "Large",
+    "employees": 10000,
+    "revenueBand": "£1bn+",
+    "location": "Windsor, UK",
+    "foundedYear": 2004,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 5,
+      "webScore": 72,
+      "redFlags": 1,
+      "summary": "Global hotel group with comprehensive plc filings.",
+      "tags": [
+        "Hotels",
+        "Hospitality"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 70,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in travel & hospitality",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 96,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 51,
+        "followers": 380,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_045",
+    "name": "Unlock Services Limited",
+    "ch_number": "15610723",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Micro",
+    "employees": 4,
+    "revenueBand": "Pre-revenue",
+    "location": "London, UK",
+    "foundedYear": 2024,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 5,
+      "webScore": 71,
+      "redFlags": 0,
+      "summary": "Investor-first due diligence and discovery platform for alternative assets.",
+      "tags": [
+        "Due Diligence-as-a-Service",
+        "Investor Tools",
+        "AI-Assisted Analysis",
+        "Syndication Ready"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 97,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 87,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 90,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "interest": {
+        "interestPct": 72,
+        "followers": 520,
+        "leadInvestors": 2,
+        "avgChequeGBP": 25000,
+        "history": [
+          55,
+          60,
+          63,
+          66,
+          69,
+          71,
+          72
+        ]
+      },
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
   }
 ]
