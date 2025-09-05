@@ -104,10 +104,8 @@ export function buildTarget(req: TargetRequest): TargetResponse {
     };
   };
 
-  // --- 1) base & scenarios --- (with consistent mapping)
-  const baseRaw = harmonise(PERSONA_DEFAULTS[req.personaId] || {});
-  const baseHighLevel = aggregateToHighLevel(baseRaw);
-  const base = normalise(harmonise(mapBackToCanonical(baseHighLevel)));
+  // --- 1) base & scenarios --- (keep base as original, only map target)
+  const base = harmonise(PERSONA_DEFAULTS[req.personaId] || {});
   
   const scenNorm = (() => {
     const total = Object.values(req.scenarioWeights || {}).reduce((a, b) => a + b, 0) || 0;
@@ -115,9 +113,7 @@ export function buildTarget(req: TargetRequest): TargetResponse {
     for (const [k, v] of Object.entries(req.scenarioWeights || {})) norm[k] = total ? v / total : 0;
     return norm;
   })();
-  const scenBlendRaw = harmonise(blendScenarioTemplates(scenNorm));
-  const scenBlendHighLevel = aggregateToHighLevel(scenBlendRaw);
-  const scenBlend = normalise(harmonise(mapBackToCanonical(scenBlendHighLevel)));
+  const scenBlend = harmonise(blendScenarioTemplates(scenNorm));
 
   // --- 2) tilt ---
   const k = clip(req.tiltStrength ?? 0.35, 0, 1); // default moderate tilt
