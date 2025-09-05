@@ -1,0 +1,98 @@
+Replit Implementation Brief — Actions That Land on Target
+Inputs
+
+currentMix: Record<Bucket, number> – user’s current % by bucket (sums to 100).
+
+finalTargetMix: Record<Bucket, number> – recommended % by bucket (after persona → scenario tilt → house rules).
+
+stage1Draft: Array<{bucket, deltaPct}> – preliminary Stage-1 moves (liquidity + rebalancing, signed % points).
+
+stage2Draft: Array<{bucket, deltaPct}> – preliminary Stage-2 moves (illiquid / remaining).
+
+portfolioValueGBP: number.
+
+ILLiquids: Bucket[] – buckets you defer by policy (e.g., property, alternatives, collectibles, optionally crypto).
+
+Deterministic procedure (generic)
+const BUCKETS = Object.keys(finalTargetMix);
+
+// 1) Need per bucket
+const need: Record<string, number> = {};
+for (const b of BUCKETS) need[b] = (finalTargetMix[b] ?? 0) - (currentMix[b] ?? 0);
+
+// 2) Aggregate preliminary Stage-1 and Stage-2
+const draft1: Record<string, number> = {};
+stage1Draft.forEach(a => draft1[a.bucket] = (draft1[a.bucket] ?? 0) + a.deltaPct);
+
+const draft2: Record<string, number> = {};
+stage2Draft.forEach(a => draft2[a.bucket] = (draft2[a.bucket] ?? 0) + a.deltaPct);
+
+// 3) Clamp Stage-1 to the required need (no wrong-way, no overshoot)
+const s1: Record<string, number> = {};
+for (const b of BUCKETS) {
+  const n = need[b], d = draft1[b] ?? 0;
+  s1[b] = n >= 0 ? Math.min(Math.max(0, d), n)
+                 : Math.max(Math.min(0, d), n);
+}
+
+// 4) Defer illiquids in Stage-1
+for (const b of ILLiquids) s1[b] = 0;
+
+// 5) Self-fund Stage-1 (adds ≈ trims, tolerance 0.3 pp)
+let adds  = BUCKETS.reduce((s,b)=> s + Math.max(0, s1[b]), 0);
+let trims = BUCKETS.reduce((s,b)=> s - Math.min(0, s1[b]), 0);
+const EPS = 0.003;
+if (adds > trims + EPS) { const k = trims / adds; for (const b of BUCKETS) if (s1[b] > 0) s1[b] *= k; }
+if (trims > adds + EPS){ const k = adds / trims; for (const b of BUCKETS) if (s1[b] < 0) s1[b] *= k; }
+
+// 6) Stage-2 is the exact remainder to land on target
+const s2: Record<string, number> = {};
+for (const b of BUCKETS) {
+  const d2 = draft2[b] ?? 0;              // optional: use as a hint
+  const rem = need[b] - s1[b];
+  // clamp Stage-2 to the remainder (sign-correct)
+  s2[b] = rem >= 0 ? Math.min(Math.max(0, d2), rem)
+                   : Math.max(Math.min(0, d2), rem);
+  // ensure exact landing (force any residual rounding)
+  s2[b] = rem;
+}
+
+Rendering rules
+
+Build tables from s1 (Stage-1) and s2 (Stage-2), one row per bucket (no duplicates).
+
+Amount (£) = abs(deltaPct) * portfolioValueGBP.
+
+Rationale:
+
+Cash/Bills adds → “Raise liquidity”.
+
+Others → “Increase/Reduce allocation towards target”.
+
+Liquidity copy must be computed from currentMix:
+
+currentLiquidity = currentMix.CASH + currentMix.BILLS_SHORT_GILTS
+
+afterStage1 = currentLiquidity + (s1.CASH ?? 0) + (s1.BILLS_SHORT_GILTS ?? 0)
+
+Show policy floor separately if you have one.
+
+Guardrails (keep these assertions)
+// Exact landing per bucket
+for (const b of BUCKETS) {
+  const n = need[b], d = (s1[b] ?? 0) + (s2[b] ?? 0);
+  console.assert(Math.abs(d - n) <= 0.001, `Net mismatch: ${b}`);
+  if (n >= 0) console.assert(d >= -1e-6 && d <= n + 1e-6, `Overshoot add: ${b}`);
+  else        console.assert(d <=  1e-6 && d >= n - 1e-6, `Overshoot trim: ${b}`);
+}
+
+// Stage-1 self-funded
+const netS1 = BUCKETS.reduce((s,b)=> s + (s1[b] ?? 0), 0);
+console.assert(Math.abs(netS1) <= 0.003, "Stage-1 not self-funded");
+
+// Amount consistency
+for (const row of [...Object.entries(s1), ...Object.entries(s2)]) {
+  const [bucket, dp] = row;
+  const amount = Math.abs(dp) * portfolioValueGBP;
+  // compare with displayed amount before render; they must match within £1
+}
