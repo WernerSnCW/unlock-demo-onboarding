@@ -107,6 +107,7 @@ export default function SnapshotReport() {
     revenueBand: "Pre-revenue",
     location: "86–90 Paul Street, London, EC2A 4NE, UK",
     foundedYear: 2024,
+    risk: "Low",
     eligibility: { EIS: false, SEIS: false },
     snapshot: {
       filingHealth: "Good",
@@ -231,6 +232,14 @@ export default function SnapshotReport() {
       finalRecommendation: "Favourable. Proceed with a structured pilot and milestone-based seed commitment. Prioritise conversions within existing investor communities, formalise two data-provider redundancies, and publish 2–3 flagship case studies to cement credibility. Assuming pilot KPIs are met (time-to-report, NPS, paid conversions), scale into syndicate and advisor channels."
     }
   };
+
+  // Debug logging
+  console.log("SnapshotReport Debug:", { 
+    businessId: business?.id, 
+    businessName: business?.name,
+    isDueRequest: !!dueRequest,
+    hasCustomContent: !!unlockHardcodedReport.customContent
+  });
 
   // Use hardcoded report for Unlock Services Limited, otherwise use dynamic system
   const reportData = business?.id === "biz_045" ? unlockHardcodedReport : 
@@ -628,11 +637,11 @@ export default function SnapshotReport() {
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    {reportData.snapshot.summary}
+                    {reportData?.snapshot?.summary}
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-check text-green-600 dark:text-green-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    Established {reportData.sector} market presence since {reportData.foundedYear}
+                    Established {reportData?.sector} market presence since {reportData?.foundedYear}
                   </li>
                 </ul>
               </div>
@@ -677,11 +686,11 @@ export default function SnapshotReport() {
                 <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                   <p className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--primary)] text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    {reportData.sector} sector positioning with {reportData.employees} team members
+                    {reportData?.sector} sector positioning with {reportData?.employees} team members
                   </p>
                   <p className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--primary)] text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    Revenue band: {reportData.revenueBand} demonstrates market traction
+                    Revenue band: {reportData?.revenueBand} demonstrates market traction
                   </p>
                 </div>
               </div>
@@ -697,11 +706,11 @@ export default function SnapshotReport() {
                 <ul className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                   <li className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    {reportData.eligibility?.EIS ? 'EIS eligible' : 'EIS eligibility pending'} • {reportData.eligibility?.SEIS ? 'SEIS qualified' : 'SEIS under review'}
+                    {reportData?.eligibility?.EIS ? 'EIS eligible' : 'EIS eligibility pending'} • {reportData?.eligibility?.SEIS ? 'SEIS qualified' : 'SEIS under review'}
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
-                    Risk level: {reportData.risk} based on current assessment
+                    Risk level: {reportData?.risk || 'Under Review'} based on current assessment
                   </li>
                   <li className="flex items-start gap-3">
                     <i className="fas fa-circle text-[var(--accent)] dark:text-yellow-400 text-xs mt-1 flex-shrink-0" aria-hidden="true"></i>
@@ -713,7 +722,7 @@ export default function SnapshotReport() {
           </div>
 
           {/* Custom Sections for Unlock Services Limited */}
-          {reportData?.id === "biz_045" && reportData?.customContent && (
+          {reportData?.id === "biz_045" && (reportData as any)?.customContent && (
             <>
               {/* Executive Summary */}
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
@@ -724,7 +733,7 @@ export default function SnapshotReport() {
                 
                 <div className="prose prose-gray dark:prose-invert max-w-none">
                   <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-                    {reportData.customContent.executiveSummary}
+                    {(reportData as any).customContent.executiveSummary}
                   </div>
                 </div>
               </div>
@@ -741,7 +750,7 @@ export default function SnapshotReport() {
                   </div>
                   
                   <ul className="space-y-4">
-                    {reportData.customContent.investmentHighlights.map((highlight, index) => (
+                    {(reportData as any).customContent.investmentHighlights.map((highlight: string, index: number) => (
                       <li key={index} className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{highlight}</span>
@@ -760,7 +769,7 @@ export default function SnapshotReport() {
                   </div>
                   
                   <ul className="space-y-4">
-                    {reportData.customContent.riskFactors.map((risk, index) => (
+                    {(reportData as any).customContent.riskFactors.map((risk: string, index: number) => (
                       <li key={index} className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-amber-600 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{risk}</span>
@@ -780,7 +789,7 @@ export default function SnapshotReport() {
                 </div>
                 
                 <div className="text-white/90 leading-relaxed">
-                  {reportData.customContent.finalRecommendation}
+                  {(reportData as any).customContent.finalRecommendation}
                 </div>
               </div>
             </>
