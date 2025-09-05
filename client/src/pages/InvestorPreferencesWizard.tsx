@@ -2276,8 +2276,57 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
 
     setIsAnalyzing(true);
     try {
+      // CRITICAL: Call /api/target to get same targetMix as Recommendations/Actions
+      const userId = getUserId();
+      let targetMixFromAPI = null;
+      
+      try {
+        // Build scenario weights (same logic as recommendations)
+        let scenarioWeights: Record<string, number> = {};
+        try {
+          const beliefResponse = await fetch(`/api/investors/${userId}/belief-responses`);
+          if (beliefResponse.ok) {
+            const beliefData = await beliefResponse.json();
+            if (beliefData.scenarioWeights) {
+              scenarioWeights = beliefData.scenarioWeights;
+            }
+          }
+        } catch (beliefError) {
+          console.log('Could not fetch belief responses for gap analysis, using default weights');
+        }
+
+        // If no scenario weights, use default equal weighting
+        if (Object.keys(scenarioWeights).length === 0) {
+          scenarioWeights = {
+            "S005": 0.125, "S010": 0.125, "S002": 0.125, "S003": 0.125,
+            "S006": 0.125, "S009": 0.125, "S008": 0.125, "S007": 0.125
+          };
+        }
+
+        const targetRequest = {
+          personaId: matchedPersona.code,
+          scenarioWeights: scenarioWeights,
+          tiltStrength: 0.35
+        };
+
+        console.log('Gap Analysis: Calling /api/target with same params as Recommendations');
+        const targetResponse = await fetch('/api/target', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(targetRequest)
+        });
+
+        if (targetResponse.ok) {
+          const targetResult = await targetResponse.json();
+          targetMixFromAPI = targetResult.targetMix;
+          console.log('Gap Analysis: Got targetMix from /api/target:', targetMixFromAPI);
+        }
+      } catch (targetError) {
+        console.log('Gap Analysis: Could not call /api/target, falling back to persona defaults');
+      }
+
       const currentMix = mapToCanonicalBuckets(allocations);
-      const targetMix = mapToCanonicalBuckets(getRecommendedAllocation(matchedPersona));
+      const targetMix = targetMixFromAPI || mapToCanonicalBuckets(getRecommendedAllocation(matchedPersona));
       
       console.log('Current portfolio mix:', currentMix);
       console.log('Target portfolio mix:', targetMix);
@@ -2396,7 +2445,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
           description: "Your actual portfolio has been recorded successfully.",
         });
 
-        // Perform gap analysis after successful save
+        // Perform gap analysis with /api/target data (same as Recommendations/Actions)
         await performGapAnalysis();
       } else {
         throw new Error(result.message || 'Save operation was not successful');
@@ -3433,9 +3482,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       console.log('Target API result:', result);
       setTargetData(result);
       
-      // CRITICAL: Store targetMix for Gap Analysis to use same data as Recommendations/Actions
-      (window as any).targetDataFromAPI = result;
-      console.log('Stored targetMix for Gap Analysis:', result.targetMix);
+      // Gap Analysis now calls /api/target directly for consistency
       
       toast({
         title: "Recommendations Generated",
