@@ -44,9 +44,41 @@ interface UserPreferences {
   investmentInterests: string[];
 }
 
+const defaultQA = [
+  {
+    "q": "How should I think about risk vs return?",
+    "a": "Higher potential returns usually come with higher risk. Match risk to your time horizon and capacity for loss, and avoid concentrating too much in any single asset."
+  },
+  {
+    "q": "What does diversification actually mean?",
+    "a": "Spread investments across asset classes (equities/bonds/cash/alternatives), sectors, and regions. Diversification reduces the impact of any one holding underperforming."
+  },
+  {
+    "q": "Is it better to invest a lump sum or drip-feed?",
+    "a": "Both can work. Lump sums have historically outperformed when markets rise, but pound-cost averaging reduces timing risk and can be easier to stick with psychologically."
+  },
+  {
+    "q": "How often should I rebalance?",
+    "a": "Set a target allocation and review at a fixed cadence (e.g., annually) or when holdings drift by 5–10 percentage points. Rebalance with an eye on fees and taxes."
+  },
+  {
+    "q": "Any UK tax wrappers to consider?",
+    "a": "ISAs shelter income and gains (annual allowance applies). Pensions offer tax relief but restrict access until minimum pension age. Tax rules may change and depend on your circumstances."
+  }
+];
+
 export default function NewsEnhanced() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [chatMessages, setChatMessages] = useState([
+    {
+      id: 1,
+      text: "Hi! I can help with quick investment intelligence. Try asking about tax allowances, sector trends, or red flags.",
+      isUser: false,
+      timestamp: "14:27"
+    }
+  ]);
+  const [chatInput, setChatInput] = useState('');
   const [preferences, setPreferences] = useState<UserPreferences>({
     frequency: 'weekly',
     channels: { email: true, whatsapp: false, pushNotifications: true },
@@ -251,6 +283,32 @@ export default function NewsEnhanced() {
       : [...currentTopics, topic];
     
     updatePreferences({ ...preferences, topics: newTopics });
+  };
+
+  const handleQuestionSelect = (question: string) => {
+    const qaItem = defaultQA.find(item => item.q === question);
+    if (!qaItem) return;
+
+    // Add user question
+    const userMessage = {
+      id: Date.now(),
+      text: question,
+      isUser: true,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+
+    // Add AI response after a short delay
+    setTimeout(() => {
+      const aiMessage = {
+        id: Date.now() + 1,
+        text: qaItem.a,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, aiMessage]);
+    }, 800);
   };
 
   const visibleNews = filteredNews.slice(0, visibleCount);
@@ -497,17 +555,48 @@ export default function NewsEnhanced() {
                       </div>
 
                       {/* Chat Messages Area */}
-                      <div className="flex-1 p-3 text-gray-900 bg-white rounded-b-xl">
-                        <div className="bg-gray-100 p-3 rounded-lg rounded-bl-sm max-w-[85%] mb-3">
-                          <p className="text-sm">Hi! I can help with quick investment intelligence. Try asking about tax allowances, sector trends, or red flags.</p>
-                          <div className="text-xs text-gray-500 mt-1">14:27</div>
+                      <div className="flex-1 p-3 text-gray-900 bg-white rounded-b-xl relative">
+                        {/* Messages */}
+                        <div className="space-y-3 mb-20">
+                          {chatMessages.map((message) => (
+                            <div key={message.id} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`p-3 rounded-lg max-w-[85%] ${
+                                message.isUser 
+                                  ? 'bg-green-500 text-white rounded-br-sm' 
+                                  : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                              }`}>
+                                <p className="text-sm">{message.text}</p>
+                                <div className="text-xs mt-1 opacity-70">{message.timestamp}</div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
+
+                        {/* Question Buttons */}
+                        {chatMessages.length === 1 && (
+                          <div className="mb-16">
+                            <p className="text-xs text-gray-600 mb-2">Quick questions:</p>
+                            <div className="space-y-2">
+                              {defaultQA.map((qa, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleQuestionSelect(qa.q)}
+                                  className="w-full text-left p-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                                >
+                                  <p className="text-xs text-gray-700">{qa.q}</p>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         
                         {/* Input Area */}
-                        <div className="absolute bottom-4 left-4 right-4">
+                        <div className="absolute bottom-4 left-3 right-3">
                           <div className="flex items-center gap-2 bg-gray-100 rounded-full p-2">
                             <input
                               type="text"
+                              value={chatInput}
+                              onChange={(e) => setChatInput(e.target.value)}
                               placeholder="Ask about investment..."
                               className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none px-2"
                             />
