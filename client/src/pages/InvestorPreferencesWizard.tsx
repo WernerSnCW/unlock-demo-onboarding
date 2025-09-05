@@ -4623,6 +4623,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [isToolkitModalOpen, setIsToolkitModalOpen] = useState(false);
   const [activeToolId, setActiveToolId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Function to get current user ID (same as used by recommendations)
   const getUserId = () => {
@@ -5147,8 +5148,9 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       const result = await response.json();
       console.log('Action Plan saved successfully:', result);
       
-      // Use browser alert instead of toast to avoid errors
-      alert("✅ Action Plan Saved!\n\nYour investment playbook and actions have been saved successfully.");
+      // Show success message
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 5000); // Hide after 5 seconds
       
     } catch (error) {
       console.error('Failed to save action plan:', error);
@@ -5225,6 +5227,31 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className="fixed top-4 right-4 z-50 max-w-md">
+          <Card className="border-2 border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 shadow-xl">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-green-800 dark:text-green-200">Action Plan Saved!</h3>
+                  <p className="text-sm text-green-700 dark:text-green-300">Your investment playbook and actions have been saved successfully.</p>
+                </div>
+                <button 
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="ml-auto text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200"
+                >
+                  ×
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">Your Action Plan</h1>
