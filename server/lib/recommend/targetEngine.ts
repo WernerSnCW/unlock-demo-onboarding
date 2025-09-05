@@ -59,15 +59,65 @@ export function buildTarget(req: TargetRequest): TargetResponse {
   const flags: string[] = [];
   const adjustments: string[] = [];
 
-  // --- 1) base & scenarios ---
-  const base = harmonise(PERSONA_DEFAULTS[req.personaId] || {});
+  // MAPPING FUNCTIONS (shared by base and target for consistency)
+  const aggregateToHighLevel = (canonicalMix: Record<Bucket, number>) => {
+    return {
+      cashFixedIncome: (canonicalMix.CASH + canonicalMix.BILLS_SHORT_GILTS + canonicalMix.GILTS_LONG + canonicalMix.IG_CREDIT) * 100,
+      globalEquity: (canonicalMix.GLOBAL_EQUITY + canonicalMix.UK_EQUITY_VALUE) * 100,
+      techGrowth: canonicalMix.GROWTH_TECH * 100,
+      property: canonicalMix.PROPERTY_UK_RESI * 100,
+      commoditiesGold: (canonicalMix.COMMODITIES + canonicalMix.GOLD) * 100,
+      alternatives: canonicalMix.ALTERNATIVES * 100,
+      cryptocurrency: (canonicalMix.CRYPTO_BTC + canonicalMix.CRYPTO_ETH) * 100,
+      collectibles: (canonicalMix.COLLECTIBLES_ART + canonicalMix.COLLECTIBLES_WINE) * 100
+    };
+  };
+
+  const mapBackToCanonical = (highLevel: any) => {
+    return {
+      // Cash & Fixed Income breakdown (same ratios as current portfolio)
+      CASH: (highLevel.cashFixedIncome || 0) * 0.3 / 100,
+      BILLS_SHORT_GILTS: (highLevel.cashFixedIncome || 0) * 0.4 / 100,
+      GILTS_LONG: (highLevel.cashFixedIncome || 0) * 0.2 / 100,
+      IG_CREDIT: (highLevel.cashFixedIncome || 0) * 0.1 / 100,
+      
+      // Global Equity breakdown (same ratios as current portfolio)
+      GLOBAL_EQUITY: (highLevel.globalEquity || 0) * 0.7 / 100,
+      UK_EQUITY_VALUE: (highLevel.globalEquity || 0) * 0.3 / 100,
+      
+      // Direct mappings
+      GROWTH_TECH: (highLevel.techGrowth || 0) / 100,
+      PROPERTY_UK_RESI: (highLevel.property || 0) / 100,
+      ALTERNATIVES: (highLevel.alternatives || 0) / 100,
+      
+      // Commodities & Gold breakdown (same ratios as current portfolio)
+      COMMODITIES: (highLevel.commoditiesGold || 0) * 0.6 / 100,
+      GOLD: (highLevel.commoditiesGold || 0) * 0.4 / 100,
+      
+      // Cryptocurrency breakdown (same ratios as current portfolio)
+      CRYPTO_BTC: (highLevel.cryptocurrency || 0) * 0.6 / 100,
+      CRYPTO_ETH: (highLevel.cryptocurrency || 0) * 0.4 / 100,
+      
+      // Collectibles breakdown (same ratios as current portfolio)
+      COLLECTIBLES_ART: (highLevel.collectibles || 0) * 0.7 / 100,
+      COLLECTIBLES_WINE: (highLevel.collectibles || 0) * 0.3 / 100,
+    };
+  };
+
+  // --- 1) base & scenarios --- (with consistent mapping)
+  const baseRaw = harmonise(PERSONA_DEFAULTS[req.personaId] || {});
+  const baseHighLevel = aggregateToHighLevel(baseRaw);
+  const base = normalise(harmonise(mapBackToCanonical(baseHighLevel)));
+  
   const scenNorm = (() => {
     const total = Object.values(req.scenarioWeights || {}).reduce((a, b) => a + b, 0) || 0;
     const norm: Record<string, number> = {};
     for (const [k, v] of Object.entries(req.scenarioWeights || {})) norm[k] = total ? v / total : 0;
     return norm;
   })();
-  const scenBlend = harmonise(blendScenarioTemplates(scenNorm));
+  const scenBlendRaw = harmonise(blendScenarioTemplates(scenNorm));
+  const scenBlendHighLevel = aggregateToHighLevel(scenBlendRaw);
+  const scenBlend = normalise(harmonise(mapBackToCanonical(scenBlendHighLevel)));
 
   // --- 2) tilt ---
   const k = clip(req.tiltStrength ?? 0.35, 0, 1); // default moderate tilt
@@ -238,59 +288,10 @@ export function buildTarget(req: TargetRequest): TargetResponse {
     }
   }
 
-  // Final normalise
+  // Final normalise and apply consistent mapping
   mix = normalise(mix);
-
-  // OPTION B: Apply same mapping ratios as current portfolio
-  // Convert canonical buckets to high-level categories, then map back with consistent ratios
-  const aggregateToHighLevel = (canonicalMix: Record<Bucket, number>) => {
-    return {
-      cashFixedIncome: (canonicalMix.CASH + canonicalMix.BILLS_SHORT_GILTS + canonicalMix.GILTS_LONG + canonicalMix.IG_CREDIT) * 100,
-      globalEquity: (canonicalMix.GLOBAL_EQUITY + canonicalMix.UK_EQUITY_VALUE) * 100,
-      techGrowth: canonicalMix.GROWTH_TECH * 100,
-      property: canonicalMix.PROPERTY_UK_RESI * 100,
-      commoditiesGold: (canonicalMix.COMMODITIES + canonicalMix.GOLD) * 100,
-      alternatives: canonicalMix.ALTERNATIVES * 100,
-      cryptocurrency: (canonicalMix.CRYPTO_BTC + canonicalMix.CRYPTO_ETH) * 100,
-      collectibles: (canonicalMix.COLLECTIBLES_ART + canonicalMix.COLLECTIBLES_WINE) * 100
-    };
-  };
-
-  const mapBackToCanonical = (highLevel: any) => {
-    return {
-      // Cash & Fixed Income breakdown (same ratios as current portfolio)
-      CASH: (highLevel.cashFixedIncome || 0) * 0.3 / 100,
-      BILLS_SHORT_GILTS: (highLevel.cashFixedIncome || 0) * 0.4 / 100,
-      GILTS_LONG: (highLevel.cashFixedIncome || 0) * 0.2 / 100,
-      IG_CREDIT: (highLevel.cashFixedIncome || 0) * 0.1 / 100,
-      
-      // Global Equity breakdown (same ratios as current portfolio)
-      GLOBAL_EQUITY: (highLevel.globalEquity || 0) * 0.7 / 100,
-      UK_EQUITY_VALUE: (highLevel.globalEquity || 0) * 0.3 / 100,
-      
-      // Direct mappings
-      GROWTH_TECH: (highLevel.techGrowth || 0) / 100,
-      PROPERTY_UK_RESI: (highLevel.property || 0) / 100,
-      ALTERNATIVES: (highLevel.alternatives || 0) / 100,
-      
-      // Commodities & Gold breakdown (same ratios as current portfolio)
-      COMMODITIES: (highLevel.commoditiesGold || 0) * 0.6 / 100,
-      GOLD: (highLevel.commoditiesGold || 0) * 0.4 / 100,
-      
-      // Cryptocurrency breakdown (same ratios as current portfolio)
-      CRYPTO_BTC: (highLevel.cryptocurrency || 0) * 0.6 / 100,
-      CRYPTO_ETH: (highLevel.cryptocurrency || 0) * 0.4 / 100,
-      
-      // Collectibles breakdown (same ratios as current portfolio)
-      COLLECTIBLES_ART: (highLevel.collectibles || 0) * 0.7 / 100,
-      COLLECTIBLES_WINE: (highLevel.collectibles || 0) * 0.3 / 100,
-    };
-  };
-
-  // Apply consistent mapping
   const highLevelTarget = aggregateToHighLevel(mix);
-  const consistentMix = harmonise(mapBackToCanonical(highLevelTarget));
-  const finalMix = normalise(consistentMix);
+  const finalMix = normalise(harmonise(mapBackToCanonical(highLevelTarget)));
 
   adjustments.push("Applied consistent mapping ratios to match current portfolio structure");
 
