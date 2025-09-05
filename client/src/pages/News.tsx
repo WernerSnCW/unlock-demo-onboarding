@@ -697,7 +697,7 @@ export default function News() {
                   Saved Articles
                 </h3>
                 
-{savedArticles.length > 0 ? (
+                {savedArticles.length > 0 ? (
                   <div className="space-y-3">
                     {savedArticles.slice(0, 5).map((articleId) => {
                       const article = newsItemsData.find(item => item.id === articleId);
