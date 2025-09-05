@@ -232,12 +232,12 @@ export default function PitchDeckAnalyser() {
     ]
   };
 
-  const previousAnalyses = [
+  const uploadedDecks = [
     {
       id: "unlock-pitch-deck-june-2025",
       title: "Unlock Pitch Deck - June 2025",
-      date: "June 2025",
-      scores: { completeness: 9, clarity: 10, valuation: 8 },
+      fileSize: "2.4 MB",
+      uploadDate: "June 15, 2025",
       summary: "AI-powered investment due diligence platform tackling trust gap in alternatives market"
     }
   ];
@@ -731,28 +731,28 @@ export default function PitchDeckAnalyser() {
         </button>
       </div>
 
-      {/* Completed Analyses Section */}
+      {/* Uploaded Decks Section */}
       <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-md)]">
         <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-6 flex items-center gap-2">
-          <i className="fas fa-history text-[var(--primary)]" aria-hidden="true"></i>
-          Previous Pitch Deck Analyses
+          <i className="fas fa-cloud-upload-alt text-[var(--primary)]" aria-hidden="true"></i>
+          Uploaded Decks
         </h2>
         
         <p className="text-[var(--muted-foreground)] text-sm mb-6">
-          Review completed analyses and compare different pitch decks
+          Select a previously uploaded deck to analyze or compare
         </p>
 
         <div className="space-y-4">
-          {previousAnalyses.map((analysis) => (
+          {uploadedDecks.map((deck) => (
             <div 
-              key={analysis.id} 
+              key={deck.id} 
               className={`bg-[var(--muted)]/10 rounded-[var(--radius-md)] p-4 border cursor-pointer transition-all duration-200 hover:shadow-md ${
-                selectedPreviousAnalysis === analysis.id 
+                selectedPreviousAnalysis === deck.id 
                   ? 'border-[var(--primary)] bg-[var(--primary)]/5' 
                   : 'border-[var(--border)] hover:border-[var(--primary)]/50'
               }`}
-              onClick={() => handleSelectPreviousAnalysis(analysis.id)}
-              data-testid={`previous-analysis-${analysis.id}`}
+              onClick={() => handleSelectPreviousAnalysis(deck.id)}
+              data-testid={`uploaded-deck-${deck.id}`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -760,31 +760,21 @@ export default function PitchDeckAnalyser() {
                     <i className="fas fa-file-pdf text-white text-sm" aria-hidden="true"></i>
                   </div>
                   <div>
-                    <h3 className="font-medium text-[var(--card-foreground)]">{analysis.title}</h3>
-                    <p className="text-sm text-[var(--muted-foreground)]">{analysis.summary}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-[var(--muted-foreground)]">{analysis.date}</span>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded">
-                          Completeness: {analysis.scores.completeness}/10
-                        </span>
-                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 rounded">
-                          Clarity: {analysis.scores.clarity}/10
-                        </span>
-                        <span className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 px-2 py-0.5 rounded">
-                          Valuation: {analysis.scores.valuation}/10
-                        </span>
+                    <h3 className="font-medium text-[var(--card-foreground)]">{deck.title}</h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">{deck.summary}</p>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+                        <i className="fas fa-calendar text-[var(--primary)]" aria-hidden="true"></i>
+                        <span>Uploaded: {deck.uploadDate}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+                        <i className="fas fa-file-alt text-[var(--primary)]" aria-hidden="true"></i>
+                        <span>Size: {deck.fileSize}</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {selectedPreviousAnalysis === analysis.id && (
-                    <div className="text-[var(--primary)] text-sm font-medium">
-                      <i className="fas fa-check-circle mr-1" aria-hidden="true"></i>
-                      Selected
-                    </div>
-                  )}
                   <i className="fas fa-chevron-right text-[var(--muted-foreground)]" aria-hidden="true"></i>
                 </div>
               </div>
