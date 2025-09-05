@@ -438,7 +438,7 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
       ></div>
       
       {/* Modal */}
-      <div className="relative bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      <div className="relative bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] shadow-2xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[var(--border)]">
           <div className="flex items-center justify-between">
@@ -466,7 +466,7 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
         </div>
 
         {/* Body */}
-        <div className="px-6 py-6 overflow-y-auto max-h-[60vh]">
+        <div className="px-6 py-6 overflow-y-auto max-h-[70vh]">
           {isLoading ? (
             <div className="space-y-4">
               {/* Skeleton inputs */}
