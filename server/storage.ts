@@ -209,20 +209,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateInvestorActionPlan(actionPlan: any): Promise<InvestorPreferences> {
+    // Only insert specific fields to avoid timestamp conflicts
+    const insertData = {
+      userId: actionPlan.userId,
+      investorName: actionPlan.investorName,
+      playbook: actionPlan.playbook,
+      stage1Actions: actionPlan.stage1Actions,
+      stage2Actions: actionPlan.stage2Actions,
+      summary: actionPlan.summary,
+      actionPlanCompletedAt: actionPlan.actionPlanCompletedAt,
+      completionMethod: actionPlan.completionMethod,
+    };
+
     const [upserted] = await db
       .insert(investorPreferences)
-      .values(actionPlan)
+      .values(insertData)
       .onConflictDoUpdate({
         target: investorPreferences.userId,
         set: {
           // Action plan specific fields
-          ...(actionPlan.investorName !== undefined && { investorName: actionPlan.investorName }),
-          ...(actionPlan.playbook !== undefined && { playbook: actionPlan.playbook }),
-          ...(actionPlan.stage1Actions !== undefined && { stage1Actions: actionPlan.stage1Actions }),
-          ...(actionPlan.stage2Actions !== undefined && { stage2Actions: actionPlan.stage2Actions }),
-          ...(actionPlan.summary !== undefined && { summary: actionPlan.summary }),
-          ...(actionPlan.actionPlanCompletedAt !== undefined && { actionPlanCompletedAt: actionPlan.actionPlanCompletedAt }),
-          ...(actionPlan.completionMethod !== undefined && { completionMethod: actionPlan.completionMethod }),
+          investorName: actionPlan.investorName,
+          playbook: actionPlan.playbook,
+          stage1Actions: actionPlan.stage1Actions,
+          stage2Actions: actionPlan.stage2Actions,
+          summary: actionPlan.summary,
+          actionPlanCompletedAt: actionPlan.actionPlanCompletedAt,
+          completionMethod: actionPlan.completionMethod,
         }
       })
       .returning();
