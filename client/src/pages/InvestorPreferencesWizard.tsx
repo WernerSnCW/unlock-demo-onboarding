@@ -3499,6 +3499,17 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
       const result = await response.json();
       console.log('Target API result:', result);
+      
+      // Add default narrative if missing (backend doesn't generate it yet)
+      if (!result.narrative) {
+        result.narrative = {
+          overview: "Portfolio recommendations generated based on your investor profile and market outlook.",
+          bullets: [],
+          topAdds: [],
+          topTrims: []
+        };
+      }
+      
       setTargetData(result);
       
       // Gap Analysis now calls /api/target directly for consistency
