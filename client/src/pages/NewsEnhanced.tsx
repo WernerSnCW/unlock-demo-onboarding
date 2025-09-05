@@ -79,6 +79,7 @@ export default function NewsEnhanced() {
     }
   ]);
   const [chatInput, setChatInput] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [preferences, setPreferences] = useState<UserPreferences>({
     frequency: 'weekly',
     channels: { email: true, whatsapp: false, pushNotifications: true },
@@ -105,6 +106,15 @@ export default function NewsEnhanced() {
   const [isLoading, setIsLoading] = useState(false);
 
   const hasUnreadAlerts = alertsData.some(alert => alert.priority === 'high');
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const defaultPreferences: UserPreferences = {
     frequency: 'weekly',
@@ -483,7 +493,7 @@ export default function NewsEnhanced() {
                     {/* Status Bar */}
                     <div className="flex justify-between items-center mb-4 text-black text-xs font-medium">
                       <div className="flex items-center gap-1">
-                        <span>9:41</span>
+                        <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <div className="flex gap-1">
