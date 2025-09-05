@@ -122,7 +122,10 @@ export default function SyndicateDetail() {
               </div>
 
               <ConfidenceSignals interest={syndicate.interest} />
-              <ActivityTimeline events={syndicate.activity as any} />
+              <ActivityTimeline 
+                events={syndicate.activity as any} 
+                companyName={syndicate.company}
+              />
             </div>
 
             {/* Sidebar */}

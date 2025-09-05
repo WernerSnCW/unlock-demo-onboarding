@@ -65,9 +65,71 @@
       "minUnitsPerInvestor": 1
     },
     "activity": [
-      { "ts": "2025-08-10T09:00:00Z", "type": "qa", "text": "Founder answered: regulatory plan timelines." },
-      { "ts": "2025-08-12T15:20:00Z", "type": "commit", "text": "New commitments: £150k." },
-      { "ts": "2025-08-16T18:00:00Z", "type": "update", "text": "Lead posted valuation memo (summary)." }
+      { 
+        "ts": "2025-08-10T09:00:00Z", 
+        "type": "qa", 
+        "text": "Founder answered: regulatory plan timelines.",
+        "qaData": {
+          "id": "qa_001",
+          "question": "What's the timeline for regulatory approval and how confident are you in meeting these milestones?",
+          "author": "InvestorJane_A",
+          "timestamp": "2025-08-08T14:30:00Z",
+          "upvotes": 8,
+          "tags": ["regulatory", "timeline"],
+          "answers": [
+            {
+              "id": "ans_001",
+              "author": "Dr. Sarah Mitchell",
+              "authorType": "founder",
+              "text": "We've already submitted our pre-submission package to the MHRA and received encouraging feedback. Our clinical pathway is designed for a streamlined approval process, targeting Q2 2026 for market entry. We have regulatory consultants with 15+ years in biotech approvals advising us.",
+              "timestamp": "2025-08-10T09:00:00Z",
+              "verified": true
+            },
+            {
+              "id": "ans_002", 
+              "author": "LeadAngel-K",
+              "authorType": "lead",
+              "text": "I've been through 3 similar regulatory processes in my portfolio. Sarah's team is taking the right approach with early MHRA engagement. The risk is manageable given their regulatory strategy.",
+              "timestamp": "2025-08-10T11:15:00Z",
+              "verified": true
+            }
+          ]
+        }
+      },
+      { 
+        "ts": "2025-08-12T15:20:00Z", 
+        "type": "commit", 
+        "text": "New commitments: £150k.",
+        "isNew": true
+      },
+      { 
+        "ts": "2025-08-16T18:00:00Z", 
+        "type": "update", 
+        "text": "Lead posted valuation memo (summary)." 
+      },
+      {
+        "ts": "2025-08-14T10:45:00Z",
+        "type": "qa",
+        "text": "Question about competition and IP protection.",
+        "qaData": {
+          "id": "qa_002",
+          "question": "How are you positioned against competitors like BioGenTech and what IP protection do you have?",
+          "author": "TechInvestor_M",
+          "timestamp": "2025-08-14T10:45:00Z",
+          "upvotes": 5,
+          "tags": ["competition", "IP"],
+          "answers": [
+            {
+              "id": "ans_003",
+              "author": "Dr. Sarah Mitchell",
+              "authorType": "founder", 
+              "text": "We have 3 granted patents covering our core technology and 2 provisional applications filed. Our differentiation lies in our novel delivery mechanism which reduces side effects by 40% compared to existing treatments. BioGenTech focuses on a different pathway entirely.",
+              "timestamp": "2025-08-14T16:20:00Z",
+              "verified": true
+            }
+          ]
+        }
+      }
     ]
   },
   {
