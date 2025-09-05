@@ -536,9 +536,9 @@ export default function NewsEnhanced() {
                     </div>
 
                     {/* AI Assistant Chat Container */}
-                    <div className="bg-gray-50 dark:bg-gray-100 rounded-xl flex-1 h-[calc(100%-120px)] flex flex-col">
+                    <div className="bg-gray-50 dark:bg-gray-100 rounded-xl flex-1 flex flex-col h-[calc(100%-140px)]">
                       {/* AI Chat Header */}
-                      <div className="flex items-center p-3 border-b border-gray-200">
+                      <div className="flex items-center p-3 border-b border-gray-200 flex-shrink-0">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
                           <i className="fas fa-robot text-white text-sm"></i>
                         </div>
@@ -554,10 +554,10 @@ export default function NewsEnhanced() {
                         </button>
                       </div>
 
-                      {/* Chat Messages Area */}
-                      <div className="flex-1 p-3 text-gray-900 bg-white rounded-b-xl relative">
+                      {/* Scrollable Chat Content */}
+                      <div className="flex-1 overflow-y-auto p-3 bg-white">
                         {/* Messages */}
-                        <div className="space-y-3 mb-20">
+                        <div className="space-y-3">
                           {chatMessages.map((message) => (
                             <div key={message.id} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
                               <div className={`p-3 rounded-lg max-w-[85%] ${
@@ -574,39 +574,39 @@ export default function NewsEnhanced() {
 
                         {/* Question Buttons */}
                         {chatMessages.length === 1 && (
-                          <div className="mb-16">
-                            <p className="text-xs text-gray-600 mb-2">Quick questions:</p>
+                          <div className="mt-4">
+                            <p className="text-xs text-gray-600 mb-3 font-medium">Quick questions:</p>
                             <div className="space-y-2">
                               {defaultQA.map((qa, index) => (
                                 <button
                                   key={index}
                                   onClick={() => handleQuestionSelect(qa.q)}
-                                  className="w-full text-left p-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                                  className="w-full text-left p-2.5 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
                                 >
-                                  <p className="text-xs text-gray-700">{qa.q}</p>
+                                  <p className="text-xs text-gray-700 leading-relaxed">{qa.q}</p>
                                 </button>
                               ))}
                             </div>
                           </div>
                         )}
+                      </div>
                         
-                        {/* Input Area */}
-                        <div className="absolute bottom-4 left-3 right-3">
-                          <div className="flex items-center gap-2 bg-gray-100 rounded-full p-2">
-                            <input
-                              type="text"
-                              value={chatInput}
-                              onChange={(e) => setChatInput(e.target.value)}
-                              placeholder="Ask about investment..."
-                              className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none px-2"
-                            />
-                            <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                              <i className="fas fa-paper-plane text-white text-xs"></i>
-                            </button>
-                          </div>
-                          <div className="text-center text-xs text-gray-500 mt-2">
-                            This is not advice
-                          </div>
+                      {/* Fixed Input Area */}
+                      <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0 rounded-b-xl">
+                        <div className="flex items-center gap-2 bg-gray-100 rounded-full p-2">
+                          <input
+                            type="text"
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder="Ask about investment..."
+                            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none px-2"
+                          />
+                          <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <i className="fas fa-paper-plane text-white text-xs"></i>
+                          </button>
+                        </div>
+                        <div className="text-center text-xs text-gray-500 mt-2">
+                          This is not advice
                         </div>
                       </div>
                     </div>
