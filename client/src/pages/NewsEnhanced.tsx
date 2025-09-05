@@ -80,6 +80,7 @@ export default function NewsEnhanced() {
   ]);
   const [chatInput, setChatInput] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isTyping, setIsTyping] = useState(false);
   const [preferences, setPreferences] = useState<UserPreferences>({
     frequency: 'weekly',
     channels: { email: true, whatsapp: false, pushNotifications: true },
@@ -319,6 +320,64 @@ export default function NewsEnhanced() {
       };
       setChatMessages(prev => [...prev, aiMessage]);
     }, 800);
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || isTyping) return;
+
+    const userMessage = {
+      id: Date.now(),
+      text: chatInput.trim(),
+      isUser: true,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsTyping(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: userMessage.text })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
+      
+      const aiMessage = {
+        id: Date.now() + 1,
+        text: data.response,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setChatMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: "Sorry, I'm having trouble responding right now. Please try again.",
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   const visibleNews = filteredNews.slice(0, visibleCount);
@@ -580,6 +639,22 @@ export default function NewsEnhanced() {
                               </div>
                             </div>
                           ))}
+                          
+                          {/* Typing indicator */}
+                          {isTyping && (
+                            <div className="flex justify-start">
+                              <div className="bg-gray-100 text-gray-900 p-3 rounded-lg rounded-bl-sm max-w-[85%]">
+                                <div className="flex items-center gap-1">
+                                  <div className="flex gap-1">
+                                    <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                  </div>
+                                  <span className="text-xs opacity-70 ml-2">AI is thinking...</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* Question Buttons */}
@@ -619,10 +694,16 @@ export default function NewsEnhanced() {
                             type="text"
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
+                            onKeyPress={handleKeyPress}
                             placeholder="Ask about investment..."
-                            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none px-2"
+                            disabled={isTyping}
+                            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none px-2 disabled:opacity-50"
                           />
-                          <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <button 
+                            onClick={handleSendMessage}
+                            disabled={!chatInput.trim() || isTyping}
+                            className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-600 transition-colors"
+                          >
                             <i className="fas fa-paper-plane text-white text-xs"></i>
                           </button>
                         </div>

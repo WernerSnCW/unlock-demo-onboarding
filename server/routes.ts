@@ -2333,6 +2333,40 @@ Return as JSON with this exact structure:
     }
   });
 
+  // Chat endpoint for investment questions
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You are an investment expert. Provide helpful, educational investment guidance. Keep responses concise and practical. Always end with 'This is not financial advice.' Be friendly but professional."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ],
+        max_tokens: 200,
+        temperature: 0.7
+      });
+
+      const response = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response at this time.";
+      
+      res.json({ response });
+    } catch (error) {
+      console.error("Chat error:", error);
+      res.status(500).json({ error: "Failed to process chat message" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
