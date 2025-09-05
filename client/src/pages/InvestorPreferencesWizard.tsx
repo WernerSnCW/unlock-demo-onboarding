@@ -24,6 +24,7 @@ import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
 import { useBeliefQuestionnaire } from '@/hooks/useBeliefQuestionnaire';
 import { useAdditionalBeliefs } from '@/hooks/useAdditionalBeliefs';
 import beliefsData from '@/data/beliefs.json';
+import ToolkitModal from '../components/ToolkitModal';
 
 // Types for beliefs data
 interface BeliefsData {
@@ -4619,6 +4620,8 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [gapAnalysisData, setGapAnalysisData] = useState<any>(null);
   const [currentAllocations, setCurrentAllocations] = useState<any>(null);
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
+  const [isToolkitModalOpen, setIsToolkitModalOpen] = useState(false);
+  const [activeToolId, setActiveToolId] = useState<string | null>(null);
 
   // Function to get current user ID (same as used by recommendations)
   const getUserId = () => {
@@ -5601,7 +5604,13 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
       {/* Tools Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--primary)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--primary)]/10">
+        <Card 
+          className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--primary)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--primary)]/10"
+          onClick={() => {
+            setActiveToolId('allowance-calculator');
+            setIsToolkitModalOpen(true);
+          }}
+        >
           <CardContent className="p-6 text-center relative">
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/0 via-[var(--primary)]/5 to-[var(--primary)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative z-10">
@@ -5653,6 +5662,16 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Toolkit Modal */}
+      <ToolkitModal
+        isOpen={isToolkitModalOpen}
+        onClose={() => {
+          setIsToolkitModalOpen(false);
+          setActiveToolId(null);
+        }}
+        activeToolId={activeToolId}
+      />
 
     </div>
   );
