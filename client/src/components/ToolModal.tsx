@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useInvestor } from '../contexts/InvestorContext';
+import SimpleAllowanceCalculator from './SimpleAllowanceCalculator';
+import { RequestForm } from './due/RequestForm';
 
 interface ToolModalProps {
   isOpen: boolean;
@@ -83,6 +85,16 @@ const toolDetails: Record<string, {
       { label: 'Select Property', placeholder: 'Choose property to value...' },
       { label: 'Valuation Method', placeholder: 'Comparable sales analysis' },
       { label: 'Market Conditions', placeholder: 'Current market' }
+    ]
+  },
+  pitch_deck_analyser: {
+    name: 'Pitch Deck Analyser',
+    description: 'Analyze pitch decks for investment insights and valuation data.',
+    icon: 'fas fa-presentation',
+    inputs: [
+      { label: 'Upload Deck', placeholder: 'Select pitch deck file...' },
+      { label: 'Analysis Type', placeholder: 'Standard analysis' },
+      { label: 'Focus Areas', placeholder: 'Select key areas...' }
     ]
   },
   art_valuation: {
@@ -468,15 +480,40 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Special handling for property valuation */}
-              {(toolId === 'property_valuation' || toolId === 'property-valuation') ? (
+              {/* Render specific components for each tool */}
+              {toolId === 'eis_allowance' ? (
+                <SimpleAllowanceCalculator />
+              ) : toolId === 'dd_snapshot' ? (
+                <RequestForm onSuccess={(requestId) => {
+                  console.log('DD Snapshot request created:', requestId);
+                }} />
+              ) : (toolId === 'property_valuation' || toolId === 'property-valuation') ? (
                 <>
                   <PropertyValuationForm />
                   <ChartStub />
                 </>
+              ) : toolId === 'pitch_deck_analyser' ? (
+                <div className="space-y-4">
+                  <div className="bg-[var(--muted)] rounded-[var(--radius-sm)] p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-3 bg-[var(--card)] rounded-full flex items-center justify-center">
+                      <i className="fas fa-presentation text-2xl text-[var(--muted-foreground)]"></i>
+                    </div>
+                    <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                      Advanced pitch deck analysis with AI-powered insights
+                    </p>
+                    <Link
+                      href="/pitch-deck-analyser"
+                      onClick={onClose}
+                      className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-[var(--radius-sm)] font-medium hover:bg-[var(--primary)]/90 transition-colors"
+                    >
+                      <i className="fas fa-external-link-alt text-sm"></i>
+                      Open Full Analyser
+                    </Link>
+                  </div>
+                </div>
               ) : (
                 <>
-                  {/* Input Fields */}
+                  {/* Default generic form for other tools */}
                   <div className="space-y-4">
                     {tool.inputs.map((input, index) => (
                       <div key={index} className="space-y-2">
@@ -492,8 +529,6 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
                       </div>
                     ))}
                   </div>
-
-                  {/* Chart Stub */}
                   <ChartStub />
                 </>
               )}
