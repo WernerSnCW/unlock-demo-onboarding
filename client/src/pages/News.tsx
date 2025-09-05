@@ -575,16 +575,121 @@ export default function News() {
             </div>
           </div>
 
-          {/* Right Sidebar - AI Chat & Saved Items */}
+          {/* Right Sidebar - Phone Interface */}
           <div className="lg:col-span-3">
             <div className="space-y-6">
               
-              {/* AI Chat Assistant */}
-              <AIChat seedPrompts={[
-                "What are my tax allowances?",
-                "Any red flags in fintech this week?",
-                "Latest biotech trends?"
-              ]} />
+              {/* Phone Container */}
+              <div className="relative">
+                {/* Phone Frame */}
+                <div className="bg-gray-900 dark:bg-gray-800 rounded-[2.5rem] p-2 shadow-2xl" style={{ aspectRatio: '9/19.5' }}>
+                  {/* Screen */}
+                  <div className="bg-white dark:bg-gray-100 rounded-[2rem] h-full p-4 overflow-hidden relative">
+                    {/* Status Bar */}
+                    <div className="flex justify-between items-center mb-4 text-black text-xs font-medium">
+                      <div className="flex items-center gap-1">
+                        <span>9:41</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="flex gap-1">
+                          <div className="w-1 h-1 bg-black rounded-full"></div>
+                          <div className="w-1 h-1 bg-black rounded-full"></div>
+                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                        </div>
+                        <i className="fas fa-wifi text-black text-xs ml-1"></i>
+                        <div className="w-6 h-3 border border-black rounded-sm relative ml-1">
+                          <div className="w-4 h-1.5 bg-green-500 rounded-sm absolute top-0.5 left-0.5"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* WhatsApp Connect Section */}
+                    <div className="mb-4">
+                      <button
+                        onClick={() => setShowWhatsAppConnect(true)}
+                        className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-xl flex items-center gap-3 transition-colors shadow-lg"
+                      >
+                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                          <i className="fab fa-whatsapp text-green-500 text-lg"></i>
+                        </div>
+                        <div className="text-left flex-1">
+                          <div className="font-semibold">Get updates on WhatsApp</div>
+                          <div className="text-sm opacity-90">On-the-go summaries</div>
+                        </div>
+                      </button>
+                      
+                      {preferences.channels.whatsapp && (
+                        <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                          <div className="flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
+                            <i className="fas fa-check-circle"></i>
+                            <span>WhatsApp connected</span>
+                          </div>
+                          <button
+                            onClick={() => setShowWhatsAppConnect(true)}
+                            className="text-green-600 dark:text-green-400 text-xs underline mt-1"
+                          >
+                            Connect WhatsApp
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* AI Assistant Header */}
+                    <div className="text-gray-600 text-xs mb-2">
+                      Sources shown when available
+                    </div>
+
+                    {/* AI Assistant Chat Container */}
+                    <div className="bg-gray-50 dark:bg-gray-100 rounded-xl flex-1 h-[calc(100%-120px)] flex flex-col">
+                      {/* AI Chat Header */}
+                      <div className="flex items-center p-3 border-b border-gray-200">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                          <i className="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 text-sm">AI Assistant</h3>
+                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            Online
+                          </div>
+                        </div>
+                        <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                          <i className="fas fa-trash text-sm"></i>
+                        </button>
+                      </div>
+
+                      {/* Chat Messages Area */}
+                      <div className="flex-1 p-3 text-gray-900 bg-white rounded-b-xl">
+                        <div className="bg-gray-100 p-3 rounded-lg rounded-bl-sm max-w-[85%] mb-3">
+                          <p className="text-sm">Hi! I can help with quick investment intelligence. Try asking about tax allowances, sector trends, or red flags.</p>
+                          <div className="text-xs text-gray-500 mt-1">14:27</div>
+                        </div>
+                        
+                        {/* Input Area */}
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="flex items-center gap-2 bg-gray-100 rounded-full p-2">
+                            <input
+                              type="text"
+                              placeholder="Ask about investment..."
+                              className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none px-2"
+                            />
+                            <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                              <i className="fas fa-paper-plane text-white text-xs"></i>
+                            </button>
+                          </div>
+                          <div className="text-center text-xs text-gray-500 mt-2">
+                            This is not advice
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Home Indicator */}
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-700 rounded-full"></div>
+                </div>
+              </div>
 
               {/* Saved Items */}
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-md)] p-4">
