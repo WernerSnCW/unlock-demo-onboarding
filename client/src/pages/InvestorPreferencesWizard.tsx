@@ -4593,98 +4593,71 @@ function ActionPlanComponent({ userId }: { userId: string }) {
     setError(null);
     
     try {
-      // First try to find the most recent investor who completed portfolio recommendations
+      // Use current user - they just completed the portfolio steps
       let actualUserId = userId;
+      console.log('Action Plan: Using current userId for Action Plan:', actualUserId);
       
-      console.log('Action Plan: Finding investor with recent portfolio recommendations...');
+      // First try to get the actual saved portfolio value from preferences
+      let portfolioValue = 100000; // Default fallback
       
-      // Use the MOST RECENT investor who completed portfolio recommendations
-      // This ensures we always use the active investor who just went through the process
-      const activeInvestors = [
-        'demo-1757003284375', // Tom King - just completed at 4:29:15 PM (MOST RECENT)
-        'demo-1757002489624', // CW Test_10Jul_1 - completed earlier
-        'demo-1757001694223', // Werner - completed earlier  
-        userId // Current user as final fallback
-      ];
-      
-      for (const investorId of activeInvestors) {
-        const testResponse = await fetch(`/api/investors/${investorId}/preferences`);
-        if (testResponse.ok) {
-          const testPrefs = await testResponse.json();
-          if (testPrefs.recommendedPortfolioAllocations && testPrefs.actualPortfolioValue) {
-            actualUserId = investorId;
-            console.log('Action Plan: Using active investor with complete data:', actualUserId, testPrefs.investorName);
-            break;
+      // Try to get actualPortfolioValue from saved preferences
+      const prefsResponse = await fetch(`/api/investors/${actualUserId}/preferences`);
+      if (prefsResponse.ok) {
+        const prefs = await prefsResponse.json();
+        if (prefs.actualPortfolioValue && prefs.actualPortfolioValue > 0) {
+          portfolioValue = prefs.actualPortfolioValue;
+          console.log('Action Plan: Using saved actual portfolio value:', portfolioValue);
+        } else {
+          console.log('Action Plan: No actualPortfolioValue in preferences, trying to calculate from holdings');
+          
+          // Fallback: calculate from holdings
+          const [portfolioResponse, propertiesResponse, alternativesResponse] = await Promise.all([
+            fetch(`/api/investors/${actualUserId}/portfolio-holdings`),
+            fetch(`/api/properties/${actualUserId}`),
+            fetch(`/api/alternatives/${actualUserId}`)
+          ]);
+          
+          if (portfolioResponse.ok && propertiesResponse.ok && alternativesResponse.ok) {
+            const [portfolioHoldings, properties, alternatives] = await Promise.all([
+              portfolioResponse.json(),
+              propertiesResponse.json(),
+              alternativesResponse.json()
+            ]);
+            
+            const holdingsValue = portfolioHoldings.reduce((sum: number, holding: any) => 
+              sum + parseFloat(holding.currentValueGbp || '0'), 0);
+            const propertyValue = properties.reduce((sum: number, property: any) => 
+              sum + parseFloat(property.currentValueGbp || '0'), 0);
+            const alternativeValue = alternatives.reduce((sum: number, alt: any) => 
+              sum + parseFloat(alt.currentValueGbp || '0'), 0);
+            
+            const totalValue = holdingsValue + propertyValue + alternativeValue;
+            
+            if (totalValue > 0) {
+              portfolioValue = totalValue;
+              console.log('Action Plan: Using calculated portfolio value from holdings:', portfolioValue);
+            } else {
+              portfolioValue = 350000; // Demo value only if no saved data available
+              console.log('Action Plan: Using demo portfolio value (no saved data):', portfolioValue);
+            }
+          } else {
+            portfolioValue = 350000; // Demo value if API calls fail
+            console.log('Action Plan: Using demo portfolio value (API failed):', portfolioValue);
           }
         }
-      }
-      
-      console.log('Action Plan: Using userId for Action Plan:', actualUserId);
-      
-      // Fetch portfolio data to calculate actual portfolio value
-      const [portfolioResponse, propertiesResponse, alternativesResponse] = await Promise.all([
-        fetch(`/api/investors/${actualUserId}/portfolio-holdings`),
-        fetch(`/api/properties/${actualUserId}`),
-        fetch(`/api/alternatives/${actualUserId}`)
-      ]);
-      
-      let portfolioValue = 100000; // Default fallback if no data
-      
-      if (portfolioResponse.ok && propertiesResponse.ok && alternativesResponse.ok) {
-        const [portfolioHoldings, properties, alternatives] = await Promise.all([
-          portfolioResponse.json(),
-          propertiesResponse.json(),
-          alternativesResponse.json()
-        ]);
-        
-        const holdingsValue = portfolioHoldings.reduce((sum: number, holding: any) => 
-          sum + parseFloat(holding.currentValueGbp || '0'), 0);
-        const propertyValue = properties.reduce((sum: number, property: any) => 
-          sum + parseFloat(property.currentValueGbp || '0'), 0);
-        const alternativeValue = alternatives.reduce((sum: number, alt: any) => 
-          sum + parseFloat(alt.currentValueGbp || '0'), 0);
-        
-        const totalValue = holdingsValue + propertyValue + alternativeValue;
-        
-        // Use calculated value if > 0, otherwise use demo value for testing
-        if (totalValue > 0) {
-          portfolioValue = totalValue;
-          console.log('Action Plan: Using actual portfolio value:', portfolioValue);
-        } else {
-          portfolioValue = 350000; // Demo value (reduced from 500k for more realistic demo)
-          console.log('Action Plan: Using demo portfolio value:', portfolioValue);
-        }
-        
-        // Store the actual portfolio data for calculating current mix
-        window.actionPlanPortfolioData = {
-          portfolioHoldings,
-          properties,
-          alternatives,
-          totalValue,
-          hasRealData: totalValue > 0
-        };
       } else {
-        portfolioValue = 350000; // Demo value for users without portfolio data
-        console.log('Action Plan: Using fallback demo portfolio value:', portfolioValue);
-        
-        // No real data available
-        window.actionPlanPortfolioData = {
-          portfolioHoldings: [],
-          properties: [],
-          alternatives: [],
-          totalValue: 0,
-          hasRealData: false
-        };
+        portfolioValue = 350000; // Demo value if preferences not found
+        console.log('Action Plan: Using demo portfolio value (no preferences):', portfolioValue);
       }
       
       // Fetch investor preferences to get recommended portfolio
-      const prefsResponse = await fetch(`/api/investors/${actualUserId}/preferences`);
-      console.log('Action Plan: Preferences response status:', prefsResponse.status);
+      const prefsResponse2 = await fetch(`/api/investors/${actualUserId}/preferences`);
+      console.log('Action Plan: Preferences response status:', prefsResponse2.status);
       
       let targetMix;
       let hasRealData = false;
       
-      if (!prefsResponse.ok) {
+      if (!prefsResponse2.ok) {
         console.log('Action Plan: No preferences found, using demo target portfolio');
         // Use varied demo based on random selection to show different results
         const demoPortfolios = [
@@ -4712,7 +4685,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         ];
         targetMix = demoPortfolios[Math.floor(Math.random() * demoPortfolios.length)];
       } else {
-        const preferences = await prefsResponse.json();
+        const preferences = await prefsResponse2.json();
         console.log('Action Plan: Fetched preferences:', preferences);
         
         if (!preferences.recommendedPortfolioAllocations) {
