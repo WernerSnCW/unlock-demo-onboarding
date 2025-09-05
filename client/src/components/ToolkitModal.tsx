@@ -1606,7 +1606,11 @@ export default function ToolkitModal({ isOpen, onClose, toolType, title }: Toolk
   const renderContent = () => {
     switch (toolType) {
       case 'allowance-calculator':
-        return <AllowanceCalculator />;
+        return (
+          <div className="p-6">
+            <SimpleAllowanceCalculator />
+          </div>
+        );
         
       case 'pitch-deck-analyser':
         return <PitchDeckAnalyser />;
