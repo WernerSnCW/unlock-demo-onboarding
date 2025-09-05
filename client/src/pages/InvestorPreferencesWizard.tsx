@@ -5155,7 +5155,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
     } catch (error) {
       console.error('Failed to save action plan:', error);
       if (error instanceof Error) {
-        alert("❌ Save Failed\n\n" + (error.message || "Unable to save your action plan. Please try again."));
+        console.error('Action plan save error:', error.message);
       } else {
         // If the error is not a proper Error object, it might be a success case being caught
         console.log('Non-error exception caught, possibly successful save');
