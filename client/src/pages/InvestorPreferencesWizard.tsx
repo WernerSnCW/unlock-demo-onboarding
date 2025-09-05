@@ -2958,7 +2958,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <TrendingUp className="w-5 h-5 text-[var(--primary)]" />
-          Enhanced Portfolio Gap Analysis
+          Persona Gap Analysis (Base Mix)
         </CardTitle>
         <CardDescription>
           Sophisticated comparison with belief alignment and strategic commentary
@@ -3068,7 +3068,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
               <tr className="border-b border-[var(--border)]">
                 <th className="text-left p-3 font-semibold text-[var(--foreground)]">Asset Class</th>
                 <th className="text-right p-3 font-semibold text-[var(--foreground)]">Current %</th>
-                <th className="text-right p-3 font-semibold text-[var(--foreground)]">Target %</th>
+                <th className="text-right p-3 font-semibold text-[var(--foreground)]">Target % (Persona Base)</th>
                 <th className="text-right p-3 font-semibold text-[var(--foreground)]">Δ (pp)</th>
                 <th className="text-left p-3 font-semibold text-[var(--foreground)]">Flags</th>
               </tr>
