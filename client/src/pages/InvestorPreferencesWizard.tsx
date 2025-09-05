@@ -4618,6 +4618,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [beliefData, setBeliefData] = useState<any>(null);
   const [gapAnalysisData, setGapAnalysisData] = useState<any>(null);
   const [currentAllocations, setCurrentAllocations] = useState<any>(null);
+  const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
 
   // Function to get current user ID (same as used by recommendations)
   const getUserId = () => {
@@ -4738,6 +4739,41 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         
         // Store preferences for summary display
         setInvestorPrefs(preferences);
+        
+        // Extract matched persona using same logic as recommendations
+        let personaId = (preferences as any)?.matched_persona_code || 
+                       (preferences as any)?.matchedPersonaCode || 
+                       preferences?.detectedPersona;
+        
+        // Fallback to quiz analysis if no persona is saved
+        if (!personaId && preferences?.quizAnswers) {
+          try {
+            const quizAnswers = JSON.parse(preferences.quizAnswers);
+            if (quizAnswers.length > 0 && quizAnswers[0].matchedPersonaCode) {
+              personaId = quizAnswers[0].matchedPersonaCode;
+            } else {
+              // Last resort: basic risk tolerance mapping
+              const riskQuestion = quizAnswers.find((q: any) => q.questionId === 'risk_tolerance');
+              if (riskQuestion) {
+                const riskToPersona: Record<number, string> = {
+                  0: 'P004', // Conservative -> The Old Fashioned Saver
+                  1: 'P001', // Moderate Conservative -> The Retirement Planner  
+                  2: 'P009', // Balanced -> The Global Nomad
+                  3: 'P008', // Growth -> The Young Professional
+                  4: 'P003'  // Aggressive -> The Crypto Enthusiast
+                };
+                personaId = riskToPersona[riskQuestion.optionIndex] || 'P009';
+              }
+            }
+          } catch (error) {
+            console.error('Failed to parse quiz answers:', error);
+          }
+        }
+        
+        // Set matched persona from INVESTMENT_PERSONAS
+        if (personaId && INVESTMENT_PERSONAS[personaId]) {
+          setMatchedPersona(INVESTMENT_PERSONAS[personaId]);
+        }
         
         // Fetch belief data for summary display
         try {
@@ -5342,6 +5378,22 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                   <span className="text-[var(--muted-foreground)]">Name:</span>
                   <span className="font-medium">{investorPrefs?.investorName || 'Not set'}</span>
                 </div>
+                {matchedPersona && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Persona:</span>
+                      <span className="font-medium text-[var(--primary)]">{matchedPersona.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Risk Profile:</span>
+                      <span className="font-medium">{matchedPersona.riskProfile}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Max Drawdown:</span>
+                      <span className="font-medium">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between">
                   <span className="text-[var(--muted-foreground)]">Portfolio Value:</span>
                   <span className="font-medium">{investorPrefs?.actualPortfolioValue ? formatCurrency(investorPrefs.actualPortfolioValue) : 'Not set'}</span>
@@ -5502,11 +5554,17 @@ function ActionPlanComponent({ userId }: { userId: string }) {
               {investorPrefs?.investorName && (
                 <p>• Investor profile for <strong>{investorPrefs.investorName}</strong> completed on {investorPrefs.wizardCompletedAt ? new Date(investorPrefs.wizardCompletedAt).toLocaleDateString() : 'unknown date'}</p>
               )}
+              {matchedPersona && (
+                <p>• Matched to <strong>{matchedPersona.name}</strong> persona - {matchedPersona.description}</p>
+              )}
               {beliefData?.scenarioWeights && (
                 <p>• Economic outlook emphasizes <strong>{Object.entries(beliefData.scenarioWeights).sort(([,a], [,b]) => (b as number) - (a as number))[0][0].replace('_', ' ')}</strong> scenario with highest weighting</p>
               )}
               {actionsData && (
                 <p>• Implementation plan includes <strong>{actionsData.staged.stage1.length} immediate actions</strong> with estimated cost of <strong>{((actionsData.summary.estCostPct || 0) * 100).toFixed(2)}%</strong></p>
+              )}
+              {matchedPersona && investorPrefs?.actualPortfolioValue && (
+                <p>• Portfolio size of <strong>{formatCurrency(investorPrefs.actualPortfolioValue)}</strong> aligns with {matchedPersona.riskProfile.toLowerCase()} risk appetite and {(matchedPersona.drawdownCap * 100).toFixed(0)}% max drawdown tolerance</p>
               )}
             </div>
           </div>
