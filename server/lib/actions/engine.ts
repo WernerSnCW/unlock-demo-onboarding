@@ -122,33 +122,31 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
     }
   }
 
-  // 4) Aggregate preliminary actions to one row per bucket (your exact spec)
-  const draft: Record<string, number> = {};
+  // 4) YOUR EXACT SPECIFICATION - Aggregate prelim rows to one delta per bucket
+  const prelim: Record<string, number> = {};
   for (const a of stage1Draft) {
-    draft[a.bucket] = (draft[a.bucket] ?? 0) + a.deltaPct;
+    prelim[a.bucket] = (prelim[a.bucket] ?? 0) + a.deltaPct;
   }
 
-  // 5) Clamp to exact need (no overshoot, no wrong sign) - your exact spec
+  // 5) YOUR EXACT SPECIFICATION - Clamp to exact need (never overshoot, never wrong sign)
   const s1: Record<string, number> = {};
   for (const b of CANONICAL_BUCKETS) {
     const needForBucket = need[b];
-    const draftForBucket = draft[b] ?? 0;
+    const draftForBucket = prelim[b] ?? 0;
     s1[b] = needForBucket >= 0
-      ? Math.min(Math.max(0, draftForBucket), needForBucket)     // adds: 0..need
-      : Math.max(Math.min(0, draftForBucket), needForBucket);    // trims: need..0
+      ? Math.min(Math.max(0, draftForBucket), needForBucket)     // adds limited to 0..need
+      : Math.max(Math.min(0, draftForBucket), needForBucket);    // trims limited to need..0
   }
 
-  // 6) Optionally zero illiquids in Stage-1 (defer to Stage-2) - your exact spec
-  if (stageIlliq) {
-    for (const b of ILLIQUID_BUCKETS) {
-      s1[b] = 0;
-    }
+  // 6) YOUR EXACT SPECIFICATION - Defer illiquids to Stage-2
+  for (const b of ILLIQUID_BUCKETS) {
+    s1[b] = 0;
   }
 
-  // 7) Self-fund Stage-1 (adds ≈ trims within 0.3 pp) - your exact spec
+  // 7) YOUR EXACT SPECIFICATION - Self-fund Stage-1 (adds ≈ trims within 0.3 pp)
   let adds  = CANONICAL_BUCKETS.reduce((s,b)=> s + Math.max(0, s1[b]), 0);
   let trims = CANONICAL_BUCKETS.reduce((s,b)=> s - Math.min(0, s1[b]), 0);
-  const EPS = 0.003; // 0.3 pp
+  const EPS = 0.003;
   
   if (adds > trims + EPS) { 
     const k = trims / adds; 
@@ -159,39 +157,49 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
     for (const b of CANONICAL_BUCKETS) if (s1[b] < 0) s1[b] *= k; 
   }
 
-  // Use s1 as our stage1Net for consistency with rest of code
+  // Use s1 directly as stage1Net
   const stage1Net: Record<Bucket, number> = {} as any;
   for (const b of CANONICAL_BUCKETS) {
     stage1Net[b] = s1[b];
   }
 
-  // 8) Everything not done in Stage-1 goes to Stage-2
+  // 8) YOUR EXACT SPECIFICATION - Stage-2 gets the remainder  
+  const s2: Record<string, number> = {};
+  for (const b of CANONICAL_BUCKETS) {
+    s2[b] = need[b] - s1[b];
+  }
+
+  // 9) YOUR EXACT GUARDRAILS - keep them on
+  for (const b of CANONICAL_BUCKETS) {
+    const total = s1[b] + s2[b];
+    const needValue = (target[b] ?? 0) - (current[b] ?? 0);
+    if (Math.abs(total - needValue) > 1e-6) {
+      console.warn(`Net mismatch ${b}: s1+s2=${total.toFixed(6)} != need=${needValue.toFixed(6)}`);
+    }
+  }
+
+  // Stage-1 self-funded
+  const net = CANONICAL_BUCKETS.reduce((s,b)=> s + s1[b], 0);
+  if (Math.abs(net) > 0.003) {
+    console.warn("Stage-1 not self-funded: net =", net.toFixed(6));
+  }
+
+  // No wrong-way moves or overshoots
+  for (const b of CANONICAL_BUCKETS) {
+    const n = (target[b] ?? 0) - (current[b] ?? 0);
+    const d = s1[b];
+    if (n >= 0 && (d < -1e-6 || d > n + 1e-6)) {
+      console.warn(`Overshoot add ${b}: d=${d.toFixed(6)}, n=${n.toFixed(6)}`);
+    }
+    if (n < 0 && (d > 1e-6 || d < n - 1e-6)) {
+      console.warn(`Overshoot trim ${b}: d=${d.toFixed(6)}, n=${n.toFixed(6)}`);
+    }
+  }
+
+  // Create stage2Net for compatibility with rest of code
   const stage2Net: Record<Bucket, number> = {} as any;
   for (const b of CANONICAL_BUCKETS) {
-    stage2Net[b] = need[b] - stage1Net[b];
-  }
-
-  // 9) Final guardrails (assertions) - catch issues early
-  for (const b of CANONICAL_BUCKETS) {
-    const total = stage1Net[b] + stage2Net[b];
-    if (Math.abs(total - need[b]) > 1e-6) {
-      console.warn(`Net mismatch ${b}: Stage1+Stage2 (${total.toFixed(6)}) != need (${need[b].toFixed(6)})`);
-    }
-  }
-
-  const stage1Sum = CANONICAL_BUCKETS.reduce((s,b)=> s + stage1Net[b], 0);
-  if (Math.abs(stage1Sum) > EPS) {
-    console.warn(`Stage-1 not self-funded: net = ${stage1Sum.toFixed(6)} (should be ~0)`);
-  }
-
-  for (const b of CANONICAL_BUCKETS) {
-    const s1 = stage1Net[b], n = need[b];
-    if (n >= 0 && (s1 > n + 1e-6 || s1 < -1e-6)) {
-      console.warn(`Overshoot add ${b}: stage1=${s1.toFixed(6)}, need=${n.toFixed(6)}`);
-    }
-    if (n < 0 && (s1 < n - 1e-6 || s1 > 1e-6)) {
-      console.warn(`Overshoot trim ${b}: stage1=${s1.toFixed(6)}, need=${n.toFixed(6)}`);
-    }
+    stage2Net[b] = s2[b];
   }
 
   // 10) Rebuild actions table from stage1Net (single row per bucket)

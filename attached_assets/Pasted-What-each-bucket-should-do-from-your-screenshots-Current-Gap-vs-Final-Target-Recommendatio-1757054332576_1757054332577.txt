@@ -1,0 +1,95 @@
+What each bucket should do (from your screenshots)
+
+Current % (Gap) vs Final Target % (Recommendation) ⇒ Need = Target − Current
+
+Bucket	Need (pp)	Your Stage-1 (pp)	Problem
+Global Equity	+27.3 (35.0 − 7.7)	+10.8	Short by 16.5
+IG Credit	+9.1 (11.3 − 2.2)	+5.1	Short by 4.0
+UK Equity Value	+7.4 (10.7 − 3.3)	+4.8	Short by 2.6
+Bills Short Gilts	+1.5 (10.3 − 8.8)	+4.7	Over by 3.2
+Cash	+2.3 (8.9 − 6.6)	−13.1	Wrong direction (should add)
+Gold	+2.9 (4.1 − 1.2)	+1.9	Short by 1.0
+Commodities	+2.4 (4.2 − 1.8)	—	Missing +2.4
+Property UK Resi	−12.1 (2.9 − 15.0)	—	OK if deferred to Stage-2 (illiquid)
+Gilts Long	−2.7 (1.7 − 4.4)	+0.8	Wrong direction
+Growth Tech	+0.8 (8.8 − 8.0)	—	Missing +0.8
+Crypto BTC	−8.4 (0.6 − 9.0)	−15.0	Over-trim by 6.6
+Crypto ETH	−5.5 (0.5 − 6.0)	—	Missing −5.5
+Collectibles Art / Wine	large trims	—	OK if in Stage-2 (illiquid)
+
+(Numbers taken from the three screenshots you shared, in order.)
+
+Why this is happening
+
+You create separate rows for “liquidity” and for “rebalance”, then add them together without a final clamp to the exact need (target − current) per bucket. That’s why Bills and Cash move the wrong amount (or even the wrong way) and BTC is over-trimmed.
+
+Deterministic fix (drop into your actions builder)
+
+After you’ve produced your preliminary Stage-1 list (liquidity + rebalancing), aggregate, clamp, balance:
+
+// Inputs
+const cur = currentMix;          // from Gap
+const tgt = finalTargetMix;      // from Recommendation
+const BUCKETS = Object.keys(tgt);
+
+// 1) Aggregate prelim rows to one delta per bucket (signed, in proportions)
+const prelim: Record<string, number> = {};
+for (const a of stage1Draft) prelim[a.bucket] = (prelim[a.bucket] ?? 0) + a.deltaPct;
+
+// 2) Clamp to exact need (never overshoot, never wrong sign)
+const need: Record<string, number> = {};
+const s1:   Record<string, number> = {};
+for (const b of BUCKETS) {
+  need[b] = (tgt[b] ?? 0) - (cur[b] ?? 0);
+  const d = prelim[b] ?? 0;
+  s1[b] = need[b] >= 0
+    ? Math.min(Math.max(0, d), need[b])     // adds limited to 0..need
+    : Math.max(Math.min(0, d), need[b]);    // trims limited to need..0
+}
+
+// 3) Defer illiquids to Stage-2 (if that’s your rule)
+for (const b of ILLIQUIDS) s1[b] = 0;
+
+// 4) Self-fund Stage-1 (adds ≈ trims within 0.3 pp)
+let adds  = BUCKETS.reduce((s,b)=> s + Math.max(0, s1[b]), 0);
+let trims = BUCKETS.reduce((s,b)=> s - Math.min(0, s1[b]), 0);
+const EPS = 0.003;
+if (adds > trims + EPS) { const k = trims/adds; for (const b of BUCKETS) if (s1[b] > 0) s1[b] *= k; }
+if (trims > adds + EPS){ const k = adds/trims; for (const b of BUCKETS) if (s1[b] < 0) s1[b] *= k; }
+
+// 5) Stage-2 gets the remainder
+const s2: Record<string, number> = {};
+for (const b of BUCKETS) s2[b] = need[b] - s1[b];
+
+
+Render one row per bucket from s1.
+Amount (£) = |s1[b]| × portfolioValueGBP.
+Rationale: Cash/Bills → “Raise liquidity”, others → “Increase/Reduce towards target”.
+
+Guardrails (keep them on)
+// Each bucket: Stage-1 + Stage-2 equals need
+for (const b of BUCKETS)
+  console.assert(Math.abs(s1[b] + s2[b] - (tgt[b]-cur[b])) <= 1e-6, `Net mismatch ${b}`);
+
+// Stage-1 self-funded
+const net = BUCKETS.reduce((s,b)=> s + s1[b], 0);
+console.assert(Math.abs(net) <= 0.003, "Stage-1 not self-funded");
+
+// No wrong-way moves or overshoots
+for (const b of BUCKETS) {
+  const n = tgt[b] - cur[b], d = s1[b];
+  if (n >= 0) console.assert(d >= -1e-6 && d <= n + 1e-6, `Overshoot add ${b}`);
+  else        console.assert(d <=  1e-6 && d >= n - 1e-6, `Overshoot trim ${b}`);
+}
+
+One copy fix on the Actions header
+
+Your playbook says “Liquidity already meets the floor (22%)”.
+From Current, Cash 6.6 + Bills 8.8 = 15.4%, so that statement is false.
+Compute Actions “Current Liquidity” exactly as on Gap:
+
+currentLiquidity = cur.CASH + cur.BILLS_SHORT_GILTS
+topUpPp = max(0, floorPct − currentLiquidity)
+
+
+Optionally show “After Stage-1 Liquidity” = currentLiquidity + s1.CASH + s1.BILLS_SHORT_GILTS.
