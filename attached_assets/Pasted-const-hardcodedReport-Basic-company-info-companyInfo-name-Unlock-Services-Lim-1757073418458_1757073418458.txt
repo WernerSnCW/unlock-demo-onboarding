@@ -1,0 +1,128 @@
+const hardcodedReport = {
+  // Basic company info
+  companyInfo: {
+    name: "Unlock Services Limited",
+    ch_number: "15610723",
+    sector: "Legal Tech",
+    employees: 4,
+    location: "86–90 Paul Street, London, EC2A 4NE, UK",
+    foundedYear: 2024
+  },
+
+  // 8 Assessment Categories (each needs):
+  assessmentData: {
+    company: {
+      score: 91,           // 0-100
+      status: "Excellent", // Excellent/Strong/Good/Adequate
+      keyPoints: [
+        "Clear problem–solution fit: investor-first due diligence with automation and explainability",
+        "Lean, execution-focused team with rapid iteration velocity",
+        "Early partner pipeline across syndicates/advisors; strong narrative and positioning"
+      ],
+      concerns: [
+        "Early-stage operational scale still to be proven at higher customer volumes"
+      ]
+    },
+    complianceCheck: {
+      score: 90,
+      status: "Excellent",
+      keyPoints: [
+        "Active UK company; clean filing profile and on-time deadlines",
+        "GDPR-ready data practices; clear role separation for data processors/controllers",
+        "No County Court Judgments (CCJs) or registered charges identified at this stage"
+      ],
+      concerns: [
+        "Requires ongoing vendor/processor audits as integrations expand (KYC, payments, data vendors)"
+      ]
+    },
+    fraudRisk: {
+      score: 88,
+      status: "Strong",
+      keyPoints: [
+        "Transparent governance and founder identities; verifiable digital footprint",
+        "Planned multi-source verification of claims (company filings, FCA registers, news) reduces spoofing",
+        "Audit trail for report generation improves trust and tamper resistance"
+      ],
+      concerns: [
+        "Third-party data dependencies introduce supply-chain risk; mitigated by source redundancy"
+      ]
+    },
+    financialHealth: {
+      score: 82,
+      status: "Strong",
+      keyPoints: [
+        "Lean burn and modular product roadmap extend runway",
+        "Multi-tier pricing with clear unit economics for ‘Snapshot’ vs ‘Deep-dive’ reports",
+        "Early revenue opportunities via pilot cohorts and advisor partnerships"
+      ],
+      concerns: [
+        "Pre-revenue/early-revenue stage; sensitivity to sales cycle length and partner activation"
+      ]
+    },
+    management: {
+      score: 90,
+      status: "Excellent",
+      keyPoints: [
+        "Founder with strong product/strategy background and disciplined delivery culture",
+        "Clear operating cadence (roadmap → experiments → evidence → release)",
+        "Advisory bench forming across legal, venture, and data domains"
+      ],
+      concerns: [
+        "Key-person risk typical of early teams; mitigation via hiring plan and documented processes"
+      ]
+    },
+    marketing: {
+      score: 84,
+      status: "Strong",
+      keyPoints: [
+        "Compelling category story: ‘evidence-led due diligence in hours, not weeks’",
+        "Waitlist/community momentum among self-directed investors and syndicate leads",
+        "Content flywheel planned (case studies, red-flag spotlights, valuation explainers)"
+      ],
+      concerns: [
+        "Brand awareness still early; requires consistent thought leadership and partner distribution"
+      ]
+    },
+    claimsManagement: {
+      score: 86,
+      status: "Strong",
+      keyPoints: [
+        "Structured claim extraction and source-backed validation in the product workflow",
+        "Confidence scoring and red-flag taxonomy surface issues quickly",
+        "Human-in-the-loop review keeps quality high for complex edge cases"
+      ],
+      concerns: [
+        "Ongoing need to tune false-positive/false-negative balance as data coverage widens"
+      ]
+    },
+    investorValidation: {
+      score: 89,
+      status: "Strong",
+      keyPoints: [
+        "Positive early feedback from angels/advisors on speed, clarity, and transparency",
+        "Demonstrable willingness to pay for time-to-insight and standardised outputs",
+        "Syndicate and challenger-bank use cases expand TAM beyond single-investor tools"
+      ],
+      concerns: [
+        "Enterprise procurement cycles may lengthen conversion without targeted champions"
+      ]
+    }
+  },
+
+  // Custom narrative sections
+  customContent: {
+    executiveSummary: "Unlock is a Legal Tech platform delivering investor-grade due diligence in a fraction of the time. The product combines structured claim extraction, multi-source verification, and transparent confidence scoring to produce audit-ready reports that investors can trust. Early signals indicate strong resonance with self-directed investors and syndicate leads seeking faster, clearer decisions.\n\nGovernance and compliance are clean, with an on-time filing profile and a thoughtful approach to data protection. While the business is early-stage, the operating model is capital-efficient, the roadmap is focused on high-value workflows (Snapshot → Deep-dive), and partnerships offer near-term revenue pathways. Execution risk remains typical of the stage, but the team’s cadence and evidence-first mindset are encouraging.",
+    investmentHighlights: [
+      "Compelling painkiller: speeds up and standardises due diligence with explainable outputs",
+      "Strong early community interest and partner pipeline in angel/syndicate ecosystems",
+      "Lean operating model with clear pricing tiers and attractive unit economics",
+      "Differentiated trust features: red-flags, confidence scores, and source citations",
+      "Extendable platform: modules for valuation notes, claims tracking, and portfolio monitoring"
+    ],
+    riskFactors: [
+      "Early-stage adoption risk: requires consistent GTM execution and partner activation",
+      "Third-party data/regulatory dependencies necessitate ongoing vendor governance"
+    ],
+    finalRecommendation: "Favourable. Proceed with a structured pilot and milestone-based seed commitment. Prioritise conversions within existing investor communities, formalise two data-provider redundancies, and publish 2–3 flagship case studies to cement credibility. Assuming pilot KPIs are met (time-to-report, NPS, paid conversions), scale into syndicate and advisor channels."
+  }
+};

@@ -95,8 +95,146 @@ export default function SnapshotReport() {
     }
   } : null;
   
-  // Use mock business data for due diligence requests
-  const reportData = dueRequest ? mockBusinessFromDueRequest : business;
+  // Hardcoded report for Unlock Services Limited (biz_045)
+  const unlockHardcodedReport = {
+    id: "biz_045",
+    name: "Unlock Services Limited",
+    ch_number: "15610723",
+    verified: true,
+    sector: "Legal Tech",
+    size: "Micro",
+    employees: 4,
+    revenueBand: "Pre-revenue",
+    location: "86–90 Paul Street, London, EC2A 4NE, UK",
+    foundedYear: 2024,
+    eligibility: { EIS: false, SEIS: false },
+    snapshot: {
+      filingHealth: "Good",
+      lastFilingDate: "2025-04-01",
+      directors: 2,
+      webScore: 88,
+      redFlags: 0,
+      summary: "Investor-first due diligence and discovery platform for alternative assets with clean governance and strong technical foundation.",
+      tags: ["Legal Tech", "Due Diligence", "AI-Assisted", "Investor Tools"],
+      detailedAssessment: {
+        company: {
+          score: 91,
+          status: "Excellent",
+          keyPoints: [
+            "Clear problem–solution fit: investor-first due diligence with automation and explainability",
+            "Lean, execution-focused team with rapid iteration velocity", 
+            "Early partner pipeline across syndicates/advisors; strong narrative and positioning"
+          ],
+          concerns: [
+            "Early-stage operational scale still to be proven at higher customer volumes"
+          ]
+        },
+        complianceCheck: {
+          score: 90,
+          status: "Excellent",
+          keyPoints: [
+            "Active UK company; clean filing profile and on-time deadlines",
+            "GDPR-ready data practices; clear role separation for data processors/controllers",
+            "No County Court Judgments (CCJs) or registered charges identified at this stage"
+          ],
+          concerns: [
+            "Requires ongoing vendor/processor audits as integrations expand (KYC, payments, data vendors)"
+          ]
+        },
+        fraudRisk: {
+          score: 88,
+          status: "Strong",
+          keyPoints: [
+            "Transparent governance and founder identities; verifiable digital footprint",
+            "Planned multi-source verification of claims (company filings, FCA registers, news) reduces spoofing",
+            "Audit trail for report generation improves trust and tamper resistance"
+          ],
+          concerns: [
+            "Third-party data dependencies introduce supply-chain risk; mitigated by source redundancy"
+          ]
+        },
+        financialHealth: {
+          score: 82,
+          status: "Strong",
+          keyPoints: [
+            "Lean burn and modular product roadmap extend runway",
+            "Multi-tier pricing with clear unit economics for 'Snapshot' vs 'Deep-dive' reports",
+            "Early revenue opportunities via pilot cohorts and advisor partnerships"
+          ],
+          concerns: [
+            "Pre-revenue/early-revenue stage; sensitivity to sales cycle length and partner activation"
+          ]
+        },
+        management: {
+          score: 90,
+          status: "Excellent",
+          keyPoints: [
+            "Founder with strong product/strategy background and disciplined delivery culture",
+            "Clear operating cadence (roadmap → experiments → evidence → release)",
+            "Advisory bench forming across legal, venture, and data domains"
+          ],
+          concerns: [
+            "Key-person risk typical of early teams; mitigation via hiring plan and documented processes"
+          ]
+        },
+        marketing: {
+          score: 84,
+          status: "Strong",
+          keyPoints: [
+            "Compelling category story: 'evidence-led due diligence in hours, not weeks'",
+            "Waitlist/community momentum among self-directed investors and syndicate leads",
+            "Content flywheel planned (case studies, red-flag spotlights, valuation explainers)"
+          ],
+          concerns: [
+            "Brand awareness still early; requires consistent thought leadership and partner distribution"
+          ]
+        },
+        claimsManagement: {
+          score: 86,
+          status: "Strong",
+          keyPoints: [
+            "Structured claim extraction and source-backed validation in the product workflow",
+            "Confidence scoring and red-flag taxonomy surface issues quickly",
+            "Human-in-the-loop review keeps quality high for complex edge cases"
+          ],
+          concerns: [
+            "Ongoing need to tune false-positive/false-negative balance as data coverage widens"
+          ]
+        },
+        investorValidation: {
+          score: 89,
+          status: "Strong",
+          keyPoints: [
+            "Positive early feedback from angels/advisors on speed, clarity, and transparency",
+            "Demonstrable willingness to pay for time-to-insight and standardised outputs",
+            "Syndicate and challenger-bank use cases expand TAM beyond single-investor tools"
+          ],
+          concerns: [
+            "Enterprise procurement cycles may lengthen conversion without targeted champions"
+          ]
+        }
+      }
+    },
+    customContent: {
+      executiveSummary: "Unlock is a Legal Tech platform delivering investor-grade due diligence in a fraction of the time. The product combines structured claim extraction, multi-source verification, and transparent confidence scoring to produce audit-ready reports that investors can trust. Early signals indicate strong resonance with self-directed investors and syndicate leads seeking faster, clearer decisions.\n\nGovernance and compliance are clean, with an on-time filing profile and a thoughtful approach to data protection. While the business is early-stage, the operating model is capital-efficient, the roadmap is focused on high-value workflows (Snapshot → Deep-dive), and partnerships offer near-term revenue pathways. Execution risk remains typical of the stage, but the team's cadence and evidence-first mindset are encouraging.",
+      investmentHighlights: [
+        "Compelling painkiller: speeds up and standardises due diligence with explainable outputs",
+        "Strong early community interest and partner pipeline in angel/syndicate ecosystems", 
+        "Lean operating model with clear pricing tiers and attractive unit economics",
+        "Differentiated trust features: red-flags, confidence scores, and source citations",
+        "Extendable platform: modules for valuation notes, claims tracking, and portfolio monitoring"
+      ],
+      riskFactors: [
+        "Early-stage adoption risk: requires consistent GTM execution and partner activation",
+        "Third-party data/regulatory dependencies necessitate ongoing vendor governance"
+      ],
+      finalRecommendation: "Favourable. Proceed with a structured pilot and milestone-based seed commitment. Prioritise conversions within existing investor communities, formalise two data-provider redundancies, and publish 2–3 flagship case studies to cement credibility. Assuming pilot KPIs are met (time-to-report, NPS, paid conversions), scale into syndicate and advisor channels."
+    }
+  };
+
+  // Use hardcoded report for Unlock Services Limited, otherwise use dynamic system
+  const reportData = business?.id === "biz_045" ? unlockHardcodedReport : 
+                     dueRequest ? mockBusinessFromDueRequest : business;
 
   const calculateOverallScore = () => {
     if (!reportData?.snapshot?.detailedAssessment) return 75;
@@ -574,10 +712,84 @@ export default function SnapshotReport() {
             </div>
           </div>
 
+          {/* Custom Sections for Unlock Services Limited */}
+          {reportData?.id === "biz_045" && reportData?.customContent && (
+            <>
+              {/* Executive Summary */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Executive Summary</h2>
+                </div>
+                
+                <div className="prose prose-gray dark:prose-invert max-w-none">
+                  <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                    {reportData.customContent.executiveSummary}
+                  </div>
+                </div>
+              </div>
+
+              {/* Investment Highlights & Risk Factors */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* Investment Highlights */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      <i className="fas fa-thumbs-up" aria-hidden="true"></i>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Investment Highlights</h3>
+                  </div>
+                  
+                  <ul className="space-y-4">
+                    {reportData.customContent.investmentHighlights.map((highlight, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Risk Factors */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      <i className="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Risk Factors</h3>
+                  </div>
+                  
+                  <ul className="space-y-4">
+                    {reportData.customContent.riskFactors.map((risk, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-amber-600 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{risk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Final Recommendation */}
+              <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-white/20 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <i className="fas fa-chart-line" aria-hidden="true"></i>
+                  </div>
+                  <h3 className="text-xl font-semibold">Investment Recommendation</h3>
+                </div>
+                
+                <div className="text-white/90 leading-relaxed">
+                  {reportData.customContent.finalRecommendation}
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Actionable Recommendations */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">{reportData?.id === "biz_045" ? "7" : "6"}</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Actionable Recommendations</h2>
             </div>
 
@@ -617,7 +829,7 @@ export default function SnapshotReport() {
           {/* Risk Assessment Matrix */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">7</div>
+              <div className="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">{reportData?.id === "biz_045" ? "8" : "7"}</div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Risk Assessment Matrix</h2>
             </div>
 
