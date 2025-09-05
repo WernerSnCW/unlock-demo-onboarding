@@ -120,6 +120,19 @@ export default function Dashboard() {
   };
 
   const handleToolOpen = (toolId: string) => {
+    // Special handling for pitch deck analyser - open directly in popup
+    if (toolId === 'pitch_deck_analyser') {
+      const popup = window.open(
+        '/pitch-deck-analyser',
+        'PitchDeckAnalyzer',
+        'width=1200,height=800,scrollbars=yes,resizable=yes,location=no,menubar=no,toolbar=no'
+      );
+      if (popup) {
+        popup.focus();
+      }
+      return;
+    }
+    
     setSelectedTool(toolId);
     setIsToolModalOpen(true);
   };
