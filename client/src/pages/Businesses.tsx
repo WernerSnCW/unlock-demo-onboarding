@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BusinessCard from '../components/BusinessCard';
@@ -15,6 +15,7 @@ interface FilterState {
     EIS: boolean;
     SEIS: boolean;
   };
+  showFavoritesOnly: boolean;
 }
 
 export default function Businesses() {
@@ -24,8 +25,57 @@ export default function Businesses() {
   const [filters, setFilters] = useState<FilterState>({
     sectors: [],
     sizes: [],
-    eligibility: { EIS: false, SEIS: false }
+    eligibility: { EIS: false, SEIS: false },
+    showFavoritesOnly: false
   });
+  const [likedBusinesses, setLikedBusinesses] = useState<Set<string>>(new Set());
+  const [favoritedBusinesses, setFavoritedBusinesses] = useState<Set<string>>(new Set());
+
+  // Load favorites and likes from localStorage on mount
+  useEffect(() => {
+    const savedLikes = localStorage.getItem('businessLikes');
+    const savedFavorites = localStorage.getItem('businessFavorites');
+    
+    if (savedLikes) {
+      setLikedBusinesses(new Set(JSON.parse(savedLikes)));
+    }
+    if (savedFavorites) {
+      setFavoritedBusinesses(new Set(JSON.parse(savedFavorites)));
+    }
+  }, []);
+
+  // Save to localStorage when likes or favorites change
+  useEffect(() => {
+    localStorage.setItem('businessLikes', JSON.stringify(Array.from(likedBusinesses)));
+  }, [likedBusinesses]);
+
+  useEffect(() => {
+    localStorage.setItem('businessFavorites', JSON.stringify(Array.from(favoritedBusinesses)));
+  }, [favoritedBusinesses]);
+
+  const toggleLike = (businessId: string) => {
+    setLikedBusinesses(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(businessId)) {
+        newSet.delete(businessId);
+      } else {
+        newSet.add(businessId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleFavorite = (businessId: string) => {
+    setFavoritedBusinesses(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(businessId)) {
+        newSet.delete(businessId);
+      } else {
+        newSet.add(businessId);
+      }
+      return newSet;
+    });
+  };
 
   const filteredAndSortedBusinesses = useMemo(() => {
     let filtered = businessesData.filter(business => {
@@ -65,6 +115,11 @@ export default function Businesses() {
         return false;
       }
 
+      // Favorites filter
+      if (filters.showFavoritesOnly && !favoritedBusinesses.has(business.id)) {
+        return false;
+      }
+
       return true;
     });
 
@@ -76,28 +131,36 @@ export default function Businesses() {
         case 'oldest':
           return new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
         case 'most-discussed':
-          return b.community.questionsCount - a.community.questionsCount;
+          return b.community.questions.length - a.community.questions.length;
+        case 'liked':
+          // Liked first, then by peer interest
+          const aLiked = likedBusinesses.has(a.id) ? 1 : 0;
+          const bLiked = likedBusinesses.has(b.id) ? 1 : 0;
+          if (aLiked !== bLiked) return bLiked - aLiked;
+          return b.community.interest.interestPct - a.community.interest.interestPct;
         case 'relevance':
         default:
           // Relevance: verified first, then by peer interest
           if (a.verified !== b.verified) return b.verified ? 1 : -1;
-          return b.community.syndicateInterestPct - a.community.syndicateInterestPct;
+          return b.community.interest.interestPct - a.community.interest.interestPct;
       }
     });
 
     return filtered;
-  }, [businessesData, searchTerm, sortBy, filters]);
+  }, [businessesData, searchTerm, sortBy, filters, favoritedBusinesses, likedBusinesses]);
 
   const hasActiveFilters = filters.sectors.length > 0 || 
                           filters.sizes.length > 0 || 
                           filters.eligibility.EIS || 
-                          filters.eligibility.SEIS;
+                          filters.eligibility.SEIS ||
+                          filters.showFavoritesOnly;
 
   const clearAllFilters = () => {
     setFilters({
       sectors: [],
       sizes: [],
-      eligibility: { EIS: false, SEIS: false }
+      eligibility: { EIS: false, SEIS: false },
+      showFavoritesOnly: false
     });
     setSearchTerm('');
   };
@@ -140,6 +203,7 @@ export default function Businesses() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="relevance">Relevance</SelectItem>
+                      <SelectItem value="liked">Liked First</SelectItem>
                       <SelectItem value="most-discussed">Most Discussed</SelectItem>
                       <SelectItem value="newest">Newest</SelectItem>
                       <SelectItem value="oldest">Oldest</SelectItem>
@@ -174,6 +238,7 @@ export default function Businesses() {
               <BusinessFilters 
                 filters={filters}
                 onFiltersChange={setFilters}
+                favoritesCount={favoritedBusinesses.size}
               />
             </div>
 
@@ -213,6 +278,16 @@ export default function Businesses() {
                         <i className="fas fa-times" aria-hidden="true"></i>
                       </span>
                     )}
+                    {filters.showFavoritesOnly && (
+                      <span
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs rounded-md cursor-pointer hover:bg-red-600"
+                        onClick={() => setFilters(prev => ({ ...prev, showFavoritesOnly: false }))}
+                      >
+                        <i className="fas fa-heart" aria-hidden="true"></i>
+                        Favorites Only
+                        <i className="fas fa-times" aria-hidden="true"></i>
+                      </span>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -235,7 +310,7 @@ export default function Businesses() {
               </div>
 
               {/* Spotlight Section for High-Interest Companies */}
-              {filteredAndSortedBusinesses.some(b => b.community.syndicateInterestPct >= 70) && (
+              {filteredAndSortedBusinesses.some(b => b.community.interest.interestPct >= 70) && (
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                     <i className="fas fa-fire text-orange-500" aria-hidden="true"></i>
@@ -243,11 +318,17 @@ export default function Businesses() {
                   </h3>
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
                     {filteredAndSortedBusinesses
-                      .filter(b => b.community.syndicateInterestPct >= 70)
+                      .filter(b => b.community.interest.interestPct >= 70)
                       .slice(0, 2)
                       .map((business) => (
                         <div key={`spotlight-${business.id}`} className="transform scale-105">
-                          <BusinessCard business={business as any} />
+                          <BusinessCard 
+                            business={business as any}
+                            isLiked={likedBusinesses.has(business.id)}
+                            isFavorited={favoritedBusinesses.has(business.id)}
+                            onToggleLike={() => toggleLike(business.id)}
+                            onToggleFavorite={() => toggleFavorite(business.id)}
+                          />
                         </div>
                       ))}
                   </div>
@@ -278,7 +359,14 @@ export default function Businesses() {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {filteredAndSortedBusinesses.map((business) => (
-                    <BusinessCard key={business.id} business={business as any} />
+                    <BusinessCard 
+                      key={business.id} 
+                      business={business as any}
+                      isLiked={likedBusinesses.has(business.id)}
+                      isFavorited={favoritedBusinesses.has(business.id)}
+                      onToggleLike={() => toggleLike(business.id)}
+                      onToggleFavorite={() => toggleFavorite(business.id)}
+                    />
                   ))}
                 </div>
               )}

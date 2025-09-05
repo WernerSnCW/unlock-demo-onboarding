@@ -10,11 +10,13 @@ interface FilterState {
     EIS: boolean;
     SEIS: boolean;
   };
+  showFavoritesOnly: boolean;
 }
 
 interface BusinessFiltersProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  favoritesCount?: number;
 }
 
 const SECTORS = [
@@ -63,7 +65,7 @@ const SIZES = [
 ];
 
 
-export default function BusinessFilters({ filters, onFiltersChange }: BusinessFiltersProps) {
+export default function BusinessFilters({ filters, onFiltersChange, favoritesCount = 0 }: BusinessFiltersProps) {
   const updateFilters = (updates: Partial<FilterState>) => {
     onFiltersChange({ ...filters, ...updates });
   };
@@ -95,14 +97,16 @@ export default function BusinessFilters({ filters, onFiltersChange }: BusinessFi
     onFiltersChange({
       sectors: [],
       sizes: [],
-      eligibility: { EIS: false, SEIS: false }
+      eligibility: { EIS: false, SEIS: false },
+      showFavoritesOnly: false
     });
   };
 
   const hasActiveFilters = filters.sectors.length > 0 || 
                           filters.sizes.length > 0 || 
                           filters.eligibility.EIS || 
-                          filters.eligibility.SEIS;
+                          filters.eligibility.SEIS ||
+                          filters.showFavoritesOnly;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
@@ -121,6 +125,34 @@ export default function BusinessFilters({ filters, onFiltersChange }: BusinessFi
       </div>
 
       <div className="space-y-6">
+        {/* Favorites Filter */}
+        <div>
+          <Label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 block">
+            Quick Filters
+          </Label>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="show-favorites"
+                checked={filters.showFavoritesOnly}
+                onCheckedChange={(checked) => updateFilters({ showFavoritesOnly: !!checked })}
+              />
+              <Label
+                htmlFor="show-favorites"
+                className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex items-center gap-2"
+              >
+                <i className="fas fa-heart text-red-500" aria-hidden="true"></i>
+                Show Favorites Only
+                {favoritesCount > 0 && (
+                  <span className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Label>
+            </div>
+          </div>
+        </div>
+
         {/* Sectors */}
         <div>
           <Label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 block">
