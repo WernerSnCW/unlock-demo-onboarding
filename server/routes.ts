@@ -545,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stage1Actions: JSON.stringify(stage1Actions),
         stage2Actions: JSON.stringify(stage2Actions), 
         summary: JSON.stringify(summary),
-        actionPlanCompletedAt: generatedAt || new Date().toISOString(),
+        actionPlanCompletedAt: generatedAt ? new Date(generatedAt) : new Date(),
         completionMethod: 'manual'
       };
 
