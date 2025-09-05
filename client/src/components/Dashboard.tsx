@@ -8,6 +8,7 @@ import NewsletterControls from './NewsletterControls';
 import QuickTools from './QuickTools';
 import MiniDock from './MiniDock';
 import ToolModal from './ToolModal';
+import ToolkitModal from './ToolkitModal';
 import DDSnapshotHero from './DDSnapshotHero';
 import { RequestsMiniPanel } from './due/RequestsMiniPanel';
 import { useInvestor } from '../contexts/InvestorContext';
@@ -55,6 +56,9 @@ export default function Dashboard() {
   const [dockVisible, setDockVisible] = useState(true);
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [isToolModalOpen, setIsToolModalOpen] = useState(false);
+  const [selectedToolkitTool, setSelectedToolkitTool] = useState<string>('');
+  const [selectedToolkitTitle, setSelectedToolkitTitle] = useState<string>('');
+  const [isToolkitModalOpen, setIsToolkitModalOpen] = useState(false);
 
   useEffect(() => {
     // Simulate loading
@@ -133,6 +137,14 @@ export default function Dashboard() {
       return;
     }
     
+    // Special handling for property valuation - use ToolkitModal
+    if (toolId === 'property_valuation') {
+      setSelectedToolkitTool('property-valuation');
+      setSelectedToolkitTitle('Property Valuation');
+      setIsToolkitModalOpen(true);
+      return;
+    }
+    
     setSelectedTool(toolId);
     setIsToolModalOpen(true);
   };
@@ -140,6 +152,12 @@ export default function Dashboard() {
   const handleToolModalClose = () => {
     setIsToolModalOpen(false);
     setSelectedTool(null);
+  };
+
+  const closeToolkitModal = () => {
+    setIsToolkitModalOpen(false);
+    setSelectedToolkitTool('');
+    setSelectedToolkitTitle('');
   };
 
   const toggleDock = () => {
@@ -276,6 +294,14 @@ export default function Dashboard() {
           toolId={selectedTool}
         />
       )}
+
+      {/* Toolkit Modal */}
+      <ToolkitModal 
+        isOpen={isToolkitModalOpen}
+        onClose={closeToolkitModal}
+        toolType={selectedToolkitTool}
+        title={selectedToolkitTitle}
+      />
     </div>
   );
 }
