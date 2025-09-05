@@ -385,7 +385,7 @@ export default function SnapshotReport() {
               </p>
 
               <p>
-                The company's {reportData.eligibility?.EIS ? 'confirmed EIS eligibility' : 'pending EIS status'} and {reportData.eligibility?.SEIS ? 'SEIS qualification' : 'SEIS review process'} provide relevant tax advantages for qualifying investors. Risk assessment categorizes this opportunity as {reportData.risk.toLowerCase()} risk, consistent with the overall verification score and market positioning within the {reportData.sector} sector.
+                The company's {reportData.eligibility?.EIS ? 'confirmed EIS eligibility' : 'pending EIS status'} and {reportData.eligibility?.SEIS ? 'SEIS qualification' : 'SEIS review process'} provide relevant tax advantages for qualifying investors. Risk assessment categorizes this opportunity as {(reportData.risk || 'moderate').toLowerCase()} risk, consistent with the overall verification score and market positioning within the {reportData.sector} sector.
               </p>
             </div>
           </div>
@@ -424,15 +424,15 @@ export default function SnapshotReport() {
                   <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">KEY FINDINGS:</h4>
-                      <p>{category.description} Assessment shows {category.data.status.toLowerCase()} performance with verification score of {category.data.score}/100.</p>
+                      <p>{category.description} Assessment shows {(category.data.status || 'standard').toLowerCase()} performance with verification score of {category.data.score}/100.</p>
                     </div>
 
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">STRATEGIC IMPLICATIONS:</h4>
                       <p>{category.data.score >= 80 ? 
-                        `Strong performance in ${category.title.toLowerCase()} enhances overall investment confidence and reduces associated risks. This area demonstrates reliable verification standards that support positive valuation considerations.` :
+                        `Strong performance in ${(category.title || 'this area').toLowerCase()} enhances overall investment confidence and reduces associated risks. This area demonstrates reliable verification standards that support positive valuation considerations.` :
                         category.data.score >= 60 ?
-                        `Moderate performance in ${category.title.toLowerCase()} requires ongoing monitoring and potential enhancement. While meeting basic requirements, additional verification may strengthen investment positioning.` :
+                        `Moderate performance in ${(category.title || 'this area').toLowerCase()} requires ongoing monitoring and potential enhancement. While meeting basic requirements, additional verification may strengthen investment positioning.` :
                         `${category.title} performance below optimal standards presents potential risk factors that warrant comprehensive review and remediation before investment consideration.`
                       }</p>
                     </div>
@@ -451,15 +451,15 @@ export default function SnapshotReport() {
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">RISK MITIGATION:</h4>
                         <p>{category.data.score >= 60 ?
-                          `Standard monitoring protocols and periodic verification updates recommended to maintain acceptable risk levels in ${category.title.toLowerCase()}.` :
-                          `Comprehensive review and remediation required in ${category.title.toLowerCase()} before investment consideration. Enhanced verification processes essential for risk management.`
+                          `Standard monitoring protocols and periodic verification updates recommended to maintain acceptable risk levels in ${(category.title || 'this area').toLowerCase()}.` :
+                          `Comprehensive review and remediation required in ${(category.title || 'this area').toLowerCase()} before investment consideration. Enhanced verification processes essential for risk management.`
                         }</p>
                       </div>
                     )}
 
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">BENCHMARKING:</h4>
-                      <p>Verification score of {category.data.score}/100 compares {category.data.score >= 80 ? 'favorably' : category.data.score >= 60 ? 'adequately' : 'below standard'} to industry benchmarks for {reportData.sector.toLowerCase()} companies of similar size and maturity stage.</p>
+                      <p>Verification score of {category.data.score}/100 compares {category.data.score >= 80 ? 'favorably' : category.data.score >= 60 ? 'adequately' : 'below standard'} to industry benchmarks for {(reportData.sector || 'comparable').toLowerCase()} companies of similar size and maturity stage.</p>
                     </div>
                   </div>
                 </div>
