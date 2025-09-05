@@ -11,7 +11,10 @@
     "location": "London, UK",
     "foundedYear": 2018,
     "risk": "Low",
-    "eligibility": { "EIS": true, "SEIS": false },
+    "eligibility": {
+      "EIS": true,
+      "SEIS": false
+    },
     "snapshot": {
       "filingHealth": "Good",
       "lastFilingDate": "2025-05-02",
@@ -19,14 +22,18 @@
       "webScore": 76,
       "redFlags": 0,
       "summary": "Clinical tooling spin-out with solid governance; clean filing cadence; moderate web footprint.",
-      "tags": ["University Spin-out", "Clinical Trials", "Strong Team"],
+      "tags": [
+        "University Spin-out",
+        "Clinical Trials",
+        "Strong Team"
+      ],
       "detailedAssessment": {
         "company": {
           "score": 85,
           "status": "Strong",
           "keyPoints": [
             "Clear value proposition with differentiated biotech solutions",
-            "Experienced founding team from Oxford research background", 
+            "Experienced founding team from Oxford research background",
             "Strong intellectual property portfolio with 3 filed patents",
             "Validated product-market fit with NHS pilot programs"
           ],
@@ -127,7 +134,15 @@
         "followers": 87,
         "leadInvestors": 1,
         "avgChequeGBP": 25000,
-        "history": [28, 31, 34, 37, 39, 40, 41]
+        "history": [
+          28,
+          31,
+          34,
+          37,
+          39,
+          40,
+          41
+        ]
       },
       "questions": [
         {
@@ -149,7 +164,7 @@
           "followers": 8
         },
         {
-          "id": "q_102", 
+          "id": "q_102",
           "target": "lead",
           "body": "What's your thesis on regulatory timeline vs competitors?",
           "upvotes": 6,
@@ -174,7 +189,10 @@
     "location": "Manchester, UK",
     "foundedYear": 2016,
     "risk": "Medium",
-    "eligibility": { "EIS": true, "SEIS": false },
+    "eligibility": {
+      "EIS": true,
+      "SEIS": false
+    },
     "snapshot": {
       "filingHealth": "Watch",
       "lastFilingDate": "2025-03-20",
@@ -182,7 +200,11 @@
       "webScore": 64,
       "redFlags": 1,
       "summary": "Payments orchestration with multi-PSP routing; minor filing lag noted; strong traffic trend.",
-      "tags": ["B2B SaaS", "Growing Market", "Filing Lag"],
+      "tags": [
+        "B2B SaaS",
+        "Growing Market",
+        "Filing Lag"
+      ],
       "detailedAssessment": {
         "company": {
           "score": 78,
@@ -298,7 +320,15 @@
         "followers": 45,
         "leadInvestors": 0,
         "avgChequeGBP": 18000,
-        "history": [15, 17, 19, 20, 21, 22, 23]
+        "history": [
+          15,
+          17,
+          19,
+          20,
+          21,
+          22,
+          23
+        ]
       },
       "questions": [
         {
@@ -345,7 +375,10 @@
     "location": "Bristol, UK",
     "foundedYear": 2009,
     "risk": "High",
-    "eligibility": { "EIS": false, "SEIS": false },
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
     "snapshot": {
       "filingHealth": "Poor",
       "lastFilingDate": "2024-11-14",
@@ -353,7 +386,11 @@
       "webScore": 51,
       "redFlags": 3,
       "summary": "Commodity exposure and leverage risks; late filings; governance turnover flagged.",
-      "tags": ["Governance Risk", "Late Filings", "Commodity Exposure"]
+      "tags": [
+        "Governance Risk",
+        "Late Filings",
+        "Commodity Exposure"
+      ]
     },
     "community": {
       "interest": {
@@ -361,7 +398,15 @@
         "followers": 18,
         "leadInvestors": 0,
         "avgChequeGBP": 12000,
-        "history": [8, 9, 10, 11, 11, 12, 12]
+        "history": [
+          8,
+          9,
+          10,
+          11,
+          11,
+          12,
+          12
+        ]
       },
       "questions": [
         {
@@ -390,7 +435,10 @@
     "location": "Edinburgh, UK",
     "foundedYear": 2020,
     "risk": "Medium",
-    "eligibility": { "EIS": true, "SEIS": true },
+    "eligibility": {
+      "EIS": true,
+      "SEIS": true
+    },
     "snapshot": {
       "filingHealth": "Good",
       "lastFilingDate": "2025-04-15",
@@ -398,7 +446,11 @@
       "webScore": 68,
       "redFlags": 0,
       "summary": "Solar panel efficiency breakthrough; strong IP portfolio; early commercialisation stage.",
-      "tags": ["Strong IP", "Breakthrough Tech", "Pending SEIS"]
+      "tags": [
+        "Strong IP",
+        "Breakthrough Tech",
+        "Pending SEIS"
+      ]
     },
     "community": {
       "interest": {
@@ -406,7 +458,15 @@
         "followers": 156,
         "leadInvestors": 3,
         "avgChequeGBP": 35000,
-        "history": [58, 60, 62, 65, 66, 67, 67]
+        "history": [
+          58,
+          60,
+          62,
+          65,
+          66,
+          67,
+          67
+        ]
       },
       "questions": [
         {
@@ -461,7 +521,10 @@
     "location": "Cambridge, UK",
     "foundedYear": 2022,
     "risk": "High",
-    "eligibility": { "EIS": true, "SEIS": true },
+    "eligibility": {
+      "EIS": true,
+      "SEIS": true
+    },
     "snapshot": {
       "filingHealth": "Good",
       "lastFilingDate": "2025-06-30",
@@ -469,7 +532,11 @@
       "webScore": 82,
       "redFlags": 1,
       "summary": "AI-powered radiology platform; regulatory pathway unclear; promising pilot results.",
-      "tags": ["Strong IP", "Early Stage", "Regulatory Risk"]
+      "tags": [
+        "Strong IP",
+        "Early Stage",
+        "Regulatory Risk"
+      ]
     },
     "community": {
       "interest": {
@@ -477,7 +544,15 @@
         "followers": 312,
         "leadInvestors": 2,
         "avgChequeGBP": 15000,
-        "history": [62, 64, 70, 75, 83, 86, 89]
+        "history": [
+          62,
+          64,
+          70,
+          75,
+          83,
+          86,
+          89
+        ]
       },
       "questions": [
         {
@@ -542,7 +617,10 @@
     "location": "Oxford, UK",
     "foundedYear": 2019,
     "risk": "High",
-    "eligibility": { "EIS": true, "SEIS": false },
+    "eligibility": {
+      "EIS": true,
+      "SEIS": false
+    },
     "snapshot": {
       "filingHealth": "Good",
       "lastFilingDate": "2025-05-20",
@@ -550,7 +628,11 @@
       "webScore": 91,
       "redFlags": 2,
       "summary": "Quantum computing hardware development; significant R&D spend; long commercialisation horizon.",
-      "tags": ["Deep Tech", "High R&D", "Long Horizon"]
+      "tags": [
+        "Deep Tech",
+        "High R&D",
+        "Long Horizon"
+      ]
     },
     "community": {
       "interest": {
@@ -558,7 +640,15 @@
         "followers": 78,
         "leadInvestors": 1,
         "avgChequeGBP": 45000,
-        "history": [28, 29, 31, 32, 33, 34, 34]
+        "history": [
+          28,
+          29,
+          31,
+          32,
+          33,
+          34,
+          34
+        ]
       },
       "questions": [
         {
@@ -592,5 +682,705 @@
       ]
     },
     "addedAt": "2025-05-30"
+  },
+  {
+    "id": "biz_007",
+    "name": "DeepMind Technologies Limited",
+    "ch_number": "07386350",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Large",
+    "employees": 2000,
+    "revenueBand": "£100m–£500m",
+    "location": "London, UK",
+    "foundedYear": 2010,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 66,
+      "redFlags": 2,
+      "summary": "Alphabet-owned AI research lab with regular filings and robust governance.",
+      "tags": [
+        "AI Research",
+        "Alphabet"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 93,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 82,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 94,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 78,
+      "followers": 1234,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_008",
+    "name": "Stability AI Ltd",
+    "ch_number": "12295325",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Medium",
+    "employees": 250,
+    "revenueBand": "£10m–£50m",
+    "location": "London, UK",
+    "foundedYear": 2019,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Adequate",
+      "lastFilingDate": "2025-08-15",
+      "directors": 8,
+      "webScore": 89,
+      "redFlags": 2,
+      "summary": "Generative AI company (Stable Diffusion) with active filings and ongoing litigation context.",
+      "tags": [
+        "Generative AI",
+        "Open Source"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 83,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 94,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 92,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 65,
+      "followers": 860,
+      "leadInvestors": 3,
+      "avgCheque": 5000000,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_009",
+    "name": "Wayve Technologies Ltd",
+    "ch_number": "10924127",
+    "verified": true,
+    "sector": "AI & Machine Learning",
+    "size": "Medium",
+    "employees": 400,
+    "revenueBand": "£10m–£50m",
+    "location": "London, UK",
+    "foundedYear": 2017,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 6,
+      "webScore": 95,
+      "redFlags": 1,
+      "summary": "Autonomous driving AI with major OEM partnerships; consistent filings.",
+      "tags": [
+        "Autonomy",
+        "Computer Vision"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 72,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in ai & machine learning",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 94,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 61,
+      "followers": 620,
+      "leadInvestors": 4,
+      "avgCheque": 3000000,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_010",
+    "name": "McLaren Automotive Limited",
+    "ch_number": "01967717",
+    "verified": true,
+    "sector": "Automotive & Mobility",
+    "size": "Large",
+    "employees": 3000,
+    "revenueBand": "£500m–£1bn",
+    "location": "Woking, UK",
+    "foundedYear": 1985,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Adequate",
+      "lastFilingDate": "2025-08-15",
+      "directors": 4,
+      "webScore": 84,
+      "redFlags": 1,
+      "summary": "High-performance vehicle manufacturer with regular filings.",
+      "tags": [
+        "Automotive",
+        "Performance"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 85,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in automotive & mobility",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 94,
+          "status": "Adequate",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 97,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 52,
+      "followers": 380,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_011",
+    "name": "The Sage Group plc",
+    "ch_number": "02231246",
+    "verified": true,
+    "sector": "B2B Software",
+    "size": "Large",
+    "employees": 12000,
+    "revenueBand": "£1bn+",
+    "location": "Newcastle upon Tyne, UK",
+    "foundedYear": 1981,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 3,
+      "webScore": 65,
+      "redFlags": 1,
+      "summary": "FTSE-listed accounting software provider with exemplary filing cadence.",
+      "tags": [
+        "SaaS",
+        "Accounting"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 92,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in b2b software",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 92,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 99,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 57,
+      "followers": 500,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_012",
+    "name": "Darktrace Holdings Limited",
+    "ch_number": "08562035",
+    "verified": true,
+    "sector": "B2B Software",
+    "size": "Large",
+    "employees": 2500,
+    "revenueBand": "£500m–£1bn",
+    "location": "Cambridge, UK",
+    "foundedYear": 2013,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 2,
+      "webScore": 81,
+      "redFlags": 0,
+      "summary": "Cybersecurity AI vendor; steady plc-level disclosures.",
+      "tags": [
+        "Cybersecurity",
+        "AI"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 76,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in b2b software",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 90,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 98,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 54,
+      "followers": 470,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_013",
+    "name": "Elliptic Enterprises Limited",
+    "ch_number": "08458210",
+    "verified": true,
+    "sector": "Cryptocurrency & Blockchain",
+    "size": "Medium",
+    "employees": 200,
+    "revenueBand": "£10m–£50m",
+    "location": "London, UK",
+    "foundedYear": 2013,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Good",
+      "lastFilingDate": "2025-08-15",
+      "directors": 4,
+      "webScore": 97,
+      "redFlags": 0,
+      "summary": "Blockchain analytics for compliance; consistent filings.",
+      "tags": [
+        "RegTech",
+        "Crypto AML"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 91,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in cryptocurrency & blockchain",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 92,
+          "status": "Good",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 93,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 59,
+      "followers": 420,
+      "leadInvestors": 2,
+      "avgCheque": 2000000,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_014",
+    "name": "ASOS plc",
+    "ch_number": "04006623",
+    "verified": true,
+    "sector": "E-commerce & Retail",
+    "size": "Large",
+    "employees": 5000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 2000,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 8,
+      "webScore": 93,
+      "redFlags": 1,
+      "summary": "Global online fashion retailer with plc-level disclosure.",
+      "tags": [
+        "E-commerce",
+        "Fashion"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 78,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in e-commerce & retail",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 84,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 98,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 53,
+      "followers": 460,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_015",
+    "name": "Burberry Limited",
+    "ch_number": "00162636",
+    "verified": true,
+    "sector": "Fashion & Lifestyle",
+    "size": "Large",
+    "employees": 9000,
+    "revenueBand": "£1bn+",
+    "location": "London, UK",
+    "foundedYear": 1919,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 4,
+      "webScore": 70,
+      "redFlags": 0,
+      "summary": "Luxury fashion house with century-long filings footprint.",
+      "tags": [
+        "Luxury",
+        "Retail"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 84,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in fashion & lifestyle",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 85,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 94,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 58,
+      "followers": 600,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
+  },
+  {
+    "id": "biz_016",
+    "name": "Dyson Technology Limited",
+    "ch_number": "01959090",
+    "verified": true,
+    "sector": "Hardware & Robotics",
+    "size": "Large",
+    "employees": 14000,
+    "revenueBand": "£1bn+",
+    "location": "Malmesbury, UK",
+    "foundedYear": 1985,
+    "eligibility": {
+      "EIS": false,
+      "SEIS": false
+    },
+    "snapshot": {
+      "filingHealth": "Strong",
+      "lastFilingDate": "2025-08-15",
+      "directors": 6,
+      "webScore": 90,
+      "redFlags": 2,
+      "summary": "Global hardware/consumer electronics R&D centre of Dyson group.",
+      "tags": [
+        "Hardware",
+        "R&D"
+      ],
+      "detailedAssessment": {
+        "company": {
+          "score": 71,
+          "status": "Good",
+          "keyPoints": [
+            "Strong market position in hardware & robotics",
+            "Consistent financial performance",
+            "Experienced management team",
+            "Clear growth strategy"
+          ],
+          "concerns": []
+        },
+        "complianceCheck": {
+          "score": 82,
+          "status": "Excellent",
+          "keyPoints": [
+            "Regular Companies House filings",
+            "Proper corporate governance structure",
+            "Compliant with sector regulations"
+          ],
+          "concerns": []
+        },
+        "fraudRisk": {
+          "score": 94,
+          "status": "Very Low",
+          "keyPoints": [
+            "Clean director backgrounds",
+            "No adverse media coverage",
+            "Transparent operations"
+          ],
+          "concerns": []
+        }
+      }
+    },
+    "community": {
+      "syndicateInterestPct": 55,
+      "followers": 480,
+      "leadInvestors": 0,
+      "avgCheque": 0,
+      "questionsCount": 0,
+      "questions": []
+    },
+    "addedAt": "2025-09-05"
   }
 ]
