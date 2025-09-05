@@ -51,6 +51,12 @@ export const investorPreferences = pgTable("investor_preferences", {
   // Recommended portfolio fields
   recommendedPortfolioAllocations: text("recommended_portfolio_allocations"), // JSON string of target allocation percentages from recommendation engine
   recommendedPortfolioCompletedAt: timestamp("recommended_portfolio_completed_at"), // When recommendations were saved to Actions
+  // Action Plan fields
+  playbook: text("playbook"), // JSON string of investment playbook bullets
+  stage1Actions: text("stage1_actions"), // JSON string of immediate actions
+  stage2Actions: text("stage2_actions"), // JSON string of deferred actions
+  summary: text("summary"), // JSON string of action plan summary
+  actionPlanCompletedAt: timestamp("action_plan_completed_at"), // When action plan was saved
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 

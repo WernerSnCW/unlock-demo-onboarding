@@ -4622,6 +4622,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [matchedPersona, setMatchedPersona] = useState<PersonaDef | null>(null);
   const [isToolkitModalOpen, setIsToolkitModalOpen] = useState(false);
   const [activeToolId, setActiveToolId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Function to get current user ID (same as used by recommendations)
   const getUserId = () => {
@@ -5113,6 +5114,56 @@ function ActionPlanComponent({ userId }: { userId: string }) {
     window.URL.revokeObjectURL(url);
   };
 
+  // Save Action Plan function
+  const saveActionPlan = async () => {
+    if (!actionsData || isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      const actionPlanData = {
+        userId: getUserId(),
+        investorName: investorPrefs?.investorName || 'Unknown',
+        playbook: actionsData.playbook || [],
+        stage1Actions: actionsData.staged.stage1 || [],
+        stage2Actions: actionsData.staged.stage2 || [],
+        summary: actionsData.summary || {},
+        generatedAt: new Date().toISOString()
+      };
+
+      console.log('Saving Action Plan:', actionPlanData);
+
+      const response = await fetch('/api/action-plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(actionPlanData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save action plan: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Action Plan saved successfully:', result);
+      
+      toast({
+        title: "Action Plan Saved!",
+        description: "Your investment playbook and actions have been saved successfully.",
+      });
+      
+    } catch (error) {
+      console.error('Failed to save action plan:', error);
+      toast({
+        title: "Save Failed",
+        description: "Unable to save your action plan. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -5294,14 +5345,24 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           </Button>
         </div>
         
-        <Button
-          variant="outline"
-          onClick={exportToCSV}
-          className="flex items-center gap-2 px-6 py-3 font-semibold text-[var(--foreground)] hover:text-[var(--accent)] border-[var(--border)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/5 transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          <Download className="w-4 h-4 text-[var(--warning)]" />
-          <span>Export CSV</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={saveActionPlan}
+            className="flex items-center gap-2 px-6 py-3 font-semibold text-[var(--foreground)] hover:text-[var(--success)] border-[var(--border)] hover:border-[var(--success)]/50 hover:bg-[var(--success)]/5 transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            <Save className="w-4 h-4 text-[var(--success)]" />
+            <span>Save Plan</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={exportToCSV}
+            className="flex items-center gap-2 px-6 py-3 font-semibold text-[var(--foreground)] hover:text-[var(--accent)] border-[var(--border)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/5 transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            <Download className="w-4 h-4 text-[var(--warning)]" />
+            <span>Export CSV</span>
+          </Button>
+        </div>
       </div>
 
       {/* Actions Table */}

@@ -527,6 +527,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Action Plans endpoint - saves investment playbook and actions
+  app.post('/api/action-plans', async (req, res) => {
+    try {
+      console.log('Received action plan data:', req.body);
+      const { userId, investorName, playbook, stage1Actions, stage2Actions, summary, generatedAt } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'userId is required' });
+      }
+
+      // Store action plan data
+      const actionPlanData = {
+        userId,
+        investorName: investorName || 'Unknown',
+        playbook: JSON.stringify(playbook),
+        stage1Actions: JSON.stringify(stage1Actions),
+        stage2Actions: JSON.stringify(stage2Actions), 
+        summary: JSON.stringify(summary),
+        actionPlanCompletedAt: generatedAt || new Date().toISOString(),
+        completionMethod: 'manual'
+      };
+
+      // Update or create investor record with action plan data
+      await storage.updateInvestorActionPlan(actionPlanData);
+      
+      console.log('Action plan data saved successfully for userId:', userId);
+      res.status(200).json({ 
+        success: true, 
+        userId: userId,
+        message: 'Action plan saved successfully'
+      });
+    } catch (error) {
+      console.error('Error saving action plan:', error);
+      res.status(500).json({ error: 'Failed to save action plan', details: error.message });
+    }
+  });
+
   // Portfolio Target Generation API endpoint
   app.post('/api/target', async (req, res) => {
     try {

@@ -40,6 +40,7 @@ export interface IStorage {
   getAllInvestorPreferences(): Promise<InvestorPreferences[]>;
   getInvestorPreferences(userId: string): Promise<InvestorPreferences | undefined>;
   upsertInvestorPreferences(prefs: InsertInvestorPreferences): Promise<InvestorPreferences>;
+  updateInvestorActionPlan(actionPlan: any): Promise<InvestorPreferences>;
   
   // Tax Profile methods
   getTaxProfile(userId: string): Promise<TaxProfile | undefined>;
@@ -201,6 +202,27 @@ export class DatabaseStorage implements IStorage {
           // Recommended portfolio fields
           ...(prefs.recommendedPortfolioAllocations !== undefined && { recommendedPortfolioAllocations: prefs.recommendedPortfolioAllocations }),
           ...(prefs.recommendedPortfolioCompletedAt !== undefined && { recommendedPortfolioCompletedAt: prefs.recommendedPortfolioCompletedAt }),
+        }
+      })
+      .returning();
+    return upserted;
+  }
+
+  async updateInvestorActionPlan(actionPlan: any): Promise<InvestorPreferences> {
+    const [upserted] = await db
+      .insert(investorPreferences)
+      .values(actionPlan)
+      .onConflictDoUpdate({
+        target: investorPreferences.userId,
+        set: {
+          // Action plan specific fields
+          ...(actionPlan.investorName !== undefined && { investorName: actionPlan.investorName }),
+          ...(actionPlan.playbook !== undefined && { playbook: actionPlan.playbook }),
+          ...(actionPlan.stage1Actions !== undefined && { stage1Actions: actionPlan.stage1Actions }),
+          ...(actionPlan.stage2Actions !== undefined && { stage2Actions: actionPlan.stage2Actions }),
+          ...(actionPlan.summary !== undefined && { summary: actionPlan.summary }),
+          ...(actionPlan.actionPlanCompletedAt !== undefined && { actionPlanCompletedAt: actionPlan.actionPlanCompletedAt }),
+          ...(actionPlan.completionMethod !== undefined && { completionMethod: actionPlan.completionMethod }),
         }
       })
       .returning();
