@@ -199,7 +199,7 @@ export default function Businesses() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sort:</label>
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-48">
-                      <SelectValue />
+                      <SelectValue placeholder="Select sort order" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="relevance">Relevance</SelectItem>
