@@ -244,9 +244,16 @@ export default function PitchDeckAnalyser() {
 
   const handleSelectPreviousAnalysis = (analysisId: string) => {
     if (analysisId === "unlock-pitch-deck-june-2025") {
-      setResult(unlockPitchDeckAnalysis);
+      setIsAnalysing(true);
+      setResult(null); // Clear current result
       setSelectedPreviousAnalysis(analysisId);
       setFile(null); // Clear any uploaded file
+      
+      // Show loading animation for 10 seconds before displaying results
+      setTimeout(() => {
+        setResult(unlockPitchDeckAnalysis);
+        setIsAnalysing(false);
+      }, 10000);
     }
   };
 
@@ -542,7 +549,23 @@ export default function PitchDeckAnalyser() {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen relative">
+      {/* Loading Overlay */}
+      {isAnalysing && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] p-8 shadow-[var(--shadow-lg)] text-center max-w-md mx-4">
+            <div className="w-16 h-16 mx-auto mb-6 relative">
+              <div className="w-16 h-16 border-4 border-[var(--primary)]/20 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-[var(--primary)] rounded-full animate-spin"></div>
+            </div>
+            <h3 className="text-xl font-semibold text-[var(--card-foreground)] mb-2">Analysing Deck</h3>
+            <p className="text-[var(--muted-foreground)] text-sm">
+              Our AI is analyzing your pitch deck for completeness, clarity, and valuation benchmarking...
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Professional Header */}
       <div className="bg-gradient-to-r from-[var(--secondary)] to-[var(--primary)] text-white px-6 py-6">
         <div className="max-w-7xl mx-auto">
