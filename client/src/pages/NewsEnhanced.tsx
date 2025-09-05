@@ -588,25 +588,19 @@ export default function NewsEnhanced() {
                             <p className="text-xs text-gray-600 mb-3 font-medium">Quick questions:</p>
                             <div className="space-y-2">
                               {defaultQA.map((qa, index) => {
-                                const colors = [
-                                  'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-                                  'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700', 
-                                  'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
-                                  'from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
-                                  'from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
-                                ];
                                 const icons = ['💡', '🎯', '⚖️', '🔄', '🏛️'];
                                 return (
                                   <button
                                     key={index}
                                     onClick={() => handleQuestionSelect(qa.q)}
-                                    className={`w-full text-left p-3 bg-gradient-to-r ${colors[index]} text-white rounded-xl shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 group`}
+                                    className="w-full text-left p-3 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] rounded-[var(--radius-md)] shadow-sm hover:shadow-md transform hover:scale-[1.01] transition-all duration-200 group"
+                                    style={{ boxShadow: 'var(--shadow-sm)' }}
                                   >
                                     <div className="flex items-start gap-3">
-                                      <span className="text-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                                      <span className="text-sm flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                                         {icons[index]}
                                       </span>
-                                      <p className="text-xs font-medium leading-relaxed group-hover:text-white/90">
+                                      <p className="text-xs font-medium leading-relaxed">
                                         {qa.q}
                                       </p>
                                     </div>
