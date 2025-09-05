@@ -5596,6 +5596,52 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         </CardContent>
       </Card>
 
+      {/* Separator Line */}
+      <div className="w-full h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--primary)] rounded-full my-8 shadow-md"></div>
+
+      {/* Tools Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-2">EIS Allowance Calculator</h3>
+            <p className="text-sm text-[var(--muted-foreground)]">Calculate your EIS investment allowances and tax relief</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 border-[var(--secondary)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-[var(--secondary)] to-[var(--info)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-2">Directory</h3>
+            <p className="text-sm text-[var(--muted-foreground)]">Browse investment opportunities and platforms</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--accent)]/5 border-[var(--accent)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-[var(--warning)] to-[var(--accent)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <BarChart3 className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-2">Pitch Deck Analyser</h3>
+            <p className="text-sm text-[var(--muted-foreground)]">Analyze startup pitch decks and investment potential</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--success)]/5 border-[var(--success)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-[var(--foreground)] mb-2">Syndication</h3>
+            <p className="text-sm text-[var(--muted-foreground)]">Join investment syndicates and co-investment opportunities</p>
+          </CardContent>
+        </Card>
+      </div>
+
     </div>
   );
 }
