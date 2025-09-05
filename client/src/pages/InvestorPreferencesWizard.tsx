@@ -5601,43 +5601,55 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
       {/* Tools Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-              <DollarSign className="w-6 h-6 text-white" />
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--primary)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--primary)]/10">
+          <CardContent className="p-6 text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/0 via-[var(--primary)]/5 to-[var(--primary)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-125 group-hover:rotate-6 transition-all duration-500 shadow-lg group-hover:shadow-xl">
+                <DollarSign className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <h3 className="font-semibold text-[var(--foreground)] mb-2 group-hover:text-[var(--primary)] transition-colors duration-300">EIS Allowance Calculator</h3>
+              <p className="text-sm text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors duration-300">Calculate your EIS investment allowances and tax relief</p>
             </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-2">EIS Allowance Calculator</h3>
-            <p className="text-sm text-[var(--muted-foreground)]">Calculate your EIS investment allowances and tax relief</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 border-[var(--secondary)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-[var(--secondary)] to-[var(--info)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-              <BookOpen className="w-6 h-6 text-white" />
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 border-[var(--secondary)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--secondary)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--secondary)]/10">
+          <CardContent className="p-6 text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--secondary)]/0 via-[var(--secondary)]/5 to-[var(--secondary)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--secondary)] to-[var(--info)] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-125 group-hover:rotate-6 transition-all duration-500 shadow-lg group-hover:shadow-xl">
+                <BookOpen className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <h3 className="font-semibold text-[var(--foreground)] mb-2 group-hover:text-[var(--secondary)] transition-colors duration-300">Directory</h3>
+              <p className="text-sm text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors duration-300">Browse investment opportunities and platforms</p>
             </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-2">Directory</h3>
-            <p className="text-sm text-[var(--muted-foreground)]">Browse investment opportunities and platforms</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--accent)]/5 border-[var(--accent)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-[var(--warning)] to-[var(--accent)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-              <BarChart3 className="w-6 h-6 text-white" />
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--accent)]/5 border-[var(--accent)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--warning)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--accent)]/10">
+          <CardContent className="p-6 text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--warning)]/0 via-[var(--warning)]/5 to-[var(--warning)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--warning)] to-[var(--accent)] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-125 group-hover:rotate-6 transition-all duration-500 shadow-lg group-hover:shadow-xl">
+                <BarChart3 className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <h3 className="font-semibold text-[var(--foreground)] mb-2 group-hover:text-[var(--warning)] transition-colors duration-300">Pitch Deck Analyser</h3>
+              <p className="text-sm text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors duration-300">Analyze startup pitch decks and investment potential</p>
             </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-2">Pitch Deck Analyser</h3>
-            <p className="text-sm text-[var(--muted-foreground)]">Analyze startup pitch decks and investment potential</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--success)]/5 border-[var(--success)]/20 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-              <Users className="w-6 h-6 text-white" />
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--success)]/5 border-[var(--success)]/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group rounded-2xl overflow-hidden hover:scale-105 hover:border-[var(--success)]/40 hover:bg-gradient-to-br hover:from-[var(--card)] hover:to-[var(--success)]/10">
+          <CardContent className="p-6 text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--success)]/0 via-[var(--success)]/5 to-[var(--success)]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--success)] to-[var(--primary)] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-125 group-hover:rotate-6 transition-all duration-500 shadow-lg group-hover:shadow-xl">
+                <Users className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <h3 className="font-semibold text-[var(--foreground)] mb-2 group-hover:text-[var(--success)] transition-colors duration-300">Syndication</h3>
+              <p className="text-sm text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors duration-300">Join investment syndicates and co-investment opportunities</p>
             </div>
-            <h3 className="font-semibold text-[var(--foreground)] mb-2">Syndication</h3>
-            <p className="text-sm text-[var(--muted-foreground)]">Join investment syndicates and co-investment opportunities</p>
           </CardContent>
         </Card>
       </div>
