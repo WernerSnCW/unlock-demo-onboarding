@@ -140,11 +140,7 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
   // 6) Stage-2 is the exact remainder to land on target
   const s2: Record<string, number> = {};
   for (const b of BUCKETS) {
-    const d2 = draft2[b] ?? 0;              // optional: use as a hint
     const rem = need[b] - s1[b];
-    // clamp Stage-2 to the remainder (sign-correct)
-    s2[b] = rem >= 0 ? Math.min(Math.max(0, d2), rem)
-                     : Math.max(Math.min(0, d2), rem);
     // ensure exact landing (force any residual rounding)
     s2[b] = rem;
   }
