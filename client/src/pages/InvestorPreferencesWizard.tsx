@@ -5293,6 +5293,206 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         </CardContent>
       </Card>
 
+      {/* Investor Summary Section */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" />
+            Investor Summary
+          </CardTitle>
+          <CardDescription>
+            Complete overview of your investor profile, portfolio, and recommendations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Investor Profile */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                <Badge className="w-4 h-4" />
+                Investor Profile
+              </h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Name:</span>
+                  <span className="font-medium">{investorName}</span>
+                </div>
+                {matchedPersona && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Persona:</span>
+                      <span className="font-medium">{matchedPersona.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Risk Profile:</span>
+                      <span className="font-medium">{matchedPersona.riskProfile}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Max Drawdown:</span>
+                      <span className="font-medium">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Current Portfolio */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                <PieChart className="w-4 h-4" />
+                Current Portfolio
+              </h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Total Value:</span>
+                  <span className="font-medium">{portfolioValue ? formatCurrency(parseInt(portfolioValue)) : 'Not set'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Cash & Fixed Income:</span>
+                  <span className="font-medium">{allocations.cashFixedIncome}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Global Equity:</span>
+                  <span className="font-medium">{allocations.globalEquity}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Tech & Growth:</span>
+                  <span className="font-medium">{allocations.techGrowth}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Property:</span>
+                  <span className="font-medium">{allocations.property}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Alternatives:</span>
+                  <span className="font-medium">{allocations.alternatives}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Investment Preferences */}
+            {investorPrefs && (
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Investment Interests
+                </h4>
+                <div className="text-sm">
+                  <div className="flex flex-wrap gap-1">
+                    {investorPrefs.activeInvestmentInterests?.slice(0, 4).map((interest: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {interest}
+                      </Badge>
+                    ))}
+                    {investorPrefs.activeInvestmentInterests?.length > 4 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{investorPrefs.activeInvestmentInterests.length - 4} more
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Economic Beliefs */}
+            {beliefData && (
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Economic Outlook
+                </h4>
+                <div className="space-y-2 text-sm">
+                  {Object.entries(beliefData.scenarioWeights || {}).map(([scenario, weight]) => (
+                    <div key={scenario} className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)] capitalize">
+                        {scenario.replace('_', ' ')}:
+                      </span>
+                      <span className="font-medium">{((weight as number) * 100).toFixed(0)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Gap Analysis Summary */}
+            {gapAnalysisData && (
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Gap Analysis
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Total Changes:</span>
+                    <span className="font-medium">{(gapAnalysisData.totals.totalAbsChangePp * 100).toFixed(1)} pp</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Biggest Add:</span>
+                    <span className="font-medium text-green-600">
+                      {gapAnalysisData.rows.find(r => r.deltaPct > 0)?.bucket.replace(/_/g, ' ') || 'None'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Biggest Trim:</span>
+                    <span className="font-medium text-red-600">
+                      {gapAnalysisData.rows.find(r => r.deltaPct < 0)?.bucket.replace(/_/g, ' ') || 'None'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Plan Summary */}
+            {actionsData && (
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Action Plan
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Immediate Actions:</span>
+                    <span className="font-medium">{actionsData.staged.stage1.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Later Actions:</span>
+                    <span className="font-medium">{actionsData.staged.stage2.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Est. Total Cost:</span>
+                    <span className="font-medium">{((actionsData.summary.estCostPct || 0) * 100).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted-foreground)]">Portfolio Turnover:</span>
+                    <span className="font-medium">{(actionsData.summary.estTurnoverPp || 0).toFixed(1)} pp</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Key Insights */}
+          <div className="mt-6 p-4 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-lg border border-[var(--accent)]/20">
+            <h5 className="font-medium text-[var(--foreground)] mb-2 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              Key Insights
+            </h5>
+            <div className="text-sm text-[var(--muted-foreground)] space-y-1">
+              {matchedPersona && (
+                <p>• Your profile matches <strong>{matchedPersona.name}</strong> - {matchedPersona.description}</p>
+              )}
+              {gapAnalysisData && (
+                <p>• Portfolio requires <strong>{(gapAnalysisData.totals.totalAbsChangePp * 100).toFixed(1)} percentage points</strong> of total changes to reach target allocation</p>
+              )}
+              {actionsData && (
+                <p>• Implementation plan includes <strong>{actionsData.staged.stage1.length} immediate actions</strong> with estimated cost of <strong>{((actionsData.summary.estCostPct || 0) * 100).toFixed(2)}%</strong></p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Refresh Button */}
       <div className="text-center mt-6 mb-8">
         <Button onClick={generateActionPlan} variant="outline" className="text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]">
