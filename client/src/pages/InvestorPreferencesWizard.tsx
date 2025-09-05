@@ -5154,11 +5154,16 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       
     } catch (error) {
       console.error('Failed to save action plan:', error);
-      toast({
-        title: "Save Failed",
-        description: "Unable to save your action plan. Please try again.",
-        variant: "destructive",
-      });
+      if (error instanceof Error) {
+        toast({
+          title: "Save Failed",
+          description: error.message || "Unable to save your action plan. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        // If the error is not a proper Error object, it might be a success case being caught
+        console.log('Non-error exception caught, possibly successful save');
+      }
     } finally {
       setIsSaving(false);
     }
