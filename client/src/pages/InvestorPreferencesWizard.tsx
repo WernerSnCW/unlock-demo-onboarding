@@ -5220,7 +5220,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       </Card>
 
       {/* Refresh Button */}
-      <div className="text-center">
+      <div className="text-center mt-6 mb-8">
         <Button onClick={generateActionPlan} variant="outline">
           <ArrowRight className="w-4 h-4 mr-2" />
           Regenerate Action Plan
