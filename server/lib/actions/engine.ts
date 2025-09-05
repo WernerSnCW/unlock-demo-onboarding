@@ -122,44 +122,47 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
     }
   }
 
-  // 4) Aggregate preliminary actions to one row per bucket
-  const prelim: Record<Bucket, number> = {} as any;
-  for (const b of CANONICAL_BUCKETS) prelim[b] = 0;
+  // 4) Aggregate preliminary actions to one row per bucket (your exact spec)
+  const draft: Record<string, number> = {};
   for (const a of stage1Draft) {
-    prelim[a.bucket as Bucket] = (prelim[a.bucket as Bucket] ?? 0) + a.deltaPct;
+    draft[a.bucket] = (draft[a.bucket] ?? 0) + a.deltaPct;
   }
 
-  // 5) Clamp each bucket to exact required net move
-  const stage1Net: Record<Bucket, number> = {} as any;
+  // 5) Clamp to exact need (no overshoot, no wrong sign) - your exact spec
+  const s1: Record<string, number> = {};
   for (const b of CANONICAL_BUCKETS) {
-    const d = prelim[b], n = need[b];
-    stage1Net[b] = n >= 0 ? Math.min(Math.max(0, d), n)   // for adds: clamp between 0 and need
-                          : Math.max(Math.min(0, d), n);  // for trims: clamp between need and 0
+    const needForBucket = need[b];
+    const draftForBucket = draft[b] ?? 0;
+    s1[b] = needForBucket >= 0
+      ? Math.min(Math.max(0, draftForBucket), needForBucket)     // adds: 0..need
+      : Math.max(Math.min(0, draftForBucket), needForBucket);    // trims: need..0
   }
 
-  // 6) Move illiquids to Stage-2
+  // 6) Optionally zero illiquids in Stage-1 (defer to Stage-2) - your exact spec
   if (stageIlliq) {
     for (const b of ILLIQUID_BUCKETS) {
-      if (b in stage1Net) {
-        stage1Net[b as Bucket] = 0;
-      }
+      s1[b] = 0;
     }
   }
 
-  // 7) Make Stage-1 self-funded (Σ adds ≈ Σ trims)
-  let adds  = CANONICAL_BUCKETS.reduce((s,b)=> s + Math.max(0, stage1Net[b]), 0);
-  let trims = CANONICAL_BUCKETS.reduce((s,b)=> s - Math.min(0, stage1Net[b]), 0);
-  const eps = 0.003;  // 0.3 pp tolerance
-
-  if (adds > trims + eps) {
-    // scale down adds proportionally
-    const k = trims / adds;
-    for (const b of CANONICAL_BUCKETS) if (stage1Net[b] > 0) stage1Net[b] *= k;
+  // 7) Self-fund Stage-1 (adds ≈ trims within 0.3 pp) - your exact spec
+  let adds  = CANONICAL_BUCKETS.reduce((s,b)=> s + Math.max(0, s1[b]), 0);
+  let trims = CANONICAL_BUCKETS.reduce((s,b)=> s - Math.min(0, s1[b]), 0);
+  const EPS = 0.003; // 0.3 pp
+  
+  if (adds > trims + EPS) { 
+    const k = trims / adds; 
+    for (const b of CANONICAL_BUCKETS) if (s1[b] > 0) s1[b] *= k; 
   }
-  if (trims > adds + eps) {
-    // scale down trims proportionally
-    const k = adds / trims;
-    for (const b of CANONICAL_BUCKETS) if (stage1Net[b] < 0) stage1Net[b] *= k;
+  if (trims > adds + EPS) { 
+    const k = adds / trims; 
+    for (const b of CANONICAL_BUCKETS) if (s1[b] < 0) s1[b] *= k; 
+  }
+
+  // Use s1 as our stage1Net for consistency with rest of code
+  const stage1Net: Record<Bucket, number> = {} as any;
+  for (const b of CANONICAL_BUCKETS) {
+    stage1Net[b] = s1[b];
   }
 
   // 8) Everything not done in Stage-1 goes to Stage-2
@@ -177,7 +180,7 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
   }
 
   const stage1Sum = CANONICAL_BUCKETS.reduce((s,b)=> s + stage1Net[b], 0);
-  if (Math.abs(stage1Sum) > eps) {
+  if (Math.abs(stage1Sum) > EPS) {
     console.warn(`Stage-1 not self-funded: net = ${stage1Sum.toFixed(6)} (should be ~0)`);
   }
 
@@ -235,19 +238,15 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
   // 12) Playbook bullets
   const bullets: string[] = [];
   
-  // Calculate after-stage-1 liquidity for bullet 1
-  let stage1LiquidityDelta = 0;
-  for (const action of stage1) {
-    if (action.bucket === "CASH" || action.bucket === "BILLS_SHORT_GILTS") {
-      stage1LiquidityDelta += action.deltaPct;
-    }
-  }
-  const afterStage1Liquidity = liqNow + stage1LiquidityDelta;
+  // Calculate current and after-stage-1 liquidity (same calculation as Gap Analysis)
+  const currentLiquidity = current.CASH + current.BILLS_SHORT_GILTS;
+  const topUpPp = Math.max(0, liqFloor - currentLiquidity);
+  const afterStage1Liquidity = currentLiquidity + (stage1Net.CASH || 0) + (stage1Net.BILLS_SHORT_GILTS || 0);
   
   bullets.push(
-    needLiq > 1e-6
-      ? `Top up liquidity by ~${pct(needLiq)} pp (from ${pct(liqNow)}% to ${pct(afterStage1Liquidity)}%) before other moves.`
-      : `Liquidity already meets the floor (${pct(liqNow)}%).`
+    topUpPp > 1e-6
+      ? `Top up liquidity by ~${pct(topUpPp)} pp (from ${pct(currentLiquidity)}% to ${pct(afterStage1Liquidity)}%) before other moves.`
+      : `Liquidity already meets the floor (${pct(currentLiquidity)}%).`
   );
   const addActions = stage1.filter(a=>a.type==="ADD").slice(0,3).map(a=>`add **${a.bucket.replace(/_/g," ")}** ~${pct(a.deltaPct)} pp`);
   const trimActions = stage1.filter(a=>a.type==="TRIM").slice(0,3).map(a=>`trim **${a.bucket.replace(/_/g," ")}** ~${pct(Math.abs(a.deltaPct))} pp`);

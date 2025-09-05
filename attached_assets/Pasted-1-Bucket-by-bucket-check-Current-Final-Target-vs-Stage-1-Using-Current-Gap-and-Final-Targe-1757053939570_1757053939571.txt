@@ -1,0 +1,86 @@
+1) Bucket-by-bucket check (Current → Final Target vs Stage-1)
+
+Using Current % (Gap) and Final Target % (Recommendation table):
+
+Asset	Need = Target − Current	Stage-1 action	Problem
+Global Equity	+17.0 pp (29.6 − 12.6)	+10.3 pp	Short by 6.7 pp
+IG Credit	+10.9 pp (12.8 − 1.9)	+11.3 pp	Over by 0.4 pp
+UK Equity Value	+7.0 pp (12.4 − 5.4)	+11.0 pp	Over by 4.0 pp
+Bills (Short Gilts)	+1.7 pp (9.3 − 7.6)	+8.2 pp	Over by 6.5 pp
+Cash	+3.1 pp (8.8 − 5.7)	−10.2 pp	Wrong direction (should add, not trim)
+Gold	+1.9 pp (7.9 − 6.0)	—	Missing +1.9 pp add
+Commodities	−2.0 pp (7.0 − 9.0)	−8.0 pp	Over-trim by 6.0 pp
+Property UK Resi	+1.9 pp (4.9 − 3.0)	—	Missing +1.9 pp add
+Gilts Long	−0.1 pp (3.7 − 3.8)	—	(small trim OK to leave)
+Growth Tech	−10.6 pp (2.4 − 13.0)	−10.6 pp	✅ exact
+Crypto BTC	−6.6 pp (0.6 − 7.2)	−12.0 pp	Over-trim by 5.4 pp
+Crypto ETH	−4.2 pp (0.6 − 4.8)	—	Missing −4.2 pp trim
+Alternatives / Collectibles	large trims	—	(OK if in Stage-2 by rule)
+
+So Stage-1 is self-funded-ish, but it doesn’t equal the required net move for multiple buckets and even goes the wrong direction for Cash.
+
+2) Why it’s happening
+
+You build separate “liquidity” and “rebalance” rows and then sum them without clamping to need = target − current per bucket.
+
+3) One clear fix (drop-in logic)
+
+After you generate your preliminary Stage-1 rows:
+
+// 0) Inputs
+const cur = currentMix;          // from Gap
+const tgt = finalTargetMix;      // from Recommendation
+const BUCKETS = Object.keys(tgt);
+
+// 1) Aggregate prelim rows to one per bucket
+const draft: Record<string, number> = {};
+for (const a of stage1Draft) draft[a.bucket] = (draft[a.bucket] ?? 0) + a.deltaPct;
+
+// 2) Clamp to exact need (no overshoot, no wrong sign)
+const need: Record<string, number> = {};
+const s1:   Record<string, number> = {};
+for (const b of BUCKETS) {
+  need[b] = (tgt[b] ?? 0) - (cur[b] ?? 0);   // target - current
+  const d = draft[b] ?? 0;
+  s1[b] = need[b] >= 0
+    ? Math.min(Math.max(0, d), need[b])     // adds: 0..need
+    : Math.max(Math.min(0, d), need[b]);    // trims: need..0
+}
+
+// 3) Optionally zero illiquids in Stage-1 (defer to Stage-2)
+for (const b of ILLIQUIDS) s1[b] = 0;
+
+// 4) Self-fund Stage-1 (adds ≈ trims within 0.3 pp)
+let adds  = BUCKETS.reduce((s,b)=>s+Math.max(0,s1[b]),0);
+let trims = BUCKETS.reduce((s,b)=>s-Math.min(0,s1[b]),0);
+const EPS = 0.003;
+if (adds > trims + EPS) { const k = trims/adds; for (const b of BUCKETS) if (s1[b] > 0) s1[b] *= k; }
+if (trims > adds + EPS){ const k = adds/trims; for (const b of BUCKETS) if (s1[b] < 0) s1[b] *= k; }
+
+// 5) Stage-2 takes the remainder
+const s2: Record<string, number> = {};
+for (const b of BUCKETS) s2[b] = need[b] - s1[b];
+
+
+Render one row per bucket from s1. Amount = |s1[b]| × portfolioValueGBP.
+Label Cash/Bills adds as “Raise liquidity”; others as “Increase/Reduce towards target”.
+
+Guarantees after this change
+
+For every bucket: stage1 + stage2 = target - current (no drift).
+
+No bucket moves the wrong way (e.g., Cash).
+
+No bucket over/under-shoots need.
+
+Stage-1 is self-funded (Σ adds ≈ Σ trims).
+
+4) Small copy fix on Actions (liquidity)
+
+Your playbook says “Liquidity already meets the floor (19%)”. From Current (Cash 5.7 + Bills 7.6 = 13.3%), it doesn’t meet 19%.
+Use the same calculation as Gap for Actions’ “Current Liquidity”, and compute the top-up as:
+
+topUpPp = max(0, floorPct − (cur.CASH + cur.BILLS_SHORT_GILTS))
+
+
+Show an “After Stage-1 Liquidity” chip = currentLiquidity + s1.CASH + s1.BILLS_SHORT_GILTS.
