@@ -2995,6 +2995,12 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
             {gapData.headlineFlags.map((flag: string, index: number) => (
               <p key={index} className="text-amber-800 dark:text-amber-300 text-sm">{flag}</p>
             ))}
+            {/* Show clarification text if there are any liquidity-related flags */}
+            {gapData.headlineFlags.some((flag: string) => flag.toLowerCase().includes('liquidity')) && (
+              <p className="text-amber-700 dark:text-amber-400 text-xs mt-2 italic">
+                Liquidity floor is preview-only here; it's enforced in the recommendation step.
+              </p>
+            )}
           </div>
         )}
 
