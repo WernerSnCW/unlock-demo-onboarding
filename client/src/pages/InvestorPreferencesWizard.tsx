@@ -2148,6 +2148,11 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
     cryptocurrency: '',
     collectibles: ''
   });
+
+  // Store allocations globally for Action Plan to use (same source as Gap Analysis)
+  useEffect(() => {
+    (window as any).currentFormAllocations = allocations;
+  }, [allocations]);
   const [gapAnalysisData, setGapAnalysisData] = useState<GapResponse | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -4764,7 +4769,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       }
       
       // Store current form allocations globally for Action Plan to use (same source as Gap Analysis)
-      (window as any).currentFormAllocations = allocations;
+      // This is set from the actual portfolio form component
       
       // Calculate actual current portfolio mix from real data
       const calculateCurrentMix = (portfolioData: any) => {
