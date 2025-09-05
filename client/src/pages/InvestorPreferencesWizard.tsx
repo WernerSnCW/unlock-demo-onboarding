@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -4614,6 +4614,10 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeStage, setActiveStage] = useState<1 | 2>(1);
   const [error, setError] = useState<string | null>(null);
+  const [investorPrefs, setInvestorPrefs] = useState<any>(null);
+  const [beliefData, setBeliefData] = useState<any>(null);
+  const [gapAnalysisData, setGapAnalysisData] = useState<any>(null);
+  const [currentAllocations, setCurrentAllocations] = useState<any>(null);
 
   // Function to get current user ID (same as used by recommendations)
   const getUserId = () => {
@@ -4731,6 +4735,26 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       } else {
         const preferences = await prefsResponse2.json();
         console.log('Action Plan: Fetched preferences:', preferences);
+        
+        // Store preferences for summary display
+        setInvestorPrefs(preferences);
+        
+        // Fetch belief data for summary display
+        try {
+          const beliefResponse = await fetch(`/api/investors/${actualUserId}/belief-responses`);
+          if (beliefResponse.ok) {
+            const belief = await beliefResponse.json();
+            setBeliefData(belief);
+          }
+        } catch (error) {
+          console.log('Could not fetch belief data:', error);
+        }
+        
+        // Store current allocations from global state
+        const currentFormAllocations = (window as any).currentFormAllocations;
+        if (currentFormAllocations) {
+          setCurrentAllocations(currentFormAllocations);
+        }
         
         if (!preferences.recommendedPortfolioAllocations) {
           console.log('Action Plan: No saved recommendations, using demo target portfolio');
@@ -5316,58 +5340,54 @@ function ActionPlanComponent({ userId }: { userId: string }) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[var(--muted-foreground)]">Name:</span>
-                  <span className="font-medium">{investorName}</span>
+                  <span className="font-medium">{investorPrefs?.investorName || 'Not set'}</span>
                 </div>
-                {matchedPersona && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-[var(--muted-foreground)]">Persona:</span>
-                      <span className="font-medium">{matchedPersona.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[var(--muted-foreground)]">Risk Profile:</span>
-                      <span className="font-medium">{matchedPersona.riskProfile}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[var(--muted-foreground)]">Max Drawdown:</span>
-                      <span className="font-medium">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</span>
-                    </div>
-                  </>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Portfolio Value:</span>
+                  <span className="font-medium">{investorPrefs?.actualPortfolioValue ? formatCurrency(investorPrefs.actualPortfolioValue) : 'Not set'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--muted-foreground)]">Wizard Completed:</span>
+                  <span className="font-medium">{investorPrefs?.wizardCompletedAt ? new Date(investorPrefs.wizardCompletedAt).toLocaleDateString() : 'Not completed'}</span>
+                </div>
               </div>
             </div>
 
             {/* Current Portfolio */}
             <div className="space-y-4">
               <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-                <PieChart className="w-4 h-4" />
+                <PieChartIcon className="w-4 h-4" />
                 Current Portfolio
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[var(--muted-foreground)]">Total Value:</span>
-                  <span className="font-medium">{portfolioValue ? formatCurrency(parseInt(portfolioValue)) : 'Not set'}</span>
+                  <span className="font-medium">{investorPrefs?.actualPortfolioValue ? formatCurrency(investorPrefs.actualPortfolioValue) : 'Not set'}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Cash & Fixed Income:</span>
-                  <span className="font-medium">{allocations.cashFixedIncome}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Global Equity:</span>
-                  <span className="font-medium">{allocations.globalEquity}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Tech & Growth:</span>
-                  <span className="font-medium">{allocations.techGrowth}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Property:</span>
-                  <span className="font-medium">{allocations.property}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Alternatives:</span>
-                  <span className="font-medium">{allocations.alternatives}%</span>
-                </div>
+                {currentAllocations && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Cash & Fixed Income:</span>
+                      <span className="font-medium">{currentAllocations.cashFixedIncome || 0}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Global Equity:</span>
+                      <span className="font-medium">{currentAllocations.globalEquity || 0}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Tech & Growth:</span>
+                      <span className="font-medium">{currentAllocations.techGrowth || 0}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Property:</span>
+                      <span className="font-medium">{currentAllocations.property || 0}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted-foreground)]">Alternatives:</span>
+                      <span className="font-medium">{currentAllocations.alternatives || 0}%</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -5479,11 +5499,11 @@ function ActionPlanComponent({ userId }: { userId: string }) {
               Key Insights
             </h5>
             <div className="text-sm text-[var(--muted-foreground)] space-y-1">
-              {matchedPersona && (
-                <p>• Your profile matches <strong>{matchedPersona.name}</strong> - {matchedPersona.description}</p>
+              {investorPrefs?.investorName && (
+                <p>• Investor profile for <strong>{investorPrefs.investorName}</strong> completed on {investorPrefs.wizardCompletedAt ? new Date(investorPrefs.wizardCompletedAt).toLocaleDateString() : 'unknown date'}</p>
               )}
-              {gapAnalysisData && (
-                <p>• Portfolio requires <strong>{(gapAnalysisData.totals.totalAbsChangePp * 100).toFixed(1)} percentage points</strong> of total changes to reach target allocation</p>
+              {beliefData?.scenarioWeights && (
+                <p>• Economic outlook emphasizes <strong>{Object.entries(beliefData.scenarioWeights).sort(([,a], [,b]) => (b as number) - (a as number))[0][0].replace('_', ' ')}</strong> scenario with highest weighting</p>
               )}
               {actionsData && (
                 <p>• Implementation plan includes <strong>{actionsData.staged.stage1.length} immediate actions</strong> with estimated cost of <strong>{((actionsData.summary.estCostPct || 0) * 100).toFixed(2)}%</strong></p>
