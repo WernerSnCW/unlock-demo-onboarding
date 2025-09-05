@@ -1,0 +1,87 @@
+A) Exact deltas (what’s required vs what you do)
+
+Using your Current % (from the Gap table) and Final Target % (from “Detailed Allocation Breakdown”):
+
+Asset	Need = Target − Current	Stage-1 action	Issue
+Global Equity	+21.3 pp (29.7 − 8.4)	+8.1 pp	Short by 13.2 pp
+IG Credit	+11.3 pp (14.1 − 2.8)	+6.4 pp	Short by 4.9 pp
+UK Equity Value	+9.3 pp (12.9 − 3.6)	+5.9 pp	Short by 3.4 pp
+Growth Tech	+3.7 pp (5.7 − 2.0)	+1.7 pp	Short by 2.0 pp
+Bills Short Gilts	−4.7 pp (6.5 − 11.2)	+3.0 pp	Wrong direction (should trim ≈4.7 pp)
+Cash	−0.9 pp (7.5 − 8.4)	−20.5 pp	Overshoot by −19.6 pp
+Commodities	−1.8 pp (6.6 − 8.4)	−7.4 pp	Over-trim by −5.6 pp
+Gold	+0.5 pp (6.1 − 5.6)	+2.8 pp	Over-add by +2.3 pp
+Gilts Long	−3.9 pp (1.7 − 5.6)	0.0 pp	Missing −3.9 pp trim
+
+(Illiquids – Property, Alternatives, Collectibles – are fine to defer to Stage-2.)
+
+So, Stage-1 is balanced (adds ≈ trims), but it doesn’t move you toward the recommended target for several buckets (Bills and Cash are opposite, others under/over-shoot).
+
+B) Why it happens
+
+You create separate “liquidity” and “rebalance” rows and then add them together without clamping to the required need = target − current per bucket.
+
+C) Deterministic fix (drop into the actions builder)
+
+Aggregate preliminary rows to one per bucket
+
+const prelim: Record<Bucket, number> = {};
+for (const a of stage1Draft) prelim[a.bucket] = (prelim[a.bucket] ?? 0) + a.deltaPct;
+
+
+Clamp to the exact need
+
+const need: Record<Bucket, number> = {};
+for (const b of BUCKETS) need[b] = finalTarget[b] - current[b];
+
+const stage1: Record<Bucket, number> = {};
+for (const b of BUCKETS) {
+  const d = prelim[b] ?? 0, n = need[b];
+  stage1[b] = n >= 0 ? Math.min(Math.max(0, d), n)   // adds cannot exceed need
+                     : Math.max(Math.min(0, d), n);  // trims cannot exceed need
+}
+
+
+Optionally zero illiquids in Stage-1
+
+for (const b of ILLIQUIDS) stage1[b] = 0;
+
+
+Make Stage-1 self-funded (adds ≈ trims)
+
+let adds  = BUCKETS.reduce((s,b)=> s + Math.max(0, stage1[b]), 0);
+let trims = BUCKETS.reduce((s,b)=> s - Math.min(0, stage1[b]), 0);
+const eps = 0.003; // 0.3 pp
+if (adds > trims + eps) {
+  const k = trims / adds; for (const b of BUCKETS) if (stage1[b] > 0) stage1[b] *= k;
+}
+if (trims > adds + eps) {
+  const k = adds / trims; for (const b of BUCKETS) if (stage1[b] < 0) stage1[b] *= k;
+}
+
+
+Put the remainder into Stage-2
+
+const stage2: Record<Bucket, number> = {};
+for (const b of BUCKETS) stage2[b] = need[b] - stage1[b];
+
+
+Render one row per bucket (no duplicates).
+Type = ADD if stage1[b] > 0, else TRIM.
+Amount = abs(stage1[b]) * portfolioValueGBP.
+
+D) Guardrails (asserts that catch this early)
+// 1) Stage-1 + Stage-2 equals need for every bucket
+for (const b of BUCKETS)
+  console.assert(Math.abs(stage1[b] + stage2[b] - (finalTarget[b]-current[b])) <= 1e-6, `Net mismatch ${b}`);
+
+// 2) Stage-1 is self-funded
+const net = BUCKETS.reduce((s,b)=> s + stage1[b], 0);
+console.assert(Math.abs(net) <= 0.003, "Stage-1 not self-funded");
+
+// 3) No over/under-shoot per bucket
+for (const b of BUCKETS) {
+  const n = finalTarget[b] - current[b], s = stage1[b];
+  if (n >= 0) console.assert(s <= n + 1e-6 && s >= -1e-6, `Overshoot add ${b}`);
+  else        console.assert(s >= n - 1e-6 && s <=  1e-6, `Overshoot trim ${b}`);
+}
