@@ -501,14 +501,24 @@ export default function ToolModal({ isOpen, onClose, toolId }: ToolModalProps) {
                     <p className="text-sm text-[var(--muted-foreground)] mb-4">
                       Advanced pitch deck analysis with AI-powered insights
                     </p>
-                    <Link
-                      href="/pitch-deck-analyser"
-                      onClick={onClose}
+                    <button
+                      onClick={() => {
+                        // Open Pitch Deck Analyzer in popup window like in portfolio analysis
+                        const popup = window.open(
+                          '/pitch-deck-analyser',
+                          'PitchDeckAnalyzer',
+                          'width=1200,height=800,scrollbars=yes,resizable=yes,location=no,menubar=no,toolbar=no'
+                        );
+                        if (popup) {
+                          popup.focus();
+                        }
+                        onClose();
+                      }}
                       className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-[var(--radius-sm)] font-medium hover:bg-[var(--primary)]/90 transition-colors"
                     >
                       <i className="fas fa-external-link-alt text-sm"></i>
                       Open Full Analyser
-                    </Link>
+                    </button>
                   </div>
                 </div>
               ) : (
