@@ -5147,19 +5147,13 @@ function ActionPlanComponent({ userId }: { userId: string }) {
       const result = await response.json();
       console.log('Action Plan saved successfully:', result);
       
-      toast({
-        title: "Action Plan Saved!",
-        description: "Your investment playbook and actions have been saved successfully.",
-      });
+      // Use browser alert instead of toast to avoid errors
+      alert("✅ Action Plan Saved!\n\nYour investment playbook and actions have been saved successfully.");
       
     } catch (error) {
       console.error('Failed to save action plan:', error);
       if (error instanceof Error) {
-        toast({
-          title: "Save Failed",
-          description: error.message || "Unable to save your action plan. Please try again.",
-          variant: "destructive",
-        });
+        alert("❌ Save Failed\n\n" + (error.message || "Unable to save your action plan. Please try again."));
       } else {
         // If the error is not a proper Error object, it might be a success case being caught
         console.log('Non-error exception caught, possibly successful save');
