@@ -4585,6 +4585,20 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   const [activeStage, setActiveStage] = useState<1 | 2>(1);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to get current user ID (same as used by recommendations)
+  const getUserId = () => {
+    try {
+      const storedQuizData = localStorage.getItem('investorQuizData');
+      if (storedQuizData) {
+        const quizData = JSON.parse(storedQuizData);
+        return quizData.userId || `demo-${Date.now()}`;
+      }
+    } catch (error) {
+      console.log('Error reading quiz data for userId:', error);
+    }
+    return `demo-${Date.now()}`;
+  };
+
   // Don't auto-fetch on mount - let user click to generate
   // This prevents issues with mismatched user IDs
 
@@ -4593,9 +4607,9 @@ function ActionPlanComponent({ userId }: { userId: string }) {
     setError(null);
     
     try {
-      // Use current user - they just completed the portfolio steps
-      let actualUserId = userId;
-      console.log('Action Plan: Using current userId for Action Plan:', actualUserId);
+      // Use getUserId() to get the CURRENT active user (same as recommendations)
+      const actualUserId = getUserId();
+      console.log('Action Plan: Using current active userId (from getUserId):', actualUserId);
       
       // First try to get the actual saved portfolio value from preferences
       let portfolioValue = 100000; // Default fallback
