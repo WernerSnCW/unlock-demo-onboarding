@@ -221,7 +221,11 @@ export class DatabaseStorage implements IStorage {
           ...(actionPlan.stage1Actions !== undefined && { stage1Actions: actionPlan.stage1Actions }),
           ...(actionPlan.stage2Actions !== undefined && { stage2Actions: actionPlan.stage2Actions }),
           ...(actionPlan.summary !== undefined && { summary: actionPlan.summary }),
-          ...(actionPlan.actionPlanCompletedAt !== undefined && { actionPlanCompletedAt: actionPlan.actionPlanCompletedAt }),
+          ...(actionPlan.actionPlanCompletedAt !== undefined && { 
+            actionPlanCompletedAt: actionPlan.actionPlanCompletedAt instanceof Date 
+              ? actionPlan.actionPlanCompletedAt 
+              : new Date(actionPlan.actionPlanCompletedAt) 
+          }),
           ...(actionPlan.completionMethod !== undefined && { completionMethod: actionPlan.completionMethod }),
         }
       })
