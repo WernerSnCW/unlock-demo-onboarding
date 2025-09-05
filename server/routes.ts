@@ -537,7 +537,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'userId is required' });
       }
 
-      // Store action plan data
+      // Store action plan data with proper timestamp conversion
+      const completedAt = generatedAt ? new Date(generatedAt) : new Date();
       const actionPlanData = {
         userId,
         investorName: investorName || 'Unknown',
@@ -545,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stage1Actions: JSON.stringify(stage1Actions),
         stage2Actions: JSON.stringify(stage2Actions), 
         summary: JSON.stringify(summary),
-        actionPlanCompletedAt: generatedAt ? new Date(generatedAt) : new Date(),
+        actionPlanCompletedAt: completedAt,
         completionMethod: 'manual'
       };
 
