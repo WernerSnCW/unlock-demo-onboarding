@@ -133,19 +133,6 @@ export default function Dashboard() {
       return;
     }
     
-    // Special handling for property valuation - open property portfolio
-    if (toolId === 'property_valuation') {
-      const popup = window.open(
-        '/profile/portfolio',
-        'PropertyPortfolio',
-        'width=1200,height=800,scrollbars=yes,resizable=yes,location=no,menubar=no,toolbar=no'
-      );
-      if (popup) {
-        popup.focus();
-      }
-      return;
-    }
-    
     setSelectedTool(toolId);
     setIsToolModalOpen(true);
   };
