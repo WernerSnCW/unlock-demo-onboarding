@@ -272,5 +272,136 @@
       { "ts": "2025-08-11T16:00:00Z", "type": "update", "text": "Tech demo scheduled for next week." },
       { "ts": "2025-08-13T09:15:00Z", "type": "commit", "text": "New commitments: £90k." }
     ]
+  },
+  {
+    "id": "syn_004",
+    "businessId": "biz_045",
+    "company": "Unlock Services Limited",
+    "sector": ["Legal Tech", "AI & Machine Learning"],
+    "verified": true,
+    "stage": "Pre-Seed",
+    "targetRaiseGBP": 500000,
+    "committedPct": 45,
+    "minChequeGBP": 2500,
+    "closingDate": "2025-10-15",
+    "eligibility": { "EIS": true, "SEIS": true },
+    "lead": { 
+      "alias": "TechAngel_LT", 
+      "trackRecord": "8 exits in LegalTech", 
+      "bio": "Former partner at Magic Circle firm, now full-time angel investor" 
+    },
+    "interest": {
+      "overallPct": 68,
+      "likeYouPct": 34,
+      "cohorts": { "angels": 45, "funds": 35, "familyOffices": 20 },
+      "history": [25, 32, 41, 48, 56, 62, 68],
+      "confidenceScore": 76
+    },
+    "fee": {
+      "carryPct": 8,
+      "adminAnnualPct": 0.5,
+      "platformFeeGBP": 0,
+      "notes": "Reduced carry for early-stage. No platform fees."
+    },
+    "whyThis": {
+      "reasoning": "Massive inefficiency in due diligence processes creates billion-pound market opportunity. Unlock's AI-powered platform addresses clear pain point with strong early traction among angel investors and syndicates.",
+      "keyMetrics": [
+        "8 exits in lead's LegalTech track record",
+        "40+ beta users providing feedback",
+        "Pre-revenue but clear path to £10k+ MRR by Q2 2026"
+      ],
+      "riskFactors": [
+        "Early-stage execution risk",
+        "Competitive landscape with established players",
+        "Regulatory dependencies for financial data access"
+      ],
+      "opportunityFactors": [
+        "Founder-market fit with investment background",
+        "Clear monetization model with tiered pricing",
+        "Growing demand for automated due diligence",
+        "Strategic partnerships with investor networks"
+      ]
+    },
+    "benchmarks": {
+      "sector": "LegalTech",
+      "stageMedianPreMoneyGBP": 2000000,
+      "revMultipleX": 12.0,
+      "recentComps": [
+        { "name": "LegalZoom", "stage": "Pre-Seed", "preMoneyGBP": 2500000 },
+        { "name": "Ironclad", "stage": "Seed", "preMoneyGBP": 1800000 }
+      ]
+    },
+    "trust": {
+      "dataSources": 4,
+      "investorHistory": "Verified",
+      "dealLegitimacy": "High"
+    },
+    "activity": [
+      {
+        "ts": "2025-08-20T10:30:00Z",
+        "type": "qa",
+        "text": "Founder answered: market size and customer acquisition strategy.",
+        "qaData": {
+          "id": "qa_unlock_001",
+          "question": "What's your total addressable market and how do you plan to acquire your first 100 paying customers?",
+          "author": "InvestorSarah_K",
+          "timestamp": "2025-08-18T16:45:00Z",
+          "upvotes": 12,
+          "tags": ["market-size", "customer-acquisition"],
+          "answers": [
+            {
+              "id": "ans_unlock_001",
+              "author": "Unlock Founder",
+              "authorType": "founder",
+              "text": "The global due diligence market is worth £15B+ annually. In the UK alone, angel investors and family offices conduct 50k+ due diligence processes yearly. Our beta users are already asking for paid features - we're converting 25% of trial users to paid plans. Our go-to-market focuses on investor syndicates and angel networks where word-of-mouth is strong.",
+              "timestamp": "2025-08-20T10:30:00Z",
+              "verified": true
+            },
+            {
+              "id": "ans_unlock_002",
+              "author": "TechAngel_LT",
+              "authorType": "lead",
+              "text": "I've seen the early customer feedback - there's genuine demand here. The pain point is real and Unlock's solution is differentiated from generic research tools. The founder's network in the investment community is a significant advantage for distribution.",
+              "timestamp": "2025-08-20T14:20:00Z",
+              "verified": true
+            }
+          ]
+        }
+      },
+      {
+        "ts": "2025-08-22T09:15:00Z",
+        "type": "commit",
+        "text": "New commitments: £85k.",
+        "isNew": true
+      },
+      {
+        "ts": "2025-08-24T11:00:00Z",
+        "type": "update",
+        "text": "Lead shared product demo and roadmap overview."
+      },
+      {
+        "ts": "2025-08-19T14:20:00Z",
+        "type": "qa",
+        "text": "Question about technology differentiation and competitive moat.",
+        "qaData": {
+          "id": "qa_unlock_002",
+          "question": "How do you differentiate from existing research tools and what's your sustainable competitive advantage?",
+          "author": "TechInvestor_Pro",
+          "timestamp": "2025-08-19T14:20:00Z",
+          "upvotes": 7,
+          "tags": ["technology", "competition", "moat"],
+          "answers": [
+            {
+              "id": "ans_unlock_003",
+              "author": "Unlock Founder",
+              "authorType": "founder",
+              "text": "Unlike generic research tools, we're purpose-built for investment due diligence with structured claim extraction, confidence scoring, and red-flag detection. Our moat comes from proprietary data models trained on investment-specific patterns, plus our growing network of verified data sources. We're building the infrastructure layer for investment decision-making.",
+              "timestamp": "2025-08-19T17:30:00Z",
+              "verified": true
+            }
+          ]
+        }
+      }
+    ]
   }
 ]
