@@ -744,11 +744,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 78,
-      "followers": 1234,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 78,
+        "followers": 1234,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          78
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -814,11 +824,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 65,
-      "followers": 860,
-      "leadInvestors": 3,
-      "avgCheque": 5000000,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 65,
+        "followers": 860,
+        "leadInvestors": 3,
+        "avgChequeGBP": 5000000,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          65
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -884,11 +904,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 61,
-      "followers": 620,
-      "leadInvestors": 4,
-      "avgCheque": 3000000,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 61,
+        "followers": 620,
+        "leadInvestors": 4,
+        "avgChequeGBP": 3000000,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          61
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -954,11 +984,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 52,
-      "followers": 380,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 52,
+        "followers": 380,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          52
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -1024,11 +1064,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 57,
-      "followers": 500,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 57,
+        "followers": 500,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          57
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -1094,11 +1144,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 54,
-      "followers": 470,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 54,
+        "followers": 470,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          54
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -1164,11 +1224,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 59,
-      "followers": 420,
-      "leadInvestors": 2,
-      "avgCheque": 2000000,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 59,
+        "followers": 420,
+        "leadInvestors": 2,
+        "avgChequeGBP": 2000000,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          59
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -1234,11 +1304,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 53,
-      "followers": 460,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 53,
+        "followers": 460,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          53
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -1304,11 +1384,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 58,
-      "followers": 600,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 58,
+        "followers": 600,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          58
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
@@ -1374,11 +1464,21 @@
       }
     },
     "community": {
-      "syndicateInterestPct": 55,
-      "followers": 480,
-      "leadInvestors": 0,
-      "avgCheque": 0,
-      "questionsCount": 0,
+      "interest": {
+        "interestPct": 55,
+        "followers": 480,
+        "leadInvestors": 0,
+        "avgChequeGBP": 0,
+        "history": [
+          65,
+          67,
+          70,
+          72,
+          74,
+          76,
+          55
+        ]
+      },
       "questions": []
     },
     "addedAt": "2025-09-05"
