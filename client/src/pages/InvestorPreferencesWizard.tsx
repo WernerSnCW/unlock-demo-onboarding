@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -5182,67 +5182,75 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <TrendingUp className="w-8 h-8 text-[var(--primary)] mx-auto mb-2" />
-              <div className="text-2xl font-bold">{actionsData.summary.totalAbsChangePp}pp</div>
-              <div className="text-sm text-[var(--muted-foreground)]">Total Change</div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">{actionsData.summary.totalAbsChangePp}pp</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Total Change</div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--secondary)]/5 border-[var(--secondary)]/20 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <Activity className="w-8 h-8 text-[var(--secondary)] mx-auto mb-2" />
-              <div className="text-2xl font-bold">{actionsData.summary.estTurnoverPp}pp</div>
-              <div className="text-sm text-[var(--muted-foreground)]">Est. Turnover</div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--secondary)] to-[var(--info)] rounded-full flex items-center justify-center mx-auto">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-[var(--secondary)]">{actionsData.summary.estTurnoverPp}pp</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Est. Turnover</div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--success)]/5 border-[var(--success)]/20 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <DollarSign className="w-8 h-8 text-[var(--accent)] mx-auto mb-2" />
-              <div className="text-2xl font-bold">{(actionsData.summary.estCostPct * 100).toFixed(2)}%</div>
-              <div className="text-sm text-[var(--muted-foreground)]">Est. Cost</div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--success)] to-[var(--accent)] rounded-full flex items-center justify-center mx-auto">
+                <DollarSign className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-[var(--success)]">{(actionsData.summary.estCostPct * 100).toFixed(2)}%</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Est. Cost</div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--warning)]/5 border-[var(--warning)]/20 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <PiggyBank className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{actionsData.summary.liquidityNowPct}%</div>
-              <div className="text-sm text-[var(--muted-foreground)]">Current Liquidity</div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-[var(--warning)] to-[var(--accent)] rounded-full flex items-center justify-center mx-auto">
+                <PiggyBank className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-[var(--warning)]">{actionsData.summary.liquidityNowPct}%</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Current Liquidity</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Playbook */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
+      <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--accent)]/5 border-[var(--accent)]/20 shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--warning)]/10 rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-[var(--foreground)]">
+            <BookOpen className="w-5 h-5 text-[var(--warning)]" />
             Investment Playbook
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[var(--muted-foreground)]">
             Key strategic guidance for implementing your action plan
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
             {actionsData.playbook.map((bullet: string, index: number) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-semibold mt-0.5">
+              <div key={index} className="flex items-start gap-4 p-4 bg-gradient-to-r from-[var(--muted)]/20 to-transparent rounded-lg border-l-4 border-[var(--warning)] hover:from-[var(--accent)]/10 transition-all duration-300">
+                <div className="w-8 h-8 bg-gradient-to-r from-[var(--warning)] to-[var(--accent)] text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md">
                   {index + 1}
                 </div>
-                <p className="text-[var(--foreground)] leading-relaxed" dangerouslySetInnerHTML={{
-                  __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                <p className="text-[var(--foreground)] leading-relaxed font-medium" dangerouslySetInnerHTML={{
+                  __html: bullet.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[var(--primary)]">$1</strong>')
                 }} />
               </div>
             ))}
@@ -5256,13 +5264,13 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           <Button
             variant={activeStage === 1 ? "default" : "outline"}
             onClick={() => setActiveStage(1)}
-            className={`flex items-center gap-2 ${
+            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
               activeStage === 1 
-                ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90' 
-                : 'text-[var(--foreground)] hover:text-[var(--foreground)] border-[var(--border)]'
+                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white border-none hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90' 
+                : 'text-[var(--foreground)] hover:text-[var(--primary)] border-[var(--border)] hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5'
             }`}
           >
-            <Play className={`w-4 h-4 ${activeStage === 1 ? 'text-white' : 'text-[var(--foreground)]'}`} />
+            <Play className={`w-4 h-4 ${activeStage === 1 ? 'text-white' : 'text-[var(--primary)]'}`} />
             <span className={activeStage === 1 ? 'text-white' : 'text-[var(--foreground)]'}>
               Stage 1: Do Now ({actionsData.staged.stage1.length} actions)
             </span>
@@ -5270,13 +5278,13 @@ function ActionPlanComponent({ userId }: { userId: string }) {
           <Button
             variant={activeStage === 2 ? "default" : "outline"}
             onClick={() => setActiveStage(2)}
-            className={`flex items-center gap-2 ${
+            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
               activeStage === 2 
-                ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90' 
-                : 'text-[var(--foreground)] hover:text-[var(--foreground)] border-[var(--border)]'
+                ? 'bg-gradient-to-r from-[var(--secondary)] to-[var(--info)] text-white border-none hover:from-[var(--secondary)]/90 hover:to-[var(--info)]/90' 
+                : 'text-[var(--foreground)] hover:text-[var(--secondary)] border-[var(--border)] hover:border-[var(--secondary)]/50 hover:bg-[var(--secondary)]/5'
             }`}
           >
-            <Pause className={`w-4 h-4 ${activeStage === 2 ? 'text-white' : 'text-[var(--foreground)]'}`} />
+            <Pause className={`w-4 h-4 ${activeStage === 2 ? 'text-white' : 'text-[var(--secondary)]'}`} />
             <span className={activeStage === 2 ? 'text-white' : 'text-[var(--foreground)]'}>
               Stage 2: Later ({actionsData.staged.stage2.length} actions)
             </span>
@@ -5286,64 +5294,69 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         <Button
           variant="outline"
           onClick={exportToCSV}
-          className="flex items-center gap-2 text-[var(--foreground)] hover:text-[var(--foreground)] border-[var(--border)]"
+          className="flex items-center gap-2 px-6 py-3 font-semibold text-[var(--foreground)] hover:text-[var(--accent)] border-[var(--border)] hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/5 transition-all duration-300 shadow-lg hover:shadow-xl"
         >
-          <Download className="w-4 h-4 text-[var(--foreground)]" />
-          <span className="text-[var(--foreground)]">Export CSV</span>
+          <Download className="w-4 h-4 text-[var(--warning)]" />
+          <span>Export CSV</span>
         </Button>
       </div>
 
       {/* Actions Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/10 border-[var(--border)] shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-[var(--foreground)]">
+            <ListChecks className="w-5 h-5 text-[var(--primary)]" />
             {activeStage === 1 ? 'Immediate Actions' : 'Deferred Actions'}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[var(--muted-foreground)]">
             {activeStage === 1 
               ? 'Priority actions to implement immediately'
               : 'Lower priority or illiquid actions to consider later'
             }
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4">Action</th>
-                  <th className="text-left py-3 px-4">Asset Class</th>
-                  <th className="text-right py-3 px-4">Change (pp)</th>
-                  <th className="text-right py-3 px-4">Amount</th>
-                  <th className="text-left py-3 px-4">Rationale</th>
-                  <th className="text-right py-3 px-4">Est. Cost</th>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="text-left py-4 px-4 font-semibold text-[var(--muted-foreground)] uppercase tracking-wide text-sm">Action</th>
+                  <th className="text-left py-4 px-4 font-semibold text-[var(--muted-foreground)] uppercase tracking-wide text-sm">Asset Class</th>
+                  <th className="text-right py-4 px-4 font-semibold text-[var(--muted-foreground)] uppercase tracking-wide text-sm">Change (pp)</th>
+                  <th className="text-right py-4 px-4 font-semibold text-[var(--muted-foreground)] uppercase tracking-wide text-sm">Amount</th>
+                  <th className="text-left py-4 px-4 font-semibold text-[var(--muted-foreground)] uppercase tracking-wide text-sm">Rationale</th>
+                  <th className="text-right py-4 px-4 font-semibold text-[var(--muted-foreground)] uppercase tracking-wide text-sm">Est. Cost</th>
                 </tr>
               </thead>
               <tbody>
                 {currentActions.map((action: any, index: number) => (
-                  <tr key={index} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        {getActionIcon(action.type)}
-                        <span className="font-medium">{action.type}</span>
+                  <tr key={index} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/20 transition-colors duration-200">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10">
+                          {getActionIcon(action.type)}
+                        </div>
+                        <span className="font-semibold text-[var(--foreground)]">{action.type}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 font-medium">
+                    <td className="py-4 px-4 font-semibold text-[var(--foreground)]">
                       {formatBucketName(action.bucket)}
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      <span className={`font-semibold ${action.deltaPct > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {action.deltaPct > 0 ? '+' : ''}{(action.deltaPct * 100).toFixed(1)}%
+                    <td className="py-4 px-4 text-right">
+                      <span className={`font-bold text-lg ${action.deltaPct > 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                        {action.deltaPct > 0 ? '+' : ''}{(action.deltaPct * 100).toFixed(1)}pp
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-right font-semibold">
+                    <td className="py-4 px-4 text-right font-bold text-[var(--foreground)]">
                       {formatCurrency(action.amountGBP)}
                     </td>
-                    <td className="py-3 px-4 text-[var(--muted-foreground)]">
-                      {action.rationale}
+                    <td className="py-4 px-4">
+                      <span className="text-[var(--muted-foreground)] font-medium">{action.rationale}</span>
                     </td>
-                    <td className="py-3 px-4 text-right text-[var(--muted-foreground)]">
-                      {((action.estCostPct || 0) * 100).toFixed(3)}%
+                    <td className="py-4 px-4 text-right">
+                      <span className="text-[var(--primary)] font-bold">
+                        {((action.estCostPct || 0) * 100).toFixed(3)}%
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -5353,8 +5366,20 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         </CardContent>
       </Card>
 
+      {/* Regenerate Button */}
+      <div className="text-center mt-8 mb-6">
+        <Button 
+          onClick={generateActionPlan} 
+          variant="outline" 
+          className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white border-none hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-3"
+        >
+          <ArrowRight className="w-4 h-4 mr-2" />
+          Regenerate Action Plan
+        </Button>
+      </div>
+
       {/* Investor Summary Section */}
-      <Card className="mt-8">
+      <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 border-[var(--border)] shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5" />
@@ -5571,13 +5596,6 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         </CardContent>
       </Card>
 
-      {/* Refresh Button */}
-      <div className="text-center mt-6 mb-8">
-        <Button onClick={generateActionPlan} variant="outline" className="text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]">
-          <ArrowRight className="w-4 h-4 mr-2" />
-          Regenerate Action Plan
-        </Button>
-      </div>
     </div>
   );
 }
