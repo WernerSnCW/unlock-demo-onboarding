@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { Calculator, Presentation, FileText, Home, Wrench } from 'lucide-react';
 
 interface Tool {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ComponentType<any>;
 }
 
 interface MiniDockProps {
@@ -13,10 +14,10 @@ interface MiniDockProps {
 }
 
 const tools: Tool[] = [
-  { id: 'eis_allowance', name: 'EIS Allowance Calculator', icon: 'fas fa-calculator' },
-  { id: 'pitch_deck_analyser', name: 'Pitch Deck Analyser', icon: 'fas fa-presentation' },
-  { id: 'dd_snapshot', name: 'DD Snapshot', icon: 'fas fa-file-alt' },
-  { id: 'property_valuation', name: 'Property Valuation', icon: 'fas fa-home' }
+  { id: 'eis_allowance', name: 'EIS Allowance Calculator', icon: Calculator },
+  { id: 'pitch_deck_analyser', name: 'Pitch Deck Analyser', icon: Presentation },
+  { id: 'dd_snapshot', name: 'DD Snapshot', icon: FileText },
+  { id: 'property_valuation', name: 'Property Valuation', icon: Home }
 ];
 
 export default function MiniDock({ onToolOpen, isVisible, onToggle }: MiniDockProps) {
@@ -113,7 +114,7 @@ export default function MiniDock({ onToolOpen, isVisible, onToggle }: MiniDockPr
               }`}
             >
               <div className="w-8 h-8 bg-[var(--muted)] rounded-full flex items-center justify-center flex-shrink-0">
-                <i className={`${tool.icon} text-sm text-[var(--card-foreground)]`}></i>
+                <tool.icon className="w-4 h-4 text-[var(--card-foreground)]" />
               </div>
               <span className="text-sm font-medium text-[var(--card-foreground)]">
                 {tool.name}
@@ -129,9 +130,11 @@ export default function MiniDock({ onToolOpen, isVisible, onToggle }: MiniDockPr
         className="bg-[var(--accent)] text-[var(--accent-foreground)] px-4 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--ring)] flex items-center gap-2"
         aria-label="Toggle tools menu"
       >
-        <i className="fas fa-tools text-sm"></i>
+        <Wrench className="w-4 h-4" />
         <span className="text-sm font-medium">Tools</span>
-        <i className={`fas fa-chevron-up text-xs transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}></i>
+        <svg className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+        </svg>
       </button>
     </div>
   );
