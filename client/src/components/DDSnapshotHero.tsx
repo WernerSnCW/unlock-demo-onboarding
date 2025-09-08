@@ -18,97 +18,55 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
-    <div className="rounded-lg p-6 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, hsl(from var(--primary) h s calc(l - 0.1)) 100%)' }}>
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="mb-4">
-          <div className="flex justify-center mb-3">
+    <div className="rounded-lg p-4 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, hsl(from var(--primary) h s calc(l - 0.1)) 100%)' }}>
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <div className="bg-white/20 p-2 rounded-full">
-              <Building2 className="h-6 w-6 text-white" />
+              <Building2 className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white">
+                Request Due Diligence
+              </h1>
+              <p className="text-xs text-blue-100">
+                Get AI-powered business intelligence in minutes
+              </p>
             </div>
           </div>
-          
-          <h1 className="text-2xl font-bold text-white mb-2">
-            Request Due Diligence
-          </h1>
-          
-          <p className="text-sm text-blue-100 mb-4 max-w-2xl mx-auto">
-            Get comprehensive business intelligence reports in minutes. Analyze company filings, 
-            assess financial health, and identify potential risks with AI-powered insights.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
-            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: 'var(--secondary)' }}>
-              <TrendingUp className="h-5 w-5" style={{ color: 'var(--secondary-foreground)' }} />
-            </div>
-            <h3 className="font-semibold text-white mb-1">Financial Analysis</h3>
-            <p className="text-blue-100 text-xs leading-relaxed">
-              Revenue trends, profitability metrics, and financial stability assessment
-            </p>
+          <div className="flex gap-2">
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="px-4 bg-white hover:bg-blue-50 font-semibold" style={{ color: 'var(--primary)' }}>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Request Snapshot
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                    <Building2 className="h-5 w-5" />
+                    Request Due Diligence Snapshot
+                  </DialogTitle>
+                </DialogHeader>
+                <RequestForm 
+                  onSuccess={() => setIsFormOpen(false)}
+                  className="mt-4"
+                />
+              </DialogContent>
+            </Dialog>
+
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="px-3 bg-transparent border-white/30 text-white hover:bg-white/10"
+              onClick={() => window.open('/due-diligence', '_self')}
+            >
+              View All
+              <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
           </div>
-          
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
-            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: 'var(--accent)' }}>
-              <Building2 className="h-5 w-5" style={{ color: 'var(--accent-foreground)' }} />
-            </div>
-            <h3 className="font-semibold text-white mb-1">Risk Assessment</h3>
-            <p className="text-blue-100 text-xs leading-relaxed">
-              Compliance status, legal issues, and operational risk evaluation
-            </p>
-          </div>
-          
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
-            <div className="p-2 rounded-full inline-flex mb-2" style={{ backgroundColor: 'var(--secondary)' }}>
-              <TrendingUp className="h-5 w-5" style={{ color: 'var(--secondary-foreground)' }} />
-            </div>
-            <h3 className="font-semibold text-white mb-1">Market Position</h3>
-            <p className="text-blue-100 text-xs leading-relaxed">
-              Industry analysis, competitive landscape, and growth potential
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-              <Button className="px-6 bg-white hover:bg-blue-50 font-semibold" style={{ color: 'var(--primary)' }}>
-                <Building2 className="h-4 w-4 mr-2" />
-                Request Snapshot
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                  <Building2 className="h-5 w-5" />
-                  Request Due Diligence Snapshot
-                </DialogTitle>
-              </DialogHeader>
-              <RequestForm 
-                onSuccess={() => setIsFormOpen(false)}
-                className="mt-4"
-              />
-            </DialogContent>
-          </Dialog>
-
-          <Button 
-            variant="outline" 
-            className="px-6 bg-transparent border-white/30 text-white hover:bg-white/10 font-semibold"
-            onClick={() => window.open('/due-diligence', '_self')}
-          >
-            View All Requests
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
-        </div>
-
-        <div className="text-xs text-blue-100">
-          <span className="inline-flex items-center gap-1">
-            🚀 <strong className="text-white">Free tier:</strong> 3 snapshots per month
-          </span>
-          <span className="mx-2">•</span>
-          <span className="inline-flex items-center gap-1">
-            ⚡ <strong className="text-white">Typical delivery:</strong> ~2 minutes
-          </span>
         </div>
       </div>
     </div>
