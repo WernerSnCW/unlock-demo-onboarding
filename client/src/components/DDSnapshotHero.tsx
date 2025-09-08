@@ -18,11 +18,11 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
-    <div className="rounded-lg p-4 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, hsl(from var(--primary) h s calc(l - 0.1)) 100%)' }}>
+    <div className="rounded-2xl p-4 shadow-lg text-white" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, hsl(from var(--primary) h s calc(l - 0.1)) 100%)' }}>
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-2 rounded-full">
+            <div className="bg-white/20 p-2 rounded-xl">
               <Building2 className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -38,7 +38,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
           <div className="flex gap-2">
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="px-4 bg-white hover:bg-blue-50 font-semibold" style={{ color: 'var(--primary)' }}>
+                <Button size="sm" className="px-4 bg-white hover:bg-blue-50 font-semibold rounded-xl" style={{ color: 'var(--primary)' }}>
                   <Building2 className="h-4 w-4 mr-2" />
                   Request Snapshot
                 </Button>
@@ -60,7 +60,7 @@ export default function DDSnapshotHero({ onToolOpen }: DDSnapshotHeroProps) {
             <Button 
               variant="outline" 
               size="sm"
-              className="px-3 bg-transparent border-white/30 text-white hover:bg-white/10"
+              className="px-3 bg-transparent border-white/30 text-white hover:bg-white/10 rounded-xl"
               onClick={() => window.open('/due-diligence', '_self')}
             >
               View All
