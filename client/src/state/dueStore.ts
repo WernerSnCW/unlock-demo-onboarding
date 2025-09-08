@@ -53,7 +53,6 @@ export interface DueRequest {
     includeFraudRiskAssessment: boolean;
     includeFinancialHealth: boolean;
     includeManagement: boolean;
-    includeMarketingBrandManagement: boolean;
     includeClaimsManagement: boolean;
     includeInvestorValidation: boolean;
     attachments: string[];

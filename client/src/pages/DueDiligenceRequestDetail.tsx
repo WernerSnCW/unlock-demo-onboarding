@@ -252,12 +252,6 @@ export default function DueDiligenceRequestDetail() {
                         <span className="text-sm text-gray-600 dark:text-gray-400">Management</span>
                       </div>
                     )}
-                    {request.inputs.includeMarketingBrandManagement && (
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management</span>
-                      </div>
-                    )}
                     {request.inputs.includeClaimsManagement && (
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
@@ -459,13 +453,6 @@ export default function DueDiligenceRequestDetail() {
                             <div className="flex items-center gap-2">
                               <Check className="h-4 w-4 text-green-600" />
                               <span className="text-sm text-gray-600 dark:text-gray-400">Management</span>
-                              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
-                            </div>
-                          )}
-                          {request.inputs.includeMarketingBrandManagement && (
-                            <div className="flex items-center gap-2">
-                              <Check className="h-4 w-4 text-green-600" />
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Marketing & Brand Management</span>
                               <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">Complete</span>
                             </div>
                           )}
@@ -721,17 +708,6 @@ export default function DueDiligenceRequestDetail() {
                         </div>
                       )}
                       
-                      {/* Marketing & Brand Management */}
-                      {request.inputs.includeMarketingBrandManagement && (
-                        <div className="p-6 rounded-xl border" style={{ 
-                          backgroundColor: 'rgba(255, 152, 0, 0.1)', 
-                          borderColor: '#FF9800' 
-                        }}>
-                          <div className="text-3xl font-bold mb-2" style={{ color: '#FF9800' }}>7.9/10</div>
-                          <div className="text-base font-medium" style={{ color: '#FF9800' }}>Marketing & Brand</div>
-                          <div className="text-sm mt-1" style={{ color: '#FF9800' }}>Strong Brand Presence</div>
-                        </div>
-                      )}
                       
                       {/* Claims Management */}
                       {request.inputs.includeClaimsManagement && (

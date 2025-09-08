@@ -33,7 +33,6 @@ interface RequestFormData {
   includeFraudRiskAssessment: boolean;
   includeFinancialHealth: boolean;
   includeManagement: boolean;
-  includeMarketingBrandManagement: boolean;
   includeClaimsManagement: boolean;
   includeInvestorValidation: boolean;
   attachments: File[];
@@ -64,7 +63,6 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
     includeFraudRiskAssessment: false,
     includeFinancialHealth: false,
     includeManagement: false,
-    includeMarketingBrandManagement: false,
     includeClaimsManagement: false,
     includeInvestorValidation: false,
     attachments: [],
@@ -155,7 +153,6 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
         includeFraudRiskAssessment: formData.includeFraudRiskAssessment,
         includeFinancialHealth: formData.includeFinancialHealth,
         includeManagement: formData.includeManagement,
-        includeMarketingBrandManagement: formData.includeMarketingBrandManagement,
         includeClaimsManagement: formData.includeClaimsManagement,
         includeInvestorValidation: formData.includeInvestorValidation,
         attachments: formData.attachments.map(f => f.name),
@@ -184,7 +181,6 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
       includeFraudRiskAssessment: false,
       includeFinancialHealth: false,
       includeManagement: false,
-      includeMarketingBrandManagement: false,
       includeClaimsManagement: false,
       includeInvestorValidation: false,
       attachments: [],
@@ -348,14 +344,6 @@ export function RequestForm({ onSuccess, className }: RequestFormProps) {
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeManagement: !!checked }))}
               />
               <Label htmlFor="management" className="text-sm font-normal text-gray-700 dark:text-gray-300">Management</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="marketing-brand-management"
-                checked={formData.includeMarketingBrandManagement}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, includeMarketingBrandManagement: !!checked }))}
-              />
-              <Label htmlFor="marketing-brand-management" className="text-sm font-normal text-gray-700 dark:text-gray-300">Marketing & Brand Management</Label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
