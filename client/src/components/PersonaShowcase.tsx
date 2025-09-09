@@ -158,111 +158,140 @@ const PersonaDetailDialog: React.FC<{
 
   return (
     <Dialog open={!!persona} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <Badge variant="outline">{persona.code}</Badge>
-            <span>{persona.name}</span>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border-2" style={{ borderColor: 'var(--primary)', backgroundColor: 'var(--card)' }}>
+        {/* Enhanced Header with brand colors */}
+        <div className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] p-6 -m-6 mb-6 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-white">
+              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                {persona.code}
+              </Badge>
+              <span className="text-xl font-bold">{persona.name}</span>
+            </DialogTitle>
+          </DialogHeader>
+        </div>
         
-        <div className="space-y-6">
+        <div className="space-y-6 px-2">
           {/* Overview */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-semibold text-[var(--card-foreground)] mb-2">Portfolio Value</h4>
-              <p className="text-2xl font-bold text-[var(--primary)]">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br p-4 rounded-xl" style={{ backgroundColor: 'var(--muted)' }}>
+              <h4 className="font-semibold mb-2" style={{ color: 'var(--card-foreground)' }}>Portfolio Value</h4>
+              <p className="text-3xl font-bold" style={{ color: 'var(--primary)' }}>
                 {formatPortfolioValue(persona.portfolioValue)}
               </p>
-              <p className="text-sm text-[var(--muted-foreground)]">{persona.wealthTier}</p>
+              <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>{persona.wealthTier}</p>
             </div>
-            <div>
-              <h4 className="font-semibold text-[var(--card-foreground)] mb-2">Risk Profile</h4>
-              <Badge className={getRiskProfileColor(persona.riskProfile)}>
+            <div className="bg-gradient-to-br p-4 rounded-xl" style={{ backgroundColor: 'var(--muted)' }}>
+              <h4 className="font-semibold mb-2" style={{ color: 'var(--card-foreground)' }}>Risk Profile</h4>
+              <Badge className={`${getRiskProfileColor(persona.riskProfile)} text-sm px-3 py-1 mb-2`}>
                 {persona.riskProfile}
               </Badge>
-              <p className="text-sm text-[var(--muted-foreground)] mt-1">
+              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
                 {persona.approach.replace('_', ' ')} approach
               </p>
             </div>
           </div>
           
           {/* Investment Characteristics */}
-          <div>
-            <h4 className="font-semibold mb-3" style={{ color: 'var(--card-foreground)' }}>Investment Characteristics</h4>
-            <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--muted)' }}>
-              <p className="italic mb-4" style={{ color: 'var(--muted-foreground)' }}>"{persona.notes}"</p>
+          <div className="rounded-xl p-6" style={{ backgroundColor: 'var(--muted)' }}>
+            <h4 className="font-semibold mb-4 text-lg" style={{ color: 'var(--card-foreground)' }}>Investment Characteristics</h4>
+            
+            <div className="mb-6 p-4 rounded-lg border-l-4" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)' }}>
+              <p className="italic text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>"{persona.notes}"</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+                  <span className="font-medium text-sm" style={{ color: 'var(--muted-foreground)' }}>Liquidity</span>
+                </div>
+                <p className="text-lg font-bold" style={{ color: 'var(--card-foreground)' }}>{persona.liquidityMonths} months</p>
+              </div>
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Liquidity Preference:</span>
-                  <p style={{ color: 'var(--card-foreground)' }}>{persona.liquidityMonths} months</p>
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <ArrowDown className="h-4 w-4" style={{ color: 'var(--secondary)' }} />
+                  <span className="font-medium text-sm" style={{ color: 'var(--muted-foreground)' }}>Drawdown</span>
                 </div>
-                <div>
-                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Drawdown Tolerance:</span>
-                  <p style={{ color: 'var(--card-foreground)' }}>{(persona.drawdownCap * 100).toFixed(0)}%</p>
+                <p className="text-lg font-bold" style={{ color: 'var(--card-foreground)' }}>{(persona.drawdownCap * 100).toFixed(0)}%</p>
+              </div>
+              
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+                  <span className="font-medium text-sm" style={{ color: 'var(--muted-foreground)' }}>Concentration</span>
                 </div>
-                <div>
-                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Concentration:</span>
-                  <p className="capitalize" style={{ color: 'var(--card-foreground)' }}>{persona.concentrationTolerance}</p>
-                </div>
+                <p className="text-lg font-bold capitalize" style={{ color: 'var(--card-foreground)' }}>{persona.concentrationTolerance}</p>
               </div>
             </div>
           </div>
           
           {/* Investment Biases */}
-          <div>
-            <h4 className="font-semibold mb-3" style={{ color: 'var(--card-foreground)' }}>Investment Biases</h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Home className="h-4 w-4" style={{ color: 'var(--accent)' }} />
-                  <span style={{ color: 'var(--card-foreground)' }}>Property</span>
+          <div className="rounded-xl p-6" style={{ backgroundColor: 'var(--muted)' }}>
+            <h4 className="font-semibold mb-4 text-lg" style={{ color: 'var(--card-foreground)' }}>Investment Biases</h4>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
+                    <Home className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Property</span>
                 </div>
-                <div className="w-32 rounded-full h-2" style={{ backgroundColor: 'var(--muted)' }}>
-                  <div 
-                    className="h-2 rounded-full" 
-                    style={{ 
-                      width: `${persona.propertyBias * 100}%`,
-                      backgroundColor: 'var(--accent)'
-                    }}
-                  ></div>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 rounded-full h-3" style={{ backgroundColor: 'var(--muted)' }}>
+                    <div 
+                      className="h-3 rounded-full" 
+                      style={{ 
+                        width: `${persona.propertyBias * 100}%`,
+                        backgroundColor: 'var(--accent)'
+                      }}
+                    ></div>
+                  </div>
+                  <span className="font-semibold min-w-[3rem] text-right" style={{ color: 'var(--card-foreground)' }}>{(persona.propertyBias * 100).toFixed(0)}%</span>
                 </div>
-                <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>{(persona.propertyBias * 100).toFixed(0)}%</span>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4" style={{ color: 'var(--primary)' }} />
-                  <span style={{ color: 'var(--card-foreground)' }}>Technology</span>
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--primary)' }}>
+                    <Zap className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Technology</span>
                 </div>
-                <div className="w-32 rounded-full h-2" style={{ backgroundColor: 'var(--muted)' }}>
-                  <div 
-                    className="h-2 rounded-full" 
-                    style={{ 
-                      width: `${persona.techBias * 100}%`,
-                      backgroundColor: 'var(--primary)'
-                    }}
-                  ></div>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 rounded-full h-3" style={{ backgroundColor: 'var(--muted)' }}>
+                    <div 
+                      className="h-3 rounded-full" 
+                      style={{ 
+                        width: `${persona.techBias * 100}%`,
+                        backgroundColor: 'var(--primary)'
+                      }}
+                    ></div>
+                  </div>
+                  <span className="font-semibold min-w-[3rem] text-right" style={{ color: 'var(--card-foreground)' }}>{(persona.techBias * 100).toFixed(0)}%</span>
                 </div>
-                <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>{(persona.techBias * 100).toFixed(0)}%</span>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" style={{ color: 'var(--secondary)' }} />
-                  <span style={{ color: 'var(--card-foreground)' }}>Alternatives</span>
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--secondary)' }}>
+                    <TrendingUp className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Alternatives</span>
                 </div>
-                <div className="w-32 rounded-full h-2" style={{ backgroundColor: 'var(--muted)' }}>
-                  <div 
-                    className="h-2 rounded-full" 
-                    style={{ 
-                      width: `${persona.altBias * 100}%`,
-                      backgroundColor: 'var(--secondary)'
-                    }}
-                  ></div>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 rounded-full h-3" style={{ backgroundColor: 'var(--muted)' }}>
+                    <div 
+                      className="h-3 rounded-full" 
+                      style={{ 
+                        width: `${persona.altBias * 100}%`,
+                        backgroundColor: 'var(--secondary)'
+                      }}
+                    ></div>
+                  </div>
+                  <span className="font-semibold min-w-[3rem] text-right" style={{ color: 'var(--card-foreground)' }}>{(persona.altBias * 100).toFixed(0)}%</span>
                 </div>
-                <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>{(persona.altBias * 100).toFixed(0)}%</span>
               </div>
             </div>
           </div>
