@@ -756,9 +756,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const result = {
         summary: {
-          currentPortfolioValue: portfolioValueGBP,
-          projectedPortfolioValue: newPortfolioValue,
-          totalValueChange: totalValueChange,
+          currentPortfolioValue: Math.round(portfolioValueGBP * 100) / 100,
+          projectedPortfolioValue: Math.round(newPortfolioValue * 100) / 100,
+          totalValueChange: Math.round(totalValueChange * 100) / 100,
           percentageChange: weightedPortfolioReturn,
           totalScenarioWeight: totalWeight
         },
