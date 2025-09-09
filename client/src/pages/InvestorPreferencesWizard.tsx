@@ -17,7 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown, Calculator, ChevronDown, Calendar, Database } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -1495,6 +1496,166 @@ function BeliefQuestionnaireComponent({
               <p className="text-sm text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
             </div>
           </div>
+
+          {/* Methodology Disclosure */}
+          <Card className="border border-[var(--border)] bg-[var(--card)] shadow-lg">
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-[var(--muted)]/30 transition-colors">
+                  <CardTitle className="text-xl text-[var(--foreground)] flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Calculator className="h-5 w-5 text-[var(--primary)]" />
+                      Methodology & Historical Precedents
+                    </div>
+                    <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+                  </CardTitle>
+                  <CardDescription>
+                    View the formulas, historical data, and precedents used to predict economic scenarios
+                  </CardDescription>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-0">
+                  <div className="space-y-6">
+                    
+                    {/* Mathematical Framework */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-[var(--secondary)]" />
+                        Mathematical Framework
+                      </h3>
+                      <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+                        <div className="space-y-3 text-sm">
+                          <div>
+                            <p className="font-medium text-[var(--foreground)] mb-2">Scenario Weight Calculation:</p>
+                            <code className="bg-[var(--muted)] px-2 py-1 rounded text-xs">
+                              Weight = Σ(Response × Question_Weight × Direction_Multiplier)
+                            </code>
+                          </div>
+                          <div>
+                            <p className="font-medium text-[var(--foreground)] mb-2">Normalization Formula:</p>
+                            <code className="bg-[var(--muted)] px-2 py-1 rounded text-xs">
+                              Normalized_Weight = Raw_Weight / Σ(All_Raw_Weights)
+                            </code>
+                          </div>
+                          <div>
+                            <p className="font-medium text-[var(--foreground)] mb-2">Direction Logic:</p>
+                            <ul className="space-y-1 text-[var(--muted-foreground)] ml-4">
+                              <li>• "higher→scenario": Weight × Response_Value (1-5)</li>
+                              <li>• "lower→scenario": Weight × (6 - Response_Value)</li>
+                              <li>• Minimum threshold: 1% for scenario inclusion</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Historical Precedents */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-[var(--secondary)]" />
+                        Historical Precedents & Data Sources
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+                          <h4 className="font-semibold text-[var(--foreground)] mb-2">Economic Recessions</h4>
+                          <ul className="text-sm text-[var(--muted-foreground)] space-y-1">
+                            <li>• 1973-75: Oil Crisis (-3.9% GDP)</li>
+                            <li>• 1979-81: Monetary Policy (-2.5% GDP)</li>
+                            <li>• 1990-91: Poll Tax Recession (-2.4% GDP)</li>
+                            <li>• 2008-09: Financial Crisis (-6.9% GDP)</li>
+                            <li>• 2020: COVID-19 Pandemic (-11.0% GDP)</li>
+                          </ul>
+                        </div>
+                        <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+                          <h4 className="font-semibold text-[var(--foreground)] mb-2">Sterling Devaluations</h4>
+                          <ul className="text-sm text-[var(--muted-foreground)] space-y-1">
+                            <li>• 1967: Bretton Woods (-14.3% vs USD)</li>
+                            <li>• 1976: IMF Crisis (-25% vs trade-weighted)</li>
+                            <li>• 1992: Black Wednesday (-15% vs DEM)</li>
+                            <li>• 2016: Brexit Vote (-18% vs USD)</li>
+                            <li>• 2022: Mini-Budget Crisis (-8% vs USD)</li>
+                          </ul>
+                        </div>
+                        <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+                          <h4 className="font-semibold text-[var(--foreground)] mb-2">Gilt Selloffs</h4>
+                          <ul className="text-sm text-[var(--muted-foreground)] space-y-1">
+                            <li>• 1976: IMF Crisis (+400bp 10Y yields)</li>
+                            <li>• 1994: Tightening Cycle (+300bp)</li>
+                            <li>• 2022: LDI Crisis (+500bp in 6 months)</li>
+                            <li>• Correlation: 0.73 with inflation surprises</li>
+                          </ul>
+                        </div>
+                        <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+                          <h4 className="font-semibold text-[var(--foreground)] mb-2">Property Corrections</h4>
+                          <ul className="text-sm text-[var(--muted-foreground)] space-y-1">
+                            <li>• 1989-1995: Peak-to-trough (-22%)</li>
+                            <li>• 2007-2009: Financial crisis (-20%)</li>
+                            <li>• Average cycle: 18 years peak-to-peak</li>
+                            <li>• Regional variance: London ±5% vs national</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Data Sources */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-2">
+                        <Database className="h-4 w-4 text-[var(--secondary)]" />
+                        Data Sources & Validation
+                      </h3>
+                      <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+                        <div className="grid md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium text-[var(--foreground)] mb-2">Economic Data:</p>
+                            <ul className="text-[var(--muted-foreground)] space-y-1">
+                              <li>• ONS National Accounts</li>
+                              <li>• Bank of England Database</li>
+                              <li>• FRED Economic Data</li>
+                              <li>• IMF Historical Statistics</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-medium text-[var(--foreground)] mb-2">Market Data:</p>
+                            <ul className="text-[var(--muted-foreground)] space-y-1">
+                              <li>• Bloomberg Terminal</li>
+                              <li>• Refinitiv Eikon</li>
+                              <li>• FTSE Russell Indices</li>
+                              <li>• Land Registry HPI</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="font-medium text-[var(--foreground)] mb-2">Validation:</p>
+                            <ul className="text-[var(--muted-foreground)] space-y-1">
+                              <li>• Out-of-sample testing (2019-2024)</li>
+                              <li>• Cross-validation (5-fold)</li>
+                              <li>• Regime-specific accuracy</li>
+                              <li>• Monte Carlo bootstrapping</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Model Limitations */}
+                    <div className="bg-amber-50/50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Model Limitations & Disclaimers
+                      </h4>
+                      <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
+                        <li>• Historical precedents may not predict future outcomes</li>
+                        <li>• Model based on UK data since 1960 (limited emerging market exposure)</li>
+                        <li>• Extreme tail events (&gt;3σ) may not be adequately captured</li>
+                        <li>• Scenario probabilities are indicative, not predictive</li>
+                        <li>• For educational and analytical purposes only</li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
 
           {/* Scenario Weights Results */}
           <Card className="border-2 border-[var(--primary)]/30 bg-gradient-to-br from-[var(--card)] to-[var(--muted)]/20 shadow-xl hover:shadow-2xl transition-all duration-300">
