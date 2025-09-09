@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -3030,6 +3031,200 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
       {/* Scenario Impact Analysis Section - Full Width */}
       <ScenarioImpactAnalysis onTabChange={onTabChange} />
     </div>
+  );
+}
+
+// Scenario Weight Adjustment Component
+function ScenarioWeightAdjustment({ 
+  originalWeights, 
+  customWeights, 
+  isUsingCustom,
+  onWeightsChange,
+  onResetToBeliefs 
+}: {
+  originalWeights: any[];
+  customWeights: any[];
+  isUsingCustom: boolean;
+  onWeightsChange: (weights: any[]) => void;
+  onResetToBeliefs: () => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Get scenario info for display
+  const getScenarioInfo = useCallback((beliefScenario: string): { name: string; description: string } => {
+    const scenarioMapping: Record<string, string> = {
+      'property_down': 'S001',
+      'recession': 'S002', 
+      'stagflation': 'S003',
+      'tech_correction': 'S004',
+      'reflation': 'S006',
+      'gilt_selloff': 'S009',
+      'energy_spike': 'S007',
+      'devaluation': 'S005'
+    };
+
+    const scenarioCode = scenarioMapping[beliefScenario] || beliefScenario;
+    
+    // Map to display names
+    const nameMapping: Record<string, string> = {
+      'S001': 'Property Correction',
+      'S002': 'AI-Driven Recession', 
+      'S003': 'Stagflation Resurgence',
+      'S004': 'Tech & Speculative Asset Burst',
+      'S005': 'Sterling Devaluation',
+      'S006': 'Reflation Rally',
+      'S007': 'Energy Spike',
+      'S009': 'Gilt Market Selloff',
+      'property_down': 'Property Correction',
+      'recession': 'AI-Driven Recession',
+      'stagflation': 'Stagflation Resurgence', 
+      'tech_correction': 'Tech & Speculative Asset Burst',
+      'devaluation': 'Sterling Devaluation',
+      'reflation': 'Reflation Rally',
+      'energy_spike': 'Energy Spike',
+      'gilt_selloff': 'Gilt Market Selloff'
+    };
+
+    return {
+      name: nameMapping[beliefScenario] || nameMapping[scenarioCode] || beliefScenario,
+      description: `Economic scenario: ${nameMapping[beliefScenario] || beliefScenario}`
+    };
+  }, []);
+
+  // Handle weight adjustment with normalization
+  const handleWeightChange = (scenarioIndex: number, newWeight: number) => {
+    const updatedWeights = [...customWeights];
+    updatedWeights[scenarioIndex] = {
+      ...updatedWeights[scenarioIndex],
+      normalizedWeight: newWeight / 100
+    };
+    
+    // Normalize all weights to sum to 1
+    const totalWeight = updatedWeights.reduce((sum, w) => sum + w.normalizedWeight, 0);
+    if (totalWeight > 0) {
+      updatedWeights.forEach(w => {
+        w.normalizedWeight = w.normalizedWeight / totalWeight;
+      });
+    }
+    
+    onWeightsChange(updatedWeights);
+  };
+
+  // Filter to show only non-masked scenarios
+  const visibleScenarios = customWeights.filter(w => !w.isMasked && w.normalizedWeight > 0);
+
+  if (visibleScenarios.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="border-0 shadow-lg mb-8">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/20 rounded-lg">
+              <Calculator className="h-5 w-5 text-[var(--primary)]" />
+            </div>
+            <div>
+              <CardTitle className="text-xl text-[var(--foreground)]">
+                Scenario Weight Adjustment
+              </CardTitle>
+              <CardDescription className="text-[var(--muted-foreground)]">
+                Fine-tune the probability weights based on your outlook
+                {isUsingCustom && (
+                  <Badge variant="outline" className="ml-2 text-xs">Custom Weights</Badge>
+                )}
+              </CardDescription>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onResetToBeliefs}
+              className="text-xs"
+              disabled={!isUsingCustom}
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Reset to Beliefs
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      
+      {isExpanded && (
+        <CardContent>
+          <div className="space-y-6">
+            <div className="grid gap-4">
+              {visibleScenarios.map((scenario, index) => {
+                const actualIndex = customWeights.findIndex(w => w.scenario === scenario.scenario);
+                const scenarioInfo = getScenarioInfo(scenario.scenario);
+                const percentage = Math.round(scenario.normalizedWeight * 100);
+                const originalPercentage = Math.round((originalWeights.find(w => w.scenario === scenario.scenario)?.normalizedWeight || 0) * 100);
+                
+                return (
+                  <div key={scenario.scenario} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-[var(--foreground)]">
+                          {scenarioInfo.name}
+                        </h4>
+                        <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
+                          <span>Current: {percentage}%</span>
+                          <span>Original (from beliefs): {originalPercentage}%</span>
+                          {percentage !== originalPercentage && (
+                            <Badge variant="outline" className="text-xs">
+                              {percentage > originalPercentage ? '+' : ''}{percentage - originalPercentage}%
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right min-w-[60px]">
+                        <span className="text-lg font-semibold text-[var(--foreground)]">
+                          {percentage}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="px-2">
+                      <Slider
+                        value={[percentage]}
+                        onValueChange={(value) => handleWeightChange(actualIndex, value[0])}
+                        max={100}
+                        min={0}
+                        step={1}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="bg-[var(--muted)]/20 p-4 rounded-lg border border-[var(--border)]">
+              <div className="flex items-start gap-2">
+                <Info className="h-4 w-4 text-[var(--muted-foreground)] mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  <p className="font-medium mb-1">How it works:</p>
+                  <ul className="space-y-1">
+                    <li>• Adjust individual scenario probabilities using the sliders</li>
+                    <li>• Weights automatically normalize to sum to 100%</li>
+                    <li>• Changes will update the portfolio impact analysis below</li>
+                    <li>• Use "Reset to Beliefs" to return to your questionnaire-based weights</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      )}
+    </Card>
   );
 }
 
