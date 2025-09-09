@@ -553,26 +553,22 @@ export default function PersonaShowcase({ onPersonaSelect, showSelection = false
         ))}
       </div>
       
-      {/* Statistics */}
-      <div className="bg-[var(--muted)] rounded-xl p-6 mt-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold text-[var(--primary)]">19</div>
-            <div className="text-sm text-[var(--muted-foreground)]">Unique Personas</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-[var(--primary)]">8</div>
-            <div className="text-sm text-[var(--muted-foreground)]">Dimensions</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-[var(--primary)]">£280K-£2.8M</div>
-            <div className="text-sm text-[var(--muted-foreground)]">Portfolio Range</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-[var(--primary)]">5</div>
-            <div className="text-sm text-[var(--muted-foreground)]">Wealth Tiers</div>
-          </div>
-        </div>
+      {/* Continue Button */}
+      <div className="flex justify-center mt-8">
+        <Button 
+          onClick={() => {
+            // Navigate to next tab - assuming this is called from parent component
+            if (onPersonaSelect) {
+              // Trigger navigation to next step
+              window.dispatchEvent(new CustomEvent('navigateToNextTab'));
+            }
+          }}
+          className="px-8 py-3 text-lg font-semibold" 
+          style={{ backgroundColor: 'var(--primary)' }}
+          data-testid="button-continue-to-next-tab"
+        >
+          Continue to Investment Preferences →
+        </Button>
       </div>
       
       {/* Persona Detail Dialog */}
