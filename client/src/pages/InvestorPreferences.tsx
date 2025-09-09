@@ -1720,8 +1720,14 @@ function PersonaQuizContent() {
           
           <CardContent className="relative space-y-6">
             <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10">
-              <p className="text-lg leading-relaxed text-[var(--foreground)]">
-                {result.topMatch.persona.notes}
+              <p className="text-lg leading-relaxed text-center font-medium text-[var(--foreground)]">
+                {result.topMatch.persona.description}
+              </p>
+            </div>
+            
+            <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] border-l-4 border-l-[var(--primary)]">
+              <p className="text-sm italic text-[var(--muted-foreground)]">
+                "{result.topMatch.persona.notes}"
               </p>
             </div>
             
