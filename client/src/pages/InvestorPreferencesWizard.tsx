@@ -133,9 +133,9 @@ const mainTabs = [
   { id: 'preferences', title: 'Investment Preferences', icon: Target, description: '3 steps to capture your investment interests' },
   { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
   { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
-  { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Coming soon - analyze your current holdings' },
-  { id: 'strategy', title: 'Portfolio Recommendations', icon: TrendingUp, description: 'Coming soon - develop your investment strategy' },
-  { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Coming soon - create your personalized action plan' }
+  { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Comprehensive analysis of your current holdings and performance' },
+  { id: 'strategy', title: 'Portfolio Recommendations', icon: TrendingUp, description: 'AI-powered investment strategy tailored to your preferences' },
+  { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Prioritized action steps to optimize your investment portfolio' }
 ];
 
 export default function InvestorPreferencesWizard() {
