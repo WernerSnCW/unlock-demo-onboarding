@@ -3404,7 +3404,13 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
           {/* Continue Button */}
           <div className="mt-8 flex justify-center">
             <Button 
-              onClick={() => onTabChange('strategy')}
+              onClick={() => {
+                onTabChange('strategy');
+                // Auto-scroll to top after tab change
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 200);
+              }}
               size="lg"
               className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
               data-testid="button-continue-to-strategy"
