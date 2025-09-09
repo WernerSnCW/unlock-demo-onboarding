@@ -3055,7 +3055,23 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
         {/* Core Summary Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-            <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-1">Total Changes</h4>
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="font-semibold text-blue-900 dark:text-blue-200">Total Changes</h4>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 text-sm">
+                  <div className="space-y-2">
+                    <p className="font-medium">Total Changes Required</p>
+                    <p>How much of your portfolio needs to be rebalanced to reach your target allocation - think of it like reorganizing your entire investment mix.</p>
+                    <p>Sum of all absolute percentage point moves required across asset classes. Calculated as Σ|target% - current%| to measure total rebalancing magnitude.</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="mb-3">
               <span className="inline-block text-xs bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded font-medium text-blue-700 dark:text-blue-200">
                 {gapData.turnoverPp}pp turnover
@@ -3067,14 +3083,46 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
             <p className="text-sm text-blue-600 dark:text-blue-400">Portfolio rebalancing required</p>
           </div>
           <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-            <h4 className="font-semibold text-green-900 dark:text-green-200">Current Liquidity</h4>
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="font-semibold text-green-900 dark:text-green-200">Current Liquidity</h4>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 text-sm">
+                  <div className="space-y-2">
+                    <p className="font-medium">Current Liquidity Position</p>
+                    <p>How much of your portfolio is currently in cash or assets you can quickly turn into cash for emergencies or opportunities.</p>
+                    <p>Percentage allocated to highly liquid assets (cash + short-term government bonds), calculated as (CASH + BILLS_SHORT_GILTS) × 100.</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             <p className="text-2xl font-bold text-green-700 dark:text-green-300">
               {(gapData.totals.cashBillsNow * 100).toFixed(1)}%
             </p>
             <p className="text-sm text-green-600 dark:text-green-400">Cash & short-term bonds</p>
           </div>
           <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-            <h4 className="font-semibold text-purple-900 dark:text-purple-200">Target Liquidity</h4>
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="font-semibold text-purple-900 dark:text-purple-200">Target Liquidity</h4>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 text-sm">
+                  <div className="space-y-2">
+                    <p className="font-medium">Target Liquidity Level</p>
+                    <p>The ideal amount of cash and near-cash assets you should hold based on your risk profile and investment approach for financial flexibility.</p>
+                    <p>Recommended liquid asset allocation determined by investor persona, risk profile, and liquidity floor constraints (typically 10-20% depending on risk tolerance).</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
               {(gapData.totals.cashBillsTarget * 100).toFixed(1)}%
             </p>
@@ -3103,7 +3151,23 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
           {/* Diversification Card */}
           {gapData.diversification && (
             <div className="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl border border-teal-200 dark:border-teal-800">
-              <h4 className="font-semibold text-teal-900 dark:text-teal-200 text-sm">Diversification</h4>
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="font-semibold text-teal-900 dark:text-teal-200 text-sm">Diversification</h4>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                      <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 text-sm">
+                    <div className="space-y-2">
+                      <p className="font-medium">Portfolio Diversification</p>
+                      <p>How spread out your investments are - lower numbers mean better diversification and less risk from having too much in any one investment type.</p>
+                      <p>Herfindahl-Hirschman Index (HHI) measuring portfolio concentration. Lower HHI indicates better diversification. N represents effective number of equally-weighted holdings.</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <p className="text-xl font-bold text-teal-700 dark:text-teal-300">
                 {gapData.diversification.deltaHhi > 0 ? '+' : ''}{(gapData.diversification.deltaHhi * 1000).toFixed(1)} HHI
                 <span className="text-sm ml-2">
