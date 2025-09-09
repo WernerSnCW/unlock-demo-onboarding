@@ -3095,14 +3095,35 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
       }
       const prefsData = await prefsResponse.json();
 
-      if (!prefsData.actualPortfolioAllocations || !prefsData.actualPortfolioValue) {
-        throw new Error('Please complete your actual portfolio allocation first.');
+      // Use actual portfolio if available, otherwise use default sample portfolio
+      let currentMix, portfolioValue;
+      
+      if (prefsData.actualPortfolioAllocations && prefsData.actualPortfolioValue) {
+        // Use actual user portfolio data
+        const allocations = JSON.parse(prefsData.actualPortfolioAllocations);
+        currentMix = convertFormToDetailedMix(allocations);
+        portfolioValue = prefsData.actualPortfolioValue;
+      } else {
+        // Use default sample portfolio for demonstration
+        portfolioValue = 500000; // £500k default
+        currentMix = {
+          CASH: 0.05,
+          BILLS_SHORT_GILTS: 0.10,
+          GILTS_LONG: 0.05,
+          IG_CREDIT: 0.15,
+          GLOBAL_EQUITY: 0.25,
+          UK_EQUITY_VALUE: 0.15,
+          GROWTH_TECH: 0.10,
+          PROPERTY_UK_RESI: 0.08,
+          COMMODITIES: 0.03,
+          GOLD: 0.02,
+          ALTERNATIVES: 0.05,
+          CRYPTO_BTC: 0.01,
+          CRYPTO_ETH: 0.01,
+          COLLECTIBLES_ART: 0,
+          COLLECTIBLES_WINE: 0
+        };
       }
-
-      // Parse the allocations and convert to detailed asset class mix
-      const allocations = JSON.parse(prefsData.actualPortfolioAllocations);
-      const currentMix = convertFormToDetailedMix(allocations);
-      const portfolioValue = prefsData.actualPortfolioValue;
 
       // Call scenario impact API
       const impactResponse = await fetch('/api/scenario-impact', {
@@ -3161,7 +3182,7 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
               <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">Scenario Analysis Unavailable</h3>
               <p className="text-[var(--muted-foreground)] mb-4">{error}</p>
               <Button onClick={loadScenarioImpact} variant="outline">
-                Try Again
+                Generate
               </Button>
             </div>
           </CardContent>
