@@ -2,7 +2,7 @@
 // This maps scenario IDs to their detailed performance data
 
 export const scenarios: Record<string, any> = {
-  "S001": {
+  "property_down": {
     name: "Property Crash (2008-style)",
     horizon_years: 5,
     mu: {
@@ -26,7 +26,7 @@ export const scenarios: Record<string, any> = {
       COLLECTIBLES_CARS: -0.06
     }
   },
-  "S002": {
+  "recession": {
     name: "AI-Driven Economic Recession",
     horizon_years: 5,
     mu: {
@@ -50,7 +50,7 @@ export const scenarios: Record<string, any> = {
       COLLECTIBLES_CARS: -0.05
     }
   },
-  "S003": {
+  "stagflation": {
     name: "Stagflation (1970s-style)",
     horizon_years: 5,
     mu: {
@@ -74,7 +74,7 @@ export const scenarios: Record<string, any> = {
       COLLECTIBLES_CARS: -0.02
     }
   },
-  "S004": {
+  "tech_correction": {
     name: "Tech & Speculative Asset Burst",
     horizon_years: 5,
     mu: {
@@ -98,8 +98,8 @@ export const scenarios: Record<string, any> = {
       COLLECTIBLES_CARS: -0.05
     }
   },
-  "S005": {
-    name: "UK Tax Regime Shift",
+  "devaluation": {
+    name: "Sterling Devaluation",
     horizon_years: 5,
     mu: {
       CASH: 0.01,
@@ -107,22 +107,22 @@ export const scenarios: Record<string, any> = {
       GILTS_LONG: 0.0,
       IG_CREDIT: -0.02,
       HY_CREDIT: -0.05,
-      GLOBAL_EQUITY: -0.05,
+      GLOBAL_EQUITY: 0.08, // Benefits from FX
       UK_EQUITY_VALUE: -0.03,
-      GROWTH_TECH: 0.0,
+      GROWTH_TECH: 0.05,
       PROPERTY_UK_RESI: -0.1,
-      COMMODITIES: 0.0,
-      GOLD: 0.02,
+      COMMODITIES: 0.1, // Commodity prices rise in GBP terms
+      GOLD: 0.12, // Safe haven + FX benefit
       ALTERNATIVES: -0.08,
-      CRYPTO_BTC: 0.0,
-      CRYPTO_ETH: 0.0,
-      COLLECTIBLES_ART: 0.0,
-      COLLECTIBLES_WINE: 0.0,
-      COLLECTIBLES_WHISKY: 0.0,
-      COLLECTIBLES_CARS: 0.0
+      CRYPTO_BTC: 0.15, // Alternative currency
+      CRYPTO_ETH: 0.15,
+      COLLECTIBLES_ART: 0.05, // International market
+      COLLECTIBLES_WINE: 0.05,
+      COLLECTIBLES_WHISKY: 0.08, // Exports benefit
+      COLLECTIBLES_CARS: 0.05
     }
   },
-  "S006": {
+  "reflation": {
     name: "Rate-Cut Reflation",
     horizon_years: 3,
     mu: {
@@ -146,42 +146,64 @@ export const scenarios: Record<string, any> = {
       COLLECTIBLES_CARS: 0.0
     }
   },
-  "S007": {
-    name: "Stagflation 2.0 (acute)",
+  "gilt_selloff": {
+    name: "Gilt Market Selloff",
     horizon_years: 3,
     mu: {
-      CASH: 0.01,
-      BILLS_SHORT_GILTS: 0.0,
-      GILTS_LONG: -0.15,
-      IG_CREDIT: 0.0,
-      HY_CREDIT: 0.0,
-      GLOBAL_EQUITY: -0.15,
-      UK_EQUITY_VALUE: -0.05,
-      GROWTH_TECH: -0.18,
-      PROPERTY_UK_RESI: 0.0,
-      COMMODITIES: 0.2,
-      GOLD: 0.12,
-      ALTERNATIVES: 0.0,
+      CASH: 0.04,
+      BILLS_SHORT_GILTS: 0.02,
+      GILTS_LONG: -0.25,
+      IG_CREDIT: -0.08,
+      HY_CREDIT: -0.15,
+      GLOBAL_EQUITY: -0.1,
+      UK_EQUITY_VALUE: -0.15,
+      GROWTH_TECH: -0.12,
+      PROPERTY_UK_RESI: -0.08,
+      COMMODITIES: 0.05,
+      GOLD: 0.1,
+      ALTERNATIVES: -0.05,
       CRYPTO_BTC: 0.0,
       CRYPTO_ETH: 0.0,
-      COLLECTIBLES_ART: 0.0,
-      COLLECTIBLES_WINE: 0.0,
+      COLLECTIBLES_ART: -0.05,
+      COLLECTIBLES_WINE: -0.05,
+      COLLECTIBLES_WHISKY: -0.05,
+      COLLECTIBLES_CARS: -0.05
+    }
+  },
+  "energy_spike": {
+    name: "Energy Price Shock",
+    horizon_years: 3,
+    mu: {
+      CASH: 0.02,
+      BILLS_SHORT_GILTS: 0.01,
+      GILTS_LONG: -0.05,
+      IG_CREDIT: -0.05,
+      HY_CREDIT: -0.1,
+      GLOBAL_EQUITY: -0.08,
+      UK_EQUITY_VALUE: -0.1,
+      GROWTH_TECH: -0.15,
+      PROPERTY_UK_RESI: -0.05,
+      COMMODITIES: 0.25, // Energy commodities benefit
+      GOLD: 0.12,
+      ALTERNATIVES: 0.0,
+      CRYPTO_BTC: 0.05,
+      CRYPTO_ETH: 0.05,
+      COLLECTIBLES_ART: -0.02,
+      COLLECTIBLES_WINE: -0.02,
       COLLECTIBLES_WHISKY: 0.0,
-      COLLECTIBLES_CARS: 0.0
+      COLLECTIBLES_CARS: -0.08 // Transport costs hit classics
     }
   }
 };
 
 // Scenario ID to name mapping for labels
 export const SCENARIO_LABELS: Record<string, string> = {
-  "S001": "Property Crash",
-  "S002": "AI Recession", 
-  "S003": "Stagflation",
-  "S004": "Tech Burst",
-  "S005": "Tax Shift",
-  "S006": "Reflation",
-  "S007": "Stagflation 2.0",
   "property_down": "Property Crash",
   "recession": "AI Recession",
-  "tech_correction": "Tech Burst"
+  "stagflation": "Stagflation",
+  "tech_correction": "Tech Burst",
+  "devaluation": "Sterling Devaluation",
+  "reflation": "Rate-Cut Reflation",
+  "gilt_selloff": "Gilt Market Selloff",
+  "energy_spike": "Energy Price Shock"
 };
