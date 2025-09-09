@@ -3948,7 +3948,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                                   </button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 text-sm">
@@ -3962,7 +3962,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                                   </button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 text-sm">
@@ -3978,7 +3978,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                                   </button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 text-sm">
@@ -3994,7 +3994,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                    <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                                   </button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 text-sm">
