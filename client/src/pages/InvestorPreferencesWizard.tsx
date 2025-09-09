@@ -3282,21 +3282,11 @@ function ScenarioImpactAnalysis({
   const convertCustomWeightsToApiFormat = (customWeights: any[]) => {
     const apiWeights: Record<string, number> = {};
     
-    // Map belief scenario names to API scenario codes
-    const scenarioMapping: Record<string, string> = {
-      'property_down': 'S001',
-      'recession': 'S002', 
-      'stagflation': 'S003',
-      'tech_correction': 'S004',
-      'reflation': 'S006',
-      'gilt_selloff': 'S009',
-      'energy_spike': 'S007',
-      'devaluation': 'S005'
-    };
-    
+    // Use scenario names directly - the scenarios data uses these names as keys
     customWeights.forEach(weight => {
-      const scenarioCode = scenarioMapping[weight.scenario] || weight.scenario;
-      apiWeights[scenarioCode] = weight.normalizedWeight;
+      if (weight.scenario && weight.normalizedWeight > 0) {
+        apiWeights[weight.scenario] = weight.normalizedWeight;
+      }
     });
     
     return apiWeights;
@@ -3363,10 +3353,23 @@ function ScenarioImpactAnalysis({
       const currentMix = convertFormToDetailedMix(allocations);
       const portfolioValue = prefsData.actualPortfolioValue;
 
+      // Parse scenario weights from beliefData (stored as JSON string)
+      let beliefScenarioWeights = [];
+      if (beliefData.scenarioWeights) {
+        try {
+          beliefScenarioWeights = typeof beliefData.scenarioWeights === 'string' 
+            ? JSON.parse(beliefData.scenarioWeights) 
+            : beliefData.scenarioWeights;
+        } catch (e) {
+          console.error('Error parsing scenario weights:', e);
+          beliefScenarioWeights = [];
+        }
+      }
+
       // Use custom scenario weights if available, otherwise use belief-calculated weights
       const weightsToUse = customScenarioWeights ? 
         convertCustomWeightsToApiFormat(customScenarioWeights) : 
-        beliefData.scenarioWeights;
+        convertCustomWeightsToApiFormat(beliefScenarioWeights);
 
       // Call scenario impact API
       const impactResponse = await fetch('/api/scenario-impact', {
