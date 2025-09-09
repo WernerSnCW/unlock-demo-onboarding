@@ -1150,6 +1150,11 @@ function PersonaQuizContentWizard({
                     // Continue to next section
                     setShowBeliefQuestionnaire(true);
                     
+                    // Auto-scroll to top of next section
+                    setTimeout(() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 100);
+                    
                   } catch (error) {
                     console.error('Failed to save quiz data:', error);
                     toast({
