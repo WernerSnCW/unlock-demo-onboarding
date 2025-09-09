@@ -3066,8 +3066,8 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
                 <PopoverContent className="w-72 text-sm">
                   <div className="space-y-2">
                     <p className="font-medium">Total Changes Required</p>
-                    <p>How much of your portfolio needs to be rebalanced to reach your target allocation - think of it like reorganizing your entire investment mix.</p>
-                    <p>Sum of all absolute percentage point moves required across asset classes. Calculated as Σ|target% - current%| to measure total rebalancing magnitude.</p>
+                    <p>How much trading activity is needed to reach your target - this can exceed 100% because it counts both sales and purchases separately, not your net portfolio change.</p>
+                    <p>Sum of all absolute percentage point moves across asset classes (Σ|target% - current%|). Each transaction is counted individually - selling 80% stocks and buying 40% bonds + 40% cash = 160% total changes.</p>
                   </div>
                 </PopoverContent>
               </Popover>
