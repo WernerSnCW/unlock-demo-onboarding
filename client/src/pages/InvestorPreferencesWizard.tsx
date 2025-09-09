@@ -1669,12 +1669,12 @@ function BeliefQuestionnaireComponent({
                   Based on your economic beliefs, here are the calculated scenario match percentages. Select scenarios for stress testing:
                 </p>
                 
-                <div className="bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h5 className="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
+                <div className="bg-[var(--info)]/5 p-4 rounded-lg border border-[var(--info)]/20">
+                  <h5 className="font-semibold text-[var(--info)] mb-2 flex items-center gap-2">
                     <Info className="h-4 w-4" />
                     How This Works
                   </h5>
-                  <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                  <div className="text-sm text-[var(--info)] opacity-80 space-y-2">
                     <p>
                       <strong>What the percentages mean:</strong> Each percentage represents the probability of that economic scenario based on your specific belief responses. For example, 35% Stagflation means your beliefs suggest a 35% likelihood of a stagflation environment.
                     </p>
