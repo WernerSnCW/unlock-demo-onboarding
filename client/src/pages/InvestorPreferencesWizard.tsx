@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown, Calculator, ChevronDown, Calendar, Database, HelpCircle } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown, Calculator, ChevronDown, Calendar, Database, HelpCircle, RefreshCw } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -3401,8 +3401,24 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
             </div>
           </div>
 
-          {/* Continue Button */}
-          <div className="mt-8 flex justify-center">
+          {/* Action Buttons */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              onClick={() => {
+                loadScenarioImpact();
+                // Auto-scroll to top after regeneration
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 200);
+              }}
+              variant="outline"
+              size="lg"
+              className="flex items-center gap-2 px-6 py-3 text-base border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300"
+              data-testid="button-regenerate-analysis"
+            >
+              <RefreshCw className="h-5 w-5" />
+              Regenerate Analysis
+            </Button>
             <Button 
               onClick={() => {
                 onTabChange('strategy');
