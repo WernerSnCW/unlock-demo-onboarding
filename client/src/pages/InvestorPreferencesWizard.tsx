@@ -5258,7 +5258,19 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">{actionsData.summary.totalAbsChangePp}pp</div>
-              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Total Change</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide flex items-center justify-center gap-2">
+                <span>Total Change</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                      <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 text-sm">
+                    <p>Sum of all absolute percentage point moves required across your portfolio. Shows the total scale of rebalancing needed.</p>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -5270,7 +5282,19 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-[var(--secondary)]">{actionsData.summary.estTurnoverPp}pp</div>
-              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Est. Turnover</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide flex items-center justify-center gap-2">
+                <span>Est. Turnover</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                      <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 text-sm">
+                    <p>Portfolio turnover rate - approximately half of total changes, representing the actual buying/selling activity required.</p>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -5282,7 +5306,19 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-[var(--success)]">{(actionsData.summary.estCostPct * 100).toFixed(2)}%</div>
-              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Est. Cost</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide flex items-center justify-center gap-2">
+                <span>Est. Cost</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                      <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 text-sm">
+                    <p>Estimated transaction costs as a percentage of total portfolio value, including spreads, fees, and market impact costs.</p>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -5294,7 +5330,19 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                 <PiggyBank className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-[var(--warning)]">{actionsData.summary.liquidityNowPct}%</div>
-              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Current Liquidity</div>
+              <div className="text-sm font-medium text-[var(--muted-foreground)] uppercase tracking-wide flex items-center justify-center gap-2">
+                <span>Current Liquidity</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                      <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 text-sm">
+                    <p>Your current allocation to highly liquid assets (cash and short-term government bonds) that can be accessed quickly.</p>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </CardContent>
         </Card>
