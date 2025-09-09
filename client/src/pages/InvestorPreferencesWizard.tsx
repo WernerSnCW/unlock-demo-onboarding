@@ -3045,28 +3045,44 @@ function ScenarioImpactAnalysisSection() {
 
   // Check if both beliefs and portfolio data are complete
   useEffect(() => {
-    const checkDataCompletion = () => {
-      const userId = (() => {
-        const quizData = localStorage.getItem('investorQuizData');
-        if (quizData) {
-          try {
-            const parsed = JSON.parse(quizData);
-            return parsed.userId || `demo-${Date.now()}`;
-          } catch {
-            return `demo-${Date.now()}`;
+    const checkDataCompletion = async () => {
+      try {
+        const userId = (() => {
+          const quizData = localStorage.getItem('investorQuizData');
+          if (quizData) {
+            try {
+              const parsed = JSON.parse(quizData);
+              return parsed.userId || `demo-${Date.now()}`;
+            } catch {
+              return `demo-${Date.now()}`;
+            }
           }
-        }
-        return `demo-${Date.now()}`;
-      })();
+          return `demo-${Date.now()}`;
+        })();
 
-      // Check if both belief responses and actual portfolio data exist
-      Promise.all([
-        fetch(`/api/investors/${userId}/belief-responses`),
-        fetch(`/api/investors/${userId}/preferences`)
-      ]).then(async ([beliefResponse, prefsResponse]) => {
+        console.log('Checking data completion for userId:', userId);
+
+        // Check if both belief responses and actual portfolio data exist
+        const [beliefResponse, prefsResponse] = await Promise.all([
+          fetch(`/api/investors/${userId}/belief-responses`),
+          fetch(`/api/investors/${userId}/preferences`)
+        ]);
+
+        console.log('Response status:', { 
+          belief: beliefResponse.status, 
+          prefs: prefsResponse.status 
+        });
+
         if (beliefResponse.ok && prefsResponse.ok) {
           const beliefData = await beliefResponse.json();
           const prefsData = await prefsResponse.json();
+          
+          console.log('Data check:', {
+            hasScenarioWeights: !!beliefData.scenarioWeights,
+            hasPortfolioAllocations: !!prefsData.actualPortfolioAllocations,
+            beliefData: beliefData,
+            prefsData: prefsData
+          });
           
           if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations) {
             // Parse belief weights
@@ -3079,17 +3095,27 @@ function ScenarioImpactAnalysisSection() {
               console.error('Error parsing scenario weights:', e);
             }
             
+            console.log('Setting up analysis with weights:', weights);
             setOriginalBeliefWeights(weights);
             setCustomScenarioWeights([...weights]);
             setShowAnalysis(true);
+          } else {
+            console.log('Missing required data - not showing analysis yet');
           }
+        } else {
+          console.log('API responses not ok - not showing analysis yet');
         }
-      }).catch(error => {
+      } catch (error) {
         console.error('Error checking data completion:', error);
-      });
+      }
     };
 
     checkDataCompletion();
+    
+    // Poll every 2 seconds to check for completion
+    const interval = setInterval(checkDataCompletion, 2000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   if (!showAnalysis) {
