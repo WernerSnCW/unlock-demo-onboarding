@@ -2723,7 +2723,7 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
-              Your Portfolio Recommendation
+              Classic Persona Portfolio
             </CardTitle>
             <CardDescription className="text-base">
               Based on your investment persona: <span className="font-semibold text-[var(--primary)]">{matchedPersona.name}</span>
