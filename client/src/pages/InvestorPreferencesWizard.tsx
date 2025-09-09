@@ -3183,102 +3183,112 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
 
         {/* Gap Analysis Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full border-collapse text-xs">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="text-left p-3 font-semibold text-[var(--foreground)]">
-                  <div className="flex items-center gap-2">
-                    <span>Asset Class</span>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 text-sm">
-                        <div className="space-y-2">
-                          <p className="font-medium">Asset Class</p>
-                          <p>Different types of investments like stocks, bonds, property, or alternatives that each behave differently in various market conditions.</p>
-                          <p>Investment category groupings used for portfolio allocation and risk management, based on underlying asset characteristics and market behavior.</p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                <th className="text-left p-3 font-medium text-[var(--foreground)] text-xs">
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="flex justify-center w-full">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                            <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 text-sm">
+                          <div className="space-y-2">
+                            <p className="font-medium">Asset Class</p>
+                            <p>Different types of investments like stocks, bonds, property, or alternatives that each behave differently in various market conditions.</p>
+                            <p>Investment category groupings used for portfolio allocation and risk management, based on underlying asset characteristics and market behavior.</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <span className="text-center w-full">Asset Class</span>
                   </div>
                 </th>
-                <th className="text-right p-3 font-semibold text-[var(--foreground)]">
-                  <div className="flex items-center gap-2 justify-end">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 text-sm">
-                        <div className="space-y-2">
-                          <p className="font-medium">Current Allocation</p>
-                          <p>What percentage of your portfolio is currently invested in each asset class based on your actual holdings.</p>
-                          <p>Calculated as (asset value ÷ total portfolio value) × 100 for each asset class from your submitted portfolio data.</p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <span>Current %</span>
+                <th className="text-right p-3 font-medium text-[var(--foreground)] text-xs">
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex justify-center w-full">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                            <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 text-sm">
+                          <div className="space-y-2">
+                            <p className="font-medium">Current Allocation</p>
+                            <p>What percentage of your portfolio is currently invested in each asset class based on your actual holdings.</p>
+                            <p>Calculated as (asset value ÷ total portfolio value) × 100 for each asset class from your submitted portfolio data.</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <span className="text-right w-full">Current %</span>
                   </div>
                 </th>
-                <th className="text-right p-3 font-semibold text-[var(--foreground)]">
-                  <div className="flex items-center gap-2 justify-end">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 text-sm">
-                        <div className="space-y-2">
-                          <p className="font-medium">Target Allocation</p>
-                          <p>The recommended percentage for each asset class based on your investor profile and economic beliefs - your ideal portfolio mix.</p>
-                          <p>Calculated by blending persona base allocation with scenario tilts weighted by your belief responses, then applying professional constraints.</p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <span>Target % (Persona Base)</span>
+                <th className="text-right p-3 font-medium text-[var(--foreground)] text-xs">
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex justify-center w-full">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                            <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 text-sm">
+                          <div className="space-y-2">
+                            <p className="font-medium">Target Allocation</p>
+                            <p>The recommended percentage for each asset class based on your investor profile and economic beliefs - your ideal portfolio mix.</p>
+                            <p>Calculated by blending persona base allocation with scenario tilts weighted by your belief responses, then applying professional constraints.</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <span className="text-right w-full">Target % (Persona Base)</span>
                   </div>
                 </th>
-                <th className="text-right p-3 font-semibold text-[var(--foreground)]">
-                  <div className="flex items-center gap-2 justify-end">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 text-sm">
-                        <div className="space-y-2">
-                          <p className="font-medium">Change Required (pp)</p>
-                          <p>How many percentage points you need to increase (+) or decrease (-) each investment type to reach your target allocation.</p>
-                          <p>Delta calculation: Target% - Current%. Measured in percentage points (pp) where 5pp means a 5 percentage point change, not 5% of the existing amount.</p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <span>Δ (pp)</span>
+                <th className="text-right p-3 font-medium text-[var(--foreground)] text-xs">
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex justify-center w-full">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                            <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 text-sm">
+                          <div className="space-y-2">
+                            <p className="font-medium">Change Required (pp)</p>
+                            <p>How many percentage points you need to increase (+) or decrease (-) each investment type to reach your target allocation.</p>
+                            <p>Delta calculation: Target% - Current%. Measured in percentage points (pp) where 5pp means a 5 percentage point change, not 5% of the existing amount.</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <span className="text-right w-full">Δ (pp)</span>
                   </div>
                 </th>
-                <th className="text-left p-3 font-semibold text-[var(--foreground)]">
-                  <div className="flex items-center gap-2">
-                    <span>Flags</span>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
-                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 text-sm">
-                        <div className="space-y-2">
-                          <p className="font-medium">Warning Flags</p>
-                          <p>Important alerts about potential issues with your current allocation, like having too much money in one investment type.</p>
-                          <p>Risk alerts including concentration warnings (&gt;35% in single asset class), liquidity constraints, or other portfolio structure concerns requiring attention.</p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                <th className="text-left p-3 font-medium text-[var(--foreground)] text-xs">
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="flex justify-center w-full">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                            <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 text-sm">
+                          <div className="space-y-2">
+                            <p className="font-medium">Warning Flags</p>
+                            <p>Important alerts about potential issues with your current allocation, like having too much money in one investment type.</p>
+                            <p>Risk alerts including concentration warnings (&gt;35% in single asset class), liquidity constraints, or other portfolio structure concerns requiring attention.</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <span className="text-center w-full">Flags</span>
                   </div>
                 </th>
               </tr>
