@@ -189,22 +189,22 @@ const PersonaDetailDialog: React.FC<{
           
           {/* Investment Characteristics */}
           <div>
-            <h4 className="font-semibold text-[var(--card-foreground)] mb-3">Investment Characteristics</h4>
-            <div className="bg-[var(--muted)] rounded-lg p-4">
-              <p className="text-[var(--muted-foreground)] italic mb-4">"{persona.notes}"</p>
+            <h4 className="font-semibold mb-3" style={{ color: 'var(--card-foreground)' }}>Investment Characteristics</h4>
+            <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--muted)' }}>
+              <p className="italic mb-4" style={{ color: 'var(--muted-foreground)' }}>"{persona.notes}"</p>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium">Liquidity Preference:</span>
-                  <p>{persona.liquidityMonths} months</p>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Liquidity Preference:</span>
+                  <p style={{ color: 'var(--card-foreground)' }}>{persona.liquidityMonths} months</p>
                 </div>
                 <div>
-                  <span className="font-medium">Drawdown Tolerance:</span>
-                  <p>{(persona.drawdownCap * 100).toFixed(0)}%</p>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Drawdown Tolerance:</span>
+                  <p style={{ color: 'var(--card-foreground)' }}>{(persona.drawdownCap * 100).toFixed(0)}%</p>
                 </div>
                 <div>
-                  <span className="font-medium">Concentration:</span>
-                  <p className="capitalize">{persona.concentrationTolerance}</p>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>Concentration:</span>
+                  <p className="capitalize" style={{ color: 'var(--card-foreground)' }}>{persona.concentrationTolerance}</p>
                 </div>
               </div>
             </div>
@@ -212,48 +212,57 @@ const PersonaDetailDialog: React.FC<{
           
           {/* Investment Biases */}
           <div>
-            <h4 className="font-semibold text-[var(--card-foreground)] mb-3">Investment Biases</h4>
+            <h4 className="font-semibold mb-3" style={{ color: 'var(--card-foreground)' }}>Investment Biases</h4>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Home className="h-4 w-4 text-orange-500" />
-                  <span>Property</span>
+                  <Home className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+                  <span style={{ color: 'var(--card-foreground)' }}>Property</span>
                 </div>
-                <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-32 rounded-full h-2" style={{ backgroundColor: 'var(--muted)' }}>
                   <div 
-                    className="bg-orange-500 h-2 rounded-full" 
-                    style={{ width: `${persona.propertyBias * 100}%` }}
+                    className="h-2 rounded-full" 
+                    style={{ 
+                      width: `${persona.propertyBias * 100}%`,
+                      backgroundColor: 'var(--accent)'
+                    }}
                   ></div>
                 </div>
-                <span className="text-sm">{(persona.propertyBias * 100).toFixed(0)}%</span>
+                <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>{(persona.propertyBias * 100).toFixed(0)}%</span>
               </div>
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-blue-500" />
-                  <span>Technology</span>
+                  <Zap className="h-4 w-4" style={{ color: 'var(--primary)' }} />
+                  <span style={{ color: 'var(--card-foreground)' }}>Technology</span>
                 </div>
-                <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-32 rounded-full h-2" style={{ backgroundColor: 'var(--muted)' }}>
                   <div 
-                    className="bg-blue-500 h-2 rounded-full" 
-                    style={{ width: `${persona.techBias * 100}%` }}
+                    className="h-2 rounded-full" 
+                    style={{ 
+                      width: `${persona.techBias * 100}%`,
+                      backgroundColor: 'var(--primary)'
+                    }}
                   ></div>
                 </div>
-                <span className="text-sm">{(persona.techBias * 100).toFixed(0)}%</span>
+                <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>{(persona.techBias * 100).toFixed(0)}%</span>
               </div>
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-purple-500" />
-                  <span>Alternatives</span>
+                  <TrendingUp className="h-4 w-4" style={{ color: 'var(--secondary)' }} />
+                  <span style={{ color: 'var(--card-foreground)' }}>Alternatives</span>
                 </div>
-                <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-32 rounded-full h-2" style={{ backgroundColor: 'var(--muted)' }}>
                   <div 
-                    className="bg-purple-500 h-2 rounded-full" 
-                    style={{ width: `${persona.altBias * 100}%` }}
+                    className="h-2 rounded-full" 
+                    style={{ 
+                      width: `${persona.altBias * 100}%`,
+                      backgroundColor: 'var(--secondary)'
+                    }}
                   ></div>
                 </div>
-                <span className="text-sm">{(persona.altBias * 100).toFixed(0)}%</span>
+                <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>{(persona.altBias * 100).toFixed(0)}%</span>
               </div>
             </div>
           </div>
