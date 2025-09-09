@@ -130,7 +130,7 @@ const steps = [
 ];
 
 const mainTabs = [
-  { id: 'preferences', title: 'Investor Personas', icon: Target, description: 'Discover your investor type from our 19 unique personas' },
+  { id: 'preferences', title: 'Investor Personas', icon: Target, description: 'Our methodology to identify and explore 19 unique investor personas' },
   { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
   { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
   { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Comprehensive analysis of your current holdings and performance' },
