@@ -2715,139 +2715,144 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
   ].filter(item => item.value > 0);
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
-      {/* Portfolio Overview */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
-            Your Portfolio Recommendation
-          </CardTitle>
-          <CardDescription className="text-base">
-            Based on your investment persona: <span className="font-semibold text-[var(--primary)]">{matchedPersona.name}</span>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {/* Portfolio Value Display */}
-            <div className="text-center p-6 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--accent)]/20">
-              <h3 className="text-lg font-medium text-[var(--muted-foreground)] mb-2">Recommended Portfolio Size</h3>
-              <p className="text-3xl font-bold text-[var(--foreground)]">
-                £{(matchedPersona.portfolioValue / 1000).toLocaleString()}K
-              </p>
-              <p className="text-sm text-[var(--muted-foreground)] mt-1">{matchedPersona.wealthTier}</p>
-            </div>
-
-            {/* Key Metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                <h5 className="font-medium text-[var(--foreground)] mb-1">Risk Profile</h5>
-                <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.riskProfile}</p>
-              </div>
-              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                <h5 className="font-medium text-[var(--foreground)] mb-1">Approach</h5>
-                <p className="text-lg font-semibold text-[var(--primary)]">
-                  {matchedPersona.approach.replace('_', ' ')}
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Side-by-Side Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* Left Side - Portfolio Recommendation */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
+              Your Portfolio Recommendation
+            </CardTitle>
+            <CardDescription className="text-base">
+              Based on your investment persona: <span className="font-semibold text-[var(--primary)]">{matchedPersona.name}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Portfolio Value Display */}
+              <div className="text-center p-6 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--secondary)]/10 rounded-2xl border border-[var(--accent)]/20">
+                <h3 className="text-lg font-medium text-[var(--muted-foreground)] mb-2">Recommended Portfolio Size</h3>
+                <p className="text-3xl font-bold text-[var(--foreground)]">
+                  £{(matchedPersona.portfolioValue / 1000).toLocaleString()}K
                 </p>
+                <p className="text-sm text-[var(--muted-foreground)] mt-1">{matchedPersona.wealthTier}</p>
               </div>
-              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                <h5 className="font-medium text-[var(--foreground)] mb-1">Liquidity Buffer</h5>
-                <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.liquidityMonths} months</p>
-              </div>
-              <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                <h5 className="font-medium text-[var(--foreground)] mb-1">Max Drawdown</h5>
-                <p className="text-lg font-semibold text-[var(--primary)]">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</p>
-              </div>
-            </div>
 
-            {/* Portfolio Allocation Chart */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-[var(--foreground)]">Portfolio Allocation Overview</h4>
-              <div className="p-6 bg-gradient-to-br from-[var(--accent)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--accent)]/20">
-                <ResponsiveContainer width="100%" height={400}>
-                  <PieChart>
-                    <Pie
-                      data={portfolioAllocation}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={120}
-                      innerRadius={60}
-                      paddingAngle={2}
-                      dataKey="value"
-                      label={({ name, value }) => `${value}%`}
-                      labelLine={false}
-                    >
-                      {portfolioAllocation.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip 
-                      formatter={(value, name) => [`${value}%`, name]}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        color: 'hsl(var(--foreground))'
-                      }}
-                    />
-                    <Legend 
-                      verticalAlign="bottom" 
-                      height={36}
-                      formatter={(value) => value}
-                      wrapperStyle={{ 
-                        color: 'hsl(var(--foreground))',
-                        fontSize: '12px'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
-                  Interactive breakdown of your recommended asset allocation
-                </p>
-              </div>
-            </div>
-
-            {/* Allocation Breakdown */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
-              {portfolioAllocation.map((item, index) => (
-                <div key={index} className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-[var(--foreground)]">{item.name}</span>
-                    <span className="font-semibold text-[var(--foreground)]">{item.value}%</span>
-                  </div>
-                  <div className="w-full bg-[var(--border)] rounded-full h-3">
-                    <div 
-                      className="h-3 rounded-full transition-all duration-500"
-                      style={{ 
-                        width: `${item.value}%`,
-                        backgroundColor: item.color 
-                      }}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
-                    {'assets' in item && (
-                      <p className="text-xs text-[var(--muted-foreground)]/80">
-                        Includes: {item.assets.join(', ')}
-                      </p>
-                    )}
-                  </div>
+              {/* Key Metrics */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Risk Profile</h5>
+                  <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.riskProfile}</p>
                 </div>
-              ))}
-            </div>
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Approach</h5>
+                  <p className="text-lg font-semibold text-[var(--primary)]">
+                    {matchedPersona.approach.replace('_', ' ')}
+                  </p>
+                </div>
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Liquidity Buffer</h5>
+                  <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.liquidityMonths} months</p>
+                </div>
+                <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
+                  <h5 className="font-medium text-[var(--foreground)] mb-1">Max Drawdown</h5>
+                  <p className="text-lg font-semibold text-[var(--primary)]">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</p>
+                </div>
+              </div>
 
-            {/* Persona Description */}
-            <div className="p-6 bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--primary)]/20">
-              <h5 className="font-semibold text-[var(--foreground)] mb-3">Portfolio Notes</h5>
-              <p className="text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+              {/* Portfolio Allocation Chart */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)]">Portfolio Allocation Overview</h4>
+                <div className="p-6 bg-gradient-to-br from-[var(--accent)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--accent)]/20">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={portfolioAllocation}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={90}
+                        innerRadius={45}
+                        paddingAngle={2}
+                        dataKey="value"
+                        label={({ name, value }) => `${value}%`}
+                        labelLine={false}
+                      >
+                        {portfolioAllocation.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip 
+                        formatter={(value, name) => [`${value}%`, name]}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--background))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                          color: 'hsl(var(--foreground))'
+                        }}
+                      />
+                      <Legend 
+                        verticalAlign="bottom" 
+                        height={36}
+                        formatter={(value) => value}
+                        wrapperStyle={{ 
+                          color: 'hsl(var(--foreground))',
+                          fontSize: '12px'
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
+                    Interactive breakdown of your recommended asset allocation
+                  </p>
+                </div>
+              </div>
 
-      {/* Actual Portfolio Form */}
-      <ActualPortfolioForm investorName={investorName} matchedPersona={matchedPersona} onTabChange={onTabChange} />
+              {/* Allocation Breakdown */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-[var(--foreground)]">Asset Allocation</h4>
+                {portfolioAllocation.map((item, index) => (
+                  <div key={index} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-[var(--foreground)]">{item.name}</span>
+                      <span className="font-semibold text-[var(--foreground)]">{item.value}%</span>
+                    </div>
+                    <div className="w-full bg-[var(--border)] rounded-full h-3">
+                      <div 
+                        className="h-3 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${item.value}%`,
+                          backgroundColor: item.color 
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-[var(--muted-foreground)]">{item.description}</p>
+                      {'assets' in item && (
+                        <p className="text-xs text-[var(--muted-foreground)]/80">
+                          Includes: {item.assets.join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Persona Description */}
+              <div className="p-6 bg-gradient-to-br from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl border border-[var(--primary)]/20">
+                <h5 className="font-semibold text-[var(--foreground)] mb-3">Portfolio Notes</h5>
+                <p className="text-[var(--muted-foreground)]">{matchedPersona.notes}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right Side - Actual Portfolio Form */}
+        <div>
+          <ActualPortfolioForm investorName={investorName} matchedPersona={matchedPersona} onTabChange={onTabChange} />
+        </div>
+      </div>
     </div>
   );
 }
