@@ -2815,21 +2815,85 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
               {/* Key Metrics */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Risk Profile</h5>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h5 className="font-medium text-[var(--foreground)]">Risk Profile</h5>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Risk Profile</p>
+                          <p><strong>Simple:</strong> How much volatility and potential losses you're comfortable with in your investments.</p>
+                          <p><strong>Technical:</strong> Quantifies your tolerance for portfolio volatility and maximum acceptable drawdown, influencing asset allocation weightings between growth and defensive assets.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.riskProfile}</p>
                 </div>
                 <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Approach</h5>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h5 className="font-medium text-[var(--foreground)]">Approach</h5>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Investment Approach</p>
+                          <p><strong>Simple:</strong> How hands-on you prefer to be with your investments - from DIY to fully managed.</p>
+                          <p><strong>Technical:</strong> Determines portfolio complexity, rebalancing frequency, and whether you prefer passive index funds, active management, or alternative investments.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <p className="text-lg font-semibold text-[var(--primary)]">
                     {matchedPersona.approach.replace('_', ' ')}
                   </p>
                 </div>
                 <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Liquidity Buffer</h5>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h5 className="font-medium text-[var(--foreground)]">Liquidity Buffer</h5>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Liquidity Buffer</p>
+                          <p><strong>Simple:</strong> How many months of expenses you keep in easily accessible cash and short-term bonds for emergencies.</p>
+                          <p><strong>Technical:</strong> Minimum allocation to highly liquid assets (cash, treasury bills, short-term government bonds) to meet unexpected funding needs without forced asset sales.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <p className="text-lg font-semibold text-[var(--primary)]">{matchedPersona.liquidityMonths} months</p>
                 </div>
                 <div className="p-4 bg-[var(--accent)]/5 rounded-lg border border-[var(--accent)]/20">
-                  <h5 className="font-medium text-[var(--foreground)] mb-1">Max Drawdown</h5>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h5 className="font-medium text-[var(--foreground)]">Max Drawdown</h5>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Maximum Drawdown</p>
+                          <p><strong>Simple:</strong> The biggest percentage drop you're willing to accept before you'd want to sell everything and cut your losses.</p>
+                          <p><strong>Technical:</strong> Maximum acceptable peak-to-trough decline in portfolio value during market stress, used as a risk constraint in portfolio optimization and stress testing.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <p className="text-lg font-semibold text-[var(--primary)]">{(matchedPersona.drawdownCap * 100).toFixed(0)}%</p>
                 </div>
               </div>
