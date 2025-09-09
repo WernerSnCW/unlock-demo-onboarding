@@ -2988,9 +2988,9 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
         {/* Core Summary Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-            <div className="flex items-start justify-between mb-2">
-              <h4 className="font-semibold text-blue-900 dark:text-blue-200">Total Changes</h4>
-              <span className="text-xs bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded font-medium text-blue-700 dark:text-blue-200 whitespace-nowrap">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-1">Total Changes</h4>
+            <div className="mb-3">
+              <span className="inline-block text-xs bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded font-medium text-blue-700 dark:text-blue-200">
                 {gapData.turnoverPp}pp turnover
               </span>
             </div>
