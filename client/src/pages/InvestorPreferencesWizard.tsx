@@ -3028,6 +3028,21 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
         </div>
       </div>
 
+      {/* Scenario Weight Adjustment - Full Width */}
+      <ScenarioWeightAdjustment 
+        originalWeights={originalBeliefWeights}
+        customWeights={customScenarioWeights}
+        isUsingCustom={isUsingCustomWeights}
+        onWeightsChange={(weights) => {
+          setCustomScenarioWeights(weights);
+          setIsUsingCustomWeights(true);
+        }}
+        onResetToBeliefs={() => {
+          setCustomScenarioWeights([...originalBeliefWeights]);
+          setIsUsingCustomWeights(false);
+        }}
+      />
+
       {/* Scenario Impact Analysis Section - Full Width */}
       <ScenarioImpactAnalysis onTabChange={onTabChange} />
     </div>
