@@ -3241,10 +3241,10 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
                     </Popover>
                   </div>
                   <p className={`text-3xl font-bold ${isPositiveImpact ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {isPositiveImpact ? '+' : ''}£{Math.abs(summary.totalValueChange).toLocaleString()}
+                    {isPositiveImpact ? '+' : ''}£{Math.abs(summary.totalValueChange).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <p className="text-sm text-[var(--muted-foreground)]">
-                    From £{summary.currentPortfolioValue.toLocaleString()} to £{summary.projectedPortfolioValue.toLocaleString()}
+                    From £{summary.currentPortfolioValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} to £{summary.projectedPortfolioValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </CardContent>
