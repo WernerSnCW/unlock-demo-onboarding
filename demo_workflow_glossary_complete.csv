@@ -1,0 +1,243 @@
+Step,Term/Field,Definition,Data Type,Example Values,Context
+1 - Investor Personas,code,Unique persona identifier,string,"P001, P002, P003",Persona identification
+1 - Investor Personas,name,Display name of the persona,string,"The Retirement Planner, The Property Lover",Persona labeling
+1 - Investor Personas,portfolioValue,Total investment portfolio value,number,"1250000, 780000, 2400000",Financial capacity
+1 - Investor Personas,wealthTier,Wealth classification category,string,"Mass-Affluent, Upper Mass-Affluent, HNW, UHNW",Wealth segmentation
+1 - Investor Personas,approach,Investment management style preference,string,"SELF_DIRECTED, HYBRID, FULL_SERVICE",Management approach
+1 - Investor Personas,riskProfile,Risk tolerance classification,string,"Conservative, Balanced, Growth, Aggressive",Risk assessment
+1 - Investor Personas,age_range,Age bracket for the persona,array of numbers,"[55, 70], [22, 40], [35, 60]",Demographic targeting
+1 - Investor Personas,goals,List of investment objectives,array of strings,Investment income goals and strategies,Investment planning
+1 - Investor Personas,scores,8-dimensional persona scores,array of numbers,"[3.0, 3.0, 2.5, 4.0, 3.0, 4.5, 3.5, 3.0]",Multi-dimensional profiling
+1 - Investor Personas,liquidityMonths,Months of liquidity preference,number,"2, 6, 9, 12",Liquidity planning
+1 - Investor Personas,drawdownCap,Maximum acceptable portfolio decline,decimal,"0.18, 0.24, 0.32, 0.35",Risk constraint
+1 - Investor Personas,notes,Descriptive summary of persona characteristics,string,"Pension-focused diversified, 78% property tilt",Persona summary
+1 - Investor Personas,propertyBias,Preference weighting for property investments,decimal,"0.30, 0.85, 0.60",Asset class bias
+1 - Investor Personas,techBias,Preference weighting for technology investments,decimal,"0.30, 0.70, 0.10",Asset class bias
+1 - Investor Personas,altBias,Preference weighting for alternative investments,decimal,"0.25, 0.45, 0.50",Asset class bias
+1 - Investor Personas,concentrationTolerance,Tolerance for portfolio concentration,string,"low, med, high",Diversification preference
+1 - Investor Personas,Portfolio Value,Display label for portfolio value metric,string,"Portfolio Value",UI display text
+1 - Investor Personas,Risk Profile,Display label for risk tolerance,string,"Risk Profile",UI display text
+1 - Investor Personas,Strategy,Display label for investment approach,string,"Strategy",UI display text
+1 - Investor Personas,Age Range,Display label for age demographics,string,"Age Range",UI display text
+1 - Investor Personas,Key Investment Focus,Display label for investment biases section,string,"Key Investment Focus",UI display text
+1 - Investor Personas,Click to explore →,Call-to-action text for persona selection,string,"Click to explore →",UI interaction text
+2 - Profile Discovery,Risk Tolerance,Dimension 0 - Appetite for investment risk,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Property Allocation,Dimension 1 - Preference for property investments,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Alternative Investments,Dimension 2 - Interest in alternative assets,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Tax Optimization,Dimension 3 - Focus on tax-efficient investing,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Income Focus,Dimension 4 - Emphasis on generating income,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Time Horizon,Dimension 5 - Investment time frame preference,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Liquidity Needs,Dimension 6 - Requirement for accessible funds,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,Advisory Preference,Dimension 7 - Preference for professional guidance,number,0-5 scale,8-dimensional scoring
+2 - Profile Discovery,questionId,Unique identifier for each quiz question,string,"risk_tolerance, asset_preference, liquidity",Question management
+2 - Profile Discovery,optionIndex,Index of selected answer option,number,"0, 1, 2",Response tracking
+2 - Profile Discovery,scores,8-dimensional score weights for each answer,array of numbers,"[5,0,0,0,0,0,0,0], [3,0,0,0,0,0,0,0]",Scoring algorithm
+2 - Profile Discovery,matchScore,Percentage match with selected persona,number,0-100,Persona alignment
+2 - Profile Discovery,confidence,Confidence level in persona match,number,0-100,Match reliability
+2 - Profile Discovery,userProfile,Normalized user scores across 8 dimensions,array of numbers,8 values from 0-5,User profiling
+2 - Profile Discovery,alignedDimensions,Dimensions where user aligns with persona,array of strings,Dimension labels,Alignment analysis
+2 - Profile Discovery,notableDifferences,Dimensions with significant misalignment,array of strings,Dimension labels,Gap identification
+2 - Profile Discovery,Analysis Complete!,Results page header for quiz completion,string,"Analysis Complete!",UI result header
+2 - Profile Discovery,Best Match,Section title for top persona match,string,"Best Match",UI section title
+2 - Profile Discovery,Runner-Up,Section title for second-best persona match,string,"Runner-Up",UI section title
+2 - Profile Discovery,Your 8-Dimensional Investment Profile,Chart title for user scoring results,string,"Your 8-Dimensional Investment Profile",UI chart title
+2 - Profile Discovery,Strong Alignment,Label for high-scoring dimensions,string,"Strong Alignment",UI result label
+2 - Profile Discovery,Areas of Difference,Label for low-scoring dimensions,string,"Areas of Difference",UI result label
+2 - Profile Discovery,Take Quiz Again,Button text to restart assessment,string,"Take Quiz Again",UI button text
+2 - Profile Discovery,Use This Persona,Button text to select persona,string,"Use This Persona",UI button text
+2 - Profile Discovery,Your Profile,Radar chart data series label,string,"Your Profile",Chart data label
+2 - Profile Discovery,/ 5.0,Score scale indicator,string,"/ 5.0",Score formatting
+3 - Economic Beliefs,id,Unique identifier for belief question,string,"q10_ai_effect, q12_energy_up_20",Question identification
+3 - Economic Beliefs,prompt,The belief question text,string,"In your field, AI will...",Question content
+3 - Economic Beliefs,text,Answer option text,string,"Replace many jobs including mine",Response option
+3 - Economic Beliefs,tags,Behavioral tags for user profiling,object,"{ tech_conv: -1, ai_impact: 2 }",User characterization
+3 - Economic Beliefs,scenarios,Economic scenario probability weights,object,"{ ai_recession: 1.2, tech_burst: 0.4 }",Scenario mapping
+3 - Economic Beliefs,property_down,Property market decline scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,recession,Economic recession scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,energy_spike,Energy price spike scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,stagflation,Stagflation scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,devaluation,Currency devaluation scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,reflation,Reflation scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,tech_burst,Technology bubble burst scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,ai_recession,AI-driven recession scenario weight,decimal,0.0-1.0,Economic scenario
+3 - Economic Beliefs,Economic Beliefs Assessment,Main section title,string,"Economic Beliefs Assessment",UI section title
+3 - Economic Beliefs,Economic Scenario Beliefs,Subsection title for scenario weights,string,"Economic Scenario Beliefs",UI subsection title
+3 - Economic Beliefs,Methodology,Tab title for methodology explanation,string,"Methodology",UI tab title
+3 - Economic Beliefs,Mathematical Framework,Section title for technical explanation,string,"Mathematical Framework",UI section title
+3 - Economic Beliefs,Historical Precedents,Section title for historical data,string,"Historical Precedents",UI section title
+3 - Economic Beliefs,Data Sources,Section title for data sourcing,string,"Data Sources",UI section title
+3 - Economic Beliefs,Model Limitations,Section title for model constraints,string,"Model Limitations",UI section title
+3 - Economic Beliefs,Auto Complete,Button text for automatic completion,string,"Auto Complete",UI button text
+3 - Economic Beliefs,Question X of Y,Progress indicator format,string,"Question 5 of 12",Progress display
+4 - Portfolio Analysis,CASH,Cash holdings allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,BILLS_SHORT_GILTS,Short-term government bonds allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,GILTS_LONG,Long-term government bonds allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,IG_CREDIT,Investment grade credit allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,GLOBAL_EQUITY,Global equity allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,UK_EQUITY_VALUE,UK value equity allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,GROWTH_TECH,Growth and technology equity allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,PROPERTY_UK_RESI,UK residential property allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,COMMODITIES,Commodities allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,GOLD,Gold allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,ALTERNATIVES,Alternative investments allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,CRYPTO_BTC,Bitcoin allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,CRYPTO_ETH,Ethereum allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,COLLECTIBLES_ART,Art collectibles allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,COLLECTIBLES_WINE,Wine collectibles allocation,decimal,0.0-1.0,Asset bucket
+4 - Portfolio Analysis,currentMix,Current portfolio allocation by asset bucket,object,Asset bucket → percentage,Portfolio state
+4 - Portfolio Analysis,targetMix,Recommended portfolio allocation by asset bucket,object,Asset bucket → percentage,Portfolio target
+4 - Portfolio Analysis,baseMix,Persona baseline allocation before scenario tilts,object,Asset bucket → percentage,Baseline allocation
+4 - Portfolio Analysis,scenarioBlend,Pure scenario-weighted allocation,object,Asset bucket → percentage,Scenario impact
+4 - Portfolio Analysis,preRulesMix,Allocation before applying portfolio rules,object,Asset bucket → percentage,Pre-adjustment state
+4 - Portfolio Analysis,tiltStrength,Strength of scenario tilting applied,decimal,0.0-1.0,Scenario influence
+4 - Portfolio Analysis,cashBillsNow,Current cash + short gilts percentage,decimal,0.0-1.0,Liquidity metric
+4 - Portfolio Analysis,cashBillsTarget,Target cash + short gilts percentage,decimal,0.0-1.0,Liquidity target
+4 - Portfolio Analysis,hhiNow,Current Herfindahl-Hirschman Index for diversification,decimal,0.0-1.0,Concentration measure
+4 - Portfolio Analysis,hhiTarget,Target Herfindahl-Hirschman Index for diversification,decimal,0.0-1.0,Diversification target
+4 - Portfolio Analysis,nEffNow,Current effective number of assets,decimal,1.0+,Diversification metric
+4 - Portfolio Analysis,nEffTarget,Target effective number of assets,decimal,1.0+,Diversification goal
+4 - Portfolio Analysis,beliefAlignmentNow,Current alignment with economic beliefs,number,0-100,Belief consistency
+4 - Portfolio Analysis,beliefAlignmentTarget,Target alignment with economic beliefs,number,0-100,Belief alignment goal
+4 - Portfolio Analysis,Portfolio Analysis,Main tab title,string,"Portfolio Analysis",UI tab title
+4 - Portfolio Analysis,Asset Allocation,Section title for allocation breakdown,string,"Asset Allocation",UI section title
+4 - Portfolio Analysis,Total Portfolio Value (£),Form field label,string,"Total Portfolio Value (£)",Form label
+4 - Portfolio Analysis,Asset Allocation (must total 100%),Form section header,string,"Asset Allocation (must total 100%)",Form instruction
+4 - Portfolio Analysis,Current Portfolio,Chart title for current allocation,string,"Current Portfolio",Chart title
+4 - Portfolio Analysis,Target Portfolio,Chart title for recommended allocation,string,"Target Portfolio",Chart title
+4 - Portfolio Analysis,Interactive breakdown,Chart caption text,string,"Interactive breakdown of your recommended asset allocation",Chart description
+4 - Portfolio Analysis,Cash & Fixed Income,Asset class group label,string,"Cash & Fixed Income",Asset group label
+4 - Portfolio Analysis,Global Equity,Asset class group label,string,"Global Equity",Asset group label
+4 - Portfolio Analysis,Tech & Growth,Asset class group label,string,"Tech & Growth",Asset group label
+4 - Portfolio Analysis,Property,Asset class group label,string,"Property",Asset group label
+4 - Portfolio Analysis,Commodities & Gold,Asset class group label,string,"Commodities & Gold",Asset group label
+4 - Portfolio Analysis,Alternatives,Asset class group label,string,"Alternatives",Asset group label
+4 - Portfolio Analysis,Cryptocurrency,Asset class group label,string,"Cryptocurrency",Asset group label
+4 - Portfolio Analysis,Collectibles,Asset class group label,string,"Collectibles",Asset group label
+4 - Portfolio Analysis,Value,Tooltip label for portfolio value,string,"Value",Tooltip label
+4 - Portfolio Analysis,Allocation,Tooltip label for percentage allocation,string,"Allocation",Tooltip label
+4 - Portfolio Analysis,Investments,Tooltip label for number of holdings,string,"Investments",Tooltip label
+5 - Investment Strategy,bucket,Asset bucket name,string,Asset bucket identifier,Asset classification
+5 - Investment Strategy,currentPct,Current allocation percentage,decimal,0.0-1.0,Current state
+5 - Investment Strategy,targetPct,Target allocation percentage,decimal,0.0-1.0,Recommended state
+5 - Investment Strategy,deltaPct,Change required (target - current),decimal,-1.0 to 1.0,Required adjustment
+5 - Investment Strategy,flags,Warning or status flags for the allocation,array of strings,"Liquidity floor warning",Risk alerts
+5 - Investment Strategy,absGapSum,Sum of absolute allocation differences,decimal,0.0+,Total change magnitude
+5 - Investment Strategy,headlineFlags,High-level portfolio warnings,array of strings,Portfolio-level alerts,Risk management
+5 - Investment Strategy,turnoverPp,Portfolio turnover in percentage points,decimal,0.0+,Transaction volume
+5 - Investment Strategy,estCostPct,Estimated transaction cost percentage,decimal,0.0+,Cost estimation
+5 - Investment Strategy,liquidityRunwayMonths,Months of liquidity available,object,"{ now: 12, target: 18 }",Liquidity planning
+5 - Investment Strategy,overview,Single sentence strategy summary,string,High-level strategy description,Strategy summary
+5 - Investment Strategy,bullets,Detailed strategy bullet points,array of strings,3-6 human-readable explanations,Strategy details
+5 - Investment Strategy,topAdds,Assets to increase most,array of objects,"{ bucket: string, pp: number }",Increase priorities
+5 - Investment Strategy,topTrims,Assets to decrease most,array of objects,"{ bucket: string, pp: number }",Decrease priorities
+5 - Investment Strategy,Portfolio Recommendations,Main section title,string,"Portfolio Recommendations",UI section title
+5 - Investment Strategy,Persona Gap Analysis (Base Mix),Analysis section title,string,"Persona Gap Analysis (Base Mix)",UI section title
+5 - Investment Strategy,Strategic Commentary,Commentary section title,string,"Strategic Commentary",UI section title
+5 - Investment Strategy,Portfolio Alerts,Warning section title,string,"Portfolio Alerts",UI section title
+5 - Investment Strategy,Total Changes,Summary metric label,string,"Total Changes",UI metric label
+5 - Investment Strategy,Current %,Table column header for current allocation,string,"Current %",Table header
+5 - Investment Strategy,Target %,Table column header for target allocation,string,"Target %",Table header
+5 - Investment Strategy,Δ (pp),Table column header for percentage point change,string,"Δ (pp)",Table header
+5 - Investment Strategy,Flags,Table column header for warnings,string,"Flags",Table header
+5 - Investment Strategy,Risk Assessment,Section title for risk analysis,string,"Risk Assessment",UI section title
+5 - Investment Strategy,Performance Analysis,Section title for performance metrics,string,"Performance Analysis",UI section title
+5 - Investment Strategy,Economic Scenario Testing,Section title for stress testing,string,"Economic Scenario Testing",UI section title
+5 - Investment Strategy,Active Scenario,Label for currently applied scenario,string,"Active Scenario",UI status label
+5 - Investment Strategy,AI-Powered Insights,Section title for AI analysis,string,"AI-Powered Insights",UI section title
+5 - Investment Strategy,Opportunities,Subsection for investment opportunities,string,"Opportunities",UI subsection title
+5 - Investment Strategy,Recommendations,Subsection for strategy recommendations,string,"Recommendations",UI subsection title
+5 - Investment Strategy,Portfolio Flags,Section for portfolio-level warnings,string,"Portfolio Flags",UI section title
+5 - Investment Strategy,House Rules Applied,Section for applied constraints,string,"House Rules Applied",UI section title
+5 - Investment Strategy,Run Simulation,Button text to execute simulation,string,"Run Simulation",UI button text
+5 - Investment Strategy,Time Horizon,Simulation parameter label,string,"Time Horizon",UI parameter label
+5 - Investment Strategy,Current Portfolio,Simulation results section for current holdings,string,"Current Portfolio",UI results section
+5 - Investment Strategy,Recommended Portfolio,Simulation results section for target holdings,string,"Recommended Portfolio",UI results section
+5 - Investment Strategy,£ Impact,Simulation results metric label,string,"£ Impact",UI metric label
+5 - Investment Strategy,Win Probability,Simulation results metric label,string,"Win Probability",UI metric label
+5 - Investment Strategy,Breakeven,Simulation results metric label,string,"Breakeven",UI metric label
+5 - Investment Strategy,Downside Risk,Simulation results metric label,string,"Downside Risk",UI metric label
+5 - Investment Strategy,Portfolio Evolution,Chart title for time series analysis,string,"Portfolio Evolution",Chart title
+5 - Investment Strategy,Attribution Analysis,Section title for performance attribution,string,"Attribution Analysis",UI section title
+5 - Investment Strategy,Stress Tests,Section title for scenario testing,string,"Stress Tests",UI section title
+5 - Investment Strategy,Expected Return,Performance metric label,string,"Expected Return",UI metric label
+5 - Investment Strategy,Volatility,Risk metric label,string,"Volatility",UI metric label
+5 - Investment Strategy,Max Drawdown,Risk metric label,string,"Max Drawdown",UI metric label
+5 - Investment Strategy,Sharpe Ratio,Performance metric label,string,"Sharpe Ratio",UI metric label
+5 - Investment Strategy,Value at Risk,Risk metric label,string,"Value at Risk",UI metric label
+5 - Investment Strategy,Portfolio Beta,Risk metric label,string,"Portfolio Beta",UI metric label
+5 - Investment Strategy,Concentration Risk,Risk analysis section,string,"Concentration Risk",UI risk label
+5 - Investment Strategy,Diversification Score,Portfolio metric label,string,"Diversification Score",UI metric label
+5 - Investment Strategy,Monte Carlo,Simulation method label,string,"Monte Carlo",UI method label
+5 - Investment Strategy,Median Return,Monte Carlo result metric,string,"Median Return",UI result metric
+5 - Investment Strategy,95th Percentile,Monte Carlo result metric,string,"95th Percentile",UI result metric
+5 - Investment Strategy,5th Percentile,Monte Carlo result metric,string,"5th Percentile",UI result metric
+5 - Investment Strategy,Probability of Loss,Monte Carlo result metric,string,"Probability of Loss",UI result metric
+5 - Investment Strategy,High,Risk/confidence level indicator,string,"High",UI level indicator
+5 - Investment Strategy,Moderate,Risk/confidence level indicator,string,"Moderate",UI level indicator
+5 - Investment Strategy,Low,Risk/confidence level indicator,string,"Low",UI level indicator
+6 - Action Plan,type,Action type classification,string,"TRIM, ADD, TRANSFER",Action category
+6 - Action Plan,bucket,Asset bucket for the action,string,Asset bucket identifier,Action target
+6 - Action Plan,deltaPct,Change as fraction of total portfolio,decimal,-1.0 to 1.0,Portfolio impact
+6 - Action Plan,amountGBP,Monetary value of the action in GBP,number,Positive number,Transaction amount
+6 - Action Plan,rationale,Explanation for why action is needed,string,Human-readable justification,Action reasoning
+6 - Action Plan,stage,Implementation stage (1 = immediate, 2 = later),number,"1, 2",Execution timing
+6 - Action Plan,estCostPct,Estimated transaction cost percentage,decimal,0.0+,Cost impact
+6 - Action Plan,totalAbsChangePp,Total absolute change in percentage points,decimal,0.0+,Change magnitude
+6 - Action Plan,estTurnoverPp,Estimated portfolio turnover,decimal,0.0+,Activity level
+6 - Action Plan,liquidityNowPct,Current liquidity percentage,decimal,0.0-1.0,Current liquidity
+6 - Action Plan,liquidityTargetPct,Target liquidity percentage,decimal,0.0-1.0,Liquidity goal
+6 - Action Plan,liquidityFixPp,Liquidity adjustment needed,decimal,0.0+,Liquidity correction
+6 - Action Plan,playbook,Step-by-step execution instructions,array of strings,Detailed action steps,Implementation guide
+6 - Action Plan,portfolioValueGBP,Total portfolio value in GBP,number,Positive number,Portfolio size
+6 - Action Plan,liquidityFloorPct,Minimum required liquidity percentage,decimal,0.0-1.0,Liquidity constraint
+6 - Action Plan,minTradePct,Minimum trade size as percentage of portfolio,decimal,0.0-1.0,Trade sizing
+6 - Action Plan,maxMoves,Maximum number of actions allowed,number,Positive integer,Action limit
+6 - Action Plan,stageIlliquids,Whether to stage illiquid asset trades,boolean,"true, false",Execution strategy
+6 - Action Plan,Action Plan,Main section title,string,"Action Plan",UI section title
+6 - Action Plan,Investor Summary,Profile section title,string,"Investor Summary",UI section title
+6 - Action Plan,Investment Playbook,Implementation section title,string,"Investment Playbook",UI section title
+6 - Action Plan,Stage 1: Do Now,Immediate actions section title,string,"Stage 1: Do Now",UI section title
+6 - Action Plan,Stage 2: Later,Deferred actions section title,string,"Stage 2: Later",UI section title
+6 - Action Plan,Total Change,Summary metric for portfolio turnover,string,"Total Change",UI metric label
+6 - Action Plan,Est. Turnover,Summary metric for estimated turnover,string,"Est. Turnover",UI metric label
+6 - Action Plan,Est. Cost,Summary metric for transaction costs,string,"Est. Cost",UI metric label
+6 - Action Plan,Current Liquidity,Summary metric for current cash position,string,"Current Liquidity",UI metric label
+6 - Action Plan,Target Liquidity,Summary metric for target cash position,string,"Target Liquidity",UI metric label
+6 - Action Plan,Action,Table column header for action type,string,"Action",Table header
+6 - Action Plan,Asset,Table column header for asset bucket,string,"Asset",Table header
+6 - Action Plan,Change (pp),Table column header for percentage point change,string,"Change (pp)",Table header
+6 - Action Plan,Amount (GBP),Table column header for transaction amount,string,"Amount (GBP)",Table header
+6 - Action Plan,Rationale,Table column header for action reasoning,string,"Rationale",Table header
+6 - Action Plan,Est. Cost %,Table column header for estimated costs,string,"Est. Cost %",Table header
+6 - Action Plan,TRIM,Action type for reducing allocation,string,"TRIM",Action type label
+6 - Action Plan,ADD,Action type for increasing allocation,string,"ADD",Action type label
+6 - Action Plan,TRANSFER,Action type for moving between assets,string,"TRANSFER",Action type label
+6 - Action Plan,Liquidity Fix,Special action type for liquidity adjustment,string,"Liquidity Fix",Action type label
+6 - Action Plan,Rebalancing,General category for portfolio adjustments,string,"Rebalancing",Action category label
+6 - Action Plan,Save Plan,Button text to save action plan,string,"Save Plan",UI button text
+6 - Action Plan,Export CSV,Button text to export plan data,string,"Export CSV",UI button text
+6 - Action Plan,Implementation,Section for execution guidance,string,"Implementation",UI section title
+6 - Action Plan,Priority,Action priority indicator,string,"Priority",UI priority label
+6 - Action Plan,Status,Action completion status,string,"Status",UI status label
+6 - Action Plan,Queued,Status indicator for pending actions,string,"Queued",Status label
+6 - Action Plan,Processing,Status indicator for active actions,string,"Processing",Status label
+6 - Action Plan,Completed,Status indicator for finished actions,string,"Completed",Status label
+6 - Action Plan,Failed,Status indicator for unsuccessful actions,string,"Failed",Status label
+All Steps,Verified,Status badge for verified entities,string,"Verified",UI status badge
+All Steps,Unverified,Status badge for unverified entities,string,"Unverified",UI status badge
+All Steps,Loading...,Loading state indicator,string,"Loading...",UI loading text
+All Steps,Error,Error state indicator,string,"Error",UI error text
+All Steps,Success,Success state indicator,string,"Success",UI success text
+All Steps,Warning,Warning state indicator,string,"Warning",UI warning text
+All Steps,Info,Information state indicator,string,"Info",UI info text
+All Steps,Today,Relative date indicator,string,"Today",Date display
+All Steps,Yesterday,Relative date indicator,string,"Yesterday",Date display
+All Steps,X days ago,Relative date format,string,"5 days ago",Date display format
+All Steps,Analyze Portfolio,Button text for portfolio analysis,string,"Analyze Portfolio",UI button text
+All Steps,Refresh,Button text for data refresh,string,"Refresh",UI button text
+All Steps,Save,Button text for saving data,string,"Save",UI button text
+All Steps,Cancel,Button text for canceling action,string,"Cancel",UI button text
+All Steps,Continue,Button text for proceeding,string,"Continue",UI button text
+All Steps,Back,Button text for going back,string,"Back",UI button text
+All Steps,Next,Button text for proceeding forward,string,"Next",UI button text
+All Steps,Skip,Button text for skipping step,string,"Skip",UI button text
