@@ -1719,12 +1719,10 @@ function PersonaQuizContent() {
           </CardHeader>
           
           <CardContent className="relative space-y-6">
-            {/* DEBUG: Force show description */}
+            {/* FORCED TEST DESCRIPTION BOX */}
             <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10">
               <p className="text-lg leading-relaxed text-center font-medium text-[var(--foreground)]">
-                {INVESTMENT_PERSONAS[result.topMatch.persona.code]?.description || 
-                 (result.topMatch.persona.code === "P010" ? "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency." : 
-                  "Investment professional focused on diversified portfolio management with systematic risk controls and regulatory compliance.")}
+                This is a test description to verify the box renders correctly. If you can see this, the div is working but the persona data lookup is failing.
               </p>
             </div>
             
