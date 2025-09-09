@@ -98,18 +98,32 @@ const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ p
             </Badge>
           </div>
         </div>
-        {/* Investment Approach */}
-        <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-          <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
-            <div style={{ color: 'white' }}>
-              {getApproachIcon(persona.approach)}
+        {/* Investment Approach & Age */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
+            <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
+              <div style={{ color: 'white' }}>
+                {getApproachIcon(persona.approach)}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Style</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--card-foreground)' }}>
+                {persona.approach === 'SELF_DIRECTED' ? 'Self' : persona.approach === 'HYBRID' ? 'Hybrid' : 'Advised'}
+              </p>
             </div>
           </div>
-          <div>
-            <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Investment Style</p>
-            <p className="text-sm font-semibold" style={{ color: 'var(--card-foreground)' }}>
-              {persona.approach === 'SELF_DIRECTED' ? 'Self-Directed' : persona.approach === 'HYBRID' ? 'Hybrid' : 'Advised'}
-            </p>
+          
+          <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
+            <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--secondary)' }}>
+              <Clock className="h-3 w-3 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Age</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--card-foreground)' }}>
+                {persona.age_range[0]}-{persona.age_range[1]}
+              </p>
+            </div>
           </div>
         </div>
         
@@ -247,6 +261,23 @@ const PersonaDetailDialog: React.FC<{
                 </div>
                 <p className="text-lg font-bold capitalize" style={{ color: 'var(--card-foreground)' }}>{persona.concentrationTolerance}</p>
               </div>
+            </div>
+          </div>
+          
+          {/* Investment Goals */}
+          <div className="rounded-xl p-6" style={{ backgroundColor: 'var(--muted)' }}>
+            <h4 className="font-semibold mb-4 text-lg" style={{ color: 'var(--card-foreground)' }}>Investment Goals</h4>
+            <div className="space-y-3">
+              {persona.goals.map((goal, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center mt-0.5" style={{ backgroundColor: 'var(--primary)' }}>
+                    <span className="text-xs font-bold text-white">{index + 1}</span>
+                  </div>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+                    {goal}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
           
