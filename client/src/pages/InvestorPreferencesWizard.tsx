@@ -5497,8 +5497,12 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                       <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-64 text-sm">
-                    <p>Sum of all absolute percentage point moves required across your portfolio. Shows the total scale of rebalancing needed.</p>
+                  <PopoverContent className="w-72 text-sm">
+                    <div className="space-y-2">
+                      <p className="font-medium">Total Changes Required</p>
+                      <p>How much trading activity is needed to reach your target - this can exceed 100% because it counts both sales and purchases separately, not your net portfolio change.</p>
+                      <p>Sum of all absolute percentage point moves across asset classes (Σ|target% - current%|). Each transaction is counted individually - selling 80% stocks and buying 40% bonds + 40% cash = 160% total changes.</p>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -5521,8 +5525,12 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                       <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-64 text-sm">
-                    <p>Portfolio turnover rate - approximately half of total changes, representing the actual buying/selling activity required.</p>
+                  <PopoverContent className="w-72 text-sm">
+                    <div className="space-y-2">
+                      <p className="font-medium">Portfolio Turnover</p>
+                      <p>How much of your portfolio will be bought and sold to implement the strategy - roughly half of total changes since each trade involves both buying and selling.</p>
+                      <p>Calculated as Total Changes ÷ 2, representing the single-sided turnover rate. Industry benchmark for active portfolios is 20-100% annually depending on strategy.</p>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -5545,8 +5553,12 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                       <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-64 text-sm">
-                    <p>Estimated transaction costs as a percentage of total portfolio value, including spreads, fees, and market impact costs.</p>
+                  <PopoverContent className="w-72 text-sm">
+                    <div className="space-y-2">
+                      <p className="font-medium">Implementation Costs</p>
+                      <p>The total cost to make all these changes to your portfolio, including broker fees, spreads between buy/sell prices, and the impact of your trades on market prices.</p>
+                      <p>Comprehensive cost estimate including bid-ask spreads (0.1-2%), transaction fees (0.1-0.5%), and market impact costs (0.01-0.1%). Calculated as weighted average across all required trades.</p>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -5569,8 +5581,12 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                       <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-64 text-sm">
-                    <p>Your current allocation to highly liquid assets (cash and short-term government bonds) that can be accessed quickly.</p>
+                  <PopoverContent className="w-72 text-sm">
+                    <div className="space-y-2">
+                      <p className="font-medium">Current Liquidity Position</p>
+                      <p>How much of your portfolio is currently in cash or assets you can quickly turn into cash for emergencies or opportunities.</p>
+                      <p>Percentage allocated to highly liquid assets (cash + short-term government bonds), calculated as (CASH + BILLS_SHORT_GILTS) × 100. Typical target ranges from 10-20% depending on risk profile.</p>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
