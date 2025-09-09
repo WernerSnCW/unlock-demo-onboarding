@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { INVESTMENT_PERSONAS, DIMENSION_LABELS, PersonaDef } from '@/data/personas';
-import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown } from 'lucide-react';
+import { PERSONA_DEFAULTS, type AssetBucket, type Mix } from '@/data/personaDefaults';
+import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown, PieChart } from 'lucide-react';
 
 const getRiskProfileColor = (riskProfile: string) => {
   switch (riskProfile.toLowerCase()) {
@@ -249,6 +250,12 @@ const PersonaDetailDialog: React.FC<{
             </div>
           </div>
           
+          {/* Portfolio Mix */}
+          <div className="rounded-xl p-6" style={{ backgroundColor: 'var(--muted)' }}>
+            <h4 className="font-semibold mb-4 text-lg" style={{ color: 'var(--card-foreground)' }}>Recommended Portfolio Mix</h4>
+            <PortfolioMixDisplay personaCode={persona.code} />
+          </div>
+          
           {/* Investment Biases */}
           <div className="rounded-xl p-6" style={{ backgroundColor: 'var(--muted)' }}>
             <h4 className="font-semibold mb-4 text-lg" style={{ color: 'var(--card-foreground)' }}>Investment Biases</h4>
@@ -334,6 +341,132 @@ const PersonaDetailDialog: React.FC<{
     </Dialog>
   );
 };
+
+// Component to display portfolio mix for a persona
+function PortfolioMixDisplay({ personaCode }: { personaCode: string }) {
+  const mix = PERSONA_DEFAULTS[personaCode];
+  
+  if (!mix) {
+    return <p className="text-sm text-muted-foreground">Portfolio mix not available</p>;
+  }
+
+  // Group assets by category for better display
+  const getAssetIcon = (bucket: AssetBucket) => {
+    switch (bucket) {
+      case 'CASH':
+      case 'BILLS_SHORT_GILTS':
+      case 'GILTS_LONG':
+      case 'IG_CREDIT':
+        return '💰';
+      case 'GLOBAL_EQUITY':
+      case 'UK_EQUITY_VALUE':
+      case 'GROWTH_TECH':
+        return '📈';
+      case 'PROPERTY_UK_RESI':
+        return '🏠';
+      case 'COMMODITIES':
+      case 'GOLD':
+        return '🥇';
+      case 'ALTERNATIVES':
+        return '🔮';
+      case 'CRYPTO_BTC':
+      case 'CRYPTO_ETH':
+        return '₿';
+      case 'COLLECTIBLES_ART':
+      case 'COLLECTIBLES_WINE':
+        return '🎨';
+      default:
+        return '📊';
+    }
+  };
+
+  const getAssetLabel = (bucket: AssetBucket) => {
+    const labels: Record<AssetBucket, string> = {
+      'CASH': 'Cash',
+      'BILLS_SHORT_GILTS': 'Bills & Short Gilts',
+      'GILTS_LONG': 'Long Gilts',
+      'IG_CREDIT': 'IG Credit',
+      'GLOBAL_EQUITY': 'Global Equity',
+      'UK_EQUITY_VALUE': 'UK Equity Value',
+      'GROWTH_TECH': 'Growth & Tech',
+      'PROPERTY_UK_RESI': 'UK Property',
+      'COMMODITIES': 'Commodities',
+      'GOLD': 'Gold',
+      'ALTERNATIVES': 'Alternatives',
+      'CRYPTO_BTC': 'Bitcoin',
+      'CRYPTO_ETH': 'Ethereum',
+      'COLLECTIBLES_ART': 'Art',
+      'COLLECTIBLES_WINE': 'Wine'
+    };
+    return labels[bucket];
+  };
+
+  // Filter out zero allocations and sort by size
+  const nonZeroAllocations = Object.entries(mix)
+    .filter(([_, allocation]) => allocation > 0)
+    .sort(([_, a], [__, b]) => b - a);
+
+  // Group into major categories
+  const categories = {
+    'Fixed Income & Cash': ['CASH', 'BILLS_SHORT_GILTS', 'GILTS_LONG', 'IG_CREDIT'],
+    'Equities': ['GLOBAL_EQUITY', 'UK_EQUITY_VALUE', 'GROWTH_TECH'],
+    'Real Assets': ['PROPERTY_UK_RESI', 'COMMODITIES', 'GOLD'],
+    'Alternative Investments': ['ALTERNATIVES', 'CRYPTO_BTC', 'CRYPTO_ETH', 'COLLECTIBLES_ART', 'COLLECTIBLES_WINE']
+  };
+
+  return (
+    <div className="space-y-4">
+      {Object.entries(categories).map(([categoryName, buckets]) => {
+        const categoryAllocations = buckets
+          .map(bucket => [bucket as AssetBucket, mix[bucket as AssetBucket]] as const)
+          .filter(([_, allocation]) => allocation > 0);
+        
+        if (categoryAllocations.length === 0) return null;
+        
+        const categoryTotal = categoryAllocations.reduce((sum, [_, allocation]) => sum + allocation, 0);
+        
+        return (
+          <div key={categoryName} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h5 className="font-medium text-sm" style={{ color: 'var(--card-foreground)' }}>
+                {categoryName}
+              </h5>
+              <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
+                {(categoryTotal * 100).toFixed(1)}%
+              </span>
+            </div>
+            <div className="space-y-1 ml-4">
+              {categoryAllocations.map(([bucket, allocation]) => (
+                <div key={bucket} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs">{getAssetIcon(bucket)}</span>
+                    <span style={{ color: 'var(--muted-foreground)' }}>
+                      {getAssetLabel(bucket)}
+                    </span>
+                  </div>
+                  <span className="font-medium" style={{ color: 'var(--card-foreground)' }}>
+                    {(allocation * 100).toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+      
+      {/* Summary */}
+      <div className="border-t pt-3 mt-4" style={{ borderColor: 'var(--border)' }}>
+        <div className="flex items-center justify-between text-sm font-medium">
+          <span style={{ color: 'var(--card-foreground)' }}>Total Portfolio</span>
+          <span style={{ color: 'var(--primary)' }}>100.0%</span>
+        </div>
+        <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+          {nonZeroAllocations.length} asset classes allocated
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export interface PersonaShowcaseProps {
   onPersonaSelect?: (persona: PersonaDef) => void;
