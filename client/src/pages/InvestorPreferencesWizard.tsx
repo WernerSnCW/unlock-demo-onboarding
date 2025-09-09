@@ -3085,17 +3085,31 @@ function ScenarioImpactAnalysisSection() {
           });
           
           if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations) {
-            // Parse belief weights
-            let weights = [];
+            // Parse belief weights and convert to array format
+            let weightsData = beliefData.scenarioWeights;
             try {
-              weights = typeof beliefData.scenarioWeights === 'string' 
+              weightsData = typeof beliefData.scenarioWeights === 'string' 
                 ? JSON.parse(beliefData.scenarioWeights) 
                 : beliefData.scenarioWeights;
             } catch (e) {
               console.error('Error parsing scenario weights:', e);
             }
             
-            console.log('Setting up analysis with weights:', weights);
+            // Convert object format to array format for the components
+            let weights = [];
+            if (Array.isArray(weightsData)) {
+              weights = weightsData;
+            } else if (typeof weightsData === 'object') {
+              // Convert object to array format
+              weights = Object.entries(weightsData).map(([scenario, weight]) => ({
+                scenario,
+                weight: typeof weight === 'number' ? weight * 100 : weight, // Convert to percentage for display
+                normalizedWeight: typeof weight === 'number' ? weight : weight,
+                isMasked: false
+              }));
+            }
+            
+            console.log('Setting up analysis with weights array:', weights);
             setOriginalBeliefWeights(weights);
             setCustomScenarioWeights([...weights]);
             setShowAnalysis(true);
@@ -3112,18 +3126,34 @@ function ScenarioImpactAnalysisSection() {
 
     checkDataCompletion();
     
-    // Poll every 2 seconds to check for completion
-    const interval = setInterval(checkDataCompletion, 2000);
+    // Only poll a few times, then stop
+    let pollCount = 0;
+    const interval = setInterval(() => {
+      pollCount++;
+      if (pollCount <= 3) {
+        checkDataCompletion();
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
     
     return () => clearInterval(interval);
   }, []);
 
   if (!showAnalysis) {
+    console.log('ScenarioImpactAnalysisSection: Not showing analysis, showAnalysis =', showAnalysis);
     return null;
   }
 
+  console.log('ScenarioImpactAnalysisSection: RENDERING ANALYSIS SECTION with weights:', originalBeliefWeights.length);
+
   return (
     <div className="mt-12">
+      <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
+        <p className="text-blue-800">DEBUG: Scenario Analysis Section is rendering</p>
+        <p className="text-sm text-blue-600">Weights count: {originalBeliefWeights.length}</p>
+      </div>
+
       {/* Scenario Weight Adjustment */}
       {originalBeliefWeights.length > 0 && (
         <ScenarioWeightAdjustment 
