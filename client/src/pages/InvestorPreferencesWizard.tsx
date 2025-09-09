@@ -1328,6 +1328,11 @@ function BeliefQuestionnaireComponent({
   // State for scenario selection interface (moved to top level to avoid hooks rule violation)
   const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
   const [scenarioWeights, setScenarioWeights] = useState<any[]>([]);
+  
+  // State for custom scenario weight management
+  const [originalBeliefWeights, setOriginalBeliefWeights] = useState<any[]>([]);
+  const [customScenarioWeights, setCustomScenarioWeights] = useState<any[]>([]);
+  const [isUsingCustomWeights, setIsUsingCustomWeights] = useState(false);
 
   // Load matched persona from localStorage
   useEffect(() => {
@@ -1446,6 +1451,11 @@ function BeliefQuestionnaireComponent({
       scenarioArray.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
       
       setScenarioWeights(scenarioArray);
+      
+      // Store original belief-calculated weights and initialize custom weights
+      setOriginalBeliefWeights([...scenarioArray]);
+      setCustomScenarioWeights([...scenarioArray]);
+      setIsUsingCustomWeights(false);
       
       // Auto-select top 3 non-masked scenarios
       const topScenarios = scenarioArray.filter(s => !s.isMasked).slice(0, 3);
