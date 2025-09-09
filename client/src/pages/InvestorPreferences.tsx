@@ -1726,6 +1726,12 @@ function PersonaQuizContent() {
               </p>
             </div>
             
+            <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10 mb-4">
+              <p className="text-lg leading-relaxed text-center font-medium text-[var(--foreground)] mb-3">
+                {INVESTMENT_PERSONAS[result.topMatch.persona.code]?.description || "Investor with significant single-stock concentration seeking to systematically reduce idiosyncratic risk while building diversified core portfolio around legacy position."}
+              </p>
+            </div>
+            
             <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] border-l-4 border-l-[var(--primary)]">
               <p className="text-sm italic text-[var(--muted-foreground)]">
                 "{result.topMatch.persona.notes}"
