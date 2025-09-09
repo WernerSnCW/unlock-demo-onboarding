@@ -2715,9 +2715,9 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
   ].filter(item => item.value > 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-[1400px] mx-auto px-6 py-8">
       {/* Side-by-Side Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Left Side - Portfolio Recommendation */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
