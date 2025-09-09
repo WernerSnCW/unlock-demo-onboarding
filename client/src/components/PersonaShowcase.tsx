@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { INVESTMENT_PERSONAS, DIMENSION_LABELS, PersonaDef } from '@/data/personas';
 import { PERSONA_DEFAULTS, type AssetBucket, type Mix } from '@/data/personaDefaults';
-import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown, PieChart } from 'lucide-react';
+import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown, PieChart, Banknote, LineChart, Building, Coins, Globe, MapPin, Cpu, Landmark, Gem, Bitcoin, Palette, Wine } from 'lucide-react';
 
 const getRiskProfileColor = (riskProfile: string) => {
   switch (riskProfile.toLowerCase()) {
@@ -352,31 +352,41 @@ function PortfolioMixDisplay({ personaCode }: { personaCode: string }) {
 
   // Group assets by category for better display
   const getAssetIcon = (bucket: AssetBucket) => {
+    const iconProps = { className: "h-4 w-4", style: { color: 'var(--primary)' } };
+    
     switch (bucket) {
       case 'CASH':
+        return <Banknote {...iconProps} />;
       case 'BILLS_SHORT_GILTS':
+        return <Landmark {...iconProps} />;
       case 'GILTS_LONG':
+        return <Building {...iconProps} />;
       case 'IG_CREDIT':
-        return '💰';
+        return <LineChart {...iconProps} />;
       case 'GLOBAL_EQUITY':
+        return <Globe {...iconProps} />;
       case 'UK_EQUITY_VALUE':
+        return <MapPin {...iconProps} />;
       case 'GROWTH_TECH':
-        return '📈';
+        return <Cpu {...iconProps} />;
       case 'PROPERTY_UK_RESI':
-        return '🏠';
+        return <Home {...iconProps} />;
       case 'COMMODITIES':
+        return <TrendingUp {...iconProps} />;
       case 'GOLD':
-        return '🥇';
+        return <Coins {...iconProps} />;
       case 'ALTERNATIVES':
-        return '🔮';
+        return <Target {...iconProps} />;
       case 'CRYPTO_BTC':
+        return <Bitcoin {...iconProps} />;
       case 'CRYPTO_ETH':
-        return '₿';
+        return <Zap {...iconProps} />;
       case 'COLLECTIBLES_ART':
+        return <Palette {...iconProps} />;
       case 'COLLECTIBLES_WINE':
-        return '🎨';
+        return <Wine {...iconProps} />;
       default:
-        return '📊';
+        return <PieChart {...iconProps} />;
     }
   };
 
@@ -438,8 +448,8 @@ function PortfolioMixDisplay({ personaCode }: { personaCode: string }) {
             <div className="space-y-1 ml-4">
               {categoryAllocations.map(([bucket, allocation]) => (
                 <div key={bucket} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs">{getAssetIcon(bucket)}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">{getAssetIcon(bucket)}</div>
                     <span style={{ color: 'var(--muted-foreground)' }}>
                       {getAssetLabel(bucket)}
                     </span>
