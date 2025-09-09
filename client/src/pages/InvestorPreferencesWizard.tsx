@@ -425,7 +425,7 @@ export default function InvestorPreferencesWizard() {
         </Dialog>
 
         {/* Main Tab Navigation */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 relative">
+        <div className="w-full px-4 sm:px-6 lg:px-8 pb-20 relative">
           <Tabs value={showBeliefQuestionnaire ? 'beliefs' : activeMainTab} onValueChange={(value) => {
             if (value === 'beliefs') {
               setShowBeliefQuestionnaire(true);
