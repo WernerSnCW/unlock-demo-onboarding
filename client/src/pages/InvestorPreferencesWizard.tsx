@@ -2826,8 +2826,8 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
                       <PopoverContent className="w-72 text-sm">
                         <div className="space-y-2">
                           <p className="font-medium">Risk Profile</p>
-                          <p><strong>Simple:</strong> How much volatility and potential losses you're comfortable with in your investments.</p>
-                          <p><strong>Technical:</strong> Quantifies your tolerance for portfolio volatility and maximum acceptable drawdown, influencing asset allocation weightings between growth and defensive assets.</p>
+                          <p>How much volatility and potential losses you're comfortable with in your investments.</p>
+                          <p>Quantifies your tolerance for portfolio volatility and maximum acceptable drawdown, influencing asset allocation weightings between growth and defensive assets.</p>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -2846,8 +2846,8 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
                       <PopoverContent className="w-72 text-sm">
                         <div className="space-y-2">
                           <p className="font-medium">Investment Approach</p>
-                          <p><strong>Simple:</strong> How hands-on you prefer to be with your investments - from DIY to fully managed.</p>
-                          <p><strong>Technical:</strong> Determines portfolio complexity, rebalancing frequency, and whether you prefer passive index funds, active management, or alternative investments.</p>
+                          <p>How hands-on you prefer to be with your investments - from DIY to fully managed.</p>
+                          <p>Determines portfolio complexity, rebalancing frequency, and whether you prefer passive index funds, active management, or alternative investments.</p>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -2868,8 +2868,8 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
                       <PopoverContent className="w-72 text-sm">
                         <div className="space-y-2">
                           <p className="font-medium">Liquidity Buffer</p>
-                          <p><strong>Simple:</strong> How many months of expenses you keep in easily accessible cash and short-term bonds for emergencies.</p>
-                          <p><strong>Technical:</strong> Minimum allocation to highly liquid assets (cash, treasury bills, short-term government bonds) to meet unexpected funding needs without forced asset sales.</p>
+                          <p>How many months of expenses you keep in easily accessible cash and short-term bonds for emergencies.</p>
+                          <p>Minimum allocation to highly liquid assets (cash, treasury bills, short-term government bonds) to meet unexpected funding needs without forced asset sales.</p>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -2888,8 +2888,8 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
                       <PopoverContent className="w-72 text-sm">
                         <div className="space-y-2">
                           <p className="font-medium">Maximum Drawdown</p>
-                          <p><strong>Simple:</strong> The biggest percentage drop you're willing to accept before you'd want to sell everything and cut your losses.</p>
-                          <p><strong>Technical:</strong> Maximum acceptable peak-to-trough decline in portfolio value during market stress, used as a risk constraint in portfolio optimization and stress testing.</p>
+                          <p>The biggest percentage drop you're willing to accept before you'd want to sell everything and cut your losses.</p>
+                          <p>Maximum acceptable peak-to-trough decline in portfolio value during market stress, used as a risk constraint in portfolio optimization and stress testing.</p>
                         </div>
                       </PopoverContent>
                     </Popover>
