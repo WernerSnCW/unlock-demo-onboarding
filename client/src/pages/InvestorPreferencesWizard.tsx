@@ -1383,6 +1383,15 @@ function BeliefQuestionnaireComponent({
 
   const { toast } = useToast();
 
+  // Wrapper for autoComplete with scroll functionality
+  const handleBeliefsAutoComplete = useCallback((persona: any) => {
+    autoComplete(persona);
+    // Auto-scroll to top after completion
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 200);
+  }, [autoComplete]);
+
   // Calculate scenario weights from belief responses (moved to top level)
   useEffect(() => {
     if (isComplete && responses.length > 0) {
@@ -2099,7 +2108,7 @@ function BeliefQuestionnaireComponent({
             )}
             
             <Button
-              onClick={() => autoComplete(matchedPersona)}
+              onClick={() => handleBeliefsAutoComplete(matchedPersona)}
               size="lg"
               variant="outline"
               className="px-6 py-4 text-lg border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 text-[var(--warning)]"
