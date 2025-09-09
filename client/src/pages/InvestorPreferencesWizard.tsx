@@ -1443,6 +1443,22 @@ function BeliefQuestionnaireComponent({
     setSelectedScenarios(new Set());
   }, []);
 
+  // Get scenario description for display
+  const getScenarioDescription = useCallback((scenario: string): string => {
+    const descriptions: Record<string, string> = {
+      'recession': 'Economic downturn with declining GDP, rising unemployment, and reduced consumer spending. Markets typically favor defensive assets.',
+      'property_down': 'UK property market correction with falling house prices, impacting real estate investments and related sectors significantly.',
+      'stagflation': 'High inflation combined with economic stagnation - rising prices but slow growth. Gold and commodities typically perform well.',
+      'tech_correction': 'Technology sector selloff due to overvaluation concerns, affecting growth stocks and innovation-focused investments.',
+      'devaluation': 'Sterling weakens significantly against major currencies, benefiting exporters but increasing import costs and inflation.',
+      'gilt_selloff': 'UK government bonds face selling pressure, driving yields higher and bond prices lower. Duration risk increases.',
+      'energy_spike': 'Energy prices surge due to supply disruptions or geopolitical tensions, benefiting energy stocks but hurting consumers.',
+      'reflation': 'Economic recovery with moderate inflation and growth. Balanced scenario favoring growth equities and real assets.'
+    };
+    
+    return descriptions[scenario] || 'Economic scenario affecting market conditions and investment returns.';
+  }, []);
+
   const toggleScenarioSelection = useCallback((scenario: string) => {
     const newSelection = new Set(selectedScenarios);
     if (newSelection.has(scenario)) {
@@ -1772,7 +1788,10 @@ function BeliefQuestionnaireComponent({
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-[var(--muted-foreground)]">
+                        <div className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-2">
+                          {getScenarioDescription(item.scenario)}
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)] opacity-75">
                           Raw weight: {item.weight.toFixed(3)}
                           {item.isMasked && ' (below threshold)'}
                         </div>
