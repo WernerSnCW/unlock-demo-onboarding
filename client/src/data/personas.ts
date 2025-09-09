@@ -241,7 +241,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P010": {
     code: "P010",
     name: "The Financial Advisor",
-    description: "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency."
+    description: "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency.",
     portfolioValue: 950_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -361,7 +361,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P015": {
     code: "P015",
     name: "The Entrepreneur",
-    description: "Business owner balancing reinvestment in their company with personal diversification, using barbell liquidity approach and tax-efficient entrepreneurial reliefs."
+    description: "Business owner balancing reinvestment in their company with personal diversification, using barbell liquidity approach and tax-efficient entrepreneurial reliefs.",
     portfolioValue: 1_100_000,
     wealthTier: "Upper Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -457,7 +457,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P019": {
     code: "P019",
     name: "The HNW Family Office Client",
-    description: "Ultra-high-net-worth individual accessing sophisticated institutional investments, trusts, and structures through family office for multi-generational wealth preservation."
+    description: "Ultra-high-net-worth individual accessing sophisticated institutional investments, trusts, and structures through family office for multi-generational wealth preservation.",
     portfolioValue: 8_500_000,
     wealthTier: "UHNW",
     approach: "FULL_SERVICE",
