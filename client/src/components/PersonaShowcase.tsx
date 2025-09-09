@@ -48,62 +48,68 @@ const formatPortfolioValue = (value: number) => {
 const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ persona, onClick }) => {
   return (
     <Card 
-      className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.01] bg-card border border-border rounded-lg"
+      className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.01] bg-card border-2 border-transparent hover:border-[var(--primary)] rounded-2xl overflow-hidden"
       onClick={onClick}
       data-testid={`persona-card-${persona.code}`}
+      style={{ borderColor: 'var(--border)' }}
     >
+      {/* Colored Header Accent */}
+      <div className="h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)]"></div>
+      
       <CardContent className="p-6">
         {/* Business Card Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-card-foreground leading-tight mb-1">
+            <CardTitle className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>
               {persona.name}
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
               {persona.wealthTier}
             </p>
           </div>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs" style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}>
             {persona.code}
           </Badge>
         </div>
 
         {/* Key Metrics Row */}
-        <div className="flex items-center justify-between mb-4 py-3 border-t border-b border-border">
+        <div className="flex items-center justify-between mb-4 py-3 rounded-xl" style={{ backgroundColor: 'var(--muted)', borderTop: '2px solid var(--primary)', borderBottom: '2px solid var(--primary)' }}>
           <div className="text-center">
             <div className="flex items-center gap-1 justify-center mb-1">
-              <DollarSign className="h-3 w-3 text-primary" />
-              <span className="text-xs text-muted-foreground">Portfolio</span>
+              <DollarSign className="h-3 w-3" style={{ color: 'var(--primary)' }} />
+              <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Portfolio</span>
             </div>
-            <p className="text-sm font-semibold text-card-foreground">
+            <p className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
               {formatPortfolioValue(persona.portfolioValue)}
             </p>
           </div>
           
           <div className="text-center">
             <div className="flex items-center gap-1 justify-center mb-1">
-              <Shield className="h-3 w-3 text-secondary" />
-              <span className="text-xs text-muted-foreground">Risk</span>
+              <Shield className="h-3 w-3" style={{ color: 'var(--secondary)' }} />
+              <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Risk</span>
             </div>
-            <p className="text-sm font-semibold text-card-foreground">
+            <p className="text-sm font-semibold" style={{ color: 'var(--secondary)' }}>
               {persona.riskProfile}
             </p>
           </div>
           
           <div className="text-center">
             <div className="flex items-center gap-1 justify-center mb-1">
-              {getApproachIcon(persona.approach)}
-              <span className="text-xs text-muted-foreground">Style</span>
+              <div style={{ color: 'var(--accent)' }}>
+                {getApproachIcon(persona.approach)}
+              </div>
+              <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Style</span>
             </div>
-            <p className="text-sm font-semibold text-card-foreground">
+            <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>
               {persona.approach === 'SELF_DIRECTED' ? 'Self' : persona.approach === 'HYBRID' ? 'Hybrid' : 'Advised'}
             </p>
           </div>
         </div>
         
         {/* Description */}
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground italic text-center">
+        <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: 'var(--muted)' }}>
+          <p className="text-sm italic text-center" style={{ color: 'var(--muted-foreground)' }}>
             "{persona.notes}"
           </p>
         </div>
@@ -112,21 +118,21 @@ const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ p
         {(persona.propertyBias > 0.3 || persona.techBias > 0.3 || persona.altBias > 0.3) && (
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {persona.propertyBias > 0.3 && (
-              <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
-                <Home className="h-3 w-3 text-accent-foreground" />
-                <span className="text-xs text-muted-foreground">Property</span>
+              <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}>
+                <Home className="h-3 w-3" />
+                <span className="text-xs font-medium">Property</span>
               </div>
             )}
             {persona.techBias > 0.3 && (
-              <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
-                <Zap className="h-3 w-3 text-accent-foreground" />
-                <span className="text-xs text-muted-foreground">Tech</span>
+              <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
+                <Zap className="h-3 w-3" />
+                <span className="text-xs font-medium">Tech</span>
               </div>
             )}
             {persona.altBias > 0.3 && (
-              <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
-                <TrendingUp className="h-3 w-3 text-accent-foreground" />
-                <span className="text-xs text-muted-foreground">Alternatives</span>
+              <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--secondary)', color: 'white' }}>
+                <TrendingUp className="h-3 w-3" />
+                <span className="text-xs font-medium">Alternatives</span>
               </div>
             )}
           </div>
