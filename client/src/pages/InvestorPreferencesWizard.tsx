@@ -5204,6 +5204,11 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       (tabButtons[0] as HTMLElement).click();
                     }
                     
+                    // Auto-scroll to top after navigation
+                    setTimeout(() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 200);
+                    
                     // Show success message
                     toast({
                       title: "Recommendations Saved",
@@ -5230,6 +5235,11 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                     if (tabButtons.length > 0) {
                       (tabButtons[0] as HTMLElement).click();
                     }
+                    
+                    // Auto-scroll to top after navigation
+                    setTimeout(() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 200);
                   }
                 }}
                 className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
