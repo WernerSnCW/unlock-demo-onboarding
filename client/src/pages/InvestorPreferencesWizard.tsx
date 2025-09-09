@@ -3942,56 +3942,68 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                       <thead>
                         <tr className="bg-[var(--muted)]/30 border-b border-[var(--border)]">
                           <th className="text-left p-4 font-semibold text-[var(--foreground)]">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1">
-                                  <i className="fas fa-layer-group text-[var(--info)] text-sm"></i>
-                                  Asset Class
-                                </TooltipTrigger>
-                                <TooltipContent>
+                            <div className="flex items-center gap-2">
+                              <i className="fas fa-layer-group text-[var(--info)] text-sm"></i>
+                              <span>Asset Class</span>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 text-sm">
                                   <p>Investment categories such as equities, bonds, property, and alternatives</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                                </PopoverContent>
+                              </Popover>
+                            </div>
                           </th>
                           <th className="text-right p-4 font-semibold text-[var(--foreground)]">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1 justify-end">
-                                  <i className="fas fa-user text-[var(--info)] text-sm"></i>
-                                  Base %
-                                </TooltipTrigger>
-                                <TooltipContent>
+                            <div className="flex items-center gap-2 justify-end">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 text-sm">
                                   <p>Starting allocation based on your investor persona before any adjustments</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                                </PopoverContent>
+                              </Popover>
+                              <span>Base %</span>
+                              <i className="fas fa-user text-[var(--info)] text-sm"></i>
+                            </div>
                           </th>
                           <th className="text-right p-4 font-semibold text-[var(--foreground)]">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1 justify-end">
-                                  <i className="fas fa-chart-line text-[var(--secondary)] text-sm"></i>
-                                  Scenario Blend %
-                                </TooltipTrigger>
-                                <TooltipContent>
+                            <div className="flex items-center gap-2 justify-end">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 text-sm">
                                   <p>Allocation tilted towards your selected economic scenarios and beliefs</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                                </PopoverContent>
+                              </Popover>
+                              <span>Scenario Blend %</span>
+                              <i className="fas fa-chart-line text-[var(--secondary)] text-sm"></i>
+                            </div>
                           </th>
                           <th className="text-right p-4 font-semibold text-[var(--foreground)]">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger className="cursor-help underline decoration-dotted flex items-center gap-1 justify-end">
-                                  <i className="fas fa-target text-[var(--primary)] text-sm"></i>
-                                  Final Target %
-                                </TooltipTrigger>
-                                <TooltipContent>
+                            <div className="flex items-center gap-2 justify-end">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                    <Info className="h-3 w-3 text-[var(--muted-foreground)] hover:text-[var(--info)]" />
+                                  </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 text-sm">
                                   <p>Recommended allocation after applying professional house rules and constraints</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                                </PopoverContent>
+                              </Popover>
+                              <span>Final Target %</span>
+                              <i className="fas fa-target text-[var(--primary)] text-sm"></i>
+                            </div>
                           </th>
                         </tr>
                       </thead>
