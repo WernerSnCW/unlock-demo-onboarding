@@ -179,21 +179,21 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
 
       {/* Investment Activity Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="text-left p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+        <div className="text-left p-4 rounded-xl border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
           <div className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Reports this month</div>
           <div className="text-2xl font-bold mt-1" style={{ color: 'var(--card-foreground)' }}>{profile.reportsViewed}</div>
           <div className="flex items-center mt-1">
             <Eye className="h-3 w-3 mr-1" style={{ color: 'var(--muted-foreground)' }} />
           </div>
         </div>
-        <div className="text-left p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+        <div className="text-left p-4 rounded-xl border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
           <div className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Questions asked</div>
           <div className="text-2xl font-bold mt-1" style={{ color: 'var(--card-foreground)' }}>{profile.questionsAsked}</div>
           <div className="flex items-center mt-1">
             <HelpCircle className="h-3 w-3 mr-1" style={{ color: 'var(--muted-foreground)' }} />
           </div>
         </div>
-        <div className="text-left p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+        <div className="text-left p-4 rounded-xl border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
           <div className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Syndicates joined</div>
           <div className="text-2xl font-bold mt-1" style={{ color: 'var(--card-foreground)' }}>{profile.syndicatesJoined}</div>
           <div className="flex items-center mt-1">
@@ -334,7 +334,7 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
           </p>
           <button 
             onClick={onUpgrade}
-            className="w-full py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="w-full py-3 px-4 rounded-xl font-medium hover:opacity-90 transition-opacity"
             style={{ backgroundColor: 'var(--card)', color: 'var(--card-foreground)', border: '1px solid var(--border)' }}
           >
             Upgrade
