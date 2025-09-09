@@ -375,7 +375,7 @@ export default function InvestorPreferencesWizard() {
 
             {investorName && (
               <div className="mt-6">
-                <Badge variant="secondary" className="bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]">
+                <Badge variant="secondary" className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white border-0 shadow-lg">
                   {investorName}
                 </Badge>
               </div>
