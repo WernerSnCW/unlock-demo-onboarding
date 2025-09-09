@@ -2023,10 +2023,35 @@ function BeliefQuestionnaireComponent({
               </div>
             </CardContent>
           </Card>
+
+          {/* Show scenario weight adjustment and analysis once beliefs are complete */}
+          {originalBeliefWeights.length > 0 && (
+            <>
+              {/* Scenario Weight Adjustment - Full Width */}
+              <ScenarioWeightAdjustment 
+                originalWeights={originalBeliefWeights}
+                customWeights={customScenarioWeights}
+                isUsingCustom={isUsingCustomWeights}
+                onWeightsChange={(weights) => {
+                  setCustomScenarioWeights(weights);
+                  setIsUsingCustomWeights(true);
+                }}
+                onResetToBeliefs={() => {
+                  setCustomScenarioWeights([...originalBeliefWeights]);
+                  setIsUsingCustomWeights(false);
+                }}
+              />
+
+              {/* Scenario Impact Analysis Section - Full Width */}
+              <ScenarioImpactAnalysis 
+                onTabChange={setActiveMainTab}
+                customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
+              />
+            </>
+          )}
         </div>
       </div>
     );
-  }
 
   if (!currentQuestion) {
     return (
@@ -3028,26 +3053,6 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
         </div>
       </div>
 
-      {/* Scenario Weight Adjustment - Full Width */}
-      <ScenarioWeightAdjustment 
-        originalWeights={originalBeliefWeights}
-        customWeights={customScenarioWeights}
-        isUsingCustom={isUsingCustomWeights}
-        onWeightsChange={(weights) => {
-          setCustomScenarioWeights(weights);
-          setIsUsingCustomWeights(true);
-        }}
-        onResetToBeliefs={() => {
-          setCustomScenarioWeights([...originalBeliefWeights]);
-          setIsUsingCustomWeights(false);
-        }}
-      />
-
-      {/* Scenario Impact Analysis Section - Full Width */}
-      <ScenarioImpactAnalysis 
-        onTabChange={onTabChange}
-        customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
-      />
     </div>
   );
 }
