@@ -130,8 +130,8 @@ const steps = [
 ];
 
 const mainTabs = [
-  { id: 'preferences', title: 'Investment Preferences', icon: Target, description: '3 steps to capture your investment interests' },
-  { id: 'profile', title: 'Investor Personas', icon: User, description: 'Discover your investor type from our 19 unique personas' },
+  { id: 'preferences', title: 'Investor Personas', icon: Target, description: 'Discover your investor type from our 19 unique personas' },
+  { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
   { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
   { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Comprehensive analysis of your current holdings and performance' },
   { id: 'strategy', title: 'Portfolio Recommendations', icon: TrendingUp, description: 'AI-powered investment strategy tailored to your preferences' },
