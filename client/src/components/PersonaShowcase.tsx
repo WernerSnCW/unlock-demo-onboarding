@@ -209,6 +209,13 @@ const PersonaDetailDialog: React.FC<{
         </div>
         
         <div className="space-y-6 px-2">
+          {/* Description */}
+          <div className="bg-gradient-to-br p-5 rounded-xl border-l-4" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--secondary)' }}>
+            <p className="text-base leading-relaxed text-center font-medium" style={{ color: 'var(--card-foreground)' }}>
+              {persona.description}
+            </p>
+          </div>
+          
           {/* Overview */}
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-gradient-to-br p-4 rounded-xl" style={{ backgroundColor: 'var(--muted)' }}>
