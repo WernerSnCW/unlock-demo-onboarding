@@ -718,8 +718,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         weightedPortfolioReturn /= totalWeight;
       }
       
-      const totalValueChange = portfolioValueGBP * weightedPortfolioReturn;
-      const newPortfolioValue = portfolioValueGBP + totalValueChange;
+      const totalValueChange = Math.round((portfolioValueGBP * weightedPortfolioReturn) * 100) / 100;
+      const newPortfolioValue = Math.round((portfolioValueGBP + totalValueChange) * 100) / 100;
       
       // Calculate asset-level impacts
       const assetImpacts: any[] = [];
