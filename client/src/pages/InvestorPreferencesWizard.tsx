@@ -2024,30 +2024,21 @@ function BeliefQuestionnaireComponent({
             </CardContent>
           </Card>
 
-          {/* Show scenario weight adjustment and analysis once beliefs are complete */}
+          {/* Show scenario weight adjustment once beliefs are complete */}
           {originalBeliefWeights.length > 0 && (
-            <>
-              {/* Scenario Weight Adjustment - Full Width */}
-              <ScenarioWeightAdjustment 
-                originalWeights={originalBeliefWeights}
-                customWeights={customScenarioWeights}
-                isUsingCustom={isUsingCustomWeights}
-                onWeightsChange={(weights) => {
-                  setCustomScenarioWeights(weights);
-                  setIsUsingCustomWeights(true);
-                }}
-                onResetToBeliefs={() => {
-                  setCustomScenarioWeights([...originalBeliefWeights]);
-                  setIsUsingCustomWeights(false);
-                }}
-              />
-
-              {/* Scenario Impact Analysis Section - Full Width */}
-              <ScenarioImpactAnalysis 
-                onTabChange={setActiveMainTab}
-                customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
-              />
-            </>
+            <ScenarioWeightAdjustment 
+              originalWeights={originalBeliefWeights}
+              customWeights={customScenarioWeights}
+              isUsingCustom={isUsingCustomWeights}
+              onWeightsChange={(weights) => {
+                setCustomScenarioWeights(weights);
+                setIsUsingCustomWeights(true);
+              }}
+              onResetToBeliefs={() => {
+                setCustomScenarioWeights([...originalBeliefWeights]);
+                setIsUsingCustomWeights(false);
+              }}
+            />
           )}
         </div>
       </div>
@@ -3054,6 +3045,97 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
         </div>
       </div>
 
+      {/* Scenario Impact Analysis - Show after both beliefs and portfolio data are complete */}
+      <ScenarioImpactAnalysisSection />
+
+    </div>
+  );
+}
+
+// Scenario Impact Analysis Section Component
+function ScenarioImpactAnalysisSection() {
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [originalBeliefWeights, setOriginalBeliefWeights] = useState<any[]>([]);
+  const [customScenarioWeights, setCustomScenarioWeights] = useState<any[]>([]);
+  const [isUsingCustomWeights, setIsUsingCustomWeights] = useState(false);
+
+  // Check if both beliefs and portfolio data are complete
+  useEffect(() => {
+    const checkDataCompletion = () => {
+      const userId = (() => {
+        const quizData = localStorage.getItem('investorQuizData');
+        if (quizData) {
+          try {
+            const parsed = JSON.parse(quizData);
+            return parsed.userId || `demo-${Date.now()}`;
+          } catch {
+            return `demo-${Date.now()}`;
+          }
+        }
+        return `demo-${Date.now()}`;
+      })();
+
+      // Check if both belief responses and actual portfolio data exist
+      Promise.all([
+        fetch(`/api/investors/${userId}/belief-responses`),
+        fetch(`/api/investors/${userId}/preferences`)
+      ]).then(async ([beliefResponse, prefsResponse]) => {
+        if (beliefResponse.ok && prefsResponse.ok) {
+          const beliefData = await beliefResponse.json();
+          const prefsData = await prefsResponse.json();
+          
+          if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations) {
+            // Parse belief weights
+            let weights = [];
+            try {
+              weights = typeof beliefData.scenarioWeights === 'string' 
+                ? JSON.parse(beliefData.scenarioWeights) 
+                : beliefData.scenarioWeights;
+            } catch (e) {
+              console.error('Error parsing scenario weights:', e);
+            }
+            
+            setOriginalBeliefWeights(weights);
+            setCustomScenarioWeights([...weights]);
+            setShowAnalysis(true);
+          }
+        }
+      }).catch(error => {
+        console.error('Error checking data completion:', error);
+      });
+    };
+
+    checkDataCompletion();
+  }, []);
+
+  if (!showAnalysis) {
+    return null;
+  }
+
+  return (
+    <div className="mt-12">
+      {/* Scenario Weight Adjustment */}
+      {originalBeliefWeights.length > 0 && (
+        <ScenarioWeightAdjustment 
+          originalWeights={originalBeliefWeights}
+          customWeights={customScenarioWeights}
+          isUsingCustom={isUsingCustomWeights}
+          onWeightsChange={(weights) => {
+            setCustomScenarioWeights(weights);
+            setIsUsingCustomWeights(true);
+          }}
+          onResetToBeliefs={() => {
+            setCustomScenarioWeights([...originalBeliefWeights]);
+            setIsUsingCustomWeights(false);
+          }}
+        />
+      )}
+
+      {/* Scenario Impact Analysis */}
+      <ScenarioImpactAnalysis 
+        onTabChange={() => {}} // No tab change needed in this context
+        customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
+      />
     </div>
   );
 }
