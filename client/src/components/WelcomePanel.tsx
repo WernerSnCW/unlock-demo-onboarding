@@ -123,28 +123,51 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
       {/* Header with Profile Picture and Name */}
-      <div className="flex items-center gap-4 mb-5">
+      <div className="flex items-start gap-4 mb-6">
         <div className="relative">
           {profile.profilePicture ? (
             <img 
               src={profile.profilePicture} 
               alt={`${profile.firstName}'s profile`}
-              className="w-12 h-12 rounded-full object-cover border-2 border-[var(--border)]"
+              className="w-16 h-16 rounded-full object-cover border-3 border-[var(--border)]"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)]/10 to-[var(--primary)]/20 border-2 border-[var(--border)] flex items-center justify-center">
-              <User className="h-6 w-6 text-[var(--primary)]" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--primary)]/10 to-[var(--primary)]/20 border-3 border-[var(--border)] flex items-center justify-center">
+              <User className="h-8 w-8 text-[var(--primary)]" />
             </div>
           )}
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[var(--success)] rounded-full border-2 border-[var(--card)]"></div>
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[var(--success)] rounded-full border-2 border-[var(--card)]"></div>
         </div>
         <div className="flex-1">
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
-            Welcome back, {profile.firstName}.
-          </h2>
+          <div className="flex items-center gap-3 mb-2">
+            <h2 className="text-xl font-bold text-[var(--card-foreground)]">
+              Welcome back, {profile.firstName}
+            </h2>
+            {profile.currentPlan === 'free' && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                ⓘ Free
+              </span>
+            )}
+          </div>
           {profile.email && (
-            <p className="text-sm text-[var(--muted-foreground)]">{profile.email}</p>
+            <p className="text-sm text-[var(--muted-foreground)] mb-3">{profile.email}</p>
           )}
+          
+          {/* Status Badges */}
+          <div className="flex flex-wrap gap-2">
+            {/* Investor Type */}
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--secondary)', color: 'var(--secondary)' }}>
+              {profile.investorType?.charAt(0).toUpperCase() + profile.investorType?.slice(1)} Investor
+            </span>
+            
+            {/* Badges */}
+            {profile.badges && profile.badges.length > 0 && profile.badges.map((badge, index) => (
+              <span key={index} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: getBadgeBackground(badge), color: getBadgeColor(badge) }}>
+                {getBadgeIcon(badge)}
+                {badge}
+              </span>
+            ))}
+          </div>
         </div>
         <button 
           className="p-2 text-[var(--muted-foreground)] hover:text-[var(--primary)] rounded-[var(--radius-sm)] hover:bg-[var(--muted)] transition-colors"
@@ -154,74 +177,27 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
         </button>
       </div>
 
-      {/* Profile Tags with Trust Signals */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        {/* Investor Type */}
-        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--secondary)', color: 'var(--secondary-foreground)' }}>
-          {profile.investorType?.charAt(0).toUpperCase() + profile.investorType?.slice(1)} Investor
-        </span>
-        
-        {/* Existing Investments - Show up to 3 */}
-        {profile.existingInvestments && profile.existingInvestments.length > 0 && 
-          profile.existingInvestments.slice(0, 3).map((investment, index) => (
-            <span key={index} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
-              {investment}
-            </span>
-          ))
-        }
-        {profile.existingInvestments && profile.existingInvestments.length > 3 && (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--success)', color: 'var(--success-foreground)' }}>
-            +{profile.existingInvestments.length - 3} more
-          </span>
-        )}
-        
-        {/* Regions */}
-        {profile.regions && profile.regions.length > 0 && (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-            {profile.regions[0]}
-            {profile.regions.length > 1 && ` +${profile.regions.length - 1}`}
-          </span>
-        )}
-      </div>
-
-      {/* Badges */}
-      {profile.badges && profile.badges.length > 0 && (
-        <div className="mb-5">
-          <div className="flex flex-wrap gap-2">
-            {profile.badges.map((badge, index) => (
-              <span key={index} className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${getBadgeColor(badge)}`} style={{ backgroundColor: getBadgeBackground(badge) }}>
-                {getBadgeIcon(badge)}
-                {badge}
-              </span>
-            ))}
+      {/* Investment Activity Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="text-left p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Reports this month</div>
+          <div className="text-2xl font-bold mt-1" style={{ color: 'var(--card-foreground)' }}>{profile.reportsViewed}</div>
+          <div className="flex items-center mt-1">
+            <Eye className="h-3 w-3 mr-1" style={{ color: 'var(--muted-foreground)' }} />
           </div>
         </div>
-      )}
-
-      {/* Investment Activity Snapshot */}
-      <div className="mb-5">
-        <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--card-foreground)' }}>Investment Activity</h3>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-            <div className="flex items-center justify-center mb-1">
-              <Eye className="h-4 w-4" style={{ color: 'var(--info)' }} />
-            </div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--info)' }}>{profile.reportsViewed}</div>
-            <div className="text-xs" style={{ color: 'var(--info)' }}>Reports this month</div>
+        <div className="text-left p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Questions asked</div>
+          <div className="text-2xl font-bold mt-1" style={{ color: 'var(--card-foreground)' }}>{profile.questionsAsked}</div>
+          <div className="flex items-center mt-1">
+            <HelpCircle className="h-3 w-3 mr-1" style={{ color: 'var(--muted-foreground)' }} />
           </div>
-          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-            <div className="flex items-center justify-center mb-1">
-              <HelpCircle className="h-4 w-4" style={{ color: 'var(--success)' }} />
-            </div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--success)' }}>{profile.questionsAsked}</div>
-            <div className="text-xs" style={{ color: 'var(--success)' }}>Questions asked</div>
-          </div>
-          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-            <div className="flex items-center justify-center mb-1">
-              <Users className="h-4 w-4" style={{ color: 'var(--primary)' }} />
-            </div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--primary)' }}>{profile.syndicatesJoined}</div>
-            <div className="text-xs" style={{ color: 'var(--primary)' }}>Syndicates joined</div>
+        </div>
+        <div className="text-left p-4 rounded-lg border" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Syndicates joined</div>
+          <div className="text-2xl font-bold mt-1" style={{ color: 'var(--card-foreground)' }}>{profile.syndicatesJoined}</div>
+          <div className="flex items-center mt-1">
+            <Users className="h-3 w-3 mr-1" style={{ color: 'var(--muted-foreground)' }} />
           </div>
         </div>
       </div>
@@ -312,95 +288,59 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
         </div>
       )}
 
-      {/* Quick Preferences & Controls */}
-      <div className="mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>Quick Controls</h3>
-          <button 
-            onClick={onEditSectors}
-            className="text-xs font-medium flex items-center gap-1 hover:opacity-75 transition-opacity"
-            style={{ color: 'var(--info)' }}
-          >
-            <Edit3 className="h-3 w-3" />
-            Edit Sectors
+      {/* Quick Controls */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>Quick Controls</h3>
+          <button className="p-1.5 text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors">
+            <Settings className="h-4 w-4" />
           </button>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {/* Email Alerts Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <Bell className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-              <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>Email Alerts</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>Email Alerts</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                {profile.newsletterFrequency?.charAt(0).toUpperCase() + profile.newsletterFrequency?.slice(1)}
-              </span>
-              <div className="w-6 h-3 rounded-full relative" style={{ backgroundColor: 'var(--success)' }}>
-                <div className="absolute top-0.5 w-2 h-2 bg-white rounded-full translate-x-3"></div>
-              </div>
+            <div className="w-12 h-6 rounded-full relative transition-all duration-200" style={{ backgroundColor: 'var(--success)' }}>
+              <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-200 translate-x-6"></div>
             </div>
           </div>
 
           {/* WhatsApp Alerts */}
-          <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <MessageCircle className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-              <span className="text-sm" style={{ color: 'var(--card-foreground)' }}>WhatsApp Alerts</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>WhatsApp Alerts</span>
             </div>
-            <div className="w-6 h-3 rounded-full relative transition-colors" style={{ backgroundColor: profile.whatsappAlerts ? 'var(--success)' : 'var(--border)' }}>
-              <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full transition-transform ${
-                profile.whatsappAlerts ? 'translate-x-3' : 'translate-x-0.5'
+            <div className={`w-12 h-6 rounded-full relative transition-all duration-200 ${profile.whatsappAlerts ? 'bg-[var(--success)]' : 'bg-[var(--border)]'}`}>
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-200 ${
+                profile.whatsappAlerts ? 'translate-x-6 left-1' : 'left-1'
               }`}></div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Engagement Nudges */}
-      <div className="mb-5">
-        <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--card-foreground)' }}>For You</h3>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
-            <Pin className="h-4 w-4" style={{ color: 'var(--info)' }} />
-            <span className="text-sm" style={{ color: 'var(--info)' }}>2 new reports available in Fintech</span>
-          </div>
-          <div className="flex items-center gap-2 p-3 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
-            <Zap className="h-4 w-4" style={{ color: 'var(--primary)' }} />
-            <span className="text-sm" style={{ color: 'var(--primary)' }}>Join 1 new syndicate in your sectors</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Plan & Upgrade Visibility */}
-      <div className="p-4 rounded-lg border" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}>
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Crown className="h-4 w-4" style={{ color: 'var(--info)' }} />
-            <span className="text-sm font-medium" style={{ color: 'var(--card-foreground)' }}>
-              {profile.currentPlan?.charAt(0).toUpperCase() + profile.currentPlan?.slice(1)} Plan
-            </span>
-          </div>
-          {profile.currentPlan === 'free' && (
-            <button 
-              onClick={onUpgrade}
-              className="text-xs px-3 py-1.5 rounded-md font-medium hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-            >
-              Upgrade
-            </button>
-          )}
-        </div>
-        {profile.currentPlan === 'free' ? (
-          <p className="text-xs" style={{ color: 'var(--info)' }}>
-            Upgrade to unlock analyst insights & syndicate builder
+      {/* Upgrade to PRO */}
+      {profile.currentPlan === 'free' && (
+        <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--muted)' }}>
+          <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--card-foreground)' }}>
+            Upgrade to PRO
+          </h3>
+          <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>
+            to get access to all features! Connect with Venus World!
           </p>
-        ) : (
-          <p className="text-xs" style={{ color: 'var(--success)' }}>
-            Full access to all premium features
-          </p>
-        )}
-      </div>
+          <button 
+            onClick={onUpgrade}
+            className="w-full py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: 'var(--card)', color: 'var(--card-foreground)', border: '1px solid var(--border)' }}
+          >
+            Upgrade
+          </button>
+        </div>
+      )}
     </div>
   );
 }
