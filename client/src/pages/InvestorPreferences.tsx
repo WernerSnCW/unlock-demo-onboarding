@@ -1721,7 +1721,7 @@ function PersonaQuizContent() {
           <CardContent className="relative space-y-6">
             <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10">
               <p className="text-lg leading-relaxed text-center font-medium text-[var(--foreground)]">
-                {result.topMatch.persona.description}
+                {result.topMatch.persona.description || INVESTMENT_PERSONAS[result.topMatch.persona.code]?.description || "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency."}
               </p>
             </div>
             
