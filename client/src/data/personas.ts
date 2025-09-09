@@ -4,6 +4,7 @@
 export interface PersonaDef {
   code: string;
   name: string;
+  description: string;
   portfolioValue: number;
   wealthTier: string;
   approach: string;
@@ -24,6 +25,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P001": {
     code: "P001",
     name: "The Retirement Planner",
+    description: "Nearing or in retirement, focused on generating sustainable income while preserving capital and managing longevity risk through diversified, tax-efficient strategies.",
     portfolioValue: 1_250_000,
     wealthTier: "Upper Mass-Affluent",
     approach: "HYBRID",
@@ -47,6 +49,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P002": {
     code: "P002",
     name: "The Property Lover",
+    description: "Property-focused investor who concentrates heavily on real estate for rental income and capital appreciation, balancing leverage risk with diversification needs.",
     portfolioValue: 1_200_000,
     wealthTier: "Upper Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -70,6 +73,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P003": {
     code: "P003",
     name: "The Crypto Enthusiast",
+    description: "Young, tech-savvy investor pursuing high growth through significant cryptocurrency allocation while managing extreme volatility and concentration risk.",
     portfolioValue: 780_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -93,6 +97,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P004": {
     code: "P004",
     name: "The Old Fashioned Saver",
+    description: "Conservative investor prioritizing capital preservation through traditional safe assets like cash, bonds, and dividend stocks while avoiding market volatility.",
     portfolioValue: 450_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -116,6 +121,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P005": {
     code: "P005",
     name: "The Legacy Builder",
+    description: "Wealthy individual building intergenerational wealth through diversified portfolios, estate planning, and alternative investments while minimizing inheritance tax.",
     portfolioValue: 2_400_000,
     wealthTier: "HNW",
     approach: "SELF_DIRECTED",
@@ -139,6 +145,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P006": {
     code: "P006",
     name: "The Tech Worker",
+    description: "Tech industry professional managing concentrated stock positions, RSUs, and vesting events while diversifying away from employer risk through growth-oriented investments.",
     portfolioValue: 840_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -162,6 +169,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P007": {
     code: "P007",
     name: "The Dividend Seeker",
+    description: "Income-focused investor building a portfolio of dividend-paying stocks and REITs for sustainable cash flow, prioritizing quality yields over growth.",
     portfolioValue: 650_000,
     wealthTier: "Mass-Affluent",
     approach: "HYBRID",
@@ -185,6 +193,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P008": {
     code: "P008",
     name: "The Young Professional",
+    description: "Early-career professional automating investments through low-cost index funds while saving for major goals like home ownership and building long-term wealth.",
     portfolioValue: 170_000,
     wealthTier: "Entry Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -208,6 +217,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P009": {
     code: "P009",
     name: "The Global Nomad",
+    description: "Location-independent investor requiring portable, globally diversified investments with multi-currency exposure and flexible liquidity for cross-border lifestyle.",
     portfolioValue: 510_000,
     wealthTier: "Mass-Affluent",
     approach: "HYBRID",
@@ -231,6 +241,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P010": {
     code: "P010",
     name: "The Financial Advisor",
+    description: "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency."
     portfolioValue: 950_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -254,6 +265,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P011": {
     code: "P011",
     name: "The ISA/SIPP Maximiser",
+    description: "Tax-optimization focused investor maximizing annual ISA and SIPP allowances while using tax-efficient products like VCTs and EIS for long-term growth.",
     portfolioValue: 680_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -277,6 +289,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P012": {
     code: "P012",
     name: "The Defined Benefit Heavy",
+    description: "Professional with guaranteed DB pension enabling higher risk tolerance in personal investments, integrating pension income with private asset allocation.",
     portfolioValue: 420_000,
     wealthTier: "Mass-Affluent (Liquid)",
     approach: "HYBRID",
@@ -300,6 +313,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P013": {
     code: "P013",
     name: "The Cautious Accumulator",
+    description: "Risk-averse investor building wealth slowly through diversified balanced funds, disciplined DCA strategies, and strong emphasis on capital protection.",
     portfolioValue: 320_000,
     wealthTier: "Mass-Affluent",
     approach: "HYBRID",
@@ -323,6 +337,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P014": {
     code: "P014",
     name: "The High Net Worth Inheritor",
+    description: "Young wealthy inheritor learning to manage substantial family wealth through professional advisory services, focusing on preservation and generational planning.",
     portfolioValue: 3_200_000,
     wealthTier: "HNW+",
     approach: "FULL_SERVICE",
@@ -346,6 +361,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P015": {
     code: "P015",
     name: "The Entrepreneur",
+    description: "Business owner balancing reinvestment in their company with personal diversification, using barbell liquidity approach and tax-efficient entrepreneurial reliefs."
     portfolioValue: 1_100_000,
     wealthTier: "Upper Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -369,6 +385,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P016": {
     code: "P016",
     name: "The BTL Mogul",
+    description: "Buy-to-let specialist with extensive leveraged property portfolio, seeking to optimize yields and reduce concentration risk through diversification into liquid markets.",
     portfolioValue: 2_800_000,
     wealthTier: "HNW",
     approach: "SELF_DIRECTED",
@@ -392,6 +409,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P017": {
     code: "P017",
     name: "The Pension Drawdown Specialist",
+    description: "Retirement-phase investor managing sequence-of-returns risk through defensive strategies, sustainable withdrawal policies, and high liquidity preservation.",
     portfolioValue: 850_000,
     wealthTier: "Mass-Affluent",
     approach: "HYBRID",
@@ -415,6 +433,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P018": {
     code: "P018",
     name: "The Concentrated Stock Holder",
+    description: "Investor with significant single-stock concentration seeking to systematically reduce idiosyncratic risk while building diversified core portfolio around legacy position.",
     portfolioValue: 950_000,
     wealthTier: "Mass-Affluent",
     approach: "SELF_DIRECTED",
@@ -438,6 +457,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   "P019": {
     code: "P019",
     name: "The HNW Family Office Client",
+    description: "Ultra-high-net-worth individual accessing sophisticated institutional investments, trusts, and structures through family office for multi-generational wealth preservation."
     portfolioValue: 8_500_000,
     wealthTier: "UHNW",
     approach: "FULL_SERVICE",
