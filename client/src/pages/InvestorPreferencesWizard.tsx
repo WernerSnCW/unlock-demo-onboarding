@@ -386,7 +386,7 @@ export default function InvestorPreferencesWizard() {
         </div>
 
         {/* Investor Name Dialog */}
-        <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
+        <Dialog open={showNameDialog}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
