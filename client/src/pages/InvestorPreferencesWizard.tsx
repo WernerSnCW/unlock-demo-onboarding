@@ -1443,20 +1443,61 @@ function BeliefQuestionnaireComponent({
     setSelectedScenarios(new Set());
   }, []);
 
-  // Get scenario description for display
-  const getScenarioDescription = useCallback((scenario: string): string => {
-    const descriptions: Record<string, string> = {
-      'recession': 'Economic downturn with declining GDP, rising unemployment, and reduced consumer spending. Markets typically favor defensive assets.',
-      'property_down': 'UK property market correction with falling house prices, impacting real estate investments and related sectors significantly.',
-      'stagflation': 'High inflation combined with economic stagnation - rising prices but slow growth. Gold and commodities typically perform well.',
-      'tech_correction': 'Technology sector selloff due to overvaluation concerns, affecting growth stocks and innovation-focused investments.',
-      'devaluation': 'Sterling weakens significantly against major currencies, benefiting exporters but increasing import costs and inflation.',
-      'gilt_selloff': 'UK government bonds face selling pressure, driving yields higher and bond prices lower. Duration risk increases.',
-      'energy_spike': 'Energy prices surge due to supply disruptions or geopolitical tensions, benefiting energy stocks but hurting consumers.',
-      'reflation': 'Economic recovery with moderate inflation and growth. Balanced scenario favoring growth equities and real assets.'
+  // Get scenario name and description from scenarios.json
+  const getScenarioInfo = useCallback((beliefScenario: string): { name: string; description: string } => {
+    // Map belief-level scenarios to formal scenario codes
+    const scenarioMapping: Record<string, string> = {
+      'property_down': 'S001',
+      'recession': 'S002', 
+      'stagflation': 'S003',
+      'tech_correction': 'S004',
+      'reflation': 'S006',
+      'gilt_selloff': 'S009', // Map to appropriate scenario
+      'energy_spike': 'S007', // Stagflation 2.0 includes energy
+      'devaluation': 'S005' // UK Tax Regime Shift includes policy impacts
+    };
+
+    // Scenario data from scenarios.json
+    const scenarioData: Record<string, { name: string; description: string }> = {
+      'S001': { 
+        name: 'Property Crash (2008-style)', 
+        description: 'Significant property value decline with credit market freeze and financial sector stress over a 5-year horizon.'
+      },
+      'S002': { 
+        name: 'AI-Driven Economic Recession', 
+        description: 'Widespread job displacement and economic disruption from rapid AI adoption affecting markets and employment.'
+      },
+      'S003': { 
+        name: 'Stagflation (1970s-style)', 
+        description: 'Prolonged period of high inflation combined with economic stagnation and unemployment, challenging traditional hedges.'
+      },
+      'S004': { 
+        name: 'Tech & Speculative Asset Burst', 
+        description: 'Major correction in technology valuations and speculative assets, similar to dot-com crash dynamics.'
+      },
+      'S005': { 
+        name: 'UK Tax Regime Shift', 
+        description: 'Significant changes in UK tax, regulatory, or economic policy affecting investors and asset valuations.'
+      },
+      'S006': { 
+        name: 'Rate-Cut Reflation', 
+        description: 'Economic recovery with policy easing, moderate inflation and growth. Balanced scenario favoring growth assets.'
+      },
+      'S007': { 
+        name: 'Stagflation 2.0 (acute)', 
+        description: 'Short-term inflation shock with supply disruptions, energy price surges, and policy constraints.'
+      }
     };
     
-    return descriptions[scenario] || 'Economic scenario affecting market conditions and investment returns.';
+    const scenarioCode = scenarioMapping[beliefScenario];
+    if (scenarioCode && scenarioData[scenarioCode]) {
+      return scenarioData[scenarioCode];
+    }
+    
+    return { 
+      name: beliefScenario.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+      description: 'Economic scenario affecting market conditions and investment returns.' 
+    };
   }, []);
 
   const toggleScenarioSelection = useCallback((scenario: string) => {
@@ -1772,8 +1813,8 @@ function BeliefQuestionnaireComponent({
                         {index + 1}
                       </div>
                       <div className="flex-grow">
-                        <div className="font-semibold text-[var(--foreground)] capitalize flex items-center gap-2">
-                          {item.scenario.replace(/_/g, ' ')}
+                        <div className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+                          {getScenarioInfo(item.scenario).name}
                           {item.isMasked && (
                             <span 
                               className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)] cursor-help"
@@ -1789,7 +1830,7 @@ function BeliefQuestionnaireComponent({
                           )}
                         </div>
                         <div className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-2">
-                          {getScenarioDescription(item.scenario)}
+                          {getScenarioInfo(item.scenario).description}
                         </div>
                         <div className="text-xs text-[var(--muted-foreground)] opacity-75">
                           Raw weight: {item.weight.toFixed(3)}
