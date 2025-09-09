@@ -48,77 +48,108 @@ const formatPortfolioValue = (value: number) => {
 const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ persona, onClick }) => {
   return (
     <Card 
-      className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-[var(--primary)]"
+      className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 rounded-2xl overflow-hidden group"
       onClick={onClick}
       data-testid={`persona-card-${persona.code}`}
+      style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)' }}
     >
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-bold text-[var(--card-foreground)] leading-tight">
-              {persona.name}
-            </CardTitle>
-            <p className="text-sm text-[var(--muted-foreground)] mt-1">
-              {persona.wealthTier}
-            </p>
+      {/* Header with gradient background */}
+      <div className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/5"></div>
+        <div className="relative z-10">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-lg font-bold text-white leading-tight mb-1">
+                {persona.name}
+              </CardTitle>
+              <p className="text-sm text-white/80">
+                {persona.wealthTier}
+              </p>
+            </div>
+            <Badge className="ml-2 bg-white/20 text-white border-white/30 backdrop-blur-sm">
+              {persona.code}
+            </Badge>
           </div>
-          <Badge className="ml-2" variant="outline">
-            {persona.code}
-          </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Portfolio Value */}
-        <div className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-[var(--primary)]" />
-          <span className="font-semibold text-[var(--card-foreground)]">
-            {formatPortfolioValue(persona.portfolioValue)}
-          </span>
-        </div>
-        
-        {/* Risk Profile */}
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-[var(--secondary)]" />
-          <Badge className={getRiskProfileColor(persona.riskProfile)} variant="secondary">
-            {persona.riskProfile}
-          </Badge>
+      </div>
+
+      <CardContent className="p-6 space-y-4">
+        {/* Portfolio Value - Enhanced */}
+        <div className="flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm text-[var(--muted-foreground)]">Portfolio Value</p>
+              <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                {formatPortfolioValue(persona.portfolioValue)}
+              </p>
+            </div>
+          </div>
         </div>
         
-        {/* Investment Approach */}
-        <div className="flex items-center gap-2">
-          {getApproachIcon(persona.approach)}
-          <span className="text-sm text-[var(--muted-foreground)]">
-            {persona.approach.replace('_', ' ')}
-          </span>
+        {/* Risk Profile & Approach */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Shield className="h-4 w-4 text-[var(--secondary)]" />
+              <span className="text-xs font-medium text-[var(--muted-foreground)]">Risk</span>
+            </div>
+            <Badge className={`${getRiskProfileColor(persona.riskProfile)} text-xs px-2 py-1`} variant="secondary">
+              {persona.riskProfile}
+            </Badge>
+          </div>
+          
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+            <div className="flex items-center gap-2 mb-2">
+              {getApproachIcon(persona.approach)}
+              <span className="text-xs font-medium text-[var(--muted-foreground)]">Style</span>
+            </div>
+            <span className="text-xs font-medium text-[var(--card-foreground)]">
+              {persona.approach.replace('_', ' ')}
+            </span>
+          </div>
         </div>
         
-        {/* Key Notes */}
-        <div className="bg-[var(--muted)] rounded-lg p-3">
-          <p className="text-sm text-[var(--muted-foreground)] italic">
+        {/* Key Notes - Enhanced */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-xl p-4 border-l-4 border-[var(--primary)]">
+          <p className="text-sm text-[var(--muted-foreground)] italic leading-relaxed">
             "{persona.notes}"
           </p>
         </div>
         
-        {/* Bias Indicators */}
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          {persona.propertyBias > 0.3 && (
-            <div className="flex items-center gap-1">
-              <Home className="h-3 w-3 text-orange-500" />
-              <span>Property</span>
-            </div>
-          )}
-          {persona.techBias > 0.3 && (
-            <div className="flex items-center gap-1">
-              <Zap className="h-3 w-3 text-blue-500" />
-              <span>Tech</span>
-            </div>
-          )}
-          {persona.altBias > 0.3 && (
-            <div className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-purple-500" />
-              <span>Alts</span>
-            </div>
-          )}
+        {/* Bias Indicators - Enhanced */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-[var(--muted-foreground)] mb-3">Investment Focus</p>
+          <div className="grid grid-cols-3 gap-2">
+            {persona.propertyBias > 0.3 && (
+              <div className="flex flex-col items-center gap-1 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-2">
+                <Home className="h-4 w-4 text-orange-500" />
+                <span className="text-xs font-medium text-orange-600 dark:text-orange-400">Property</span>
+                <span className="text-xs text-orange-500">{(persona.propertyBias * 100).toFixed(0)}%</span>
+              </div>
+            )}
+            {persona.techBias > 0.3 && (
+              <div className="flex flex-col items-center gap-1 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
+                <Zap className="h-4 w-4 text-blue-500" />
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Tech</span>
+                <span className="text-xs text-blue-500">{(persona.techBias * 100).toFixed(0)}%</span>
+              </div>
+            )}
+            {persona.altBias > 0.3 && (
+              <div className="flex flex-col items-center gap-1 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2">
+                <TrendingUp className="h-4 w-4 text-purple-500" />
+                <span className="text-xs font-medium text-purple-600 dark:text-purple-400">Alts</span>
+                <span className="text-xs text-purple-500">{(persona.altBias * 100).toFixed(0)}%</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Hover Effect Indicator */}
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center">
+          <p className="text-xs text-[var(--primary)] font-medium">Click to explore →</p>
         </div>
       </CardContent>
     </Card>
