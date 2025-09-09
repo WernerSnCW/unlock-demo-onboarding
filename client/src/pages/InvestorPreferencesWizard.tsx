@@ -3060,29 +3060,15 @@ function ScenarioImpactAnalysisSection() {
           return `demo-${Date.now()}`;
         })();
 
-        console.log('Checking data completion for userId:', userId);
-
         // Check if both belief responses and actual portfolio data exist
         const [beliefResponse, prefsResponse] = await Promise.all([
           fetch(`/api/investors/${userId}/belief-responses`),
           fetch(`/api/investors/${userId}/preferences`)
         ]);
 
-        console.log('Response status:', { 
-          belief: beliefResponse.status, 
-          prefs: prefsResponse.status 
-        });
-
         if (beliefResponse.ok && prefsResponse.ok) {
           const beliefData = await beliefResponse.json();
           const prefsData = await prefsResponse.json();
-          
-          console.log('Data check:', {
-            hasScenarioWeights: !!beliefData.scenarioWeights,
-            hasPortfolioAllocations: !!prefsData.actualPortfolioAllocations,
-            beliefData: beliefData,
-            prefsData: prefsData
-          });
           
           if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations) {
             // Parse belief weights and convert to array format
@@ -3109,15 +3095,10 @@ function ScenarioImpactAnalysisSection() {
               }));
             }
             
-            console.log('Setting up analysis with weights array:', weights);
             setOriginalBeliefWeights(weights);
             setCustomScenarioWeights([...weights]);
             setShowAnalysis(true);
-          } else {
-            console.log('Missing required data - not showing analysis yet');
           }
-        } else {
-          console.log('API responses not ok - not showing analysis yet');
         }
       } catch (error) {
         console.error('Error checking data completion:', error);
@@ -3141,18 +3122,11 @@ function ScenarioImpactAnalysisSection() {
   }, []);
 
   if (!showAnalysis) {
-    console.log('ScenarioImpactAnalysisSection: Not showing analysis, showAnalysis =', showAnalysis);
     return null;
   }
 
-  console.log('ScenarioImpactAnalysisSection: RENDERING ANALYSIS SECTION with weights:', originalBeliefWeights.length);
-
   return (
     <div className="mt-12">
-      <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
-        <p className="text-blue-800">DEBUG: Scenario Analysis Section is rendering</p>
-        <p className="text-sm text-blue-600">Weights count: {originalBeliefWeights.length}</p>
-      </div>
 
       {/* Scenario Weight Adjustment */}
       {originalBeliefWeights.length > 0 && (
@@ -3475,23 +3449,23 @@ function ScenarioImpactAnalysis({
       const currentMix = convertFormToDetailedMix(allocations);
       const portfolioValue = prefsData.actualPortfolioValue;
 
-      // Parse scenario weights from beliefData (stored as JSON string)
-      let beliefScenarioWeights = [];
-      if (beliefData.scenarioWeights) {
-        try {
-          beliefScenarioWeights = typeof beliefData.scenarioWeights === 'string' 
-            ? JSON.parse(beliefData.scenarioWeights) 
-            : beliefData.scenarioWeights;
-        } catch (e) {
-          console.error('Error parsing scenario weights:', e);
-          beliefScenarioWeights = [];
+      // Use custom scenario weights if available, otherwise use belief-calculated weights directly
+      let weightsToUse;
+      if (customScenarioWeights) {
+        // Custom weights are already in array format
+        weightsToUse = convertCustomWeightsToApiFormat(customScenarioWeights);
+      } else {
+        // Belief weights come as object format, use directly
+        weightsToUse = beliefData.scenarioWeights;
+        if (typeof weightsToUse === 'string') {
+          try {
+            weightsToUse = JSON.parse(weightsToUse);
+          } catch (e) {
+            console.error('Error parsing scenario weights:', e);
+            weightsToUse = {};
+          }
         }
       }
-
-      // Use custom scenario weights if available, otherwise use belief-calculated weights
-      const weightsToUse = customScenarioWeights ? 
-        convertCustomWeightsToApiFormat(customScenarioWeights) : 
-        convertCustomWeightsToApiFormat(beliefScenarioWeights);
 
       // Call scenario impact API
       const impactResponse = await fetch('/api/scenario-impact', {
