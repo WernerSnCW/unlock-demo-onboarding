@@ -48,73 +48,85 @@ const formatPortfolioValue = (value: number) => {
 const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ persona, onClick }) => {
   return (
     <Card 
-      className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 rounded-2xl overflow-hidden group"
+      className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.01] bg-card border border-border rounded-lg"
       onClick={onClick}
       data-testid={`persona-card-${persona.code}`}
-      style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)' }}
     >
-      {/* Header with gradient background */}
-      <div className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] p-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/5"></div>
-        <div className="relative z-10">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-base font-bold text-white leading-tight">
-                {persona.name}
-              </CardTitle>
-              <p className="text-xs text-white/80">
-                {persona.wealthTier}
-              </p>
-            </div>
-            <Badge className="ml-2 bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
-              {persona.code}
-            </Badge>
+      <CardContent className="p-6">
+        {/* Business Card Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <CardTitle className="text-lg font-semibold text-card-foreground leading-tight mb-1">
+              {persona.name}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {persona.wealthTier}
+            </p>
           </div>
-        </div>
-      </div>
-
-      <CardContent className="p-4 space-y-3">
-        {/* Portfolio Value & Risk - Compact */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <div>
-              <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                {formatPortfolioValue(persona.portfolioValue)}
-              </p>
-            </div>
-          </div>
-          <Badge className={`${getRiskProfileColor(persona.riskProfile)} text-xs`} variant="secondary">
-            {persona.riskProfile}
+          <Badge variant="outline" className="text-xs">
+            {persona.code}
           </Badge>
         </div>
+
+        {/* Key Metrics Row */}
+        <div className="flex items-center justify-between mb-4 py-3 border-t border-b border-border">
+          <div className="text-center">
+            <div className="flex items-center gap-1 justify-center mb-1">
+              <DollarSign className="h-3 w-3 text-primary" />
+              <span className="text-xs text-muted-foreground">Portfolio</span>
+            </div>
+            <p className="text-sm font-semibold text-card-foreground">
+              {formatPortfolioValue(persona.portfolioValue)}
+            </p>
+          </div>
+          
+          <div className="text-center">
+            <div className="flex items-center gap-1 justify-center mb-1">
+              <Shield className="h-3 w-3 text-secondary" />
+              <span className="text-xs text-muted-foreground">Risk</span>
+            </div>
+            <p className="text-sm font-semibold text-card-foreground">
+              {persona.riskProfile}
+            </p>
+          </div>
+          
+          <div className="text-center">
+            <div className="flex items-center gap-1 justify-center mb-1">
+              {getApproachIcon(persona.approach)}
+              <span className="text-xs text-muted-foreground">Style</span>
+            </div>
+            <p className="text-sm font-semibold text-card-foreground">
+              {persona.approach === 'SELF_DIRECTED' ? 'Self' : persona.approach === 'HYBRID' ? 'Hybrid' : 'Advised'}
+            </p>
+          </div>
+        </div>
         
-        {/* Key Notes - Compact */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg p-3 border-l-3 border-[var(--primary)]">
-          <p className="text-xs text-[var(--muted-foreground)] italic">
+        {/* Description */}
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground italic text-center">
             "{persona.notes}"
           </p>
         </div>
         
-        {/* Investment Focus - Compact */}
+        {/* Investment Focus Tags */}
         {(persona.propertyBias > 0.3 || persona.techBias > 0.3 || persona.altBias > 0.3) && (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             {persona.propertyBias > 0.3 && (
-              <div className="flex items-center gap-1 bg-orange-50 dark:bg-orange-900/20 rounded-md px-2 py-1">
-                <Home className="h-3 w-3 text-orange-500" />
-                <span className="text-xs text-orange-600 dark:text-orange-400">Property</span>
+              <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
+                <Home className="h-3 w-3 text-accent-foreground" />
+                <span className="text-xs text-muted-foreground">Property</span>
               </div>
             )}
             {persona.techBias > 0.3 && (
-              <div className="flex items-center gap-1 bg-blue-50 dark:bg-blue-900/20 rounded-md px-2 py-1">
-                <Zap className="h-3 w-3 text-blue-500" />
-                <span className="text-xs text-blue-600 dark:text-blue-400">Tech</span>
+              <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
+                <Zap className="h-3 w-3 text-accent-foreground" />
+                <span className="text-xs text-muted-foreground">Tech</span>
               </div>
             )}
             {persona.altBias > 0.3 && (
-              <div className="flex items-center gap-1 bg-purple-50 dark:bg-purple-900/20 rounded-md px-2 py-1">
-                <TrendingUp className="h-3 w-3 text-purple-500" />
-                <span className="text-xs text-purple-600 dark:text-purple-400">Alts</span>
+              <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
+                <TrendingUp className="h-3 w-3 text-accent-foreground" />
+                <span className="text-xs text-muted-foreground">Alternatives</span>
               </div>
             )}
           </div>
