@@ -1984,6 +1984,11 @@ function BeliefQuestionnaireComponent({
                         
                         console.log('Moving to Portfolio Analysis with data:', beliefsData);
                         
+                        // Auto-scroll to top after analysis navigation
+                        setTimeout(() => {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 300);
+                        
                       } else {
                         const errorData = await response.text();
                         throw new Error(`Failed to save belief responses: ${response.status} - ${errorData}`);
