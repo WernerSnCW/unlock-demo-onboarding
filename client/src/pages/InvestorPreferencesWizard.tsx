@@ -1097,9 +1097,12 @@ function PersonaQuizContentWizard({
                   const matchScore = selectedPersona ? 1.0 : result.topMatch.matchScore;
                   
                   try {
+                    // Ensure we have a valid investor name (fallback if empty)
+                    const validInvestorName = investorName || `Demo User ${Date.now()}`;
+                    
                     // Prepare quiz data to save
                     const quizData = {
-                      investorName,
+                      investorName: validInvestorName,
                       quizAnswers: answers, // Quiz answers from usePersonaQuiz hook
                       matchedPersonaCode: chosenPersona.code,
                       personaMatchScore: matchScore,
