@@ -2024,22 +2024,6 @@ function BeliefQuestionnaireComponent({
             </CardContent>
           </Card>
 
-          {/* Show scenario weight adjustment once beliefs are complete */}
-          {originalBeliefWeights.length > 0 && (
-            <ScenarioWeightAdjustment 
-              originalWeights={originalBeliefWeights}
-              customWeights={customScenarioWeights}
-              isUsingCustom={isUsingCustomWeights}
-              onWeightsChange={(weights) => {
-                setCustomScenarioWeights(weights);
-                setIsUsingCustomWeights(true);
-              }}
-              onResetToBeliefs={() => {
-                setCustomScenarioWeights([...originalBeliefWeights]);
-                setIsUsingCustomWeights(false);
-              }}
-            />
-          )}
         </div>
       </div>
     );
