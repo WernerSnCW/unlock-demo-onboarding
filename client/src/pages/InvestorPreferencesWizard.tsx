@@ -3044,7 +3044,10 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
       />
 
       {/* Scenario Impact Analysis Section - Full Width */}
-      <ScenarioImpactAnalysis onTabChange={onTabChange} />
+      <ScenarioImpactAnalysis 
+        onTabChange={onTabChange}
+        customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
+      />
     </div>
   );
 }
@@ -3244,7 +3247,13 @@ function ScenarioWeightAdjustment({
 }
 
 // Scenario Impact Analysis Component
-function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) => void }) {
+function ScenarioImpactAnalysis({ 
+  onTabChange, 
+  customScenarioWeights 
+}: { 
+  onTabChange: (tab: string) => void;
+  customScenarioWeights?: any[] | null;
+}) {
   const [scenarioImpactData, setScenarioImpactData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -3261,6 +3270,30 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
       }
     }
     return `demo-${Date.now()}`;
+  };
+
+  // Function to convert custom weights array to API format
+  const convertCustomWeightsToApiFormat = (customWeights: any[]) => {
+    const apiWeights: Record<string, number> = {};
+    
+    // Map belief scenario names to API scenario codes
+    const scenarioMapping: Record<string, string> = {
+      'property_down': 'S001',
+      'recession': 'S002', 
+      'stagflation': 'S003',
+      'tech_correction': 'S004',
+      'reflation': 'S006',
+      'gilt_selloff': 'S009',
+      'energy_spike': 'S007',
+      'devaluation': 'S005'
+    };
+    
+    customWeights.forEach(weight => {
+      const scenarioCode = scenarioMapping[weight.scenario] || weight.scenario;
+      apiWeights[scenarioCode] = weight.normalizedWeight;
+    });
+    
+    return apiWeights;
   };
 
   // Function to convert form allocations to detailed asset class mix
@@ -3324,13 +3357,18 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
       const currentMix = convertFormToDetailedMix(allocations);
       const portfolioValue = prefsData.actualPortfolioValue;
 
+      // Use custom scenario weights if available, otherwise use belief-calculated weights
+      const weightsToUse = customScenarioWeights ? 
+        convertCustomWeightsToApiFormat(customScenarioWeights) : 
+        beliefData.scenarioWeights;
+
       // Call scenario impact API
       const impactResponse = await fetch('/api/scenario-impact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currentMix,
-          scenarioWeights: beliefData.scenarioWeights,
+          scenarioWeights: weightsToUse,
           portfolioValueGBP: portfolioValue
         })
       });
@@ -3351,10 +3389,10 @@ function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) =>
     }
   };
 
-  // Load on component mount
+  // Load on component mount and when custom weights change
   useEffect(() => {
     loadScenarioImpact();
-  }, []);
+  }, [customScenarioWeights]);
 
   if (isLoading) {
     return (
