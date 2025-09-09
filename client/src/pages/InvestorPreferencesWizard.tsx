@@ -1741,6 +1741,9 @@ function BeliefQuestionnaireComponent({
                     <p>
                       <strong>The calculation:</strong> Each of your 12 belief responses contributes weighted points to relevant scenarios based on established economic relationships. These raw scores are then converted to percentages through mathematical normalization.
                     </p>
+                    <p>
+                      <strong>Softmax normalization:</strong> A math trick that turns raw scores into percentages that add up to 100%, making it easier to see which economic scenarios are most likely based on your answers.
+                    </p>
                   </div>
                 </div>
               </CardDescription>
