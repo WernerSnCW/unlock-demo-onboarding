@@ -56,103 +56,99 @@ const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ p
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
       }}
     >
-      {/* Enhanced Header with gradient */}
-      <div className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] p-5 relative">
+      {/* Compact Header with gradient */}
+      <div className="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] p-3 relative">
         <div className="absolute inset-0 bg-black/5"></div>
         <div className="relative z-10 flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg font-bold text-white leading-tight mb-1">
+            <CardTitle className="text-base font-bold text-white leading-tight">
               {persona.name}
             </CardTitle>
-            <p className="text-sm text-white/80">
+            <p className="text-xs text-white/80">
               {persona.wealthTier}
             </p>
           </div>
-          <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm font-medium">
+          <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
             {persona.code}
           </Badge>
         </div>
       </div>
       
-      <CardContent className="p-5 space-y-4">
+      <CardContent className="p-4 space-y-3">
 
-        {/* Enhanced Portfolio Value Section */}
-        <div className="bg-gradient-to-r rounded-2xl p-4 relative overflow-hidden" style={{ backgroundColor: 'var(--muted)' }}>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10"></div>
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--primary)' }}>
-                <DollarSign className="h-6 w-6 text-white" />
+        {/* Portfolio & Risk Section */}
+        <div className="rounded-xl p-3 relative" style={{ backgroundColor: 'var(--muted)' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--primary)' }}>
+                <DollarSign className="h-4 w-4 text-white" />
               </div>
               <div>
                 <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Portfolio Value</p>
-                <p className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
+                <p className="text-lg font-bold" style={{ color: 'var(--primary)' }}>
                   {formatPortfolioValue(persona.portfolioValue)}
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <Badge className={`${getRiskProfileColor(persona.riskProfile)} font-medium px-3 py-1`}>
-                {persona.riskProfile}
-              </Badge>
-            </div>
+          </div>
+          <div className="flex justify-end">
+            <Badge className={`${getRiskProfileColor(persona.riskProfile)} text-xs px-2 py-1`}>
+              {persona.riskProfile}
+            </Badge>
           </div>
         </div>
         {/* Investment Approach */}
-        <div className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: 'var(--muted)' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
-              <div style={{ color: 'white' }}>
-                {getApproachIcon(persona.approach)}
-              </div>
+        <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--muted)' }}>
+          <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
+            <div style={{ color: 'white' }}>
+              {getApproachIcon(persona.approach)}
             </div>
-            <div>
-              <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Investment Style</p>
-              <p className="text-sm font-semibold" style={{ color: 'var(--card-foreground)' }}>
-                {persona.approach === 'SELF_DIRECTED' ? 'Self-Directed' : persona.approach === 'HYBRID' ? 'Hybrid' : 'Advised'}
-              </p>
-            </div>
+          </div>
+          <div>
+            <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Investment Style</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--card-foreground)' }}>
+              {persona.approach === 'SELF_DIRECTED' ? 'Self-Directed' : persona.approach === 'HYBRID' ? 'Hybrid' : 'Advised'}
+            </p>
           </div>
         </div>
         
-        {/* Key Notes - Enhanced */}
-        <div className="p-4 rounded-xl border-l-4 relative" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)' }}>
-          <div className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--primary)' }}></div>
-          <p className="text-sm italic leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+        {/* Key Notes */}
+        <div className="p-3 rounded-lg border-l-4" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)' }}>
+          <p className="text-xs italic" style={{ color: 'var(--muted-foreground)' }}>
             "{persona.notes}"
           </p>
         </div>
         
-        {/* Enhanced Investment Focus */}
+        {/* Investment Focus */}
         {(persona.propertyBias > 0.3 || persona.techBias > 0.3 || persona.altBias > 0.3) && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Key Investment Focus</p>
-            <div className="flex items-center gap-2 flex-wrap">
+          <div>
+            <p className="text-xs font-medium mb-2" style={{ color: 'var(--muted-foreground)' }}>Key Investment Focus</p>
+            <div className="grid gap-1">
               {persona.propertyBias > 0.3 && (
-                <div className="flex items-center gap-2 rounded-xl px-3 py-2 flex-1 min-w-0" style={{ backgroundColor: 'var(--accent)' }}>
-                  <Home className="h-4 w-4 text-white flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-white">Property</p>
-                    <p className="text-xs text-white/80">{(persona.propertyBias * 100).toFixed(0)}%</p>
+                <div className="flex items-center justify-between rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--accent)' }}>
+                  <div className="flex items-center gap-1">
+                    <Home className="h-3 w-3 text-white" />
+                    <span className="text-xs font-medium text-white">Property</span>
                   </div>
+                  <span className="text-xs text-white/80">{(persona.propertyBias * 100).toFixed(0)}%</span>
                 </div>
               )}
               {persona.techBias > 0.3 && (
-                <div className="flex items-center gap-2 rounded-xl px-3 py-2 flex-1 min-w-0" style={{ backgroundColor: 'var(--primary)' }}>
-                  <Zap className="h-4 w-4 text-white flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-white">Tech</p>
-                    <p className="text-xs text-white/80">{(persona.techBias * 100).toFixed(0)}%</p>
+                <div className="flex items-center justify-between rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--primary)' }}>
+                  <div className="flex items-center gap-1">
+                    <Zap className="h-3 w-3 text-white" />
+                    <span className="text-xs font-medium text-white">Tech</span>
                   </div>
+                  <span className="text-xs text-white/80">{(persona.techBias * 100).toFixed(0)}%</span>
                 </div>
               )}
               {persona.altBias > 0.3 && (
-                <div className="flex items-center gap-2 rounded-xl px-3 py-2 flex-1 min-w-0" style={{ backgroundColor: 'var(--secondary)' }}>
-                  <TrendingUp className="h-4 w-4 text-white flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-white">Alts</p>
-                    <p className="text-xs text-white/80">{(persona.altBias * 100).toFixed(0)}%</p>
+                <div className="flex items-center justify-between rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--secondary)' }}>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3 text-white" />
+                    <span className="text-xs font-medium text-white">Alts</span>
                   </div>
+                  <span className="text-xs text-white/80">{(persona.altBias * 100).toFixed(0)}%</span>
                 </div>
               )}
             </div>
@@ -160,8 +156,8 @@ const PersonaCard: React.FC<{ persona: PersonaDef; onClick: () => void }> = ({ p
         )}
 
         {/* Hover indicator */}
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center pt-2">
-          <p className="text-xs font-medium" style={{ color: 'var(--primary)' }}>Click to explore details →</p>
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center">
+          <p className="text-xs font-medium" style={{ color: 'var(--primary)' }}>Click to explore →</p>
         </div>
       </CardContent>
     </Card>
