@@ -2992,6 +2992,366 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
           <ActualPortfolioForm investorName={investorName} matchedPersona={matchedPersona} onTabChange={onTabChange} />
         </div>
       </div>
+
+      {/* Scenario Impact Analysis Section - Full Width */}
+      <ScenarioImpactAnalysis />
+    </div>
+  );
+}
+
+// Scenario Impact Analysis Component
+function ScenarioImpactAnalysis() {
+  const [scenarioImpactData, setScenarioImpactData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
+
+  // Function to get user ID from localStorage or generate demo ID
+  const getUserId = () => {
+    const quizData = localStorage.getItem('investorQuizData');
+    if (quizData) {
+      try {
+        const parsed = JSON.parse(quizData);
+        return parsed.userId || `demo-${Date.now()}`;
+      } catch {
+        return `demo-${Date.now()}`;
+      }
+    }
+    return `demo-${Date.now()}`;
+  };
+
+  // Function to convert form allocations to detailed asset class mix
+  const convertFormToDetailedMix = (allocations: any) => {
+    const cashFixedIncome = parseFloat(allocations.cashFixedIncome) / 100;
+    const globalEquity = parseFloat(allocations.globalEquity) / 100;
+    const techGrowth = parseFloat(allocations.techGrowth) / 100;
+    const property = parseFloat(allocations.property) / 100;
+    const commoditiesGold = parseFloat(allocations.commoditiesGold) / 100;
+    const alternatives = parseFloat(allocations.alternatives) / 100;
+    const cryptocurrency = parseFloat(allocations.cryptocurrency) / 100;
+    const collectibles = parseFloat(allocations.collectibles) / 100;
+
+    return {
+      CASH: cashFixedIncome * 0.3,
+      BILLS_SHORT_GILTS: cashFixedIncome * 0.4,
+      GILTS_LONG: cashFixedIncome * 0.2,
+      IG_CREDIT: cashFixedIncome * 0.1,
+      GLOBAL_EQUITY: globalEquity * 0.7,
+      UK_EQUITY_VALUE: globalEquity * 0.3,
+      GROWTH_TECH: techGrowth,
+      PROPERTY_UK_RESI: property,
+      COMMODITIES: commoditiesGold * 0.6,
+      GOLD: commoditiesGold * 0.4,
+      ALTERNATIVES: alternatives,
+      CRYPTO_BTC: cryptocurrency * 0.6,
+      CRYPTO_ETH: cryptocurrency * 0.4,
+      COLLECTIBLES_ART: collectibles * 0.7,
+      COLLECTIBLES_WINE: collectibles * 0.3
+    };
+  };
+
+  // Load scenario impact analysis
+  const loadScenarioImpact = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      const userId = getUserId();
+
+      // Get user's belief responses (scenario weights)
+      const beliefResponse = await fetch(`/api/investors/${userId}/belief-responses`);
+      if (!beliefResponse.ok) {
+        throw new Error('No scenario beliefs found. Please complete the Economic Beliefs section first.');
+      }
+      const beliefData = await beliefResponse.json();
+
+      // Get user's actual portfolio preferences
+      const prefsResponse = await fetch(`/api/investors/${userId}/preferences`);
+      if (!prefsResponse.ok) {
+        throw new Error('No portfolio data found. Please complete the actual portfolio section first.');
+      }
+      const prefsData = await prefsResponse.json();
+
+      if (!prefsData.actualPortfolioAllocations || !prefsData.actualPortfolioValue) {
+        throw new Error('Please complete your actual portfolio allocation first.');
+      }
+
+      // Parse the allocations and convert to detailed asset class mix
+      const allocations = JSON.parse(prefsData.actualPortfolioAllocations);
+      const currentMix = convertFormToDetailedMix(allocations);
+      const portfolioValue = prefsData.actualPortfolioValue;
+
+      // Call scenario impact API
+      const impactResponse = await fetch('/api/scenario-impact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentMix,
+          scenarioWeights: beliefData.scenarioWeights,
+          portfolioValueGBP: portfolioValue
+        })
+      });
+
+      if (!impactResponse.ok) {
+        const errorData = await impactResponse.json();
+        throw new Error(errorData.error || 'Failed to calculate scenario impact');
+      }
+
+      const impactData = await impactResponse.json();
+      setScenarioImpactData(impactData);
+
+    } catch (err: any) {
+      console.error('Scenario impact analysis error:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load on component mount
+  useEffect(() => {
+    loadScenarioImpact();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="mt-12">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center space-x-2 py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--primary)]"></div>
+              <p className="text-[var(--foreground)]">Calculating scenario impact...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mt-12">
+        <Card className="border-0 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">Scenario Analysis Unavailable</h3>
+              <p className="text-[var(--muted-foreground)] mb-4">{error}</p>
+              <Button onClick={loadScenarioImpact} variant="outline">
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!scenarioImpactData) {
+    return null;
+  }
+
+  const { summary, scenarioBreakdown, assetImpacts } = scenarioImpactData;
+  const isPositiveImpact = summary.totalValueChange >= 0;
+
+  return (
+    <div className="mt-12">
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-[var(--warning)]/10 to-[var(--destructive)]/10 rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <AlertTriangle className="w-6 h-6 text-[var(--warning)]" />
+            Scenario Impact Analysis
+          </CardTitle>
+          <CardDescription>
+            What would happen to your portfolio if your predicted economic scenarios actually occur
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {/* Summary Impact */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className={`border-2 ${isPositiveImpact ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'}`}>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <h4 className="font-semibold text-[var(--foreground)]">Portfolio Impact</h4>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Scenario Impact</p>
+                          <p>Expected change in your portfolio value if your predicted economic scenarios come true, based on how different asset classes typically perform in those conditions.</p>
+                          <p>Calculated using weighted average returns across your selected scenarios, applied to your current portfolio allocation.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <p className={`text-3xl font-bold ${isPositiveImpact ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {isPositiveImpact ? '+' : ''}{(summary.percentageChange * 100).toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-[var(--muted-foreground)]">Expected return</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-[var(--border)]">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <h4 className="font-semibold text-[var(--foreground)]">Value Change</h4>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Absolute Value Change</p>
+                          <p>The estimated change in your portfolio's monetary value if your predicted scenarios occur, showing the actual pound amount you could gain or lose.</p>
+                          <p>Calculated as: Current Portfolio Value × Expected Return Percentage.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <p className={`text-3xl font-bold ${isPositiveImpact ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {isPositiveImpact ? '+' : ''}£{Math.abs(summary.totalValueChange).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    From £{summary.currentPortfolioValue.toLocaleString()} to £{summary.projectedPortfolioValue.toLocaleString()}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-[var(--border)]">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <h4 className="font-semibold text-[var(--foreground)]">Scenario Weight</h4>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Total Scenario Probability</p>
+                          <p>The combined probability weight of all economic scenarios you believe could happen, based on your responses in the Economic Beliefs section.</p>
+                          <p>Higher weights mean you assigned greater likelihood to these scenarios occurring.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <p className="text-3xl font-bold text-[var(--primary)]">
+                    {(summary.totalScenarioWeight * 100).toFixed(0)}%
+                  </p>
+                  <p className="text-sm text-[var(--muted-foreground)]">Total belief weight</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Scenario Breakdown */}
+          {scenarioBreakdown && scenarioBreakdown.length > 0 && (
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5" />
+                Scenario Breakdown
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {scenarioBreakdown.map((scenario: any, index: number) => (
+                  <Card key={index} className="border-[var(--border)]">
+                    <CardContent className="pt-4">
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-[var(--foreground)] text-sm">{scenario.scenarioName}</h5>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-[var(--muted-foreground)]">Weight:</span>
+                          <span className="text-sm font-semibold">{(scenario.weight * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-[var(--muted-foreground)]">Impact:</span>
+                          <span className={`text-sm font-semibold ${scenario.portfolioReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {scenario.portfolioReturn >= 0 ? '+' : ''}{(scenario.portfolioReturn * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-[var(--muted-foreground)]">Value Change:</span>
+                          <span className={`text-sm font-semibold ${scenario.portfolioValueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {scenario.portfolioValueChange >= 0 ? '+' : ''}£{Math.abs(scenario.portfolioValueChange).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Asset Class Impacts */}
+          {assetImpacts && assetImpacts.length > 0 && (
+            <div>
+              <h4 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                <PieChartIcon className="w-5 h-5" />
+                Asset Class Impact Analysis
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--border)]">
+                      <th className="text-left p-3 font-medium text-[var(--foreground)]">Asset Class</th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Current Value</th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Expected Return</th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Value Change</th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Projected Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assetImpacts.map((asset: any, index: number) => (
+                      <tr key={index} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
+                        <td className="p-3 font-medium text-[var(--foreground)]">
+                          {asset.assetClass.replace('_', ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                        </td>
+                        <td className="p-3 text-right text-[var(--foreground)]">
+                          £{asset.currentValue.toLocaleString()}
+                        </td>
+                        <td className={`p-3 text-right font-semibold ${asset.weightedReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {asset.weightedReturn >= 0 ? '+' : ''}{(asset.weightedReturn * 100).toFixed(1)}%
+                        </td>
+                        <td className={`p-3 text-right font-semibold ${asset.valueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {asset.valueChange >= 0 ? '+' : ''}£{Math.abs(asset.valueChange).toLocaleString()}
+                        </td>
+                        <td className="p-3 text-right text-[var(--foreground)]">
+                          £{asset.projectedValue.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Warning Message */}
+          <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Important Disclaimer</p>
+                <p className="text-amber-700 dark:text-amber-300">
+                  This analysis is for educational purposes only and shows potential impacts based on historical patterns. 
+                  Actual market performance may vary significantly. This is not financial advice - consult a qualified 
+                  financial advisor before making investment decisions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

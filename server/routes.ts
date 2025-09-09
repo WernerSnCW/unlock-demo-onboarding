@@ -668,6 +668,119 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Scenario Impact Analysis endpoint - shows portfolio impact if user's scenarios come true
+  app.post('/api/scenario-impact', async (req, res) => {
+    try {
+      const { currentMix, scenarioWeights, portfolioValueGBP } = req.body;
+      
+      if (!currentMix || !scenarioWeights || !portfolioValueGBP) {
+        return res.status(400).json({ 
+          error: "currentMix, scenarioWeights, and portfolioValueGBP are required" 
+        });
+      }
+
+      // Load scenarios data
+      const { scenarios } = await import('./data/scenarios');
+      
+      // Calculate weighted scenario impact
+      let weightedPortfolioReturn = 0;
+      let totalWeight = 0;
+      const scenarioBreakdown: any[] = [];
+      
+      for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
+        const scenario = scenarios[scenarioId];
+        if (!scenario || weight <= 0) continue;
+        
+        // Calculate portfolio return under this scenario
+        let scenarioPortfolioReturn = 0;
+        for (const [assetClass, allocation] of Object.entries(currentMix)) {
+          const scenarioReturn = scenario.mu[assetClass] || 0;
+          scenarioPortfolioReturn += (allocation as number) * scenarioReturn;
+        }
+        
+        // Weight this scenario's impact
+        weightedPortfolioReturn += (weight as number) * scenarioPortfolioReturn;
+        totalWeight += (weight as number);
+        
+        // Store breakdown for details
+        scenarioBreakdown.push({
+          scenarioId,
+          scenarioName: scenario.name,
+          weight: weight as number,
+          portfolioReturn: scenarioPortfolioReturn,
+          portfolioValueChange: portfolioValueGBP * scenarioPortfolioReturn,
+          horizonYears: scenario.horizon_years
+        });
+      }
+      
+      // Normalize if needed
+      if (totalWeight > 0) {
+        weightedPortfolioReturn /= totalWeight;
+      }
+      
+      const totalValueChange = portfolioValueGBP * weightedPortfolioReturn;
+      const newPortfolioValue = portfolioValueGBP + totalValueChange;
+      
+      // Calculate asset-level impacts
+      const assetImpacts: any[] = [];
+      for (const [assetClass, allocation] of Object.entries(currentMix)) {
+        let weightedAssetReturn = 0;
+        for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
+          const scenario = scenarios[scenarioId];
+          if (scenario && weight > 0) {
+            const scenarioReturn = scenario.mu[assetClass] || 0;
+            weightedAssetReturn += (weight as number) * scenarioReturn;
+          }
+        }
+        if (totalWeight > 0) {
+          weightedAssetReturn /= totalWeight;
+        }
+        
+        const assetValueChange = portfolioValueGBP * (allocation as number) * weightedAssetReturn;
+        
+        assetImpacts.push({
+          assetClass,
+          currentAllocation: allocation as number,
+          weightedReturn: weightedAssetReturn,
+          valueChange: assetValueChange,
+          currentValue: portfolioValueGBP * (allocation as number),
+          projectedValue: portfolioValueGBP * (allocation as number) * (1 + weightedAssetReturn)
+        });
+      }
+      
+      // Sort scenarios by weight (highest first)
+      scenarioBreakdown.sort((a, b) => b.weight - a.weight);
+      
+      // Sort asset impacts by magnitude of impact (absolute value)
+      assetImpacts.sort((a, b) => Math.abs(b.valueChange) - Math.abs(a.valueChange));
+      
+      const result = {
+        summary: {
+          currentPortfolioValue: portfolioValueGBP,
+          projectedPortfolioValue: newPortfolioValue,
+          totalValueChange: totalValueChange,
+          percentageChange: weightedPortfolioReturn,
+          totalScenarioWeight: totalWeight
+        },
+        scenarioBreakdown,
+        assetImpacts,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          calculationMethod: "weighted_expected_returns"
+        }
+      };
+      
+      return res.json(result);
+      
+    } catch (error) {
+      console.error('Scenario impact analysis error:', error);
+      res.status(500).json({ 
+        error: 'Failed to calculate scenario impact',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Portfolio Simulation endpoint
   app.post('/api/simulate', async (req, res) => {
     try {
