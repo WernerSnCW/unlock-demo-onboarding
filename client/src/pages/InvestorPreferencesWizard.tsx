@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown, Calculator, ChevronDown, Calendar, Database } from 'lucide-react';
+import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown, Calculator, ChevronDown, Calendar, Database, HelpCircle } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { usePersonaQuiz } from '@/hooks/usePersonaQuiz';
@@ -2658,8 +2658,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
         {/* Show Gap Analysis Results */}
         {gapAnalysisData && (
           <GapAnalysisResults 
-            gapData={gapAnalysisData} 
-            onContinue={() => onTabChange('strategy')}
+            gapData={gapAnalysisData}
           />
         )}
         
@@ -2994,13 +2993,13 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
       </div>
 
       {/* Scenario Impact Analysis Section - Full Width */}
-      <ScenarioImpactAnalysis />
+      <ScenarioImpactAnalysis onTabChange={onTabChange} />
     </div>
   );
 }
 
 // Scenario Impact Analysis Component
-function ScenarioImpactAnalysis() {
+function ScenarioImpactAnalysis({ onTabChange }: { onTabChange: (tab: string) => void }) {
   const [scenarioImpactData, setScenarioImpactData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -3336,8 +3335,34 @@ function ScenarioImpactAnalysis() {
             </div>
           )}
 
+          {/* How This Works Section */}
+          <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
+            <h4 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+              <HelpCircle className="w-5 h-5 text-[var(--primary)]" />
+              How This Analysis Works
+            </h4>
+            <div className="space-y-4 text-sm text-[var(--muted-foreground)]">
+              <div>
+                <p className="font-medium text-[var(--foreground)] mb-2">📊 Scenario Weighting</p>
+                <p>Based on your responses in the Economic Beliefs section, we calculate probability weights for different economic scenarios (recession, property crash, stagflation, etc.). Higher confidence in certain outcomes increases their weight in the analysis.</p>
+              </div>
+              <div>
+                <p className="font-medium text-[var(--foreground)] mb-2">🎯 Portfolio Mapping</p>
+                <p>Your current portfolio allocation is mapped to detailed asset classes (cash, bonds, equities, property, commodities, alternatives, crypto, collectibles). Each asset class has historically different performance patterns under various economic conditions.</p>
+              </div>
+              <div>
+                <p className="font-medium text-[var(--foreground)] mb-2">⚡ Impact Calculation</p>
+                <p>We apply scenario-specific returns to each asset class in your portfolio, weighted by your belief probabilities. This shows the expected impact if your economic predictions come true and you make no portfolio changes.</p>
+              </div>
+              <div>
+                <p className="font-medium text-[var(--foreground)] mb-2">🔍 Strategic Insight</p>
+                <p>This "what if you do nothing" analysis reveals your portfolio's vulnerability to your own economic predictions, demonstrating the value of strategic rebalancing and hedging strategies.</p>
+              </div>
+            </div>
+          </div>
+
           {/* Warning Message */}
-          <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
@@ -3350,6 +3375,19 @@ function ScenarioImpactAnalysis() {
               </div>
             </div>
           </div>
+
+          {/* Continue Button */}
+          <div className="mt-8 flex justify-center">
+            <Button 
+              onClick={() => onTabChange('strategy')}
+              size="lg"
+              className="flex items-center gap-2 px-8 py-4 text-lg bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 transition-all duration-300 shadow-lg"
+              data-testid="button-continue-to-strategy"
+            >
+              <TrendingUp className="h-5 w-5" />
+              Continue to Portfolio Recommendations
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -3357,7 +3395,7 @@ function ScenarioImpactAnalysis() {
 }
 
 // Enhanced Gap Analysis Results Component
-function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?: () => void }) {
+function GapAnalysisResults({ gapData }: { gapData: any }) {
   const hasBeliefAlignment = gapData.beliefAlignmentNow !== undefined && gapData.beliefAlignmentTarget !== undefined;
   const hasCommentary = gapData.commentary && gapData.commentary.whyBullets;
 
@@ -3681,18 +3719,6 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
           </table>
         </div>
 
-        {/* Continue Button */}
-        {onContinue && (
-          <div className="mt-6 flex justify-center">
-            <Button 
-              onClick={onContinue}
-              className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:from-[var(--primary)]/90 hover:to-[var(--secondary)]/90 text-white font-semibold px-8 py-3"
-            >
-              <ArrowRight className="w-5 h-5 mr-2" />
-              Continue to Portfolio Recommendations
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
