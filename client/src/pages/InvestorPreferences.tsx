@@ -1719,9 +1719,12 @@ function PersonaQuizContent() {
           </CardHeader>
           
           <CardContent className="relative space-y-6">
+            {/* DEBUG: Force show description */}
             <div className="bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-2xl p-6 border border-[var(--primary)]/10">
               <p className="text-lg leading-relaxed text-center font-medium text-[var(--foreground)]">
-                {result.topMatch.persona.description || INVESTMENT_PERSONAS[result.topMatch.persona.code]?.description || "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency."}
+                {INVESTMENT_PERSONAS[result.topMatch.persona.code]?.description || 
+                 (result.topMatch.persona.code === "P010" ? "Professional advisor using sophisticated model portfolios with robust risk controls, balancing client needs with regulatory compliance and cost efficiency." : 
+                  "Investment professional focused on diversified portfolio management with systematic risk controls and regulatory compliance.")}
               </p>
             </div>
             
