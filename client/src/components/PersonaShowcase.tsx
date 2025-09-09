@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { INVESTMENT_PERSONAS, DIMENSION_LABELS, PersonaDef } from '@/data/personas';
-import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users } from 'lucide-react';
+import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown } from 'lucide-react';
 
 const getRiskProfileColor = (riskProfile: string) => {
   switch (riskProfile.toLowerCase()) {
