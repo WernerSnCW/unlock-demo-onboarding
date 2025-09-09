@@ -512,9 +512,10 @@ function PortfolioMixDisplay({ personaCode }: { personaCode: string }) {
 export interface PersonaShowcaseProps {
   onPersonaSelect?: (persona: PersonaDef) => void;
   showSelection?: boolean;
+  onNavigateNext?: () => void;
 }
 
-export default function PersonaShowcase({ onPersonaSelect, showSelection = false }: PersonaShowcaseProps) {
+export default function PersonaShowcase({ onPersonaSelect, showSelection = false, onNavigateNext }: PersonaShowcaseProps) {
   const [selectedPersona, setSelectedPersona] = useState<PersonaDef | null>(null);
   
   const personas = Object.values(INVESTMENT_PERSONAS);
@@ -557,10 +558,8 @@ export default function PersonaShowcase({ onPersonaSelect, showSelection = false
       <div className="flex justify-center mt-8">
         <Button 
           onClick={() => {
-            // Navigate to next tab - assuming this is called from parent component
-            if (onPersonaSelect) {
-              // Trigger navigation to next step
-              window.dispatchEvent(new CustomEvent('navigateToNextTab'));
+            if (onNavigateNext) {
+              onNavigateNext();
             }
           }}
           className="px-8 py-3 text-lg font-semibold" 

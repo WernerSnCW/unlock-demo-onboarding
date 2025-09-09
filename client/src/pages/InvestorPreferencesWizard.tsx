@@ -549,7 +549,7 @@ export default function InvestorPreferencesWizard() {
             {/* Tab Content: Investor Personas */}
             <TabsContent value="preferences">
               <div className="max-w-7xl mx-auto px-6 py-8">
-                <PersonaShowcase />
+                <PersonaShowcase onNavigateNext={() => setActiveMainTab('profile')} />
               </div>
             </TabsContent>
 
