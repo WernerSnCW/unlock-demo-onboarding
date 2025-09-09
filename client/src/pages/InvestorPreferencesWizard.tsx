@@ -2052,6 +2052,7 @@ function BeliefQuestionnaireComponent({
         </div>
       </div>
     );
+  }
 
   if (!currentQuestion) {
     return (
