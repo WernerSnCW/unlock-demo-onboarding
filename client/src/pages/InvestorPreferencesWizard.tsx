@@ -4138,7 +4138,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         cy="40%"
                         outerRadius={80}
                         dataKey="value"
-                        label={({ value }) => `${value.toFixed(1)}%`}
+                        label={({ value, percent }) => percent > 0.05 ? `${value.toFixed(1)}%` : ''}
                         labelLine={false}
                       >
                         {Object.entries(targetData.targetMix)
