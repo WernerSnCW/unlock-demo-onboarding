@@ -2876,7 +2876,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
       <CardContent>
         {/* Strategic Commentary */}
         {hasCommentary && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-lg border">
+          <div className="mb-6 p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-xl border">
             <h3 className="text-lg font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
               <Brain className="w-5 h-5 text-[var(--primary)]" />
               Strategic Commentary
@@ -2899,7 +2899,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
 
         {/* Headline Flags */}
         {gapData.headlineFlags.length > 0 && (
-          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
             <h4 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">Portfolio Alerts</h4>
             {gapData.headlineFlags.map((flag: string, index: number) => (
               <p key={index} className="text-amber-800 dark:text-amber-300 text-sm">{flag}</p>
@@ -2915,7 +2915,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
 
         {/* Core Summary Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
             <h4 className="font-semibold text-blue-900 dark:text-blue-200">Total Changes</h4>
             <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
               {(gapData.totals.absGapSum * 100).toFixed(1)}%
@@ -2925,14 +2925,14 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
             </p>
             <p className="text-sm text-blue-600 dark:text-blue-400">Portfolio rebalancing required</p>
           </div>
-          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
             <h4 className="font-semibold text-green-900 dark:text-green-200">Current Liquidity</h4>
             <p className="text-2xl font-bold text-green-700 dark:text-green-300">
               {(gapData.totals.cashBillsNow * 100).toFixed(1)}%
             </p>
             <p className="text-sm text-green-600 dark:text-green-400">Cash & short-term bonds</p>
           </div>
-          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
             <h4 className="font-semibold text-purple-900 dark:text-purple-200">Target Liquidity</h4>
             <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
               {(gapData.totals.cashBillsTarget * 100).toFixed(1)}%
@@ -2945,7 +2945,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Belief Alignment Card */}
           {hasBeliefAlignment && (
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
               <h4 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">Belief Alignment</h4>
               <p className="text-xl font-bold text-amber-700 dark:text-amber-300">
                 {gapData.beliefAlignmentNow}/100 → {gapData.beliefAlignmentTarget}/100 
@@ -2961,7 +2961,7 @@ function GapAnalysisResults({ gapData, onContinue }: { gapData: any; onContinue?
 
           {/* Diversification Card */}
           {gapData.diversification && (
-            <div className="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
+            <div className="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl border border-teal-200 dark:border-teal-800">
               <h4 className="font-semibold text-teal-900 dark:text-teal-200 text-sm">Diversification</h4>
               <p className="text-xl font-bold text-teal-700 dark:text-teal-300">
                 {gapData.diversification.deltaHhi > 0 ? '+' : ''}{(gapData.diversification.deltaHhi * 1000).toFixed(1)} HHI
