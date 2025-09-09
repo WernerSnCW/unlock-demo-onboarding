@@ -322,7 +322,7 @@ export default function InvestorPreferencesWizard() {
       <Header />
       <main className="flex-1 relative z-10">
         {/* Hero Section */}
-        <div className="relative overflow-hidden py-20">
+        <div className="relative overflow-hidden py-8">
             {/* Dynamic Background Mesh */}
             <div className="absolute inset-0">
               <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-transparent to-[var(--secondary)] opacity-10"></div>
@@ -331,11 +331,11 @@ export default function InvestorPreferencesWizard() {
           
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             {/* Floating Icon with Glow Effect */}
-            <div className="flex items-center justify-center mb-8 relative">
+            <div className="flex items-center justify-center mb-4 relative">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
-                  <Target className="h-12 w-12" />
+                <div className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-full p-4 group-hover:scale-110 transition-transform duration-300">
+                  <Target className="h-8 w-8" />
                 </div>
                 <div className="absolute -top-2 -right-2 animate-bounce">
                   <Sparkles className="h-6 w-6 text-[var(--accent)] fill-current" />
@@ -344,7 +344,7 @@ export default function InvestorPreferencesWizard() {
             </div>
 
             {/* Revolutionary Typography - Dynamic Header */}
-            <h1 className="relative mb-8">
+            <h1 className="relative mb-4">
               {(() => {
                 // Determine which tab is currently active - if beliefs questionnaire is shown, use 'beliefs'
                 const currentTabId = showBeliefQuestionnaire ? 'beliefs' : activeMainTab;
@@ -355,10 +355,10 @@ export default function InvestorPreferencesWizard() {
                 
                 return (
                   <>
-                    <span className="block text-2xl md:text-4xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-2">
+                    <span className="block text-lg md:text-2xl font-light text-[var(--muted-foreground)] tracking-wider uppercase mb-1">
                       {firstPart}
                     </span>
-                    <span className="block text-5xl md:text-8xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
+                    <span className="block text-3xl md:text-5xl font-black bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)] bg-clip-text text-transparent leading-none tracking-tight">
                       {lastPart.toUpperCase()}
                     </span>
                   </>
@@ -367,7 +367,7 @@ export default function InvestorPreferencesWizard() {
               <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"></div>
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--muted-foreground)] max-w-4xl mx-auto mb-12 leading-relaxed font-light">
+            <p className="text-base md:text-lg text-[var(--muted-foreground)] max-w-4xl mx-auto mb-6 leading-relaxed font-light">
               Configure your investment profile through 
               <span className="text-[var(--primary)] font-semibold"> detailed preferences</span> or 
               <span className="text-[var(--secondary)] font-semibold"> discover your investment personality</span>
