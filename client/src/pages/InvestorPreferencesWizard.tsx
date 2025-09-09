@@ -3413,11 +3413,23 @@ function ScenarioImpactAnalysis({
     return (
       <div className="mt-12">
         <Card className="border-0 shadow-lg">
-          <CardContent className="pt-6">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/20 rounded-lg">
+                <BarChart3 className="h-5 w-5 text-[var(--primary)]" />
+              </div>
+              <div>
+                <CardTitle className="text-xl text-[var(--foreground)]">
+                  Scenario Impact Analysis
+                </CardTitle>
+                <CardDescription className="text-[var(--muted-foreground)]">
+                  What would happen to your portfolio if your predicted economic scenarios actually occur
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
             <div className="text-center py-8">
-              <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">Scenario Analysis Unavailable</h3>
-              <p className="text-[var(--muted-foreground)] mb-4">{error}</p>
               <Button onClick={loadScenarioImpact} variant="outline">
                 Generate
               </Button>
