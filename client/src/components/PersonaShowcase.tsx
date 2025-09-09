@@ -567,7 +567,7 @@ export default function PersonaShowcase({ onPersonaSelect, showSelection = false
           style={{ backgroundColor: 'var(--primary)' }}
           data-testid="button-continue-to-next-tab"
         >
-          Continue to Investment Preferences →
+          Discover Your Investment Profile
         </Button>
       </div>
       
