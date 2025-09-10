@@ -3832,30 +3832,94 @@ function ScenarioImpactAnalysis({
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
                 <Globe className="w-5 h-5" />
-                Scenario Breakdown
+                Individual Scenario Analysis
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {scenarioBreakdown.map((scenario: any, index: number) => (
-                  <Card key={index} className="border-[var(--border)]">
-                    <CardContent className="pt-4">
-                      <div className="space-y-2">
-                        <h5 className="font-medium text-[var(--foreground)] text-sm">{scenario.scenarioName}</h5>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-[var(--muted-foreground)]">Impact:</span>
-                          <span className={`text-sm font-semibold ${scenario.portfolioReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                            {scenario.portfolioReturn >= 0 ? '+' : ''}{(scenario.portfolioReturn * 100).toFixed(1)}%
-                          </span>
+              <div className="space-y-4">
+                {scenarioBreakdown.map((scenario: any, index: number) => {
+                  const [isExpanded, setIsExpanded] = React.useState(false);
+                  
+                  return (
+                    <Card key={index} className="border-[var(--border)]">
+                      <CardContent className="pt-4">
+                        <div className="space-y-4">
+                          {/* Scenario Header */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h5 className="font-medium text-[var(--foreground)] text-base mb-2">{scenario.scenarioName}</h5>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-[var(--muted-foreground)]">Portfolio Impact:</span>
+                                  <span className={`text-sm font-semibold ${scenario.portfolioReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {scenario.portfolioReturn >= 0 ? '+' : ''}{(scenario.portfolioReturn * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-[var(--muted-foreground)]">Value Change:</span>
+                                  <span className={`text-sm font-semibold ${scenario.portfolioValueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {scenario.portfolioValueChange >= 0 ? '+' : ''}£{Math.abs(scenario.portfolioValueChange).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsExpanded(!isExpanded)}
+                              className="ml-4"
+                            >
+                              {isExpanded ? 'Hide Details' : 'Show Asset Breakdown'}
+                              <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                            </Button>
+                          </div>
+
+                          {/* Asset-Level Breakdown */}
+                          {isExpanded && scenario.assetImpacts && (
+                            <div className="border-t border-[var(--border)] pt-4">
+                              <h6 className="text-sm font-medium text-[var(--foreground)] mb-3">Asset Class Impact Breakdown</h6>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-xs border-collapse">
+                                  <thead>
+                                    <tr className="border-b border-[var(--border)]">
+                                      <th className="text-left p-2 font-medium text-[var(--foreground)]">Asset Class</th>
+                                      <th className="text-right p-2 font-medium text-[var(--foreground)]">Current Value</th>
+                                      <th className="text-right p-2 font-medium text-[var(--foreground)]">Scenario Return</th>
+                                      <th className="text-right p-2 font-medium text-[var(--foreground)]">Value Change</th>
+                                      <th className="text-right p-2 font-medium text-[var(--foreground)]">Projected Value</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {scenario.assetImpacts.map((asset: any, assetIndex: number) => (
+                                      <tr key={assetIndex} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30">
+                                        <td className="p-2 font-medium text-[var(--foreground)]">
+                                          {asset.assetClass.replace('_', ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                                        </td>
+                                        <td className="p-2 text-right text-[var(--foreground)]">
+                                          £{asset.currentValue.toLocaleString()}
+                                        </td>
+                                        <td className={`p-2 text-right font-semibold ${asset.scenarioReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                          {asset.scenarioReturn >= 0 ? '+' : ''}{(asset.scenarioReturn * 100).toFixed(1)}%
+                                        </td>
+                                        <td className={`p-2 text-right font-semibold ${asset.valueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                          {asset.valueChange >= 0 ? '+' : ''}£{Math.abs(asset.valueChange).toLocaleString()}
+                                        </td>
+                                        <td className="p-2 text-right text-[var(--foreground)]">
+                                          £{asset.projectedValue.toLocaleString()}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="mt-3 text-xs text-[var(--muted-foreground)]">
+                                <p><strong>Note:</strong> This shows the individual impact of just this scenario. The cumulative analysis above compounds all selected scenarios together.</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-[var(--muted-foreground)]">Value Change:</span>
-                          <span className={`text-sm font-semibold ${scenario.portfolioValueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                            {scenario.portfolioValueChange >= 0 ? '+' : ''}£{Math.abs(scenario.portfolioValueChange).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}

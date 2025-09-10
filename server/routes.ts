@@ -703,6 +703,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           scenarioPortfolioReturn += (allocation as number) * scenarioReturn;
         }
         
+        // Calculate asset-level impacts for this individual scenario
+        const scenarioAssetImpacts: any[] = [];
+        for (const [assetClass, allocation] of Object.entries(currentMix)) {
+          const scenarioReturn = scenario.mu[assetClass] || 0;
+          const assetValueChange = portfolioValueGBP * (allocation as number) * scenarioReturn;
+          
+          scenarioAssetImpacts.push({
+            assetClass,
+            currentAllocation: allocation as number,
+            scenarioReturn,
+            valueChange: assetValueChange,
+            currentValue: portfolioValueGBP * (allocation as number),
+            projectedValue: portfolioValueGBP * (allocation as number) * (1 + scenarioReturn)
+          });
+        }
+        
         // Store individual scenario impact for breakdown
         scenarioBreakdown.push({
           scenarioId,
@@ -710,7 +726,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isSelected: true,
           portfolioReturn: scenarioPortfolioReturn,
           portfolioValueChange: portfolioValueGBP * scenarioPortfolioReturn,
-          horizonYears: scenario.horizon_years
+          horizonYears: scenario.horizon_years,
+          assetImpacts: scenarioAssetImpacts.sort((a, b) => Math.abs(b.valueChange) - Math.abs(a.valueChange))
         });
         
       }
@@ -793,17 +810,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
       
-      // Debug logging
-      console.log('Scenario impact calculation debug:');
-      console.log('Portfolio value:', portfolioValueGBP, 'Type:', typeof portfolioValueGBP);
-      console.log('Cumulative return:', cumulativePortfolioReturn, 'Type:', typeof cumulativePortfolioReturn);
-      console.log('Total value change:', totalValueChange, 'Type:', typeof totalValueChange);
-      console.log('New portfolio value:', newPortfolioValue, 'Type:', typeof newPortfolioValue);
-      console.log('Calculation check: portfolioValueGBP * (1 + cumulativePortfolioReturn) =', portfolioValueGBP * (1 + cumulativePortfolioReturn));
-      console.log('Selected scenarios:', Object.keys(scenarioWeights).filter(k => scenarioWeights[k] > 0));
-      console.log('Current mix keys:', Object.keys(currentMix));
-      console.log('Current mix values:', Object.values(currentMix));
-      console.log('Result summary:', result.summary);
+      // Optional debug logging (can be removed in production)
+      // console.log('Selected scenarios:', Object.keys(scenarioWeights).filter(k => scenarioWeights[k] > 0));
+      // console.log('Cumulative portfolio return:', cumulativePortfolioReturn);
       
       return res.json(result);
       
