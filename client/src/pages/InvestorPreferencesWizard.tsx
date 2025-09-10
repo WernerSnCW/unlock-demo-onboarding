@@ -3836,7 +3836,7 @@ function ScenarioImpactAnalysis({
               </h4>
               <div className="space-y-4">
                 {scenarioBreakdown.map((scenario: any, index: number) => {
-                  const [isExpanded, setIsExpanded] = React.useState(false);
+                  const [isExpanded, setIsExpanded] = useState(false);
                   
                   return (
                     <Card key={index} className="border-[var(--border)]">
