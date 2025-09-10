@@ -3137,29 +3137,126 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
   return (
     <div className="mt-12">
 
-      {/* Scenario Weight Adjustment */}
+      {/* Selected Scenarios Display */}
       {originalBeliefWeights.length > 0 && (
-        <ScenarioWeightAdjustment 
-          originalWeights={originalBeliefWeights}
-          customWeights={customScenarioWeights}
-          isUsingCustom={isUsingCustomWeights}
-          onWeightsChange={(weights) => {
-            setCustomScenarioWeights(weights);
-            setIsUsingCustomWeights(true);
-          }}
-          onResetToBeliefs={() => {
-            setCustomScenarioWeights([...originalBeliefWeights]);
-            setIsUsingCustomWeights(false);
-          }}
-        />
+        <SelectedScenariosDisplay selectedScenarios={originalBeliefWeights} />
       )}
 
       {/* Scenario Impact Analysis */}
       <ScenarioImpactAnalysis 
         onTabChange={onTabChange}
-        customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
+        selectedScenarios={originalBeliefWeights}
       />
     </div>
+  );
+}
+
+// Selected Scenarios Display Component
+function SelectedScenariosDisplay({ selectedScenarios }: { selectedScenarios: any[] }) {
+  // Get scenario info for display
+  const getScenarioInfo = useCallback((beliefScenario: string): { name: string; description: string } => {
+    const scenarioMapping: Record<string, string> = {
+      'property_down': 'S001',
+      'recession': 'S002', 
+      'stagflation': 'S003',
+      'tech_correction': 'S004',
+      'reflation': 'S006',
+      'gilt_selloff': 'S009',
+      'energy_spike': 'S007',
+      'devaluation': 'S005'
+    };
+
+    const scenarioCode = scenarioMapping[beliefScenario] || beliefScenario;
+    
+    // Map to display names
+    const nameMapping: Record<string, string> = {
+      'S001': 'Property Correction',
+      'S002': 'AI-Driven Recession', 
+      'S003': 'Stagflation Resurgence',
+      'S004': 'Tech & Speculative Asset Burst',
+      'S005': 'Sterling Devaluation',
+      'S006': 'Reflation Rally',
+      'S007': 'Energy Spike',
+      'S009': 'Gilt Market Selloff',
+      'property_down': 'Property Correction',
+      'recession': 'AI-Driven Recession',
+      'stagflation': 'Stagflation Resurgence', 
+      'tech_correction': 'Tech & Speculative Asset Burst',
+      'devaluation': 'Sterling Devaluation',
+      'reflation': 'Reflation Rally',
+      'energy_spike': 'Energy Spike',
+      'gilt_selloff': 'Gilt Market Selloff'
+    };
+
+    return {
+      name: nameMapping[beliefScenario] || nameMapping[scenarioCode] || beliefScenario,
+      description: `Economic scenario: ${nameMapping[beliefScenario] || beliefScenario}`
+    };
+  }, []);
+
+  // Filter to show only selected scenarios
+  const visibleScenarios = selectedScenarios.filter(s => s.normalizedWeight > 0);
+
+  if (visibleScenarios.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="border-0 shadow-lg mb-8">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-red-600" />
+          </div>
+          <div>
+            <CardTitle className="text-xl text-[var(--foreground)]">
+              Selected Economic Scenarios
+            </CardTitle>
+            <CardDescription className="text-[var(--muted-foreground)]">
+              The following scenarios will ALL occur simultaneously in the stress test
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent>
+        <div className="space-y-4">
+          <Alert className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <AlertDescription className="text-red-800 dark:text-red-200">
+              <strong>Cumulative Worst-Case Analysis:</strong> The portfolio impact analysis shows what happens if ALL selected scenarios occur together — representing a comprehensive stress test of your portfolio's resilience.
+            </AlertDescription>
+          </Alert>
+
+          <div className="grid gap-3">
+            {visibleScenarios.map((scenario, index) => {
+              const scenarioInfo = getScenarioInfo(scenario.scenario);
+              
+              return (
+                <div key={scenario.scenario} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border-l-4 border-red-500">
+                  <div className="flex-shrink-0">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-[var(--foreground)]">{scenarioInfo.name}</h4>
+                    <p className="text-sm text-[var(--muted-foreground)]">Full impact will be applied</p>
+                  </div>
+                  <Badge variant="destructive" className="text-xs">
+                    Selected
+                  </Badge>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="bg-muted/30 p-4 rounded-lg">
+            <div className="text-sm text-[var(--muted-foreground)]">
+              <strong className="text-[var(--foreground)]">Analysis Method:</strong> Instead of weighted probabilities, this shows the combined impact if all {visibleScenarios.length} scenarios happen at once — providing a true stress test of portfolio resilience under adverse conditions.
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
