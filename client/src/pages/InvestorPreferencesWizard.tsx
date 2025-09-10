@@ -3457,10 +3457,10 @@ function ScenarioWeightAdjustment({
 // Scenario Impact Analysis Component
 function ScenarioImpactAnalysis({ 
   onTabChange, 
-  customScenarioWeights 
+  selectedScenarios 
 }: { 
   onTabChange: (tab: string) => void;
-  customScenarioWeights?: any[] | null;
+  selectedScenarios?: any[] | null;
 }) {
   const [scenarioImpactData, setScenarioImpactData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -3481,14 +3481,14 @@ function ScenarioImpactAnalysis({
     return `demo-${Date.now()}`;
   };
 
-  // Function to convert custom weights array to API format
-  const convertCustomWeightsToApiFormat = (customWeights: any[]) => {
+  // Function to convert selected scenarios to API format for cumulative analysis
+  const convertSelectedScenariosToApiFormat = (scenarios: any[]) => {
     const apiWeights: Record<string, number> = {};
     
-    // Use scenario names directly - the scenarios data uses these names as keys
-    customWeights.forEach(weight => {
-      if (weight.scenario && weight.normalizedWeight > 0) {
-        apiWeights[weight.scenario] = weight.normalizedWeight;
+    // For cumulative analysis, all selected scenarios get weight = 1 (full impact)
+    scenarios.forEach(scenario => {
+      if (scenario.scenario && scenario.normalizedWeight > 0) {
+        apiWeights[scenario.scenario] = 1; // Full impact for cumulative analysis
       }
     });
     
@@ -3556,21 +3556,35 @@ function ScenarioImpactAnalysis({
       const currentMix = convertFormToDetailedMix(allocations);
       const portfolioValue = prefsData.actualPortfolioValue;
 
-      // Use custom scenario weights if available, otherwise use belief-calculated weights directly
+      // Use selected scenarios for cumulative analysis (all scenarios get full impact)
       let weightsToUse;
-      if (customScenarioWeights) {
-        // Custom weights are already in array format
-        weightsToUse = convertCustomWeightsToApiFormat(customScenarioWeights);
+      if (selectedScenarios) {
+        // Convert selected scenarios to cumulative analysis format (all get weight = 1)
+        weightsToUse = convertSelectedScenariosToApiFormat(selectedScenarios);
       } else {
-        // Belief weights come as object format, use directly
-        weightsToUse = beliefData.scenarioWeights;
-        if (typeof weightsToUse === 'string') {
+        // Fallback: use belief-calculated weights directly but convert to cumulative format
+        const beliefWeights = beliefData.scenarioWeights;
+        if (typeof beliefWeights === 'string') {
           try {
-            weightsToUse = JSON.parse(weightsToUse);
+            const parsed = JSON.parse(beliefWeights);
+            weightsToUse = {};
+            // Convert to cumulative - any scenario with weight > 0 gets full impact
+            Object.keys(parsed).forEach(scenario => {
+              if (parsed[scenario] > 0) {
+                weightsToUse[scenario] = 1; // Full impact for cumulative analysis
+              }
+            });
           } catch (e) {
             console.error('Error parsing scenario weights:', e);
             weightsToUse = {};
           }
+        } else {
+          weightsToUse = {};
+          Object.keys(beliefWeights).forEach(scenario => {
+            if (beliefWeights[scenario] > 0) {
+              weightsToUse[scenario] = 1; // Full impact for cumulative analysis
+            }
+          });
         }
       }
 
@@ -3635,10 +3649,10 @@ function ScenarioImpactAnalysis({
               </div>
               <div>
                 <CardTitle className="text-xl text-[var(--foreground)]">
-                  Scenario Impact Analysis
+                  Cumulative Worst-Case Analysis
                 </CardTitle>
                 <CardDescription className="text-[var(--muted-foreground)]">
-                  What would happen to your portfolio if your predicted economic scenarios actually occur
+                  Portfolio impact if ALL selected economic scenarios occur simultaneously — a comprehensive stress test
                 </CardDescription>
               </div>
             </div>
@@ -3668,10 +3682,10 @@ function ScenarioImpactAnalysis({
         <CardHeader className="bg-gradient-to-r from-[var(--warning)]/10 to-[var(--destructive)]/10 rounded-t-lg">
           <CardTitle className="flex items-center gap-2 text-xl">
             <AlertTriangle className="w-6 h-6 text-[var(--warning)]" />
-            Scenario Impact Analysis
+            Cumulative Worst-Case Analysis
           </CardTitle>
           <CardDescription>
-            What would happen to your portfolio if your predicted economic scenarios actually occur
+            Portfolio impact if ALL selected economic scenarios occur simultaneously — a comprehensive stress test
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
@@ -3690,9 +3704,9 @@ function ScenarioImpactAnalysis({
                       </PopoverTrigger>
                       <PopoverContent className="w-72 text-sm">
                         <div className="space-y-2">
-                          <p className="font-medium">Scenario Impact</p>
-                          <p>Expected change in your portfolio value if your predicted economic scenarios come true, based on how different asset classes typically perform in those conditions.</p>
-                          <p>Calculated using weighted average returns across your selected scenarios, applied to your current portfolio allocation.</p>
+                          <p className="font-medium">Cumulative Impact</p>
+                          <p>Portfolio change if ALL selected economic scenarios happen together — a true stress test showing worst-case resilience.</p>
+                          <p>Calculated by applying the full impact of each scenario cumulatively to your current portfolio allocation.</p>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -3739,7 +3753,7 @@ function ScenarioImpactAnalysis({
               <CardContent className="pt-6">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <h4 className="font-semibold text-[var(--foreground)]">Scenario Weight</h4>
+                    <h4 className="font-semibold text-[var(--foreground)]">Scenarios Count</h4>
                     <Popover>
                       <PopoverTrigger asChild>
                         <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
@@ -3748,17 +3762,17 @@ function ScenarioImpactAnalysis({
                       </PopoverTrigger>
                       <PopoverContent className="w-72 text-sm">
                         <div className="space-y-2">
-                          <p className="font-medium">Total Scenario Probability</p>
-                          <p>The combined probability weight of all economic scenarios you believe could happen, based on your responses in the Economic Beliefs section.</p>
-                          <p>Higher weights mean you assigned greater likelihood to these scenarios occurring.</p>
+                          <p className="font-medium">Selected Scenarios</p>
+                          <p>Number of economic scenarios selected based on your Economic Beliefs assessment that are ALL applied simultaneously in this stress test.</p>
+                          <p>Each scenario applies its full impact, creating a comprehensive worst-case analysis.</p>
                         </div>
                       </PopoverContent>
                     </Popover>
                   </div>
                   <p className="text-3xl font-bold text-[var(--primary)]">
-                    {(summary.totalScenarioWeight * 100).toFixed(0)}%
+                    {summary.selectedScenariosCount || scenarioBreakdown?.length || 0}
                   </p>
-                  <p className="text-sm text-[var(--muted-foreground)]">Total belief weight</p>
+                  <p className="text-sm text-[var(--muted-foreground)]">Active scenarios</p>
                 </div>
               </CardContent>
             </Card>
