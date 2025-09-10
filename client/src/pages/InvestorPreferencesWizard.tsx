@@ -3809,10 +3809,6 @@ function ScenarioImpactAnalysis({
                       <div className="space-y-2">
                         <h5 className="font-medium text-[var(--foreground)] text-sm">{scenario.scenarioName}</h5>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs text-[var(--muted-foreground)]">Weight:</span>
-                          <span className="text-sm font-semibold">{(scenario.weight * 100).toFixed(0)}%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
                           <span className="text-xs text-[var(--muted-foreground)]">Impact:</span>
                           <span className={`text-sm font-semibold ${scenario.portfolioReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                             {scenario.portfolioReturn >= 0 ? '+' : ''}{(scenario.portfolioReturn * 100).toFixed(1)}%
