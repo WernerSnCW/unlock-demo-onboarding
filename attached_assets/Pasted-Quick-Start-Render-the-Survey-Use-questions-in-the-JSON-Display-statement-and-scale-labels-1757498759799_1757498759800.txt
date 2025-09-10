@@ -1,0 +1,110 @@
+Quick Start
+Render the Survey
+
+Use questions[] in the JSON.
+
+Display statement and scale_labels (1–5).
+
+Process Answers → Probabilities
+
+Convert 1–5 to signals in -1, +1 (center = 3 = 0).
+
+Apply direction (lower->... means lower = ↑ risk).
+
+Drop negatives to 0 (only scenario-supporting signals contribute).
+
+Aggregate using weights.
+
+Apply:
+
+Correlation dampening (correlation_examples).
+
+Regime multiplier (regime_configs).
+
+Time decay (decay_rates_annual).
+
+Normalize with softmax τ=1.0 (normalize).
+
+Compute Expected Asset Impacts
+
+Singles: probability-weighted scenario shocks.
+
+Overlaps (preferred)
+
+
+
+impacts = (1 − W_pair) * singles + Σ w_ij * overlap_ij
+where w_ij = 2 * p_i * p_j, W_pair ≤ 0.6
+
+
+\
+
+
+See integration.api_contract.expected_asset_impacts.
+
+Map to Canonical Buckets
+
+Use integration.asset_class_mapping.NEW_TO_CANONICAL.
+
+HY Credit: add as new bucket.
+
+Crypto: apply shocks to BTC (×1.0) and ETH (×1.25), cap ±80%.
+
+IG Credit: use IG_CREDIT_SHOCKS.
+
+Other buckets (Cash, Bills, Alternatives, Collectibles) have fallback formulas in OTHER_BUCKET_RULES.
+
+🔑 Key Design Decisions
+HY Credit: new bucket, not mapped to IG.
+
+Crypto: BTC + ETH combined, ETH more volatile (×1.25).
+
+Questions: replace old IDs with B1–B15.
+
+Scenarios: add Debt Spiral, AI Recession, Tech Burst, Sterling Devaluation.
+
+Negative Weights: allowed; they reduce scenario score.
+
+Softmax: τ=1.0, no mean-centering, masking optional.
+
+
+⚡ Migration Aids
+Legacy → New Scenarios:
+
+energy_spike → Energy Shock
+
+property_down → Property Crash
+
+stagflation → Stagflation
+
+reflation → Rate-Cut Reflation
+
+Legacy → New Questions:
+
+q10_ai_effect → B6_ai_adoption_speed
+
+q12_energy_up_20 → B5_energy_policy
+
+q13_fuel_high_12m → B9_geopolitical_risk
+
+🧪 Regimes & Uncertainty
+Regimes: see regime_configs. Crisis regime multiplies weights 1.8× and adds 50% noise.
+
+Decay rates: exponential per-scenario (annualized).
+
+Monte Carlo: run 1000 iterations with regime-scaled noise to get CI bands (95% intervals).
+
+✅ Implementation Checklist
+Swap in B1–B15 questions.
+
+Update scenario list to 8 (7 negatives + Reflation).
+
+Add HY Credit canonical bucket.
+
+Apply Crypto split rules.
+
+Update softmax config (τ=1.0, no mean centering).
+
+Handle negative weights.
+
+Adopt overlap-aware impact blending.
