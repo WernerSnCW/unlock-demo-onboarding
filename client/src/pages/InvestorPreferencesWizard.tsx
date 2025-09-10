@@ -3741,11 +3741,21 @@ function ScenarioImpactAnalysis({
                           <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-72 text-sm">
-                        <div className="space-y-2">
-                          <p className="font-medium">Cumulative Impact</p>
-                          <p>Portfolio change if ALL selected economic scenarios happen together — a true stress test showing worst-case resilience.</p>
-                          <p>Calculated by applying the full impact of each scenario cumulatively to your current portfolio allocation.</p>
+                      <PopoverContent className="w-80 text-sm">
+                        <div className="space-y-3">
+                          <p className="font-medium">Cumulative Impact Calculation</p>
+                          <p>Shows the portfolio change if <strong>ALL</strong> selected economic scenarios happen together — a comprehensive stress test.</p>
+                          
+                          <div className="space-y-2">
+                            <p className="font-medium text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Mathematical Method:</p>
+                            <p>Each scenario's returns are <strong>compounded</strong> together using: (1 + r₁) × (1 + r₂) × (1 + r₃) - 1</p>
+                            <p className="text-xs text-[var(--muted-foreground)]">This realistic approach avoids the mathematical error of simply adding negative returns.</p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p className="font-medium text-xs text-[var(--muted-foreground)] uppercase tracking-wide">Why Individual Assets Differ:</p>
+                            <p>Individual asset returns can be more extreme than the portfolio total due to <strong>diversification</strong> — your portfolio weights and offsetting assets moderate the overall impact.</p>
+                          </div>
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -3861,11 +3871,103 @@ function ScenarioImpactAnalysis({
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-[var(--border)]">
-                      <th className="text-left p-3 font-medium text-[var(--foreground)]">Asset Class</th>
-                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Current Value</th>
-                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Expected Return</th>
-                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Value Change</th>
-                      <th className="text-right p-3 font-medium text-[var(--foreground)]">Projected Value</th>
+                      <th className="text-left p-3 font-medium text-[var(--foreground)]">
+                        <div className="flex items-center gap-1">
+                          Asset Class
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 text-sm">
+                              <div className="space-y-2">
+                                <p className="font-medium">Asset Class</p>
+                                <p>Your portfolio allocation mapped to detailed investment categories.</p>
+                                <p className="text-xs text-[var(--muted-foreground)]">Each asset class responds differently to economic scenarios based on historical performance patterns.</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">
+                        <div className="flex items-center justify-end gap-1">
+                          Current Value
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 text-sm">
+                              <div className="space-y-2">
+                                <p className="font-medium">Current Value</p>
+                                <p>The current monetary value allocated to this asset class in your portfolio.</p>
+                                <p className="text-xs text-[var(--muted-foreground)]">Calculation: Total Portfolio Value × Asset Allocation %</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">
+                        <div className="flex items-center justify-end gap-1">
+                          Expected Return
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 text-sm">
+                              <div className="space-y-2">
+                                <p className="font-medium">Expected Return</p>
+                                <p>The cumulative return if ALL selected scenarios occur simultaneously.</p>
+                                <p><strong>Calculation Method:</strong></p>
+                                <p className="text-xs bg-[var(--muted)] p-2 rounded font-mono">(1 + scenario₁_return) × (1 + scenario₂_return) × (1 + scenario₃_return) - 1</p>
+                                <p className="text-xs text-[var(--muted-foreground)]">Returns are compounded, not added, to avoid mathematical errors. Individual assets can have more extreme returns than the portfolio due to diversification effects.</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">
+                        <div className="flex items-center justify-end gap-1">
+                          Value Change
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 text-sm">
+                              <div className="space-y-2">
+                                <p className="font-medium">Value Change</p>
+                                <p>The monetary gain or loss for this asset class under the stress test scenarios.</p>
+                                <p className="text-xs text-[var(--muted-foreground)]">Calculation: Current Value × Expected Return</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </th>
+                      <th className="text-right p-3 font-medium text-[var(--foreground)]">
+                        <div className="flex items-center justify-end gap-1">
+                          Projected Value
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                                <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 text-sm">
+                              <div className="space-y-2">
+                                <p className="font-medium">Projected Value</p>
+                                <p>The estimated value of this asset class after all selected economic scenarios occur.</p>
+                                <p className="text-xs text-[var(--muted-foreground)]">Calculation: Current Value + Value Change</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
