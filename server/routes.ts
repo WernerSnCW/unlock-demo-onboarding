@@ -703,10 +703,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           scenarioPortfolioReturn += (allocation as number) * scenarioReturn;
         }
         
-        // Add this scenario's FULL impact to cumulative total
-        cumulativePortfolioReturn += scenarioPortfolioReturn;
-        
-        // Store breakdown for details (showing full individual impacts)
+        // Store individual scenario impact for breakdown
         scenarioBreakdown.push({
           scenarioId,
           scenarioName: scenario.name,
@@ -715,7 +712,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           portfolioValueChange: portfolioValueGBP * scenarioPortfolioReturn,
           horizonYears: scenario.horizon_years
         });
+        
       }
+      
+      // Calculate cumulative portfolio return using compounding instead of addition
+      let portfolioCompoundedReturn = 1.0;
+      for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
+        // Map legacy scenario names to display names
+        const mappedScenarioName = LEGACY_SCENARIO_IDS[scenarioId] || scenarioId;
+        const scenario = scenarios[mappedScenarioName];
+        if (!scenario || weight <= 0) continue;
+        
+        // Calculate portfolio return under this scenario
+        let scenarioPortfolioReturn = 0;
+        for (const [assetClass, allocation] of Object.entries(currentMix)) {
+          const scenarioReturn = scenario.mu[assetClass] || 0;
+          scenarioPortfolioReturn += (allocation as number) * scenarioReturn;
+        }
+        
+        // Compound the portfolio returns
+        portfolioCompoundedReturn *= (1 + scenarioPortfolioReturn);
+      }
+      cumulativePortfolioReturn = portfolioCompoundedReturn - 1;
       
       const totalValueChange = Math.round((portfolioValueGBP * cumulativePortfolioReturn) * 100) / 100;
       const newPortfolioValue = Math.round((portfolioValueGBP * (1 + cumulativePortfolioReturn)) * 100) / 100;
@@ -725,16 +743,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const [assetClass, allocation] of Object.entries(currentMix)) {
         let cumulativeAssetReturn = 0;
         
-        // Sum up the impact from ALL selected scenarios
+        // Compound the impact from ALL selected scenarios
+        // Instead of adding returns (which is incorrect), compound them: (1+r1)*(1+r2)*(1+r3)-1
+        let compoundedReturn = 1.0;
         for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
           // Map legacy scenario names to display names
           const mappedScenarioName = LEGACY_SCENARIO_IDS[scenarioId] || scenarioId;
           const scenario = scenarios[mappedScenarioName];
           if (scenario && weight > 0) {
             const scenarioReturn = scenario.mu[assetClass] || 0;
-            cumulativeAssetReturn += scenarioReturn; // Full impact, no weighting
+            compoundedReturn *= (1 + scenarioReturn); // Compound the returns
           }
         }
+        cumulativeAssetReturn = compoundedReturn - 1; // Convert back to return format
         
         const assetValueChange = portfolioValueGBP * (allocation as number) * cumulativeAssetReturn;
         
