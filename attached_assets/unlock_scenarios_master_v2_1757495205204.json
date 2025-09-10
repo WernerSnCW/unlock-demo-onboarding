@@ -1,0 +1,689 @@
+{
+  "metadata": {
+    "name": "Unlock Scenario Belief Engine \u2013 Master Pack",
+    "version": "v1.0",
+    "generated_at": "2025-09-10T08:37:40.095027Z",
+    "notes": "Single-file pack with questions, mappings, scenario impacts, and blended overlap impacts (pairs)."
+  },
+  "scale_labels": {
+    "1": "Strongly Disagree",
+    "2": "Disagree",
+    "3": "Neutral / Unsure",
+    "4": "Agree",
+    "5": "Strongly Agree"
+  },
+  "normalize": "softmax_\u03c41.0",
+  "questions": [
+    {
+      "id": "B1_mobility_views",
+      "statement": "Do you expect the next generation to have better financial opportunities than today?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "lower->recession,property_down,stagflation",
+      "weights": {
+        "AI Recession": 0.2,
+        "Property Crash": 0.1,
+        "Stagflation": 0.05
+      }
+    },
+    {
+      "id": "B2_job_security_white_collar",
+      "statement": "White-collar jobs will remain secure over the next 5 years.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "lower->recession,tech_correction",
+      "weights": {
+        "AI Recession": 0.2,
+        "Tech Burst": 0.15
+      }
+    },
+    {
+      "id": "B3_remote_work_tenure",
+      "statement": "Remote and hybrid work arrangements will remain stable over the next 3 years.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "lower->property_down,sterling_devaluation",
+      "weights": {
+        "Property Crash": 0.1,
+        "Sterling Devaluation": 0.05
+      }
+    },
+    {
+      "id": "B4_government_confidence",
+      "statement": "The UK government will manage debt and inflation effectively.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "lower->gilt_selloff,stagflation,devaluation",
+      "weights": {
+        "Debt Spiral": 0.25,
+        "Stagflation": 0.1,
+        "Sterling Devaluation": 0.1
+      }
+    },
+    {
+      "id": "B5_energy_policy",
+      "statement": "Energy supply disruptions or higher energy taxes are likely in the next 3 years.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->energy_spike,stagflation",
+      "weights": {
+        "Energy Shock": 0.25,
+        "Stagflation": 0.15
+      }
+    },
+    {
+      "id": "B6_ai_adoption_speed",
+      "statement": "How quickly will your industry adopt AI to replace tasks?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->recession,tech_correction",
+      "weights": {
+        "AI Recession": 0.15,
+        "Tech Burst": 0.15
+      }
+    },
+    {
+      "id": "B7_renting_vs_buying",
+      "statement": "For a 30-year-old today, is renting a better choice than buying over the next 5 years?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->property_down",
+      "weights": {
+        "Property Crash": 0.2
+      }
+    },
+    {
+      "id": "B8_local_investment_preference",
+      "statement": "How attractive is investing in local businesses/infrastructure versus property?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->property_down,reflation",
+      "weights": {
+        "Property Crash": 0.1,
+        "Rate-Cut Reflation": 0.05
+      }
+    },
+    {
+      "id": "B9_geopolitical_risk",
+      "statement": "A major geopolitical shock will disrupt supply chains in the next 3 years.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->energy_spike,stagflation",
+      "weights": {
+        "Energy Shock": 0.2,
+        "Stagflation": 0.1
+      }
+    },
+    {
+      "id": "B10_fx_view",
+      "statement": "How likely is GBP to depreciate against USD/EUR over 2 years?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->devaluation",
+      "weights": {
+        "Sterling Devaluation": 0.25
+      }
+    },
+    {
+      "id": "B11_credit_availability",
+      "statement": "How easy will it be for SMEs/households to get credit in the next 2 years?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "lower->gilt_selloff,recession",
+      "weights": {
+        "Debt Spiral": 0.2,
+        "AI Recession": 0.1
+      }
+    },
+    {
+      "id": "B12_policy_support",
+      "statement": "How likely are significant rate cuts or fiscal support in the next 12 months?",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->reflation",
+      "weights": {
+        "Rate-Cut Reflation": 0.3,
+        "AI Recession": -0.1,
+        "Debt Spiral": -0.1
+      }
+    },
+    {
+      "id": "B13_fiscal_sustainability",
+      "statement": "UK government interest payments will grow faster than tax revenues, creating a debt sustainability problem.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->gilt_selloff,devaluation",
+      "weights": {
+        "Debt Spiral": 0.3,
+        "Sterling Devaluation": 0.15
+      }
+    },
+    {
+      "id": "B14_mortgage_reset_pressure",
+      "statement": "Rising mortgage costs will force households to cut back spending significantly over the next 2 years.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->property_down,recession",
+      "weights": {
+        "Property Crash": 0.25,
+        "AI Recession": 0.1
+      }
+    },
+    {
+      "id": "B15_external_balance_risk",
+      "statement": "The UK\u2019s trade and current account deficits will widen unsustainably.",
+      "scale": {
+        "1": "Strongly Disagree",
+        "2": "Disagree",
+        "3": "Neutral / Unsure",
+        "4": "Agree",
+        "5": "Strongly Agree"
+      },
+      "direction": "higher->devaluation,gilt_selloff",
+      "weights": {
+        "Sterling Devaluation": 0.25,
+        "Debt Spiral": 0.1
+      }
+    }
+  ],
+  "scenarios": {
+    "Debt Spiral": {
+      "description": "Sovereign financing stress: interest costs outpace revenues; gilt sell-off, FX pressure, wider credit spreads.",
+      "impacts_pct": {
+        "Global Equity": -20,
+        "UK Equity": -25,
+        "Growth Tech": -30,
+        "UK Property": -15,
+        "Long Gilts": -20,
+        "HY Credit": -20,
+        "Gold": 15,
+        "Commodities": 0,
+        "Crypto": -20
+      }
+    },
+    "Property Crash": {
+      "description": "Housing-led downturn: affordability shock and tight credit drive double-digit UK resi declines.",
+      "impacts_pct": {
+        "Global Equity": -25,
+        "UK Equity": -20,
+        "Growth Tech": -30,
+        "UK Property": -18,
+        "Long Gilts": 8,
+        "HY Credit": -20,
+        "Gold": 12,
+        "Commodities": -10,
+        "Crypto": -35
+      }
+    },
+    "AI Recession": {
+      "description": "Automation displaces labour faster than demand adjusts; consumption weakens; duration rallies.",
+      "impacts_pct": {
+        "Global Equity": -18,
+        "UK Equity": -12,
+        "Growth Tech": -22,
+        "UK Property": -10,
+        "Long Gilts": 10,
+        "HY Credit": -15,
+        "Gold": 8,
+        "Commodities": -8,
+        "Crypto": -30
+      }
+    },
+    "Stagflation": {
+      "description": "Supply/energy shocks keep inflation high while growth slows; equity\u2013bond correlation flips positive.",
+      "impacts_pct": {
+        "Global Equity": -20,
+        "UK Equity": -5,
+        "Growth Tech": -25,
+        "UK Property": 2,
+        "Long Gilts": -18,
+        "HY Credit": -20,
+        "Gold": 18,
+        "Commodities": 20,
+        "Crypto": 5
+      }
+    },
+    "Tech Burst": {
+      "description": "Valuation compression in growth tech/crypto; multiples de-rate; duration and gold gain a bid.",
+      "impacts_pct": {
+        "Global Equity": -22,
+        "UK Equity": -5,
+        "Growth Tech": -40,
+        "UK Property": -4,
+        "Long Gilts": 15,
+        "HY Credit": -5,
+        "Gold": 10,
+        "Commodities": -8,
+        "Crypto": -70
+      }
+    },
+    "Sterling Devaluation": {
+      "description": "Loss of policy/external-balance credibility drives sharp GBP fall; imported inflation rises.",
+      "impacts_pct": {
+        "Global Equity": -10,
+        "UK Equity": -15,
+        "Growth Tech": -15,
+        "UK Property": -12,
+        "Long Gilts": -12,
+        "HY Credit": -15,
+        "Gold": 25,
+        "Commodities": 15,
+        "Crypto": 20
+      }
+    },
+    "Energy Shock": {
+      "description": "Geopolitical/supply disruptions lift energy/commodities; stagflationary pressure builds.",
+      "impacts_pct": {
+        "Global Equity": -18,
+        "UK Equity": -12,
+        "Growth Tech": -20,
+        "UK Property": -5,
+        "Long Gilts": -10,
+        "HY Credit": -12,
+        "Gold": 12,
+        "Commodities": 20,
+        "Crypto": -20
+      }
+    },
+    "Rate-Cut Reflation": {
+      "description": "Policy easing and sentiment rebound lift risk assets; duration rallies; gold softens on real yields.",
+      "impacts_pct": {
+        "Global Equity": 12,
+        "UK Equity": 8,
+        "Growth Tech": 16,
+        "UK Property": 3,
+        "Long Gilts": 18,
+        "HY Credit": 0,
+        "Gold": -5,
+        "Commodities": 5,
+        "Crypto": 20
+      }
+    }
+  },
+  "overlaps_pct": {
+    "Debt Spiral": {
+      "Global Equity": -20,
+      "UK Equity": -25,
+      "Growth Tech": -30,
+      "UK Property": -15,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 15,
+      "Commodities": 0,
+      "Crypto": -20
+    },
+    "Property Crash": {
+      "Global Equity": -25,
+      "UK Equity": -20,
+      "Growth Tech": -30,
+      "UK Property": -18,
+      "Long Gilts": 8,
+      "HY Credit": -20,
+      "Gold": 12,
+      "Commodities": -10,
+      "Crypto": -35
+    },
+    "AI Recession": {
+      "Global Equity": -18,
+      "UK Equity": -12,
+      "Growth Tech": -22,
+      "UK Property": -10,
+      "Long Gilts": 10,
+      "HY Credit": -15,
+      "Gold": 8,
+      "Commodities": -8,
+      "Crypto": -30
+    },
+    "Stagflation": {
+      "Global Equity": -20,
+      "UK Equity": -5,
+      "Growth Tech": -25,
+      "UK Property": 2,
+      "Long Gilts": -18,
+      "HY Credit": -20,
+      "Gold": 18,
+      "Commodities": 20,
+      "Crypto": 5
+    },
+    "Tech Burst": {
+      "Global Equity": -22,
+      "UK Equity": -5,
+      "Growth Tech": -40,
+      "UK Property": -4,
+      "Long Gilts": 15,
+      "HY Credit": -5,
+      "Gold": 10,
+      "Commodities": -8,
+      "Crypto": -70
+    },
+    "Sterling Devaluation": {
+      "Global Equity": -10,
+      "UK Equity": -15,
+      "Growth Tech": -15,
+      "UK Property": -12,
+      "Long Gilts": -12,
+      "HY Credit": -15,
+      "Gold": 25,
+      "Commodities": 15,
+      "Crypto": 20
+    },
+    "Energy Shock": {
+      "Global Equity": -18,
+      "UK Equity": -12,
+      "Growth Tech": -20,
+      "UK Property": -5,
+      "Long Gilts": -10,
+      "HY Credit": -12,
+      "Gold": 12,
+      "Commodities": 20,
+      "Crypto": -20
+    },
+    "Debt Spiral + Property Crash": {
+      "Global Equity": -25,
+      "UK Equity": -25,
+      "Growth Tech": -30,
+      "UK Property": -18,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 15,
+      "Commodities": 25,
+      "Crypto": -35
+    },
+    "Debt Spiral + AI Recession": {
+      "Global Equity": -20,
+      "UK Equity": -25,
+      "Growth Tech": -30,
+      "UK Property": -15,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 15,
+      "Commodities": 25,
+      "Crypto": -30
+    },
+    "Debt Spiral + Stagflation": {
+      "Global Equity": -20,
+      "UK Equity": -25,
+      "Growth Tech": -30,
+      "UK Property": -15,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 18,
+      "Commodities": 20,
+      "Crypto": -20
+    },
+    "Debt Spiral + Tech Burst": {
+      "Global Equity": -22,
+      "UK Equity": -25,
+      "Growth Tech": -40,
+      "UK Property": -15,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 15,
+      "Commodities": 25,
+      "Crypto": -70
+    },
+    "Debt Spiral + Sterling Devaluation": {
+      "Global Equity": -20,
+      "UK Equity": -25,
+      "Growth Tech": -30,
+      "UK Property": -15,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 25,
+      "Commodities": 15,
+      "Crypto": -20
+    },
+    "Debt Spiral + Energy Shock": {
+      "Global Equity": -20,
+      "UK Equity": -25,
+      "Growth Tech": -30,
+      "UK Property": -15,
+      "Long Gilts": -20,
+      "HY Credit": -20,
+      "Gold": 15,
+      "Commodities": 20,
+      "Crypto": -20
+    },
+    "Property Crash + AI Recession": {
+      "Global Equity": -25,
+      "UK Equity": -20,
+      "Growth Tech": -30,
+      "UK Property": -18,
+      "Long Gilts": -25,
+      "HY Credit": -20,
+      "Gold": 12,
+      "Commodities": 25,
+      "Crypto": -35
+    },
+    "Property Crash + Stagflation": {
+      "Global Equity": -25,
+      "UK Equity": -20,
+      "Growth Tech": -30,
+      "UK Property": -18,
+      "Long Gilts": -18,
+      "HY Credit": -20,
+      "Gold": 18,
+      "Commodities": 25,
+      "Crypto": -35
+    },
+    "Property Crash + Tech Burst": {
+      "Global Equity": -25,
+      "UK Equity": -20,
+      "Growth Tech": -40,
+      "UK Property": -18,
+      "Long Gilts": -25,
+      "HY Credit": -20,
+      "Gold": 12,
+      "Commodities": 25,
+      "Crypto": -70
+    },
+    "Property Crash + Sterling Devaluation": {
+      "Global Equity": -25,
+      "UK Equity": -20,
+      "Growth Tech": -30,
+      "UK Property": -18,
+      "Long Gilts": -12,
+      "HY Credit": -20,
+      "Gold": 25,
+      "Commodities": 25,
+      "Crypto": -35
+    },
+    "Property Crash + Energy Shock": {
+      "Global Equity": -25,
+      "UK Equity": -20,
+      "Growth Tech": -30,
+      "UK Property": -18,
+      "Long Gilts": -10,
+      "HY Credit": -20,
+      "Gold": 12,
+      "Commodities": 25,
+      "Crypto": -35
+    },
+    "AI Recession + Stagflation": {
+      "Global Equity": -20,
+      "UK Equity": -12,
+      "Growth Tech": -25,
+      "UK Property": -10,
+      "Long Gilts": -18,
+      "HY Credit": -20,
+      "Gold": 18,
+      "Commodities": 25,
+      "Crypto": -30
+    },
+    "AI Recession + Tech Burst": {
+      "Global Equity": -22,
+      "UK Equity": -12,
+      "Growth Tech": -40,
+      "UK Property": -10,
+      "Long Gilts": -25,
+      "HY Credit": -15,
+      "Gold": 10,
+      "Commodities": 25,
+      "Crypto": -70
+    },
+    "AI Recession + Sterling Devaluation": {
+      "Global Equity": -18,
+      "UK Equity": -15,
+      "Growth Tech": -22,
+      "UK Property": -12,
+      "Long Gilts": -12,
+      "HY Credit": -15,
+      "Gold": 25,
+      "Commodities": 25,
+      "Crypto": -30
+    },
+    "AI Recession + Energy Shock": {
+      "Global Equity": -18,
+      "UK Equity": -12,
+      "Growth Tech": -22,
+      "UK Property": -10,
+      "Long Gilts": -10,
+      "HY Credit": -15,
+      "Gold": 12,
+      "Commodities": 25,
+      "Crypto": -30
+    },
+    "Stagflation + Tech Burst": {
+      "Global Equity": -22,
+      "UK Equity": -5,
+      "Growth Tech": -40,
+      "UK Property": -4,
+      "Long Gilts": -18,
+      "HY Credit": -20,
+      "Gold": 18,
+      "Commodities": 25,
+      "Crypto": -70
+    },
+    "Stagflation + Sterling Devaluation": {
+      "Global Equity": -20,
+      "UK Equity": -15,
+      "Growth Tech": -25,
+      "UK Property": -12,
+      "Long Gilts": -18,
+      "HY Credit": -20,
+      "Gold": 25,
+      "Commodities": 20,
+      "Crypto": -80
+    },
+    "Stagflation + Energy Shock": {
+      "Global Equity": -20,
+      "UK Equity": -12,
+      "Growth Tech": -25,
+      "UK Property": -5,
+      "Long Gilts": -18,
+      "HY Credit": -20,
+      "Gold": 18,
+      "Commodities": 20,
+      "Crypto": -20
+    },
+    "Tech Burst + Sterling Devaluation": {
+      "Global Equity": -22,
+      "UK Equity": -15,
+      "Growth Tech": -40,
+      "UK Property": -12,
+      "Long Gilts": -12,
+      "HY Credit": -15,
+      "Gold": 25,
+      "Commodities": 25,
+      "Crypto": -70
+    },
+    "Tech Burst + Energy Shock": {
+      "Global Equity": -22,
+      "UK Equity": -12,
+      "Growth Tech": -40,
+      "UK Property": -5,
+      "Long Gilts": -10,
+      "HY Credit": -12,
+      "Gold": 12,
+      "Commodities": 25,
+      "Crypto": -70
+    },
+    "Sterling Devaluation + Energy Shock": {
+      "Global Equity": -18,
+      "UK Equity": -15,
+      "Growth Tech": -20,
+      "UK Property": -12,
+      "Long Gilts": -12,
+      "HY Credit": -15,
+      "Gold": 25,
+      "Commodities": 20,
+      "Crypto": -20
+    }
+  },
+  "blend_method": {
+    "signal_transform": "Likert 1\u20135 centered to [-1,+1]; apply direction (higher/lower) to create positive risk signal",
+    "aggregation": "Sum question_signals * weights per scenario",
+    "normalization": "Softmax over scenarios (tau=1.0) to obtain probabilities",
+    "note": "Overlaps modelled as worst-of-two with realistic caps; see overlaps_pct"
+  }
+}
