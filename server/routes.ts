@@ -682,74 +682,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Load scenarios data
       const { scenarios } = await import('./data/scenarios');
       
-      // Calculate weighted scenario impact
-      let weightedPortfolioReturn = 0;
-      let totalWeight = 0;
+      // Calculate cumulative scenario impact - ALL selected scenarios happen together
+      let cumulativePortfolioReturn = 0;
+      const selectedScenarios: any[] = [];
       const scenarioBreakdown: any[] = [];
       
+      // Identify selected scenarios (weight > 0) and get their full impacts
       for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
         const scenario = scenarios[scenarioId];
         if (!scenario || weight <= 0) continue;
         
-        // Calculate portfolio return under this scenario
+        selectedScenarios.push(scenario);
+        
+        // Calculate portfolio return under this scenario (full strength)
         let scenarioPortfolioReturn = 0;
         for (const [assetClass, allocation] of Object.entries(currentMix)) {
           const scenarioReturn = scenario.mu[assetClass] || 0;
           scenarioPortfolioReturn += (allocation as number) * scenarioReturn;
         }
         
-        // Weight this scenario's impact
-        weightedPortfolioReturn += (weight as number) * scenarioPortfolioReturn;
-        totalWeight += (weight as number);
+        // Add this scenario's FULL impact to cumulative total
+        cumulativePortfolioReturn += scenarioPortfolioReturn;
         
-        // Store breakdown for details
+        // Store breakdown for details (showing full individual impacts)
         scenarioBreakdown.push({
           scenarioId,
           scenarioName: scenario.name,
-          weight: weight as number,
+          isSelected: true,
           portfolioReturn: scenarioPortfolioReturn,
           portfolioValueChange: portfolioValueGBP * scenarioPortfolioReturn,
           horizonYears: scenario.horizon_years
         });
       }
       
-      // Normalize if needed
-      if (totalWeight > 0) {
-        weightedPortfolioReturn /= totalWeight;
-      }
-      
-      const totalValueChange = Math.round((portfolioValueGBP * weightedPortfolioReturn) * 100) / 100;
+      const totalValueChange = Math.round((portfolioValueGBP * cumulativePortfolioReturn) * 100) / 100;
       const newPortfolioValue = Math.round((portfolioValueGBP + totalValueChange) * 100) / 100;
       
-      // Calculate asset-level impacts
+      // Calculate asset-level impacts (cumulative from all selected scenarios)
       const assetImpacts: any[] = [];
       for (const [assetClass, allocation] of Object.entries(currentMix)) {
-        let weightedAssetReturn = 0;
+        let cumulativeAssetReturn = 0;
+        
+        // Sum up the impact from ALL selected scenarios
         for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
           const scenario = scenarios[scenarioId];
           if (scenario && weight > 0) {
             const scenarioReturn = scenario.mu[assetClass] || 0;
-            weightedAssetReturn += (weight as number) * scenarioReturn;
+            cumulativeAssetReturn += scenarioReturn; // Full impact, no weighting
           }
         }
-        if (totalWeight > 0) {
-          weightedAssetReturn /= totalWeight;
-        }
         
-        const assetValueChange = portfolioValueGBP * (allocation as number) * weightedAssetReturn;
+        const assetValueChange = portfolioValueGBP * (allocation as number) * cumulativeAssetReturn;
         
         assetImpacts.push({
           assetClass,
           currentAllocation: allocation as number,
-          weightedReturn: weightedAssetReturn,
+          cumulativeReturn: cumulativeAssetReturn,
           valueChange: assetValueChange,
           currentValue: portfolioValueGBP * (allocation as number),
-          projectedValue: portfolioValueGBP * (allocation as number) * (1 + weightedAssetReturn)
+          projectedValue: portfolioValueGBP * (allocation as number) * (1 + cumulativeAssetReturn)
         });
       }
       
-      // Sort scenarios by weight (highest first)
-      scenarioBreakdown.sort((a, b) => b.weight - a.weight);
+      // Sort scenarios by impact magnitude (highest absolute value first)
+      scenarioBreakdown.sort((a, b) => Math.abs(b.portfolioValueChange) - Math.abs(a.portfolioValueChange));
       
       // Sort asset impacts by magnitude of impact (absolute value)
       assetImpacts.sort((a, b) => Math.abs(b.valueChange) - Math.abs(a.valueChange));
@@ -759,14 +755,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           currentPortfolioValue: Math.round(portfolioValueGBP * 100) / 100,
           projectedPortfolioValue: Math.round(newPortfolioValue * 100) / 100,
           totalValueChange: Math.round(totalValueChange * 100) / 100,
-          percentageChange: weightedPortfolioReturn,
-          totalScenarioWeight: totalWeight
+          percentageChange: cumulativePortfolioReturn,
+          selectedScenariosCount: selectedScenarios.length,
+          analysisType: "cumulative_worst_case"
         },
         scenarioBreakdown,
         assetImpacts,
         metadata: {
           timestamp: new Date().toISOString(),
-          calculationMethod: "weighted_expected_returns"
+          calculationMethod: "cumulative_scenario_impact",
+          description: "Shows portfolio impact if ALL selected scenarios occur simultaneously"
         }
       };
       
