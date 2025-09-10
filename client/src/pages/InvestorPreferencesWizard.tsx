@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Target, ChevronLeft, ChevronRight, User, Save, CheckCircle, Sparkles, BookOpen, Globe, TrendingUp, BarChart3, ArrowLeft, ArrowRight, Zap, RotateCcw, Shield, Brain, Droplets, Lightbulb, AlertTriangle, Users, Info, DollarSign, ArrowUp, ArrowDown, Activity, AlertCircle, PiggyBank, Play, Pause, Download, PieChart as PieChartIcon, ListChecks, Plus, Minus, TrendingDown, Calculator, ChevronDown, Calendar, Database, HelpCircle, RefreshCw } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
@@ -3047,6 +3048,8 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
 
   // Check if both beliefs and portfolio data are complete
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
     const checkDataCompletion = async () => {
       try {
         const userId = (() => {
@@ -3074,12 +3077,12 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
           
           console.log('Data check:', {
             hasScenarioWeights: !!beliefData.scenarioWeights,
-            hasPortfolioAllocations: !!prefsData.actualPortfolioAllocations,
+            hasPortfolioAllocations: !!(prefsData.actualPortfolioAllocations && prefsData.actualPortfolioValue),
             beliefData: beliefData,
             prefsData: prefsData
           });
           
-          if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations) {
+          if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations && prefsData.actualPortfolioValue) {
             // Parse belief weights and convert to array format
             let weightsData = beliefData.scenarioWeights;
             try {
@@ -3107,6 +3110,13 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
             setOriginalBeliefWeights(weights);
             setCustomScenarioWeights([...weights]);
             setShowAnalysis(true);
+            
+            // Stop polling once we have the data
+            if (interval) {
+              clearInterval(interval);
+              interval = null;
+            }
+            return;
           }
         }
       } catch (error) {
@@ -3116,18 +3126,25 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
 
     checkDataCompletion();
     
-    // Only poll a few times, then stop
+    // Poll for up to 20 seconds to allow data propagation
     let pollCount = 0;
-    const interval = setInterval(() => {
+    interval = setInterval(async () => {
       pollCount++;
-      if (pollCount <= 3) {
-        checkDataCompletion();
+      if (pollCount <= 10) {
+        await checkDataCompletion();
       } else {
-        clearInterval(interval);
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
       }
     }, 2000);
     
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, []);
 
   if (!showAnalysis) {
