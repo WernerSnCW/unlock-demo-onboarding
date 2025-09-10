@@ -1,169 +1,230 @@
-// Belief processing logic
-// Based on beliefs.py and beliefs_ml.py
+// New Belief Processing Logic for Economic Scenario Engine v2.1
+// Handles B1-B15 questions with 1-5 scale responses and negative weights
 
-interface BeliefResponse {
+export interface BeliefResponse {
   questionId: string;
-  selectedOption: string;
+  answer: 1 | 2 | 3 | 4 | 5; // 1=Strongly Disagree, 5=Strongly Agree
 }
 
-interface LatentIndices {
-  psi: number;  // property confidence index
-  pci: number;  // policy confidence index  
-  inf: number;  // inflation sensitivity
-  tech: number; // tech conviction
-  fxv: number;  // FX vulnerability
-  eng: number;  // energy risk
-  rate: number; // rate sensitivity
-  rt: number;   // risk tolerance
-}
-
-interface ScenarioWeights {
+export interface ScenarioWeights {
   [scenario: string]: number;
 }
 
-// Helper functions
-function standardize(values: Record<string, number>): Record<string, number> {
-  const vals = Object.values(values);
-  if (vals.length === 0) return {};
-  
-  const mean = vals.reduce((sum, val) => sum + val, 0) / vals.length;
-  const variance = vals.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / vals.length;
-  const stdDev = Math.sqrt(variance) || 1.0;
-  
-  const result: Record<string, number> = {};
-  for (const [key, value] of Object.entries(values)) {
-    result[key] = (value - mean) / stdDev;
+export interface BeliefProcessingConfig {
+  softmaxTemperature: number;
+  meanCenterScores: boolean;
+  maskThresholdFractionOfMax: number;
+  negativeWeightsAllowed: boolean;
+}
+
+// Default configuration based on spec
+export const DEFAULT_CONFIG: BeliefProcessingConfig = {
+  softmaxTemperature: 1.0, // Changed from 0.5 to 1.0 per spec
+  meanCenterScores: false, // Disabled per spec
+  maskThresholdFractionOfMax: 0.0, // No masking by default
+  negativeWeightsAllowed: true // Support negative weights
+};
+
+/**
+ * Convert 1-5 scale response to signal (-1 to +1, center=3=0)
+ */
+function scaleToSignal(answer: 1 | 2 | 3 | 4 | 5): number {
+  // 1→-1, 2→-0.5, 3→0, 4→0.5, 5→1
+  return (answer - 3) / 2;
+}
+
+/**
+ * Parse direction string to determine if lower or higher values increase scenario risk
+ */
+function parseDirection(direction: string): { isLower: boolean; scenarios: string[] } {
+  const isLower = direction.startsWith('lower->');
+  const scenariosStr = direction.replace(/^(lower|higher)->/, '');
+  const scenarios = scenariosStr.split(',').map(s => s.trim());
+  return { isLower, scenarios };
+}
+
+/**
+ * Calculate scenario weights from belief responses using new B1-B15 system
+ */
+export function calculateScenarioWeights(
+  responses: BeliefResponse[],
+  questions: Array<{
+    id: string;
+    statement: string;
+    direction: string;
+    weights: Record<string, number>;
+  }>,
+  config: BeliefProcessingConfig = DEFAULT_CONFIG
+): ScenarioWeights {
+  const scenarioScores: Record<string, number> = {};
+
+  // Process each response
+  responses.forEach(response => {
+    const question = questions.find(q => q.id === response.questionId);
+    if (!question) return;
+
+    const signal = scaleToSignal(response.answer);
+    const { isLower, scenarios } = parseDirection(question.direction);
+
+    // Apply direction logic: 
+    // - "lower->scenarios" means lower agreement increases scenario risk
+    // - "higher->scenarios" means higher agreement increases scenario risk
+    const adjustedSignal = isLower ? -signal : signal;
+
+    // Only positive signals contribute to scenario scores (negative signals drop to 0)
+    // This implements "Drop negatives to 0" from the spec
+    const contributingSignal = Math.max(0, adjustedSignal);
+
+    // Apply weights to scenarios for this question
+    Object.entries(question.weights).forEach(([scenario, weight]) => {
+      if (config.negativeWeightsAllowed || weight >= 0) {
+        scenarioScores[scenario] = (scenarioScores[scenario] || 0) + (contributingSignal * weight);
+      }
+    });
+  });
+
+  return scenarioScores;
+}
+
+/**
+ * Apply softmax normalization with temperature control
+ */
+export function applySoftmaxNormalization(
+  weights: ScenarioWeights,
+  config: BeliefProcessingConfig = DEFAULT_CONFIG
+): ScenarioWeights {
+  let processedWeights = { ...weights };
+
+  // Mean center scores if enabled (disabled in new spec)
+  if (config.meanCenterScores) {
+    const values = Object.values(processedWeights);
+    const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+    
+    Object.keys(processedWeights).forEach(key => {
+      processedWeights[key] -= mean;
+    });
   }
+
+  // Apply masking threshold if specified
+  const maxWeight = Math.max(...Object.values(processedWeights));
+  const threshold = maxWeight * config.maskThresholdFractionOfMax;
+  
+  const activeScenarios = Object.entries(processedWeights)
+    .filter(([_, weight]) => weight >= threshold);
+
+  if (activeScenarios.length === 0) {
+    // If no scenarios pass threshold, return uniform distribution
+    const uniformWeight = 1.0 / Object.keys(processedWeights).length;
+    const result: ScenarioWeights = {};
+    Object.keys(processedWeights).forEach(scenario => {
+      result[scenario] = uniformWeight;
+    });
+    return result;
+  }
+
+  // Apply softmax with temperature
+  const maxActiveWeight = Math.max(...activeScenarios.map(([_, w]) => w));
+  const expWeights = activeScenarios.map(([scenario, weight]) => [
+    scenario,
+    Math.exp((weight - maxActiveWeight) / config.softmaxTemperature)
+  ] as [string, number]);
+
+  const expSum = expWeights.reduce((sum, [_, exp]) => sum + exp, 0);
+
+  // Build normalized result
+  const result: ScenarioWeights = {};
+  
+  // Initialize all scenarios to 0
+  Object.keys(processedWeights).forEach(scenario => {
+    result[scenario] = 0;
+  });
+
+  // Set normalized weights for active scenarios
+  expWeights.forEach(([scenario, exp]) => {
+    result[scenario] = exp / expSum;
+  });
+
   return result;
 }
 
-function sigmoid(x: number): number {
-  return 1 / (1 + Math.exp(-x));
+/**
+ * Apply regime multipliers and decay rates (for advanced features)
+ */
+export function applyRegimeAdjustments(
+  weights: ScenarioWeights,
+  regime: 'low' | 'normal' | 'high' | 'crisis' = 'normal',
+  decayRates?: Record<string, number>
+): ScenarioWeights {
+  const regimeMultipliers = {
+    low: 0.8,
+    normal: 1.0,
+    high: 1.4,
+    crisis: 1.8
+  };
+
+  const multiplier = regimeMultipliers[regime];
+  const adjusted: ScenarioWeights = {};
+
+  Object.entries(weights).forEach(([scenario, weight]) => {
+    let adjustedWeight = weight * multiplier;
+    
+    // Apply decay if specified
+    if (decayRates && decayRates[scenario]) {
+      const decayFactor = 1 - decayRates[scenario];
+      adjustedWeight *= decayFactor;
+    }
+    
+    adjusted[scenario] = adjustedWeight;
+  });
+
+  // Renormalize after adjustments
+  const total = Object.values(adjusted).reduce((sum, val) => sum + val, 0);
+  if (total > 0) {
+    Object.keys(adjusted).forEach(scenario => {
+      adjusted[scenario] /= total;
+    });
+  }
+
+  return adjusted;
 }
 
-export function inferLatentIndices(
-  responses: BeliefResponse[], 
-  questionMap: any
-): LatentIndices {
-  const z: Record<string, number> = {};
-  
-  // Aggregate tags from responses
-  responses.forEach(response => {
-    const question = questionMap.find((q: any) => q.id === response.questionId);
-    if (!question) return;
-    
-    const option = question.options[response.selectedOption];
-    if (!option) return;
-    
-    Object.entries(option.tags).forEach(([tag, weight]: [string, any]) => {
-      z[tag] = (z[tag] || 0) + weight;
-    });
-  });
-  
-  const standardizedZ = standardize(z);
-  
+/**
+ * Complete belief processing pipeline
+ */
+export function processBeliefResponses(
+  responses: BeliefResponse[],
+  questions: Array<{
+    id: string;
+    statement: string;
+    direction: string;
+    weights: Record<string, number>;
+  }>,
+  config: BeliefProcessingConfig = DEFAULT_CONFIG,
+  regime: 'low' | 'normal' | 'high' | 'crisis' = 'normal'
+): {
+  rawWeights: ScenarioWeights;
+  normalizedWeights: ScenarioWeights;
+  finalProbabilities: ScenarioWeights;
+} {
+  // Step 1: Calculate raw scenario weights
+  const rawWeights = calculateScenarioWeights(responses, questions, config);
+
+  // Step 2: Apply softmax normalization
+  const normalizedWeights = applySoftmaxNormalization(rawWeights, config);
+
+  // Step 3: Apply regime adjustments (optional)
+  const finalProbabilities = applyRegimeAdjustments(normalizedWeights, regime);
+
   return {
-    psi: sigmoid(standardizedZ.property_conf || -(standardizedZ.property_caution || 0)),
-    pci: sigmoid(standardizedZ.pci || 0),
-    inf: sigmoid(standardizedZ.inflation_sens || 0),
-    tech: sigmoid(standardizedZ.tech_conv || 0),
-    fxv: sigmoid(standardizedZ.fxv || 0),
-    eng: sigmoid(standardizedZ.energy_risk || 0),
-    rate: sigmoid(standardizedZ.rate_sens || 0),
-    rt: sigmoid(standardizedZ.risk_tol || 0)
+    rawWeights,
+    normalizedWeights,
+    finalProbabilities
   };
 }
 
-export function calculateScenarioProbabilities(
-  responses: BeliefResponse[],
-  questionMap: any,
-  latentIndices: LatentIndices
-): ScenarioWeights {
-  const raw: Record<string, number> = {};
-  
-  // Sum scenario weights from responses
-  responses.forEach(response => {
-    const question = questionMap.find((q: any) => q.id === response.questionId);
-    if (!question) return;
-    
-    const option = question.options[response.selectedOption];
-    if (!option) return;
-    
-    Object.entries(option.scenarios).forEach(([scenario, weight]: [string, any]) => {
-      raw[scenario] = (raw[scenario] || 0) + weight;
-    });
-  });
-  
-  // Apply latent factor adjustments
-  raw.property_crash = (raw.property_crash || 0) * 
-    (latentIndices.pci < 0.4 && latentIndices.psi < 0.5 ? 1.3 : 
-     latentIndices.psi > 0.6 ? 0.9 : 1.0);
-     
-  raw.stagflation = (raw.stagflation || 0) * 
-    (latentIndices.inf > 0.6 || latentIndices.eng > 0.6 ? 1.2 : 1.0);
-    
-  raw.devaluation = (raw.devaluation || 0) * 
-    (latentIndices.fxv > 0.6 ? 1.3 : 1.0);
-    
-  raw.reflation = (raw.reflation || 0) * 
-    (latentIndices.pci > 0.6 ? 1.2 : 0.9);
-    
-  raw.gilt_selloff = (raw.gilt_selloff || 0) * 
-    (latentIndices.rate > 0.6 && latentIndices.pci < 0.5 ? 1.2 : 1.0);
-  
-  // Apply floor values
-  const floor = 0.05;
-  const scenarios = [
-    "property_crash", "ai_recession", "stagflation", "tech_burst", 
-    "tax_shift", "reflation", "stagflation_2", "devaluation", 
-    "gilt_selloff", "energy_spike"
-  ];
-  
-  scenarios.forEach(scenario => {
-    raw[scenario] = Math.max(raw[scenario] || 0, floor);
-  });
-  
-  // Normalize to probabilities
-  const total = Object.values(raw).reduce((sum, val) => sum + val, 0);
-  const normalized: ScenarioWeights = {};
-  
-  scenarios.forEach(scenario => {
-    normalized[scenario] = raw[scenario] / total;
-  });
-  
-  return normalized;
-}
-
-export function applyMLWeightUpdate(
-  baseProbabilities: ScenarioWeights, 
-  features: LatentIndices
-): ScenarioWeights {
-  const adjusted = { ...baseProbabilities };
-  
-  // Property crash adjustment
-  const scorePC = -1.0 * (features.pci - 0.5) - 0.8 * (features.psi - 0.5);
-  adjusted.property_crash *= (1 + 0.5 * scorePC);
-  
-  // Stagflation adjustment
-  const scoreStag = (features.inf - 0.5) + 0.3 * (features.eng - 0.5);
-  adjusted.stagflation *= (1 + 0.5 * scoreStag);
-  
-  // FX adjustment
-  const scoreFX = (features.fxv - 0.5);
-  adjusted.devaluation *= (1 + 0.7 * scoreFX);
-  
-  // Normalize
-  const total = Object.values(adjusted).reduce((sum, val) => sum + val, 0) || 1.0;
-  const result: ScenarioWeights = {};
-  
-  Object.entries(adjusted).forEach(([key, value]) => {
-    result[key] = Math.max(0.01, value) / total;
-  });
-  
-  return result;
-}
-
-// Temperature-scaled softmax with mean centering
+/**
+ * Legacy function wrapper for backwards compatibility
+ */
 export function applySoftmaxWithConfig(
   weights: ScenarioWeights,
   config: {
@@ -174,51 +235,19 @@ export function applySoftmaxWithConfig(
   }
 ): { scenario: string; weight: number; normalizedWeight: number; isMasked: boolean }[] {
   
-  let processedWeights = { ...weights };
+  const newConfig: BeliefProcessingConfig = {
+    softmaxTemperature: config.softmaxTemperature,
+    meanCenterScores: config.meanCenterScores,
+    maskThresholdFractionOfMax: config.maskedSoftmaxThreshold,
+    negativeWeightsAllowed: true
+  };
+
+  const normalized = applySoftmaxNormalization(weights, newConfig);
   
-  // Mean center if enabled
-  if (config.meanCenterScores) {
-    const values = Object.values(processedWeights);
-    const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-    
-    Object.keys(processedWeights).forEach(key => {
-      processedWeights[key] -= mean;
-    });
-  }
-  
-  // Apply masking threshold
-  const activeScenarios = Object.entries(processedWeights)
-    .filter(([_, weight]) => weight > config.maskedSoftmaxThreshold);
-    
-  // Apply softmax to active scenarios
-  const maxWeight = Math.max(...activeScenarios.map(([_, w]) => w));
-  const expWeights = activeScenarios.map(([scenario, weight]) => [
-    scenario, 
-    Math.exp((weight - maxWeight) / config.softmaxTemperature)
-  ]);
-  
-  const expSum = expWeights.reduce((sum, [_, exp]) => sum + (exp as number), 0);
-  
-  // Build final results
-  const results = Object.entries(processedWeights).map(([scenario, rawWeight]) => {
-    const activeEntry = expWeights.find(([s, _]) => s === scenario);
-    const isMasked = !activeEntry;
-    
-    let normalizedWeight = 0;
-    if (!isMasked && expSum > 0) {
-      normalizedWeight = (activeEntry![1] as number) / expSum;
-      // Apply display cap
-      normalizedWeight = Math.min(normalizedWeight, config.displayCapPct / 100);
-    }
-    
-    return {
-      scenario,
-      weight: rawWeight,
-      normalizedWeight,
-      isMasked
-    };
-  });
-  
-  // Sort by normalized weight descending
-  return results.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
+  return Object.entries(weights).map(([scenario, rawWeight]) => ({
+    scenario,
+    weight: rawWeight,
+    normalizedWeight: Math.min(normalized[scenario] || 0, config.displayCapPct / 100),
+    isMasked: (normalized[scenario] || 0) === 0
+  })).sort((a, b) => b.normalizedWeight - a.normalizedWeight);
 }
