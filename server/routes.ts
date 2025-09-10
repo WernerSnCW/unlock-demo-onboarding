@@ -680,7 +680,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Load scenarios data
-      const { scenarios } = await import('./data/scenarios');
+      const { scenarios, LEGACY_SCENARIO_IDS } = await import('./data/scenarios');
       
       // Calculate cumulative scenario impact - ALL selected scenarios happen together
       let cumulativePortfolioReturn = 0;
@@ -689,7 +689,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Identify selected scenarios (weight > 0) and get their full impacts
       for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
-        const scenario = scenarios[scenarioId];
+        // Map legacy scenario names to display names
+        const mappedScenarioName = LEGACY_SCENARIO_IDS[scenarioId] || scenarioId;
+        const scenario = scenarios[mappedScenarioName];
         if (!scenario || weight <= 0) continue;
         
         selectedScenarios.push(scenario);
@@ -725,7 +727,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Sum up the impact from ALL selected scenarios
         for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
-          const scenario = scenarios[scenarioId];
+          // Map legacy scenario names to display names
+          const mappedScenarioName = LEGACY_SCENARIO_IDS[scenarioId] || scenarioId;
+          const scenario = scenarios[mappedScenarioName];
           if (scenario && weight > 0) {
             const scenarioReturn = scenario.mu[assetClass] || 0;
             cumulativeAssetReturn += scenarioReturn; // Full impact, no weighting
