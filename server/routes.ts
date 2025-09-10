@@ -772,6 +772,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
       
+      // Debug logging
+      console.log('Scenario impact calculation debug:');
+      console.log('Portfolio value:', portfolioValueGBP);
+      console.log('Cumulative return:', cumulativePortfolioReturn);
+      console.log('Total value change:', totalValueChange);
+      console.log('New portfolio value:', newPortfolioValue);
+      console.log('Selected scenarios:', Object.keys(scenarioWeights).filter(k => scenarioWeights[k] > 0));
+      console.log('Result summary:', result.summary);
+      
       return res.json(result);
       
     } catch (error) {
