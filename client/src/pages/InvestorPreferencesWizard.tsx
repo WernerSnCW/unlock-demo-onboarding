@@ -3497,7 +3497,7 @@ function ScenarioImpactAnalysis({
   // Load on component mount and when custom weights change
   useEffect(() => {
     loadScenarioImpact();
-  }, [customScenarioWeights]);
+  }, [JSON.stringify(customScenarioWeights)]);
 
   if (isLoading) {
     return (
