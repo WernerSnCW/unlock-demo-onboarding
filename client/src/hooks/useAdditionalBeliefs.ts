@@ -1,27 +1,13 @@
 // Additional belief questionnaire hook for scenario → portfolio flow
 import { useState, useCallback } from 'react';
-import beliefsData from '../data/beliefs.json';
-
-// Types for beliefs data
-interface BeliefQuestion {
-  id: string;
-  text: string;
-  scale: string;
-  direction: string;
-}
-
-interface BeliefsData {
-  questions: BeliefQuestion[];
-  weights: Record<string, Record<string, number>>;
-  normalize: string;
-}
-import { SCENARIO_DEFAULTS } from '../data/scenarioDefaults';
+import { BELIEF_QUESTIONS, SCALE_LABELS } from '../data/beliefQuestions';
 import { 
-  inferLatentIndices, 
-  calculateScenarioProbabilities, 
-  applyMLWeightUpdate,
-  applySoftmaxWithConfig
+  processBeliefResponses, 
+  type BeliefResponse as NewBeliefResponse, 
+  DEFAULT_CONFIG, 
+  type BeliefProcessingConfig 
 } from '../utils/beliefProcessing';
+import { SCENARIO_DEFAULTS } from '../data/scenarioDefaults';
 import { 
   applyPersonaRules, 
   selectScenario, 
@@ -31,6 +17,7 @@ import {
 } from '../utils/personaRules';
 import { PersonaDef } from '../data/personas';
 
+// Legacy interface for backward compatibility
 export interface BeliefResponse {
   questionId: string;
   selectedOptionIndex: number;
@@ -52,11 +39,10 @@ export function useAdditionalBeliefs() {
   const [isComplete, setIsComplete] = useState(false);
   const [portfolioResult, setPortfolioResult] = useState<PortfolioResult | null>(null);
 
-  // Transform beliefs.json format to question format
-  const typedBeliefsData = beliefsData as BeliefsData;
-  const questions = typedBeliefsData.questions.map(q => ({
+  // Use new B1-B15 questions
+  const questions = BELIEF_QUESTIONS.map(q => ({
     id: q.id,
-    text: q.text,
+    text: q.statement, // Use 'statement' field from new format
     options: [
       { text: "1 - Strongly Disagree" },
       { text: "2 - Disagree" },
@@ -65,6 +51,7 @@ export function useAdditionalBeliefs() {
       { text: "5 - Strongly Agree" }
     ]
   }));
+  
   const currentQuestion = questions[currentQuestionIndex];
   const progress = (currentQuestionIndex / questions.length) * 100;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -153,17 +140,37 @@ export function useAdditionalBeliefs() {
 
 // Process belief questionnaire responses into portfolio recommendations
 function processBeliefQuestionnaire(responses: BeliefResponse[], persona: PersonaDef): PortfolioResult {
-  // For core questions, use a simpler approach based on responses
-  // Analyze responses to determine appropriate scenario
-  const scenarioCode = determineScenarioFromCoreQuestions(responses);
-  const baseAllocation = SCENARIO_DEFAULTS[scenarioCode] || SCENARIO_DEFAULTS["S006"];
+  // Convert legacy responses to new format
+  const newResponses: NewBeliefResponse[] = responses.map(response => ({
+    questionId: response.questionId,
+    answer: (response.selectedOptionIndex + 1) as 1 | 2 | 3 | 4 | 5 // Convert 0-4 to 1-5
+  }));
+
+  // Use new belief processing system
+  const config: BeliefProcessingConfig = {
+    softmaxTemperature: 1.0,
+    meanCenterScores: false,
+    maskThresholdFractionOfMax: 0.0,
+    negativeWeightsAllowed: true
+  };
+
+  const { finalProbabilities } = processBeliefResponses(newResponses, BELIEF_QUESTIONS, config);
+  
+  console.log('Scenario probabilities from new system:', finalProbabilities);
+
+  // Find the top scenario based on probabilities
+  const topScenario = Object.entries(finalProbabilities)
+    .sort(([,a], [,b]) => b - a)[0][0];
+
+  // Get base allocation for the top scenario
+  const baseAllocation = SCENARIO_DEFAULTS[topScenario] || SCENARIO_DEFAULTS["S006"];
   
   // Apply persona rules to adjust allocation
-  const personaAdjustedAllocation = applyPersonaRules(baseAllocation, persona, scenarioCode);
+  const personaAdjustedAllocation = applyPersonaRules(baseAllocation, persona, topScenario);
   
   // Create scenario selection object
   const scenarioSelection: ScenarioSelection = {
-    primary: getScenarioNameFromCode(scenarioCode),
+    primary: getScenarioNameFromCode(topScenario),
     decision: 'clear_winner'
   };
   
@@ -185,87 +192,33 @@ function processBeliefQuestionnaire(responses: BeliefResponse[], persona: Person
   };
 }
 
-// Determine scenario based on beliefs responses using the weights from beliefs.json
-function determineScenarioFromCoreQuestions(responses: BeliefResponse[]): string {
-  const scenarioScores: Record<string, number> = {};
-  const typedBeliefsData = beliefsData as BeliefsData;
-  
-  responses.forEach(response => {
-    const question = typedBeliefsData.questions.find(q => q.id === response.questionId);
-    if (!question) return;
-    
-    const weights = typedBeliefsData.weights[response.questionId];
-    if (!weights) return;
-    
-    // Convert 0-based index to 1-5 scale value
-    const scaleValue = response.selectedOptionIndex + 1;
-    
-    // Apply weights based on the direction logic
-    Object.entries(weights).forEach(([scenario, weight]) => {
-      let contribution = 0;
-      const weightValue = weight as number;
-      
-      // Parse direction to determine how scale value affects scenario
-      if (question.direction.includes('lower->')) {
-        // Lower values increase scenario probability
-        contribution = weightValue * (6 - scaleValue); // Invert: 5->1, 4->2, etc.
-      } else if (question.direction.includes('higher->')) {
-        // Higher values increase scenario probability  
-        contribution = weightValue * scaleValue;
-      }
-      
-      scenarioScores[scenario] = (scenarioScores[scenario] || 0) + contribution;
-    });
-  });
-  
-  // Find the scenario with highest score
-  let topScenario = 'reflation'; // default
-  let maxScore = -1;
-  
-  Object.entries(scenarioScores).forEach(([scenario, score]) => {
-    if (score > maxScore) {
-      maxScore = score;
-      topScenario = scenario;
-    }
-  });
-  
-  // Map scenario names to codes
-  const scenarioMap: Record<string, string> = {
-    'recession': 'S001',
-    'property_down': 'S002', 
-    'stagflation': 'S003',
-    'gilt_selloff': 'S004',
-    'tech_correction': 'S005',
-    'reflation': 'S006',
-    'energy_spike': 'S007',
-    'devaluation': 'S008'
-  };
-  
-  return scenarioMap[topScenario] || 'S006';
-}
-
-// Helper to get scenario name from code
+// Helper to get scenario name from code (updated for new scenario codes)
 function getScenarioNameFromCode(scenarioCode: string): string {
   const scenarioNames: Record<string, string> = {
-    "S001": "growth_focus",
-    "S006": "balanced_growth", 
-    "S008": "conservative_income"
+    "S005": "debt_spiral",
+    "S010": "property_crash", 
+    "S002": "ai_recession",
+    "S003": "stagflation",
+    "S006": "tech_burst",
+    "S009": "sterling_devaluation",
+    "S008": "energy_shock",
+    "S007": "rate_cut_reflation"
   };
-  return scenarioNames[scenarioCode] || "balanced_growth";
+  return scenarioNames[scenarioCode] || "rate_cut_reflation";
 }
 
 // Process neutral scenario when user skips questionnaire
 function processNeutralScenario(persona: PersonaDef): PortfolioResult {
-  const baseAllocation = SCENARIO_DEFAULTS["S006"]; // Reflation as neutral
-  const personaAdjustedAllocation = applyPersonaRules(baseAllocation, persona, "S006");
+  const baseAllocation = SCENARIO_DEFAULTS["S007"]; // Rate-Cut Reflation as neutral
+  const personaAdjustedAllocation = applyPersonaRules(baseAllocation, persona, "S007");
   
   const scenarioSelection: ScenarioSelection = {
-    primary: "reflation",
+    primary: "rate_cut_reflation",
     decision: 'indecisive'
   };
   
   const explanations = {
-    scenarioReason: "Using balanced Reflation scenario as baseline",
+    scenarioReason: "Using balanced Rate-Cut Reflation scenario as baseline",
     personaRulesApplied: [`Applied ${persona.name} liquidity and risk constraints`]
   };
   
@@ -275,47 +228,4 @@ function processNeutralScenario(persona: PersonaDef): PortfolioResult {
     scenarioSelection,
     explanations
   };
-}
-
-// Generate explanations for the portfolio recommendations
-function generateExplanations(
-  scenarioSelection: ScenarioSelection,
-  persona: PersonaDef,
-  scenarioCode: string
-): { scenarioReason: string; personaRulesApplied: string[] } {
-  let scenarioReason = "";
-  
-  if (scenarioSelection.decision === 'clear_winner') {
-    scenarioReason = `Clear match to ${scenarioSelection.primary.replace('_', ' ')} scenario`;
-  } else if (scenarioSelection.decision === 'close') {
-    const ratio = scenarioSelection.blendRatio || [0.5, 0.5];
-    scenarioReason = `Blending ${scenarioSelection.primary.replace('_', ' ')} (${Math.round(ratio[0] * 100)}%) and ${scenarioSelection.secondary?.replace('_', ' ')} (${Math.round(ratio[1] * 100)}%)`;
-  } else {
-    scenarioReason = "Using balanced scenario due to mixed signals";
-  }
-  
-  const personaRulesApplied: string[] = [];
-  
-  // Add persona-specific rule descriptions
-  personaRulesApplied.push(`${persona.liquidityMonths}-month liquidity requirement enforced`);
-  
-  if (persona.concentrationTolerance === "low") {
-    personaRulesApplied.push("Conservative concentration limits applied");
-  } else if (persona.concentrationTolerance === "high") {
-    personaRulesApplied.push("Higher concentration tolerance permitted");
-  }
-  
-  if (persona.name === "P016") {
-    personaRulesApplied.push("BTL property caps applied for risk management");
-  }
-  
-  if (persona.name === "P003" && scenarioCode === "S004") {
-    personaRulesApplied.push("Crypto exposure limited during tech stress");
-  }
-  
-  if (persona.wealthTier.includes("Entry") || persona.wealthTier.includes("Mass")) {
-    personaRulesApplied.push("Collectibles capped at 5% for wealth tier");
-  }
-  
-  return { scenarioReason, personaRulesApplied };
 }
