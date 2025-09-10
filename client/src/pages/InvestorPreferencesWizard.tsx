@@ -3855,8 +3855,8 @@ function ScenarioImpactAnalysis({
                         <td className="p-3 text-right text-[var(--foreground)]">
                           £{asset.currentValue.toLocaleString()}
                         </td>
-                        <td className={`p-3 text-right font-semibold ${asset.weightedReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          {asset.weightedReturn >= 0 ? '+' : ''}{(asset.weightedReturn * 100).toFixed(1)}%
+                        <td className={`p-3 text-right font-semibold ${asset.cumulativeReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {asset.cumulativeReturn >= 0 ? '+' : ''}{(asset.cumulativeReturn * 100).toFixed(1)}%
                         </td>
                         <td className={`p-3 text-right font-semibold ${asset.valueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                           {asset.valueChange >= 0 ? '+' : ''}£{Math.abs(asset.valueChange).toLocaleString()}
@@ -3880,20 +3880,20 @@ function ScenarioImpactAnalysis({
             </h4>
             <div className="space-y-4 text-sm text-[var(--muted-foreground)]">
               <div>
-                <p className="font-medium text-[var(--foreground)] mb-2">📊 Scenario Weighting</p>
-                <p>Based on your responses in the Economic Beliefs section, we calculate probability weights for different economic scenarios (recession, property crash, stagflation, etc.). Higher confidence in certain outcomes increases their weight in the analysis.</p>
+                <p className="font-medium text-[var(--foreground)] mb-2">📊 Cumulative Stress Testing</p>
+                <p>Based on your responses in the Economic Beliefs section, we identify which economic scenarios you believe are most likely (recession, property crash, stagflation, etc.). Instead of weighting these by probability, this analysis shows what happens if ALL selected scenarios occur simultaneously at full strength.</p>
               </div>
               <div>
                 <p className="font-medium text-[var(--foreground)] mb-2">🎯 Portfolio Mapping</p>
                 <p>Your current portfolio allocation is mapped to detailed asset classes (cash, bonds, equities, property, commodities, alternatives, crypto, collectibles). Each asset class has historically different performance patterns under various economic conditions.</p>
               </div>
               <div>
-                <p className="font-medium text-[var(--foreground)] mb-2">⚡ Impact Calculation</p>
-                <p>We apply scenario-specific returns to each asset class in your portfolio, weighted by your belief probabilities. This shows the expected impact if your economic predictions come true and you make no portfolio changes.</p>
+                <p className="font-medium text-[var(--foreground)] mb-2">⚡ Worst-Case Impact</p>
+                <p>We apply the combined effects of all selected scenarios occurring together to each asset class in your portfolio. This creates a true stress test showing the cumulative impact if multiple adverse economic conditions happen at once.</p>
               </div>
               <div>
                 <p className="font-medium text-[var(--foreground)] mb-2">🔍 Strategic Insight</p>
-                <p>This "what if you do nothing" analysis reveals your portfolio's vulnerability to your own economic predictions, demonstrating the value of strategic rebalancing and hedging strategies.</p>
+                <p>This "perfect storm" analysis reveals your portfolio's resilience under maximum stress, helping identify which assets provide protection and which create vulnerability when everything goes wrong simultaneously.</p>
               </div>
             </div>
           </div>
