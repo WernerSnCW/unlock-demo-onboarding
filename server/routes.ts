@@ -718,7 +718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const totalValueChange = Math.round((portfolioValueGBP * cumulativePortfolioReturn) * 100) / 100;
-      const newPortfolioValue = Math.round((portfolioValueGBP + totalValueChange) * 100) / 100;
+      const newPortfolioValue = Math.round((portfolioValueGBP * (1 + cumulativePortfolioReturn)) * 100) / 100;
       
       // Calculate asset-level impacts (cumulative from all selected scenarios)
       const assetImpacts: any[] = [];
@@ -774,11 +774,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Debug logging
       console.log('Scenario impact calculation debug:');
-      console.log('Portfolio value:', portfolioValueGBP);
-      console.log('Cumulative return:', cumulativePortfolioReturn);
-      console.log('Total value change:', totalValueChange);
-      console.log('New portfolio value:', newPortfolioValue);
+      console.log('Portfolio value:', portfolioValueGBP, 'Type:', typeof portfolioValueGBP);
+      console.log('Cumulative return:', cumulativePortfolioReturn, 'Type:', typeof cumulativePortfolioReturn);
+      console.log('Total value change:', totalValueChange, 'Type:', typeof totalValueChange);
+      console.log('New portfolio value:', newPortfolioValue, 'Type:', typeof newPortfolioValue);
+      console.log('Calculation check: portfolioValueGBP * (1 + cumulativePortfolioReturn) =', portfolioValueGBP * (1 + cumulativePortfolioReturn));
       console.log('Selected scenarios:', Object.keys(scenarioWeights).filter(k => scenarioWeights[k] > 0));
+      console.log('Current mix keys:', Object.keys(currentMix));
+      console.log('Current mix values:', Object.values(currentMix));
       console.log('Result summary:', result.summary);
       
       return res.json(result);
