@@ -3285,66 +3285,69 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
 
 // Selected Scenarios Display Component
 function SelectedScenariosDisplay({ selectedScenarios }: { selectedScenarios: any[] }) {
-  // Get scenario info for display
+  // Get scenario info for display - UNIFIED MAPPING for consistent names throughout system
   const getScenarioInfo = useCallback((beliefScenario: string): { name: string; description: string } => {
-    // New 8-scenario system mapping
+    // Map belief-level scenarios to formal scenario codes (consistent with portfolio analysis)
     const scenarioMapping: Record<string, string> = {
-      // New scenario names from the updated belief system
-      'Debt Spiral': 'S005',
-      'Property Crash': 'S010', 
-      'AI Recession': 'S002',
-      'Stagflation': 'S003',
-      'Tech Burst': 'S006',
-      'Sterling Devaluation': 'S009',
-      'Energy Shock': 'S008',
-      'Rate-Cut Reflation': 'S007',
-      // Legacy scenario names (for backwards compatibility)
-      'property_down': 'S010',
-      'recession': 'S002', 
-      'stagflation': 'S003',
-      'tech_correction': 'S006',
-      'reflation': 'S007',
-      'gilt_selloff': 'S009',
-      'energy_spike': 'S008',
-      'devaluation': 'S009'
+      'property_down': 'S003', // Inflation Hedges
+      'recession': 'S002',     // Policy Support
+      'stagflation': 'S007',   // Stagflation Tilt
+      'tech_correction': 'S006', // Tech-led Growth
+      'reflation': 'S005',     // Quality Growth
+      'gilt_selloff': 'S009',  // Gilt Sell-off
+      'energy_spike': 'S008',  // Soft-ish Inflation
+      'devaluation': 'S010'    // Commodity Upswing
     };
 
+    // Scenario data from scenarios.json (updated to match actual S-codes)
+    const scenarioData: Record<string, { name: string; description: string }> = {
+      'S002': { 
+        name: 'Policy Support', 
+        description: 'Central bank policy support and economic stimulus measures driving market recovery and growth.'
+      },
+      'S003': { 
+        name: 'Inflation Hedges', 
+        description: 'Rising inflation environment requiring protection through real assets and inflation-linked investments.'
+      },
+      'S005': { 
+        name: 'Quality Growth', 
+        description: 'Sustainable economic growth driven by high-quality companies and technological innovation.'
+      },
+      'S006': { 
+        name: 'Tech-led Growth', 
+        description: 'Technology sector leadership driving broader market gains and innovation cycles.'
+      },
+      'S007': { 
+        name: 'Stagflation Tilt', 
+        description: 'Prolonged period of high inflation combined with economic stagnation requiring defensive positioning.'
+      },
+      'S008': { 
+        name: 'Soft-ish Inflation', 
+        description: 'Moderate inflation environment with energy price pressures and supply chain disruptions.'
+      },
+      'S009': { 
+        name: 'Gilt Sell-off', 
+        description: 'UK government bond market stress with rising yields and fiscal sustainability concerns.'
+      },
+      'S010': { 
+        name: 'Commodity Upswing', 
+        description: 'Rising commodity prices and currency devaluation affecting import costs and inflation.'
+      }
+    };
+    
+    // Get the S-code for this scenario
     const scenarioCode = scenarioMapping[beliefScenario] || beliefScenario;
     
-    // Map to display names (aligned with new system)
-    const nameMapping: Record<string, string> = {
-      // Scenario codes
-      'S005': 'Debt Spiral',
-      'S010': 'Property Crash', 
-      'S002': 'AI Recession',
-      'S003': 'Stagflation',
-      'S006': 'Tech Burst',
-      'S009': 'Sterling Devaluation',
-      'S008': 'Energy Shock',
-      'S007': 'Rate-Cut Reflation',
-      // Direct scenario names
-      'Debt Spiral': 'Debt Spiral',
-      'Property Crash': 'Property Crash',
-      'AI Recession': 'AI Recession',
-      'Stagflation': 'Stagflation',
-      'Tech Burst': 'Tech Burst',
-      'Sterling Devaluation': 'Sterling Devaluation',
-      'Energy Shock': 'Energy Shock',
-      'Rate-Cut Reflation': 'Rate-Cut Reflation',
-      // Legacy names
-      'property_down': 'Property Crash',
-      'recession': 'AI Recession',
-      'stagflation': 'Stagflation', 
-      'tech_correction': 'Tech Burst',
-      'devaluation': 'Sterling Devaluation',
-      'reflation': 'Rate-Cut Reflation',
-      'energy_spike': 'Energy Shock',
-      'gilt_selloff': 'Sterling Devaluation'
-    };
-
+    // Return the official data or fallback
+    const scenarioInfo = scenarioData[scenarioCode];
+    if (scenarioInfo) {
+      return scenarioInfo;
+    }
+    
+    // Fallback for unrecognized scenarios
     return {
-      name: nameMapping[beliefScenario] || nameMapping[scenarioCode] || beliefScenario,
-      description: `Economic scenario: ${nameMapping[beliefScenario] || nameMapping[scenarioCode] || beliefScenario}`
+      name: beliefScenario.charAt(0).toUpperCase() + beliefScenario.slice(1),
+      description: 'Economic scenario affecting market conditions and investment returns.' 
     };
   }, []);
 
