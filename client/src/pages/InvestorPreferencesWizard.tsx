@@ -3043,6 +3043,8 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
   const [customScenarioWeights, setCustomScenarioWeights] = useState<any[]>([]);
   const [isUsingCustomWeights, setIsUsingCustomWeights] = useState(false);
 
+  console.log('ScenarioImpactAnalysisSection rendered:', { showAnalysis, originalBeliefWeights: originalBeliefWeights.length });
+
   // Check if both beliefs and portfolio data are complete
   useEffect(() => {
     const checkDataCompletion = async () => {
@@ -3069,6 +3071,13 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
         if (beliefResponse.ok && prefsResponse.ok) {
           const beliefData = await beliefResponse.json();
           const prefsData = await prefsResponse.json();
+          
+          console.log('Data check:', {
+            hasScenarioWeights: !!beliefData.scenarioWeights,
+            hasPortfolioAllocations: !!prefsData.actualPortfolioAllocations,
+            beliefData: beliefData,
+            prefsData: prefsData
+          });
           
           if (beliefData.scenarioWeights && prefsData.actualPortfolioAllocations) {
             // Parse belief weights and convert to array format
