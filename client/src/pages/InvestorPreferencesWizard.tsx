@@ -3030,14 +3030,14 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
       </div>
 
       {/* Scenario Impact Analysis - Show after both beliefs and portfolio data are complete */}
-      <ScenarioImpactAnalysisSection />
+      <ScenarioImpactAnalysisSection onTabChange={onTabChange} />
 
     </div>
   );
 }
 
 // Scenario Impact Analysis Section Component
-function ScenarioImpactAnalysisSection() {
+function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: string) => void }) {
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [originalBeliefWeights, setOriginalBeliefWeights] = useState<any[]>([]);
   const [customScenarioWeights, setCustomScenarioWeights] = useState<any[]>([]);
@@ -3147,7 +3147,7 @@ function ScenarioImpactAnalysisSection() {
 
       {/* Scenario Impact Analysis */}
       <ScenarioImpactAnalysis 
-        onTabChange={() => {}} // No tab change needed in this context
+        onTabChange={onTabChange}
         customScenarioWeights={isUsingCustomWeights ? customScenarioWeights : null}
       />
     </div>
@@ -3359,6 +3359,7 @@ function ScenarioImpactAnalysis({
   const [scenarioImpactData, setScenarioImpactData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
   // Function to get user ID from localStorage or generate demo ID
   const getUserId = () => {
@@ -3494,10 +3495,13 @@ function ScenarioImpactAnalysis({
     }
   };
 
-  // Load on component mount and when custom weights change
+  // Load on component mount only
   useEffect(() => {
-    loadScenarioImpact();
-  }, [JSON.stringify(customScenarioWeights)]);
+    if (!hasInitialLoad) {
+      loadScenarioImpact();
+      setHasInitialLoad(true);
+    }
+  }, [hasInitialLoad]);
 
   if (isLoading) {
     return (
