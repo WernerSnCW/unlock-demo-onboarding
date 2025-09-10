@@ -1477,47 +1477,51 @@ function BeliefQuestionnaireComponent({
 
   // Get scenario name and description from scenarios.json
   const getScenarioInfo = useCallback((beliefScenario: string): { name: string; description: string } => {
-    // Map belief-level scenarios to formal scenario codes
+    // Map belief-level scenarios to formal scenario codes (consistent with portfolio analysis)
     const scenarioMapping: Record<string, string> = {
-      'property_down': 'S001',
-      'recession': 'S002', 
-      'stagflation': 'S003',
-      'tech_correction': 'S004',
-      'reflation': 'S006',
-      'gilt_selloff': 'S009', // Map to appropriate scenario
-      'energy_spike': 'S007', // Stagflation 2.0 includes energy
-      'devaluation': 'S005' // UK Tax Regime Shift includes policy impacts
+      'property_down': 'S003', // Inflation Hedges
+      'recession': 'S002',     // Policy Support
+      'stagflation': 'S007',   // Stagflation Tilt
+      'tech_correction': 'S006', // Tech-led Growth
+      'reflation': 'S005',     // Quality Growth
+      'gilt_selloff': 'S009',  // Gilt Sell-off
+      'energy_spike': 'S008',  // Soft-ish Inflation
+      'devaluation': 'S010'    // Commodity Upswing
     };
 
-    // Scenario data from scenarios.json
+    // Scenario data from scenarios.json (updated to match actual S-codes)
     const scenarioData: Record<string, { name: string; description: string }> = {
-      'S001': { 
-        name: 'Property Crash (2008-style)', 
-        description: 'Significant property value decline with credit market freeze and financial sector stress over a 5-year horizon.'
-      },
       'S002': { 
-        name: 'AI-Driven Economic Recession', 
-        description: 'Widespread job displacement and economic disruption from rapid AI adoption affecting markets and employment.'
+        name: 'Policy Support', 
+        description: 'Central bank policy support and economic stimulus measures driving market recovery and growth.'
       },
       'S003': { 
-        name: 'Stagflation (1970s-style)', 
-        description: 'Prolonged period of high inflation combined with economic stagnation and unemployment, challenging traditional hedges.'
-      },
-      'S004': { 
-        name: 'Tech & Speculative Asset Burst', 
-        description: 'Major correction in technology valuations and speculative assets, similar to dot-com crash dynamics.'
+        name: 'Inflation Hedges', 
+        description: 'Rising inflation environment requiring protection through real assets and inflation-linked investments.'
       },
       'S005': { 
-        name: 'UK Tax Regime Shift', 
-        description: 'Significant changes in UK tax, regulatory, or economic policy affecting investors and asset valuations.'
+        name: 'Quality Growth', 
+        description: 'Sustainable economic growth driven by high-quality companies and technological innovation.'
       },
       'S006': { 
-        name: 'Rate-Cut Reflation', 
-        description: 'Economic recovery with policy easing, moderate inflation and growth. Balanced scenario favoring growth assets.'
+        name: 'Tech-led Growth', 
+        description: 'Technology sector leadership driving broader market gains and innovation cycles.'
       },
       'S007': { 
-        name: 'Stagflation 2.0 (acute)', 
-        description: 'Short-term inflation shock with supply disruptions, energy price surges, and policy constraints.'
+        name: 'Stagflation Tilt', 
+        description: 'Prolonged period of high inflation combined with economic stagnation requiring defensive positioning.'
+      },
+      'S008': { 
+        name: 'Soft-ish Inflation', 
+        description: 'Moderate inflation environment with energy price pressures and supply chain disruptions.'
+      },
+      'S009': { 
+        name: 'Gilt Sell-off', 
+        description: 'UK government bond market stress with rising yields and fiscal sustainability concerns.'
+      },
+      'S010': { 
+        name: 'Commodity Upswing', 
+        description: 'Rising commodity prices and currency devaluation affecting import costs and inflation.'
       }
     };
     
