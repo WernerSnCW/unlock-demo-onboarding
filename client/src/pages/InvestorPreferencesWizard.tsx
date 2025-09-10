@@ -3172,42 +3172,64 @@ function ScenarioImpactAnalysisSection({ onTabChange }: { onTabChange: (tab: str
 function SelectedScenariosDisplay({ selectedScenarios }: { selectedScenarios: any[] }) {
   // Get scenario info for display
   const getScenarioInfo = useCallback((beliefScenario: string): { name: string; description: string } => {
+    // New 8-scenario system mapping
     const scenarioMapping: Record<string, string> = {
-      'property_down': 'S001',
+      // New scenario names from the updated belief system
+      'Debt Spiral': 'S005',
+      'Property Crash': 'S010', 
+      'AI Recession': 'S002',
+      'Stagflation': 'S003',
+      'Tech Burst': 'S006',
+      'Sterling Devaluation': 'S009',
+      'Energy Shock': 'S008',
+      'Rate-Cut Reflation': 'S007',
+      // Legacy scenario names (for backwards compatibility)
+      'property_down': 'S010',
       'recession': 'S002', 
       'stagflation': 'S003',
-      'tech_correction': 'S004',
-      'reflation': 'S006',
+      'tech_correction': 'S006',
+      'reflation': 'S007',
       'gilt_selloff': 'S009',
-      'energy_spike': 'S007',
-      'devaluation': 'S005'
+      'energy_spike': 'S008',
+      'devaluation': 'S009'
     };
 
     const scenarioCode = scenarioMapping[beliefScenario] || beliefScenario;
     
-    // Map to display names
+    // Map to display names (aligned with new system)
     const nameMapping: Record<string, string> = {
-      'S001': 'Property Correction',
-      'S002': 'AI-Driven Recession', 
-      'S003': 'Stagflation Resurgence',
-      'S004': 'Tech & Speculative Asset Burst',
-      'S005': 'Sterling Devaluation',
-      'S006': 'Reflation Rally',
-      'S007': 'Energy Spike',
-      'S009': 'Gilt Market Selloff',
-      'property_down': 'Property Correction',
-      'recession': 'AI-Driven Recession',
-      'stagflation': 'Stagflation Resurgence', 
-      'tech_correction': 'Tech & Speculative Asset Burst',
+      // Scenario codes
+      'S005': 'Debt Spiral',
+      'S010': 'Property Crash', 
+      'S002': 'AI Recession',
+      'S003': 'Stagflation',
+      'S006': 'Tech Burst',
+      'S009': 'Sterling Devaluation',
+      'S008': 'Energy Shock',
+      'S007': 'Rate-Cut Reflation',
+      // Direct scenario names
+      'Debt Spiral': 'Debt Spiral',
+      'Property Crash': 'Property Crash',
+      'AI Recession': 'AI Recession',
+      'Stagflation': 'Stagflation',
+      'Tech Burst': 'Tech Burst',
+      'Sterling Devaluation': 'Sterling Devaluation',
+      'Energy Shock': 'Energy Shock',
+      'Rate-Cut Reflation': 'Rate-Cut Reflation',
+      // Legacy names
+      'property_down': 'Property Crash',
+      'recession': 'AI Recession',
+      'stagflation': 'Stagflation', 
+      'tech_correction': 'Tech Burst',
       'devaluation': 'Sterling Devaluation',
-      'reflation': 'Reflation Rally',
-      'energy_spike': 'Energy Spike',
-      'gilt_selloff': 'Gilt Market Selloff'
+      'reflation': 'Rate-Cut Reflation',
+      'energy_spike': 'Energy Shock',
+      'gilt_selloff': 'Sterling Devaluation'
     };
 
     return {
       name: nameMapping[beliefScenario] || nameMapping[scenarioCode] || beliefScenario,
-      description: `Economic scenario: ${nameMapping[beliefScenario] || beliefScenario}`
+      description: `Economic scenario: ${nameMapping[beliefScenario] || nameMapping[scenarioCode] || beliefScenario}`
     };
   }, []);
 
