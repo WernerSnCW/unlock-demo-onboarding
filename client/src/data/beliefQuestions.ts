@@ -1,264 +1,195 @@
-// Belief questions for scenario mapping
-// Based on questions.py - filtered for questions with scenario weights
+// New Economic Scenario Belief Questions (B1-B15)
+// Based on Unlock Scenario Belief Engine v2.1
 
-export interface BeliefQuestionOption {
-  text: string;
-  tags: Record<string, number>;
-  scenarios: Record<string, number>;
-}
-
-export interface BeliefQuestionData {
+export interface BeliefQuestion {
   id: string;
-  prompt: string;
-  options: Record<string, BeliefQuestionOption>;
+  statement: string;
+  direction: string;
+  weights: Record<string, number>;
 }
 
-export const BELIEF_QUESTIONS: BeliefQuestionData[] = [
+export interface BeliefScale {
+  1: string;
+  2: string;
+  3: string;
+  4: string;
+  5: string;
+}
+
+export const SCALE_LABELS: BeliefScale = {
+  1: "Strongly Disagree",
+  2: "Disagree", 
+  3: "Neutral / Unsure",
+  4: "Agree",
+  5: "Strongly Agree"
+};
+
+export const BELIEF_QUESTIONS: BeliefQuestion[] = [
   {
-    id: "q10_ai_effect",
-    prompt: "In your field, AI will...",
-    options: {
-      replace: {
-        text: "Replace many jobs including mine",
-        tags: { tech_conv: -1, ai_impact: 2 },
-        scenarios: { ai_recession: 1.2, tech_burst: 0.4 }
-      },
-      augment: {
-        text: "Augment my productivity significantly", 
-        tags: { tech_conv: 1 },
-        scenarios: { reflation: 0.5 }
-      },
-      little: {
-        text: "Have little impact on my work",
-        tags: { tech_conv: 0 },
-        scenarios: {}
-      }
+    id: "B1_mobility_views",
+    statement: "The next generation will have better financial opportunities than today.",
+    direction: "lower->AI Recession, Property Crash, Stagflation",
+    weights: {
+      "AI Recession": 0.12,
+      "Property Crash": 0.10,
+      "Stagflation": 0.08
     }
   },
   {
-    id: "q12_energy_up_20",
-    prompt: "Energy bills +20%, you...",
-    options: {
-      switch: {
-        text: "Switch supplier immediately",
-        tags: { inflation_sens: 1 },
-        scenarios: { stagflation: 0.2 }
-      },
-      insulate: {
-        text: "Invest in home insulation",
-        tags: { inflation_sens: 2 },
-        scenarios: { stagflation: 0.3 }
-      },
-      change_travel: {
-        text: "Change travel patterns",
-        tags: { inflation_sens: 2 },
-        scenarios: { energy_spike: 0.4 }
-      },
-      accept: {
-        text: "Accept the higher costs",
-        tags: { inflation_sens: 3 },
-        scenarios: { stagflation: 0.4, energy_spike: 0.4 }
-      }
+    id: "B2_job_security_white_collar",
+    statement: "White-collar jobs will remain secure over the next 5 years.",
+    direction: "lower->AI Recession, Tech Burst",
+    weights: {
+      "AI Recession": 0.20,
+      "Tech Burst": 0.15
     }
   },
   {
-    id: "q13_fuel_high_12m", 
-    prompt: "If fuel stays high 12m, you...",
-    options: {
-      public_transport: {
-        text: "Switch to public transport",
-        tags: { adapt_speed: 1 },
-        scenarios: { energy_spike: 0.2 }
-      },
-      switch_ev: {
-        text: "Buy an electric vehicle",
-        tags: { adapt_speed: 1 },
-        scenarios: { energy_spike: 0.2 }
-      },
-      car_share: {
-        text: "Use car sharing services",
-        tags: { adapt_speed: 1 },
-        scenarios: { energy_spike: 0.1 }
-      },
-      no_change: {
-        text: "Make no changes",
-        tags: { adapt_speed: -1 },
-        scenarios: { energy_spike: 0.3, stagflation: 0.2 }
-      }
+    id: "B3_remote_work_tenure",
+    statement: "Remote and hybrid work arrangements will remain stable over the next 3 years.",
+    direction: "lower->Property Crash, Sterling Devaluation",
+    weights: {
+      "Property Crash": 0.12,
+      "Sterling Devaluation": 0.08
     }
   },
   {
-    id: "q14_overseas_income",
-    prompt: "Overseas income/spend next 2y?",
-    options: {
-      mostly_gbp: {
-        text: "Mostly UK-based",
-        tags: { fxv: -1 },
-        scenarios: {}
-      },
-      mixed: {
-        text: "Mixed UK and overseas", 
-        tags: { fxv: 1 },
-        scenarios: { devaluation: 0.4 }
-      },
-      mostly_fx: {
-        text: "Mostly overseas",
-        tags: { fxv: 2 },
-        scenarios: { devaluation: 0.8 }
-      }
+    id: "B4_government_confidence",
+    statement: "The UK government will manage debt and inflation effectively.",
+    direction: "lower->Debt Spiral, Stagflation, Sterling Devaluation",
+    weights: {
+      "Debt Spiral": 0.18,
+      "Stagflation": 0.10,
+      "Sterling Devaluation": 0.10
     }
   },
   {
-    id: "q15_gbp_drop",
-    prompt: "If GBP drops 15%, first you'd...",
-    options: {
-      shift_global: {
-        text: "Shift to global investments",
-        tags: { fxv: 2 },
-        scenarios: { devaluation: 1.2 }
-      },
-      increase_gold: {
-        text: "Increase gold allocation",
-        tags: { gold_conv: 2, fxv: 1 },
-        scenarios: { devaluation: 1.0, stagflation: 0.4 }
-      },
-      ignore: {
-        text: "Ignore and stay the course",
-        tags: { passive_bias: 1 },
-        scenarios: {}
-      },
-      rebalance_uk: {
-        text: "Rebalance towards UK assets",
-        tags: { home_bias: 2 },
-        scenarios: { tax_shift: 0.2 }
-      }
+    id: "B5_energy_policy",
+    statement: "Energy supply disruptions or higher energy taxes are likely in the next 3 years.",
+    direction: "higher->Energy Shock, Stagflation",
+    weights: {
+      "Energy Shock": 0.22,
+      "Stagflation": 0.15
     }
   },
   {
-    id: "q16_savings_rate_fall",
-    prompt: "If savings rates fall from here, you...",
-    options: {
-      buy_long_gilts: {
-        text: "Buy long-term gilts",
-        tags: { duration_pref: 2 },
-        scenarios: { reflation: 0.8 }
-      },
-      move_credit: {
-        text: "Move to corporate bonds",
-        tags: { credit_pref: 2 },
-        scenarios: { gilt_selloff: 0.4 }
-      },
-      add_equities: {
-        text: "Add more equities",
-        tags: { risk_tol: 1 },
-        scenarios: { reflation: 0.5 }
-      },
-      leave_cash: {
-        text: "Leave money in cash",
-        tags: { liquidity_pref: 1 },
-        scenarios: { gilt_selloff: 0.3 }
-      }
+    id: "B6_ai_adoption_speed",
+    statement: "Industries will rapidly adopt AI to replace tasks.",
+    direction: "higher->AI Recession, Tech Burst",
+    weights: {
+      "AI Recession": 0.22,
+      "Tech Burst": 0.16
     }
   },
   {
-    id: "q24_windfall_10pct",
-    prompt: "A windfall =10% of portfolio; first to...",
-    options: {
-      debt: {
-        text: "Pay down debt",
-        tags: { liquidity_pref: 1 },
-        scenarios: { gilt_selloff: 0.2 }
-      },
-      cash: {
-        text: "Hold as cash",
-        tags: { liquidity_pref: 2 },
-        scenarios: { recession: 0.2 }
-      },
-      global_equity: {
-        text: "Global equity funds",
-        tags: { risk_tol: 1 },
-        scenarios: { reflation: 0.3 }
-      },
-      gold_commod: {
-        text: "Gold and commodities",
-        tags: { gold_conv: 1, inflation_sens: 1 },
-        scenarios: { stagflation: 0.3, energy_spike: 0.3 }
-      },
-      alts_eis: {
-        text: "Alternative investments/EIS",
-        tags: { eis_open: 2 },
-        scenarios: { tax_shift: 0.4 }
-      }
+    id: "B7_renting_vs_buying",
+    statement: "For a 30-year-old today, renting is a better choice than buying over the next 5 years.",
+    direction: "higher->Property Crash",
+    weights: {
+      "Property Crash": 0.18
     }
   },
   {
-    id: "q25_policy_confidence", 
-    prompt: "Govt more likely to stabilise or destabilise economy in 5y?",
-    options: {
-      stabilise: {
-        text: "Stabilise the economy",
-        tags: { pci: 2 },
-        scenarios: { reflation: 0.6 }
-      },
-      neutral: {
-        text: "Neither - maintain status quo",
-        tags: { pci: 0 },
-        scenarios: {}
-      },
-      destabilise: {
-        text: "Destabilise through poor policy",
-        tags: { pci: -2 },
-        scenarios: { gilt_selloff: 1.0, devaluation: 0.8, tax_shift: 0.6 }
-      }
+    id: "B8_local_investment_preference",
+    statement: "Investing in local businesses and infrastructure is more attractive than investing in property.",
+    direction: "higher->Property Crash, Rate-Cut Reflation",
+    weights: {
+      "Property Crash": 0.10,
+      "Rate-Cut Reflation": 0.08
     }
   },
   {
-    id: "q26_recession_cushion",
-    prompt: "Confidence in policy cushioning a recession?",
-    options: {
-      high: {
-        text: "High confidence in policy response",
-        tags: { pci: 2 },
-        scenarios: { reflation: 0.4 }
-      },
-      med: {
-        text: "Moderate confidence",
-        tags: { pci: 1 },
-        scenarios: {}
-      },
-      low: {
-        text: "Low confidence in policy",
-        tags: { pci: -2 },
-        scenarios: { recession: 0.5, gilt_selloff: 0.4 }
-      }
+    id: "B9_geopolitical_risk",
+    statement: "A major geopolitical shock will disrupt supply chains in the next 3 years.",
+    direction: "higher->Energy Shock, Stagflation",
+    weights: {
+      "Energy Shock": 0.20,
+      "Stagflation": 0.14
+    }
+  },
+  {
+    id: "B10_fx_view",
+    statement: "The British pound will depreciate against the US dollar and euro over the next 2 years.",
+    direction: "higher->Sterling Devaluation",
+    weights: {
+      "Sterling Devaluation": 0.22
+    }
+  },
+  {
+    id: "B11_credit_availability",
+    statement: "SMEs and households will find it easy to get credit in the next 2 years.",
+    direction: "lower->Debt Spiral, AI Recession",
+    weights: {
+      "Debt Spiral": 0.16,
+      "AI Recession": 0.12
+    }
+  },
+  {
+    id: "B12_policy_support",
+    statement: "Significant interest rate cuts or fiscal support are likely in the next 12 months.",
+    direction: "higher->Rate-Cut Reflation",
+    weights: {
+      "Rate-Cut Reflation": 0.30,
+      "AI Recession": -0.10,
+      "Debt Spiral": -0.10
+    }
+  },
+  {
+    id: "B13_fiscal_sustainability",
+    statement: "UK government interest payments will grow faster than tax revenues, creating a debt sustainability problem.",
+    direction: "higher->Debt Spiral, Sterling Devaluation",
+    weights: {
+      "Debt Spiral": 0.30,
+      "Sterling Devaluation": 0.15
+    }
+  },
+  {
+    id: "B14_mortgage_reset_pressure",
+    statement: "Rising mortgage costs will force households to cut back spending significantly over the next 2 years.",
+    direction: "higher->Property Crash, AI Recession",
+    weights: {
+      "Property Crash": 0.25,
+      "AI Recession": 0.10
+    }
+  },
+  {
+    id: "B15_external_balance_risk",
+    statement: "The UK's trade and current account deficits will widen unsustainably.",
+    direction: "higher->Sterling Devaluation, Debt Spiral",
+    weights: {
+      "Sterling Devaluation": 0.25,
+      "Debt Spiral": 0.10
     }
   }
 ];
 
-// Scenario mapping from belief names to S-codes
-export const SCENARIO_MAPPING: Record<string, string> = {
-  "property_crash": "S001",
-  "ai_recession": "S002", 
-  "stagflation": "S003",
-  "tech_burst": "S004",
-  "tax_shift": "S005",
-  "reflation": "S006",
-  "stagflation_2": "S007",
-  "devaluation": "S008",
-  "gilt_selloff": "S009",
-  "energy_spike": "S010"
+// Legacy ID mapping for migration support
+export const LEGACY_QUESTION_MAPPING: Record<string, string> = {
+  "q10_ai_effect": "B6_ai_adoption_speed",
+  "q12_energy_up_20": "B5_energy_policy",
+  "q13_fuel_high_12m": "B9_geopolitical_risk"
 };
 
-// Reverse mapping for display
+// Legacy scenario mapping for migration support
+export const LEGACY_SCENARIO_MAPPING: Record<string, string> = {
+  "energy_spike": "Energy Shock",
+  "property_down": "Property Crash",
+  "stagflation": "Stagflation",
+  "reflation": "Rate-Cut Reflation",
+  "ai_recession": "AI Recession",
+  "tech_burst": "Tech Burst",
+  "devaluation": "Sterling Devaluation",
+  "gilt_selloff": "Debt Spiral"
+};
+
+// New scenario names
 export const SCENARIO_NAMES: Record<string, string> = {
-  "S001": "Property Crash",
-  "S002": "AI Recession", 
-  "S003": "Stagflation",
-  "S004": "Tech Burst",
-  "S005": "Tax Shift",
-  "S006": "Reflation",
-  "S007": "Stagflation 2", 
-  "S008": "Devaluation",
-  "S009": "Gilt Selloff",
-  "S010": "Energy Spike"
+  "Debt Spiral": "Debt Spiral",
+  "Property Crash": "Property Crash", 
+  "AI Recession": "AI Recession",
+  "Stagflation": "Stagflation",
+  "Tech Burst": "Tech Burst",
+  "Sterling Devaluation": "Sterling Devaluation",
+  "Energy Shock": "Energy Shock",
+  "Rate-Cut Reflation": "Rate-Cut Reflation"
 };
