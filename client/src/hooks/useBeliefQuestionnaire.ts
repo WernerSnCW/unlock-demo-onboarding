@@ -1,16 +1,22 @@
 import { useState, useCallback } from 'react';
-import beliefsData from '@/data/beliefs.json';
+import { BELIEF_QUESTIONS, SCALE_LABELS } from '@/data/beliefQuestions';
+import { 
+  processBeliefResponses, 
+  type BeliefResponse, 
+  DEFAULT_CONFIG, 
+  type BeliefProcessingConfig 
+} from '@/utils/beliefProcessing';
 
 export interface BeliefQuestion {
   id: string;
-  text: string;
-  scale: string;
+  statement: string;
   direction: string;
+  weights: Record<string, number>;
 }
 
 export interface BeliefAnswer {
   questionId: string;
-  value: number;
+  value: 1 | 2 | 3 | 4 | 5; // 1=Strongly Disagree, 5=Strongly Agree
 }
 
 export interface ScenarioWeight {
@@ -27,13 +33,13 @@ export function useBeliefQuestionnaire() {
   const [scenarioWeights, setScenarioWeights] = useState<ScenarioWeight[]>([]);
   const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
 
-  const questions = beliefsData.questions as BeliefQuestion[];
+  const questions = BELIEF_QUESTIONS;
   const currentQuestion = questions[currentQuestionIndex];
   const progress = (currentQuestionIndex / questions.length) * 100;
   const canGoBack = currentQuestionIndex > 0;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
-  const answerQuestion = useCallback((value: number) => {
+  const answerQuestion = useCallback((value: 1 | 2 | 3 | 4 | 5) => {
     const answer: BeliefAnswer = {
       questionId: currentQuestion.id,
       value
@@ -43,7 +49,7 @@ export function useBeliefQuestionnaire() {
     setAnswers(newAnswers);
 
     if (isLastQuestion) {
-      // Calculate scenario weights
+      // Calculate scenario weights using new processing system
       const weights = calculateScenarioWeights(newAnswers);
       setScenarioWeights(weights);
       
@@ -67,140 +73,36 @@ export function useBeliefQuestionnaire() {
   }, [canGoBack]);
 
   const calculateScenarioWeights = useCallback((answers: BeliefAnswer[]) => {
-    // Enhanced configuration
-    const config = {
-      softmaxTemperature: 0.5,
-      meanCenterScores: true,
-      maskedSoftmaxThreshold: 0.001,
-      questionBoosts: { 
-        "B5_energy_policy": 1.3, 
-        "B10_fx_view": 1.25, 
-        "B12_policy_support": 1.2 
-      } as Record<string, number>,
-      displayCapPct: 80
+    // Use new belief processing configuration
+    const config: BeliefProcessingConfig = {
+      softmaxTemperature: 1.0, // Updated from 0.5 to 1.0 per spec
+      meanCenterScores: false, // Disabled per spec
+      maskThresholdFractionOfMax: 0.0, // No masking by default
+      negativeWeightsAllowed: true // Support negative weights
     };
 
-    const rawWeights: Record<string, number> = {};
+    // Convert answers to new BeliefResponse format
+    const responses: BeliefResponse[] = answers.map(answer => ({
+      questionId: answer.questionId,
+      answer: answer.value
+    }));
 
-    // Initialize scenario weights
-    const allScenarios = new Set<string>();
-    Object.values(beliefsData.weights).forEach(questionWeights => {
-      Object.keys(questionWeights).forEach(scenario => {
-        allScenarios.add(scenario);
-      });
-    });
+    // Use new processing pipeline
+    const { finalProbabilities } = processBeliefResponses(responses, questions, config);
 
-    allScenarios.forEach(scenario => {
-      rawWeights[scenario] = 0;
-    });
+    console.log('New system scenario probabilities:', finalProbabilities);
 
-    // Step 1: Build raw scenario scores with question boosts
-    answers.forEach(answer => {
-      const questionWeights = beliefsData.weights[answer.questionId as keyof typeof beliefsData.weights];
-      if (questionWeights) {
-        Object.entries(questionWeights).forEach(([scenario, weight]) => {
-          // Convert 1-5 scale to impact: 1 = low impact, 5 = high impact
-          // For questions with "lower->" direction, invert the scale
-          const question = questions.find(q => q.id === answer.questionId);
-          const direction = question?.direction || '';
-          
-          let impactMultiplier = answer.value;
-          if (direction.includes('lower->')) {
-            impactMultiplier = 6 - answer.value; // Invert scale for "lower" direction
-          }
-          
-          // Normalize to 0-1 range
-          const normalizedImpact = (impactMultiplier - 1) / 4;
-          
-          // Step 2: Apply question boosts
-          const boost = config.questionBoosts[answer.questionId] || 1.0;
-          const boostedContribution = weight * normalizedImpact * boost;
-          
-          rawWeights[scenario] += boostedContribution;
-        });
-      }
-    });
-
-    console.log('Raw weights before processing:', rawWeights);
-
-    // Step 3: Mean-centre scores
-    if (config.meanCenterScores) {
-      const average = Object.values(rawWeights).reduce((sum, weight) => sum + weight, 0) / allScenarios.size;
-      Object.keys(rawWeights).forEach(scenario => {
-        rawWeights[scenario] -= average;
-      });
-    }
-
-    console.log('Weights after mean-centering:', rawWeights);
-
-    // Step 4: Masking - identify scenarios below threshold
-    const activeScenarios = Object.entries(rawWeights)
-      .filter(([, weight]) => weight > config.maskedSoftmaxThreshold)
-      .map(([scenario]) => scenario);
-
-    console.log('Active scenarios:', activeScenarios);
-
-    // Step 5: Temperature-scaled softmax
-    const activeWeights = activeScenarios.map(scenario => rawWeights[scenario]);
-    const maxWeight = Math.max(...activeWeights);
-    
-    const expWeights = activeScenarios.map(scenario => {
-      const tempScaledWeight = (rawWeights[scenario] - maxWeight) / config.softmaxTemperature;
-      return {
-        scenario,
-        expWeight: Math.exp(tempScaledWeight)
-      };
-    });
-
-    const sumExpWeights = expWeights.reduce((sum, item) => sum + item.expWeight, 0);
-
-    // Build final results
-    const results: ScenarioWeight[] = [];
-    
-    // Add active scenarios with calculated percentages
-    expWeights.forEach(({ scenario, expWeight }) => {
-      let normalizedWeight = expWeight / sumExpWeights;
-      
-      // Step 6: Apply display cap
-      if (normalizedWeight > (config.displayCapPct / 100)) {
-        normalizedWeight = config.displayCapPct / 100;
-      }
-      
-      results.push({
-        scenario,
-        weight: rawWeights[scenario],
-        normalizedWeight,
-        isMasked: false
-      });
-    });
-
-    // Add masked scenarios with 0%
-    allScenarios.forEach(scenario => {
-      if (!activeScenarios.includes(scenario)) {
-        results.push({
-          scenario,
-          weight: rawWeights[scenario],
-          normalizedWeight: 0,
-          isMasked: true
-        });
-      }
-    });
-
-    // Rescale to ensure sum is 100% after capping
-    const totalActive = results.filter(r => !r.isMasked).reduce((sum, r) => sum + r.normalizedWeight, 0);
-    if (totalActive > 0) {
-      results.forEach(result => {
-        if (!result.isMasked) {
-          result.normalizedWeight = result.normalizedWeight / totalActive;
-        }
-      });
-    }
-
-    console.log('Final scenario weights:', results);
+    // Convert to ScenarioWeight format for compatibility
+    const results: ScenarioWeight[] = Object.entries(finalProbabilities).map(([scenario, probability]) => ({
+      scenario,
+      weight: probability, // Raw probability from new system
+      normalizedWeight: probability, // Already normalized by new system
+      isMasked: probability === 0
+    }));
 
     // Sort by normalized weight descending
     return results.sort((a, b) => b.normalizedWeight - a.normalizedWeight);
-  }, [questions]);
+  }, []);
 
   const resetQuestionnaire = useCallback(() => {
     setCurrentQuestionIndex(0);
@@ -215,7 +117,7 @@ export function useBeliefQuestionnaire() {
     const remainingQuestions = questions.slice(currentQuestionIndex);
     const randomAnswers: BeliefAnswer[] = remainingQuestions.map(question => ({
       questionId: question.id,
-      value: Math.floor(Math.random() * 5) + 1 // Random value between 1-5
+      value: (Math.floor(Math.random() * 5) + 1) as 1 | 2 | 3 | 4 | 5
     }));
 
     const allAnswers = [...answers, ...randomAnswers];
@@ -278,6 +180,7 @@ export function useBeliefQuestionnaire() {
 
     // Computed
     totalQuestions: questions.length,
-    questions
+    questions,
+    scaleLabels: SCALE_LABELS
   };
 }
