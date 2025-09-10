@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { INVESTMENT_PERSONAS, DIMENSION_LABELS, PersonaDef } from '@/data/personas';
 import { PERSONA_DEFAULTS, type AssetBucket, type Mix } from '@/data/personaDefaults';
-import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown, PieChart, Banknote, LineChart, Building, Coins, Globe, MapPin, Cpu, Landmark, Gem, Bitcoin, Palette, Wine } from 'lucide-react';
+import { Target, TrendingUp, DollarSign, Shield, Clock, Home, Zap, Users, ArrowDown, PieChart, Banknote, LineChart, Building, Coins, Globe, MapPin, Cpu, Landmark, Gem, Bitcoin, Palette, Wine, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const getRiskProfileColor = (riskProfile: string) => {
   switch (riskProfile.toLowerCase()) {
@@ -296,7 +297,23 @@ const PersonaDetailDialog: React.FC<{
           
           {/* Investment Biases */}
           <div className="rounded-xl p-6" style={{ backgroundColor: 'var(--muted)' }}>
-            <h4 className="font-semibold mb-4 text-lg" style={{ color: 'var(--card-foreground)' }}>Investment Biases</h4>
+            <div className="flex items-center gap-2 mb-4">
+              <h4 className="font-semibold text-lg" style={{ color: 'var(--card-foreground)' }}>Investment Biases</h4>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="cursor-help">
+                      <Info className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">
+                      <strong>Investment Biases</strong> show how strongly this persona type is drawn to different investment categories, from 0% to 100%. These are <em>preference strength scores</em>, not portfolio allocations. A persona can have high biases toward multiple categories simultaneously (e.g., 90% tech bias AND 80% property bias = loves both!).
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
                 <div className="flex items-center gap-3">
