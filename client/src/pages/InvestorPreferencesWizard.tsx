@@ -1157,7 +1157,7 @@ function PersonaQuizContentWizard({
                   onClick={() => setSelectedPersona(null)}
                   className="mt-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                 >
-                  Clear selection to use quiz result
+                  Clear selection to use questionnaire result
                 </button>
               </div>
             )}
