@@ -563,7 +563,7 @@ export default function PersonaShowcase({ onPersonaSelect, showSelection = false
         </h2>
         <p className="text-lg text-[var(--muted-foreground)] max-w-3xl mx-auto">
           Our comprehensive methodology identifies 19 distinct investor personalities based on risk tolerance, 
-          investment approach, portfolio preferences, and behavioral characteristics. Click any persona to learn more.
+          investment approach, portfolio preferences, and behavioral characteristics. These investor personas are built from credible data — including ONS wealth surveys, FCA segmentation studies, global wealth reports, and proprietary Unlock datasets — ensuring each profile reflects real investor behaviours, goals, and portfolios. Click any persona to learn more.
         </p>
       </div>
       
