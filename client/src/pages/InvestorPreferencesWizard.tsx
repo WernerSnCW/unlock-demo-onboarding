@@ -2001,7 +2001,7 @@ function BeliefQuestionnaireComponent({
                   data-testid="button-retake-beliefs"
                 >
                   <RotateCcw className="h-5 w-5" />
-                  Retake Beliefs Quiz
+                  Retake Beliefs Questionnaire
                 </Button>
                 <Button 
                   onClick={async () => {
