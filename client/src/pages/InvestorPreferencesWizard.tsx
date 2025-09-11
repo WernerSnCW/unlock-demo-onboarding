@@ -1176,7 +1176,7 @@ function PersonaQuizContentWizard({
                 data-testid="button-retake-quiz"
               >
                 <RotateCcw className="h-5 w-5" />
-                Take Quiz Again
+                Revise Questionnaire Answers
               </Button>
               <Button 
                 onClick={async () => {
@@ -1250,7 +1250,7 @@ function PersonaQuizContentWizard({
                 data-testid="button-use-persona"
               >
                 <Target className="h-5 w-5" />
-                Use {selectedPersona ? selectedPersona.name : result.topMatch.persona.name}
+                Use this Investor Persona
               </Button>
             </div>
             
