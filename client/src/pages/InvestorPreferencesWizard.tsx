@@ -372,9 +372,7 @@ export default function InvestorPreferencesWizard() {
             </h1>
 
             <p className="text-base md:text-lg text-[var(--muted-foreground)] max-w-4xl mx-auto mb-6 leading-relaxed font-light">
-              Configure your investment profile through 
-              <span className="text-[var(--primary)] font-semibold"> detailed preferences</span> or 
-              <span className="text-[var(--secondary)] font-semibold"> discover your investment personality</span>
+              Answer our questionnaire to discover your Investor Persona and complete all 6 steps to access insights into your current and future investment decisions.
             </p>
 
             {investorName && (
