@@ -2649,10 +2649,10 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
                     description: "Filled with a random portfolio allocation for testing.",
                   });
                 }}
-                className="text-xs"
+                className="text-xs px-3 py-2 border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
               >
                 <Zap className="h-3 w-3 mr-1" />
-                Use Random
+                Use Random Sample Data
               </Button>
             </div>
 
