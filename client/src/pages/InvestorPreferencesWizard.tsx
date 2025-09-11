@@ -717,25 +717,31 @@ function PersonaQuizContentWizard({
               </p>
             </div>
             
-            <TooltipProvider>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="h-4 w-4 text-[var(--primary)]" />
-                    <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Wealth Tier</span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="text-sm">
-                        <strong>Wealth classifications:</strong><br/>
-                        • Mass-Affluent: £100k-£1M investable assets<br/>
-                        • High Net Worth: £1M-£5M<br/>
-                        • Ultra High Net Worth: £5M+<br/>
-                        Based on liquid investment portfolio size
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-4 w-4 text-[var(--primary)]" />
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-[var(--foreground)] text-sm">Wealth Tier</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Wealth Classifications</p>
+                          <div className="space-y-1">
+                            <p>• <strong>Mass-Affluent:</strong> £100k-£1M investable assets</p>
+                            <p>• <strong>High Net Worth:</strong> £1M-£5M</p>
+                            <p>• <strong>Ultra High Net Worth:</strong> £5M+</p>
+                          </div>
+                          <p className="text-[var(--muted-foreground)]">Based on liquid investment portfolio size</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.wealthTier}</p>
               </div>
@@ -743,20 +749,27 @@ function PersonaQuizContentWizard({
               <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-[var(--secondary)]" />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Risk Profile</span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="text-sm">
-                        <strong>Risk tolerance levels:</strong><br/>
-                        • Conservative: Low volatility, capital preservation<br/>
-                        • Moderate: Balanced growth with some volatility<br/>
-                        • Aggressive: High growth potential, higher volatility<br/>
-                        • (idiosyncratic): Concentrated/single-stock risk
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-[var(--foreground)] text-sm">Risk Profile</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Risk Tolerance Levels</p>
+                          <div className="space-y-1">
+                            <p>• <strong>Conservative:</strong> Low volatility, capital preservation</p>
+                            <p>• <strong>Moderate:</strong> Balanced growth with some volatility</p>
+                            <p>• <strong>Aggressive:</strong> High growth potential, higher volatility</p>
+                            <p>• <strong>(idiosyncratic):</strong> Concentrated/single-stock risk</p>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.riskProfile}</p>
               </div>
@@ -764,20 +777,27 @@ function PersonaQuizContentWizard({
               <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="h-4 w-4 text-[var(--accent)]" />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Approach</span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="text-sm">
-                        <strong>Investment management style:</strong><br/>
-                        • SELF_DIRECTED: Makes own investment decisions<br/>
-                        • ADVISED: Works with financial advisors<br/>
-                        • HYBRID: Combination of self-directed and advised<br/>
-                        • DELEGATED: Outsources to professionals
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-[var(--foreground)] text-sm">Approach</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Investment Management Style</p>
+                          <div className="space-y-1">
+                            <p>• <strong>SELF_DIRECTED:</strong> Makes own investment decisions</p>
+                            <p>• <strong>ADVISED:</strong> Works with financial advisors</p>
+                            <p>• <strong>HYBRID:</strong> Combination of self-directed and advised</p>
+                            <p>• <strong>DELEGATED:</strong> Outsources to professionals</p>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.approach}</p>
               </div>
@@ -785,26 +805,32 @@ function PersonaQuizContentWizard({
               <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <Droplets className="h-4 w-4 text-[var(--warning)]" />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Liquidity</span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="text-sm">
-                        <strong>Liquidity preference:</strong><br/>
-                        Time horizon before needing access to investments<br/>
-                        • 1-3 months: Emergency fund needs<br/>
-                        • 3-12 months: Short-term planning<br/>
-                        • 12+ months: Long-term growth focus<br/>
-                        Affects asset allocation strategy
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-[var(--foreground)] text-sm">Liquidity</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="p-1 rounded-full hover:bg-[var(--muted)] transition-colors">
+                          <Info className="h-3 w-3 text-[var(--info)] hover:text-[var(--primary)]" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 text-sm">
+                        <div className="space-y-2">
+                          <p className="font-medium">Liquidity Preference</p>
+                          <p>Time horizon before needing access to investments</p>
+                          <div className="space-y-1">
+                            <p>• <strong>1-3 months:</strong> Emergency fund needs</p>
+                            <p>• <strong>3-12 months:</strong> Short-term planning</p>
+                            <p>• <strong>12+ months:</strong> Long-term growth focus</p>
+                          </div>
+                          <p className="text-[var(--muted-foreground)]">Affects asset allocation strategy</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.liquidityMonths} months</p>
               </div>
             </div>
-            </TooltipProvider>
           </CardContent>
         </Card>
 
