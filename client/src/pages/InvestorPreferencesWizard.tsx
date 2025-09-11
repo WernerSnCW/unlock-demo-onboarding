@@ -717,11 +717,25 @@ function PersonaQuizContentWizard({
               </p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-2">
-                  <Shield className="h-4 w-4 text-[var(--primary)]" />
-                  <span className="font-semibold text-[var(--foreground)] text-sm">Wealth Tier</span>
+            <TooltipProvider>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="h-4 w-4 text-[var(--primary)]" />
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Wealth Tier</span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Wealth classifications:</strong><br/>
+                        • Mass-Affluent: £100k-£1M investable assets<br/>
+                        • High Net Worth: £1M-£5M<br/>
+                        • Ultra High Net Worth: £5M+<br/>
+                        Based on liquid investment portfolio size
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.wealthTier}</p>
               </div>
@@ -729,7 +743,20 @@ function PersonaQuizContentWizard({
               <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-[var(--secondary)]" />
-                  <span className="font-semibold text-[var(--foreground)] text-sm">Risk Profile</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Risk Profile</span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Risk tolerance levels:</strong><br/>
+                        • Conservative: Low volatility, capital preservation<br/>
+                        • Moderate: Balanced growth with some volatility<br/>
+                        • Aggressive: High growth potential, higher volatility<br/>
+                        • (idiosyncratic): Concentrated/single-stock risk
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.riskProfile}</p>
               </div>
@@ -737,7 +764,20 @@ function PersonaQuizContentWizard({
               <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="h-4 w-4 text-[var(--accent)]" />
-                  <span className="font-semibold text-[var(--foreground)] text-sm">Approach</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Approach</span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Investment management style:</strong><br/>
+                        • SELF_DIRECTED: Makes own investment decisions<br/>
+                        • ADVISED: Works with financial advisors<br/>
+                        • HYBRID: Combination of self-directed and advised<br/>
+                        • DELEGATED: Outsources to professionals
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.approach}</p>
               </div>
@@ -745,11 +785,26 @@ function PersonaQuizContentWizard({
               <div className="bg-[var(--card)] rounded-xl p-4 border border-[var(--border)] hover:border-[var(--primary)]/30 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <Droplets className="h-4 w-4 text-[var(--warning)]" />
-                  <span className="font-semibold text-[var(--foreground)] text-sm">Liquidity</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="font-semibold text-[var(--foreground)] text-sm cursor-help underline decoration-dotted">Liquidity</span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Liquidity preference:</strong><br/>
+                        Time horizon before needing access to investments<br/>
+                        • 1-3 months: Emergency fund needs<br/>
+                        • 3-12 months: Short-term planning<br/>
+                        • 12+ months: Long-term growth focus<br/>
+                        Affects asset allocation strategy
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <p className="text-[var(--muted-foreground)] font-medium">{result.topMatch.persona.liquidityMonths} months</p>
               </div>
             </div>
+            </TooltipProvider>
           </CardContent>
         </Card>
 
