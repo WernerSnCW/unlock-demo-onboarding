@@ -2216,7 +2216,7 @@ function BeliefQuestionnaireComponent({
               data-testid="button-belief-auto-complete"
             >
               <Zap className="mr-2 h-5 w-5" />
-              Auto Complete
+              Use Random Sample Data
             </Button>
           </div>
 
