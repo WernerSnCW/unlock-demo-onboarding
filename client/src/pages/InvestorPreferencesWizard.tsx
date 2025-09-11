@@ -2643,10 +2643,14 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
                     randomAllocation[largest[0]] = (parseInt(largest[1]) + (100 - total)).toString();
                   }
 
+                  // Generate random portfolio value between £50,000 and £1,000,000
+                  const randomPortfolioValue = Math.floor(Math.random() * (1000000 - 50000 + 1)) + 50000;
+
                   setAllocations(randomAllocation);
+                  setPortfolioValue(randomPortfolioValue.toString());
                   toast({
-                    title: "Random Allocation Generated",
-                    description: "Filled with a random portfolio allocation for testing.",
+                    title: "Random Portfolio Generated",
+                    description: `Generated random portfolio allocation and value of £${randomPortfolioValue.toLocaleString()}.`,
                   });
                 }}
                 className="text-xs px-3 py-2 border-2 border-[var(--warning)] hover:border-[var(--warning)]/80 hover:bg-[var(--warning)]/10 transition-all duration-300 text-[var(--warning)]"
