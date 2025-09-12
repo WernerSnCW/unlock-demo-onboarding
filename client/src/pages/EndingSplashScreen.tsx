@@ -189,19 +189,19 @@ export default function EndingSplashScreen() {
               <div className="contact-card p-6 rounded-2xl backdrop-blur-xl border border-white/30 bg-white/10">
                 <Mail className="h-8 w-8 mx-auto mb-4 text-[var(--primary)]" />
                 <h3 className="font-bold text-[var(--foreground)] mb-2">Get In Touch</h3>
-                <p className="text-[var(--muted-foreground)] text-sm">hello@unlock.com</p>
+                <p className="text-[var(--muted-foreground)] text-sm">tom@unlockdd.com</p>
               </div>
 
               <div className="contact-card p-6 rounded-2xl backdrop-blur-xl border border-white/30 bg-white/10">
                 <Phone className="h-8 w-8 mx-auto mb-4 text-[var(--secondary)]" />
                 <h3 className="font-bold text-[var(--foreground)] mb-2">Book a Demo</h3>
-                <p className="text-[var(--muted-foreground)] text-sm">+44 20 7123 4567</p>
+                <p className="text-[var(--muted-foreground)] text-sm">+44 7398 156913</p>
               </div>
 
               <div className="contact-card p-6 rounded-2xl backdrop-blur-xl border border-white/30 bg-white/10">
                 <Globe className="h-8 w-8 mx-auto mb-4 text-[var(--brand-accent-bg)]" />
                 <h3 className="font-bold text-[var(--foreground)] mb-2">Learn More</h3>
-                <p className="text-[var(--muted-foreground)] text-sm">www.unlock.com</p>
+                <p className="text-[var(--muted-foreground)] text-sm">www.unlockdd.com</p>
               </div>
             </div>
 
