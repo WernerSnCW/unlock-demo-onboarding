@@ -224,7 +224,7 @@ export default function EndingSplashScreen() {
                 }}
                 data-testid="button-start-free-trial"
               >
-                Start Your Free Trial
+                Unlock Your Potential
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
