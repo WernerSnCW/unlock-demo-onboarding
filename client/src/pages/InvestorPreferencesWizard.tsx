@@ -4624,6 +4624,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
 
   const generateRecommendations = async () => {
     console.log('=== Generate Recommendations Button Clicked ===');
+    
+    // Scroll to top when generating recommendations
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     console.log('actualUserId:', actualUserId);
     console.log('investorPrefs:', investorPrefs);
     console.log('detectedPersona:', investorPrefs?.detectedPersona);
