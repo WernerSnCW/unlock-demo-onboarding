@@ -5982,6 +5982,9 @@ function ActionPlanComponent({ userId }: { userId: string }) {
   // This prevents issues with mismatched user IDs
 
   const generateActionPlan = async () => {
+    // Scroll to top when generating action plan
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     setIsLoading(true);
     setError(null);
     
