@@ -3557,21 +3557,16 @@ function ScenarioWeightAdjustment({
     };
   }, []);
 
-  // Handle weight adjustment with normalization
+  // Handle weight adjustment WITHOUT normalization (independent probabilities)
   const handleWeightChange = (scenarioIndex: number, newWeight: number) => {
     const updatedWeights = [...customWeights];
     updatedWeights[scenarioIndex] = {
       ...updatedWeights[scenarioIndex],
-      normalizedWeight: newWeight / 100
+      normalizedWeight: newWeight / 100 // Convert percentage to decimal
     };
     
-    // Normalize all weights to sum to 1
-    const totalWeight = updatedWeights.reduce((sum, w) => sum + w.normalizedWeight, 0);
-    if (totalWeight > 0) {
-      updatedWeights.forEach(w => {
-        w.normalizedWeight = w.normalizedWeight / totalWeight;
-      });
-    }
+    // NO NORMALIZATION - Independent probabilities don't need to sum to 100%
+    // Multiple scenarios can be high simultaneously without forcing them to sum to 1
     
     onWeightsChange(updatedWeights);
   };

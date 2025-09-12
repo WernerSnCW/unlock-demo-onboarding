@@ -73,12 +73,14 @@ export function useBeliefQuestionnaire() {
   }, [canGoBack]);
 
   const calculateScenarioWeights = useCallback((answers: BeliefAnswer[]) => {
-    // Use new belief processing configuration
+    // Use new belief processing configuration with independent probabilities
     const config: BeliefProcessingConfig = {
-      softmaxTemperature: 1.0, // Updated from 0.5 to 1.0 per spec
-      meanCenterScores: false, // Disabled per spec
-      maskThresholdFractionOfMax: 0.0, // No masking by default
-      negativeWeightsAllowed: true // Support negative weights
+      softmaxTemperature: 1.0,
+      meanCenterScores: false,
+      maskThresholdFractionOfMax: 0.0,
+      negativeWeightsAllowed: true,
+      useIndependentProbs: true, // Enable independent probabilities instead of softmax
+      independentProbsK: 1.0 // Sensitivity parameter
     };
 
     // Convert answers to new BeliefResponse format
