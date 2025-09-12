@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Lock } from 'lucide-react';
 import unlockLogo from '@assets/unlock-logo.svg';
 
 export default function SplashScreen() {
@@ -155,34 +156,25 @@ export default function SplashScreen() {
                     var(--secondary) 100%)`,
                 }}
               >
-                <img 
-                  src={unlockLogo}
-                  alt="Unlock"
-                  className="w-12 h-12 brightness-0 invert"
-                />
+                <Lock className="w-12 h-12 text-white" />
               </div>
             </div>
 
-            {/* Main Title */}
-            <h1 
-              className={`text-8xl font-bold mb-6 text-[var(--foreground)] transform transition-all duration-1000 delay-500 ${
+            {/* Main Logo */}
+            <div 
+              className={`mb-6 transform transition-all duration-1000 delay-500 ${
                 isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
               }`}
-              style={{
-                background: `linear-gradient(135deg, 
-                  var(--primary) 0%, 
-                  var(--secondary) 50%, 
-                  var(--brand-accent-bg) 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-                fontFamily: 'var(--font-sans)',
-                letterSpacing: '-0.02em',
-              }}
             >
-              UNLOCK
-            </h1>
+              <img 
+                src={unlockLogo}
+                alt="Unlock"
+                className="h-24 w-auto mx-auto"
+                style={{
+                  filter: `drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3))`,
+                }}
+              />
+            </div>
 
             {/* Subtitle */}
             <p 
