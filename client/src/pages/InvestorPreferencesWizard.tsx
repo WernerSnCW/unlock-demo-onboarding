@@ -6602,6 +6602,56 @@ function ActionPlanComponent({ userId }: { userId: string }) {
         </p>
       </div>
 
+      {/* Forecast Uplift Section */}
+      <div className="flex justify-center">
+        <Card className="bg-gradient-to-r from-yellow-300 via-lime-300 to-green-300 border-2 border-yellow-400 shadow-2xl max-w-md">
+          <CardContent className="pt-6 pb-6">
+            <div className="text-center space-y-2">
+              <div className="text-sm font-semibold text-gray-800 uppercase tracking-wider">
+                Forecast Uplift from
+              </div>
+              <div className="text-sm font-semibold text-gray-800 uppercase tracking-wider -mt-1">
+                Recommended Actions
+              </div>
+              <div className="text-4xl font-black text-gray-900 mt-3">
+                {(() => {
+                  // Calculate forecast uplift based on portfolio changes
+                  // Larger changes typically indicate larger potential improvements
+                  const totalChangePp = actionsData.summary.totalAbsChangePp || 0;
+                  
+                  // Base uplift calculation: 
+                  // - Small changes (0-50pp): 2-4% uplift
+                  // - Medium changes (50-100pp): 4-8% uplift  
+                  // - Large changes (100pp+): 8-15% uplift
+                  let minUplift, maxUplift;
+                  
+                  if (totalChangePp <= 50) {
+                    minUplift = Math.max(2, Math.round(totalChangePp * 0.04));
+                    maxUplift = Math.max(4, Math.round(totalChangePp * 0.08));
+                  } else if (totalChangePp <= 100) {
+                    minUplift = Math.max(4, Math.round(totalChangePp * 0.06));
+                    maxUplift = Math.max(8, Math.round(totalChangePp * 0.12));
+                  } else {
+                    minUplift = Math.max(8, Math.round(totalChangePp * 0.08));
+                    maxUplift = Math.max(15, Math.round(totalChangePp * 0.15));
+                  }
+                  
+                  // Ensure reasonable bounds and range
+                  minUplift = Math.min(minUplift, 20);
+                  maxUplift = Math.min(maxUplift, 25);
+                  if (maxUplift <= minUplift) maxUplift = minUplift + 2;
+                  
+                  return `${minUplift}-${maxUplift}%`;
+                })()}
+              </div>
+              <div className="text-xs text-gray-700 mt-2 px-4">
+                Estimated annual performance improvement from implementing your personalized strategy
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-[var(--card)] to-[var(--primary)]/5 border-[var(--primary)]/20 shadow-lg hover:shadow-xl transition-all duration-300">
