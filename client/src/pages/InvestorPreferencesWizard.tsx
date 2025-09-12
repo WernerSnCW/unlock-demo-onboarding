@@ -6604,7 +6604,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
       {/* Forecast Uplift Section */}
       <div className="flex justify-center">
-        <Card className="bg-gradient-to-r from-[var(--warning)] to-[var(--success)] border-2 border-[var(--success)] shadow-2xl max-w-md">
+        <Card className="bg-gradient-to-r from-[var(--primary)] to-[var(--success)] border-2 border-[var(--success)] shadow-2xl max-w-md">
           <CardContent className="pt-6 pb-6">
             <div className="text-center space-y-2">
               <div className="flex items-center justify-center gap-2">
