@@ -146,12 +146,14 @@ function processBeliefQuestionnaire(responses: BeliefResponse[], persona: Person
     answer: (response.selectedOptionIndex + 1) as 1 | 2 | 3 | 4 | 5 // Convert 0-4 to 1-5
   }));
 
-  // Use new belief processing system
+  // Use new belief processing system with independent probabilities
   const config: BeliefProcessingConfig = {
     softmaxTemperature: 1.0,
     meanCenterScores: false,
     maskThresholdFractionOfMax: 0.0,
-    negativeWeightsAllowed: true
+    negativeWeightsAllowed: true,
+    useIndependentProbs: true, // Enable independent probabilities instead of softmax
+    independentProbsK: 1.0 // Sensitivity parameter
   };
 
   const { finalProbabilities } = processBeliefResponses(newResponses, BELIEF_QUESTIONS, config);
