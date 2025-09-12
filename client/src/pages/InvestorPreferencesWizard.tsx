@@ -6604,16 +6604,41 @@ function ActionPlanComponent({ userId }: { userId: string }) {
 
       {/* Forecast Uplift Section */}
       <div className="flex justify-center">
-        <Card className="bg-gradient-to-r from-yellow-300 via-lime-300 to-green-300 border-2 border-yellow-400 shadow-2xl max-w-md">
+        <Card className="bg-gradient-to-r from-[var(--warning)] to-[var(--success)] border-2 border-[var(--success)] shadow-2xl max-w-md">
           <CardContent className="pt-6 pb-6">
             <div className="text-center space-y-2">
-              <div className="text-sm font-semibold text-gray-800 uppercase tracking-wider">
-                Forecast Uplift from
+              <div className="flex items-center justify-center gap-2">
+                <div className="text-sm font-semibold text-white uppercase tracking-wider">
+                  Forecast Uplift from Recommended Actions
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-white/20 transition-colors">
+                      <Info className="h-4 w-4 text-white hover:text-white/80" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-sm">
+                    <div className="space-y-3">
+                      <p className="font-medium text-[var(--foreground)]">How This Is Calculated</p>
+                      <div className="space-y-2 text-[var(--muted-foreground)]">
+                        <p>The forecast uplift is estimated based on the scale of portfolio changes required:</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          <li><strong>Small changes (0-50pp):</strong> 2-8% annual improvement</li>
+                          <li><strong>Medium changes (50-100pp):</strong> 4-12% annual improvement</li>
+                          <li><strong>Large changes (100pp+):</strong> 8-25% annual improvement</li>
+                        </ul>
+                        <p className="text-xs mt-2 p-2 bg-[var(--muted)] rounded">
+                          <strong>Your portfolio:</strong> {actionsData.summary.totalAbsChangePp}pp total changes required, indicating significant optimization potential.
+                        </p>
+                        <p className="text-xs text-[var(--muted-foreground)] italic">
+                          Estimates based on historical portfolio optimization outcomes. Actual results may vary.
+                        </p>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-              <div className="text-sm font-semibold text-gray-800 uppercase tracking-wider -mt-1">
-                Recommended Actions
-              </div>
-              <div className="text-4xl font-black text-gray-900 mt-3">
+              <div className="text-4xl font-black text-white mt-3">
                 {(() => {
                   // Calculate forecast uplift based on portfolio changes
                   // Larger changes typically indicate larger potential improvements
@@ -6644,7 +6669,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                   return `${minUplift}-${maxUplift}%`;
                 })()}
               </div>
-              <div className="text-xs text-gray-700 mt-2 px-4">
+              <div className="text-xs text-white/90 mt-2 px-4">
                 Estimated annual performance improvement from implementing your personalized strategy
               </div>
             </div>
