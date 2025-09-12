@@ -32,6 +32,7 @@ import DemoPortfolioAnalysis from "@/pages/DemoPortfolioAnalysis";
 import InvestorPreferences from "@/pages/InvestorPreferences";
 import InvestorPreferencesWizard from "@/pages/InvestorPreferencesWizard";
 import SplashScreen from "@/pages/SplashScreen";
+import EndingSplashScreen from "@/pages/EndingSplashScreen";
 
 
 function Router() {
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/investor-preferences" component={InvestorPreferences} />
       <Route path="/investor-preferences-v2" component={InvestorPreferencesWizard} />
       <Route path="/splash" component={SplashScreen} />
+      <Route path="/ending" component={EndingSplashScreen} />
       <Route component={NotFound} />
     </Switch>
   );
