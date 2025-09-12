@@ -1513,16 +1513,22 @@ function BeliefQuestionnaireComponent({
         });
       });
 
-      // Convert to scenario weights array with independent probabilities
-      const scenarioArray = Object.entries(scenarioScores).map(([scenario, score]) => ({
-        scenario,
-        weight: Math.max(0, score),
-        normalizedWeight: Math.max(0, score), // Use raw score as independent probability
-        isMasked: false
-      }));
+      // Convert raw scores to independent probabilities using Poisson-complement formula
+      const k = 1.0; // Sensitivity parameter
+      const scenarioArray = Object.entries(scenarioScores).map(([scenario, score]) => {
+        const rawScore = Math.max(0, score);
+        // Convert to independent probability: p = 1 - exp(-k * score)
+        const probability = rawScore > 0 ? 1 - Math.exp(-k * rawScore) : 0;
+        
+        return {
+          scenario,
+          weight: rawScore,
+          normalizedWeight: probability, // Actual probability between 0 and 1
+          isMasked: false
+        };
+      });
 
-      // NO NORMALIZATION - Independent probabilities don't need to sum to 100%
-      // Multiple scenarios can have high probabilities simultaneously
+      // Independent probabilities - can have multiple high values without summing to 100%
       scenarioArray.forEach(item => {
         item.isMasked = item.normalizedWeight < 0.01; // Mask scenarios below 1%
       });
