@@ -1513,18 +1513,17 @@ function BeliefQuestionnaireComponent({
         });
       });
 
-      // Convert to scenario weights array and normalize
+      // Convert to scenario weights array with independent probabilities
       const scenarioArray = Object.entries(scenarioScores).map(([scenario, score]) => ({
         scenario,
         weight: Math.max(0, score),
-        normalizedWeight: 0, // Will be calculated below
+        normalizedWeight: Math.max(0, score), // Use raw score as independent probability
         isMasked: false
       }));
 
-      // Normalize weights to sum to 1
-      const totalWeight = scenarioArray.reduce((sum, item) => sum + item.weight, 0);
+      // NO NORMALIZATION - Independent probabilities don't need to sum to 100%
+      // Multiple scenarios can have high probabilities simultaneously
       scenarioArray.forEach(item => {
-        item.normalizedWeight = totalWeight > 0 ? item.weight / totalWeight : 0;
         item.isMasked = item.normalizedWeight < 0.01; // Mask scenarios below 1%
       });
 
@@ -1848,16 +1847,16 @@ function BeliefQuestionnaireComponent({
                   </h5>
                   <div className="text-sm text-[var(--info)] opacity-80 space-y-2">
                     <p>
-                      <strong>What the percentages mean:</strong> Each percentage represents the probability of that economic scenario based on your specific belief responses. For example, 35% Stagflation means your beliefs suggest a 35% likelihood of a stagflation environment.
+                      <strong>What the percentages mean:</strong> Each percentage represents the independent probability of that economic scenario based on your specific belief responses. For example, 35% Stagflation means your beliefs suggest a 35% likelihood of a stagflation environment.
                     </p>
                     <p>
-                      <strong>Why they sum to 100%:</strong> These scenarios are treated as mutually exclusive possibilities that must account for all potential economic outcomes. Your answers are weighted, scored, and normalized into a complete probability distribution representing your personalized "economic worldview."
+                      <strong>Why they DON'T sum to 100%:</strong> These are independent probabilities, not mutually exclusive outcomes. Multiple scenarios can have high probabilities simultaneously because economic conditions often overlap. The total may be above or below 100% depending on your overall economic outlook.
                     </p>
                     <p>
-                      <strong>The calculation:</strong> Each of your 12 belief responses contributes weighted points to relevant scenarios based on established economic relationships. These raw scores are then converted to percentages through mathematical normalization.
+                      <strong>The calculation:</strong> Each of your belief responses contributes weighted points to relevant scenarios based on established economic relationships. These raw scores are converted to independent probabilities using a mathematical formula that allows multiple scenarios to be likely at once.
                     </p>
                     <p>
-                      <strong>Softmax normalization:</strong> A math trick that turns raw scores into percentages that add up to 100%, making it easier to see which economic scenarios are most likely based on your answers.
+                      <strong>Independent probabilities:</strong> Unlike traditional normalization, this system allows you to believe multiple economic scenarios are likely simultaneously, reflecting the complex, interconnected nature of modern economies.
                     </p>
                   </div>
                 </div>
