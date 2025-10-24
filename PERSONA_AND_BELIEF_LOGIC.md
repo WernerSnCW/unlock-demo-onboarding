@@ -300,9 +300,9 @@ notableDifferences = sortedDimensions
 
 ### 3.1 Overview
 
-The belief system converts investor responses to **12 economic belief questions (B1-B12)** into **independent scenario probabilities** that predict how different economic scenarios might impact their portfolio. This uses a sophisticated signal processing pipeline with correlation dampening, regime adjustments, and exponential decay.
+The belief system converts investor responses to **15 economic belief questions (B1-B15)** into **independent scenario probabilities** that predict how different economic scenarios might impact their portfolio. This uses a sophisticated signal processing pipeline with correlation dampening, regime adjustments, and exponential decay.
 
-### 3.2 The 12 Economic Belief Questions
+### 3.2 The 15 Economic Belief Questions
 
 Each question asks about future economic conditions on a **1-5 Likert scale**:
 - 1 = Strongly Disagree
@@ -313,31 +313,34 @@ Each question asks about future economic conditions on a **1-5 Likert scale**:
 
 | ID | Question | Direction Logic |
 |----|----------|----------------|
-| B1 | Do you expect the next generation to have better financial opportunities? | lower→recession, property_down, stagflation |
-| B2 | How secure do you feel white-collar jobs are over the next 5 years? | lower→recession, tech_correction |
-| B3 | How stable do you expect remote/hybrid work arrangements to be? | lower→property_down, sterling_devaluation |
-| B4 | How confident are you in UK government debt/inflation management? | lower→gilt_selloff, stagflation, devaluation |
-| B5 | How likely are energy supply disruptions or higher energy taxes? | higher→energy_spike, stagflation |
-| B6 | How quickly will your industry adopt AI to replace tasks? | higher→recession, tech_correction |
-| B7 | Is renting better than buying for a 30-year-old over 5 years? | higher→property_down |
-| B8 | How attractive is investing in local businesses vs. property? | higher→property_down, reflation |
-| B9 | How likely is a major geopolitical shock affecting supply chains? | higher→energy_spike, stagflation |
-| B10 | How likely is GBP to depreciate against USD/EUR over 2 years? | higher→devaluation |
-| B11 | How easy will credit be for SMEs/households in the next 2 years? | lower→gilt_selloff, recession |
-| B12 | How likely are significant rate cuts or fiscal support in 12 months? | higher→reflation |
+| B1 | Do you expect the next generation to have better financial opportunities? | lower→AI Recession, Property Crash, Stagflation |
+| B2 | How secure do you feel white-collar jobs are over the next 5 years? | lower→AI Recession, Tech Burst |
+| B3 | How stable do you expect remote/hybrid work arrangements to be? | lower→Property Crash, Sterling Devaluation |
+| B4 | How confident are you in UK government debt/inflation management? | lower→Debt Spiral, Stagflation, Sterling Devaluation |
+| B5 | How likely are energy supply disruptions or higher energy taxes? | higher→Energy Shock, Stagflation |
+| B6 | How quickly will your industry adopt AI to replace tasks? | higher→AI Recession, Tech Burst |
+| B7 | Is renting better than buying for a 30-year-old over 5 years? | higher→Property Crash |
+| B8 | How attractive is investing in local businesses vs. property? | higher→Property Crash, Rate-Cut Reflation |
+| B9 | How likely is a major geopolitical shock affecting supply chains? | higher→Energy Shock, Stagflation |
+| B10 | How likely is GBP to depreciate against USD/EUR over 2 years? | higher→Sterling Devaluation |
+| B11 | How easy will credit be for SMEs/households in the next 2 years? | lower→Debt Spiral, AI Recession |
+| B12 | How likely are significant rate cuts or fiscal support in 12 months? | higher→Rate-Cut Reflation |
+| B13 | Will UK government interest payments grow faster than tax revenues? | higher→Debt Spiral, Sterling Devaluation |
+| B14 | Will rising mortgage costs force households to cut spending significantly? | higher→Property Crash, AI Recession |
+| B15 | Will the UK's trade and current account deficits widen unsustainably? | higher→Sterling Devaluation, Debt Spiral |
 
 ### 3.3 Economic Scenarios Tracked
 
 The system tracks probabilities for these economic scenarios:
 
-- **recession**: Economic recession with rising unemployment
-- **property_down**: UK residential property market decline
-- **stagflation**: High inflation + low growth combination
-- **gilt_selloff**: UK government bond market stress
-- **devaluation**: Sterling depreciation vs. major currencies
-- **energy_spike**: Energy price shock
-- **tech_correction**: Technology sector correction
-- **reflation**: Policy-driven economic reflation
+- **AI Recession**: Economic recession driven by job displacement from AI adoption
+- **Property Crash**: UK residential property market decline
+- **Stagflation**: High inflation combined with low economic growth
+- **Debt Spiral**: UK government bond market stress and debt sustainability concerns
+- **Sterling Devaluation**: British pound depreciation vs. major currencies
+- **Energy Shock**: Energy price spike or supply disruptions
+- **Tech Burst**: Technology sector correction
+- **Rate-Cut Reflation**: Policy-driven economic reflation through rate cuts and fiscal support
 
 ### 3.4 Signal Processing Pipeline
 
