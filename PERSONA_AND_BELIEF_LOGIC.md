@@ -596,6 +596,893 @@ if (scenario === "property_crash" && propertyAllocation > 0.45) {
 
 ---
 
+## 4. Portfolio Analysis and Scenario Impact Calculation
+
+### 4.1 Overview
+
+Once scenario probabilities are calculated from the belief system, they're used to analyze the investor's current portfolio and generate worst-case impact projections. This system uses **compounding mathematics** (not simple addition) to accurately model what happens if multiple scenarios occur simultaneously.
+
+### 4.2 Worst-Case Scenario Impact (Cumulative Analysis)
+
+The system calculates portfolio impact under the assumption that **ALL selected scenarios occur together** - providing a genuine stress test rather than weighted averages.
+
+**Endpoint**: `/api/scenario-impact`
+
+**Step 1: Identify Selected Scenarios**
+
+```javascript
+for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
+  if (weight > 0) {
+    selectedScenarios.push(scenario);
+  }
+}
+```
+
+**Step 2: Calculate Individual Scenario Impact**
+
+For each selected scenario, calculate how it affects the portfolio:
+
+```javascript
+// For each scenario
+scenarioPortfolioReturn = Σ (allocation[asset] * scenarioReturn[asset])
+
+// Example:
+Current portfolio: {
+  GLOBAL_EQUITY: 0.30 (30%),
+  PROPERTY_UK_RESI: 0.25 (25%),
+  CASH: 0.15 (15%),
+  ...
+}
+
+Debt Spiral scenario returns: {
+  GLOBAL_EQUITY: -0.20 (-20%),
+  PROPERTY_UK_RESI: -0.15 (-15%),
+  CASH: 0.00 (0%),
+  ...
+}
+
+scenarioReturn = (0.30 * -0.20) + (0.25 * -0.15) + (0.15 * 0.00) + ...
+              = -0.06 + -0.0375 + 0 + ...
+              = -0.1325 (-13.25%)
+```
+
+**Step 3: Compound Multiple Scenarios**
+
+This is the critical mathematical difference - scenarios compound, they don't add:
+
+```javascript
+// WRONG approach (simple addition):
+totalReturn = scenario1_return + scenario2_return + scenario3_return
+
+// CORRECT approach (compounding):
+compoundedReturn = (1 + scenario1_return) * (1 + scenario2_return) * (1 + scenario3_return) - 1
+```
+
+**Example Calculation:**
+
+```
+Selected scenarios:
+  - Debt Spiral: -13.25%
+  - Property Crash: -18.50%
+  
+WRONG (addition): -13.25% + -18.50% = -31.75%
+
+CORRECT (compounding):
+  (1 + -0.1325) * (1 + -0.1850) - 1
+  = (0.8675) * (0.8150) - 1
+  = 0.7070 - 1
+  = -0.2930 (-29.30%)
+
+The compounded worst-case is actually BETTER than simple addition because
+losses in sequence reduce the base for subsequent losses.
+```
+
+**Step 4: Calculate Asset-Level Impacts**
+
+Each asset class experiences compounded returns from all scenarios:
+
+```javascript
+for (const assetClass of Object.keys(currentMix)) {
+  let compoundedReturn = 1.0;
+  
+  for (const [scenarioId, weight] of Object.entries(scenarioWeights)) {
+    if (weight > 0) {
+      const scenarioReturn = scenario.mu[assetClass] || 0;
+      compoundedReturn *= (1 + scenarioReturn);
+    }
+  }
+  
+  cumulativeAssetReturn = compoundedReturn - 1;
+  assetValueChange = portfolioValueGBP * allocation * cumulativeAssetReturn;
+  projectedValue = currentValue * (1 + cumulativeAssetReturn);
+}
+```
+
+**Step 5: Portfolio Value Projection**
+
+```javascript
+currentPortfolioValue = £1,250,000
+cumulativeReturn = -0.2930 (-29.30%)
+totalValueChange = £1,250,000 * -0.2930 = -£366,250
+projectedPortfolioValue = £1,250,000 * (1 + -0.2930) = £883,750
+```
+
+### 4.3 Scenario Impact Output Structure
+
+```javascript
+{
+  summary: {
+    currentPortfolioValue: 1250000,
+    projectedPortfolioValue: 883750,
+    totalValueChange: -366250,
+    percentageChange: -0.2930,
+    selectedScenariosCount: 2,
+    analysisType: "cumulative_worst_case"
+  },
+  scenarioBreakdown: [
+    {
+      scenarioId: "Property Crash",
+      scenarioName: "Property Crash",
+      portfolioReturn: -0.1850,
+      portfolioValueChange: -231250,
+      horizonYears: 5,
+      assetImpacts: [
+        {
+          assetClass: "PROPERTY_UK_RESI",
+          currentAllocation: 0.25,
+          scenarioReturn: -0.18,
+          valueChange: -56250,
+          currentValue: 312500,
+          projectedValue: 256250
+        },
+        ...
+      ]
+    },
+    ...
+  ],
+  assetImpacts: [
+    {
+      assetClass: "PROPERTY_UK_RESI",
+      currentAllocation: 0.25,
+      cumulativeReturn: -0.3094, // Compounded from both scenarios
+      valueChange: -96812.50,
+      currentValue: 312500,
+      projectedValue: 215687.50
+    },
+    ...
+  ]
+}
+```
+
+---
+
+## 5. Target Allocation and Recommendation Engine
+
+### 5.1 Overview
+
+The target allocation engine combines the investor's persona profile with scenario-based tilts to generate an optimized portfolio recommendation. This process involves blending, applying rules, and ensuring constraints are satisfied.
+
+**Endpoint**: `/api/target`
+
+**File**: `server/lib/recommend/targetEngine.ts`
+
+### 5.2 The Allocation Pipeline
+
+```
+Persona Base Mix
+    ↓
+[1] Apply Scenario Tilts (weighted blending)
+    ↓
+[2] Apply Persona-Specific Rules
+    ↓
+[3] Enforce Liquidity Floors
+    ↓
+[4] Apply Concentration Limits
+    ↓
+[5] Normalize to 100%
+    ↓
+Final Target Mix
+```
+
+### 5.3 Step-by-Step Logic
+
+**Step 1: Load Persona Base Mix**
+
+Each persona has a default allocation across all canonical asset buckets:
+
+```javascript
+// Example: P001 "The Retirement Planner"
+baseMix = {
+  CASH: 0.0800,
+  BILLS_SHORT_GILTS: 0.1200,
+  GILTS_LONG: 0.0600,
+  IG_CREDIT: 0.1500,
+  GLOBAL_EQUITY: 0.2800,
+  UK_EQUITY_VALUE: 0.1200,
+  GROWTH_TECH: 0.0400,
+  PROPERTY_UK_RESI: 0.0800,
+  COMMODITIES: 0.0200,
+  GOLD: 0.0300,
+  ALTERNATIVES: 0.0100,
+  CRYPTO_BTC: 0.0000,
+  CRYPTO_ETH: 0.0000,
+  COLLECTIBLES_ART: 0.0100,
+  COLLECTIBLES_WINE: 0.0000
+}
+```
+
+**Step 2: Blend Scenario Templates**
+
+Scenarios have directional tilts that modify the base allocation:
+
+```javascript
+// Example scenario templates (not actual returns, but allocation tilts)
+debtSpiralTemplate = {
+  CASH: +0.15,              // Increase cash
+  GILTS_LONG: -0.10,        // Reduce gilts
+  GLOBAL_EQUITY: -0.05,     // Reduce equities
+  GOLD: +0.05,              // Increase gold
+  ...
+}
+
+propertyCrashTemplate = {
+  PROPERTY_UK_RESI: -0.20,  // Reduce property exposure
+  CASH: +0.10,              // Increase cash
+  BILLS_SHORT_GILTS: +0.05, // Increase short gilts
+  ...
+}
+
+// Blend scenarios based on weights
+scenarioWeights = {
+  "Debt Spiral": 0.60,
+  "Property Crash": 0.40
+}
+
+scenarioBlend[bucket] = Σ (scenarioTemplate[bucket] * scenarioWeight)
+
+// Apply tilt strength (0-1 scale, default 0.5)
+preRulesMix[bucket] = baseMix[bucket] + (scenarioBlend[bucket] * tiltStrength)
+```
+
+**Step 3: Apply Liquidity Floor**
+
+Ensure minimum cash/short-term holdings:
+
+```javascript
+const liquidityFloor = overrides?.liquidityFloorPct || 0.10; // Default 10%
+const currentLiquidity = preRulesMix.CASH + preRulesMix.BILLS_SHORT_GILTS;
+
+if (currentLiquidity < liquidityFloor) {
+  const shortfall = liquidityFloor - currentLiquidity;
+  
+  // Add liquidity
+  preRulesMix.CASH += shortfall * 0.6;
+  preRulesMix.BILLS_SHORT_GILTS += shortfall * 0.4;
+  
+  // Fund from donor buckets (highest risk first)
+  const donors = ["GROWTH_TECH", "CRYPTO_BTC", "CRYPTO_ETH", "GLOBAL_EQUITY", ...];
+  let remaining = shortfall;
+  
+  for (const donor of donors) {
+    if (remaining <= 0) break;
+    const canTake = Math.min(preRulesMix[donor], remaining * 0.3);
+    preRulesMix[donor] -= canTake;
+    remaining -= canTake;
+  }
+}
+```
+
+**Step 4: Apply Concentration Limits**
+
+Cap single-bucket exposure based on persona risk tolerance:
+
+```javascript
+const singleBucketCap = overrides?.singleBucketCapPct || 0.35; // Default 35%
+
+for (const bucket of CANONICAL_BUCKETS) {
+  if (preRulesMix[bucket] > singleBucketCap) {
+    const excess = preRulesMix[bucket] - singleBucketCap;
+    preRulesMix[bucket] = singleBucketCap;
+    
+    // Redistribute excess to safer buckets
+    preRulesMix.BILLS_SHORT_GILTS += excess * 0.5;
+    preRulesMix.IG_CREDIT += excess * 0.3;
+    preRulesMix.CASH += excess * 0.2;
+  }
+}
+```
+
+**Step 5: Persona-Specific Rules**
+
+Apply custom rules for specific personas:
+
+```javascript
+// Example: P016 "BTL Mogul" has hard property caps
+if (personaId === "P016") {
+  const hardPropertyCap = 0.65; // 65% maximum normally
+  
+  if (preRulesMix.PROPERTY_UK_RESI > hardPropertyCap) {
+    const excess = preRulesMix.PROPERTY_UK_RESI - hardPropertyCap;
+    preRulesMix.PROPERTY_UK_RESI = hardPropertyCap;
+    preRulesMix.GILTS_SHORT += excess * 0.6;
+    preRulesMix.GOLD += excess * 0.4;
+  }
+  
+  // Even stricter in property crash scenarios
+  const selectedScenarios = Object.keys(scenarioWeights).filter(s => scenarioWeights[s] > 0);
+  if (selectedScenarios.includes("Property Crash")) {
+    const stressCap = 0.45; // 45% maximum in stress
+    if (preRulesMix.PROPERTY_UK_RESI > stressCap) {
+      const excess = preRulesMix.PROPERTY_UK_RESI - stressCap;
+      preRulesMix.PROPERTY_UK_RESI = stressCap;
+      preRulesMix.CASH += excess * 0.5;
+      preRulesMix.BILLS_SHORT_GILTS += excess * 0.5;
+    }
+  }
+}
+```
+
+**Step 6: Normalize to 100%**
+
+```javascript
+const sum = Object.values(preRulesMix).reduce((a, b) => a + b, 0);
+
+for (const bucket of CANONICAL_BUCKETS) {
+  targetMix[bucket] = preRulesMix[bucket] / sum;
+}
+
+// Verification: sum should equal 1.0
+const finalSum = Object.values(targetMix).reduce((a, b) => a + b, 0);
+console.assert(Math.abs(finalSum - 1.0) < 0.001, "Target mix must sum to 1.0");
+```
+
+### 5.4 Target Response Structure
+
+```javascript
+{
+  personaId: "P001",
+  scenarioWeights: { "Debt Spiral": 0.60, "Property Crash": 0.40 },
+  tiltStrength: 0.5,
+  baseMix: { CASH: 0.08, BILLS_SHORT_GILTS: 0.12, ... },
+  scenarioBlend: { CASH: +0.125, GILTS_LONG: -0.06, ... },
+  preRulesMix: { CASH: 0.2025, BILLS_SHORT_GILTS: 0.14, ... },
+  targetMix: { CASH: 0.1950, BILLS_SHORT_GILTS: 0.1350, ... },
+  flags: ["liquidity_floor_applied", "property_cap_applied"],
+  adjustments: [
+    "Increased liquidity from 18% to 23% to meet minimum requirement",
+    "Reduced property exposure from 35% to 25% due to Property Crash scenario"
+  ],
+  narrative: {
+    overview: "Your target allocation prioritizes safety with 33% in cash and bonds...",
+    bullets: [
+      "Increased cash to 19.5% (from 8%) to provide defensive buffer",
+      "Reduced property to 5% (from 8%) given property crash concerns",
+      "Maintained 28% global equity for long-term growth"
+    ],
+    topAdds: [
+      { bucket: "CASH", pp: 11.5 },
+      { bucket: "BILLS_SHORT_GILTS", pp: 1.5 }
+    ],
+    topTrims: [
+      { bucket: "PROPERTY_UK_RESI", pp: -3.0 },
+      { bucket: "GILTS_LONG", pp: -2.5 }
+    ]
+  }
+}
+```
+
+---
+
+## 6. Monte Carlo Simulation and Risk Analysis
+
+### 6.1 Overview
+
+The Monte Carlo simulation engine projects portfolio performance under uncertainty by generating thousands of potential future paths, accounting for asset correlations, scenario probabilities, and volatility.
+
+**Endpoint**: `/api/simulate-v2`
+
+**File**: `server/lib/simulate/engine_v2.ts`
+
+### 6.2 Simulation Pipeline
+
+```
+Scenario Weights → Blend Scenario Shocks → Apply Fade
+    ↓                      ↓                    ↓
+  S001: 0.60          GLOBAL_EQUITY: -0.12   12m mean: -0.10
+  S002: 0.40          PROPERTY_UK_RESI: -0.15 12m mean: -0.12
+                      CASH: 0.00              12m mean: 0.00
+    ↓
+Convert to Monthly Returns
+    ↓
+Generate Correlated Random Shocks (Cholesky Decomposition)
+    ↓
+Simulate N Paths (e.g., 5000 paths × 12 months)
+    ↓
+Calculate Risk Metrics (Expected Return, Downside Risk, Drawdown)
+```
+
+### 6.3 Step-by-Step Logic
+
+**Step 1: Blend Scenario Shocks**
+
+Combine scenario-specific returns using normalized weights:
+
+```javascript
+// Normalize scenario weights to sum to 1.0
+const normWeights = normalizeWeights(scenarioWeights);
+
+// Blend 12-month expected returns for each bucket
+mean12Scenario[bucket] = Σ (scenarioShock[scenarioId][bucket] * normWeight[scenarioId])
+
+// Example:
+scenarioWeights = { "Debt Spiral": 0.6, "Property Crash": 0.4 }
+
+Debt Spiral shocks: { GLOBAL_EQUITY: -0.20, PROPERTY_UK_RESI: -0.15, ... }
+Property Crash shocks: { GLOBAL_EQUITY: -0.25, PROPERTY_UK_RESI: -0.18, ... }
+
+mean12Scenario[GLOBAL_EQUITY] = (-0.20 * 0.6) + (-0.25 * 0.4)
+                               = -0.12 + -0.10
+                               = -0.22 (-22% over 12 months)
+
+mean12Scenario[PROPERTY_UK_RESI] = (-0.15 * 0.6) + (-0.18 * 0.4)
+                                  = -0.09 + -0.072
+                                  = -0.162 (-16.2% over 12 months)
+```
+
+**Step 2: Apply Scenario Fade** 
+
+Scenarios fade toward base case over time using exponential decay:
+
+```javascript
+// Fade parameter (tau) controls how fast scenarios revert
+tau = 24 months (default)
+
+// Alpha fade function
+alphaFade(H, tau) = 1 - exp(-H / tau)
+
+// For H = 12 months:
+alpha = 1 - exp(-12 / 24) = 1 - exp(-0.5) = 1 - 0.6065 = 0.3935 (39.35%)
+
+// Faded mean (blends scenario shock with base prior)
+fadedMean12[bucket] = (1 - alpha) * mean12Scenario[bucket] + alpha * basePrior12[bucket]
+
+// Example:
+mean12Scenario[GLOBAL_EQUITY] = -0.22
+basePrior12[GLOBAL_EQUITY] = 0.08 (normal equity return)
+
+fadedMean12[GLOBAL_EQUITY] = (1 - 0.3935) * (-0.22) + (0.3935) * (0.08)
+                            = (0.6065) * (-0.22) + (0.3935) * (0.08)
+                            = -0.1334 + 0.0315
+                            = -0.1019 (-10.19%)
+
+// At H = 24 months, alpha = 0.6321, so scenario has faded 63% toward base
+```
+
+**Step 3: Convert to Monthly Returns and Volatility**
+
+```javascript
+// Convert 12-month return to monthly compounded return
+meanMonth[bucket] = (1 + mean12[bucket])^(1/12) - 1
+
+// Example:
+mean12[GLOBAL_EQUITY] = -0.1019
+meanMonth[GLOBAL_EQUITY] = (1 + -0.1019)^(1/12) - 1
+                         = (0.8981)^(0.0833) - 1
+                         = 0.9911 - 1
+                         = -0.0089 (-0.89% per month)
+
+// Convert 12-month volatility to monthly volatility
+vol12[GLOBAL_EQUITY] = 0.18 (18% annual from scenario blend)
+volMonth[GLOBAL_EQUITY] = 0.18 / sqrt(12) = 0.18 / 3.464 = 0.0520 (5.20% monthly)
+```
+
+**Step 4: Cholesky Decomposition for Correlated Returns**
+
+Assets don't move independently - they're correlated. Use Cholesky decomposition to generate correlated random shocks:
+
+```javascript
+// Correlation matrix (15x15 for all canonical buckets)
+CORRELATION = [
+  [1.00, 0.85, 0.75, ...], // GLOBAL_EQUITY correlations
+  [0.85, 1.00, 0.80, ...], // UK_EQUITY_VALUE correlations
+  [0.75, 0.80, 1.00, ...], // GROWTH_TECH correlations
+  ...
+]
+
+// Decompose into lower-triangular matrix L
+L = cholesky(CORRELATION)
+
+// To generate correlated random vector:
+// 1. Draw N independent standard normals: z ~ N(0,1)
+z = [randn(), randn(), randn(), ..., randn()] // N=15 values
+
+// 2. Multiply by Cholesky factor: z_correlated = L * z
+z_correlated = L * z
+
+// 3. Scale by volatility and add mean:
+r[bucket_i] = meanMonth[bucket_i] + volMonth[bucket_i] * z_correlated[i]
+```
+
+**Example Correlated Shock Generation:**
+
+```
+Independent draws:
+z = [0.52, -1.31, 0.85, ...]
+
+After Cholesky (accounting for 0.85 correlation between GLOBAL_EQUITY and UK_EQUITY_VALUE):
+z_correlated = [0.52, -1.08, 0.72, ...]
+
+Final monthly returns:
+r[GLOBAL_EQUITY] = -0.0089 + 0.0520 * 0.52 = -0.0089 + 0.0270 = 0.0181 (+1.81%)
+r[UK_EQUITY_VALUE] = -0.0075 + 0.0480 * -1.08 = -0.0075 + -0.0518 = -0.0593 (-5.93%)
+r[GROWTH_TECH] = -0.0112 + 0.0650 * 0.72 = -0.0112 + 0.0468 = 0.0356 (+3.56%)
+```
+
+**Step 5: Simulate Multiple Paths**
+
+Generate N paths (e.g., 5000) over H months (e.g., 12):
+
+```javascript
+for (path = 1 to N_paths) {
+  portfolioValue_Current = startValue; // £100
+  portfolioValue_Target = startValue;
+  
+  for (month = 1 to H) {
+    // Generate correlated shocks for this month
+    r = generateCorrelatedShocks(meanMonth, volMonth, CORRELATION);
+    
+    // Calculate portfolio return for current mix
+    returnCurrent = Σ (currentMix[bucket] * r[bucket])
+    
+    // Calculate portfolio return for target mix
+    returnTarget = Σ (targetMix[bucket] * r[bucket])
+    
+    // Compound portfolio values
+    portfolioValue_Current *= (1 + returnCurrent);
+    portfolioValue_Target *= (1 + returnTarget);
+    
+    // Track drawdown (for max drawdown calculation)
+    peakValue_Current = max(peakValue_Current, portfolioValue_Current);
+    currentDrawdown_Current = 1 - (portfolioValue_Current / peakValue_Current);
+    maxDrawdown_Current = max(maxDrawdown_Current, currentDrawdown_Current);
+  }
+  
+  // Store final values for this path
+  finalValues_Current[path] = portfolioValue_Current;
+  finalValues_Target[path] = portfolioValue_Target;
+  maxDrawdowns_Current[path] = maxDrawdown_Current;
+}
+```
+
+**Step 6: Calculate Risk Metrics**
+
+```javascript
+// Expected returns (deterministic, no MC needed)
+expectedReturn_Current = Σ (currentMix[bucket] * horizonReturn[bucket])
+expectedReturn_Target = Σ (targetMix[bucket] * horizonReturn[bucket])
+
+// Probability target beats current (from MC)
+probTargetBeatsCurrent = count(finalValues_Target > finalValues_Current) / N_paths
+
+// Median maximum drawdown (from MC)
+maxDrawdownMed_Current = median(maxDrawdowns_Current)
+maxDrawdownMed_Target = median(maxDrawdowns_Target)
+
+// Downside risk metrics
+probLoss_Current = count(finalReturns_Current < 0) / N_paths
+probLoss_Target = count(finalReturns_Target < 0) / N_paths
+
+// Expected Shortfall at 5% (average of worst 5% outcomes)
+worstReturns_Current = sort(finalReturns_Current)[0 : N_paths * 0.05]
+es5_Current = mean(worstReturns_Current)
+```
+
+### 6.4 Simulation Output Structure
+
+```javascript
+{
+  horizonMonths: 12,
+  expectedReturnCurrent: -0.1250, // -12.50% expected
+  expectedReturnTarget: -0.0420,  // -4.20% expected (8.3pp better)
+  diffPp: 0.0830, // 8.3 percentage points improvement
+  
+  contributionsCurrent: {
+    GLOBAL_EQUITY: -0.0660, // 30% allocation * -22% return = -6.6pp
+    PROPERTY_UK_RESI: -0.0405, // 25% allocation * -16.2% return = -4.05pp
+    CASH: 0.0000, // 15% allocation * 0% return = 0pp
+    ...
+  },
+  
+  contributionsTarget: {
+    GLOBAL_EQUITY: -0.0616, // 28% allocation * -22% return = -6.16pp
+    PROPERTY_UK_RESI: -0.0081, // 5% allocation * -16.2% return = -0.81pp
+    CASH: 0.0000, // 19.5% allocation * 0% return = 0pp
+    ...
+  },
+  
+  endValue: {
+    current: 87.50, // £1,250,000 → £1,093,750
+    target: 95.80, // £1,250,000 → £1,197,500
+    diffGBP: 103750 // £103,750 better
+  },
+  
+  endValueBand: { // Monte Carlo percentiles
+    current: { p05: 72.50, p50: 87.50, p95: 105.20 },
+    target: { p05: 82.30, p50: 95.80, p95: 112.40 }
+  },
+  
+  probTargetBeatsCurrent: 0.847, // 84.7% chance target outperforms
+  
+  maxDrawdownMed: {
+    current: 0.1850, // Median max drawdown 18.5%
+    target: 0.1125   // Median max drawdown 11.25%
+  },
+  
+  downside: {
+    probLoss: {
+      current: 0.712, // 71.2% chance of losing money
+      target: 0.458   // 45.8% chance of losing money
+    },
+    es5: {
+      current: -0.2840, // Average of worst 5% outcomes: -28.4%
+      target: -0.1950   // Average of worst 5% outcomes: -19.5%
+    }
+  },
+  
+  breakevenMonthMed: 8, // Target breaks even with current at month 8
+  
+  fan: [ // Monte Carlo fan chart (p05, p50, p95 at each time step)
+    { t: 0, current: {p05:100, p50:100, p95:100}, target: {p05:100, p50:100, p95:100} },
+    { t: 1, current: {p05:95.2, p50:99.1, p95:103.5}, target: {p05:96.8, p50:99.7, p95:103.1} },
+    ...
+    { t: 12, current: {p05:72.5, p50:87.5, p95:105.2}, target: {p05:82.3, p50:95.8, p95:112.4} }
+  ],
+  
+  stresses: [ // Pure scenario stress tests
+    {
+      id: "Debt Spiral",
+      label: "Debt Spiral",
+      retCurrent: -0.1325,
+      retTarget: -0.0840,
+      diffPp: 0.0485 // 4.85pp better in Debt Spiral
+    },
+    {
+      id: "Property Crash",
+      label: "Property Crash",
+      retCurrent: -0.1850,
+      retTarget: -0.0620,
+      diffPp: 0.1230 // 12.3pp better in Property Crash
+    }
+  ]
+}
+```
+
+---
+
+## 7. Action Plan Generation
+
+### 7.1 Overview
+
+The action plan engine translates the gap between current and target allocations into a prioritized sequence of discrete trades, accounting for liquidity constraints, transaction costs, and practical execution.
+
+**Endpoint**: `/api/actions`
+
+**File**: `server/lib/actions/engine.ts`
+
+### 7.2 Action Generation Pipeline
+
+```
+Current Mix vs Target Mix → Calculate Need per Bucket
+    ↓
+Liquidity Fix (Stage 0)
+    ↓
+Identify Trims and Adds
+    ↓
+Stage 1: Liquid Assets (immediate)
+Stage 2: Illiquid Assets (deferred)
+    ↓
+Self-Fund Each Stage
+    ↓
+Generate Action List with Rationale
+```
+
+### 7.3 Step-by-Step Logic
+
+**Step 1: Calculate Need**
+
+```javascript
+need[bucket] = target[bucket] - current[bucket]
+
+// Example:
+current = { CASH: 0.08, GLOBAL_EQUITY: 0.30, PROPERTY_UK_RESI: 0.25, ... }
+target = { CASH: 0.195, GLOBAL_EQUITY: 0.28, PROPERTY_UK_RESI: 0.05, ... }
+
+need[CASH] = 0.195 - 0.08 = +0.115 (need to ADD 11.5pp)
+need[GLOBAL_EQUITY] = 0.28 - 0.30 = -0.02 (need to TRIM 2pp)
+need[PROPERTY_UK_RESI] = 0.05 - 0.25 = -0.20 (need to TRIM 20pp)
+```
+
+**Step 2: Liquidity Fix (Priority 0)**
+
+Before any rebalancing, ensure minimum liquidity is met:
+
+```javascript
+liquidityFloor = 0.10 (10% minimum)
+currentLiquidity = current[CASH] + current[BILLS_SHORT_GILTS]
+                 = 0.08 + 0.12 = 0.20 (20% - above floor, no action needed)
+
+// If below floor:
+if (currentLiquidity < liquidityFloor) {
+  needLiq = liquidityFloor - currentLiquidity;
+  
+  // TRIM from donor order (riskiest first)
+  donors = ["GROWTH_TECH", "GLOBAL_EQUITY", "ALTERNATIVES", "PROPERTY_UK_RESI", ...]
+  
+  for (donor of donors) {
+    canGive = min(current[donor], remaining_needLiq);
+    TRIM(donor, -canGive);
+    remaining_needLiq -= canGive;
+    if (remaining_needLiq <= 0) break;
+  }
+  
+  // ADD to BILLS_SHORT_GILTS and CASH
+  ADD("BILLS_SHORT_GILTS", +needLiq * 0.6);
+  ADD("CASH", +needLiq * 0.4);
+}
+```
+
+**Step 3: Stage Actions by Liquidity**
+
+Separate actions into two stages:
+
+```javascript
+ILLIQUID_BUCKETS = [
+  "PROPERTY_UK_RESI",
+  "ALTERNATIVES",
+  "COLLECTIBLES_ART",
+  "COLLECTIBLES_WINE",
+  ...
+]
+
+for (bucket of CANONICAL_BUCKETS) {
+  if (abs(need[bucket]) < minTrade) continue; // Skip tiny moves (< 0.5pp)
+  
+  if (ILLIQUID_BUCKETS.includes(bucket)) {
+    stage2.push({ bucket, deltaPct: need[bucket] });
+  } else {
+    stage1.push({ bucket, deltaPct: need[bucket] });
+  }
+}
+
+// Limit Stage 1 to maxMoves (default 8 trades)
+stage1 = stage1.sort_by_abs_delta().slice(0, maxMoves);
+```
+
+**Step 4: Self-Fund Each Stage**
+
+Ensure adds = trims within each stage (no external cash injection):
+
+```javascript
+// Stage 1 self-funding
+adds_stage1 = sum(max(0, delta) for delta in stage1)
+trims_stage1 = sum(abs(min(0, delta)) for delta in stage1)
+
+if (adds_stage1 > trims_stage1 + 0.003) { // Tolerance 0.3pp
+  // Scale down adds proportionally
+  scaleFactor = trims_stage1 / adds_stage1;
+  for (action in stage1) {
+    if (action.delta > 0) {
+      action.delta *= scaleFactor;
+    }
+  }
+}
+
+// Net should be near zero
+netStage1 = sum(stage1.deltas)
+assert(abs(netStage1) < 0.003, "Stage 1 must be self-funded");
+```
+
+**Step 5: Generate Action List with Rationale**
+
+```javascript
+actions = [];
+
+for (action in stage1) {
+  bucket = action.bucket;
+  deltaPct = action.deltaPct;
+  amountGBP = portfolioValueGBP * deltaPct;
+  type = (deltaPct > 0) ? "ADD" : "TRIM";
+  
+  // Generate contextual rationale
+  if (type === "TRIM") {
+    rationale = `Reduce ${bucket_name} by ${abs(deltaPct)*100}pp to fund defensive positioning`;
+  } else {
+    rationale = `Increase ${bucket_name} by ${deltaPct*100}pp for ${reason}`;
+  }
+  
+  actions.push({
+    type,
+    bucket,
+    deltaPct: abs(deltaPct),
+    amountGBP: abs(amountGBP),
+    rationale,
+    stage: 1,
+    estCostPct: abs(deltaPct) * FRICTION_RATE[bucket] // e.g., 0.005 for liquid
+  });
+}
+
+// Repeat for stage 2...
+```
+
+### 7.4 Action Plan Output Structure
+
+```javascript
+{
+  summary: {
+    totalAbsChangePp: 47.5, // Total portfolio turnover (47.5pp)
+    estTurnoverPp: 23.75, // One-way turnover
+    estCostPct: 0.0012, // Estimated costs 0.12%
+    liquidityNowPct: 20.0, // Current liquidity 20%
+    liquidityTargetPct: 33.0, // Target liquidity 33%
+    liquidityFixPp: 0 // No liquidity fix needed
+  },
+  
+  staged: {
+    stage1: [ // Execute immediately (liquid assets)
+      {
+        type: "TRIM",
+        bucket: "PROPERTY_UK_RESI",
+        deltaPct: 0.20,
+        amountGBP: 250000,
+        rationale: "Reduce UK Property by 20pp to derisk against Property Crash scenario",
+        stage: 1,
+        estCostPct: 0.0010 // 0.10% transaction cost
+      },
+      {
+        type: "ADD",
+        bucket: "CASH",
+        deltaPct: 0.115,
+        amountGBP: 143750,
+        rationale: "Increase Cash by 11.5pp to enhance defensive buffer",
+        stage: 1,
+        estCostPct: 0.0001
+      },
+      {
+        type: "TRIM",
+        bucket: "GLOBAL_EQUITY",
+        deltaPct: 0.02,
+        amountGBP: 25000,
+        rationale: "Trim Global Equity by 2pp to rebalance risk exposure",
+        stage: 1,
+        estCostPct: 0.0001
+      },
+      ...
+    ],
+    
+    stage2: [ // Defer (illiquid assets)
+      {
+        type: "ADD",
+        bucket: "ALTERNATIVES",
+        deltaPct: 0.03,
+        amountGBP: 37500,
+        rationale: "Gradually build Alternatives exposure by 3pp",
+        stage: 2,
+        estCostPct: 0.0015
+      }
+    ]
+  },
+  
+  playbook: [
+    "Stage 1 (Immediate): Rebalance liquid holdings - reduce Property by 20pp, add Cash 11.5pp",
+    "Stage 2 (Deferred): Build illiquid positions gradually - add Alternatives 3pp over 6-12 months",
+    "Estimated total cost: 0.12% of portfolio (£1,500 on £1.25m)",
+    "Liquidity improves from 20% to 33% - strong defensive buffer"
+  ]
+}
+```
+
+---
+
 ## Summary
 
 This system provides a comprehensive approach to investor profiling and outcome prediction:
