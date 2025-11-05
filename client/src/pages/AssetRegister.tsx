@@ -988,6 +988,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
   const [step, setStep] = useState(1);
+  const [sourceType, setSourceType] = useState<'live' | 'semi-auto' | 'manual' | null>(null);
   
   // Listed security form state
   const [isin, setIsin] = useState('');
@@ -1146,30 +1147,104 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
           </button>
         </div>
 
-        {/* Category Tiles */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {categories.map((cat) => {
-            const IconComponent = cat.Icon;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setCategory(cat.id)}
-                className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)] bg-[var(--primary)]/5' : 'border-[var(--border)]'} bg-[var(--card)]`}
-                data-testid={`tile-${cat.id}`}
-              >
-                <div className="relative z-10">
-                  <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
-                  <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
+        {/* Source Selection (Listed Securities Only) - shown first when Listed is selected */}
+        {category === 'listed' && !sourceType && (
+          <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] overflow-hidden shadow-sm mb-6">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">Select source</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Choose how you want to add this position. This affects automation and data provenance.
+                  </p>
                 </div>
-                <div className="absolute bottom-3 right-3 text-[var(--primary)] opacity-20">
-                  <IconComponent className="h-12 w-12" />
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                <button 
+                  onClick={() => setCategory('listed')}
+                  className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                  data-testid="button-change-category"
+                >
+                  Change category
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                <button
+                  onClick={() => setSourceType('live')}
+                  className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                  data-testid="source-live"
+                >
+                  <div className="text-center">
+                    <div className="text-3xl mb-3">⚡</div>
+                    <h4 className="font-semibold text-[var(--foreground)] mb-2">Connect broker</h4>
+                    <p className="text-xs text-[var(--muted-foreground)]">
+                      Positions & prices update automatically (demo: simulated connection)
+                    </p>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setSourceType('semi-auto')}
+                  className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                  data-testid="source-semi-auto"
+                >
+                  <div className="text-center">
+                    <div className="text-3xl mb-3">⤿</div>
+                    <h4 className="font-semibold text-[var(--foreground)] mb-2">Import CSV</h4>
+                    <p className="text-xs text-[var(--muted-foreground)]">
+                      Prices/FX auto; positions from CSV or manual entry
+                    </p>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setSourceType('manual')}
+                  className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                  data-testid="source-manual"
+                >
+                  <div className="text-center">
+                    <div className="text-3xl mb-3">✍</div>
+                    <h4 className="font-semibold text-[var(--foreground)] mb-2">Enter manually</h4>
+                    <p className="text-xs text-[var(--muted-foreground)]">
+                      Entered by you; attach evidence for defensibility
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Tiles - shown only when not in Listed source selection mode */}
+        {!(category === 'listed' && !sourceType) && (
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {categories.map((cat) => {
+              const IconComponent = cat.Icon;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setCategory(cat.id);
+                    setSourceType(null); // Reset source type
+                    setStep(1); // Reset to step 1
+                  }}
+                  className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)] bg-[var(--primary)]/5' : 'border-[var(--border)]'} bg-[var(--card)]`}
+                  data-testid={`tile-${cat.id}`}
+                >
+                  <div className="relative z-10">
+                    <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
+                  </div>
+                  <div className="absolute bottom-3 right-3 text-[var(--primary)] opacity-20">
+                    <IconComponent className="h-12 w-12" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Stepper Panel */}
+        {(category !== 'listed' || sourceType) && (
         <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] overflow-hidden shadow-sm">
           <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-3">
@@ -1204,18 +1279,31 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
             )}
             {category === 'listed' && (
               <div className="space-y-6">
-                {/* Semi-auto badge */}
-                <div className="flex items-center gap-2 mb-4">
+                {/* Source badge */}
+                <div className="flex items-center justify-between mb-4">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--foreground)]">
-                        <span>⤿</span> Semi-auto
+                        <span>{sourceType === 'live' ? '⚡' : sourceType === 'semi-auto' ? '⤿' : '✍'}</span>
+                        {sourceType === 'live' ? 'Live' : sourceType === 'semi-auto' ? 'Semi-auto' : 'Manual'}
                       </span>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
-                      <p className="text-xs">Prices/FX may update automatically in future. Positions are entered by you; reconcile with statements.</p>
+                      <p className="text-xs">
+                        {sourceType === 'live' && 'Positions & prices update automatically via connected broker.'}
+                        {sourceType === 'semi-auto' && 'Prices/FX may update automatically in future. Positions are entered by you; reconcile with statements.'}
+                        {sourceType === 'manual' && 'Entered by you; attach evidence for defensibility.'}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
+                  
+                  <button
+                    onClick={() => { setSourceType(null); setStep(1); }}
+                    className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                    data-testid="button-change-source"
+                  >
+                    Change source
+                  </button>
                 </div>
 
                 {/* Step 1: Identify */}
@@ -1889,6 +1977,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* Command Palette */}

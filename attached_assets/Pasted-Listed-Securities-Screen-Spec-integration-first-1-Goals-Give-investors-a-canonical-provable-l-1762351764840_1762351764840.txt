@@ -1,0 +1,262 @@
+Listed Securities — Screen Spec (integration-first)
+1) Goals
+
+Give investors a canonical, provable line for every listed fund/ETF/share.
+
+Default to integration (live prices/FX; connected positions where possible), fall back to CSV or manual without breaking the evidential story.
+
+2) Where listed securities appear
+
+Holdings Register (table row)
+
+Holding Detail Drawer (opens from “View”)
+
+Add Listed Security (Classic & Creative intake screens)
+
+3) Holdings Register — row requirements
+3.1 Columns (include the new “Source” column)
+
+Order:
+
+Asset — “Name (share class)”
+
+Sub-label: “Fund / ETF / Share • Accumulating | Distributing”.
+
+Identifier — ISIN (preferred). If only ticker is known, show ticker; if both, show ISIN and surface ticker in the drawer.
+
+Custodian — Broker/platform (e.g., Vanguard, AJ Bell).
+
+Wrapper — Tag: ISA / SIPP / GIA / Personal.
+
+Units — to 6 dp supported.
+
+Cost (GBP) — total cost incl. fees.
+
+Price — end-of-day price in GBP; show “—” if not available.
+
+Value (GBP) — Units × Price (or “—” if unknown).
+
+Return — “IRR X%” or “TWR X%” (demo text acceptable).
+
+Bucket — e.g., Global Equity / Global Bonds / Other.
+
+Tax / Relief — “Accumulating” or “Dividends” (for Distributing). (Remain UK aware.)
+
+Evidence — status pill: On file / Missing / Valuation due.
+
+Completeness — % pill with mini bar.
+
+Source — ⚡ Live | ⤿ Semi-auto | ✍ Manual.
+
+Actions — “View”.
+
+3.2 Legend chips (top-right above the table)
+
+⚡ Live — “Positions & prices update automatically.”
+
+⤿ Semi-auto — “Prices/FX auto; positions from CSV or manual.”
+
+✍ Manual — “Entered by you; attach evidence.”
+
+3.3 Behaviour
+
+Live rows refresh price/FX and positions (conceptually; demo may be static).
+
+Semi-auto rows refresh price/FX; units/cost come from CSV/manual; mark Source accordingly.
+
+Manual rows rely on user values; price may be blank.
+
+4) Holding Detail Drawer — requirements
+4.1 Header
+
+Title: Instrument name (class).
+
+Right-side badges:
+
+Wrapper tag (ISA/SIPP/GIA/Personal).
+
+Source pill (⚡/⤿/✍).
+
+Optional link text: “Open in custodian (demo)” (no action in prototype).
+
+4.2 Layout (two columns)
+
+Left card — Position
+
+Units
+
+Price (GBP, with tiny “EOD” label)
+
+Market value (GBP)
+
+Cost basis (GBP)
+
+Unrealised G/L (GBP and %) with green/red tone
+
+Bucket
+
+Right card — Compliance
+
+Evidence state (On file / Missing / Valuation due)
+
+Tax treatment (Accumulating | Distributing with “Dividends” note)
+
+Valuation date (price as-at)
+
+Identifier block: ISIN (bold), Ticker, MIC/Exchange (if available)
+
+Row below — Targets & Bands
+
+Target %, Current %, Status line (In band / +X% over with a suggested action)
+
+Row below — Performance (demo)
+
+IRR (since inception), TWR (1y), Since last top-up
+
+New mini block — Provenance
+
+Price source: “EOD market data (demo)”
+
+FX source: “ECB (demo)” (only if non-GBP)
+
+Position source: “⚡ Connected broker” | “⤿ CSV upload” | “✍ Manual entry”
+
+Evidence: “Statement on file” | “Missing”
+
+4.3 Interactions
+
+“✕” closes the drawer.
+
+If Source = ⚡ Live, show a subtle line under Position: “Connected: Vanguard ISA (read-only)”.
+
+If Source = ⤿ Semi-auto, show: “Positions from CSV uploaded Oct 2025”.
+
+5) Add Listed Security — intake screens
+5.1 Source selection (first choice on both Add pages)
+
+A three-option selector shown before instrument details:
+
+⚡ Connect broker/platform (OAuth/connect modal in future; in demo, show a mocked “Connected” state)
+
+⇪ Import CSV (shows a two-field mapping step in demo: ISIN/Ticker, Units, Cost)
+
+✍ Enter manually
+
+The chosen Source is carried through, shown as a pill beside the form title, and written to the register row.
+
+5.2 Identify (Step 1 in Creative; Section 1 in Classic)
+
+Wrapper (required) — ISA / SIPP / GIA / Personal
+
+Custodian / Broker (required) — free text with suggestions
+
+Account / Label (optional)
+
+Identifier (required: ISIN preferred; Ticker accepted if ISIN unknown)
+
+Name (auto from identifier, editable in demo)
+
+Distribution type (required) — Accumulating / Distributing
+
+Bucket (required) — Global Equity / Global Bonds / Other
+
+5.3 Position (Step 2)
+
+If Source = ⚡ Connect → Units, Cost basis, Trade dates prefilled & read-only (demo: show locked inputs with a small lock icon).
+
+If Source = ⇪ CSV → show a slim mapping preview, then prefill Units/Cost; fields remain editable.
+
+If Source = ✍ Manual → all fields editable.
+
+Units / Shares (required)
+
+Price (GBP) (auto for ⚡/⤿; optional for ✍)
+
+Value (GBP) (computed)
+
+Cost basis (GBP) (optional)
+
+Trade/Acquisition date (optional)
+
+Valuation date (defaults to today)
+
+5.4 Evidence (Step 3)
+
+Evidence state (required) — On file / Missing
+
+Evidence type (required if On file) — Contract note / Broker statement / Screenshot / Other
+
+Reference (optional) — free text
+
+Reminder (optional) — None / Quarterly / Annually
+
+5.5 Save behaviour (demo)
+
+Creates a new table row with all standard columns populated, Source set from selection.
+
+If Source = ⚡ Live: append a tiny lock icon to Units and Cost cells in the drawer to indicate read-only provenance.
+
+Show toast:
+
+“Added via Live connection”
+
+“Imported from CSV”
+
+“Added manually”
+
+6) Validation (plain English)
+
+Wrapper, Custodian, Distribution type, Bucket are required.
+
+Identifier: ISIN (12-char, alphanumeric) preferred; otherwise Ticker (1–12 chars).
+
+Units: > 0; up to 6 decimals.
+
+Price: ≥ 0 (may be blank for ✍ Manual).
+
+Valuation date: not in the future (today allowed).
+
+Evidence: if “On file”, Evidence type required.
+
+Source-specific:
+
+⚡ Connect: Units/Cost read-only (no edits).
+
+⇪ CSV: allow edits; still mark Source = ⤿ Semi-auto.
+
+✍ Manual: normal validation.
+
+7) Completeness scoring (for the register pill)
+
+30% core metadata (Wrapper, Custodian, Identifier, Name, Distribution, Bucket)
+
+40% position & dating (Units, Price or Valuation date)
+
+30% evidence (On file + Evidence type)
+Display as “95%” with a mini progress bar.
+
+8) Filters & search
+
+Add a Source filter above the table: All | ⚡ Live | ⤿ Semi-auto | ✍ Manual.
+
+Global search (header) must match by Name, ISIN, Ticker, Custodian.
+
+9) Product tour hooks (so the walkthrough covers this)
+
+Holdings table → Listed row: explain Identifier, Wrapper, Evidence, Completeness, Source.
+
+View → Drawer: highlight Provenance and Position blocks.
+
+Add → Listed: first step is Source selection, then Identify → Position → Evidence.
+
+10) Acceptance criteria
+
+The Holdings table includes the Source column and legend chips; at least one listed row for each state: ⚡ Live, ⤿ Semi-auto, ✍ Manual.
+
+The Drawer shows Provenance with Price/FX/Position/Evidence sources.
+
+The Add Listed Security flow starts with Source selection and sets the correct Source pill in the drawer and the table.
+
+Completeness and Evidence render exactly as specified.
+
+Print view unchanged.
