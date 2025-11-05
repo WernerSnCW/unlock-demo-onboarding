@@ -1,0 +1,259 @@
+Objective
+
+Turn Transactions into an audit-ready ledger that:
+
+shows all economic events (not just buys/sells),
+
+lets users ingest activity by Live, CSV, OCR from Documents, or Manual,
+
+links every row to Evidence, Account/Wrapper, Holdings, and Cash impact, and
+
+supports reconciliation & cost basis later.
+
+A) Transactions tab – UI changes
+A1) Toolbar (above the table)
+
+Add a horizontal bar with:
+
+Filters: Type (multi), Account, Wrapper, Period (date range), Source (Live/CSV/OCR/Manual), Reconciled (Yes/No).
+
+Primary button: Add / Import (opens a small menu with the 4 routes below).
+
+Secondary: Export CSV.
+
+(Use the existing pill/button styles; same visual as tab chips.)
+
+A2) Table columns (replace current header)
+
+Order:
+
+Trade date
+
+Settle date
+
+Type (Buy/Sell/Dividend/Interest/Fee/Tax/Transfer/Contribution/Withdrawal/Corporate Action/Bond Buy/Sell, Derivative Event)
+
+Identifier (ISIN/ticker or wallet/tx hash)
+
+Asset (name)
+
+Account (custodian account name)
+
+Wrapper (ISA/SIPP/GIA/Personal)
+
+Quantity / Nominal / Contracts (contextual label)
+
+Price (trade ccy)
+
+Trade ccy
+
+FX→GBP (if ccy ≠ GBP)
+
+Gross
+
+Fees
+
+Tax
+
+Net amount (cash impact)
+
+Source (⚡/⤿/📎/✍)
+
+Reconciled (chip Yes/No)
+
+Evidence (link)
+
+Keep sticky first column and compact row padding you already use.
+
+A3) Row badges & semantics
+
+Type is a small pill (e.g., BUY (green), SELL (red), DIV (blue), FEE (grey), TAX (amber), TRANSFER (purple), CORP ACTN (teal), BOND BUY/SELL, DERIV).
+
+Source shows: ⚡ Live, ⤿ CSV, 📎 OCR, ✍ Manual.
+
+Reconciled shows Yes/No (driven by link to a statement covering the trade’s settle date).
+
+A4) Transaction drawer (on row click → “View”)
+
+Two-column layout (reuse .drawer pattern):
+
+Left card — Details
+
+Type, Trade date, Settle date
+
+Instrument (ISIN/ticker + name)
+
+Account + Wrapper
+
+Quantity/Nominal/Contracts, Price, Trade ccy, FX→GBP
+
+Gross, Fees, Tax, Net amount (cash impact)
+
+Cash account impacted (readable text)
+
+Right card — Evidence & provenance
+
+Evidence: linked PDF/CSV (open lightbox)
+
+Source: ⚡/⤿/📎/✍ with tooltip (“Read-only from broker” etc.)
+
+Broker ref (if provided)
+
+Reconciled: Yes/No (+ which statement links this)
+
+Notes (small free text)
+
+Footer: Edit (enabled only for CSV/Manual/OCR) • Open holding (navigates to the asset drawer).
+
+B) Ingestion routes (the “Add / Import” menu)
+B1) ⚡ Live (preferred, where available)
+
+Flow: Connect broker (existing) → Pick accounts (existing) → New: Import transactions
+
+Screen: “Import transactions”
+
+Period selector: From/To (default last 90 days).
+
+Table preview with Include/Merge/Ignore.
+
+Columns (read-only from broker): Date, Type, Identifier, Asset, Account, Wrapper (editable), Qty/Nominal/Contracts, Price, Ccy, FX, Gross, Fees, Tax, Net, Broker ref.
+
+CTA: Import n transactions.
+
+Result:
+
+Create rows with Source = ⚡ Live.
+
+Lock fields in the drawer (edit disabled except Wrapper if needed).
+
+Auto-link to the Cash account of the same broker account.
+
+De-dupe rule (apply on import): broker_ref OR (trade_date + type + identifier + account + quantity + net_amount).
+
+B2) ⤿ CSV import
+
+Flow: Upload → Detect template → Map fields → Review → Import
+
+Supported demo templates in dropdown: AJ Bell, Hargreaves Lansdown, interactive investor, Vanguard, Generic.
+
+Mapper must capture: Trade date, Settle date, Type, Identifier, Name, Account, Wrapper, Qty/Nominal/Contracts, Price, Trade ccy, FX, Gross, Fees, Tax, Net, Broker ref.
+
+Normalise signs (e.g., SELL often negative quantity, dividends positive net).
+
+After mapping, show the same Review table & de-dupe logic as Live.
+
+Result rows: Source = ⤿ CSV (editable).
+
+B3) 📎 From Documents (OCR)
+
+Entry points:
+
+From Documents card: “Extract transactions”
+
+From Transactions toolbar: “From a statement/contract note”
+
+Flow: Pick document → Parse preview → Confirm mappings → Import
+
+Link the resulting rows to that document id and mark Evidence = Strong.
+
+Source = 📎 OCR (editable).
+
+B4) ✍ Manual (edge cases)
+
+Small modal with Type first; fields change by type:
+
+Buy/Sell (listed) → Identifier, Name, Account, Wrapper, Quantity, Price, Trade ccy, FX, Gross, Fees, Tax, Net (auto calc allowed), Trade & Settle dates.
+
+Dividend/Interest → Identifier/Name (or Cash account), Account, Wrapper, Net amount, Trade/Pay date, Ccy/FX, Reinvested? (Yes creates a matching Buy).
+
+Fee/Charge/Tax → Account, Wrapper, Amount, Date, Ccy/FX, Fee type (commission, custody, FX, stamp, PTM).
+
+Transfer/Contribution/Withdrawal → From/To account, Amount, Date, Ccy/FX.
+
+Corporate action → subtype (split/consolidation/merger/spin-off/rights/scrip), key parameters.
+
+Bond buy/sell → add Nominal, Clean/Dirty price, Accrued interest.
+
+Derivative event → open/close/exercise/assignment/expiry, Contracts, Strike, Put/Call, Multiplier.
+
+All manual rows: Source = ✍ Manual.
+
+C) Canonical transaction fields (backing model)
+trade_date, settle_date, type, sub_type,
+account_id, account_name, wrapper,
+instrument_id, instrument_name,
+quantity, nominal, contracts,
+price, trade_ccy, fx_to_gbp,
+gross_amount, fees, tax, net_amount,
+cash_account_id,
+broker_ref, evidence_doc_id,
+source (live|csv|ocr|manual),
+reconciled (bool), created_at
+
+
+Display rules:
+
+Show Quantity or Nominal or Contracts based on type.
+
+Net amount sign = cash direction for the account.
+
+D) Validation & de-dupe
+
+Dates: settle ≥ trade (except some corporate actions).
+
+FX: required when trade ccy ≠ GBP (CSV/Manual/OCR).
+
+Bond buys/sells: accrued ≥ 0; nominal > 0.
+
+Manual dividends: if “Reinvested”, create a matching Buy (link the pair).
+
+De-dupe: before insert, try broker_ref; if absent, match on (trade_date, type, instrument_id, account_id, quantity|nominal|contracts, net_amount) within ±2 days on settle.
+
+E) Reconciliation hooks
+
+A transaction row is Reconciled = Yes when its settle date falls inside a statement period linked to the same account in the Reconciliation tab and sum of cash deltas matches the statement total.
+
+Show a “Mark period reconciled” action in Reconciliation once:
+
+statement is linked and
+
+∑ (Net amount for period & account) + starting cash = ending cash.
+
+F) Acceptance criteria (tick-list)
+
+Toolbar shows Filters and Add / Import menu.
+
+Table includes Settle date, Account, Trade ccy, FX, Gross/Fees/Tax/Net, Source, Reconciled.
+
+Clicking a row opens a Transaction drawer with Details + Evidence/Provenance.
+
+Live import exists (mocked), with Period selector and Review table; imports as ⚡ Live and is read-only (except wrapper).
+
+CSV import exists with a mapping step and a generic + named templates; imports as ⤿ CSV.
+
+OCR import exists from a Docs card; imports as 📎 OCR and links the doc.
+
+Manual add supports all listed types; imports as ✍ Manual.
+
+De-duplication prevents duplicates across all routes.
+
+Reconciled column updates to Yes once a statement is linked and totals match in Reconciliation.
+
+Export still works and reflects new columns.
+
+G) Microcopy (paste-ready)
+
+Add / Import menu items:
+“⚡ Live (from connected broker)” • “⤿ CSV file” • “📎 From a document (OCR)” • “✍ Manual entry”
+
+Live import header: “Import transactions — read-only from your broker.”
+Help text: “Pick a period, review what we found, then import. Holdings and cash will update automatically.”
+
+CSV mapping helper: “Map columns to Unlock fields. We’ll normalise signs, parse fees and taxes, and link to the right account.”
+
+OCR helper: “We’ll parse this statement/contract note and show you the transactions to confirm.”
+
+Reconciled tooltip: “This transaction is covered by a linked statement for the period.”
+
+Source tooltips:
+⚡ “From broker connection (read-only)” • ⤿ “From CSV” • 📎 “From uploaded document (OCR)” • ✍ “Typed in manually”

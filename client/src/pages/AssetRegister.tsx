@@ -631,61 +631,218 @@ function TargetsTab() {
 }
 
 function TransactionsTab({ density }: any) {
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  
+  const getTypeStyle = (type: string) => {
+    switch(type.toUpperCase()) {
+      case 'BUY':
+        return 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20';
+      case 'SELL':
+        return 'bg-[var(--destructive)]/10 text-[var(--destructive)] border-[var(--destructive)]/20';
+      case 'DIVIDEND':
+      case 'INTEREST':
+        return 'bg-[var(--info)]/10 text-[var(--info)] border-[var(--info)]/20';
+      case 'FEE':
+      case 'CHARGE':
+        return 'bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]';
+      case 'TAX':
+        return 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20';
+      case 'TRANSFER':
+      case 'CONTRIBUTION':
+      case 'WITHDRAWAL':
+        return 'bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/20';
+      case 'CORP ACTN':
+        return 'bg-[var(--secondary)]/10 text-[var(--secondary)] border-[var(--secondary)]/20';
+      default:
+        return 'bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]';
+    }
+  };
+
+  const getSourceIcon = (source: string) => {
+    switch(source) {
+      case 'live': return '⚡';
+      case 'csv': return '⤿';
+      case 'ocr': return '📎';
+      case 'manual': return '✍';
+      default: return '';
+    }
+  };
+  
   const transactions = [
-    { date: '28 Oct 2025', action: 'Buy', identifier: 'IE00B5BMR087', asset: 'Vanguard FTSE Global', units: '45.50', price: '£42.10', fees: '£0.00', tax: '£0.00', net: '£1,915.55', broker: 'Vanguard', wrapper: 'ISA', evidence: 'Contract note' },
-    { date: '15 Oct 2025', action: 'Buy', identifier: 'IE00B1S75N64', asset: 'Vanguard Bond Index', units: '25.00', price: '£24.50', fees: '£3.50', tax: '£0.00', net: '£616.00', broker: 'AJ Bell', wrapper: 'SIPP', evidence: 'Contract note' },
-    { date: '01 Oct 2025', action: 'Sell', identifier: 'GB0031348658', asset: 'HSBC Holdings', units: '150', price: '£6.82', fees: '£5.00', tax: '£12.30', net: '£1,005.70', broker: 'Trading 212', wrapper: 'GIA', evidence: 'Contract note' },
+    { tradeDate: '28 Oct 2025', settleDate: '30 Oct 2025', type: 'Buy', identifier: 'IE00B5BMR087', asset: 'Vanguard FTSE Global', account: 'Vanguard ISA', wrapper: 'ISA', quantity: '45.50', price: '£42.10', tradeCcy: 'GBP', fxRate: '—', gross: '£1,915.55', fees: '£0.00', tax: '£0.00', net: '£1,915.55', source: 'live', reconciled: true, evidence: 'Statement' },
+    { tradeDate: '22 Oct 2025', settleDate: '24 Oct 2025', type: 'Dividend', identifier: 'IE00B3RBWM25', asset: 'Vanguard All-World ETF', account: 'Vanguard ISA', wrapper: 'ISA', quantity: '—', price: '—', tradeCcy: 'GBP', fxRate: '—', gross: '£124.50', fees: '£0.00', tax: '£0.00', net: '£124.50', source: 'live', reconciled: true, evidence: 'Statement' },
+    { tradeDate: '15 Oct 2025', settleDate: '17 Oct 2025', type: 'Buy', identifier: 'IE00B1S75N64', asset: 'Vanguard Bond Index', account: 'AJ Bell SIPP', wrapper: 'SIPP', quantity: '25.00', price: '£24.50', tradeCcy: 'GBP', fxRate: '—', gross: '£612.50', fees: '£3.50', tax: '£0.00', net: '£616.00', source: 'csv', reconciled: true, evidence: 'Contract note' },
+    { tradeDate: '10 Oct 2025', settleDate: '12 Oct 2025', type: 'Fee', identifier: '—', asset: 'Platform fee', account: 'AJ Bell SIPP', wrapper: 'SIPP', quantity: '—', price: '—', tradeCcy: 'GBP', fxRate: '—', gross: '£0.00', fees: '£12.50', tax: '£0.00', net: '£12.50', source: 'csv', reconciled: true, evidence: 'Statement' },
+    { tradeDate: '01 Oct 2025', settleDate: '03 Oct 2025', type: 'Sell', identifier: 'GB0031348658', asset: 'HSBC Holdings', account: 'Trading 212 GIA', wrapper: 'GIA', quantity: '150', price: '£6.82', tradeCcy: 'GBP', fxRate: '—', gross: '£1,023.00', fees: '£5.00', tax: '£12.30', net: '£1,005.70', source: 'manual', reconciled: false, evidence: 'Missing' },
+    { tradeDate: '28 Sep 2025', settleDate: '30 Sep 2025', type: 'Interest', identifier: '—', asset: 'Cash ISA interest', account: 'HSBC Cash ISA', wrapper: 'ISA', quantity: '—', price: '—', tradeCcy: 'GBP', fxRate: '—', gross: '£42.15', fees: '£0.00', tax: '£0.00', net: '£42.15', source: 'ocr', reconciled: true, evidence: 'Statement' },
   ];
 
-  const rowPadding = density === 'compact' ? 'py-2 px-3' : 'py-3 px-4';
+  const rowPadding = density === 'compact' ? 'py-2 px-2' : 'py-3 px-3';
 
   return (
-    <div id="tour-transactions-table">
-      <div className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm mb-4">
-        <table className="w-full border-collapse">
+    <div id="tour-transactions-table" className="space-y-4">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-4 p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+        {/* Filters */}
+        <div className="flex items-center gap-2 flex-wrap flex-1">
+          <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
+            <option>All types</option>
+            <option>Buy/Sell</option>
+            <option>Dividend/Interest</option>
+            <option>Fee/Tax</option>
+            <option>Transfer</option>
+          </select>
+          <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
+            <option>All accounts</option>
+            <option>Vanguard ISA</option>
+            <option>AJ Bell SIPP</option>
+            <option>Trading 212 GIA</option>
+          </select>
+          <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
+            <option>All wrappers</option>
+            <option>ISA</option>
+            <option>SIPP</option>
+            <option>GIA</option>
+          </select>
+          <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
+            <option>Oct 2025</option>
+            <option>Sep 2025</option>
+            <option>Q3 2025</option>
+            <option>All time</option>
+          </select>
+          <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
+            <option>All sources</option>
+            <option>⚡ Live</option>
+            <option>⤿ CSV</option>
+            <option>📎 OCR</option>
+            <option>✍ Manual</option>
+          </select>
+          <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
+            <option>All reconciled</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowAddMenu(!showAddMenu)}
+              className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity flex items-center gap-2"
+            >
+              <span>Add / Import</span>
+              <span className="text-xs">▼</span>
+            </button>
+            {showAddMenu && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-10">
+                <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
+                  <div className="font-semibold mb-1">⚡ Live (from connected broker)</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">Read-only from your broker</div>
+                </button>
+                <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
+                  <div className="font-semibold mb-1">⤿ CSV file</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">Upload exported transactions</div>
+                </button>
+                <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
+                  <div className="font-semibold mb-1">📎 From a document (OCR)</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">Extract from statement</div>
+                </button>
+                <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                  <div className="font-semibold mb-1">✍ Manual entry</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">Type in manually</div>
+                </button>
+              </div>
+            )}
+          </div>
+          <button className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm">
+        <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Trade Date</th>
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Action</th>
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Identifier</th>
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
-              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
-              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price</th>
-              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Fees</th>
-              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Tax</th>
-              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Net Amount</th>
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Broker</th>
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
-              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium sticky left-0 bg-[var(--muted)] z-10`}>Trade Date</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Settle Date</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Type</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Identifier</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Asset</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Account</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
+              <th className={`${rowPadding} text-right text-[var(--muted-foreground)] font-medium`}>Quantity</th>
+              <th className={`${rowPadding} text-right text-[var(--muted-foreground)] font-medium`}>Price</th>
+              <th className={`${rowPadding} text-center text-[var(--muted-foreground)] font-medium`}>Trade Ccy</th>
+              <th className={`${rowPadding} text-center text-[var(--muted-foreground)] font-medium`}>FX→GBP</th>
+              <th className={`${rowPadding} text-right text-[var(--muted-foreground)] font-medium`}>Gross</th>
+              <th className={`${rowPadding} text-right text-[var(--muted-foreground)] font-medium`}>Fees</th>
+              <th className={`${rowPadding} text-right text-[var(--muted-foreground)] font-medium`}>Tax</th>
+              <th className={`${rowPadding} text-right text-[var(--muted-foreground)] font-medium`}>Net Amount</th>
+              <th className={`${rowPadding} text-center text-[var(--muted-foreground)] font-medium`}>Source</th>
+              <th className={`${rowPadding} text-center text-[var(--muted-foreground)] font-medium`}>Reconciled</th>
+              <th className={`${rowPadding} text-left text-[var(--muted-foreground)] font-medium`}>Evidence</th>
             </tr>
           </thead>
           <tbody>
             {transactions.map((tx, idx) => (
-              <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors" data-testid={`row-transaction-${idx}`}>
-                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.date}</td>
+              <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors cursor-pointer" data-testid={`row-transaction-${idx}`}>
+                <td className={`${rowPadding} text-[var(--foreground)] sticky left-0 bg-[var(--card)] z-10`}>{tx.tradeDate}</td>
+                <td className={`${rowPadding} text-[var(--muted-foreground)]`}>{tx.settleDate}</td>
                 <td className={rowPadding}>
-                  <span className={`px-2 py-1 rounded-full text-xs ${tx.action === 'Buy' ? 'bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20' : 'bg-[var(--destructive)]/10 text-[var(--destructive)] border border-[var(--destructive)]/20'}`}>
-                    {tx.action}
+                  <span className={`px-2 py-0.5 rounded-full border ${getTypeStyle(tx.type)}`}>
+                    {tx.type.toUpperCase()}
                   </span>
                 </td>
-                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.identifier}</td>
-                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.asset}</td>
-                <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{tx.units}</td>
-                <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{tx.price}</td>
-                <td className={`${rowPadding} text-right text-sm text-[var(--muted-foreground)]`}>{tx.fees}</td>
-                <td className={`${rowPadding} text-right text-sm text-[var(--muted-foreground)]`}>{tx.tax}</td>
-                <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{tx.net}</td>
-                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.broker}</td>
+                <td className={`${rowPadding} text-[var(--muted-foreground)] font-mono`}>{tx.identifier}</td>
+                <td className={`${rowPadding} text-[var(--foreground)]`}>{tx.asset}</td>
+                <td className={`${rowPadding} text-[var(--muted-foreground)]`}>{tx.account}</td>
                 <td className={rowPadding}><WrapperTag wrapper={tx.wrapper} /></td>
-                <td className={`${rowPadding} text-sm text-[var(--muted-foreground)]`}>{tx.evidence}</td>
+                <td className={`${rowPadding} text-right text-[var(--foreground)]`}>{tx.quantity}</td>
+                <td className={`${rowPadding} text-right text-[var(--foreground)]`}>{tx.price}</td>
+                <td className={`${rowPadding} text-center text-[var(--muted-foreground)]`}>{tx.tradeCcy}</td>
+                <td className={`${rowPadding} text-center text-[var(--muted-foreground)]`}>{tx.fxRate}</td>
+                <td className={`${rowPadding} text-right text-[var(--foreground)]`}>{tx.gross}</td>
+                <td className={`${rowPadding} text-right text-[var(--muted-foreground)]`}>{tx.fees}</td>
+                <td className={`${rowPadding} text-right text-[var(--muted-foreground)]`}>{tx.tax}</td>
+                <td className={`${rowPadding} text-right text-[var(--foreground)] font-semibold`}>{tx.net}</td>
+                <td className={`${rowPadding} text-center`}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-base cursor-help">{getSourceIcon(tx.source)}</span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">
+                        {tx.source === 'live' && 'From broker connection (read-only)'}
+                        {tx.source === 'csv' && 'From CSV'}
+                        {tx.source === 'ocr' && 'From uploaded document (OCR)'}
+                        {tx.source === 'manual' && 'Typed in manually'}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </td>
+                <td className={rowPadding}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${
+                    tx.reconciled
+                      ? 'bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20'
+                      : 'bg-[var(--warning)]/10 text-[var(--warning)] border border-[var(--warning)]/20'
+                  }`}>
+                    {tx.reconciled ? 'Yes' : 'No'}
+                  </span>
+                </td>
+                <td className={`${rowPadding} text-[var(--muted-foreground)]`}>{tx.evidence}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Footer note */}
       <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm">
         <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-          <strong className="text-[var(--foreground)]">Auditability note:</strong> All transactions are recorded for Section 104 pooling calculations and CGT reporting. ISA and SIPP transactions are exempt from capital gains tax.
+          <strong className="text-[var(--foreground)]">Audit-ready ledger:</strong> All economic events are recorded for Section 104 pooling, cost basis tracking, and CGT reporting. ISA and SIPP transactions are exempt from capital gains tax. Source indicators: ⚡ Live (read-only from broker) • ⤿ CSV • 📎 OCR • ✍ Manual
         </p>
       </div>
     </div>
