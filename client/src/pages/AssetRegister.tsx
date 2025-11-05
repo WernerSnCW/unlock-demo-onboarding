@@ -989,6 +989,17 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
   const [step, setStep] = useState(1);
   const [sourceType, setSourceType] = useState<'live' | 'semi-auto' | 'manual' | null>(null);
+  const [liveStep, setLiveStep] = useState(1); // For Live flow: 1=Connect, 2=Choose accounts, 3=Review holdings, 4=Summary
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const [selectedHoldings, setSelectedHoldings] = useState<string[]>([]);
+  
+  // Demo Live holdings data
+  const demoLiveHoldings = [
+    { id: '1', name: 'Vanguard FTSE All-World UCITS ETF (Acc)', isin: 'IE00B3RBWM25', ticker: 'VWRL', account: 'Vanguard ISA', wrapper: 'ISA', units: '1250.5', bookCost: '98750.50', currency: 'GBP', price: '85.42', value: '106,825.21', lastUpdated: '2025-11-05 14:30' },
+    { id: '2', name: 'iShares Core MSCI World UCITS ETF', isin: 'IE00B4L5Y983', ticker: 'SWDA', account: 'Vanguard ISA', wrapper: 'ISA', units: '580', bookCost: '38500', currency: 'GBP', price: '72.15', value: '41,847', lastUpdated: '2025-11-05 14:30' },
+    { id: '3', name: 'Vanguard FTSE Developed World UCITS ETF', isin: 'IE00BK5BQT80', ticker: 'VEVE', account: 'Vanguard GIA', wrapper: 'GIA', units: '320', bookCost: '20800', currency: 'GBP', price: '68.90', value: '22,048', lastUpdated: '2025-11-05 14:30' },
+    { id: '4', name: 'iShares Core UK Gilts UCITS ETF (closed)', isin: 'IE00B1FZS350', ticker: 'IGLT', account: 'Vanguard ISA', wrapper: 'ISA', units: '0', bookCost: '0', currency: 'GBP', price: '0', value: '0', lastUpdated: '2025-10-15 09:00' },
+  ];
   
   // Listed security form state
   const [isin, setIsin] = useState('');
@@ -1171,17 +1182,8 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 <button
                   onClick={() => {
                     setSourceType('live');
-                    // Pre-fill demo data for Live connection
-                    setIsin('IE00B3RBWM25');
-                    setSecurityName('Vanguard FTSE All-World UCITS ETF (Acc)');
-                    setCustodian('Vanguard Investor UK');
-                    setWrapper('ISA');
-                    setDistributionType('Accumulating');
-                    setBucket('Global Equity');
-                    setUnits('1250.5');
-                    setPrice('85.42');
-                    setCostBasis('98750.50');
-                    setTradeDate('2023-01-15');
+                    setLiveStep(3); // Jump to Review holdings (simulating already connected)
+                    setSelectedHoldings(['1', '2', '3']); // Pre-select active holdings
                   }}
                   className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
                   data-testid="source-live"
@@ -1190,7 +1192,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                     <div className="text-3xl mb-3">⚡</div>
                     <h4 className="font-semibold text-[var(--foreground)] mb-2">Connect broker</h4>
                     <p className="text-xs text-[var(--muted-foreground)]">
-                      Positions & prices update automatically (demo: simulated connection)
+                      Batch import from connected account (demo: simulated connection)
                     </p>
                   </div>
                 </button>
@@ -1296,20 +1298,142 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 </p>
               </div>
             )}
-            {category === 'listed' && (
+            {category === 'listed' && sourceType === 'live' && (
+              <div className="space-y-6">
+                {/* Live Import Flow */}
+                {liveStep === 3 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Review & pick holdings</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Select which positions to import from your connected accounts
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => { setSourceType(null); setLiveStep(1); setSelectedHoldings([]); }}
+                        className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                      >
+                        Change source
+                      </button>
+                    </div>
+
+                    {/* Holdings table */}
+                    <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead className="bg-[var(--muted)] border-b border-[var(--border)]">
+                          <tr>
+                            <th className="px-3 py-2 text-left">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedHoldings.length === demoLiveHoldings.filter(h => parseFloat(h.units) > 0).length}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedHoldings(demoLiveHoldings.filter(h => parseFloat(h.units) > 0).map(h => h.id));
+                                  } else {
+                                    setSelectedHoldings([]);
+                                  }
+                                }}
+                              />
+                            </th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Name</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Identifier</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Account</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Wrapper</th>
+                            <th className="px-3 py-2 text-right text-[var(--foreground)]">Units</th>
+                            <th className="px-3 py-2 text-right text-[var(--foreground)]">Book Cost</th>
+                            <th className="px-3 py-2 text-right text-[var(--foreground)]">Price (GBP)</th>
+                            <th className="px-3 py-2 text-right text-[var(--foreground)]">Value (GBP)</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Last Updated</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {demoLiveHoldings.map((holding) => (
+                            <tr key={holding.id} className={`border-b border-[var(--border)] ${parseFloat(holding.units) === 0 ? 'opacity-50' : ''}`}>
+                              <td className="px-3 py-3">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedHoldings.includes(holding.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedHoldings([...selectedHoldings, holding.id]);
+                                    } else {
+                                      setSelectedHoldings(selectedHoldings.filter(id => id !== holding.id));
+                                    }
+                                  }}
+                                  disabled={parseFloat(holding.units) === 0}
+                                />
+                              </td>
+                              <td className="px-3 py-3 text-[var(--foreground)]">
+                                {holding.name}
+                                {parseFloat(holding.units) === 0 && <span className="ml-2 text-[var(--muted-foreground)]">(closed)</span>}
+                              </td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">
+                                <div>{holding.isin}</div>
+                                <div className="text-xs">{holding.ticker}</div>
+                              </td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{holding.account}</td>
+                              <td className="px-3 py-3">
+                                <span className="px-2 py-1 bg-[var(--muted)] rounded text-[var(--foreground)]">{holding.wrapper}</span>
+                              </td>
+                              <td className="px-3 py-3 text-right text-[var(--foreground)]">{holding.units} 🔒</td>
+                              <td className="px-3 py-3 text-right text-[var(--foreground)]">£{holding.bookCost} 🔒</td>
+                              <td className="px-3 py-3 text-right text-[var(--muted-foreground)]">{holding.price}</td>
+                              <td className="px-3 py-3 text-right font-semibold text-[var(--foreground)]">£{holding.value}</td>
+                              <td className="px-3 py-3 text-xs text-[var(--muted-foreground)]">{holding.lastUpdated}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+                      <p className="text-xs text-[var(--muted-foreground)]">
+                        <span className="text-[var(--foreground)] font-semibold">🔒 Locked fields:</span> Units and Book Cost are read-only from broker. Prices/FX update automatically.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4">
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        {selectedHoldings.length} of {demoLiveHoldings.filter(h => parseFloat(h.units) > 0).length} selected
+                      </p>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => setLiveStep(2)}
+                          className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                        >
+                          Back
+                        </button>
+                        <button 
+                          onClick={() => {
+                            alert(`Imported ${selectedHoldings.length} holdings with Source = ⚡ Live`);
+                            onClose();
+                          }}
+                          disabled={selectedHoldings.length === 0}
+                          className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                          Import {selectedHoldings.length} selected
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {category === 'listed' && (sourceType === 'semi-auto' || sourceType === 'manual') && (
               <div className="space-y-6">
                 {/* Source badge */}
                 <div className="flex items-center justify-between mb-4">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--foreground)]">
-                        <span>{sourceType === 'live' ? '⚡' : sourceType === 'semi-auto' ? '⤿' : '✍'}</span>
-                        {sourceType === 'live' ? 'Live' : sourceType === 'semi-auto' ? 'Semi-auto' : 'Manual'}
+                        <span>{sourceType === 'semi-auto' ? '⤿' : '✍'}</span>
+                        {sourceType === 'semi-auto' ? 'Semi-auto' : 'Manual'}
                       </span>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p className="text-xs">
-                        {sourceType === 'live' && 'Positions & prices update automatically via connected broker.'}
                         {sourceType === 'semi-auto' && 'Prices/FX may update automatically in future. Positions are entered by you; reconcile with statements.'}
                         {sourceType === 'manual' && 'Entered by you; attach evidence for defensibility.'}
                       </p>

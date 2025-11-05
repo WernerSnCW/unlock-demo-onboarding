@@ -1,0 +1,87 @@
+What changes between Live vs Manual
+Live (⚡ Connect broker/platform)
+
+You don’t type shares or cost.
+The broker provides positions (ISIN/ticker, units, book cost, currency) via the connection.
+
+Batch import, not one-by-one.
+You see a list of all holdings returned for the selected account(s), tick what to include, and import.
+
+Locked provenance.
+Units & cost show a small lock and a line like “Positions from Vanguard ISA (read-only)”. Price/FX auto.
+
+Ongoing refresh.
+The row is marked Source = Live; future updates replace units/cost/price as read-only values.
+
+Manual (✍)
+
+You type everything.
+Pick ISIN/ticker, enter units, price/cost, dates, evidence.
+
+Single line at a time.
+Adds exactly one position per submit.
+
+Editable later.
+No locked fields; provenance shows “Manual entry”.
+
+Live flow you’re missing (add this screen)
+
+Step 1 — Connect
+Select broker ▸ authorise (demo can show a mocked “Connected”).
+
+Step 2 — Choose accounts
+List of available accounts (e.g., Vanguard ISA, Vanguard GIA). Multi-select.
+
+Step 3 — Review & pick holdings (the key screen)
+A table of holdings returned from the broker:
+
+Include ✓
+
+Name (Fund/ETF/Share)
+
+Identifier (ISIN + ticker)
+
+Account (from broker)
+
+Suggested wrapper (ISA/SIPP/GIA; editable)
+
+Units (locked)
+
+Book cost (locked)
+
+Currency
+
+EOD price (GBP) (auto)
+
+Value (GBP) (auto)
+
+Last updated (timestamp)
+
+Action: Import / Merge with existing / Ignore
+
+Footer: “Import 6 selected” + tiny note “You can attach evidence after import.”
+
+Step 4 — Summary
+“Imported 5, merged 1, ignored 2.” Link: “Add evidence now”.
+
+Result in register
+Each line shows Source = ⚡ Live, units/cost locked, price/FX auto, provenance block set.
+
+Manual flow (for contrast)
+
+Step 1 — Identify (Wrapper, Custodian, ISIN/ticker → Name)
+Step 2 — Position (Units, Price/Cost, Dates)
+Step 3 — Evidence (On file/Missing, type, ref)
+Save → adds one row with Source = Manual (editable later).
+
+Edge cases the Live review must handle
+
+Merge: when the live holding matches an existing manual/CSV row (same ISIN & account), choose “Merge with existing” to convert it to Live without creating duplicates.
+
+Partial coverage: if the broker lacks book cost, show “—” and allow a one-time manual cost entry during import (marked as “user-supplied”).
+
+Currency: if the account is non-GBP, show currency and do GBP via FX; price is still displayed in GBP.
+
+Closed/zero positions: default Ignore (toggle to import if you want a historical line).
+
+Corporate actions: display broker-supplied adjusted units; no manual edits on Live rows.
