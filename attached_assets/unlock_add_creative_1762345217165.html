@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unlock — Add Assets (Creative Prototype)</title>
+<style>
+:root{
+  --bg:#0a0d14; --bg2:#0d1220; --panel:rgba(255,255,255,.06);
+  --card:rgba(255,255,255,.08); --line:rgba(255,255,255,.14);
+  --text:#eaf2ff; --muted:#a2b1cc; --brand:#7fd3ff; --accent:#9ae6b4; --danger:#ff6b81;
+  --radius:16px; --gap:14px; --shadow:0 12px 30px rgba(0,0,0,.35);
+  --font: system-ui, -apple-system, Segoe UI, Inter, Roboto, Helvetica, Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:var(--font); color:var(--text); letter-spacing:.2px;
+  background: radial-gradient(1100px 900px at 80% -10%, #16223a 0%, #0b111e 55%, #0a0d14 100%) fixed;
+}
+/* Ambient animated gradient ring */
+.bg-ring{position:fixed; inset:-20vmax; z-index:-1;
+  background: conic-gradient(from 0deg, rgba(127,211,255,.10), transparent 20%, rgba(154,230,180,.06) 35%, transparent 60%, rgba(127,211,255,.08) 80%, transparent 100%);
+  filter: blur(50px); animation: swirl 16s linear infinite;
+}
+@keyframes swirl{to{transform:rotate(1turn)}}
+.wrap{max-width:1100px; margin:28px auto; padding:0 16px}
+header{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.brand{display:flex; align-items:center; gap:10px; font-weight:700}
+.logo{width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg,var(--brand),#a7b5ff); box-shadow:var(--shadow)}
+.actions{display:flex; gap:10px; align-items:center}
+.btn{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; border:1px solid var(--line);
+     background:var(--card); color:var(--text); cursor:pointer; backdrop-filter: blur(8px)}
+.btn.primary{background:linear-gradient(180deg,#1a2438,#131c2e); border-color:rgba(255,255,255,.18)}
+.small{font-size:13px; color:var(--muted)}
+.tabs{margin:16px 0 12px; display:flex; gap:8px; flex-wrap:wrap}
+.tabs label{padding:10px 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.06); cursor:pointer; color:#d7e6ff}
+input[name=mode]{display:none}
+#assets:checked ~ .tabs label[for=assets],
+#debts:checked ~ .tabs label[for=debts]{background:linear-gradient(180deg,#1c253a,#151f33)}
+.section{display:none}
+#assets:checked ~ .section.assets{display:block}
+#debts:checked ~ .section.debts{display:block}
+
+/* Category tiles */
+.grid{display:grid; gap:var(--gap)}
+.grid.tiles{grid-template-columns: repeat(3, 1fr)}
+.tile{position:relative; padding:18px; min-height:120px; border-radius:16px; border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.06));
+      overflow:hidden; cursor:pointer; isolation:isolate; transition:.2s transform, .25s box-shadow, .25s border-color}
+.tile:hover{transform:translateY(-2px); box-shadow:var(--shadow); border-color:rgba(255,255,255,.22)}
+.tile .title{font-weight:700; margin-bottom:6px}
+.tile .muted{color:var(--muted)}
+.tile .blob{position:absolute; width:160px; height:160px; border-radius:50%; right:-40px; top:-40px; filter:blur(18px); opacity:.28; z-index:-1}
+.tile[data-c="blue"] .blob{background:radial-gradient(closest-side, #7fd3ff, transparent)}
+.tile[data-c="mint"] .blob{background:radial-gradient(closest-side, #9ae6b4, transparent)}
+.tile[data-c="amber"] .blob{background:radial-gradient(closest-side, #ffd166, transparent)}
+.tile[data-c="pink"] .blob{background:radial-gradient(closest-side, #ff80a6, transparent)}
+.tile .icon{font-size:28px; line-height:1}
+
+/* Stepper panel */
+.panel{margin-top:16px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.06)}
+.panel .head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line)}
+.stepper{display:flex; gap:10px; align-items:center}
+.step{display:flex; align-items:center; gap:8px; font-size:13px; color:#cfe6ff}
+.step .dot{width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.35)}
+.step.active .dot{background:linear-gradient(180deg,var(--brand),#a0e9ff)}
+.progress{height:6px; background:rgba(255,255,255,.14); border-radius:999px; overflow:hidden}
+.progress span{display:block; height:100%; background:linear-gradient(90deg,var(--brand),#a0e9ff)}
+.panel .body{padding:16px}
+.row{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+.field{display:flex; flex-direction:column; gap:6px}
+label.small{font-size:12px; color:var(--muted)}
+input[type=text],input[type=number],select{width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(13,18,32,.8); color:var(--text)}
+.help{font-size:12px; color:var(--muted)}
+
+/* Command palette (CSS-only) */
+#cmd{display:none}
+.palette{position:fixed; inset:0; display:grid; place-items:center; backdrop-filter: blur(5px);
+         background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:.25s opacity; z-index:40}
+#cmd:checked ~ .palette{opacity:1; pointer-events:auto}
+.cp{width:min(720px, 92vw); border-radius:16px; border:1px solid var(--line); overflow:hidden; background:linear-gradient(180deg,#1a2336,#141c2d); box-shadow:var(--shadow)}
+.cp .bar{display:flex; gap:10px; padding:12px 12px; border-bottom:1px solid var(--line)}
+.cp .bar input{flex:1; background:rgba(255,255,255,.08); border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--text)}
+.cp .items{max-height:55vh; overflow:auto; padding:10px}
+.item{padding:10px 12px; border-radius:10px; border:1px solid transparent; display:flex; align-items:center; gap:10px; cursor:pointer}
+.item:hover{background:rgba(255,255,255,.06); border-color:var(--line)}
+.item .k{opacity:.6; font-size:12px}
+
+/* Hidden radio to switch categories */
+.rb{position:absolute; left:-9999px}
+.rb:checked + .tile{outline:2px solid var(--brand)}
+
+/* Responsive */
+@media (max-width: 920px){
+ .grid.tiles{grid-template-columns: 1fr 1fr}
+ .row{grid-template-columns:1fr}
+}
+@media (max-width: 560px){
+ .grid.tiles{grid-template-columns: 1fr}
+}
+</style>
+</head>
+<body>
+<div class="bg-ring" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="logo"></div> Unlock — Add Assets</div>
+    <div class="actions">
+      <label class="btn" for="cmd">⌘K Command&nbsp;Palette</label>
+      <button class="btn">✨ AI Import</button>
+      <button class="btn">⇪ CSV</button>
+      <button class="btn primary">Close</button>
+    </div>
+  </header>
+
+  <!-- Mode -->
+  <input type="radio" id="assets" name="mode" checked>
+  <input type="radio" id="debts" name="mode">
+  <div class="tabs">
+    <label for="assets">＋ Add asset</label>
+    <label for="debts">− Add liability</label>
+  </div>
+
+  <!-- ASSETS -->
+  <section class="section assets">
+    <!-- Categories -->
+    <div class="grid tiles">
+      <input class="rb" type="radio" id="c-listed" name="cat" checked>
+      <label class="tile" for="c-listed" data-c="blue">
+        <div>
+          <div class="title">Listed security</div>
+          <div class="muted small">Fund • ETF • Share by ISIN or ticker</div>
+        </div>
+        <div class="blob"></div>
+        <div class="icon" style="position:absolute; bottom:12px; right:12px">📈</div>
+      </label>
+
+      <input class="rb" type="radio" id="c-cash" name="cat">
+      <label class="tile" for="c-cash" data-c="mint">
+        <div>
+          <div class="title">Cash</div>
+          <div class="muted small">Bank or savings balance</div>
+        </div>
+        <div class="blob"></div>
+        <div class="icon" style="position:absolute; bottom:12px; right:12px">💷</div>
+      </label>
+
+      <input class="rb" type="radio" id="c-crypto" name="cat">
+      <label class="tile" for="c-crypto" data-c="pink">
+        <div>
+          <div class="title">Crypto</div>
+          <div class="muted small">Exchange account or on‑chain wallet</div>
+        </div>
+        <div class="blob"></div>
+        <div class="icon" style="position:absolute; bottom:12px; right:12px">🦊</div>
+      </label>
+
+      <input class="rb" type="radio" id="c-property" name="cat">
+      <label class="tile" for="c-property" data-c="amber">
+        <div>
+          <div class="title">Property</div>
+          <div class="muted small">Home • BTL • Commercial</div>
+        </div>
+        <div class="blob"></div>
+        <div class="icon" style="position:absolute; bottom:12px; right:12px">🏠</div>
+      </label>
+
+      <input class="rb" type="radio" id="c-private" name="cat">
+      <label class="tile" for="c-private" data-c="blue">
+        <div>
+          <div class="title">Private equity</div>
+          <div class="muted small">EIS/SEIS • Unlisted shares</div>
+        </div>
+        <div class="blob"></div>
+        <div class="icon" style="position:absolute; bottom:12px; right:12px">🧩</div>
+      </label>
+
+      <input class="rb" type="radio" id="c-alt" name="cat">
+      <label class="tile" for="c-alt" data-c="mint">
+        <div>
+          <div class="title">Alternatives</div>
+          <div class="muted small">Metals • Art • Domains • Other</div>
+        </div>
+        <div class="blob"></div>
+        <div class="icon" style="position:absolute; bottom:12px; right:12px">✨</div>
+      </label>
+    </div>
+
+    <!-- PANEL: LISTED (default) -->
+    <div class="panel" id="p-listed">
+      <div class="head">
+        <div class="stepper">
+          <div class="step active"><span class="dot"></span> Identify</div>
+          <div class="step"><span class="dot"></span> Amount</div>
+          <div class="step"><span class="dot"></span> Evidence</div>
+        </div>
+        <div style="flex:1; max-width:280px; margin:0 12px">
+          <div class="progress"><span style="width:33%"></span></div>
+        </div>
+        <div class="small">Wrapper: ISA • Custodian: Vanguard</div>
+      </div>
+      <div class="body">
+        <div class="row">
+          <div class="field">
+            <label class="small">ISIN / Ticker</label>
+            <input type="text" placeholder="e.g., IE00B5BMR087 or VWRL">
+            <div class="help">Paste an ISIN — name and last price are auto-filled on save (in production).</div>
+          </div>
+          <div class="field">
+            <label class="small">Name (auto)</label>
+            <input type="text" placeholder="Autofilled or type manually">
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <div class="field">
+            <label class="small">Wrapper</label>
+            <select><option>ISA</option><option>SIPP</option><option>GIA</option><option>Personal</option></select>
+          </div>
+          <div class="field">
+            <label class="small">Custodian / Broker</label>
+            <input type="text" placeholder="e.g., Vanguard Investor UK">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px">
+          <button class="btn">Back</button>
+          <button class="btn primary">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: CASH (visible when Cash selected) -->
+    <div class="panel" id="p-cash" style="display:none"></div>
+  </section>
+
+  <!-- LIABILITIES -->
+  <section class="section debts">
+    <div class="grid tiles">
+      <input class="rb" type="radio" id="d-mortgage" name="dcat" checked>
+      <label class="tile" for="d-mortgage" data-c="amber">
+        <div><div class="title">Mortgage</div><div class="muted small">Link to a property</div></div>
+        <div class="blob"></div><div class="icon" style="position:absolute; bottom:12px; right:12px">🏦</div>
+      </label>
+
+      <input class="rb" type="radio" id="d-loan" name="dcat">
+      <label class="tile" for="d-loan" data-c="blue">
+        <div><div class="title">Loan</div><div class="muted small">Personal • Business</div></div>
+        <div class="blob"></div><div class="icon" style="position:absolute; bottom:12px; right:12px">📄</div>
+      </label>
+
+      <input class="rb" type="radio" id="d-card" name="dcat">
+      <label class="tile" for="d-card" data-c="pink">
+        <div><div class="title">Credit card</div><div class="muted small">Rolling balance</div></div>
+        <div class="blob"></div><div class="icon" style="position:absolute; bottom:12px; right:12px">💳</div>
+      </label>
+    </div>
+
+    <div class="panel" id="p-debt">
+      <div class="head">
+        <div class="stepper">
+          <div class="step active"><span class="dot"></span> Details</div>
+          <div class="step"><span class="dot"></span> Repayments</div>
+          <div class="step"><span class="dot"></span> Link to asset</div>
+        </div>
+        <div style="flex:1; max-width:280px; margin:0 12px"><div class="progress"><span style="width:33%"></span></div></div>
+        <div class="small">Status: Draft</div>
+      </div>
+      <div class="body">
+        <div class="row">
+          <div class="field"><label class="small">Lender</label><input type="text" placeholder="e.g., HSBC"></div>
+          <div class="field"><label class="small">Outstanding principal</label><input type="text" placeholder="e.g., £ 150,000"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label class="small">Interest rate</label><input type="text" placeholder="e.g., 4.25%"></div>
+          <div class="field"><label class="small">Monthly repayment</label><input type="text" placeholder="e.g., £ 820"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label class="small">Linked property (optional)</label><input type="text" placeholder="Select property (if added)"></div>
+          <div class="field"><label class="small">Term end</label><input type="text" placeholder="e.g., 01/02/2036"></div>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px">
+          <button class="btn">Back</button>
+          <button class="btn primary">Continue</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMAND PALETTE (CSS-only) -->
+  <input type="checkbox" id="cmd">
+  <div class="palette" aria-hidden="true">
+    <div class="cp" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="bar">
+        <input placeholder="Type: add cash, add BTC, import CSV, link mortgage…" autofocus>
+        <label class="btn" for="cmd">Close</label>
+      </div>
+      <div class="items">
+        <div class="item">📈 Add <strong>Listed security</strong> <span class="k">• via ISIN</span></div>
+        <div class="item">💷 Add <strong>Cash</strong> <span class="k">• HSBC Savings</span></div>
+        <div class="item">🦊 Add <strong>Crypto exchange</strong> <span class="k">• Kraken (manual)</span></div>
+        <div class="item">🧾 Add <strong>On‑chain wallet</strong> <span class="k">• 0x…</span></div>
+        <div class="item">🏠 Add <strong>Property</strong> <span class="k">• Home / BTL</span></div>
+        <div class="item">🧩 Add <strong>Private equity (EIS/SEIS)</strong></div>
+        <div class="item">✨ <strong>AI Import</strong> <span class="k">• drop statement/screenshot</span></div>
+        <div class="item">⇪ <strong>CSV Upload</strong> <span class="k">• broker export</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Optional progressive show/hide of panels without frameworks (tiny JS for demo only)
+(function(){
+  const map = {
+    c_listed: "p-listed",
+    c_cash: "p-cash",
+    c_crypto: "p-listed",
+    c_property: "p-listed",
+    c_private: "p-listed",
+    c_alt: "p-listed"
+  };
+  const radios = ["c-listed","c-cash","c-crypto","c-property","c-private","c-alt"].map(id => document.getElementById(id));
+  const panels = ["p-listed","p-cash"].map(id => document.getElementById(id));
+  function show(id){
+    panels.forEach(p => p.style.display = (p.id === id ? "block":"none"));
+  }
+  radios.forEach(r => r && r.addEventListener("change", () => {
+    show(r.id === "c-cash" ? "p-cash" : "p-listed");
+  }));
+  show("p-listed");
+})();
+</script>
+</body>
+</html>

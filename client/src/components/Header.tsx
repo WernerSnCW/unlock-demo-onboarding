@@ -43,6 +43,7 @@ export default function Header() {
   const navigation = [
     { name: 'Dashboard', href: '/' },
     { name: 'Businesses', href: '/businesses' },
+    { name: 'Asset Register', href: '/asset-register' },
     { name: 'Toolkit', href: '/toolkit' },
     { name: 'Due Diligence', href: '/due-diligence' },
     { name: 'Syndication', href: '/syndication' },

@@ -33,12 +33,14 @@ import InvestorPreferences from "@/pages/InvestorPreferences";
 import InvestorPreferencesWizard from "@/pages/InvestorPreferencesWizard";
 import SplashScreen from "@/pages/SplashScreen";
 import EndingSplashScreen from "@/pages/EndingSplashScreen";
+import AssetRegister from "@/pages/AssetRegister";
 
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/asset-register" component={AssetRegister} />
       <Route path="/businesses" component={Businesses} />
       <Route path="/business/:id" component={BusinessProfile} />
       <Route path="/snapshot/:id" component={SnapshotReport} />
