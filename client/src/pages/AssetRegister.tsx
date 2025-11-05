@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, FileText, Upload, Download, Printer, X, Command } from 'lucide-react';
 import Header from '../components/Header';
+import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 
 export default function AssetRegister() {
   const [activeTab, setActiveTab] = useState('holdings');
@@ -8,6 +9,7 @@ export default function AssetRegister() {
   const [docLightbox, setDocLightbox] = useState(false);
   const [addAssetModal, setAddAssetModal] = useState(false);
   const [density, setDensity] = useState<'normal' | 'compact'>('normal');
+  const [tourOpen, setTourOpen] = useState(false);
 
   const handlePrint = () => {
     window.print();
@@ -31,7 +33,7 @@ export default function AssetRegister() {
           </div>
 
           <div className="space-y-6">
-            <div>
+            <div id="tour-valuation">
               <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Valuation Snapshot</h3>
               <div className="text-sm text-[var(--foreground)] mb-2">As at: 31 Oct 2025</div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)] mb-2">
@@ -42,7 +44,7 @@ export default function AssetRegister() {
               </p>
             </div>
 
-            <div>
+            <div id="tour-entities">
               <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Entities</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Personal (100%)</span>
@@ -51,7 +53,7 @@ export default function AssetRegister() {
               </div>
             </div>
 
-            <div>
+            <div id="tour-wrappers">
               <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Wrappers</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">ISA</span>
@@ -61,7 +63,7 @@ export default function AssetRegister() {
               </div>
             </div>
 
-            <div>
+            <div id="tour-custodians">
               <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Custodians</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Vanguard Investor UK</span>
@@ -71,7 +73,16 @@ export default function AssetRegister() {
               </div>
             </div>
 
-            <div>
+            <div id="tour-beneficiary">
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Beneficiary (Estate)</h3>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Life-beat</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Fallback email</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Package</span>
+              </div>
+            </div>
+
+            <div id="tour-quick-actions">
               <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Quick Actions</h3>
               <div className="space-y-2">
                 <button 
@@ -98,6 +109,7 @@ export default function AssetRegister() {
                   <Upload className="h-4 w-4" /> Upload evidence
                 </button>
                 <button 
+                  id="tour-density"
                   onClick={() => setDensity(density === 'normal' ? 'compact' : 'normal')}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2"
                   data-testid="button-density"
@@ -113,7 +125,7 @@ export default function AssetRegister() {
         <main className="min-h-screen">
           {/* Header */}
           <header className="sticky top-0 z-20 backdrop-blur-md bg-[var(--background)]/80 border-b border-[var(--border)] px-6 py-4 flex items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-3xl">
+            <div id="tour-search" className="relative flex-1 max-w-3xl">
               <input
                 type="search"
                 placeholder="Search instruments, accounts, documents…"
@@ -124,22 +136,23 @@ export default function AssetRegister() {
             </div>
 
             <div className="flex items-center gap-3">
-              <select className="bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-currency">
+              <select id="tour-currency" className="bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-currency">
                 <option>GBP</option>
                 <option>EUR</option>
                 <option>USD</option>
               </select>
 
-              <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] flex items-center gap-2" data-testid="button-status">
+              <button id="tour-reconciled" className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] flex items-center gap-2" data-testid="button-status">
                 <span className="w-2 h-2 rounded-full bg-[var(--success)]"></span>
                 Reconciled
               </button>
 
-              <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-export">
+              <button id="tour-export" className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-export">
                 <Download className="h-4 w-4" />
               </button>
 
               <button 
+                id="tour-print"
                 onClick={handlePrint}
                 className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
                 data-testid="button-print"
@@ -151,7 +164,7 @@ export default function AssetRegister() {
 
           <div className="p-6" id="main">
             {/* KPI Tiles */}
-            <div className="grid grid-cols-6 gap-4 mb-6">
+            <div id="tour-kpis" className="grid grid-cols-6 gap-4 mb-6">
               <KPITile label="Total Portfolio" value="£847,200" delta="+£12,400 (1.5%)" positive data-testid="kpi-total" />
               <KPITile label="Liquid" value="£612,300" sublabel="Cash + listed" data-testid="kpi-liquid" />
               <KPITile label="Property" value="£195,000" sublabel="Last updated: Oct 2025" data-testid="kpi-property" />
@@ -162,7 +175,7 @@ export default function AssetRegister() {
 
             {/* Tabs */}
             <div className="mb-6">
-              <div className="flex flex-wrap gap-2">
+              <div id="tour-tabs" className="flex flex-wrap gap-2">
                 {[
                   { id: 'holdings', label: 'Holdings Register' },
                   { id: 'targets', label: 'Targets & Bands' },
@@ -215,6 +228,10 @@ export default function AssetRegister() {
       {addAssetModal && (
         <AddAssetModal onClose={() => setAddAssetModal(false)} />
       )}
+
+      {/* Tour */}
+      <AssetRegisterTour isOpen={tourOpen} onClose={() => setTourOpen(false)} />
+      <TourBeacon onClick={() => setTourOpen(true)} />
     </div>
   );
 }
@@ -248,7 +265,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
   const rowPadding = density === 'compact' ? 'py-2 px-3' : 'py-3 px-4';
 
   return (
-    <div className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm">
+    <div id="tour-holdings-table" className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm">
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-[var(--muted)] border-b border-[var(--border)] sticky top-0">
@@ -278,7 +295,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
               <td className={`${rowPadding} text-sm text-[var(--foreground)]`} data-testid={`text-identifier-${idx}`}>{holding.identifier}</td>
               <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.custodian}</td>
               <td className={rowPadding}>
-                <WrapperTag wrapper={holding.wrapper} />
+                <WrapperTag wrapper={holding.wrapper} id={idx === 0 ? "tour-wrapper-tag" : undefined} />
               </td>
               <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.units}</td>
               <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.cost}</td>
@@ -288,7 +305,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
               <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.bucket}</td>
               <td className={rowPadding}>
                 {holding.countdown ? (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-[var(--border)] bg-[var(--muted)] text-xs text-[var(--foreground)]">
+                  <span id="tour-eis-countdown" className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-[var(--border)] bg-[var(--muted)] text-xs text-[var(--foreground)]">
                     <span className="w-2 h-2 rounded-full bg-[var(--warning)]"></span>
                     {holding.countdown}
                   </span>
@@ -305,10 +322,10 @@ function HoldingsTab({ onViewDetail, density }: any) {
                 )}
               </td>
               <td className={rowPadding}>
-                <EvidenceStatus status={holding.evidence} />
+                <EvidenceStatus status={holding.evidence} id={idx === 0 ? "tour-evidence-pill" : undefined} />
               </td>
               <td className={rowPadding}>
-                <CompletenessBar percentage={holding.completeness} />
+                <CompletenessBar percentage={holding.completeness} id={idx === 0 ? "tour-completeness" : undefined} />
               </td>
               <td className={rowPadding}>
                 <button 
@@ -330,7 +347,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
   );
 }
 
-function WrapperTag({ wrapper }: { wrapper: string }) {
+function WrapperTag({ wrapper, id }: { wrapper: string; id?: string }) {
   const colors: any = {
     ISA: 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20',
     SIPP: 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20',
@@ -338,13 +355,13 @@ function WrapperTag({ wrapper }: { wrapper: string }) {
     Personal: 'bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]',
   };
   return (
-    <span className={`px-2 py-1 rounded-full text-xs border ${colors[wrapper] || colors.Personal}`}>
+    <span id={id} className={`px-2 py-1 rounded-full text-xs border ${colors[wrapper] || colors.Personal}`}>
       {wrapper}
     </span>
   );
 }
 
-function EvidenceStatus({ status }: { status: string }) {
+function EvidenceStatus({ status, id }: { status: string; id?: string }) {
   const statusConfig: any = {
     'On file': { color: 'text-[var(--success)]', dot: 'bg-[var(--success)]' },
     'Valuation due': { color: 'text-[var(--warning)]', dot: 'bg-[var(--warning)]' },
@@ -352,16 +369,16 @@ function EvidenceStatus({ status }: { status: string }) {
   };
   const config = statusConfig[status] || statusConfig['On file'];
   return (
-    <span className={`inline-flex items-center gap-2 text-xs ${config.color}`}>
+    <span id={id} className={`inline-flex items-center gap-2 text-xs ${config.color}`}>
       <span className={`w-2 h-2 rounded-full ${config.dot}`}></span>
       {status}
     </span>
   );
 }
 
-function CompletenessBar({ percentage }: { percentage: number }) {
+function CompletenessBar({ percentage, id }: { percentage: number; id?: string }) {
   return (
-    <div className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-[var(--muted)] border border-[var(--border)]">
+    <div id={id} className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-[var(--muted)] border border-[var(--border)]">
       <span className="text-xs text-[var(--foreground)]">{percentage}%</span>
       <div className="w-24 h-2 bg-[var(--background)] rounded-full overflow-hidden">
         <div 
@@ -383,7 +400,7 @@ function TargetsTab() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div id="tour-targets-table" className="space-y-4">
       {bands.map((band, idx) => (
         <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`band-${idx}`}>
           <div className="flex justify-between items-start mb-3">
@@ -441,7 +458,7 @@ function TransactionsTab({ density }: any) {
   const rowPadding = density === 'compact' ? 'py-2 px-3' : 'py-3 px-4';
 
   return (
-    <div>
+    <div id="tour-transactions-table">
       <div className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm mb-4">
         <table className="w-full border-collapse">
           <thead>
@@ -504,7 +521,7 @@ function DocumentsTab({ onViewDoc }: any) {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div id="tour-docs-grid" className="grid grid-cols-3 gap-4">
       {docs.map((doc, idx) => (
         <button
           key={idx}
@@ -536,7 +553,7 @@ function ReconciliationTab() {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div id="tour-reconcile-cards" className="grid grid-cols-3 gap-4 mb-6">
         {accounts.map((acc, idx) => (
           <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`reconcile-${idx}`}>
             <div className="flex justify-between items-start mb-3">
@@ -563,7 +580,7 @@ function ReconciliationTab() {
         ))}
       </div>
 
-      <div className="p-4 bg-[var(--card)] border border-dashed border-[var(--border)] rounded-xl shadow-sm">
+      <div id="tour-missing" className="p-4 bg-[var(--card)] border border-dashed border-[var(--border)] rounded-xl shadow-sm">
         <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">What's Missing</h3>
         <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
           <li className="flex items-start gap-2">
@@ -592,7 +609,7 @@ function HouseholdTab() {
   ];
 
   return (
-    <div>
+    <div id="tour-household">
       <div className="space-y-4 mb-6">
         {entities.map((entity, idx) => (
           <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`household-${idx}`}>
