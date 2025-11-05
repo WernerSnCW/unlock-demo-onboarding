@@ -9,6 +9,7 @@ export default function AssetRegister() {
   const [detailDrawer, setDetailDrawer] = useState<string | null>(null);
   const [docLightbox, setDocLightbox] = useState(false);
   const [addAssetModal, setAddAssetModal] = useState(false);
+  const [addLiabilityModal, setAddLiabilityModal] = useState(false);
   const [density, setDensity] = useState<'normal' | 'compact'>('normal');
   const [tourOpen, setTourOpen] = useState(false);
 
@@ -188,6 +189,7 @@ export default function AssetRegister() {
                   ＋ Add asset
                 </button>
                 <button 
+                  onClick={() => setAddLiabilityModal(true)}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
                   data-testid="button-add-liability"
                   title="Record a new liability such as loans or mortgages"
@@ -387,7 +389,12 @@ export default function AssetRegister() {
 
       {/* Add Asset Modal */}
       {addAssetModal && (
-        <AddAssetModal onClose={() => setAddAssetModal(false)} />
+        <AddAssetModal onClose={() => setAddAssetModal(false)} initialMode="asset" />
+      )}
+
+      {/* Add Liability Modal */}
+      {addLiabilityModal && (
+        <AddAssetModal onClose={() => setAddLiabilityModal(false)} initialMode="liability" />
       )}
 
       {/* Tour */}
@@ -975,8 +982,8 @@ function DocumentLightbox({ onClose }: any) {
   );
 }
 
-function AddAssetModal({ onClose }: any) {
-  const [mode, setMode] = useState<'asset' | 'liability'>('asset');
+function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
+  const [mode, setMode] = useState<'asset' | 'liability'>(initialMode);
   const [category, setCategory] = useState('listed');
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
