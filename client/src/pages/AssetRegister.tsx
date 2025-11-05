@@ -1169,7 +1169,20 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
               
               <div className="grid grid-cols-3 gap-4 mt-6">
                 <button
-                  onClick={() => setSourceType('live')}
+                  onClick={() => {
+                    setSourceType('live');
+                    // Pre-fill demo data for Live connection
+                    setIsin('IE00B3RBWM25');
+                    setSecurityName('Vanguard FTSE All-World UCITS ETF (Acc)');
+                    setCustodian('Vanguard Investor UK');
+                    setWrapper('ISA');
+                    setDistributionType('Accumulating');
+                    setBucket('Global Equity');
+                    setUnits('1250.5');
+                    setPrice('85.42');
+                    setCostBasis('98750.50');
+                    setTradeDate('2023-01-15');
+                  }}
                   className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
                   data-testid="source-live"
                 >
@@ -1183,7 +1196,13 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 </button>
                 
                 <button
-                  onClick={() => setSourceType('semi-auto')}
+                  onClick={() => {
+                    setSourceType('semi-auto');
+                    // Pre-fill some demo data for CSV import
+                    setUnits('500');
+                    setPrice('92.15');
+                    setCostBasis('45000');
+                  }}
                   className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
                   data-testid="source-semi-auto"
                 >
