@@ -43,7 +43,7 @@ export default function Header() {
   const navigation = [
     { name: 'Dashboard', href: '/' },
     { name: 'Businesses', href: '/businesses' },
-    { name: 'Asset Register', href: '/asset-register' },
+    { name: 'Assets', href: '/asset-register' },
     { name: 'Toolkit', href: '/toolkit' },
     { name: 'Due Diligence', href: '/due-diligence' },
     { name: 'Syndication', href: '/syndication' },
@@ -63,9 +63,9 @@ export default function Header() {
             </span>
           </div>
           
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-4">
             {navigation.map((item) => (
-              <Link key={item.name} href={item.href} className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+              <Link key={item.name} href={item.href} className={`px-2 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                 location === item.href
                   ? 'text-[var(--card-foreground)] border-b-2 border-[var(--primary)]'
                   : 'text-[var(--muted-foreground)] hover:text-[var(--primary)]'
