@@ -1203,14 +1203,41 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
           </button>
         </div>
 
-        {/* Source Selection (Listed Securities Only) - shown first when Listed is selected */}
+        {/* Category Tiles */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {categories.map((cat) => {
+              const IconComponent = cat.Icon;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setCategory(cat.id);
+                    setSourceType(null); // Reset source type
+                    setStep(1); // Reset to step 1
+                  }}
+                  className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)] bg-[var(--primary)]/5' : 'border-[var(--border)]'} bg-[var(--card)]`}
+                  data-testid={`tile-${cat.id}`}
+                >
+                  <div className="relative z-10">
+                    <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
+                  </div>
+                  <div className="absolute bottom-3 right-3 text-[var(--primary)] opacity-20">
+                    <IconComponent className="h-12 w-12" />
+                  </div>
+                </button>
+              );
+            })}
+        </div>
+
+        {/* Source Selection for Listed Securities - shown after category tiles when Listed is selected */}
         {category === 'listed' && !sourceType && (
           <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] overflow-hidden shadow-sm mb-6">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">Select source</h3>
-                  <p className="text-sm text-[var(--muted-foreground)]">
+                  <p className="text-xs text-[var(--muted-foreground)]">
                     Choose how you want to add this position. This affects automation and data provenance.
                   </p>
                 </div>
@@ -1227,7 +1254,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 <button
                   onClick={() => {
                     setSourceType('live');
-                    setLiveStep(1); // Start at Broker Picker
+                    setLiveStep(1);
                   }}
                   className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
                   data-testid="source-live"
@@ -1244,7 +1271,6 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 <button
                   onClick={() => {
                     setSourceType('semi-auto');
-                    // Pre-fill some demo data for CSV import
                     setUnits('500');
                     setPrice('92.15');
                     setCostBasis('45000');
@@ -1276,35 +1302,6 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 </button>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Category Tiles - shown only when not in Listed source selection mode */}
-        {!(category === 'listed' && !sourceType) && (
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {categories.map((cat) => {
-              const IconComponent = cat.Icon;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setCategory(cat.id);
-                    setSourceType(null); // Reset source type
-                    setStep(1); // Reset to step 1
-                  }}
-                  className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)] bg-[var(--primary)]/5' : 'border-[var(--border)]'} bg-[var(--card)]`}
-                  data-testid={`tile-${cat.id}`}
-                >
-                  <div className="relative z-10">
-                    <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
-                    <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
-                  </div>
-                  <div className="absolute bottom-3 right-3 text-[var(--primary)] opacity-20">
-                    <IconComponent className="h-12 w-12" />
-                  </div>
-                </button>
-              );
-            })}
           </div>
         )}
 
