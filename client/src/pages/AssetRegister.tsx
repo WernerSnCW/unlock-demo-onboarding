@@ -26,9 +26,9 @@ export default function AssetRegister() {
         <div className="grid grid-cols-[300px_1fr]">
         {/* Sidebar */}
         <aside className="bg-[var(--card)] border-r border-[var(--border)] p-6 sticky top-0 h-screen overflow-auto">
-          <div className="flex items-center gap-3 mb-6" aria-label="Unlock">
+          <div className="flex items-center gap-3 mb-6" aria-label="Asset Register">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] shadow-lg" aria-hidden="true"></div>
-            <span className="text-[15px] font-bold text-[var(--foreground)]">Unlock • Asset Register</span>
+            <span className="text-[15px] font-bold text-[var(--foreground)]">Asset Register</span>
           </div>
 
           <div className="space-y-6">
@@ -77,30 +77,30 @@ export default function AssetRegister() {
               <div className="space-y-2">
                 <button 
                   onClick={() => setAddAssetModal(true)}
-                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2"
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:shadow-sm transition-all flex items-center gap-2"
                   data-testid="button-add-asset"
                 >
                   ＋ Add asset
                 </button>
-                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2" data-testid="button-add-liability">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:shadow-sm transition-all flex items-center gap-2" data-testid="button-add-liability">
                   − Add liability
                 </button>
-                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2" data-testid="button-import-csv">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:shadow-sm transition-all flex items-center gap-2" data-testid="button-import-csv">
                   ⇪ Import CSV
                 </button>
-                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2" data-testid="button-ai-import">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:shadow-sm transition-all flex items-center gap-2" data-testid="button-ai-import">
                   ✨ AI Import
                 </button>
                 <button 
                   onClick={() => setDocLightbox(true)}
-                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2"
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:shadow-sm transition-all flex items-center gap-2"
                   data-testid="button-upload-evidence"
                 >
                   <Upload className="h-4 w-4" /> Upload evidence
                 </button>
                 <button 
                   onClick={() => setDensity(density === 'normal' ? 'compact' : 'normal')}
-                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2"
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:shadow-sm transition-all flex items-center gap-2"
                   data-testid="button-density"
                 >
                   ⇕ Density: {density === 'normal' ? 'Normal' : 'Compact'}
