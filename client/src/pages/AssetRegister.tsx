@@ -182,12 +182,12 @@ export default function AssetRegister() {
 
               <button 
                 onClick={() => setTourOpen(true)}
-                className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors flex items-center gap-2"
+                className="px-4 py-2.5 bg-[var(--primary)] text-white border border-[var(--primary)] rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
                 data-testid="button-help-tour"
                 title="Take a tour"
               >
                 <HelpCircle className="h-4 w-4" />
-                <span className="text-sm">Help</span>
+                <span className="text-sm font-medium">Help</span>
               </button>
             </div>
           </header>
