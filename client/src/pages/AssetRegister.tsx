@@ -64,12 +64,20 @@ export default function AssetRegister() {
             </div>
 
             <div id="tour-custodians">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Custodians</h3>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Vanguard Investor UK</span>
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">AJ Bell</span>
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">HSBC Savings</span>
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Ledger – Main</span>
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Custodians / Wallets</h3>
+              <div className="space-y-2">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all text-left" data-testid="custodian-vanguard">
+                  Vanguard Investor UK
+                </button>
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all text-left" data-testid="custodian-ajbell">
+                  AJ Bell
+                </button>
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all text-left" data-testid="custodian-hsbc">
+                  HSBC Savings
+                </button>
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all text-left" data-testid="custodian-ledger">
+                  Ledger – Main
+                </button>
               </div>
             </div>
 
