@@ -3,8 +3,21 @@ import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { URL } from 'url';
 
-// Using GPT-4 Turbo as the latest available OpenAI model
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openaiInstance: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openaiInstance) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable to use fact-checking features.');
+    }
+    openaiInstance = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openaiInstance;
+}
+
+const openai = { 
+  get chat() { return getOpenAI().chat; }
+};
 
 export interface FactCheckOptions {
   maxClaims?: number;

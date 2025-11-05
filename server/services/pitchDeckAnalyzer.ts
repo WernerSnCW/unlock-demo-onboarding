@@ -69,10 +69,21 @@ async function safePdfParse(buffer: Buffer) {
   }
 }
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiInstance: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openaiInstance) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable to use pitch deck analysis features.');
+    }
+    openaiInstance = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openaiInstance;
+}
+
+const openai = { 
+  get chat() { return getOpenAI().chat; }
+};
 
 /* =========================================================
    Benchmarks & Taxonomy (your original values)
@@ -317,7 +328,7 @@ export class PitchDeckAnalyzer {
   }> {
     // Use the enhanced extractor under the hood for robustness
     try {
-      return await extractFundingDetailsEnhanced(openai, slides);
+      return await extractFundingDetailsEnhanced(getOpenAI(), slides);
     } catch (e) {
       console.warn(
         "Enhanced funding extraction failed, returning empty set:",

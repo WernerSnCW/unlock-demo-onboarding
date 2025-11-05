@@ -32,7 +32,25 @@ import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openaiInstance: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openaiInstance) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable to use AI-powered features.');
+    }
+    openaiInstance = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openaiInstance;
+}
+
+const openai = { 
+  get chat() { return getOpenAI().chat; },
+  get images() { return getOpenAI().images; },
+  get audio() { return getOpenAI().audio; },
+  get completions() { return getOpenAI().completions; },
+  get embeddings() { return getOpenAI().embeddings; }
+};
 
 // Persona ID to name mapping (matches client/src/data/personas.ts)
 const PERSONA_ID_TO_NAME: Record<string, string> = {
