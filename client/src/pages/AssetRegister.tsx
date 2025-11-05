@@ -1460,9 +1460,32 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Position</h3>
                     
+                    {/* Live source indicator */}
+                    {sourceType === 'live' && (
+                      <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl mb-4">
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          <span className="font-semibold text-[var(--foreground)]">Connected: Vanguard ISA (read-only)</span><br />
+                          Position data is synced automatically from your connected broker.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* CSV source indicator */}
+                    {sourceType === 'semi-auto' && (
+                      <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl mb-4">
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          <span className="font-semibold text-[var(--foreground)]">Positions from CSV uploaded Oct 2025</span><br />
+                          Units and cost prefilled from your import; prices update automatically.
+                        </p>
+                      </div>
+                    )}
+                    
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Units / Shares <span className="text-red-500">*</span></label>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">
+                          Units / Shares <span className="text-red-500">*</span>
+                          {sourceType === 'live' && <span className="ml-2 text-[var(--muted-foreground)]">🔒</span>}
+                        </label>
                         <input 
                           type="number" 
                           value={units}
@@ -1470,7 +1493,9 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                           placeholder="0.000000" 
                           step="0.000001"
                           min="0"
-                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          readOnly={sourceType === 'live'}
+                          disabled={sourceType === 'live'}
+                          className={`w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] ${sourceType === 'live' ? 'opacity-60 cursor-not-allowed' : ''}`}
                           data-testid="input-units"
                         />
                         {errors.units && <p className="text-xs text-red-500 mt-1">{errors.units}</p>}
@@ -1485,10 +1510,14 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                           placeholder="0.00" 
                           step="0.01"
                           min="0"
-                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          readOnly={sourceType === 'live' || sourceType === 'semi-auto'}
+                          disabled={sourceType === 'live' || sourceType === 'semi-auto'}
+                          className={`w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] ${(sourceType === 'live' || sourceType === 'semi-auto') ? 'opacity-60 cursor-not-allowed' : ''}`}
                           data-testid="input-price"
                         />
-                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">End-of-day in GBP. Leave blank if unknown.</p>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">
+                          {sourceType === 'manual' ? 'End-of-day in GBP. Leave blank if unknown.' : 'Auto-filled from market data'}
+                        </p>
                         {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
                       </div>
                     </div>
@@ -1502,7 +1531,10 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Cost basis (GBP)</label>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">
+                          Cost basis (GBP)
+                          {sourceType === 'live' && <span className="ml-2 text-[var(--muted-foreground)]">🔒</span>}
+                        </label>
                         <input 
                           type="number" 
                           value={costBasis}
@@ -1510,10 +1542,14 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                           placeholder="0.00" 
                           step="0.01"
                           min="0"
-                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          readOnly={sourceType === 'live'}
+                          disabled={sourceType === 'live'}
+                          className={`w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] ${sourceType === 'live' ? 'opacity-60 cursor-not-allowed' : ''}`}
                           data-testid="input-cost-basis"
                         />
-                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">What you paid in total, including fees.</p>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">
+                          {sourceType === 'live' ? 'Synced from broker' : 'What you paid in total, including fees.'}
+                        </p>
                         {errors.costBasis && <p className="text-xs text-red-500 mt-1">{errors.costBasis}</p>}
                       </div>
                       
@@ -1535,12 +1571,17 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Trade/Acquisition date</label>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">
+                          Trade/Acquisition date
+                          {sourceType === 'live' && <span className="ml-2 text-[var(--muted-foreground)]">🔒</span>}
+                        </label>
                         <input 
                           type="date" 
                           value={tradeDate}
                           onChange={(e) => setTradeDate(e.target.value)}
-                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          readOnly={sourceType === 'live'}
+                          disabled={sourceType === 'live'}
+                          className={`w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] ${sourceType === 'live' ? 'opacity-60 cursor-not-allowed' : ''}`}
                           data-testid="input-trade-date"
                         />
                       </div>
