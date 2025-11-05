@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, FileText, Upload, Download, Printer, X, Command } from 'lucide-react';
+import Header from '../components/Header';
 
 export default function AssetRegister() {
   const [activeTab, setActiveTab] = useState('holdings');
@@ -13,13 +14,16 @@ export default function AssetRegister() {
   };
 
   return (
-    <div className={`min-h-screen bg-[var(--background)] ${density === 'compact' ? 'text-sm' : ''}`}>
-      {/* Skip to content for accessibility */}
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white dark:bg-gray-800 focus:text-black dark:text-white focus:rounded-lg">
-        Skip to content
-      </a>
+    <div className="min-h-screen bg-[var(--background)]">
+      <Header />
+      
+      <div className={`${density === 'compact' ? 'text-sm' : ''}`}>
+        {/* Skip to content for accessibility */}
+        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white dark:bg-gray-800 focus:text-black dark:text-white focus:rounded-lg">
+          Skip to content
+        </a>
 
-      <div className="grid grid-cols-[300px_1fr]">
+        <div className="grid grid-cols-[300px_1fr]">
         {/* Sidebar */}
         <aside className="bg-[var(--card)] border-r border-[var(--border)] p-6 sticky top-0 h-screen overflow-auto">
           <div className="flex items-center gap-3 mb-6" aria-label="Unlock">
@@ -195,6 +199,7 @@ export default function AssetRegister() {
             </div>
           </div>
         </main>
+      </div>
       </div>
 
       {/* Detail Drawer */}
