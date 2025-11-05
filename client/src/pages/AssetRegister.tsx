@@ -984,7 +984,7 @@ function DocumentLightbox({ onClose }: any) {
 
 function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [mode, setMode] = useState<'asset' | 'liability'>(initialMode);
-  const [category, setCategory] = useState('listed');
+  const [category, setCategory] = useState<string | null>(null);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
   const [step, setStep] = useState(1);
@@ -1159,7 +1159,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   </p>
                 </div>
                 <button 
-                  onClick={() => setCategory('listed')}
+                  onClick={() => { setCategory(null); setSourceType(null); setStep(1); }}
                   className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
                   data-testid="button-change-category"
                 >
@@ -1244,7 +1244,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
         )}
 
         {/* Stepper Panel */}
-        {(category !== 'listed' || sourceType) && (
+        {category && (category !== 'listed' || sourceType) && (
         <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] overflow-hidden shadow-sm">
           <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-3">
