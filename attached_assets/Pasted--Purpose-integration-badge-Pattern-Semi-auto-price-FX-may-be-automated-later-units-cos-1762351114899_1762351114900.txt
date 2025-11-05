@@ -1,0 +1,154 @@
+) Purpose & integration badge
+
+Pattern: Semi-auto (⤿) — price/FX may be automated later; units & cost are user-entered.
+
+Show a small pill ⤿ Semi-auto beside the form title with tooltip: “Prices/FX may update automatically in future. Positions are entered by you; reconcile with statements.”
+
+2) Field groups & order
+A) Identify (Step 1 in Creative; Section 1 in Classic)
+
+Wrapper (required) — Select: ISA / SIPP / GIA / Personal
+
+Helper: “Choose the tax wrapper the position sits in.”
+
+Custodian / Broker (required) — Free text with suggestions (e.g., Vanguard, AJ Bell, Trading 212).
+
+Helper: “Who holds this position.”
+
+Account / Label (optional) — Free text (e.g., “ISA-Core”, “SIPP-Growth”).
+
+Instrument identifier (required: one of the two)
+
+ISIN (preferred) — 12-char check; uppercase; pattern valid.
+
+Ticker (alternative) — free text (e.g., VUAG, VWRL, AAPL).
+
+Rule: At least one must be present. If both, ISIN wins for matching.
+
+Helper: “Prefer ISIN if you have it.”
+
+Name (read-only/auto once matched; editable in demo) — e.g., “Vanguard FTSE All-World UCITS ETF (Acc)”.
+
+Distribution type (required) — Accumulating / Distributing
+
+Bucket (required) — Global Equity / Global Bonds / Cash-like / Alternatives / Other
+
+Helper: “Used for targets and bands.”
+
+B) Position (Step 2 in Creative; Section 2 in Classic)
+
+Units / Shares (required) — Number > 0; up to 6 decimals.
+
+Price (GBP) (optional in demo) — Number ≥ 0; if blank, Value stays “—”.
+
+Helper: “End-of-day in GBP. Leave blank if unknown.”
+
+Value (GBP) (computed, read-only) — Units × Price
+
+Cost basis (GBP) (optional) — Number ≥ 0.
+
+Helper: “Total paid incl. fees. Used for gain/loss later.”
+
+Trade/Acquisition date (optional) — Date.
+
+Valuation date (defaults to today; editable) — Date.
+
+C) Tax & meta (same step as Position)
+
+Fee/Charges (GBP) (optional) — Number ≥ 0. (For info only in demo)
+
+Notes (optional, multiline) — “e.g., initial transfer in, fractional, pooled lot, etc.”
+
+D) Evidence & reconciliation (Step 3 in Creative; Section 3 in Classic)
+
+Evidence state (required) — On file / Missing
+
+Evidence type (required if On file) — Contract note / Broker statement / Screenshot / Other
+
+Reference (optional) — Text (e.g., contract note no. or statement period).
+
+Reminder (optional) — Select: none / Re-check price monthly / Re-upload statement quarterly.
+
+3) Validation rules (plain English)
+
+Wrapper: must be chosen.
+
+Custodian: required; at least 2 characters.
+
+Identifier: ISIN has priority; if provided, validate format: 12 characters, uppercase A–Z / 0–9, with a valid ISIN checksum. If ISIN empty, Ticker must be present (1–12 chars).
+
+Distribution type, Bucket: must be chosen.
+
+Units: number > 0; allow up to 6 decimals.
+
+Price: number ≥ 0 (can be blank).
+
+Cost basis / Fees: number ≥ 0 if present.
+
+Evidence: if “On file”, Evidence type must be selected.
+
+Dates: if present, must be valid calendar dates; Valuation date cannot be in the future (demo: allow today).
+
+Error style: inline, beneath the field, short UK copy (“Enter a positive number greater than 0.”).
+
+4) Derived values & preview
+
+Value (GBP) = Units × Price (live preview in the form).
+
+Completeness meter (for the register row, not the form):
+
++30% core metadata (Wrapper, Custodian, Identifier, Name, Distribution type, Bucket)
+
++40% position & dates (Units, Price or Valuation date)
+
++30% evidence (On file + Evidence type)
+
+Display result as a small pill, e.g., “95%”.
+
+5) Microcopy (pasteable)
+
+ISIN helper: “Prefer ISIN if you have it (12 characters, e.g., IE00B3RBWM25).”
+
+Ticker helper: “Exchange tickers vary; use the code you trade.”
+
+Price helper: “End-of-day in GBP. Leave blank if unknown.”
+
+Cost basis helper: “What you paid in total, including fees.”
+
+Evidence helper: “Attach or reference a statement/contract note to keep your register defensible.”
+
+6) Interactions & states
+
+Identify → Position → Evidence (Creative) or stacked sections (Classic).
+
+Next/Back moves between steps; Save closes the intake and (demo) adds a new row to the Holdings table with:
+
+Wrapper tag, Custodian, Identifier, Name, Units, Price, Value, Return “—”, Bucket, Tax/Relief (from Distribution), Evidence state, Completeness pill, and Source = ⤿ Semi-auto (if you add the Source column).
+
+Cancel discards without adding a row.
+
+If ISIN is filled: auto-populate Name (demo: leave editable).
+
+If Distribution = Accumulating: show “Tax/Relief” cell as “Accumulating”; if Distributing, show “Dividends” in that cell (as in your table pattern).
+
+Keyboard: Tab order follows field order; Enter on Save triggers save.
+
+7) Accessibility
+
+Labels on every field; visible focus rings; aria-describedby from helper to field.
+
+Error messages tied to inputs via aria-live="polite" region.
+
+8) Acceptance criteria (for this prototype)
+
+A user can successfully add a listed security with only: Wrapper, Custodian, Identifier (ISIN or Ticker), Distribution type, Bucket, Units.
+
+Optional entries (Price, Cost basis, Evidence, Dates) update the Value preview and Completeness meter.
+
+Saving shows a toast “Listed security added (Semi-auto)” and appends a row in Holdings consistent with the existing table design (name, identifier, custodian, wrapper, units, cost, price, value, return, bucket, tax/relief, evidence, completeness, View).
+
+New row’s Evidence and Completeness reflect form inputs.
+
+ISIN validation rejects wrong length/characters; Ticker accepted when ISIN is empty.
+
+Print view unaffected.

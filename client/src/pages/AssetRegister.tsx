@@ -987,6 +987,99 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [category, setCategory] = useState('listed');
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
+  const [step, setStep] = useState(1);
+  
+  // Listed security form state
+  const [isin, setIsin] = useState('');
+  const [ticker, setTicker] = useState('');
+  const [securityName, setSecurityName] = useState('');
+  const [wrapper, setWrapper] = useState('ISA');
+  const [custodian, setCustodian] = useState('');
+  const [accountLabel, setAccountLabel] = useState('');
+  const [distributionType, setDistributionType] = useState('Accumulating');
+  const [bucket, setBucket] = useState('Global Equity');
+  const [units, setUnits] = useState('');
+  const [price, setPrice] = useState('');
+  const [costBasis, setCostBasis] = useState('');
+  const [fees, setFees] = useState('');
+  const [tradeDate, setTradeDate] = useState('');
+  const [valuationDate, setValuationDate] = useState(new Date().toISOString().split('T')[0]);
+  const [notes, setNotes] = useState('');
+  const [evidenceState, setEvidenceState] = useState('On file');
+  const [evidenceType, setEvidenceType] = useState('Broker statement');
+  const [evidenceReference, setEvidenceReference] = useState('');
+  const [reminder, setReminder] = useState('none');
+  
+  // Validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Computed value
+  const computedValue = units && price ? (parseFloat(units) * parseFloat(price)).toFixed(2) : '—';
+  
+  // Validation function
+  const validateListedSecurity = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Step 1: Identify
+    if (!wrapper) newErrors.wrapper = 'Wrapper is required';
+    if (!custodian || custodian.length < 2) newErrors.custodian = 'Custodian is required (at least 2 characters)';
+    
+    // ISIN/Ticker validation
+    if (!isin && !ticker) {
+      newErrors.identifier = 'Either ISIN or Ticker must be provided';
+    } else if (isin) {
+      // ISIN format validation: 12 chars, alphanumeric
+      const isinPattern = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
+      if (!isinPattern.test(isin.toUpperCase())) {
+        newErrors.isin = 'ISIN must be 12 characters (e.g., IE00B3RBWM25)';
+      }
+    } else if (ticker && (ticker.length < 1 || ticker.length > 12)) {
+      newErrors.ticker = 'Ticker must be 1-12 characters';
+    }
+    
+    if (!distributionType) newErrors.distributionType = 'Distribution type is required';
+    if (!bucket) newErrors.bucket = 'Bucket is required';
+    
+    // Step 2: Position
+    if (!units || parseFloat(units) <= 0) {
+      newErrors.units = 'Enter a positive number greater than 0';
+    } else if (parseFloat(units) && units.split('.')[1]?.length > 6) {
+      newErrors.units = 'Units can have up to 6 decimal places';
+    }
+    
+    if (price && parseFloat(price) < 0) {
+      newErrors.price = 'Price must be 0 or greater';
+    }
+    
+    if (costBasis && parseFloat(costBasis) < 0) {
+      newErrors.costBasis = 'Cost basis must be 0 or greater';
+    }
+    
+    if (fees && parseFloat(fees) < 0) {
+      newErrors.fees = 'Fees must be 0 or greater';
+    }
+    
+    // Date validation
+    if (valuationDate && new Date(valuationDate) > new Date()) {
+      newErrors.valuationDate = 'Valuation date cannot be in the future';
+    }
+    
+    // Step 3: Evidence
+    if (evidenceState === 'On file' && !evidenceType) {
+      newErrors.evidenceType = 'Evidence type is required when evidence is on file';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSaveListedSecurity = () => {
+    if (validateListedSecurity()) {
+      // In production, this would save to backend
+      alert('Listed security added (Semi-auto)');
+      onClose();
+    }
+  };
 
   const assetCategories = [
     { id: 'listed', label: 'Listed security', subtitle: 'Fund • ETF • Share by ISIN or ticker', Icon: TrendingUp },
@@ -1110,41 +1203,392 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
               </div>
             )}
             {category === 'listed' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">ISIN / Ticker</label>
-                    <input type="text" placeholder="e.g., IE00B5BMR087 or VWRL" className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="input-isin" />
-                    <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Paste an ISIN — name and last price are auto-filled on save (in production).</p>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">Name (auto)</label>
-                    <input type="text" placeholder="Autofilled or type manually" className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="input-name" />
-                  </div>
+              <div className="space-y-6">
+                {/* Semi-auto badge */}
+                <div className="flex items-center gap-2 mb-4">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--foreground)]">
+                        <span>⤿</span> Semi-auto
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-xs">Prices/FX may update automatically in future. Positions are entered by you; reconcile with statements.</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">Wrapper</label>
-                    <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-wrapper">
-                      <option>ISA</option>
-                      <option>SIPP</option>
-                      <option>GIA</option>
-                      <option>Personal</option>
-                    </select>
+
+                {/* Step 1: Identify */}
+                {step === 1 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Identify</h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Wrapper <span className="text-red-500">*</span></label>
+                        <select 
+                          value={wrapper}
+                          onChange={(e) => setWrapper(e.target.value)}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="select-wrapper"
+                        >
+                          <option value="ISA">ISA</option>
+                          <option value="SIPP">SIPP</option>
+                          <option value="GIA">GIA</option>
+                          <option value="Personal">Personal</option>
+                        </select>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Choose the tax wrapper the position sits in.</p>
+                        {errors.wrapper && <p className="text-xs text-red-500 mt-1">{errors.wrapper}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Custodian / Broker <span className="text-red-500">*</span></label>
+                        <input 
+                          type="text" 
+                          value={custodian}
+                          onChange={(e) => setCustodian(e.target.value)}
+                          placeholder="e.g., Vanguard, AJ Bell, Trading 212" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-custodian"
+                        />
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Who holds this position.</p>
+                        {errors.custodian && <p className="text-xs text-red-500 mt-1">{errors.custodian}</p>}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Account / Label</label>
+                      <input 
+                        type="text" 
+                        value={accountLabel}
+                        onChange={(e) => setAccountLabel(e.target.value)}
+                        placeholder='e.g., "ISA-Core", "SIPP-Growth"' 
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-account-label"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">ISIN <span className="text-red-500">*</span></label>
+                        <input 
+                          type="text" 
+                          value={isin}
+                          onChange={(e) => setIsin(e.target.value.toUpperCase())}
+                          placeholder="e.g., IE00B3RBWM25" 
+                          maxLength={12}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-isin"
+                        />
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Prefer ISIN if you have it (12 characters, e.g., IE00B3RBWM25).</p>
+                        {errors.isin && <p className="text-xs text-red-500 mt-1">{errors.isin}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Ticker <span className="text-red-500">*</span></label>
+                        <input 
+                          type="text" 
+                          value={ticker}
+                          onChange={(e) => setTicker(e.target.value)}
+                          placeholder="e.g., VUAG, VWRL, AAPL" 
+                          maxLength={12}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-ticker"
+                        />
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Exchange tickers vary; use the code you trade.</p>
+                        {errors.ticker && <p className="text-xs text-red-500 mt-1">{errors.ticker}</p>}
+                      </div>
+                    </div>
+                    {errors.identifier && <p className="text-xs text-red-500 mt-1">{errors.identifier}</p>}
+
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Name</label>
+                      <input 
+                        type="text" 
+                        value={securityName}
+                        onChange={(e) => setSecurityName(e.target.value)}
+                        placeholder='e.g., "Vanguard FTSE All-World UCITS ETF (Acc)"' 
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-security-name"
+                      />
+                      <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Auto-filled on match; editable in demo.</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Distribution type <span className="text-red-500">*</span></label>
+                        <select 
+                          value={distributionType}
+                          onChange={(e) => setDistributionType(e.target.value)}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="select-distribution"
+                        >
+                          <option value="Accumulating">Accumulating</option>
+                          <option value="Distributing">Distributing</option>
+                        </select>
+                        {errors.distributionType && <p className="text-xs text-red-500 mt-1">{errors.distributionType}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Bucket <span className="text-red-500">*</span></label>
+                        <select 
+                          value={bucket}
+                          onChange={(e) => setBucket(e.target.value)}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="select-bucket"
+                        >
+                          <option value="Global Equity">Global Equity</option>
+                          <option value="Global Bonds">Global Bonds</option>
+                          <option value="Cash-like">Cash-like</option>
+                          <option value="Alternatives">Alternatives</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Used for targets and bands.</p>
+                        {errors.bucket && <p className="text-xs text-red-500 mt-1">{errors.bucket}</p>}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                      <button 
+                        onClick={onClose}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" 
+                        data-testid="button-cancel-listed"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={() => setStep(2)}
+                        className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" 
+                        data-testid="button-next-step1"
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">Custodian / Broker</label>
-                    <input type="text" placeholder="e.g., Vanguard Investor UK" className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="input-custodian" />
+                )}
+
+                {/* Step 2: Position & Tax */}
+                {step === 2 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Position</h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Units / Shares <span className="text-red-500">*</span></label>
+                        <input 
+                          type="number" 
+                          value={units}
+                          onChange={(e) => setUnits(e.target.value)}
+                          placeholder="0.000000" 
+                          step="0.000001"
+                          min="0"
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-units"
+                        />
+                        {errors.units && <p className="text-xs text-red-500 mt-1">{errors.units}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Price (GBP)</label>
+                        <input 
+                          type="number" 
+                          value={price}
+                          onChange={(e) => setPrice(e.target.value)}
+                          placeholder="0.00" 
+                          step="0.01"
+                          min="0"
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-price"
+                        />
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">End-of-day in GBP. Leave blank if unknown.</p>
+                        {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[var(--muted-foreground)]">Value (GBP)</span>
+                        <span className="text-lg font-semibold text-[var(--foreground)]">{computedValue}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Cost basis (GBP)</label>
+                        <input 
+                          type="number" 
+                          value={costBasis}
+                          onChange={(e) => setCostBasis(e.target.value)}
+                          placeholder="0.00" 
+                          step="0.01"
+                          min="0"
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-cost-basis"
+                        />
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1.5">What you paid in total, including fees.</p>
+                        {errors.costBasis && <p className="text-xs text-red-500 mt-1">{errors.costBasis}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Fee/Charges (GBP)</label>
+                        <input 
+                          type="number" 
+                          value={fees}
+                          onChange={(e) => setFees(e.target.value)}
+                          placeholder="0.00" 
+                          step="0.01"
+                          min="0"
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-fees"
+                        />
+                        {errors.fees && <p className="text-xs text-red-500 mt-1">{errors.fees}</p>}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Trade/Acquisition date</label>
+                        <input 
+                          type="date" 
+                          value={tradeDate}
+                          onChange={(e) => setTradeDate(e.target.value)}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-trade-date"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Valuation date</label>
+                        <input 
+                          type="date" 
+                          value={valuationDate}
+                          onChange={(e) => setValuationDate(e.target.value)}
+                          max={new Date().toISOString().split('T')[0]}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-valuation-date"
+                        />
+                        {errors.valuationDate && <p className="text-xs text-red-500 mt-1">{errors.valuationDate}</p>}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Notes</label>
+                      <textarea 
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="e.g., initial transfer in, fractional, pooled lot, etc."
+                        rows={3}
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-notes"
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                      <button 
+                        onClick={() => setStep(1)}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" 
+                        data-testid="button-back-step2"
+                      >
+                        Back
+                      </button>
+                      <button 
+                        onClick={() => setStep(3)}
+                        className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" 
+                        data-testid="button-next-step2"
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-end gap-3 mt-6">
-                  <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-back">
-                    Back
-                  </button>
-                  <button className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" data-testid="button-continue">
-                    Continue
-                  </button>
-                </div>
+                )}
+
+                {/* Step 3: Evidence */}
+                {step === 3 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Evidence & reconciliation</h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Evidence state <span className="text-red-500">*</span></label>
+                        <select 
+                          value={evidenceState}
+                          onChange={(e) => setEvidenceState(e.target.value)}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="select-evidence-state"
+                        >
+                          <option value="On file">On file</option>
+                          <option value="Missing">Missing</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Evidence type {evidenceState === 'On file' && <span className="text-red-500">*</span>}</label>
+                        <select 
+                          value={evidenceType}
+                          onChange={(e) => setEvidenceType(e.target.value)}
+                          disabled={evidenceState === 'Missing'}
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:opacity-50" 
+                          data-testid="select-evidence-type"
+                        >
+                          <option value="Contract note">Contract note</option>
+                          <option value="Broker statement">Broker statement</option>
+                          <option value="Screenshot">Screenshot</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        {errors.evidenceType && <p className="text-xs text-red-500 mt-1">{errors.evidenceType}</p>}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Reference</label>
+                      <input 
+                        type="text" 
+                        value={evidenceReference}
+                        onChange={(e) => setEvidenceReference(e.target.value)}
+                        placeholder="e.g., contract note no. or statement period" 
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-evidence-reference"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Reminder</label>
+                      <select 
+                        value={reminder}
+                        onChange={(e) => setReminder(e.target.value)}
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="select-reminder"
+                      >
+                        <option value="none">None</option>
+                        <option value="monthly">Re-check price monthly</option>
+                        <option value="quarterly">Re-upload statement quarterly</option>
+                      </select>
+                    </div>
+
+                    <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+                      <p className="text-xs text-[var(--muted-foreground)]">
+                        Attach or reference a statement/contract note to keep your register defensible.
+                      </p>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                      <button 
+                        onClick={() => setStep(2)}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" 
+                        data-testid="button-back-step3"
+                      >
+                        Back
+                      </button>
+                      <button 
+                        onClick={handleSaveListedSecurity}
+                        className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" 
+                        data-testid="button-save-listed"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {category === 'manual' && mode === 'asset' && (
