@@ -1,0 +1,135 @@
+What to change on the Documents screen (spec)
+
+Add document CTA: a first card “＋ Add document” (drag-and-drop + file picker).
+
+Filters bar: Type, Coverage (Account/Wrapper/Asset), Period, Status (On file / Missing / Needs review), Source (Upload / Email / CSV / Live).
+
+Buckets on the left: Statements, Contract notes, Valuations, Tax relief, Corporate actions, Property, Crypto, Other.
+
+Tiling & pagination: grid that supports hundreds; each card shows Title, Type, Uploaded date, Coverage (what it proves), and a status chip (Used for reconcile / Unmatched).
+
+Linking: on add, user selects what this document covers (one or more: portfolio, account/wrapper, specific asset).
+
+“What’s missing” strip: auto-generated list of required docs (by month/quarter) with quick “Upload” links.
+
+Reminders: per doc (monthly/quarterly/annually/at maturity).
+
+Viewer: lightbox with page thumbnails + “Link to…” button to attach to holdings, plus a small notes field.
+
+Bulk import: “Email to vault” address (prototype copy only) and AI Import tile (already in your sidebar) that proposes links after OCR.
+
+Document types investors usually upload — and why
+
+(Group them in the picker so users don’t overthink it.)
+
+Portfolio & custodian level
+
+Broker/Platform statements (monthly/quarterly/annual) – reconciliation of listed holdings & cash; tax summaries.
+
+Cash statements / interest summaries – prove balances & interest (ISA cash too).
+
+Pension/SIPP annual statements – contributions, charges, and valuation snapshots.
+
+Annual consolidated tax certificate / dividend & interest reports – supports SA100/SA108 CGT and income tax.
+
+Corporate action notices – splits, consolidations, rights; explains unit/cost changes.
+
+Trade evidence
+
+Contract notes / deal confirmations (buy/sell) – source of units, price, fees for cost basis.
+
+Dividend/interest vouchers – income proof for tax.
+
+Property
+
+Title deed / Land Registry extract – ownership proof.
+
+Valuation reports (RICS) / agent letters – current value evidence.
+
+Mortgage statements – liability balance and interest.
+
+Insurance policy / EPC / tenancy agreement (BTL) – risk & cash-flow evidence.
+
+Private equity / venture
+
+Share certificates – ownership.
+
+Subscription agreement / cap table confirmation – terms, fully diluted context.
+
+EIS/SEIS certificates (usually EIS3/SEIS3 for the investor) – tax relief claim evidence.
+
+Companies House filings (SH01/CS01) – allotments and confirmations.
+
+Crypto & digital assets
+
+Exchange statements / CSV exports – balances & transactions period-by-period.
+
+On-chain proofs (signed message / address snapshot / explorer export) – wallet ownership & balances.
+
+Tax calculation report (e.g., year end) – supports CGT/income.
+
+Alternatives & valuables
+
+Bullion storage statements / bar lists – holdings verification.
+
+Appraisal certificates (art, watches, etc.) – valuation evidence.
+
+Invoices & provenance docs – cost basis and authenticity.
+
+Vehicles & other real assets (if you keep them in register)
+
+V5C / logbook, insurance, finance statement – ownership and liability evidence.
+
+Estate & admin (optional but useful)
+
+Will / letter of wishes, trust deeds, POA – for beneficiary pack.
+
+Metadata to capture for every document (so it’s computable)
+
+Type (from the list above).
+
+Coverage: Portfolio / Custodian (e.g., AJ Bell) / Wrapper (ISA/SIPP/GIA) / Asset(s).
+
+Period (from–to) or As-at date.
+
+Source: Upload / Email / CSV / Live (auto).
+
+Status: Used for reconcile / Unmatched / Superseded.
+
+Strength: High (official statement/certificate), Medium (export), Low (screenshot).
+
+Next due (for recurring statements/valuations).
+
+Notes (free text).
+
+File: name, size, type, pages.
+
+How it ties back to the register
+
+In each holding’s drawer, show Evidence with linked documents and their period/as-at.
+
+In Reconciliation, mark a custodian month “Reconciled” only when a statement is linked and totals match.
+
+The Completeness pill uses: metadata ✓ + evidence ✓ + valuation fresh ✓.
+
+Microcopy (paste-ready)
+
+Add document: “Drop files or click to upload. We’ll help you link them to accounts and assets.”
+
+Coverage helper: “Where does this document apply? (You can pick multiple.)”
+
+What’s missing: “To keep your register evidential, upload: Vanguard Oct ’25 statement, Property valuation (due).”
+
+Strength helper: “Official statements and certificates count as strong evidence.”
+
+Acceptance criteria for Replit
+
+New Add document card, filters, and larger grid.
+
+“Link to…” flow that attaches a doc to portfolio / account / specific asset(s).
+
+“What’s missing” renders at least three items based on your demo data (e.g., Trading 212 Oct ’25).
+
+Document viewer lightbox with a Link button and a Notes field.
+
+Cards display Type, Uploaded, Coverage, Status and a small icon (Statement / Contract note / Tax / Property / Crypto / Other).

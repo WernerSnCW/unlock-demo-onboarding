@@ -693,35 +693,183 @@ function TransactionsTab({ density }: any) {
 }
 
 function DocumentsTab({ onViewDoc }: any) {
+  const [selectedBucket, setSelectedBucket] = useState('all');
+  
+  const buckets = [
+    { id: 'all', label: 'All Documents', count: 12 },
+    { id: 'statements', label: 'Statements', count: 3 },
+    { id: 'contract-notes', label: 'Contract notes', count: 2 },
+    { id: 'valuations', label: 'Valuations', count: 2 },
+    { id: 'tax-relief', label: 'Tax relief', count: 1 },
+    { id: 'corporate-actions', label: 'Corporate actions', count: 0 },
+    { id: 'property', label: 'Property', count: 2 },
+    { id: 'crypto', label: 'Crypto', count: 2 },
+    { id: 'other', label: 'Other', count: 0 },
+  ];
+  
   const docs = [
-    { title: 'Vanguard ISA Statement Oct 2025', type: 'Statement', date: '31 Oct 2025', coverage: 'ISA holdings reconciliation' },
-    { title: 'AJ Bell SIPP Valuation', type: 'Valuation', date: '31 Oct 2025', coverage: 'Pension portfolio snapshot' },
-    { title: '42 Elm Street Title Deed', type: 'Property', date: '15 Mar 2023', coverage: 'Property ownership proof' },
-    { title: 'EIS Certificate - FinTech Ventures', type: 'Tax Relief', date: '01 Jan 2024', coverage: 'EIS investment certification' },
-    { title: 'Ledger Wallet Balance Export', type: 'Crypto', date: '01 Nov 2025', coverage: 'BTC holdings verification' },
-    { title: 'MetaMask Transaction History', type: 'Crypto', date: '01 Nov 2025', coverage: 'ETH on-chain activity' },
+    { title: 'Vanguard ISA Statement Oct 2025', type: 'Statement', date: '31 Oct 2025', coverage: 'Vanguard ISA', status: 'Used for reconcile', bucket: 'statements' },
+    { title: 'AJ Bell SIPP Statement Oct 2025', type: 'Statement', date: '31 Oct 2025', coverage: 'AJ Bell SIPP', status: 'Used for reconcile', bucket: 'statements' },
+    { title: 'Hargreaves Lansdown GIA Sep 2025', type: 'Statement', date: '30 Sep 2025', coverage: 'HL GIA', status: 'Unmatched', bucket: 'statements' },
+    { title: 'VWRL Purchase Contract Note', type: 'Contract note', date: '15 Oct 2025', coverage: 'VWRL (ISA)', status: 'Used for reconcile', bucket: 'contract-notes' },
+    { title: 'SWDA Purchase Contract Note', type: 'Contract note', date: '22 Oct 2025', coverage: 'SWDA (ISA)', status: 'Used for reconcile', bucket: 'contract-notes' },
+    { title: 'AJ Bell SIPP Annual Valuation', type: 'Valuation', date: '31 Oct 2025', coverage: 'Pension portfolio', status: 'Used for reconcile', bucket: 'valuations' },
+    { title: '42 Elm Street RICS Valuation', type: 'Valuation', date: '15 Sep 2025', coverage: '42 Elm Street', status: 'Used for reconcile', bucket: 'valuations' },
+    { title: 'EIS3 Certificate - FinTech Ventures', type: 'Tax relief', date: '01 Jan 2024', coverage: 'FinTech Ventures Ltd', status: 'Used for reconcile', bucket: 'tax-relief' },
+    { title: '42 Elm Street Title Deed', type: 'Property', date: '15 Mar 2023', coverage: '42 Elm Street', status: 'Used for reconcile', bucket: 'property' },
+    { title: '42 Elm Street Mortgage Statement', type: 'Property', date: '31 Oct 2025', coverage: '42 Elm Street mortgage', status: 'Used for reconcile', bucket: 'property' },
+    { title: 'Ledger Wallet Balance Export', type: 'Crypto', date: '01 Nov 2025', coverage: 'BTC holdings', status: 'Used for reconcile', bucket: 'crypto' },
+    { title: 'MetaMask Transaction History', type: 'Crypto', date: '01 Nov 2025', coverage: 'ETH on-chain', status: 'Used for reconcile', bucket: 'crypto' },
   ];
 
+  const missingDocs = [
+    { title: 'Trading 212 GIA statement for Oct 2025', action: 'Upload required' },
+    { title: 'Property valuation for 42 Elm Street', action: 'Due in 14 days' },
+    { title: 'Annual tax certificate (consolidated)', action: 'Expected by 31 Jan 2026' },
+  ];
+  
+  const filteredDocs = selectedBucket === 'all' ? docs : docs.filter(d => d.bucket === selectedBucket);
+
   return (
-    <div id="tour-docs-grid" className="grid grid-cols-3 gap-4">
-      {docs.map((doc, idx) => (
-        <button
-          key={idx}
-          onClick={onViewDoc}
-          className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl hover:bg-[var(--muted)] transition-colors text-left shadow-sm"
-          data-testid={`doc-${idx}`}
-        >
-          <div className="flex items-start gap-3 mb-2">
-            <FileText className="h-5 w-5 text-[var(--primary)]" />
-            <h3 className="text-sm font-semibold text-[var(--foreground)] flex-1">{doc.title}</h3>
+    <div className="flex gap-6">
+      {/* Left sidebar - Buckets */}
+      <div className="w-64 flex-shrink-0">
+        <div className="sticky top-4 space-y-1">
+          {buckets.map((bucket) => (
+            <button
+              key={bucket.id}
+              onClick={() => setSelectedBucket(bucket.id)}
+              className={`w-full px-4 py-2.5 rounded-xl text-sm text-left transition-colors flex items-center justify-between ${
+                selectedBucket === bucket.id
+                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                  : 'text-[var(--foreground)] hover:bg-[var(--muted)]'
+              }`}
+              data-testid={`bucket-${bucket.id}`}
+            >
+              <span>{bucket.label}</span>
+              <span className={`text-xs ${selectedBucket === bucket.id ? 'opacity-80' : 'opacity-50'}`}>
+                {bucket.count}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1">
+        {/* Filters bar */}
+        <div className="mb-6 p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl flex items-center gap-3 flex-wrap">
+          <select className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]">
+            <option>All types</option>
+            <option>Statement</option>
+            <option>Contract note</option>
+            <option>Valuation</option>
+            <option>Tax relief</option>
+            <option>Property</option>
+            <option>Crypto</option>
+          </select>
+          <select className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]">
+            <option>All coverage</option>
+            <option>Portfolio</option>
+            <option>Account/Wrapper</option>
+            <option>Specific asset</option>
+          </select>
+          <select className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]">
+            <option>All periods</option>
+            <option>Oct 2025</option>
+            <option>Sep 2025</option>
+            <option>Q3 2025</option>
+            <option>2024</option>
+          </select>
+          <select className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]">
+            <option>All status</option>
+            <option>Used for reconcile</option>
+            <option>Unmatched</option>
+            <option>Needs review</option>
+          </select>
+          <select className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]">
+            <option>All sources</option>
+            <option>Upload</option>
+            <option>Email</option>
+            <option>CSV</option>
+            <option>Live</option>
+          </select>
+        </div>
+
+        {/* What's missing strip */}
+        <div className="mb-6 p-4 bg-[var(--warning)]/10 border border-[var(--warning)]/20 rounded-xl">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+            <Info className="h-4 w-4 text-[var(--warning)]" />
+            What's missing
+          </h3>
+          <div className="space-y-2">
+            {missingDocs.map((missing, idx) => (
+              <div key={idx} className="flex items-center justify-between text-sm">
+                <span className="text-[var(--foreground)]">{missing.title}</span>
+                <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                  Upload
+                </button>
+              </div>
+            ))}
           </div>
-          <div className="space-y-1 text-xs text-[var(--muted-foreground)]">
-            <div>Type: {doc.type}</div>
-            <div>Uploaded: {doc.date}</div>
-            <div>Coverage: {doc.coverage}</div>
-          </div>
-        </button>
-      ))}
+        </div>
+
+        {/* Document grid */}
+        <div id="tour-docs-grid" className="grid grid-cols-3 gap-4">
+          {/* Add document card */}
+          <button
+            className="p-6 bg-[var(--card)] border-2 border-dashed border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all text-center group"
+            data-testid="button-add-document"
+          >
+            <Upload className="h-8 w-8 text-[var(--muted-foreground)] group-hover:text-[var(--primary)] mx-auto mb-3 transition-colors" />
+            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">Add document</h3>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Drop files or click to upload
+            </p>
+          </button>
+
+          {/* Document cards */}
+          {filteredDocs.map((doc, idx) => (
+            <button
+              key={idx}
+              onClick={onViewDoc}
+              className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl hover:bg-[var(--muted)] transition-colors text-left shadow-sm"
+              data-testid={`doc-${idx}`}
+            >
+              <div className="flex items-start gap-3 mb-3">
+                <FileText className="h-5 w-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1 line-clamp-2">
+                    {doc.title}
+                  </h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-0.5 bg-[var(--muted)] rounded text-xs text-[var(--muted-foreground)]">
+                      {doc.type}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-xs ${
+                      doc.status === 'Used for reconcile'
+                        ? 'bg-[var(--success)]/10 text-[var(--success)]'
+                        : 'bg-[var(--warning)]/10 text-[var(--warning)]'
+                    }`}>
+                      {doc.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs text-[var(--muted-foreground)]">
+                <div className="flex items-center gap-2">
+                  <span className="opacity-60">Uploaded:</span>
+                  <span className="text-[var(--foreground)]">{doc.date}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="opacity-60">Coverage:</span>
+                  <span className="text-[var(--foreground)] truncate">{doc.coverage}</span>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
