@@ -183,16 +183,16 @@ export default function AssetRegister() {
                   onClick={() => setAddAssetModal(true)}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2"
                   data-testid="button-add-asset"
-                  title="Record a position or one-off value with statement/certificate proof"
+                  title="Add a new asset to your portfolio"
                 >
-                  ＋ Custom (Manual)
+                  ＋ Add asset
                 </button>
                 <button 
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
                   data-testid="button-add-liability"
-                  title="Record a position or one-off value with statement/certificate proof"
+                  title="Record a new liability such as loans or mortgages"
                 >
-                  − Other liability (Manual)
+                  − Add liability
                 </button>
                 <button 
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
