@@ -1,0 +1,182 @@
+What Replit must change (summary)
+
+Put a Source selector at the top of “Add → Listed security”:
+⚡ Connect broker (default) · ⇪ Import CSV · ✍ Enter manually.
+
+When Connect broker is chosen, show a Broker Picker (logos + search).
+
+After a broker is selected, show Consent & Authenticate (mocked in prototype).
+
+Then show Pick Accounts returned by that broker.
+
+Then show Review & Pick Holdings (the table you have) with Include/Merge/Ignore.
+
+On import, create/upgrade rows with Source = Live, locked Units/Book Cost, and a Provenance line in the drawer.
+
+Screens & behaviours (copy-paste for the UI)
+0) Source selector (top of the Add flow)
+
+Radio buttons or pills:
+
+⚡ Connect broker (recommended)
+
+⇪ Import CSV
+
+✍ Enter manually
+
+If the user changes source later, show a small link near the stepper: “Change source”.
+
+1) Broker Picker (modal)
+
+Header: “Connect a broker/platform (read-only)”
+Search box and a logo grid (examples; use 10–12 for demo):
+
+Vanguard Investor UK, AJ Bell, Hargreaves Lansdown, Interactive Investor, Trading 212, Fidelity UK, Freetrade, Halifax iWeb, Barclays Smart Investor, Charles Stanley, Revolut Trading.
+
+Each tile: logo + name + small “Personal/ISA/SIPP/GIA” hint.
+
+Buttons: Cancel | Continue
+
+2) Consent & Authenticate (modal → mock page)
+
+Consent bullets (read-only):
+
+Read positions (holdings, units, book cost)
+
+Read account metadata (account name/type)
+
+Read cash balances (optional)
+
+No trading. No withdrawals.
+
+Small print: “Access is read-only and expires after 90 days. You can revoke any time.”
+
+CTA: Continue to <Broker> → opens a mock auth screen with:
+
+Username, Password, 2FA code, Approve (this is just for demo; no real creds).
+
+3) Pick Accounts (modal)
+
+Table of accounts returned by the broker:
+
+✓	Account name	Type	Currency	Balance	Suggested wrapper	Identifier
+☐	Vanguard ISA	Investment	GBP	£2,050	ISA	ACC-••12
+☐	Vanguard GIA	Investment	GBP	£540	GIA	ACC-••34
+☐	Vanguard SIPP	Pension	GBP	£0	SIPP	ACC-••56
+
+Wrapper is editable (ISA/SIPP/GIA/Personal).
+
+Buttons: Back | Continue (n selected)
+
+4) Review & Pick Holdings (the key list)
+
+This is where your current screenshot starts, but now it’s after connecting and picking accounts.
+
+Header line:
+“Review & pick holdings”
+Subtext: “Select which positions to import from your connected accounts.”
+Right-aligned context: Broker: Vanguard • Accounts: ISA, GIA · link Change source
+
+Table columns (as shown):
+
+✓ Include
+
+Name
+
+Identifier (ISIN + ticker if known)
+
+Account (Vanguard ISA / Vanguard GIA)
+
+Wrapper (pill; editable)
+
+Units 🔒
+
+Book Cost 🔒
+
+Price (GBP) (auto)
+
+Value (GBP) (auto)
+
+Last updated (timestamp)
+
+Row actions: (inline dropdown or buttons)
+
+Import (default when ticked)
+
+Merge with existing (if a matching manual/CSV row exists: same ISIN + same custodian/account)
+
+Ignore
+
+Footer bar (grey, small lock icon):
+“Locked fields: Units and Book Cost are read-only from broker. Prices/FX update automatically.”
+
+CTA: Back | Import n selected
+
+5) Import result
+
+Toast: “Imported n holdings via Live connection.”
+
+Optional summary card: “Imported 3, merged 1, ignored 2.” Link: Add evidence now.
+
+How imported rows must render
+Holdings table (new rows or upgraded rows)
+
+Source badge: ⚡ Live (new Source column + legend).
+
+Units and Cost show a tiny lock on hover.
+
+Price/Value fill from price feed.
+
+All other columns as you already designed (Wrapper, Bucket, Evidence, Completeness, View).
+
+Detail drawer (View)
+
+Add a Provenance block:
+
+Position source: “⚡ Connected broker — Vanguard ISA (read-only)”
+
+Price source: “End-of-day market data (demo)”
+
+FX source: “ECB (demo)” (if applicable)
+
+Evidence: “Statement on file / Missing”
+
+Units & Cost lines in Position card show a small lock glyph with tooltip “From broker connection”.
+
+CSV & Manual (distinct fallbacks)
+
+CSV: User uploads a broker export, maps fields, imports holdings → Source = ⤿ Semi-auto (editable Units/Cost).
+
+Manual: User enters ISIN/ticker, Units, Cost/Price, Dates → Source = ✍ Manual (fully editable).
+
+Legend chips above the table:
+
+⚡ Live — Positions & prices update automatically.
+
+⤿ Semi-auto — Prices auto; positions from CSV/manual.
+
+✍ Manual — Entered by you; attach evidence.
+
+Edge cases Replit should handle (UI)
+
+Merge flow: When a Live holding matches an existing row, default the action to Merge (no duplicate).
+
+Zero/closed positions: Show but default to Ignore.
+
+No book cost from broker: allow a one-time Cost basis field during import (marked “user supplied”) but keep Source = Live.
+
+Partial coverage: If a broker doesn’t return all accounts, let the user re-open Pick Accounts from a link under the table title.
+
+Acceptance criteria (so “done” is unambiguous)
+
+“Add → Listed security” starts with Source selector; Connect broker leads to Broker Picker → Consent → Auth (mock) → Pick Accounts → Review & Pick Holdings.
+
+Import creates/updates rows with Source = Live, locked Units/Cost, and Provenance in the drawer.
+
+CSV and Manual paths are present and clearly different; rows show ⤿ and ✍ respectively.
+
+A Source legend appears above the register; a Source column appears in the table.
+
+“Change source” link returns the user to the source selector.
+
+No duplicates after import when Merge is used.

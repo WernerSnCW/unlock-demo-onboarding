@@ -989,9 +989,31 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
   const [step, setStep] = useState(1);
   const [sourceType, setSourceType] = useState<'live' | 'semi-auto' | 'manual' | null>(null);
-  const [liveStep, setLiveStep] = useState(1); // For Live flow: 1=Connect, 2=Choose accounts, 3=Review holdings, 4=Summary
+  const [liveStep, setLiveStep] = useState(1); // 1=Broker picker, 2=Consent/Auth, 3=Pick accounts, 4=Review holdings
+  const [selectedBroker, setSelectedBroker] = useState<string | null>(null);
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [selectedHoldings, setSelectedHoldings] = useState<string[]>([]);
+  
+  // Demo broker list
+  const demoBrokers = [
+    { id: 'vanguard', name: 'Vanguard Investor UK', types: 'ISA • SIPP • GIA' },
+    { id: 'ajbell', name: 'AJ Bell', types: 'ISA • SIPP • GIA' },
+    { id: 'hl', name: 'Hargreaves Lansdown', types: 'ISA • SIPP • GIA' },
+    { id: 'ii', name: 'Interactive Investor', types: 'ISA • SIPP' },
+    { id: 't212', name: 'Trading 212', types: 'ISA • GIA' },
+    { id: 'fidelity', name: 'Fidelity UK', types: 'ISA • SIPP • GIA' },
+    { id: 'freetrade', name: 'Freetrade', types: 'ISA • GIA' },
+    { id: 'iweb', name: 'Halifax iWeb', types: 'ISA' },
+    { id: 'barclays', name: 'Barclays Smart Investor', types: 'ISA • GIA' },
+    { id: 'charles', name: 'Charles Stanley', types: 'ISA • SIPP' },
+  ];
+  
+  // Demo accounts
+  const demoAccounts = [
+    { id: 'acc1', name: 'Vanguard ISA', type: 'Investment', currency: 'GBP', balance: '£2,050', wrapper: 'ISA', identifier: 'ACC-••12' },
+    { id: 'acc2', name: 'Vanguard GIA', type: 'Investment', currency: 'GBP', balance: '£540', wrapper: 'GIA', identifier: 'ACC-••34' },
+    { id: 'acc3', name: 'Vanguard SIPP', type: 'Pension', currency: 'GBP', balance: '£0', wrapper: 'SIPP', identifier: 'ACC-••56' },
+  ];
   
   // Demo Live holdings data
   const demoLiveHoldings = [
@@ -1182,8 +1204,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 <button
                   onClick={() => {
                     setSourceType('live');
-                    setLiveStep(3); // Jump to Review holdings (simulating already connected)
-                    setSelectedHoldings(['1', '2', '3']); // Pre-select active holdings
+                    setLiveStep(1); // Start at Broker Picker
                   }}
                   className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
                   data-testid="source-live"
@@ -1192,7 +1213,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                     <div className="text-3xl mb-3">⚡</div>
                     <h4 className="font-semibold text-[var(--foreground)] mb-2">Connect broker</h4>
                     <p className="text-xs text-[var(--muted-foreground)]">
-                      Batch import from connected account (demo: simulated connection)
+                      Batch import from connected account (recommended)
                     </p>
                   </div>
                 </button>
@@ -1300,8 +1321,228 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
             )}
             {category === 'listed' && sourceType === 'live' && (
               <div className="space-y-6">
-                {/* Live Import Flow */}
+                {/* Step 1: Broker Picker */}
+                {liveStep === 1 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Connect a broker/platform (read-only)</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Choose your broker to import holdings
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => { setSourceType(null); setLiveStep(1); }}
+                        className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                      >
+                        Change source
+                      </button>
+                    </div>
+
+                    <input 
+                      type="text" 
+                      placeholder="Search brokers..."
+                      className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                    />
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {demoBrokers.map((broker) => (
+                        <button
+                          key={broker.id}
+                          onClick={() => {
+                            setSelectedBroker(broker.name);
+                            setLiveStep(2);
+                          }}
+                          className="p-4 border border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all text-left"
+                        >
+                          <h4 className="font-semibold text-[var(--foreground)] mb-1">{broker.name}</h4>
+                          <p className="text-xs text-[var(--muted-foreground)]">{broker.types}</p>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <button 
+                        onClick={() => setSourceType(null)}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Consent & Authenticate */}
+                {liveStep === 2 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Consent & Authenticate</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Connecting to {selectedBroker}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+                      <p className="text-sm font-semibold text-[var(--foreground)] mb-2">Read-only access:</p>
+                      <ul className="text-xs text-[var(--muted-foreground)] space-y-1.5 ml-4 list-disc">
+                        <li>Read positions (holdings, units, book cost)</li>
+                        <li>Read account metadata (account name/type)</li>
+                        <li>Read cash balances (optional)</li>
+                        <li className="font-semibold">No trading. No withdrawals.</li>
+                      </ul>
+                    </div>
+
+                    <div className="text-xs text-[var(--muted-foreground)] px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+                      Access is read-only and expires after 90 days. You can revoke any time.
+                    </div>
+
+                    {/* Mock auth form */}
+                    <div className="border border-[var(--border)] rounded-xl p-6 space-y-4">
+                      <h4 className="text-sm font-semibold text-[var(--foreground)] mb-3">Demo: {selectedBroker} Login</h4>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Username</label>
+                        <input 
+                          type="text" 
+                          placeholder="demo@user.com"
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Password</label>
+                        <input 
+                          type="password" 
+                          placeholder="••••••••"
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">2FA Code</label>
+                        <input 
+                          type="text" 
+                          placeholder="123456"
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <button 
+                        onClick={() => setLiveStep(1)}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                      >
+                        Back
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setLiveStep(3);
+                          setSelectedAccounts(['acc1', 'acc2']); // Pre-select ISA and GIA
+                        }}
+                        className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity"
+                      >
+                        Approve & Continue
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Pick Accounts */}
                 {liveStep === 3 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Pick Accounts</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Select accounts to import holdings from
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead className="bg-[var(--muted)] border-b border-[var(--border)]">
+                          <tr>
+                            <th className="px-3 py-2 text-left">
+                              <input type="checkbox" checked={selectedAccounts.length === demoAccounts.length} onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedAccounts(demoAccounts.map(a => a.id));
+                                } else {
+                                  setSelectedAccounts([]);
+                                }
+                              }} />
+                            </th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Account name</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Type</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Currency</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Balance</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Suggested wrapper</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Identifier</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {demoAccounts.map((account) => (
+                            <tr key={account.id} className="border-b border-[var(--border)]">
+                              <td className="px-3 py-3">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedAccounts.includes(account.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedAccounts([...selectedAccounts, account.id]);
+                                    } else {
+                                      setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                    }
+                                  }}
+                                />
+                              </td>
+                              <td className="px-3 py-3 text-[var(--foreground)]">{account.name}</td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{account.type}</td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{account.currency}</td>
+                              <td className="px-3 py-3 text-[var(--foreground)]">{account.balance}</td>
+                              <td className="px-3 py-3">
+                                <select className="px-2 py-1 bg-[var(--input)] border border-[var(--border)] rounded text-[var(--foreground)] text-xs" defaultValue={account.wrapper}>
+                                  <option>ISA</option>
+                                  <option>SIPP</option>
+                                  <option>GIA</option>
+                                  <option>Personal</option>
+                                </select>
+                              </td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{account.identifier}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4">
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''} selected
+                      </p>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => setLiveStep(2)}
+                          className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                        >
+                          Back
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setLiveStep(4);
+                            setSelectedHoldings(['1', '2', '3']); // Pre-select active holdings
+                          }}
+                          disabled={selectedAccounts.length === 0}
+                          className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                          Continue ({selectedAccounts.length} selected)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Review & Pick Holdings */}
+                {liveStep === 4 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between mb-4">
                       <div>
@@ -1310,12 +1551,15 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                           Select which positions to import from your connected accounts
                         </p>
                       </div>
-                      <button 
-                        onClick={() => { setSourceType(null); setLiveStep(1); setSelectedHoldings([]); }}
-                        className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
-                      >
-                        Change source
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-[var(--muted-foreground)]">Broker: {selectedBroker} • Accounts: ISA, GIA</span>
+                        <button 
+                          onClick={() => { setSourceType(null); setLiveStep(1); setSelectedHoldings([]); }}
+                          className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                        >
+                          Change source
+                        </button>
+                      </div>
                     </div>
 
                     {/* Holdings table */}
