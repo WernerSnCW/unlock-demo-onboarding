@@ -225,6 +225,7 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const [, setForceUpdate] = useState(0);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -239,6 +240,23 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen]);
 
+  // Update positions on scroll/resize
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updatePositions = () => {
+      setForceUpdate(prev => prev + 1);
+    };
+
+    window.addEventListener('scroll', updatePositions, true);
+    window.addEventListener('resize', updatePositions);
+
+    return () => {
+      window.removeEventListener('scroll', updatePositions, true);
+      window.removeEventListener('resize', updatePositions);
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -249,8 +267,8 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
       setTimeout(() => step.action!(), 100);
     }
 
-    // Position the bubble
-    setTimeout(() => {
+    // Position the bubble (with delay after scrollIntoView)
+    const positionBubble = () => {
       if (step.target) {
         const target = document.getElementById(step.target);
         if (target) {
@@ -289,9 +307,18 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
           left = Math.max(20, Math.min(left, maxLeft));
 
           setPosition({ top, left });
+        }
+      }
+    };
 
-          // Scroll target into view
+    // Scroll target into view first, then position after scroll completes
+    setTimeout(() => {
+      if (step.target) {
+        const target = document.getElementById(step.target);
+        if (target) {
           target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Position bubble after scroll animation
+          setTimeout(positionBubble, 500);
         }
       } else {
         // Center bubble
