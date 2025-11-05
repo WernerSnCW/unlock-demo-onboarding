@@ -183,16 +183,16 @@ export default function AssetRegister() {
                   onClick={() => setAddAssetModal(true)}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2"
                   data-testid="button-add-asset"
-                  title="Add a new asset to your portfolio"
+                  title="Record a position or one-off value with statement/certificate proof"
                 >
-                  ＋ Add asset
+                  ＋ Custom (Manual)
                 </button>
                 <button 
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
                   data-testid="button-add-liability"
-                  title="Record a new liability such as loans or mortgages"
+                  title="Record a position or one-off value with statement/certificate proof"
                 >
-                  − Add liability
+                  − Other liability (Manual)
                 </button>
                 <button 
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
@@ -987,12 +987,14 @@ function AddAssetModal({ onClose }: any) {
     { id: 'property', label: 'Property', subtitle: 'Home • BTL • Commercial', icon: '🏠' },
     { id: 'private', label: 'Private equity', subtitle: 'EIS/SEIS • Unlisted shares', icon: '🧩' },
     { id: 'alt', label: 'Alternatives', subtitle: 'Metals • Art • Domains • Other', icon: '✨' },
+    { id: 'manual', label: 'Add manually', subtitle: 'Record a position or one-off value with statement/certificate proof.', icon: '📝' },
   ];
 
   const liabilityCategories = [
     { id: 'mortgage', label: 'Mortgage', subtitle: 'Link to a property', icon: '🏦' },
     { id: 'loan', label: 'Loan', subtitle: 'Personal • Business', icon: '📄' },
     { id: 'card', label: 'Credit card', subtitle: 'Rolling balance', icon: '💳' },
+    { id: 'manual', label: 'Add liability manually', subtitle: 'Record a position or one-off value with statement/certificate proof.', icon: '📝' },
   ];
 
   const categories = mode === 'asset' ? assetCategories : liabilityCategories;
@@ -1087,6 +1089,13 @@ function AddAssetModal({ onClose }: any) {
           </div>
           
           <div className="p-6">
+            {category === 'manual' && (
+              <div className="mb-4 px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  Use this when there's no live feed or integration. You can refine or relabel later.
+                </p>
+              </div>
+            )}
             {category === 'listed' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
