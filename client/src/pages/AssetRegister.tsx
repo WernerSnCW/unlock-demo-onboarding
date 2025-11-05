@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
@@ -989,20 +989,20 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
 
   const assetCategories = [
-    { id: 'listed', label: 'Listed security', subtitle: 'Fund • ETF • Share by ISIN or ticker', icon: '📈' },
-    { id: 'cash', label: 'Cash', subtitle: 'Bank or savings balance', icon: '💷' },
-    { id: 'crypto', label: 'Crypto', subtitle: 'Exchange account or on-chain wallet', icon: '🦊' },
-    { id: 'property', label: 'Property', subtitle: 'Home • BTL • Commercial', icon: '🏠' },
-    { id: 'private', label: 'Private equity', subtitle: 'EIS/SEIS • Unlisted shares', icon: '🧩' },
-    { id: 'alt', label: 'Alternatives', subtitle: 'Metals • Art • Domains • Other', icon: '✨' },
-    { id: 'manual', label: 'Add manually', subtitle: 'Record a position or one-off value with statement/certificate proof.', icon: '📝' },
+    { id: 'listed', label: 'Listed security', subtitle: 'Fund • ETF • Share by ISIN or ticker', Icon: TrendingUp },
+    { id: 'cash', label: 'Cash', subtitle: 'Bank or savings balance', Icon: Wallet },
+    { id: 'crypto', label: 'Crypto', subtitle: 'Exchange account or on-chain wallet', Icon: Bitcoin },
+    { id: 'property', label: 'Property', subtitle: 'Home • BTL • Commercial', Icon: Home },
+    { id: 'private', label: 'Private equity', subtitle: 'EIS/SEIS • Unlisted shares', Icon: Briefcase },
+    { id: 'alt', label: 'Alternatives', subtitle: 'Metals • Art • Domains • Other', Icon: Sparkles },
+    { id: 'manual', label: 'Add manually', subtitle: 'Record a position or one-off value with statement/certificate proof.', Icon: FileEdit },
   ];
 
   const liabilityCategories = [
-    { id: 'mortgage', label: 'Mortgage', subtitle: 'Link to a property', icon: '🏦' },
-    { id: 'loan', label: 'Loan', subtitle: 'Personal • Business', icon: '📄' },
-    { id: 'card', label: 'Credit card', subtitle: 'Rolling balance', icon: '💳' },
-    { id: 'manual', label: 'Add liability manually', subtitle: 'Record a position or one-off value with statement/certificate proof.', icon: '📝' },
+    { id: 'mortgage', label: 'Mortgage', subtitle: 'Link to a property', Icon: Building2 },
+    { id: 'loan', label: 'Loan', subtitle: 'Personal • Business', Icon: Landmark },
+    { id: 'card', label: 'Credit card', subtitle: 'Rolling balance', Icon: CreditCard },
+    { id: 'manual', label: 'Add liability manually', subtitle: 'Record a position or one-off value with statement/certificate proof.', Icon: FileEdit },
   ];
 
   const categories = mode === 'asset' ? assetCategories : liabilityCategories;
@@ -1055,20 +1055,25 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
 
         {/* Category Tiles */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setCategory(cat.id)}
-              className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : 'border-[var(--border)]'} bg-[var(--card)]`}
-              data-testid={`tile-${cat.id}`}
-            >
-              <div className="relative z-10">
-                <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
-                <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
-              </div>
-              <div className="absolute bottom-3 right-3 text-3xl opacity-80">{cat.icon}</div>
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const IconComponent = cat.Icon;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setCategory(cat.id)}
+                className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)] bg-[var(--primary)]/5' : 'border-[var(--border)]'} bg-[var(--card)]`}
+                data-testid={`tile-${cat.id}`}
+              >
+                <div className="relative z-10">
+                  <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
+                </div>
+                <div className="absolute bottom-3 right-3 text-[var(--primary)] opacity-20">
+                  <IconComponent className="h-12 w-12" />
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* Stepper Panel */}
