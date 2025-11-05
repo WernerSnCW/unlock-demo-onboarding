@@ -810,9 +810,8 @@ function AddAssetModal({ onClose }: any) {
       <div className="max-w-5xl mx-auto py-8 px-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] shadow-lg"></div>
-            <span className="text-lg font-bold text-[var(--foreground)]">Unlock — Add Assets</span>
+          <div>
+            <h2 className="text-lg font-bold text-[var(--foreground)]">{mode === 'asset' ? 'Add Assets' : 'Add Liabilities'}</h2>
           </div>
           <div className="flex items-center gap-3">
             <button 
@@ -841,14 +840,14 @@ function AddAssetModal({ onClose }: any) {
             className={`px-4 py-2.5 rounded-full border transition-all ${mode === 'asset' ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]' : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'}`}
             data-testid="tab-add-asset"
           >
-            ＋ Add asset
+            Add Assets
           </button>
           <button
             onClick={() => setMode('liability')}
             className={`px-4 py-2.5 rounded-full border transition-all ${mode === 'liability' ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]' : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'}`}
             data-testid="tab-add-liability"
           >
-            − Add liability
+            Add Liabilities
           </button>
         </div>
 
