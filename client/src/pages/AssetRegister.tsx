@@ -13,90 +13,90 @@ export default function AssetRegister() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#0b0e13] ${density === 'compact' ? 'text-sm' : ''}`}>
+    <div className={`min-h-screen bg-[var(--background)] ${density === 'compact' ? 'text-sm' : ''}`}>
       {/* Skip to content for accessibility */}
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white dark:bg-gray-800 focus:text-black dark:text-white focus:rounded-lg">
         Skip to content
       </a>
 
       <div className="grid grid-cols-[300px_1fr]">
         {/* Sidebar */}
-        <aside className="bg-gradient-to-b from-[#0e1421] to-[#0b0e13] border-r border-white/8 p-6 sticky top-0 h-screen overflow-auto">
+        <aside className="bg-[var(--card)] border-r border-[var(--border)] p-6 sticky top-0 h-screen overflow-auto">
           <div className="flex items-center gap-3 mb-6" aria-label="Unlock">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#6cc0ff] to-[#a4b5ff] shadow-lg" aria-hidden="true"></div>
-            <span className="text-[15px] font-bold text-[#cfe6ff]">Unlock • Asset Register</span>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] shadow-lg" aria-hidden="true"></div>
+            <span className="text-[15px] font-bold text-[var(--foreground)]">Unlock • Asset Register</span>
           </div>
 
           <div className="space-y-6">
             <div>
-              <h3 className="text-xs text-[#98a6c7] uppercase tracking-wider mb-3">Valuation Snapshot</h3>
-              <div className="text-sm text-[#eaf0ff] mb-2">As at: 31 Oct 2025</div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4] mb-2">
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Valuation Snapshot</h3>
+              <div className="text-sm text-[var(--foreground)] mb-2">As at: 31 Oct 2025</div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)] mb-2">
                 EOD prices • GBP
               </div>
-              <p className="text-xs text-[#98a6c7] leading-relaxed">
+              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
                 Last reconcile: Oct 2025 (Vanguard, AJ Bell). Pending: Trading 212.
               </p>
             </div>
 
             <div>
-              <h3 className="text-xs text-[#98a6c7] uppercase tracking-wider mb-3">Entities</h3>
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Entities</h3>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">Personal (100%)</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">Spouse (—)</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">Ltd (—)</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Personal (100%)</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Spouse (—)</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Ltd (—)</span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-xs text-[#98a6c7] uppercase tracking-wider mb-3">Wrappers</h3>
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Wrappers</h3>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">ISA</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">SIPP</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">GIA</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">Personal</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">ISA</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">SIPP</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">GIA</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Personal</span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-xs text-[#98a6c7] uppercase tracking-wider mb-3">Custodians</h3>
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Custodians</h3>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">Vanguard Investor UK</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">AJ Bell</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">HSBC Savings</span>
-                <span className="px-3 py-1.5 bg-white/6 border border-white/8 rounded-full text-xs text-[#c7d2e4]">Ledger – Main</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Vanguard Investor UK</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">AJ Bell</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">HSBC Savings</span>
+                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Ledger – Main</span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-xs text-[#98a6c7] uppercase tracking-wider mb-3">Quick Actions</h3>
+              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Quick Actions</h3>
               <div className="space-y-2">
                 <button 
                   onClick={() => setAddAssetModal(true)}
-                  className="w-full px-3 py-2 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf0ff] hover:bg-white/12 transition-colors flex items-center gap-2"
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2"
                   data-testid="button-add-asset"
                 >
                   ＋ Add asset
                 </button>
-                <button className="w-full px-3 py-2 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf0ff] hover:bg-white/12 transition-colors flex items-center gap-2" data-testid="button-add-liability">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2" data-testid="button-add-liability">
                   − Add liability
                 </button>
-                <button className="w-full px-3 py-2 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf0ff] hover:bg-white/12 transition-colors flex items-center gap-2" data-testid="button-import-csv">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2" data-testid="button-import-csv">
                   ⇪ Import CSV
                 </button>
-                <button className="w-full px-3 py-2 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf0ff] hover:bg-white/12 transition-colors flex items-center gap-2" data-testid="button-ai-import">
+                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2" data-testid="button-ai-import">
                   ✨ AI Import
                 </button>
                 <button 
                   onClick={() => setDocLightbox(true)}
-                  className="w-full px-3 py-2 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf0ff] hover:bg-white/12 transition-colors flex items-center gap-2"
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2"
                   data-testid="button-upload-evidence"
                 >
                   <Upload className="h-4 w-4" /> Upload evidence
                 </button>
                 <button 
                   onClick={() => setDensity(density === 'normal' ? 'compact' : 'normal')}
-                  className="w-full px-3 py-2 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf0ff] hover:bg-white/12 transition-colors flex items-center gap-2"
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors flex items-center gap-2"
                   data-testid="button-density"
                 >
                   ⇕ Density: {density === 'normal' ? 'Normal' : 'Compact'}
@@ -109,36 +109,36 @@ export default function AssetRegister() {
         {/* Main Content */}
         <main className="min-h-screen">
           {/* Header */}
-          <header className="sticky top-0 z-20 backdrop-blur-md bg-[#0b0e13]/65 border-b border-white/8 px-6 py-4 flex items-center justify-between gap-4">
+          <header className="sticky top-0 z-20 backdrop-blur-md bg-[var(--background)]/80 border-b border-[var(--border)] px-6 py-4 flex items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
               <input
                 type="search"
                 placeholder="Search instruments, accounts, documents…"
-                className="w-full bg-[#111623] border border-white/8 px-4 py-3 pr-10 text-[#eaf0ff] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#99d6ff]"
+                className="w-full bg-[var(--input)] border border-[var(--border)] px-4 py-3 pr-10 text-[var(--foreground)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 data-testid="input-search"
               />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#98a6c7]" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--muted-foreground)]" />
             </div>
 
             <div className="flex items-center gap-3">
-              <select className="bg-[#111623] border border-white/8 text-[#eaf0ff] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#99d6ff]" data-testid="select-currency">
+              <select className="bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-currency">
                 <option>GBP</option>
                 <option>EUR</option>
                 <option>USD</option>
               </select>
 
-              <button className="px-4 py-2.5 bg-[#151b2a] border border-white/9 rounded-xl text-[#eaf0ff] flex items-center gap-2" data-testid="button-status">
-                <span className="w-2 h-2 rounded-full bg-[#4ade80]"></span>
+              <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] flex items-center gap-2" data-testid="button-status">
+                <span className="w-2 h-2 rounded-full bg-[var(--success)]"></span>
                 Reconciled
               </button>
 
-              <button className="px-4 py-2.5 bg-[#151b2a] border border-white/8 rounded-xl text-[#eaf0ff] hover:bg-[#1a2335] transition-colors" data-testid="button-export">
+              <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-export">
                 <Download className="h-4 w-4" />
               </button>
 
               <button 
                 onClick={handlePrint}
-                className="px-4 py-2.5 bg-[#151b2a] border border-white/8 rounded-xl text-[#eaf0ff] hover:bg-[#1a2335] transition-colors"
+                className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
                 data-testid="button-print"
               >
                 <Printer className="h-4 w-4" />
@@ -173,8 +173,8 @@ export default function AssetRegister() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2.5 rounded-full border text-sm transition-all ${
                       activeTab === tab.id
-                        ? 'bg-gradient-to-b from-[#1b2438] to-[#151f33] border-white/9 text-[#cfe0ff] shadow-lg'
-                        : 'bg-[#111623] border-white/8 text-[#cfe0ff] hover:bg-white/12'
+                        ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)] shadow-md'
+                        : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'
                     }`}
                     data-testid={`tab-${tab.id}`}
                   >
@@ -217,15 +217,15 @@ export default function AssetRegister() {
 
 function KPITile({ label, value, delta, sublabel, positive, negative, ...props }: any) {
   return (
-    <div className="p-4 rounded-2xl bg-gradient-to-b from-[#121a29] to-[#0f1725] border border-white/8" {...props}>
-      <div className="text-xs text-[#98a6c7] mb-1">{label}</div>
-      <div className="text-[22px] font-bold text-[#eaf0ff] mt-1">{value}</div>
+    <div className="p-4 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-sm" {...props}>
+      <div className="text-xs text-[var(--muted-foreground)] mb-1">{label}</div>
+      <div className="text-xl font-bold text-[var(--foreground)] mt-1">{value}</div>
       {delta && (
-        <div className={`text-xs mt-2 ${positive ? 'text-[#4ade80]' : negative ? 'text-[#ff667a]' : 'text-[#98a6c7]'}`}>
+        <div className={`text-xs mt-2 ${positive ? 'text-[var(--success)]' : negative ? 'text-[var(--destructive)]' : 'text-[var(--muted-foreground)]'}`}>
           {delta}
         </div>
       )}
-      {sublabel && <div className="text-xs text-[#98a6c7] mt-2">{sublabel}</div>}
+      {sublabel && <div className="text-xs text-[var(--muted-foreground)] mt-2">{sublabel}</div>}
     </div>
   );
 }
@@ -244,60 +244,60 @@ function HoldingsTab({ onViewDetail, density }: any) {
   const rowPadding = density === 'compact' ? 'py-2 px-3' : 'py-3 px-4';
 
   return (
-    <div className="overflow-auto border border-white/8 rounded-2xl bg-[#151b2a]">
+    <div className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-[#12192a] border-b border-white/8 sticky top-0">
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Asset</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Identifier</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Custodian</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Wrapper</th>
-            <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Units</th>
-            <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Cost</th>
-            <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Price</th>
-            <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Value</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Return</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Bucket</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Tax/Relief</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Evidence</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Complete</th>
-            <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Actions</th>
+          <tr className="bg-[var(--muted)] border-b border-[var(--border)] sticky top-0">
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Identifier</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Custodian</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
+            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
+            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Cost</th>
+            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price</th>
+            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Return</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Bucket</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Tax/Relief</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Complete</th>
+            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {holdings.map((holding, idx) => (
-            <tr key={idx} className="border-b border-white/8 hover:bg-white/4 transition-colors">
+            <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors">
               <td className={rowPadding}>
-                <div className="font-medium text-sm text-[#eaf0ff]" data-testid={`text-asset-${idx}`}>{holding.asset}</div>
-                <div className="text-xs text-[#98a6c7]">{holding.type}</div>
+                <div className="font-medium text-sm text-[var(--foreground)]" data-testid={`text-asset-${idx}`}>{holding.asset}</div>
+                <div className="text-xs text-[var(--muted-foreground)]">{holding.type}</div>
               </td>
-              <td className={`${rowPadding} text-sm text-[#eaf0ff]`} data-testid={`text-identifier-${idx}`}>{holding.identifier}</td>
-              <td className={`${rowPadding} text-sm text-[#eaf0ff]`}>{holding.custodian}</td>
+              <td className={`${rowPadding} text-sm text-[var(--foreground)]`} data-testid={`text-identifier-${idx}`}>{holding.identifier}</td>
+              <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.custodian}</td>
               <td className={rowPadding}>
                 <WrapperTag wrapper={holding.wrapper} />
               </td>
-              <td className={`${rowPadding} text-right text-sm text-[#eaf0ff]`}>{holding.units}</td>
-              <td className={`${rowPadding} text-right text-sm text-[#eaf0ff]`}>{holding.cost}</td>
-              <td className={`${rowPadding} text-right text-sm text-[#eaf0ff]`}>{holding.price}</td>
-              <td className={`${rowPadding} text-right text-sm text-[#eaf0ff] font-medium`}>{holding.value}</td>
-              <td className={`${rowPadding} text-sm text-[#4ade80]`}>{holding.return}</td>
-              <td className={`${rowPadding} text-sm text-[#eaf0ff]`}>{holding.bucket}</td>
+              <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.units}</td>
+              <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.cost}</td>
+              <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.price}</td>
+              <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{holding.value}</td>
+              <td className={`${rowPadding} text-sm text-[var(--success)]`}>{holding.return}</td>
+              <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.bucket}</td>
               <td className={rowPadding}>
                 {holding.countdown ? (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-white/8 bg-gradient-to-b from-[#1b2438] to-[#151f33] text-xs text-[#cfe6ff]">
-                    <span className="w-2 h-2 rounded-full bg-[#ffd166]"></span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-[var(--border)] bg-[var(--muted)] text-xs text-[var(--foreground)]">
+                    <span className="w-2 h-2 rounded-full bg-[var(--warning)]"></span>
                     {holding.countdown}
                   </span>
                 ) : holding.tax === 'On-chain verify' ? (
-                  <span className="px-2 py-1 rounded-full bg-blue-500/12 text-blue-300 text-xs border border-blue-500/20">
+                  <span className="px-2 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs border border-[var(--primary)]/20">
                     {holding.tax}
                   </span>
                 ) : holding.tax === 'EIS' ? (
-                  <span className="px-2 py-1 rounded-full bg-green-500/12 text-green-300 text-xs border border-green-500/20 font-medium">
+                  <span className="px-2 py-1 rounded-full bg-[var(--success)]/10 text-[var(--success)] text-xs border border-[var(--success)]/20 font-medium">
                     {holding.tax}
                   </span>
                 ) : (
-                  <span className="text-sm text-[#eaf0ff]">{holding.tax}</span>
+                  <span className="text-sm text-[var(--foreground)]">{holding.tax}</span>
                 )}
               </td>
               <td className={rowPadding}>
@@ -309,7 +309,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
               <td className={rowPadding}>
                 <button 
                   onClick={() => onViewDetail(holding.type.includes('Property') ? 'property' : 'listed')}
-                  className="px-3 py-1 bg-transparent border border-white/8 rounded-lg text-xs text-[#eaf0ff] hover:bg-white/8 transition-colors"
+                  className="px-3 py-1 bg-transparent border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
                   data-testid={`button-view-${idx}`}
                 >
                   View
@@ -319,7 +319,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
           ))}
         </tbody>
       </table>
-      <div className="px-4 py-3 bg-[#12192a] text-xs text-[#98a6c7] border-t border-white/8">
+      <div className="px-4 py-3 bg-[var(--muted)] text-xs text-[var(--muted-foreground)] border-t border-[var(--border)]">
         Total: £370,280 • 7 holdings across 4 wrappers
       </div>
     </div>
@@ -328,10 +328,10 @@ function HoldingsTab({ onViewDetail, density }: any) {
 
 function WrapperTag({ wrapper }: { wrapper: string }) {
   const colors: any = {
-    ISA: 'bg-[#6cc0ff]/12 text-[#bfe6ff] border-[#6cc0ff]/20',
-    SIPP: 'bg-[#9ae6b4]/12 text-[#d3ffe7] border-[#9ae6b4]/20',
-    GIA: 'bg-[#ffd166]/12 text-[#ffe7aa] border-[#ffd166]/20',
-    Personal: 'bg-white/8 text-[#c7d2e4] border-white/14',
+    ISA: 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20',
+    SIPP: 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20',
+    GIA: 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20',
+    Personal: 'bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]',
   };
   return (
     <span className={`px-2 py-1 rounded-full text-xs border ${colors[wrapper] || colors.Personal}`}>
@@ -342,9 +342,9 @@ function WrapperTag({ wrapper }: { wrapper: string }) {
 
 function EvidenceStatus({ status }: { status: string }) {
   const statusConfig: any = {
-    'On file': { color: 'text-[#4ade80]', dot: 'bg-[#4ade80]' },
-    'Valuation due': { color: 'text-[#ffd166]', dot: 'bg-[#ffd166]' },
-    'On-chain verify': { color: 'text-[#6cc0ff]', dot: 'bg-[#6cc0ff]' },
+    'On file': { color: 'text-[var(--success)]', dot: 'bg-[var(--success)]' },
+    'Valuation due': { color: 'text-[var(--warning)]', dot: 'bg-[var(--warning)]' },
+    'On-chain verify': { color: 'text-[var(--primary)]', dot: 'bg-[var(--primary)]' },
   };
   const config = statusConfig[status] || statusConfig['On file'];
   return (
@@ -357,11 +357,11 @@ function EvidenceStatus({ status }: { status: string }) {
 
 function CompletenessBar({ percentage }: { percentage: number }) {
   return (
-    <div className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-white/6 border border-white/8">
-      <span className="text-xs text-[#eaf0ff]">{percentage}%</span>
-      <div className="w-24 h-2 bg-white/12 rounded-full overflow-hidden">
+    <div className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-[var(--muted)] border border-[var(--border)]">
+      <span className="text-xs text-[var(--foreground)]">{percentage}%</span>
+      <div className="w-24 h-2 bg-[var(--background)] rounded-full overflow-hidden">
         <div 
-          className="h-full bg-gradient-to-r from-[#9ae6b4] to-[#b2f5ea]" 
+          className="h-full bg-gradient-to-r from-[var(--success)] to-[var(--primary)]" 
           style={{ width: `${percentage}%` }}
         ></div>
       </div>
@@ -381,44 +381,44 @@ function TargetsTab() {
   return (
     <div className="space-y-4">
       {bands.map((band, idx) => (
-        <div key={idx} className="p-4 bg-[#151b2a] border border-white/8 rounded-xl" data-testid={`band-${idx}`}>
+        <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`band-${idx}`}>
           <div className="flex justify-between items-start mb-3">
             <div>
-              <h3 className="text-base font-semibold text-[#eaf0ff]">{band.bucket}</h3>
-              <p className="text-xs text-[#98a6c7]">Target {band.target}% • Band {band.band[0]}–{band.band[1]}%</p>
+              <h3 className="text-base font-semibold text-[var(--foreground)]">{band.bucket}</h3>
+              <p className="text-xs text-[var(--muted-foreground)]">Target {band.target}% • Band {band.band[0]}–{band.band[1]}%</p>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-[#eaf0ff]">{band.current}%</div>
-              <div className={`text-xs ${band.status.includes('over') ? 'text-[#ff667a]' : band.status.includes('under') ? 'text-[#ffd166]' : 'text-[#4ade80]'}`}>
+              <div className="text-lg font-bold text-[var(--foreground)]">{band.current}%</div>
+              <div className={`text-xs ${band.status.includes('over') ? 'text-[var(--destructive)]' : band.status.includes('under') ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
                 {band.status}
               </div>
             </div>
           </div>
-          <div className="h-2.5 bg-white/8 rounded-full overflow-hidden mb-2">
+          <div className="h-2.5 bg-[var(--muted)] rounded-full overflow-hidden mb-2">
             <div 
-              className="h-full bg-gradient-to-r from-[#6cc0ff] to-[#a0e9ff]" 
+              className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" 
               style={{ width: `${band.current}%` }}
             ></div>
           </div>
           {band.action && (
-            <p className="text-sm text-[#98a6c7] mt-2">→ {band.action}</p>
+            <p className="text-sm text-[var(--muted-foreground)] mt-2">→ {band.action}</p>
           )}
         </div>
       ))}
 
-      <div className="mt-6 p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Suggested Actions</h3>
-        <ul className="space-y-2 text-sm text-[#eaf0ff]">
+      <div className="mt-6 p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Suggested Actions</h3>
+        <ul className="space-y-2 text-sm text-[var(--foreground)]">
           <li className="flex items-start gap-2">
-            <span className="text-[#6cc0ff]">•</span>
+            <span className="text-[var(--primary)]">•</span>
             <span>Sell £7,200 from Global Equity ISA holdings to rebalance</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#6cc0ff]">•</span>
+            <span className="text-[var(--primary)]">•</span>
             <span>Increase cash reserves by £6,000 from sale proceeds</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#6cc0ff]">•</span>
+            <span className="text-[var(--primary)]">•</span>
             <span>Monitor property allocation after next valuation</span>
           </li>
         </ul>
@@ -438,51 +438,51 @@ function TransactionsTab({ density }: any) {
 
   return (
     <div>
-      <div className="overflow-auto border border-white/8 rounded-2xl bg-[#151b2a] mb-4">
+      <div className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm mb-4">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-[#12192a] border-b border-white/8">
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Trade Date</th>
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Action</th>
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Identifier</th>
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Asset</th>
-              <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Units</th>
-              <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Price</th>
-              <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Fees</th>
-              <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Tax</th>
-              <th className={`${rowPadding} text-right text-xs text-[#b9c6da] font-medium`}>Net Amount</th>
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Broker</th>
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Wrapper</th>
-              <th className={`${rowPadding} text-left text-xs text-[#b9c6da] font-medium`}>Evidence</th>
+            <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Trade Date</th>
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Action</th>
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Identifier</th>
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
+              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price</th>
+              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Fees</th>
+              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Tax</th>
+              <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Net Amount</th>
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Broker</th>
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
+              <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence</th>
             </tr>
           </thead>
           <tbody>
             {transactions.map((tx, idx) => (
-              <tr key={idx} className="border-b border-white/8 hover:bg-white/4 transition-colors" data-testid={`row-transaction-${idx}`}>
-                <td className={`${rowPadding} text-sm text-[#eaf0ff]`}>{tx.date}</td>
+              <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors" data-testid={`row-transaction-${idx}`}>
+                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.date}</td>
                 <td className={rowPadding}>
-                  <span className={`px-2 py-1 rounded-full text-xs ${tx.action === 'Buy' ? 'bg-green-500/12 text-green-300 border border-green-500/20' : 'bg-red-500/12 text-red-300 border border-red-500/20'}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs ${tx.action === 'Buy' ? 'bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20' : 'bg-[var(--destructive)]/10 text-[var(--destructive)] border border-[var(--destructive)]/20'}`}>
                     {tx.action}
                   </span>
                 </td>
-                <td className={`${rowPadding} text-sm text-[#eaf0ff]`}>{tx.identifier}</td>
-                <td className={`${rowPadding} text-sm text-[#eaf0ff]`}>{tx.asset}</td>
-                <td className={`${rowPadding} text-right text-sm text-[#eaf0ff]`}>{tx.units}</td>
-                <td className={`${rowPadding} text-right text-sm text-[#eaf0ff]`}>{tx.price}</td>
-                <td className={`${rowPadding} text-right text-sm text-[#98a6c7]`}>{tx.fees}</td>
-                <td className={`${rowPadding} text-right text-sm text-[#98a6c7]`}>{tx.tax}</td>
-                <td className={`${rowPadding} text-right text-sm text-[#eaf0ff] font-medium`}>{tx.net}</td>
-                <td className={`${rowPadding} text-sm text-[#eaf0ff]`}>{tx.broker}</td>
+                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.identifier}</td>
+                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.asset}</td>
+                <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{tx.units}</td>
+                <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{tx.price}</td>
+                <td className={`${rowPadding} text-right text-sm text-[var(--muted-foreground)]`}>{tx.fees}</td>
+                <td className={`${rowPadding} text-right text-sm text-[var(--muted-foreground)]`}>{tx.tax}</td>
+                <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{tx.net}</td>
+                <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{tx.broker}</td>
                 <td className={rowPadding}><WrapperTag wrapper={tx.wrapper} /></td>
-                <td className={`${rowPadding} text-sm text-[#98a6c7]`}>{tx.evidence}</td>
+                <td className={`${rowPadding} text-sm text-[var(--muted-foreground)]`}>{tx.evidence}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="p-4 bg-[#151b2a]/50 border border-white/8 rounded-xl">
-        <p className="text-sm text-[#98a6c7] leading-relaxed">
-          <strong className="text-[#eaf0ff]">Auditability note:</strong> All transactions are recorded for Section 104 pooling calculations and CGT reporting. ISA and SIPP transactions are exempt from capital gains tax.
+      <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm">
+        <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+          <strong className="text-[var(--foreground)]">Auditability note:</strong> All transactions are recorded for Section 104 pooling calculations and CGT reporting. ISA and SIPP transactions are exempt from capital gains tax.
         </p>
       </div>
     </div>
@@ -505,14 +505,14 @@ function DocumentsTab({ onViewDoc }: any) {
         <button
           key={idx}
           onClick={onViewDoc}
-          className="p-4 bg-[#151b2a] border border-white/8 rounded-xl hover:bg-white/4 transition-colors text-left"
+          className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl hover:bg-[var(--muted)] transition-colors text-left shadow-sm"
           data-testid={`doc-${idx}`}
         >
           <div className="flex items-start gap-3 mb-2">
-            <FileText className="h-5 w-5 text-[#6cc0ff]" />
-            <h3 className="text-sm font-semibold text-[#eaf0ff] flex-1">{doc.title}</h3>
+            <FileText className="h-5 w-5 text-[var(--primary)]" />
+            <h3 className="text-sm font-semibold text-[var(--foreground)] flex-1">{doc.title}</h3>
           </div>
-          <div className="space-y-1 text-xs text-[#98a6c7]">
+          <div className="space-y-1 text-xs text-[var(--muted-foreground)]">
             <div>Type: {doc.type}</div>
             <div>Uploaded: {doc.date}</div>
             <div>Coverage: {doc.coverage}</div>
@@ -534,44 +534,44 @@ function ReconciliationTab() {
     <div>
       <div className="grid grid-cols-3 gap-4 mb-6">
         {accounts.map((acc, idx) => (
-          <div key={idx} className="p-4 bg-[#151b2a] border border-white/8 rounded-xl" data-testid={`reconcile-${idx}`}>
+          <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`reconcile-${idx}`}>
             <div className="flex justify-between items-start mb-3">
-              <h3 className="text-sm font-semibold text-[#eaf0ff]">{acc.name}</h3>
-              <span className={`px-2 py-1 rounded-full text-xs border ${acc.status === 'Reconciled' ? 'bg-green-500/12 text-green-300 border-green-500/20' : 'bg-amber-500/12 text-amber-300 border-amber-500/20'}`}>
+              <h3 className="text-sm font-semibold text-[var(--foreground)]">{acc.name}</h3>
+              <span className={`px-2 py-1 rounded-full text-xs border ${acc.status === 'Reconciled' ? 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20' : 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20'}`}>
                 {acc.status}
               </span>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#98a6c7]">Period:</span>
-                <span className="text-[#eaf0ff]">{acc.period}</span>
+                <span className="text-[var(--muted-foreground)]">Period:</span>
+                <span className="text-[var(--foreground)]">{acc.period}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#98a6c7]">Statement:</span>
-                <span className="text-[#eaf0ff]">{acc.statement}</span>
+                <span className="text-[var(--muted-foreground)]">Statement:</span>
+                <span className="text-[var(--foreground)]">{acc.statement}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#98a6c7]">Differences:</span>
-                <span className="text-[#eaf0ff]">{acc.differences}</span>
+                <span className="text-[var(--muted-foreground)]">Differences:</span>
+                <span className="text-[var(--foreground)]">{acc.differences}</span>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="p-4 bg-[#151b2a]/50 border border-dashed border-white/14 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">What's Missing</h3>
-        <ul className="space-y-2 text-sm text-[#98a6c7]">
+      <div className="p-4 bg-[var(--card)] border border-dashed border-[var(--border)] rounded-xl shadow-sm">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">What's Missing</h3>
+        <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
           <li className="flex items-start gap-2">
-            <span className="text-[#ffd166]">⚠</span>
+            <span className="text-[var(--warning)]">⚠</span>
             <span>Trading 212 GIA statement for Oct 2025 – Upload required</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#ffd166]">⚠</span>
+            <span className="text-[var(--warning)]">⚠</span>
             <span>Property valuation for 42 Elm Street – Due in 14 days</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#ffd166]">⚠</span>
+            <span className="text-[var(--warning)]">⚠</span>
             <span>EIS certificate renewal check – Review in 30 days</span>
           </li>
         </ul>
@@ -591,20 +591,20 @@ function HouseholdTab() {
     <div>
       <div className="space-y-4 mb-6">
         {entities.map((entity, idx) => (
-          <div key={idx} className="p-4 bg-[#151b2a] border border-white/8 rounded-xl" data-testid={`household-${idx}`}>
+          <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`household-${idx}`}>
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="text-base font-semibold text-[#eaf0ff]">{entity.name}</h3>
-                <p className="text-xs text-[#98a6c7]">{entity.note}</p>
+                <h3 className="text-base font-semibold text-[var(--foreground)]">{entity.name}</h3>
+                <p className="text-xs text-[var(--muted-foreground)]">{entity.note}</p>
               </div>
               <div className="text-right">
-                <div className="text-lg font-bold text-[#eaf0ff]">{entity.ownership}%</div>
-                <div className="text-sm text-[#98a6c7]">{entity.value}</div>
+                <div className="text-lg font-bold text-[var(--foreground)]">{entity.ownership}%</div>
+                <div className="text-sm text-[var(--muted-foreground)]">{entity.value}</div>
               </div>
             </div>
-            <div className="h-2.5 bg-white/8 rounded-full overflow-hidden">
+            <div className="h-2.5 bg-[var(--muted)] rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#6cc0ff] to-[#a0e9ff]" 
+                className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" 
                 style={{ width: `${entity.ownership}%` }}
               ></div>
             </div>
@@ -612,15 +612,15 @@ function HouseholdTab() {
         ))}
       </div>
 
-      <div className="p-4 bg-[#151b2a]/50 border border-white/8 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Household Notes</h3>
-        <ul className="space-y-2 text-sm text-[#98a6c7]">
+      <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Household Notes</h3>
+        <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
           <li className="flex items-start gap-2">
-            <span className="text-[#6cc0ff]">•</span>
+            <span className="text-[var(--primary)]">•</span>
             <span>Enable spouse portfolio to view combined household net worth and optimise allowances</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#6cc0ff]">•</span>
+            <span className="text-[var(--primary)]">•</span>
             <span>Configure corporate structure to track business investments and tax efficiency</span>
           </li>
         </ul>
@@ -633,13 +633,13 @@ function DetailDrawer({ type, onClose }: any) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative w-full max-w-3xl h-screen bg-[#111623] border-l border-white/8 shadow-2xl overflow-auto animate-slide-in-right">
-        <div className="sticky top-0 z-10 flex justify-between items-center p-6 border-b border-white/8 bg-[#111623]">
-          <h2 className="text-lg font-bold text-[#eaf0ff]">
+      <div className="relative w-full max-w-3xl h-screen bg-[var(--card)] border-l border-[var(--border)] shadow-2xl overflow-auto animate-slide-in-right">
+        <div className="sticky top-0 z-10 flex justify-between items-center p-6 border-b border-[var(--border)] bg-[var(--card)]">
+          <h2 className="text-lg font-bold text-[var(--foreground)]">
             {type === 'property' ? 'Property Detail' : 'Holding Detail'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-white/8 rounded-lg transition-colors" data-testid="button-close-drawer">
-            <X className="h-5 w-5 text-[#eaf0ff]" />
+          <button onClick={onClose} className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors" data-testid="button-close-drawer">
+            <X className="h-5 w-5 text-[var(--foreground)]" />
           </button>
         </div>
         
@@ -655,44 +655,44 @@ function ListedDetail() {
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-          <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Position</h3>
+        <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Position</h3>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Units:</span><span className="text-[#eaf0ff]">1,234.56</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Price:</span><span className="text-[#eaf0ff]">£42.18</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Market Value:</span><span className="text-[#eaf0ff] font-bold">£52,080</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Cost Basis:</span><span className="text-[#eaf0ff]">£45,600</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Unrealised G/L:</span><span className="text-[#4ade80] font-medium">+£6,480 (+14.2%)</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Bucket:</span><span className="text-[#eaf0ff]">Global Equity</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Units:</span><span className="text-[var(--foreground)]">1,234.56</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Price:</span><span className="text-[var(--foreground)]">£42.18</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Market Value:</span><span className="text-[var(--foreground)] font-bold">£52,080</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Cost Basis:</span><span className="text-[var(--foreground)]">£45,600</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Unrealised G/L:</span><span className="text-[var(--success)] font-medium">+£6,480 (+14.2%)</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Bucket:</span><span className="text-[var(--foreground)]">Global Equity</span></div>
           </div>
         </div>
         
-        <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-          <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Compliance</h3>
+        <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Compliance</h3>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Evidence:</span><EvidenceStatus status="On file" /></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Tax Treatment:</span><span className="text-[#eaf0ff]">Accumulating</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Valuation Date:</span><span className="text-[#eaf0ff]">31 Oct 2025</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Identifier:</span><span className="text-[#eaf0ff]">IE00B5BMR087</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Evidence:</span><EvidenceStatus status="On file" /></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Tax Treatment:</span><span className="text-[var(--foreground)]">Accumulating</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Valuation Date:</span><span className="text-[var(--foreground)]">31 Oct 2025</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Identifier:</span><span className="text-[var(--foreground)]">IE00B5BMR087</span></div>
           </div>
         </div>
       </div>
 
-      <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Targets & Bands</h3>
+      <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Targets & Bands</h3>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-[#98a6c7]">Target Allocation:</span><span className="text-[#eaf0ff]">40%</span></div>
-          <div className="flex justify-between"><span className="text-[#98a6c7]">Current Allocation:</span><span className="text-[#eaf0ff]">46%</span></div>
-          <div className="flex justify-between"><span className="text-[#98a6c7]">Status:</span><span className="text-[#ff667a]">+6% over band</span></div>
+          <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Target Allocation:</span><span className="text-[var(--foreground)]">40%</span></div>
+          <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Current Allocation:</span><span className="text-[var(--foreground)]">46%</span></div>
+          <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Status:</span><span className="text-[var(--destructive)]">+6% over band</span></div>
         </div>
       </div>
 
-      <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Performance</h3>
+      <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Performance</h3>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-[#98a6c7]">IRR since inception:</span><span className="text-[#4ade80]">14.2%</span></div>
-          <div className="flex justify-between"><span className="text-[#98a6c7]">TWR 1 year:</span><span className="text-[#4ade80]">12.8%</span></div>
-          <div className="flex justify-between"><span className="text-[#98a6c7]">Since last top-up:</span><span className="text-[#4ade80]">8.4%</span></div>
+          <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">IRR since inception:</span><span className="text-[var(--success)]">14.2%</span></div>
+          <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">TWR 1 year:</span><span className="text-[var(--success)]">12.8%</span></div>
+          <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Since last top-up:</span><span className="text-[var(--success)]">8.4%</span></div>
         </div>
       </div>
     </>
@@ -702,14 +702,14 @@ function ListedDetail() {
 function PropertyDetail() {
   return (
     <>
-      <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Valuation Trend</h3>
+      <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Valuation Trend</h3>
         <div className="h-20 flex items-end gap-1">
           {[165, 172, 178, 185, 192, 195].map((val, idx) => (
-            <div key={idx} className="flex-1 bg-gradient-to-t from-[#6cc0ff] to-[#a0e9ff] rounded-t" style={{ height: `${(val/195)*100}%` }}></div>
+            <div key={idx} className="flex-1 bg-gradient-to-t from-[var(--primary)] to-[var(--secondary)] rounded-t" style={{ height: `${(val/195)*100}%` }}></div>
           ))}
         </div>
-        <div className="mt-2 text-xs text-[#98a6c7] flex justify-between">
+        <div className="mt-2 text-xs text-[var(--muted-foreground)] flex justify-between">
           <span>2023</span>
           <span>2024</span>
           <span>2025</span>
@@ -717,36 +717,36 @@ function PropertyDetail() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-          <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Property Metrics</h3>
+        <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Property Metrics</h3>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Current Value:</span><span className="text-[#eaf0ff] font-bold">£195,000</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Purchase Price:</span><span className="text-[#eaf0ff]">£165,000</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">LTV:</span><span className="text-[#eaf0ff]">0% (unmortgaged)</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Rental Yield:</span><span className="text-[#4ade80]">5.8%</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Current Value:</span><span className="text-[var(--foreground)] font-bold">£195,000</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Purchase Price:</span><span className="text-[var(--foreground)]">£165,000</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">LTV:</span><span className="text-[var(--foreground)]">0% (unmortgaged)</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Rental Yield:</span><span className="text-[var(--success)]">5.8%</span></div>
           </div>
         </div>
 
-        <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-          <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Compliance</h3>
+        <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Compliance</h3>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-[#98a6c7]">EPC Rating:</span><span className="text-[#eaf0ff]">B (84)</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Insurance:</span><span className="text-[#4ade80]">Current</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Title:</span><span className="text-[#4ade80]">On file</span></div>
-            <div className="flex justify-between"><span className="text-[#98a6c7]">Last Valuation:</span><span className="text-[#ffd166]">Sep 2025</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">EPC Rating:</span><span className="text-[var(--foreground)]">B (84)</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Insurance:</span><span className="text-[var(--success)]">Current</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Title:</span><span className="text-[var(--success)]">On file</span></div>
+            <div className="flex justify-between"><span className="text-[var(--muted-foreground)]">Last Valuation:</span><span className="text-[var(--warning)]">Sep 2025</span></div>
           </div>
         </div>
       </div>
 
-      <div className="p-4 bg-[#151b2a] border border-white/8 rounded-xl">
-        <h3 className="text-sm font-semibold text-[#eaf0ff] mb-3">Reminders</h3>
-        <ul className="space-y-2 text-sm text-[#98a6c7]">
+      <div className="p-4 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Reminders</h3>
+        <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
           <li className="flex items-start gap-2">
-            <span className="text-[#ffd166]">⚠</span>
+            <span className="text-[var(--warning)]">⚠</span>
             <span>Annual gas safety check due: 15 Dec 2025</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#6cc0ff]">ℹ</span>
+            <span className="text-[var(--primary)]">ℹ</span>
             <span>Property insurance renewal: 31 Jan 2026</span>
           </li>
         </ul>
@@ -758,19 +758,19 @@ function PropertyDetail() {
 function DocumentLightbox({ onClose }: any) {
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-4xl h-[80vh] bg-[#111623] border border-white/8 rounded-2xl shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center p-6 border-b border-white/8 bg-gradient-to-b from-[#1b2438] to-[#151f33]">
-          <h3 className="text-lg font-bold text-[#eaf0ff]">Document Viewer</h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/8 rounded-lg transition-colors" data-testid="button-close-lightbox">
-            <X className="h-5 w-5 text-[#eaf0ff]" />
+      <div className="w-full max-w-4xl h-[80vh] bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-6 border-b border-[var(--border)]">
+          <h3 className="text-lg font-bold text-[var(--foreground)]">Document Viewer</h3>
+          <button onClick={onClose} className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors" data-testid="button-close-lightbox">
+            <X className="h-5 w-5 text-[var(--foreground)]" />
           </button>
         </div>
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full h-full border border-dashed border-white/14 rounded-xl flex items-center justify-center">
-            <div className="text-center text-[#b9c6da]">
-              <FileText className="h-16 w-16 mx-auto mb-4 text-[#6cc0ff]" />
-              <p className="text-lg">PDF Document Preview</p>
-              <p className="text-sm text-[#98a6c7] mt-2">Vanguard ISA Statement - Oct 2025</p>
+          <div className="w-full h-full border border-dashed border-[var(--border)] rounded-xl flex items-center justify-center">
+            <div className="text-center text-[var(--muted-foreground)]">
+              <FileText className="h-16 w-16 mx-auto mb-4 text-[var(--primary)]" />
+              <p className="text-lg text-[var(--foreground)]">PDF Document Preview</p>
+              <p className="text-sm text-[var(--muted-foreground)] mt-2">Vanguard ISA Statement - Oct 2025</p>
             </div>
           </div>
         </div>
@@ -785,51 +785,46 @@ function AddAssetModal({ onClose }: any) {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
 
   const assetCategories = [
-    { id: 'listed', label: 'Listed security', subtitle: 'Fund • ETF • Share by ISIN or ticker', icon: '📈', color: 'blue' },
-    { id: 'cash', label: 'Cash', subtitle: 'Bank or savings balance', icon: '💷', color: 'mint' },
-    { id: 'crypto', label: 'Crypto', subtitle: 'Exchange account or on-chain wallet', icon: '🦊', color: 'pink' },
-    { id: 'property', label: 'Property', subtitle: 'Home • BTL • Commercial', icon: '🏠', color: 'amber' },
-    { id: 'private', label: 'Private equity', subtitle: 'EIS/SEIS • Unlisted shares', icon: '🧩', color: 'blue' },
-    { id: 'alt', label: 'Alternatives', subtitle: 'Metals • Art • Domains • Other', icon: '✨', color: 'mint' },
+    { id: 'listed', label: 'Listed security', subtitle: 'Fund • ETF • Share by ISIN or ticker', icon: '📈' },
+    { id: 'cash', label: 'Cash', subtitle: 'Bank or savings balance', icon: '💷' },
+    { id: 'crypto', label: 'Crypto', subtitle: 'Exchange account or on-chain wallet', icon: '🦊' },
+    { id: 'property', label: 'Property', subtitle: 'Home • BTL • Commercial', icon: '🏠' },
+    { id: 'private', label: 'Private equity', subtitle: 'EIS/SEIS • Unlisted shares', icon: '🧩' },
+    { id: 'alt', label: 'Alternatives', subtitle: 'Metals • Art • Domains • Other', icon: '✨' },
   ];
 
   const liabilityCategories = [
-    { id: 'mortgage', label: 'Mortgage', subtitle: 'Link to a property', icon: '🏦', color: 'amber' },
-    { id: 'loan', label: 'Loan', subtitle: 'Personal • Business', icon: '📄', color: 'blue' },
-    { id: 'card', label: 'Credit card', subtitle: 'Rolling balance', icon: '💳', color: 'pink' },
+    { id: 'mortgage', label: 'Mortgage', subtitle: 'Link to a property', icon: '🏦' },
+    { id: 'loan', label: 'Loan', subtitle: 'Personal • Business', icon: '📄' },
+    { id: 'card', label: 'Credit card', subtitle: 'Rolling balance', icon: '💳' },
   ];
 
   const categories = mode === 'asset' ? assetCategories : liabilityCategories;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-auto">
-      {/* Background with animated gradient ring */}
-      <div className="fixed inset-0 bg-[radial-gradient(1100px_900px_at_80%_-10%,#16223a_0%,#0b111e_55%,#0a0d14_100%)]">
-        <div className="absolute inset-0 opacity-50 animate-spin-slow" style={{ background: 'conic-gradient(from 0deg, rgba(127,211,255,.10), transparent 20%, rgba(154,230,180,.06) 35%, transparent 60%, rgba(127,211,255,.08) 80%, transparent 100%)', filter: 'blur(50px)', animationDuration: '16s' }}></div>
-      </div>
-
-      <div className="relative max-w-5xl mx-auto py-8 px-6">
+    <div className="fixed inset-0 z-50 overflow-auto bg-[var(--background)]">
+      <div className="max-w-5xl mx-auto py-8 px-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#7fd3ff] to-[#a7b5ff] shadow-lg"></div>
-            <span className="text-lg font-bold text-[#eaf2ff]">Unlock — Add Assets</span>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] shadow-lg"></div>
+            <span className="text-lg font-bold text-[var(--foreground)]">Unlock — Add Assets</span>
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setShowCommandPalette(true)}
-              className="px-4 py-2.5 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf2ff] hover:bg-white/12 transition-colors flex items-center gap-2"
+              className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors flex items-center gap-2"
               data-testid="button-command-palette"
             >
               <Command className="h-4 w-4" /> Command Palette
             </button>
-            <button className="px-4 py-2.5 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf2ff] hover:bg-white/12 transition-colors" data-testid="button-ai-import-modal">
+            <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-ai-import-modal">
               ✨ AI Import
             </button>
-            <button className="px-4 py-2.5 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf2ff] hover:bg-white/12 transition-colors" data-testid="button-csv-modal">
+            <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-csv-modal">
               ⇪ CSV
             </button>
-            <button onClick={onClose} className="px-4 py-2.5 bg-gradient-to-b from-[#1a2438] to-[#131c2e] border border-white/18 rounded-xl text-sm text-[#eaf2ff] hover:opacity-90 transition-opacity" data-testid="button-close-modal">
+            <button onClick={onClose} className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" data-testid="button-close-modal">
               Close
             </button>
           </div>
@@ -839,14 +834,14 @@ function AddAssetModal({ onClose }: any) {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setMode('asset')}
-            className={`px-4 py-2.5 rounded-full border transition-all ${mode === 'asset' ? 'bg-gradient-to-b from-[#1c253a] to-[#151f33] border-white/18 text-[#d7e6ff]' : 'bg-white/6 border-white/14 text-[#d7e6ff] hover:bg-white/8'}`}
+            className={`px-4 py-2.5 rounded-full border transition-all ${mode === 'asset' ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]' : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'}`}
             data-testid="tab-add-asset"
           >
             ＋ Add asset
           </button>
           <button
             onClick={() => setMode('liability')}
-            className={`px-4 py-2.5 rounded-full border transition-all ${mode === 'liability' ? 'bg-gradient-to-b from-[#1c253a] to-[#151f33] border-white/18 text-[#d7e6ff]' : 'bg-white/6 border-white/14 text-[#d7e6ff] hover:bg-white/8'}`}
+            className={`px-4 py-2.5 rounded-full border transition-all ${mode === 'liability' ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]' : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'}`}
             data-testid="tab-add-liability"
           >
             − Add liability
@@ -859,42 +854,41 @@ function AddAssetModal({ onClose }: any) {
             <button
               key={cat.id}
               onClick={() => setCategory(cat.id)}
-              className={`relative p-5 min-h-[120px] rounded-2xl border overflow-hidden transition-all hover:translate-y-[-2px] hover:shadow-2xl ${category === cat.id ? 'ring-2 ring-[#7fd3ff] border-white/22' : 'border-white/14'} bg-gradient-to-b from-white/9 to-white/6`}
+              className={`relative p-5 min-h-[120px] rounded-xl border overflow-hidden transition-all hover:shadow-lg ${category === cat.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : 'border-[var(--border)]'} bg-[var(--card)]`}
               data-testid={`tile-${cat.id}`}
             >
               <div className="relative z-10">
-                <h3 className="font-bold text-[#eaf2ff] mb-1.5">{cat.label}</h3>
-                <p className="text-sm text-[#a2b1cc]">{cat.subtitle}</p>
+                <h3 className="font-bold text-[var(--foreground)] mb-1.5">{cat.label}</h3>
+                <p className="text-sm text-[var(--muted-foreground)]">{cat.subtitle}</p>
               </div>
               <div className="absolute bottom-3 right-3 text-3xl opacity-80">{cat.icon}</div>
-              <div className={`absolute w-40 h-40 rounded-full -right-10 -top-10 opacity-28 blur-2xl ${cat.color === 'blue' ? 'bg-[#7fd3ff]' : cat.color === 'mint' ? 'bg-[#9ae6b4]' : cat.color === 'amber' ? 'bg-[#ffd166]' : 'bg-[#ff80a6]'}`}></div>
             </button>
           ))}
         </div>
 
         {/* Stepper Panel */}
-        <div className="border border-white/14 rounded-2xl bg-white/6 overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-white/14">
+        <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-[#cfe6ff]">
-                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-b from-[#7fd3ff] to-[#a0e9ff]"></span>
+              <div className="flex items-center gap-2 text-sm text-[var(--foreground)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]"></span>
                 Identify
               </div>
-              <div className="flex items-center gap-2 text-sm text-[#cfe6ff]">
-                <span className="w-2.5 h-2.5 rounded-full bg-white/35"></span>
+              <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--muted)]"></span>
                 Amount
               </div>
-              <div className="flex items-center gap-2 text-sm text-[#cfe6ff]">
-                <span className="w-2.5 h-2.5 rounded-full bg-white/35"></span>
+              <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--muted)]"></span>
                 Evidence
               </div>
             </div>
             <div className="flex-1 max-w-xs mx-4">
-              <div className="h-1.5 bg-white/14 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#7fd3ff] to-[#a0e9ff]" style={{ width: '33%' }}></div>
+              <div className="h-1.5 bg-[var(--muted)] rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" style={{ width: '33%' }}></div>
               </div>
             </div>
-            <div className="text-sm text-[#cfe6ff]">Wrapper: ISA • Custodian: Vanguard</div>
+            <div className="text-sm text-[var(--foreground)]">Wrapper: ISA • Custodian: Vanguard</div>
           </div>
           
           <div className="p-6">
@@ -902,19 +896,19 @@ function AddAssetModal({ onClose }: any) {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-[#a2b1cc] mb-2">ISIN / Ticker</label>
-                    <input type="text" placeholder="e.g., IE00B5BMR087 or VWRL" className="w-full px-3 py-3 bg-[#0d1220]/80 border border-white/14 rounded-xl text-[#eaf2ff] focus:outline-none focus:ring-2 focus:ring-[#7fd3ff]" data-testid="input-isin" />
-                    <p className="text-xs text-[#a2b1cc] mt-1.5">Paste an ISIN — name and last price are auto-filled on save (in production).</p>
+                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">ISIN / Ticker</label>
+                    <input type="text" placeholder="e.g., IE00B5BMR087 or VWRL" className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="input-isin" />
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1.5">Paste an ISIN — name and last price are auto-filled on save (in production).</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-[#a2b1cc] mb-2">Name (auto)</label>
-                    <input type="text" placeholder="Autofilled or type manually" className="w-full px-3 py-3 bg-[#0d1220]/80 border border-white/14 rounded-xl text-[#eaf2ff] focus:outline-none focus:ring-2 focus:ring-[#7fd3ff]" data-testid="input-name" />
+                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">Name (auto)</label>
+                    <input type="text" placeholder="Autofilled or type manually" className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="input-name" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-[#a2b1cc] mb-2">Wrapper</label>
-                    <select className="w-full px-3 py-3 bg-[#0d1220]/80 border border-white/14 rounded-xl text-[#eaf2ff] focus:outline-none focus:ring-2 focus:ring-[#7fd3ff]" data-testid="select-wrapper">
+                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">Wrapper</label>
+                    <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-wrapper">
                       <option>ISA</option>
                       <option>SIPP</option>
                       <option>GIA</option>
@@ -922,22 +916,22 @@ function AddAssetModal({ onClose }: any) {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-[#a2b1cc] mb-2">Custodian / Broker</label>
-                    <input type="text" placeholder="e.g., Vanguard Investor UK" className="w-full px-3 py-3 bg-[#0d1220]/80 border border-white/14 rounded-xl text-[#eaf2ff] focus:outline-none focus:ring-2 focus:ring-[#7fd3ff]" data-testid="input-custodian" />
+                    <label className="block text-xs text-[var(--muted-foreground)] mb-2">Custodian / Broker</label>
+                    <input type="text" placeholder="e.g., Vanguard Investor UK" className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="input-custodian" />
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
-                  <button className="px-4 py-2.5 bg-white/8 border border-white/14 rounded-xl text-sm text-[#eaf2ff] hover:bg-white/12 transition-colors" data-testid="button-back">
+                  <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-back">
                     Back
                   </button>
-                  <button className="px-4 py-2.5 bg-gradient-to-b from-[#1a2438] to-[#131c2e] border border-white/18 rounded-xl text-sm text-[#eaf2ff] hover:opacity-90 transition-opacity" data-testid="button-continue">
+                  <button className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" data-testid="button-continue">
                     Continue
                   </button>
                 </div>
               </div>
             )}
             {category !== 'listed' && (
-              <div className="text-center py-8 text-[#a2b1cc]">
+              <div className="text-center py-8 text-[var(--muted-foreground)]">
                 <p>Form for {categories.find(c => c.id === category)?.label} coming soon (demo)</p>
               </div>
             )}
@@ -947,14 +941,14 @@ function AddAssetModal({ onClose }: any) {
 
       {/* Command Palette */}
       {showCommandPalette && (
-        <div className="fixed inset-0 bg-black/35 backdrop-blur-sm flex items-center justify-center z-60" onClick={() => setShowCommandPalette(false)}>
-          <div className="w-full max-w-2xl bg-gradient-to-b from-[#1a2336] to-[#141c2d] border border-white/14 rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 p-3 border-b border-white/14">
-              <Search className="h-5 w-5 text-[#98a6c7]" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-60" onClick={() => setShowCommandPalette(false)}>
+          <div className="w-full max-w-2xl bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 p-3 border-b border-[var(--border)]">
+              <Search className="h-5 w-5 text-[var(--muted-foreground)]" />
               <input 
                 type="text" 
                 placeholder="Search quick actions..." 
-                className="flex-1 bg-white/8 border border-white/14 rounded-xl px-3 py-2.5 text-[#eaf2ff] focus:outline-none focus:ring-2 focus:ring-[#7fd3ff]"
+                className="flex-1 bg-[var(--input)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 autoFocus
                 data-testid="input-command-search"
               />
@@ -963,10 +957,10 @@ function AddAssetModal({ onClose }: any) {
               {['Add listed security', 'Add cash account', 'Add crypto (exchange)', 'Add crypto (on-chain)', 'Add property', 'Add private equity', 'AI import', 'CSV import'].map((action, idx) => (
                 <button 
                   key={idx}
-                  className="w-full text-left px-3 py-2.5 rounded-xl border border-transparent hover:bg-white/6 hover:border-white/14 transition-all flex items-center gap-3 text-sm text-[#eaf2ff]"
+                  className="w-full text-left px-3 py-2.5 rounded-xl border border-transparent hover:bg-[var(--muted)] hover:border-[var(--border)] transition-all flex items-center gap-3 text-sm text-[var(--foreground)]"
                   data-testid={`command-${idx}`}
                 >
-                  <span className="opacity-60">⌘{idx + 1}</span>
+                  <span className="text-[var(--muted-foreground)]">⌘{idx + 1}</span>
                   <span>{action}</span>
                 </button>
               ))}
