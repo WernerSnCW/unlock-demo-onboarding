@@ -979,6 +979,7 @@ function AddAssetModal({ onClose }: any) {
   const [mode, setMode] = useState<'asset' | 'liability'>('asset');
   const [category, setCategory] = useState('listed');
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [amountMode, setAmountMode] = useState<'single' | 'units'>('single');
 
   const assetCategories = [
     { id: 'listed', label: 'Listed security', subtitle: 'Fund • ETF • Share by ISIN or ticker', icon: '📈' },
@@ -1134,7 +1135,298 @@ function AddAssetModal({ onClose }: any) {
                 </div>
               </div>
             )}
-            {category !== 'listed' && (
+            {category === 'manual' && mode === 'asset' && (
+              <div className="space-y-6">
+                {/* Identify Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Identify</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Name</label>
+                      <input 
+                        type="text" 
+                        placeholder='e.g., "Classic Car", "Art — 1970 lithograph", "Foreign bank account"' 
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-manual-name" 
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Category / Bucket</label>
+                        <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-category">
+                          <option>Global Equity</option>
+                          <option>Global Bonds</option>
+                          <option>Cash</option>
+                          <option>Property</option>
+                          <option>Alternatives</option>
+                          <option>Private Equity</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Wrapper</label>
+                        <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-wrapper-manual">
+                          <option>ISA</option>
+                          <option>SIPP</option>
+                          <option>GIA</option>
+                          <option>Personal</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Custodian / Location (optional)</label>
+                      <input 
+                        type="text" 
+                        placeholder='e.g., "Safe deposit", "Registrar", "Gallery", "Foreign bank"' 
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-custodian-manual" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Integration tag</label>
+                      <div className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-full text-sm">
+                        <span>✍ Manual</span>
+                        <span className="text-[var(--muted-foreground)] text-xs" title="Value entered by you; attach evidence">ⓘ</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amount Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Amount</h3>
+                  <div className="flex gap-3 mb-4">
+                    <button
+                      onClick={() => setAmountMode('single')}
+                      className={`px-4 py-2 rounded-xl border text-sm transition-all ${amountMode === 'single' ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]' : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'}`}
+                    >
+                      Single value
+                    </button>
+                    <button
+                      onClick={() => setAmountMode('units')}
+                      className={`px-4 py-2 rounded-xl border text-sm transition-all ${amountMode === 'units' ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]' : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'}`}
+                    >
+                      Units & price
+                    </button>
+                  </div>
+                  {amountMode === 'single' ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Value (GBP)</label>
+                        <input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-value" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">As-at date</label>
+                        <input 
+                          type="date" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-date" 
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Units</label>
+                        <input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-units" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Price (GBP)</label>
+                        <input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-price" 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Evidence Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Evidence</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Evidence type</label>
+                        <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-evidence">
+                          <option>Statement</option>
+                          <option>Certificate</option>
+                          <option>Invoice</option>
+                          <option>Appraisal</option>
+                          <option>Screenshot</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Reference (optional)</label>
+                        <input 
+                          type="text" 
+                          placeholder="Invoice no., cert ref, URL note" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-reference" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Reminder (optional)</label>
+                      <input 
+                        type="text" 
+                        placeholder='e.g., "Ask me to re-value every 12 months"' 
+                        className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                        data-testid="input-reminder" 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-cancel">
+                    Cancel
+                  </button>
+                  <button className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" data-testid="button-save-manual-asset">
+                    Save
+                  </button>
+                </div>
+              </div>
+            )}
+            {category === 'manual' && mode === 'liability' && (
+              <div className="space-y-6">
+                {/* Details Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Details</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Liability type</label>
+                        <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-liability-type">
+                          <option>Mortgage</option>
+                          <option>Personal loan</option>
+                          <option>Business loan</option>
+                          <option>Credit card</option>
+                          <option>Margin loan</option>
+                          <option>Car finance</option>
+                          <option>Tax owed</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Name / Lender</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g., HSBC Mortgage" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-lender" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--muted-foreground)] mb-2">Linked asset (optional)</label>
+                      <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-linked-asset">
+                        <option value="">None</option>
+                        <option>42 Elm Street — Property</option>
+                        <option>Classic Car — Alternative</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amounts & Terms Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Amounts & Terms</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Outstanding principal (GBP)</label>
+                        <input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-principal" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Interest rate (%)</label>
+                        <input 
+                          type="number" 
+                          placeholder="0.00" 
+                          step="0.01"
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-interest-rate" 
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Monthly repayment (GBP)</label>
+                        <input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-repayment" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Term end / Due date</label>
+                        <input 
+                          type="date" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-term-end" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Evidence Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Evidence</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Evidence type</label>
+                        <select className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-evidence-liability">
+                          <option>Statement</option>
+                          <option>Certificate</option>
+                          <option>Invoice</option>
+                          <option>Appraisal</option>
+                          <option>Screenshot</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Reference (optional)</label>
+                        <input 
+                          type="text" 
+                          placeholder="Invoice no., cert ref, URL note" 
+                          className="w-full px-3 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" 
+                          data-testid="input-reference-liability" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors" data-testid="button-cancel-liability">
+                    Cancel
+                  </button>
+                  <button className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity" data-testid="button-save-manual-liability">
+                    Save
+                  </button>
+                </div>
+              </div>
+            )}
+            {category !== 'listed' && category !== 'manual' && (
               <div className="text-center py-8 text-[var(--muted-foreground)]">
                 <p>Form for {categories.find(c => c.id === category)?.label} coming soon (demo)</p>
               </div>
