@@ -83,11 +83,23 @@ export default function AssetRegister() {
 
             <div id="tour-beneficiary">
               <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Beneficiary (Estate)</h3>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Life-beat</span>
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Fallback email</span>
-                <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Package</span>
+              <div className="space-y-2 mb-3">
+                <div className="px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm">
+                  <span className="text-[var(--muted-foreground)]">Life-beat check:</span>{' '}
+                  <span className="text-[var(--foreground)] font-medium">Monthly</span>
+                </div>
+                <div className="px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm">
+                  <span className="text-[var(--muted-foreground)]">Fallback email:</span>{' '}
+                  <span className="text-[var(--foreground)] font-medium">spouse@example.com</span>
+                </div>
+                <div className="px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm">
+                  <span className="text-[var(--muted-foreground)]">Package:</span>{' '}
+                  <span className="text-[var(--foreground)] font-medium">Holdings + Docs</span>
+                </div>
               </div>
+              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                When inactivity exceeds the life-beat, Unlock can release a read-only pack to your beneficiary (prototype view).
+              </p>
             </div>
 
             <div id="tour-quick-actions">
