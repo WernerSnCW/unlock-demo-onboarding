@@ -1,0 +1,73 @@
+or the prototype, give each broker tile two tiny labels:
+
+Wrappers supported (ISA / SIPP / GIA) – informational.
+
+Connection status – how Unlock would fetch holdings today.
+
+Here’s what I’d put on each of the tiles you’ve shown:
+
+Broker/platform	Wrappers to show	Connection status to show in the tile	Why (short)
+Vanguard Investor UK	ISA • SIPP • GIA	CSV / statement import (for now)	Vanguard UK offers ISA/SIPP/GIA, but there’s no public third-party holdings feed documented; treat as statement/CSV until an aggregator confirms coverage. 
+Vanguard Investor
++2
+Vanguard Investor
++2
+
+AJ Bell (YouInvest)	ISA • SIPP • GIA	Live via aggregator (read-only)	Moneyhub lists AJ Bell connections (YouInvest/Investcentre) with occasional issues → feasible as a read-only link. 
+Moneyhub
+
+Hargreaves Lansdown	ISA • SIPP • GIA	CSV now; aggregator pilot possible	HL exposes Open Banking for payments/Active Savings, but not public holdings APIs; community reports mixed aggregator success. So default to CSV. 
+Hargreaves Lansdown
++3
+Interactive Brokers
++3
+freetrade.io
++3
+
+interactive investor	ISA • SIPP • GIA	Aggregator (variable) or CSV	Users report Moneyhub links that sometimes fail; no official public holdings API. Keep CSV as fallback. 
+MoneySavingExpert Forum
+
+Trading 212	ISA • GIA	Blocked by provider (via Moneyhub); CSV	Moneyhub flags the Trading 212 connection as blocked; Trading 212’s SIPP isn’t live yet, so don’t show SIPP. 
+Moneyhub
++1
+
+Fidelity UK	ISA • SIPP • GIA	Live via aggregator (read-only)	Moneyhub lists Fidelity with intermittent connectivity → feasible read-only link. 
+Moneyhub
+
+Freetrade	ISA • SIPP • GIA	CSV / statement import (for now)	Freetrade offers ISA/GIA/SIPP, but no public third-party holdings API is documented; use CSV until a partner confirms coverage. 
+freetrade.io
++1
+
+Halifax iWeb	ISA • SIPP • GIA	CSV / statement import	iWeb offers ISA/SIPP; no public third-party holdings API surfaced. 
+barclays.co.uk
+
+Barclays Smart Investor	ISA • SIPP • GIA	CSV / statement import	Smart Investor supports these wrappers; no public holdings API for third parties. 
+Trading 212 Community
+
+Charles Stanley Direct	ISA • SIPP • GIA	CSV / statement import	Accounts supported; no public holdings API for third parties. 
+Charles Stanley
++3
+charles-stanley-direct.co.uk
++3
+Charles Stanley
++3
+How to render this in the UI
+
+Keep your list exactly like your mock (“Search brokers…”) but add a tiny connection pill on each card:
+
+Live (read-only) — green plug icon.
+
+Variable / pilot — amber plug icon (tooltip: “Coverage varies by provider / aggregator”).
+
+Blocked — red plug with strike.
+
+CSV / Statement — grey document icon.
+
+Keep the wrappers line (e.g., “ISA • SIPP • GIA”) under the broker name.
+
+Tapping a Live or Variable card takes the user to the OAuth/consent step.
+Tapping CSV / Statement opens the CSV/statement upload flow.
+
+Notes
+• Aggregator coverage changes frequently and often depends on specific account types. The labels above are safe defaults for a demo; you can update them as soon as a partner confirms a working feed.
+• Where we’ve marked “CSV”, we still support high-quality onboarding by parsing broker statements/contract notes into holdings and cost basis.

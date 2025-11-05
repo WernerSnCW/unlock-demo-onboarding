@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
@@ -996,16 +996,16 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   
   // Demo broker list (for Listed Securities)
   const demoBrokers = [
-    { id: 'vanguard', name: 'Vanguard Investor UK', types: 'ISA • SIPP • GIA' },
-    { id: 'ajbell', name: 'AJ Bell', types: 'ISA • SIPP • GIA' },
-    { id: 'hl', name: 'Hargreaves Lansdown', types: 'ISA • SIPP • GIA' },
-    { id: 'ii', name: 'Interactive Investor', types: 'ISA • SIPP' },
-    { id: 't212', name: 'Trading 212', types: 'ISA • GIA' },
-    { id: 'fidelity', name: 'Fidelity UK', types: 'ISA • SIPP • GIA' },
-    { id: 'freetrade', name: 'Freetrade', types: 'ISA • GIA' },
-    { id: 'iweb', name: 'Halifax iWeb', types: 'ISA' },
-    { id: 'barclays', name: 'Barclays Smart Investor', types: 'ISA • GIA' },
-    { id: 'charles', name: 'Charles Stanley', types: 'ISA • SIPP' },
+    { id: 'vanguard', name: 'Vanguard Investor UK', types: 'ISA • SIPP • GIA', status: 'csv', statusLabel: 'CSV / statement import (for now)' },
+    { id: 'ajbell', name: 'AJ Bell', types: 'ISA • SIPP • GIA', status: 'live', statusLabel: 'Live via aggregator (read-only)' },
+    { id: 'hl', name: 'Hargreaves Lansdown', types: 'ISA • SIPP • GIA', status: 'variable', statusLabel: 'CSV now; aggregator pilot possible' },
+    { id: 'ii', name: 'Interactive Investor', types: 'ISA • SIPP • GIA', status: 'variable', statusLabel: 'Aggregator (variable) or CSV' },
+    { id: 't212', name: 'Trading 212', types: 'ISA • GIA', status: 'blocked', statusLabel: 'Blocked by provider; CSV' },
+    { id: 'fidelity', name: 'Fidelity UK', types: 'ISA • SIPP • GIA', status: 'live', statusLabel: 'Live via aggregator (read-only)' },
+    { id: 'freetrade', name: 'Freetrade', types: 'ISA • SIPP • GIA', status: 'csv', statusLabel: 'CSV / statement import (for now)' },
+    { id: 'iweb', name: 'Halifax iWeb', types: 'ISA • SIPP • GIA', status: 'csv', statusLabel: 'CSV / statement import' },
+    { id: 'barclays', name: 'Barclays Smart Investor', types: 'ISA • SIPP • GIA', status: 'csv', statusLabel: 'CSV / statement import' },
+    { id: 'charles', name: 'Charles Stanley Direct', types: 'ISA • SIPP • GIA', status: 'csv', statusLabel: 'CSV / statement import' },
   ];
   
   // Demo bank list (for Cash)
@@ -1369,19 +1369,54 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                     />
 
                     <div className="grid grid-cols-2 gap-3">
-                      {demoBrokers.map((broker) => (
-                        <button
-                          key={broker.id}
-                          onClick={() => {
-                            setSelectedBroker(broker.name);
-                            setLiveStep(2);
-                          }}
-                          className="p-4 border border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all text-left"
-                        >
-                          <h4 className="font-semibold text-[var(--foreground)] mb-1">{broker.name}</h4>
-                          <p className="text-xs text-[var(--muted-foreground)]">{broker.types}</p>
-                        </button>
-                      ))}
+                      {demoBrokers.map((broker) => {
+                        const getStatusConfig = (status: string) => {
+                          switch(status) {
+                            case 'live':
+                              return { Icon: PlugZap, color: 'text-green-600 dark:text-green-500', bg: 'bg-green-100 dark:bg-green-900/30' };
+                            case 'variable':
+                              return { Icon: Plug, color: 'text-amber-600 dark:text-amber-500', bg: 'bg-amber-100 dark:bg-amber-900/30' };
+                            case 'blocked':
+                              return { Icon: Plug, color: 'text-red-600 dark:text-red-500', bg: 'bg-red-100 dark:bg-red-900/30' };
+                            case 'csv':
+                            default:
+                              return { Icon: FileStack, color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-100 dark:bg-gray-800/50' };
+                          }
+                        };
+                        const statusConfig = getStatusConfig(broker.status);
+                        const StatusIcon = statusConfig.Icon;
+                        
+                        return (
+                          <Tooltip key={broker.id}>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => {
+                                  setSelectedBroker(broker.name);
+                                  setLiveStep(2);
+                                }}
+                                className="p-4 border border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all text-left"
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <h4 className="font-semibold text-[var(--foreground)] flex-1">{broker.name}</h4>
+                                  <span className={`ml-2 p-1.5 rounded-md ${statusConfig.bg}`}>
+                                    <StatusIcon className={`h-3.5 w-3.5 ${statusConfig.color}`} />
+                                  </span>
+                                </div>
+                                <p className="text-xs text-[var(--muted-foreground)] mb-1">{broker.types}</p>
+                                <p className="text-xs text-[var(--muted-foreground)] font-medium">{broker.statusLabel}</p>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p className="text-xs">
+                                {broker.status === 'live' && 'Live connection via read-only aggregator'}
+                                {broker.status === 'variable' && 'Coverage varies by provider / aggregator'}
+                                {broker.status === 'blocked' && 'Connection blocked by provider; use CSV import'}
+                                {broker.status === 'csv' && 'No live API available; use CSV or statement import'}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      })}
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">
