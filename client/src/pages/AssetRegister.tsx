@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 
@@ -178,6 +178,16 @@ export default function AssetRegister() {
                 data-testid="button-print"
               >
                 <Printer className="h-4 w-4" />
+              </button>
+
+              <button 
+                onClick={() => setTourOpen(true)}
+                className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors flex items-center gap-2"
+                data-testid="button-help-tour"
+                title="Take a tour"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm">Help</span>
               </button>
             </div>
           </header>
