@@ -373,7 +373,7 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
   return (
     <>
       {/* Overlay */}
-      <div className="fixed inset-0 z-[100]" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+      <div className="fixed inset-0 z-[100]" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
         {/* Spotlight */}
         {targetEl && step.spotlight !== false && (
           <div
@@ -383,7 +383,7 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
               left: targetEl.getBoundingClientRect().left - 12,
               width: targetEl.getBoundingClientRect().width + 24,
               height: targetEl.getBoundingClientRect().height + 24,
-              boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
+              boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.3)'
             }}
           />
         )}
