@@ -144,8 +144,8 @@ export default function AssetRegister() {
         {/* Main Content */}
         <main className="min-h-screen">
           {/* Header */}
-          <header className="sticky top-0 z-20 backdrop-blur-md bg-[var(--background)]/80 border-b border-[var(--border)] px-6 py-4 flex items-center justify-between gap-4">
-            <div id="tour-search" className="relative flex-1 max-w-3xl">
+          <header className="sticky top-0 z-20 backdrop-blur-md bg-[var(--background)]/80 border-b border-[var(--border)] px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+            <div id="tour-search" className="relative flex-1 min-w-0 max-w-2xl">
               <input
                 type="search"
                 placeholder="Search instruments, accounts, documents…"
@@ -155,7 +155,7 @@ export default function AssetRegister() {
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--muted-foreground)]" />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <select id="tour-currency" className="bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" data-testid="select-currency">
                 <option>GBP</option>
                 <option>EUR</option>
