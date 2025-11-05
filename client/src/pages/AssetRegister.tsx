@@ -33,9 +33,22 @@ export default function AssetRegister() {
             <h1 className="text-lg font-bold text-[var(--foreground)]">Asset Register</h1>
           </div>
 
-          <div className="space-y-6">
-            <div id="tour-valuation">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Valuation Snapshot</h3>
+          <TooltipProvider>
+            <div className="space-y-6">
+              <div id="tour-valuation">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">Valuation Snapshot</h3>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                        <Info className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-xs">Current portfolio valuation as of the latest reconciliation date with pricing details</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               <div className="text-sm text-[var(--foreground)] mb-2">As at: 31 Oct 2025</div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)] mb-2">
                 EOD prices • GBP
@@ -46,7 +59,19 @@ export default function AssetRegister() {
             </div>
 
             <div id="tour-entities">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Entities</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">Entities</h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">Legal entities that own assets: personal, spouse, company structures, etc.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Personal (100%)</span>
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">Spouse (—)</span>
@@ -55,7 +80,19 @@ export default function AssetRegister() {
             </div>
 
             <div id="tour-wrappers">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Wrappers</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">Wrappers</h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">Tax-advantaged accounts like ISA, SIPP, GIA, or personal holdings</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">ISA</span>
                 <span className="px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--muted-foreground)]">SIPP</span>
@@ -65,7 +102,19 @@ export default function AssetRegister() {
             </div>
 
             <div id="tour-custodians">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Custodians / Wallets</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">Custodians / Wallets</h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">Financial institutions and wallets holding your assets - the source of truth for reconciliation</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="space-y-2">
                 <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all text-left" data-testid="custodian-vanguard">
                   Vanguard Investor UK
@@ -83,7 +132,19 @@ export default function AssetRegister() {
             </div>
 
             <div id="tour-beneficiary">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Beneficiary (Estate)</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">Beneficiary (Estate)</h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">Estate planning settings: life-beat checks and beneficiary access to asset information</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="space-y-2 mb-3">
                 <div className="px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm">
                   <span className="text-[var(--muted-foreground)]">Life-beat check:</span>{' '}
@@ -104,7 +165,19 @@ export default function AssetRegister() {
             </div>
 
             <div id="tour-quick-actions">
-              <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Quick Actions</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">Quick Actions</h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">Common actions for managing your asset register: add holdings, import data, upload documents</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="space-y-2">
                 <button 
                   onClick={() => setAddAssetModal(true)}
@@ -140,6 +213,7 @@ export default function AssetRegister() {
               </div>
             </div>
           </div>
+          </TooltipProvider>
         </aside>
 
         {/* Main Content */}
