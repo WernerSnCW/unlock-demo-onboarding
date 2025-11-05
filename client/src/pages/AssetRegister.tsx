@@ -994,7 +994,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [selectedHoldings, setSelectedHoldings] = useState<string[]>([]);
   
-  // Demo broker list
+  // Demo broker list (for Listed Securities)
   const demoBrokers = [
     { id: 'vanguard', name: 'Vanguard Investor UK', types: 'ISA • SIPP • GIA' },
     { id: 'ajbell', name: 'AJ Bell', types: 'ISA • SIPP • GIA' },
@@ -1008,11 +1008,34 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
     { id: 'charles', name: 'Charles Stanley', types: 'ISA • SIPP' },
   ];
   
-  // Demo accounts
-  const demoAccounts = [
-    { id: 'acc1', name: 'Vanguard ISA', type: 'Investment', currency: 'GBP', balance: '£2,050', wrapper: 'ISA', identifier: 'ACC-••12' },
-    { id: 'acc2', name: 'Vanguard GIA', type: 'Investment', currency: 'GBP', balance: '£540', wrapper: 'GIA', identifier: 'ACC-••34' },
-    { id: 'acc3', name: 'Vanguard SIPP', type: 'Pension', currency: 'GBP', balance: '£0', wrapper: 'SIPP', identifier: 'ACC-••56' },
+  // Demo bank list (for Cash)
+  const demoBanks = [
+    { id: 'hsbc', name: 'HSBC', types: 'Personal • Business' },
+    { id: 'natwest', name: 'NatWest', types: 'Personal • Business' },
+    { id: 'lloyds', name: 'Lloyds', types: 'Personal • Business' },
+    { id: 'barclays-bank', name: 'Barclays', types: 'Personal • Business' },
+    { id: 'santander', name: 'Santander', types: 'Personal • Business' },
+    { id: 'nationwide', name: 'Nationwide', types: 'Personal • Business' },
+    { id: 'rbs', name: 'RBS', types: 'Personal • Business' },
+    { id: 'chase', name: 'Chase UK', types: 'Personal' },
+    { id: 'monzo', name: 'Monzo', types: 'Personal • Business' },
+    { id: 'starling', name: 'Starling Bank', types: 'Personal • Business' },
+    { id: 'revolut', name: 'Revolut', types: 'Personal • Business' },
+    { id: 'nsi', name: 'NS&I', types: 'Savings' },
+  ];
+  
+  // Demo broker accounts (for Listed Securities)
+  const demoBrokerAccounts = [
+    { id: 'acc1', name: 'Vanguard ISA', type: 'Investment', currency: 'GBP', balance: '£2,050', wrapper: 'ISA', identifier: 'ACC-••12', asAt: 'Today' },
+    { id: 'acc2', name: 'Vanguard GIA', type: 'Investment', currency: 'GBP', balance: '£540', wrapper: 'GIA', identifier: 'ACC-••34', asAt: 'Today' },
+    { id: 'acc3', name: 'Vanguard SIPP', type: 'Pension', currency: 'GBP', balance: '£0', wrapper: 'SIPP', identifier: 'ACC-••56', asAt: 'Today' },
+  ];
+  
+  // Demo bank accounts (for Cash)
+  const demoBankAccounts = [
+    { id: 'ba1', name: 'HSBC — Savings', type: 'Easy-access', currency: 'GBP', balance: '£12,400', wrapper: 'GIA', identifier: 'GB-HSBC-••1234', asAt: 'Today' },
+    { id: 'ba2', name: 'HSBC — Cash ISA', type: 'Cash ISA', currency: 'GBP', balance: '£8,900', wrapper: 'ISA', identifier: 'GB-HSBC-••9876', asAt: 'Today' },
+    { id: 'ba3', name: 'HSBC — Euro', type: 'Current', currency: 'EUR', balance: '€2,150', wrapper: 'GIA', identifier: 'IBAN-••72', asAt: 'Today', fxNote: 'FX via ECB' },
   ];
   
   // Demo Live holdings data
@@ -1464,9 +1487,9 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                         <thead className="bg-[var(--muted)] border-b border-[var(--border)]">
                           <tr>
                             <th className="px-3 py-2 text-left">
-                              <input type="checkbox" checked={selectedAccounts.length === demoAccounts.length} onChange={(e) => {
+                              <input type="checkbox" checked={selectedAccounts.length === demoBrokerAccounts.length} onChange={(e) => {
                                 if (e.target.checked) {
-                                  setSelectedAccounts(demoAccounts.map(a => a.id));
+                                  setSelectedAccounts(demoBrokerAccounts.map(a => a.id));
                                 } else {
                                   setSelectedAccounts([]);
                                 }
@@ -1481,7 +1504,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                           </tr>
                         </thead>
                         <tbody>
-                          {demoAccounts.map((account) => (
+                          {demoBrokerAccounts.map((account) => (
                             <tr key={account.id} className="border-b border-[var(--border)]">
                               <td className="px-3 py-3">
                                 <input 
@@ -2107,6 +2130,344 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                 )}
               </div>
             )}
+            
+            {/* Cash Category */}
+            {category === 'cash' && !sourceType && (
+              <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] overflow-hidden shadow-sm mb-6">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">Select source</h3>
+                      <p className="text-xs text-[var(--muted-foreground)]">How will you add this cash account?</p>
+                    </div>
+                    <button
+                      onClick={() => setCategory(null)}
+                      className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                    >
+                      Change category
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4 mt-6">
+                    <button
+                      onClick={() => {
+                        setSourceType('live');
+                        setLiveStep(1);
+                      }}
+                      className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                      data-testid="source-live-cash"
+                    >
+                      <div className="text-center">
+                        <div className="text-3xl mb-3">⚡</div>
+                        <h4 className="font-semibold text-[var(--foreground)] mb-2">Connect bank</h4>
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          Batch import via Open Banking (recommended)
+                        </p>
+                      </div>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setSourceType('semi-auto');
+                        setStep(1);
+                      }}
+                      className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                      data-testid="source-csv-cash"
+                    >
+                      <div className="text-center">
+                        <div className="text-3xl mb-3">⇪</div>
+                        <h4 className="font-semibold text-[var(--foreground)] mb-2">Import CSV</h4>
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          Upload exported bank statement
+                        </p>
+                      </div>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setSourceType('manual');
+                        setStep(1);
+                      }}
+                      className="relative p-6 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                      data-testid="source-manual-cash"
+                    >
+                      <div className="text-center">
+                        <div className="text-3xl mb-3">✍</div>
+                        <h4 className="font-semibold text-[var(--foreground)] mb-2">Enter manually</h4>
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          Type account details by hand
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Cash - Live Flow */}
+            {category === 'cash' && sourceType === 'live' && (
+              <div className="space-y-6">
+                {/* Step 1: Bank Picker */}
+                {liveStep === 1 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Connect to your bank securely (read-only)</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Choose your bank to import accounts
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => { setSourceType(null); setLiveStep(1); }}
+                        className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                      >
+                        Change source
+                      </button>
+                    </div>
+
+                    <input 
+                      type="text" 
+                      placeholder="Search banks..."
+                      className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                    />
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {demoBanks.map((bank) => (
+                        <button
+                          key={bank.id}
+                          onClick={() => {
+                            setSelectedBroker(bank.name);
+                            setLiveStep(2);
+                          }}
+                          className="p-4 border border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all text-left"
+                        >
+                          <h4 className="font-semibold text-[var(--foreground)] mb-1">{bank.name}</h4>
+                          <p className="text-xs text-[var(--muted-foreground)]">{bank.types}</p>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <button 
+                        onClick={() => setSourceType(null)}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Consent & Authenticate */}
+                {liveStep === 2 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Consent & Authenticate</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Connecting to {selectedBroker}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl">
+                      <p className="text-sm font-semibold text-[var(--foreground)] mb-2">Read-only access:</p>
+                      <ul className="text-xs text-[var(--muted-foreground)] space-y-1.5 ml-4 list-disc">
+                        <li>Read accounts & balances (and currency)</li>
+                        <li>Read account metadata (name/type/identifier)</li>
+                        <li className="font-semibold">No payments. No changes.</li>
+                      </ul>
+                    </div>
+
+                    <div className="text-xs text-[var(--muted-foreground)] px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+                      Access is read-only and expires in 90 days. You can revoke any time.
+                    </div>
+
+                    {/* Mock auth form */}
+                    <div className="border border-[var(--border)] rounded-xl p-6 space-y-4">
+                      <h4 className="text-sm font-semibold text-[var(--foreground)] mb-3">Demo: {selectedBroker} Login</h4>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Username</label>
+                        <input 
+                          type="text" 
+                          placeholder="demo@user.com"
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">Password</label>
+                        <input 
+                          type="password" 
+                          placeholder="••••••••"
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--muted-foreground)] mb-2">2FA Code</label>
+                        <input 
+                          type="text" 
+                          placeholder="123456"
+                          className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-xl text-[var(--foreground)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <button 
+                        onClick={() => setLiveStep(1)}
+                        className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                      >
+                        Back
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setLiveStep(3);
+                          setSelectedAccounts(['ba1', 'ba2']);
+                        }}
+                        className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity"
+                      >
+                        Approve & Continue
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Pick Accounts */}
+                {liveStep === 3 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">Pick Accounts</h3>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                          Select accounts to import
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead className="bg-[var(--muted)] border-b border-[var(--border)]">
+                          <tr>
+                            <th className="px-3 py-2 text-left">
+                              <input type="checkbox" checked={selectedAccounts.length === demoBankAccounts.length} onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedAccounts(demoBankAccounts.map(a => a.id));
+                                } else {
+                                  setSelectedAccounts([]);
+                                }
+                              }} />
+                            </th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Account name</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Type</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Currency</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Balance</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">As-at</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Suggested wrapper</th>
+                            <th className="px-3 py-2 text-left text-[var(--foreground)]">Identifier</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {demoBankAccounts.map((account) => (
+                            <tr key={account.id} className="border-b border-[var(--border)]">
+                              <td className="px-3 py-3">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedAccounts.includes(account.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedAccounts([...selectedAccounts, account.id]);
+                                    } else {
+                                      setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                                    }
+                                  }}
+                                />
+                              </td>
+                              <td className="px-3 py-3 text-[var(--foreground)]">{account.name}</td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{account.type}</td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">
+                                {account.currency}
+                                {account.fxNote && <div className="text-xs text-[var(--muted-foreground)]">{account.fxNote}</div>}
+                              </td>
+                              <td className="px-3 py-3 text-[var(--foreground)]">{account.balance}</td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{account.asAt}</td>
+                              <td className="px-3 py-3">
+                                <select className="px-2 py-1 bg-[var(--input)] border border-[var(--border)] rounded text-[var(--foreground)] text-xs" defaultValue={account.wrapper}>
+                                  <option>ISA</option>
+                                  <option>SIPP</option>
+                                  <option>GIA</option>
+                                  <option>Personal</option>
+                                </select>
+                              </td>
+                              <td className="px-3 py-3 text-[var(--muted-foreground)]">{account.identifier}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4">
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        {selectedAccounts.length} account{selectedAccounts.length !== 1 ? 's' : ''} selected
+                      </p>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => setLiveStep(2)}
+                          className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors"
+                        >
+                          Back
+                        </button>
+                        <button 
+                          onClick={() => {
+                            alert(`Imported ${selectedAccounts.length} cash accounts via ⚡ Live connection (Open Banking)`);
+                            onClose();
+                          }}
+                          disabled={selectedAccounts.length === 0}
+                          className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                          Import selected ({selectedAccounts.length})
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Cash - CSV/Manual placeholder */}
+            {category === 'cash' && (sourceType === 'semi-auto' || sourceType === 'manual') && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--foreground)]">
+                        <span>{sourceType === 'semi-auto' ? '⇪' : '✍'}</span>
+                        {sourceType === 'semi-auto' ? 'CSV' : 'Manual'}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-xs">
+                        {sourceType === 'semi-auto' && 'Balance from CSV export.'}
+                        {sourceType === 'manual' && 'Balance entered by you; attach a statement.'}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  <button
+                    onClick={() => { setSourceType(null); setStep(1); }}
+                    className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] underline"
+                  >
+                    Change source
+                  </button>
+                </div>
+
+                <div className="px-6 py-12 text-center border border-[var(--border)] rounded-xl bg-[var(--muted)]">
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    {sourceType === 'semi-auto' ? 'CSV import' : 'Manual entry'} form for Cash coming soon
+                  </p>
+                </div>
+              </div>
+            )}
+            
             {category === 'manual' && mode === 'asset' && (
               <div className="space-y-6">
                 {/* Identify Section */}

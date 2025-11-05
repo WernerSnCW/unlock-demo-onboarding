@@ -1,0 +1,162 @@
+Cash (Bank / Savings) — Live, CSV, Manual
+0) Entry
+
+From Add Assets → Cash. First screen is a Source selector:
+
+⚡ Connect bank (default, recommended)
+
+⇪ Import CSV
+
+✍ Enter manually
+
+A “Change source” link must appear on subsequent steps to jump back here.
+
+1) ⚡ Connect bank (Live) — the correct flow
+Step A — Bank picker (modal)
+
+UI: Search + logo grid (HSBC, NatWest, Lloyds, Barclays, Santander, Nationwide, RBS, Chase UK, Monzo, Starling, Revolut, NS&I).
+
+Tile: bank logo + name (+ small “Personal/Business” hint if you like).
+
+Buttons: Cancel | Continue
+
+Header copy: “Connect to your bank securely (read-only).”
+
+Step B — Consent & authenticate (modal → redirect)
+
+Consent bullets:
+
+Read accounts & balances (and currency)
+
+Read account metadata (name/type/identifier)
+
+No payments. No changes.
+
+Small note: “Access is read-only and expires in 90 days. You can revoke any time.”
+
+CTA: Continue to <Bank>
+
+Prototype note: show a mock auth page (Username, Password, 2FA, Approve). In production, this is the bank’s page—never collect credentials yourself.
+
+Step C — Pick accounts (modal)
+
+Table of accounts returned by the bank:
+
+✓	Account name	Type	Currency	Balance	As-at	Suggested wrapper	Identifier
+☐	HSBC — Savings	Easy-access	GBP	£12,400	Today	GIA	GB-HSBC-••1234
+☐	HSBC — Cash ISA	Cash ISA	GBP	£8,900	Today	ISA	GB-HSBC-••9876
+☐	HSBC — Euro	Current	EUR	€2,150	Today	GIA	IBAN-••72
+
+Wrapper is editable (ISA/SIPP/GIA/Personal).
+
+If Currency ≠ GBP, show a tiny “FX via ECB” hint.
+
+Buttons: Back | Import selected (n)
+
+Step D — Import result
+
+Toast: “Imported n accounts via Live connection.”
+
+Optional summary card: “Added 2 · Ignored 1”. Button: Add evidence (opens Documents).
+
+What gets created (each selected account → one row)
+
+Asset: “Cash (Easy-access / Current / Notice / Fixed-term / Cash ISA)”
+Sub-label: Bank name.
+
+Identifier: masked (e.g., GB-HSBC-••1234 or IBAN-••72).
+
+Wrapper: as chosen in Step C.
+
+Units: = Balance (cash convention), Price = £1.00, Value = Balance (or Balance × FX if non-GBP).
+
+Bucket: Cash. Tax/Relief: “Interest” (or “Tax-sheltered (ISA)”).
+
+Source: ⚡ Live.
+
+Evidence: “Missing” by default (user will attach statement later).
+
+Completeness: computed from metadata + numbers + evidence.
+
+Drawer (View) for a Live Cash row
+
+Header: “Cash — HSBC (Easy-access)” + wrapper tag + ⚡ Live pill.
+
+Position card: Balance 🔒 (read-only), Currency, FX (if applicable), Value (GBP), Available (optional), As-at date.
+
+Access & Interest card: Account type; if Notice → Notice days; if Fixed-term → Maturity; AER; YTD interest (optional).
+
+Compliance row: Evidence state/type; masked identifier.
+
+Provenance row:
+
+Balance source: “⚡ Open Banking (read-only)”
+
+FX source: “ECB (demo)” (if non-GBP)
+
+Lock tooltip: “This value comes from your bank connection.”
+
+2) ⇪ Import CSV (fallback)
+
+CSV mapping step: columns = Account name, Type, Currency, Balance, As-at, (optional) Available, Identifier.
+
+Save creates rows as above but:
+
+Source: ⤿ CSV
+
+All fields editable in drawer (no locks).
+
+Toast: “Imported n accounts from CSV.”
+
+3) ✍ Enter manually (fallback)
+
+Identify: Wrapper, Bank/Provider, Account type, Account label (opt), masked details (opt), Bucket = Cash.
+Balance & currency: Currency (req), FX (if non-GBP), Balance (req), Available (opt), As-at (req).
+Access & interest: Access (Instant/Notice/Fixed/Other), Notice days or Maturity (as needed), AER (opt).
+Evidence: On file / Missing (+ type if on file).
+
+Source: ✍ Manual; fields editable.
+
+Toast: “Added a cash account (Manual).”
+
+4) Table-level elements (so Live feels different)
+
+Source column: ⚡ Live | ⤿ CSV | ✍ Manual.
+
+Legend chips (top-right above the table):
+
+⚡ Live — “Balance updates via Open Banking (read-only).”
+
+⤿ CSV — “Balance from CSV export.”
+
+✍ Manual — “Balance entered by you; attach a statement.”
+
+Lock glyphs on Balance in drawer for Live rows only.
+
+5) Behaviour, validation & edge cases
+
+Wrapper always editable during import (e.g., bank says “Cash ISA” → suggest ISA).
+
+Non-GBP: require FX for CSV/Manual; for Live show FX line (ECB demo rate).
+
+Fixed-term requires Maturity ≥ As-at; Notice requires Notice days ≥ 1.
+
+Re-consent banner (prototype copy): “Bank access expires in 90 days”.
+
+Joint/business: optional Ownership note field in drawer (for Household roll-ups later).
+
+Duplicates: if an identical account (same bank + masked ID) exists, show “Already imported” and default to Ignore.
+
+Connection error: friendly fallback banner with quick links to CSV and Manual.
+
+6) Acceptance criteria (for your prototype)
+
+Add Cash starts at Source selector; Connect bank opens Bank picker → Consent → Mock auth → Pick accounts; importing creates rows with ⚡ Live and locked Balance.
+
+CSV and Manual paths produce rows with ⤿ / ✍ and no locks.
+
+Holdings table shows Source column and legend chips.
+
+Drawer for Live shows Provenance and lock tooltip; non-GBP shows Currency, FX, Value (GBP).
+
+Product tour has steps on Connect bank, Pick accounts, and a Live Cash row.
