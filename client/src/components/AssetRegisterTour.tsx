@@ -352,10 +352,10 @@ export function AssetRegisterTour({ isOpen, onClose }: AssetRegisterTourProps) {
           <div
             className="absolute border-4 border-[var(--primary)] rounded-lg shadow-2xl pointer-events-none transition-all duration-300"
             style={{
-              top: targetEl.getBoundingClientRect().top - 8,
-              left: targetEl.getBoundingClientRect().left - 8,
-              width: targetEl.getBoundingClientRect().width + 16,
-              height: targetEl.getBoundingClientRect().height + 16,
+              top: targetEl.getBoundingClientRect().top - 12,
+              left: targetEl.getBoundingClientRect().left - 12,
+              width: targetEl.getBoundingClientRect().width + 24,
+              height: targetEl.getBoundingClientRect().height + 24,
               boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
             }}
           />
