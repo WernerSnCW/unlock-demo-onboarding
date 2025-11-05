@@ -113,7 +113,7 @@ export default function AssetRegister() {
         <main className="min-h-screen">
           {/* Header */}
           <header className="sticky top-0 z-20 backdrop-blur-md bg-[var(--background)]/80 border-b border-[var(--border)] px-6 py-4 flex items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 max-w-3xl">
               <input
                 type="search"
                 placeholder="Search instruments, accounts, documents…"
