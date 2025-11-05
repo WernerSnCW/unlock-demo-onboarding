@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 
 export default function AssetRegister() {
   const [activeTab, setActiveTab] = useState('holdings');
@@ -194,14 +195,55 @@ export default function AssetRegister() {
 
           <div className="p-6" id="main">
             {/* KPI Tiles */}
-            <div id="tour-kpis" className="grid grid-cols-6 gap-4 mb-6">
-              <KPITile label="Total Portfolio" value="£847,200" delta="+£12,400 (1.5%)" positive data-testid="kpi-total" />
-              <KPITile label="Liquid" value="£612,300" sublabel="Cash + listed" data-testid="kpi-liquid" />
-              <KPITile label="Property" value="£195,000" sublabel="Last updated: Oct 2025" data-testid="kpi-property" />
-              <KPITile label="Alternatives" value="£39,900" sublabel="Crypto & private" data-testid="kpi-alternatives" />
-              <KPITile label="Unrealised G/L" value="£94,100" delta="+18.2% since cost" positive data-testid="kpi-gl" />
-              <KPITile label="Rebalance Status" value="2 buckets" delta="out of band" negative data-testid="kpi-rebalance" />
-            </div>
+            <TooltipProvider>
+              <div id="tour-kpis" className="grid grid-cols-6 gap-4 mb-6">
+                <KPITile 
+                  label="Total Portfolio" 
+                  value="£847,200" 
+                  delta="+£12,400 (1.5%)" 
+                  positive 
+                  tooltip="Combined value of all your assets across holdings, property, and alternatives"
+                  data-testid="kpi-total" 
+                />
+                <KPITile 
+                  label="Liquid" 
+                  value="£612,300" 
+                  sublabel="Cash + listed" 
+                  tooltip="Cash and publicly traded securities that can be quickly converted to cash"
+                  data-testid="kpi-liquid" 
+                />
+                <KPITile 
+                  label="Property" 
+                  value="£195,000" 
+                  sublabel="Last updated: Oct 2025" 
+                  tooltip="Total value of all property holdings based on latest valuations"
+                  data-testid="kpi-property" 
+                />
+                <KPITile 
+                  label="Alternatives" 
+                  value="£39,900" 
+                  sublabel="Crypto & private" 
+                  tooltip="Non-traditional investments including cryptocurrency and private equity"
+                  data-testid="kpi-alternatives" 
+                />
+                <KPITile 
+                  label="Unrealised G/L" 
+                  value="£94,100" 
+                  delta="+18.2% since cost" 
+                  positive 
+                  tooltip="Unrealised gains or losses - the difference between current value and cost basis"
+                  data-testid="kpi-gl" 
+                />
+                <KPITile 
+                  label="Rebalance Status" 
+                  value="2 buckets" 
+                  delta="out of band" 
+                  negative 
+                  tooltip="Number of asset allocations that are outside your target bands and need rebalancing"
+                  data-testid="kpi-rebalance" 
+                />
+              </div>
+            </TooltipProvider>
 
             {/* Tabs */}
             <div className="mb-6">
@@ -266,10 +308,24 @@ export default function AssetRegister() {
   );
 }
 
-function KPITile({ label, value, delta, sublabel, positive, negative, ...props }: any) {
+function KPITile({ label, value, delta, sublabel, positive, negative, tooltip, ...props }: any) {
   return (
     <div className="p-4 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-sm" {...props}>
-      <div className="text-xs text-[var(--muted-foreground)] mb-1">{label}</div>
+      <div className="flex items-center justify-between mb-1">
+        <div className="text-xs text-[var(--muted-foreground)]">{label}</div>
+        {tooltip && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
+                <Info className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <p className="text-xs">{tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
       <div className="text-xl font-bold text-[var(--foreground)] mt-1">{value}</div>
       {delta && (
         <div className={`text-xs mt-2 ${positive ? 'text-[var(--success)]' : negative ? 'text-[var(--destructive)]' : 'text-[var(--muted-foreground)]'}`}>
