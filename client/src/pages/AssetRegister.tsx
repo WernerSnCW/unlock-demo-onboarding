@@ -183,22 +183,36 @@ export default function AssetRegister() {
                   onClick={() => setAddAssetModal(true)}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2"
                   data-testid="button-add-asset"
+                  title="Add a new asset to your portfolio"
                 >
                   ＋ Add asset
                 </button>
-                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" data-testid="button-add-liability">
+                <button 
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
+                  data-testid="button-add-liability"
+                  title="Record a new liability such as loans or mortgages"
+                >
                   − Add liability
                 </button>
-                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" data-testid="button-import-csv">
+                <button 
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
+                  data-testid="button-import-csv"
+                  title="Import holdings data from a CSV file"
+                >
                   ⇪ Import CSV
                 </button>
-                <button className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" data-testid="button-ai-import">
+                <button 
+                  className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
+                  data-testid="button-ai-import"
+                  title="Use AI to automatically extract holdings from documents"
+                >
                   ✨ AI Import
                 </button>
                 <button 
                   onClick={() => setDocLightbox(true)}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2"
                   data-testid="button-upload-evidence"
+                  title="Upload supporting documents like statements or valuations"
                 >
                   <Upload className="h-4 w-4" /> Upload evidence
                 </button>
@@ -207,6 +221,7 @@ export default function AssetRegister() {
                   onClick={() => setDensity(density === 'normal' ? 'compact' : 'normal')}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2"
                   data-testid="button-density"
+                  title="Toggle between normal and compact table row spacing"
                 >
                   ⇕ Density: {density === 'normal' ? 'Normal' : 'Compact'}
                 </button>
