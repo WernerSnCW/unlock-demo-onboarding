@@ -340,29 +340,61 @@ export default function AssetRegister() {
 
             {/* Tabs */}
             <div className="mb-6">
-              <div id="tour-tabs" className="flex flex-wrap gap-2">
-                {[
-                  { id: 'holdings', label: 'Holdings Register' },
-                  { id: 'targets', label: 'Targets & Bands' },
-                  { id: 'transactions', label: 'Transactions' },
-                  { id: 'documents', label: 'Documents' },
-                  { id: 'reconciliation', label: 'Reconciliation' },
-                  { id: 'household', label: 'Household' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2.5 rounded-full border text-sm transition-all ${
-                      activeTab === tab.id
-                        ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)] shadow-md'
-                        : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'
-                    }`}
-                    data-testid={`tab-${tab.id}`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              <TooltipProvider>
+                <div id="tour-tabs" className="flex flex-wrap gap-2">
+                  {[
+                    { 
+                      id: 'holdings', 
+                      label: 'Holdings Register',
+                      tooltip: 'Complete inventory of all assets and liabilities with live prices, cost basis, and tax treatment'
+                    },
+                    { 
+                      id: 'targets', 
+                      label: 'Targets & Bands',
+                      tooltip: 'Set target allocations and acceptable ranges for portfolio rebalancing across asset classes'
+                    },
+                    { 
+                      id: 'transactions', 
+                      label: 'Transactions',
+                      tooltip: 'Audit trail of all buys, sells, dividends, and corporate actions for tax reporting'
+                    },
+                    { 
+                      id: 'documents', 
+                      label: 'Documents',
+                      tooltip: 'Store statements, contract notes, and supporting evidence linked to holdings'
+                    },
+                    { 
+                      id: 'reconciliation', 
+                      label: 'Reconciliation',
+                      tooltip: 'Compare your holdings against broker statements to catch discrepancies'
+                    },
+                    { 
+                      id: 'household', 
+                      label: 'Household',
+                      tooltip: 'Manage multiple entities, track allowances, and optimize tax wrappers across your household'
+                    },
+                  ].map((tab) => (
+                    <Tooltip key={tab.id}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`px-4 py-2.5 rounded-full border text-sm transition-all ${
+                            activeTab === tab.id
+                              ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)] shadow-md'
+                              : 'bg-[var(--card)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]'
+                          }`}
+                          data-testid={`tab-${tab.id}`}
+                        >
+                          {tab.label}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">{tab.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
             </div>
 
             {/* Primary Actions Bar */}
