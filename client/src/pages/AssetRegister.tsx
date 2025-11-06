@@ -860,6 +860,222 @@ function HoldingsTab({ onViewDetail, density }: any) {
         </div>
       )}
 
+      {/* Instrument View */}
+      {viewMode === 'instrument' && (
+        <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-[var(--muted)]/20 border-b border-[var(--border)] flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">Holdings by Instrument Type</h3>
+            <p className="text-xs text-[var(--muted-foreground)]">Type-specific columns adapt to each instrument</p>
+          </div>
+          
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Type</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Custodian</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units/Nominal</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price/Rate</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Type Details</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {holdings.map((holding, idx) => {
+                // Type-specific details
+                let typeDetails = '';
+                if (holding.assetType === 'Cash') {
+                  typeDetails = 'Instant access • 4.1% AER';
+                } else if (holding.assetType === 'Bond ETF') {
+                  typeDetails = 'Coupon: 3.2% • Maturity: 2028';
+                } else if (holding.assetType === 'ETF') {
+                  typeDetails = 'Accumulation • TER: 0.23%';
+                } else if (holding.assetType === 'Property') {
+                  typeDetails = 'BTL • Yield: 5.8%';
+                } else if (holding.assetType === 'Crypto') {
+                  typeDetails = 'On-chain • Self-custody';
+                } else if (holding.assetType === 'Private Equity') {
+                  typeDetails = 'EIS • Unlisted • 603 days hold';
+                }
+                
+                return (
+                  <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors last:border-b-0">
+                    <td className={rowPadding}>
+                      <div className="font-medium text-sm text-[var(--foreground)]">{holding.asset}</div>
+                    </td>
+                    <td className={rowPadding}>
+                      <span className="px-2 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)]">
+                        {holding.assetType}
+                      </span>
+                    </td>
+                    <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.custodian}</td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.units}</td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.price}</td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{holding.value}</td>
+                    <td className={`${rowPadding} text-xs text-[var(--muted-foreground)]`}>{typeDetails}</td>
+                    <td className={rowPadding}>
+                      <button className="px-3 py-1 bg-transparent border border-[var(--border)] rounded-xl text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Tax/Evidence View */}
+      {viewMode === 'tax-evidence' && (
+        <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-[var(--muted)]/20 border-b border-[var(--border)] flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">Tax Treatment & Evidence Status</h3>
+            <div className="flex gap-2">
+              <button className="px-3 py-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs">
+                Tax lens
+              </button>
+              <button className="px-3 py-1.5 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-xs hover:bg-[var(--muted)]">
+                Evidence lens
+              </button>
+            </div>
+          </div>
+          
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Tax Treatment</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Relief/Wrapper</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Hold Period</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence Strength</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Linked Docs</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Status</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {holdings.map((holding, idx) => {
+                const evidenceStrength = holding.completeness >= 95 ? 'High' : holding.completeness >= 85 ? 'Medium' : 'Low';
+                const linkedDocs = holding.completeness >= 95 ? 3 : holding.completeness >= 85 ? 2 : 1;
+                const holdPeriod = holding.countdown ? holding.countdown.replace('~', '') : '—';
+                
+                return (
+                  <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors last:border-b-0">
+                    <td className={rowPadding}>
+                      <div className="font-medium text-sm text-[var(--foreground)]">{holding.asset}</div>
+                      <div className="text-xs text-[var(--muted-foreground)]">{holding.assetType}</div>
+                    </td>
+                    <td className={rowPadding}>
+                      <span className="text-sm text-[var(--foreground)]">{holding.tax}</span>
+                    </td>
+                    <td className={rowPadding}>
+                      <WrapperTag wrapper={holding.wrapper} />
+                    </td>
+                    <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>
+                      {holdPeriod}
+                    </td>
+                    <td className={rowPadding}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${
+                        evidenceStrength === 'High' ? 'bg-[var(--success)]/10 text-[var(--success)]' :
+                        evidenceStrength === 'Medium' ? 'bg-[var(--warning)]/10 text-[var(--warning)]' :
+                        'bg-[var(--destructive)]/10 text-[var(--destructive)]'
+                      }`}>
+                        {evidenceStrength}
+                      </span>
+                    </td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>
+                      {linkedDocs}
+                    </td>
+                    <td className={rowPadding}>
+                      <EvidenceStatus status={holding.evidence} />
+                    </td>
+                    <td className={rowPadding}>
+                      <button className="px-3 py-1 bg-transparent border border-[var(--border)] rounded-xl text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                        Add docs
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Liabilities View */}
+      {viewMode === 'liabilities' && (
+        <div className="space-y-4">
+          {/* Info banner */}
+          <div className="px-4 py-3 bg-[var(--info)]/10 border border-[var(--info)]/20 rounded-xl">
+            <p className="text-sm text-[var(--foreground)]">
+              <span className="font-semibold">No liabilities recorded yet.</span> Add mortgages, loans, or credit facilities to track your complete financial position.
+            </p>
+          </div>
+
+          {/* Sample liabilities table */}
+          <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm overflow-hidden">
+            <div className="px-4 py-3 bg-[var(--muted)]/20 border-b border-[var(--border)]">
+              <h3 className="text-sm font-semibold text-[var(--foreground)]">Liabilities Register (Demo)</h3>
+            </div>
+            
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                  <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Type</th>
+                  <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Lender</th>
+                  <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Account</th>
+                  <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Principal</th>
+                  <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Outstanding</th>
+                  <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Rate (APR)</th>
+                  <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Term</th>
+                  <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Linked Asset</th>
+                  <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>LTV</th>
+                  <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors">
+                  <td className={rowPadding}>
+                    <span className="px-2 py-0.5 rounded text-xs bg-[var(--warning)]/10 text-[var(--warning)]">
+                      Mortgage
+                    </span>
+                  </td>
+                  <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>Nationwide BS</td>
+                  <td className={`${rowPadding} text-sm text-[var(--muted-foreground)]`}>***4567</td>
+                  <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>£150,000</td>
+                  <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>£128,450</td>
+                  <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>3.89%</td>
+                  <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>18y 4m</td>
+                  <td className={`${rowPadding} text-sm text-[var(--primary)]`}>42 Elm St, Manchester</td>
+                  <td className={`${rowPadding} text-right text-sm ${
+                    65.9 <= 75 ? 'text-[var(--success)]' : 'text-[var(--warning)]'
+                  }`}>65.9%</td>
+                  <td className={rowPadding}>
+                    <button className="px-3 py-1 bg-transparent border border-[var(--border)] rounded-xl text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                      View
+                    </button>
+                  </td>
+                </tr>
+                <tr className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors last:border-b-0">
+                  <td colSpan={10} className="px-4 py-8 text-center text-sm text-[var(--muted-foreground)]">
+                    No additional liabilities recorded
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Add liability button */}
+          <div className="flex justify-end">
+            <button className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity">
+              Add Liability
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Net Worth View */}
       {viewMode === 'net-worth' && (
         <div className="space-y-6">
@@ -928,7 +1144,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
       )}
 
       {/* Placeholder for other view modes */}
-      {!['list', 'custodian', 'wrapper', 'asset-class', 'net-worth'].includes(viewMode) && (
+      {!['list', 'custodian', 'wrapper', 'asset-class', 'instrument', 'tax-evidence', 'liabilities', 'net-worth'].includes(viewMode) && (
         <div className="p-12 border border-[var(--border)] rounded-xl bg-[var(--card)] text-center">
           <p className="text-[var(--muted-foreground)]">
             {viewMode.charAt(0).toUpperCase() + viewMode.slice(1).replace('-', ' ')} view coming soon...
