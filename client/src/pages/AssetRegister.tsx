@@ -493,9 +493,9 @@ function HoldingsTab({ onViewDetail, density }: any) {
   ];
 
   const getSourceIcon = (source: string) => {
-    const iconClass = "h-3.5 w-3.5";
+    const iconClass = "h-4 w-4 text-[var(--foreground)]";
     switch(source) {
-      case 'live': return <Zap className={iconClass} />;
+      case 'live': return <Zap className={`${iconClass} text-[var(--primary)]`} fill="currentColor" />;
       case 'csv': return <FileDown className={iconClass} />;
       case 'ocr': return <Paperclip className={iconClass} />;
       case 'manual': return <Edit3 className={iconClass} />;
@@ -2561,9 +2561,9 @@ function TransactionsTab({ density }: any) {
   };
 
   const getSourceIcon = (source: string) => {
-    const iconClass = "h-3.5 w-3.5";
+    const iconClass = "h-4 w-4 text-[var(--foreground)]";
     switch(source) {
-      case 'live': return <Zap className={iconClass} />;
+      case 'live': return <Zap className={`${iconClass} text-[var(--primary)]`} fill="currentColor" />;
       case 'csv': return <FileDown className={iconClass} />;
       case 'ocr': return <Paperclip className={iconClass} />;
       case 'manual': return <Edit3 className={iconClass} />;
