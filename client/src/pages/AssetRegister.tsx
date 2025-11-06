@@ -735,7 +735,7 @@ function TransactionsTab({ density }: any) {
               <span className="text-xs">▼</span>
             </button>
             {showAddMenu && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-10">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-10 overflow-hidden">
                 <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
                   <div className="font-semibold mb-1">⚡ Live (from connected broker)</div>
                   <div className="text-xs text-[var(--muted-foreground)]">Read-only from your broker</div>
@@ -1471,7 +1471,7 @@ function ReconciliationTab() {
                           <td className="py-3 px-3 text-right">45.50</td>
                           <td className="py-3 px-3 text-center"><span className="text-[var(--success)]">✓ Match</span></td>
                           <td className="py-3 px-3 text-right">
-                            <button className="px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] rounded text-xs">Accept</button>
+                            <button className="px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] rounded-lg text-xs">Accept</button>
                           </td>
                         </tr>
                       </tbody>
