@@ -363,6 +363,45 @@ export default function AssetRegister() {
               </div>
             </div>
 
+            {/* Primary Actions Bar */}
+            <div className="mb-6 flex items-center justify-between p-4 bg-[var(--muted)]/30 border border-[var(--border)] rounded-xl">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setAddAssetModal(true)}
+                  className="px-4 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors shadow-sm flex items-center gap-2"
+                  data-testid="button-add-asset-main"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Add asset
+                </button>
+                <button
+                  onClick={() => setAddLiabilityModal(true)}
+                  className="px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors flex items-center gap-2"
+                  data-testid="button-add-liability-main"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Add liability
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePrint}
+                  className="px-3 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm hover:bg-[var(--muted)] transition-colors flex items-center gap-2"
+                  data-testid="button-print-main"
+                >
+                  <Printer className="h-4 w-4" />
+                  Print
+                </button>
+                <button
+                  className="px-3 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm hover:bg-[var(--muted)] transition-colors flex items-center gap-2"
+                  data-testid="button-export-main"
+                >
+                  <Download className="h-4 w-4" />
+                  Export
+                </button>
+              </div>
+            </div>
+
             {/* Tab Content */}
             <div className="mt-6">
               {activeTab === 'holdings' && <HoldingsTab onViewDetail={setDetailDrawer} density={density} />}
