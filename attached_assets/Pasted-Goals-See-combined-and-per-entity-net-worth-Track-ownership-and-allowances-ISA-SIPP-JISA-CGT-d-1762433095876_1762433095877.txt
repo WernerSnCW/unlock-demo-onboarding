@@ -1,0 +1,104 @@
+Goals
+
+See combined and per-entity net worth.
+
+Track ownership and allowances (ISA/SIPP/JISA, CGT, dividends, interest).
+
+Control what’s included and who can see it.
+
+Generate household-level actions (optimise contributions, rebalance across people, plan disposals).
+
+Layout upgrades
+
+Header KPIs (combined view)
+
+Net worth • Liquid assets • Debt ratio • Allowances used YTD (bars for ISA/SIPP/CGT).
+
+Entity cards (one per person/company/trust)
+
+Name & type (Individual / Ltd / Trust / JISA).
+
+Totals: Assets • Liabilities • Net • Liquid %.
+
+Allowance chips: ISA, SIPP, CGT, Dividend, Interest (progress).
+
+Buttons: View, Include/Exclude, Invite user, Set ownership.
+
+Segmented view switcher
+
+Combined • By Entity • By Wrapper • By Ownership • With Liabilities.
+
+Actions panel (right or bottom)
+
+“Optimise allowances”, “Rebalance across entities”, “Harvest gains/losses”, “Beneficiary pack”.
+
+Key features (spec)
+
+Add / manage entities
+
+Add Spouse, Child (JISA/Junior SIPP), Ltd, Trust.
+
+Fields: legal name, relationship, tax residency, NI/company no., email (for invite).
+
+Ownership & joint assets
+
+For each holding: ownership % (default 100/0; allow 50/50).
+
+Joint assets show in both entity cards; combined view de-duplicates via ownership %.
+
+Allowances tracker (UK)
+
+ISA remaining, SIPP est. headroom, CGT AEA remaining (for GIA), Dividend & Interest allowances used.
+
+Simple demo logic: sum YTD contributions/income and show remaining.
+
+Cross-entity rebalance / optimisation (planner)
+
+Propose where to buy/sell to move buckets and use wrappers first (e.g., “Use £8k of Spouse ISA before GIA sell”).
+
+Show estimated CGT if a GIA disposal is suggested.
+
+Permissions
+
+Invite spouse (Viewer/Editor).
+
+Ltd/Trust can be masked in combined view if needed (privacy toggle).
+
+Household notes & reminders
+
+Checklist: “Fund ISAs before 5 April”, “JISA top-up”, “Pension taper check”, “Mortgage fix expiry”.
+
+UI copy (short, pasteable)
+
+How Household works:
+“Link people and entities, set who owns what, and we’ll show combined net worth, allowance usage, and cross-entity suggestions that minimise tax and fees.”
+
+Ownership helper:
+“Set the split for joint assets (e.g., 50/50). Combined view uses these percentages to avoid double-counting.”
+
+Optimise button tooltip:
+“Prioritises ISA/SIPP across the household before suggesting any GIA trades.”
+
+Minimal data you’ll need (prototype)
+
+entity: id, type (individual/ltd/trust/jisa), name, relationship, residency, email.
+
+ownership: holding_id, entity_id, percent.
+
+allowances_ytd: entity_id, isa_contrib, sipp_contrib, cgt_used, div_income, interest_income.
+
+visibility: entity_id, included (bool), role (viewer/editor).
+
+Acceptance criteria
+
+Header shows combined KPIs + allowance bars.
+
+Entity cards display totals, allowance chips, Include/Exclude toggle, and an Invite CTA.
+
+Ownership editor exists (per holding or bulk) and affects combined totals.
+
+View switcher changes grouping without leaving the page.
+
+“Optimise allowances” opens a planner that prefers ISA/SIPP across the household and shows a plain-English summary.
+
+Household notes show two preset reminders and allow adding custom items.

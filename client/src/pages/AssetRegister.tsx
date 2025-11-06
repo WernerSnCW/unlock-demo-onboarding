@@ -3482,50 +3482,840 @@ function ReconciliationTab() {
   );
 }
 
-function HouseholdTab() {
-  const entities = [
-    { name: 'Personal', ownership: 100, value: '£847,200', note: 'Primary holdings across all wrappers' },
-    { name: 'Spouse', ownership: 0, value: '—', note: 'Not yet configured' },
-    { name: 'Williams Ltd', ownership: 0, value: '—', note: 'Not yet configured' },
-  ];
+// Household Types
+interface HouseholdEntity {
+  id: string;
+  type: 'individual' | 'ltd' | 'trust' | 'jisa' | 'junior_sipp';
+  name: string;
+  relationship?: string;
+  assets: number;
+  liabilities: number;
+  netWorth: number;
+  liquidPercent: number;
+  included: boolean;
+  allowances: {
+    isaUsed: number;
+    isaLimit: number;
+    sippUsed: number;
+    sippEstLimit: number;
+    cgtUsed: number;
+    cgtLimit: number;
+    dividendIncome: number;
+    dividendLimit: number;
+    interestIncome: number;
+    interestLimit: number;
+  };
+  email?: string;
+  role?: 'owner' | 'viewer' | 'editor';
+  taxResidency: string;
+  niOrCompanyNo?: string;
+}
 
-  return (
-    <div id="tour-household">
-      <div className="space-y-4 mb-6">
-        {entities.map((entity, idx) => (
-          <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`household-${idx}`}>
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="text-base font-semibold text-[var(--foreground)]">{entity.name}</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">{entity.note}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-bold text-[var(--foreground)]">{entity.ownership}%</div>
-                <div className="text-sm text-[var(--muted-foreground)]">{entity.value}</div>
-              </div>
-            </div>
-            <div className="h-2.5 bg-[var(--muted)] rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" 
-                style={{ width: `${entity.ownership}%` }}
-              ></div>
+type HouseholdViewMode = 'combined' | 'by_entity' | 'by_wrapper' | 'by_ownership' | 'with_liabilities';
+
+const householdDemoEntities: HouseholdEntity[] = [
+  {
+    id: 'self',
+    type: 'individual',
+    name: 'You',
+    relationship: 'Self',
+    assets: 370280,
+    liabilities: 128450,
+    netWorth: 241830,
+    liquidPercent: 85,
+    included: true,
+    allowances: {
+      isaUsed: 12400,
+      isaLimit: 20000,
+      sippUsed: 18000,
+      sippEstLimit: 60000,
+      cgtUsed: 4200,
+      cgtLimit: 3000,
+      dividendIncome: 850,
+      dividendLimit: 500,
+      interestIncome: 620,
+      interestLimit: 1000
+    },
+    email: 'you@example.com',
+    role: 'owner',
+    taxResidency: 'UK',
+    niOrCompanyNo: 'AB123456C'
+  },
+  {
+    id: 'spouse',
+    type: 'individual',
+    name: 'Sarah Williams',
+    relationship: 'Spouse',
+    assets: 185000,
+    liabilities: 0,
+    netWorth: 185000,
+    liquidPercent: 92,
+    included: true,
+    allowances: {
+      isaUsed: 8500,
+      isaLimit: 20000,
+      sippUsed: 0,
+      sippEstLimit: 60000,
+      cgtUsed: 0,
+      cgtLimit: 3000,
+      dividendIncome: 0,
+      dividendLimit: 500,
+      interestIncome: 280,
+      interestLimit: 1000
+    },
+    email: 'sarah@example.com',
+    role: 'editor',
+    taxResidency: 'UK',
+    niOrCompanyNo: 'CD789012E'
+  },
+  {
+    id: 'jisa_child',
+    type: 'jisa',
+    name: 'Emma Williams (JISA)',
+    relationship: 'Child',
+    assets: 12500,
+    liabilities: 0,
+    netWorth: 12500,
+    liquidPercent: 100,
+    included: true,
+    allowances: {
+      isaUsed: 2400,
+      isaLimit: 9000,
+      sippUsed: 0,
+      sippEstLimit: 0,
+      cgtUsed: 0,
+      cgtLimit: 0,
+      dividendIncome: 0,
+      dividendLimit: 0,
+      interestIncome: 0,
+      interestLimit: 0
+    },
+    taxResidency: 'UK',
+    niOrCompanyNo: 'EF345678G'
+  },
+  {
+    id: 'ltd',
+    type: 'ltd',
+    name: 'Williams Consulting Ltd',
+    assets: 45000,
+    liabilities: 8000,
+    netWorth: 37000,
+    liquidPercent: 60,
+    included: false,
+    allowances: {
+      isaUsed: 0,
+      isaLimit: 0,
+      sippUsed: 0,
+      sippEstLimit: 0,
+      cgtUsed: 0,
+      cgtLimit: 0,
+      dividendIncome: 0,
+      dividendLimit: 0,
+      interestIncome: 0,
+      interestLimit: 0
+    },
+    taxResidency: 'UK',
+    niOrCompanyNo: '12345678'
+  }
+];
+
+function HouseholdTab() {
+  const [viewMode, setViewMode] = useState<HouseholdViewMode>('combined');
+  const [addEntityOpen, setAddEntityOpen] = useState(false);
+  const [optimiseOpen, setOptimiseOpen] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState<HouseholdEntity | null>(null);
+  const [ownershipEditorOpen, setOwnershipEditorOpen] = useState(false);
+  const [entities, setEntities] = useState(householdDemoEntities);
+
+  const includedEntities = entities.filter(e => e.included);
+  const combinedNetWorth = includedEntities.reduce((sum, e) => sum + e.netWorth, 0);
+  const combinedAssets = includedEntities.reduce((sum, e) => sum + e.assets, 0);
+  const combinedLiabilities = includedEntities.reduce((sum, e) => sum + e.liabilities, 0);
+  const combinedLiquid = includedEntities.reduce((sum, e) => sum + (e.assets * e.liquidPercent / 100), 0);
+  const debtRatio = combinedLiabilities / combinedAssets;
+
+  const toggleEntityInclusion = (entityId: string) => {
+    setEntities(entities.map(e => 
+      e.id === entityId ? { ...e, included: !e.included } : e
+    ));
+  };
+
+  const AllowanceBar = ({ used, limit, label }: { used: number; limit: number; label: string }) => {
+    const percentage = Math.min((used / limit) * 100, 100);
+    const isOver = used > limit;
+    
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-[var(--muted-foreground)]">{label}</span>
+          <span className={`text-xs font-medium ${isOver ? 'text-[var(--destructive)]' : 'text-[var(--foreground)]'}`}>
+            £{used.toLocaleString()} / £{limit.toLocaleString()}
+          </span>
+        </div>
+        <div className="h-2 bg-[var(--muted)] rounded-full overflow-hidden">
+          <div 
+            className={`h-full ${isOver ? 'bg-[var(--destructive)]' : 'bg-[var(--primary)]'}`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const AllowanceChip = ({ label, used, limit, small }: { label: string; used: number; limit: number; small?: boolean }) => {
+    const percentage = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
+    const isOver = used > limit;
+    const remaining = limit - used;
+    
+    if (limit === 0) return null;
+    
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={`px-2 py-1 rounded-lg border ${
+            isOver ? 'bg-[var(--destructive)]/10 border-[var(--destructive)]/20 text-[var(--destructive)]' :
+            percentage > 80 ? 'bg-[var(--warning)]/10 border-[var(--warning)]/20 text-[var(--warning)]' :
+            'bg-[var(--success)]/10 border-[var(--success)]/20 text-[var(--success)]'
+          } ${small ? 'text-xs' : 'text-sm'}`}>
+            <div className="font-medium">{label}</div>
+            <div className={small ? 'text-xs' : 'text-xs'}>{percentage.toFixed(0)}%</div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="text-xs">
+            {isOver 
+              ? `Over by £${Math.abs(remaining).toLocaleString()}`
+              : `£${remaining.toLocaleString()} remaining`
+            }
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
+
+  const EntityTypeIcon = ({ type }: { type: HouseholdEntity['type'] }) => {
+    const icons = {
+      individual: '👤',
+      ltd: '🏢',
+      trust: '🏛️',
+      jisa: '👶',
+      junior_sipp: '🍼'
+    };
+    return <span className="text-lg">{icons[type]}</span>;
+  };
+
+  const EntityCard = ({ entity }: { entity: HouseholdEntity }) => {
+    return (
+      <div className={`p-6 border-2 rounded-xl bg-[var(--card)] transition-all ${
+        !entity.included ? 'opacity-50 border-dashed border-[var(--border)]' : 'border-[var(--border)]'
+      }`} data-testid={`entity-card-${entity.id}`}>
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start gap-3">
+            <EntityTypeIcon type={entity.type} />
+            <div>
+              <h3 className="text-lg font-semibold text-[var(--foreground)]">{entity.name}</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                {entity.relationship || entity.type.toUpperCase()}
+                {entity.email && ` • ${entity.email}`}
+              </p>
             </div>
           </div>
+          <div className="text-right">
+            <div className="text-xl font-bold text-[var(--foreground)]">
+              £{entity.netWorth.toLocaleString()}
+            </div>
+            <div className="text-xs text-[var(--muted-foreground)]">Net worth</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4 mb-4">
+          <div>
+            <div className="text-xs text-[var(--muted-foreground)] mb-1">Assets</div>
+            <div className="text-sm font-semibold text-[var(--foreground)]">£{entity.assets.toLocaleString()}</div>
+          </div>
+          <div>
+            <div className="text-xs text-[var(--muted-foreground)] mb-1">Liabilities</div>
+            <div className="text-sm font-semibold text-[var(--destructive)]">£{entity.liabilities.toLocaleString()}</div>
+          </div>
+          <div>
+            <div className="text-xs text-[var(--muted-foreground)] mb-1">Liquid</div>
+            <div className="text-sm font-semibold text-[var(--foreground)]">{entity.liquidPercent}%</div>
+          </div>
+          <div>
+            <div className="text-xs text-[var(--muted-foreground)] mb-1">Role</div>
+            <div className="text-sm font-semibold text-[var(--foreground)] capitalize">{entity.role || '—'}</div>
+          </div>
+        </div>
+
+        {entity.type !== 'ltd' && entity.type !== 'trust' && (
+          <div className="mb-4">
+            <div className="text-xs text-[var(--muted-foreground)] mb-2">Allowances (YTD)</div>
+            <div className="flex flex-wrap gap-2">
+              <AllowanceChip label="ISA" used={entity.allowances.isaUsed} limit={entity.allowances.isaLimit} small />
+              <AllowanceChip label="SIPP" used={entity.allowances.sippUsed} limit={entity.allowances.sippEstLimit} small />
+              <AllowanceChip label="CGT" used={entity.allowances.cgtUsed} limit={entity.allowances.cgtLimit} small />
+              <AllowanceChip label="Div" used={entity.allowances.dividendIncome} limit={entity.allowances.dividendLimit} small />
+              <AllowanceChip label="Int" used={entity.allowances.interestIncome} limit={entity.allowances.interestLimit} small />
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedEntity(entity)}
+            className="flex-1 px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors"
+            data-testid={`view-entity-${entity.id}`}
+          >
+            View
+          </button>
+          <button
+            onClick={() => toggleEntityInclusion(entity.id)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+              entity.included
+                ? 'bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--muted)]/80'
+                : 'bg-[var(--success)] text-white hover:bg-[var(--success)]/90'
+            }`}
+            data-testid={`toggle-include-${entity.id}`}
+          >
+            {entity.included ? 'Exclude' : 'Include'}
+          </button>
+          {entity.type === 'individual' && !entity.email && (
+            <button
+              className="px-4 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+              data-testid={`invite-${entity.id}`}
+            >
+              Invite
+            </button>
+          )}
+          <button
+            onClick={() => setOwnershipEditorOpen(true)}
+            className="px-4 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+            data-testid={`ownership-${entity.id}`}
+          >
+            Ownership
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div id="tour-household" className="space-y-6">
+      {/* Info banner */}
+      <div className="px-4 py-3 bg-[var(--info)]/10 border border-[var(--info)]/20 rounded-xl flex items-start gap-3">
+        <Info className="h-5 w-5 text-[var(--info)] mt-0.5 flex-shrink-0" />
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">How Household works</h3>
+          <p className="text-sm text-[var(--foreground)]">
+            Link people and entities, set who owns what, and we'll show combined net worth, allowance usage, and cross-entity suggestions that minimise tax and fees.
+          </p>
+        </div>
+      </div>
+
+      {/* Header KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+          <div className="text-xs text-[var(--muted-foreground)] mb-1">Combined Net Worth</div>
+          <div className="text-2xl font-bold text-[var(--foreground)]">£{combinedNetWorth.toLocaleString()}</div>
+          <div className="text-xs text-[var(--success)] mt-1">
+            {includedEntities.length} {includedEntities.length === 1 ? 'entity' : 'entities'}
+          </div>
+        </div>
+        <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+          <div className="text-xs text-[var(--muted-foreground)] mb-1">Liquid Assets</div>
+          <div className="text-2xl font-bold text-[var(--foreground)]">£{combinedLiquid.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+          <div className="text-xs text-[var(--muted-foreground)] mt-1">
+            {((combinedLiquid / combinedAssets) * 100).toFixed(1)}% of assets
+          </div>
+        </div>
+        <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+          <div className="text-xs text-[var(--muted-foreground)] mb-1">Debt Ratio</div>
+          <div className="text-2xl font-bold text-[var(--foreground)]">{(debtRatio * 100).toFixed(1)}%</div>
+          <div className="text-xs text-[var(--muted-foreground)] mt-1">
+            £{combinedLiabilities.toLocaleString()} debt
+          </div>
+        </div>
+        <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+          <div className="text-xs text-[var(--muted-foreground)] mb-1">Total Assets</div>
+          <div className="text-2xl font-bold text-[var(--foreground)]">£{combinedAssets.toLocaleString()}</div>
+          <div className="text-xs text-[var(--muted-foreground)] mt-1">Across all entities</div>
+        </div>
+      </div>
+
+      {/* Combined Allowances */}
+      <div className="p-6 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Household Allowances (YTD)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <AllowanceBar 
+            label="ISA contributions" 
+            used={includedEntities.reduce((sum, e) => sum + e.allowances.isaUsed, 0)} 
+            limit={includedEntities.reduce((sum, e) => sum + e.allowances.isaLimit, 0)} 
+          />
+          <AllowanceBar 
+            label="SIPP contributions" 
+            used={includedEntities.reduce((sum, e) => sum + e.allowances.sippUsed, 0)} 
+            limit={includedEntities.reduce((sum, e) => sum + e.allowances.sippEstLimit, 0)} 
+          />
+          <AllowanceBar 
+            label="CGT used" 
+            used={includedEntities.reduce((sum, e) => sum + e.allowances.cgtUsed, 0)} 
+            limit={includedEntities.reduce((sum, e) => sum + e.allowances.cgtLimit, 0)} 
+          />
+          <AllowanceBar 
+            label="Dividend income" 
+            used={includedEntities.reduce((sum, e) => sum + e.allowances.dividendIncome, 0)} 
+            limit={includedEntities.reduce((sum, e) => sum + e.allowances.dividendLimit, 0)} 
+          />
+        </div>
+      </div>
+
+      {/* View Switcher */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="text-sm text-[var(--muted-foreground)]">View:</div>
+        <div className="inline-flex rounded-xl border border-[var(--border)] bg-[var(--muted)]/20 p-1">
+          <button
+            onClick={() => setViewMode('combined')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'combined'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                : 'text-[var(--foreground)] hover:bg-[var(--muted)]'
+            }`}
+            data-testid="view-combined"
+          >
+            Combined
+          </button>
+          <button
+            onClick={() => setViewMode('by_entity')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'by_entity'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                : 'text-[var(--foreground)] hover:bg-[var(--muted)]'
+            }`}
+            data-testid="view-by-entity"
+          >
+            By Entity
+          </button>
+          <button
+            onClick={() => setViewMode('by_wrapper')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'by_wrapper'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                : 'text-[var(--foreground)] hover:bg-[var(--muted)]'
+            }`}
+            data-testid="view-by-wrapper"
+          >
+            By Wrapper
+          </button>
+          <button
+            onClick={() => setViewMode('by_ownership')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'by_ownership'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                : 'text-[var(--foreground)] hover:bg-[var(--muted)]'
+            }`}
+            data-testid="view-by-ownership"
+          >
+            By Ownership
+          </button>
+          <button
+            onClick={() => setViewMode('with_liabilities')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'with_liabilities'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                : 'text-[var(--foreground)] hover:bg-[var(--muted)]'
+            }`}
+            data-testid="view-with-liabilities"
+          >
+            With Liabilities
+          </button>
+        </div>
+      </div>
+
+      {/* Actions Panel */}
+      <div className="p-4 bg-[var(--muted)]/30 border border-[var(--border)] rounded-xl flex flex-wrap items-center gap-3">
+        <button
+          onClick={() => setOptimiseOpen(true)}
+          className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors flex items-center gap-2"
+          data-testid="optimise-allowances"
+        >
+          <Sparkles className="h-4 w-4" />
+          Optimise allowances
+        </button>
+        <button
+          className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+          data-testid="rebalance-entities"
+        >
+          Rebalance across entities
+        </button>
+        <button
+          className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+          data-testid="harvest-gains"
+        >
+          Harvest gains/losses
+        </button>
+        <button
+          className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+          data-testid="beneficiary-pack"
+        >
+          Beneficiary pack
+        </button>
+        <button
+          onClick={() => setAddEntityOpen(true)}
+          className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors ml-auto"
+          data-testid="add-entity"
+        >
+          + Add entity
+        </button>
+      </div>
+
+      {/* Entity Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {entities.map(entity => (
+          <EntityCard key={entity.id} entity={entity} />
         ))}
       </div>
 
-      <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm">
-        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Household Notes</h3>
-        <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
-          <li className="flex items-start gap-2">
-            <span className="text-[var(--primary)]">•</span>
-            <span>Enable spouse portfolio to view combined household net worth and optimise allowances</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-[var(--primary)]">•</span>
-            <span>Configure corporate structure to track business investments and tax efficiency</span>
-          </li>
-        </ul>
+      {/* Household Notes */}
+      <div className="p-6 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-[var(--foreground)]">Household Notes & Reminders</h3>
+          <button className="text-sm text-[var(--primary)] hover:underline">+ Add note</button>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 p-3 bg-[var(--warning)]/10 border border-[var(--warning)]/20 rounded-lg">
+            <Clock className="h-4 w-4 text-[var(--warning)] mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-[var(--foreground)]">Fund ISAs before 5 April</div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                You: £7,600 remaining • Spouse: £11,500 remaining
+              </div>
+            </div>
+            <input type="checkbox" className="mt-1" />
+          </div>
+          <div className="flex items-start gap-3 p-3 bg-[var(--info)]/10 border border-[var(--info)]/20 rounded-lg">
+            <Info className="h-4 w-4 text-[var(--info)] mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-[var(--foreground)]">JISA top-up for Emma</div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                £6,600 remaining in allowance
+              </div>
+            </div>
+            <input type="checkbox" className="mt-1" />
+          </div>
+        </div>
+      </div>
+
+      {/* Add Entity Modal */}
+      {addEntityOpen && (
+        <HouseholdAddEntityModal onClose={() => setAddEntityOpen(false)} />
+      )}
+
+      {/* Optimise Modal */}
+      {optimiseOpen && (
+        <HouseholdOptimiseModal onClose={() => setOptimiseOpen(false)} entities={includedEntities} />
+      )}
+
+      {/* Ownership Editor */}
+      {ownershipEditorOpen && (
+        <HouseholdOwnershipEditor onClose={() => setOwnershipEditorOpen(false)} />
+      )}
+    </div>
+  );
+}
+
+function HouseholdAddEntityModal({ onClose }: { onClose: () => void }) {
+  const [entityType, setEntityType] = useState<'spouse' | 'child' | 'ltd' | 'trust'>('spouse');
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-[var(--card)] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+        <div className="sticky top-0 bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Add Entity</h2>
+          <button onClick={onClose} className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div>
+            <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Entity type</label>
+            <div className="grid grid-cols-2 gap-3">
+              {(['spouse', 'child', 'ltd', 'trust'] as const).map(type => (
+                <button
+                  key={type}
+                  onClick={() => setEntityType(type)}
+                  className={`p-4 border-2 rounded-xl text-left transition-colors ${
+                    entityType === type
+                      ? 'border-[var(--primary)] bg-[var(--primary)]/10'
+                      : 'border-[var(--border)] hover:bg-[var(--muted)]'
+                  }`}
+                >
+                  <div className="text-lg mb-1">
+                    {type === 'spouse' && '👥 Spouse/Partner'}
+                    {type === 'child' && '👶 Child (JISA)'}
+                    {type === 'ltd' && '🏢 Limited Company'}
+                    {type === 'trust' && '🏛️ Trust'}
+                  </div>
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    {type === 'spouse' && 'Individual with separate allowances'}
+                    {type === 'child' && 'Junior ISA or Junior SIPP'}
+                    {type === 'ltd' && 'Corporate structure'}
+                    {type === 'trust' && 'Trust entity'}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Legal name</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-[var(--border)] rounded-xl bg-[var(--background)] text-[var(--foreground)]"
+              placeholder={entityType === 'ltd' ? 'Company name' : 'Full name'}
+            />
+          </div>
+
+          {(entityType === 'spouse' || entityType === 'child') && (
+            <>
+              <div>
+                <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Email (for invite)</label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-2 border border-[var(--border)] rounded-xl bg-[var(--background)] text-[var(--foreground)]"
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">National Insurance number</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border border-[var(--border)] rounded-xl bg-[var(--background)] text-[var(--foreground)]"
+                  placeholder="AB123456C"
+                />
+              </div>
+            </>
+          )}
+
+          {entityType === 'ltd' && (
+            <div>
+              <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Company number</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-[var(--border)] rounded-xl bg-[var(--background)] text-[var(--foreground)]"
+                placeholder="12345678"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Tax residency</label>
+            <select className="w-full px-4 py-2 border border-[var(--border)] rounded-xl bg-[var(--background)] text-[var(--foreground)]">
+              <option>UK</option>
+              <option>Non-UK</option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors"
+            >
+              Add entity
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HouseholdOptimiseModal({ onClose, entities }: { onClose: () => void; entities: HouseholdEntity[] }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-[var(--card)] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+        <div className="sticky top-0 bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Optimise Household Allowances</h2>
+          <button onClick={onClose} className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="px-6 py-3 bg-[var(--info)]/10 border-b border-[var(--info)]/20">
+          <p className="text-sm text-[var(--foreground)]">
+            <strong>Optimise button tooltip:</strong> Prioritises ISA/SIPP across the household before suggesting any GIA trades.
+          </p>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div className="p-4 bg-[var(--success)]/10 border border-[var(--success)]/20 rounded-xl">
+            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-2">Recommendation Summary</h3>
+            <p className="text-sm text-[var(--foreground)]">
+              Use £11,500 of spouse ISA allowance before making any GIA sales. This will save approximately £2,300 in CGT.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Suggested Actions</h3>
+            <div className="space-y-3">
+              <div className="p-4 border border-[var(--border)] rounded-xl">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="text-sm font-medium text-[var(--foreground)]">Fund Sarah's ISA with £11,500</div>
+                    <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                      Remaining allowance • Tax-free growth
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] text-xs font-medium rounded">
+                    Save £2,300 CGT
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-4 border border-[var(--border)] rounded-xl">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="text-sm font-medium text-[var(--foreground)]">Fund your ISA with £7,600</div>
+                    <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                      Remaining allowance before April 5th
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] text-xs font-medium rounded">
+                    Save £1,520 CGT
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-4 border border-[var(--border)] rounded-xl">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="text-sm font-medium text-[var(--foreground)]">Consider SIPP contribution for spouse</div>
+                    <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                      £60,000 available • Pension tax relief
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-[var(--info)]/10 text-[var(--info)] text-xs font-medium rounded">
+                    Tax relief available
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+            >
+              Close
+            </button>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors"
+            >
+              Apply suggestions
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HouseholdOwnershipEditor({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-[var(--card)] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+        <div className="sticky top-0 bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Edit Ownership</h2>
+          <button onClick={onClose} className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="px-6 py-3 bg-[var(--info)]/10 border-b border-[var(--info)]/20">
+          <p className="text-sm text-[var(--foreground)]">
+            <strong>Ownership helper:</strong> Set the split for joint assets (e.g., 50/50). Combined view uses these percentages to avoid double-counting.
+          </p>
+        </div>
+
+        <div className="p-6">
+          <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-[var(--muted)]">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">Asset</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">You</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">Spouse</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 text-sm text-[var(--foreground)]">42 Elm St, Manchester</td>
+                  <td className="px-4 py-3">
+                    <input 
+                      type="number" 
+                      defaultValue="50" 
+                      className="w-20 px-2 py-1 border border-[var(--border)] rounded text-sm bg-[var(--background)] text-[var(--foreground)]"
+                    />
+                    <span className="text-xs text-[var(--muted-foreground)] ml-1">%</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <input 
+                      type="number" 
+                      defaultValue="50" 
+                      className="w-20 px-2 py-1 border border-[var(--border)] rounded text-sm bg-[var(--background)] text-[var(--foreground)]"
+                    />
+                    <span className="text-xs text-[var(--muted-foreground)] ml-1">%</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm font-semibold text-[var(--foreground)]">100%</td>
+                </tr>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 text-sm text-[var(--foreground)]">Premium Bonds</td>
+                  <td className="px-4 py-3">
+                    <input 
+                      type="number" 
+                      defaultValue="100" 
+                      className="w-20 px-2 py-1 border border-[var(--border)] rounded text-sm bg-[var(--background)] text-[var(--foreground)]"
+                    />
+                    <span className="text-xs text-[var(--muted-foreground)] ml-1">%</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <input 
+                      type="number" 
+                      defaultValue="0" 
+                      className="w-20 px-2 py-1 border border-[var(--border)] rounded text-sm bg-[var(--background)] text-[var(--foreground)]"
+                    />
+                    <span className="text-xs text-[var(--muted-foreground)] ml-1">%</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm font-semibold text-[var(--foreground)]">100%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-6">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors"
+            >
+              Save ownership
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
