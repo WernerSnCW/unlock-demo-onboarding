@@ -1239,12 +1239,12 @@ function ReconciliationTab() {
                   setWizardStep(1);
                   setWizardOpen(true);
                 }}
-                className="flex-1 px-3 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity"
+                className="flex-1 px-3 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs hover:opacity-90 transition-opacity"
                 data-testid={`button-reconcile-${idx}`}
               >
                 Reconcile now
               </button>
-              <button className="px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+              <button className="px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
                 View statement
               </button>
             </div>
@@ -1285,7 +1285,7 @@ function ReconciliationTab() {
                       </span>
                     </td>
                     <td className="py-3 px-3 text-right">
-                      <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                      <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs hover:opacity-90 transition-opacity">
                         Investigate
                       </button>
                     </td>
@@ -1310,7 +1310,7 @@ function ReconciliationTab() {
               {requiredMissing.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between">
                   <span className="text-sm text-[var(--foreground)]">{item.title}</span>
-                  <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                  <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs hover:opacity-90 transition-opacity">
                     {item.action}
                   </button>
                 </div>
@@ -1330,7 +1330,7 @@ function ReconciliationTab() {
               {dueSoon.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between">
                   <span className="text-sm text-[var(--foreground)]">{item.title}</span>
-                  <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                  <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs hover:opacity-90 transition-opacity">
                     {item.action}
                   </button>
                 </div>
