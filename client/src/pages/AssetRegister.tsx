@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
@@ -1032,58 +1032,562 @@ function DocumentsTab({ onViewDoc }: any) {
 }
 
 function ReconciliationTab() {
+  const [selectedPeriod, setSelectedPeriod] = useState('Oct 2025');
+  const [accountFilter, setAccountFilter] = useState('all');
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardAccount, setWizardAccount] = useState<string | null>(null);
+  const [wizardStep, setWizardStep] = useState(1);
+  
+  const getStatusStyle = (status: string) => {
+    switch(status) {
+      case 'Reconciled':
+        return 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20';
+      case 'In progress':
+        return 'bg-[var(--info)]/10 text-[var(--info)] border-[var(--info)]/20';
+      case 'Pending':
+        return 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20';
+      case 'Exception':
+        return 'bg-[var(--destructive)]/10 text-[var(--destructive)] border-[var(--destructive)]/20';
+      default:
+        return 'bg-[var(--muted)] text-[var(--muted-foreground)] border-[var(--border)]';
+    }
+  };
+
   const accounts = [
-    { name: 'Vanguard ISA', status: 'Reconciled', period: 'Oct 2025', statement: 'On file', differences: '—' },
-    { name: 'AJ Bell SIPP', status: 'Reconciled', period: 'Oct 2025', statement: 'On file', differences: '—' },
-    { name: 'Trading 212 GIA', status: 'Pending', period: 'Oct 2025', statement: 'Missing', differences: 'Unknown' },
+    { 
+      name: 'Vanguard ISA', 
+      status: 'Reconciled', 
+      period: 'Oct 2025', 
+      statement: 'On file',
+      openingCash: 12450.00,
+      netMovement: 1915.55,
+      endingCash: 14365.55,
+      cashDiff: 0.00,
+      holdingsVariance: 'Units match',
+      unsettledTrades: 0
+    },
+    { 
+      name: 'AJ Bell SIPP', 
+      status: 'Reconciled', 
+      period: 'Oct 2025', 
+      statement: 'On file',
+      openingCash: 45200.00,
+      netMovement: -628.50,
+      endingCash: 44571.50,
+      cashDiff: 0.00,
+      holdingsVariance: 'Units match',
+      unsettledTrades: 0
+    },
+    { 
+      name: 'Trading 212 GIA', 
+      status: 'Pending', 
+      period: 'Oct 2025', 
+      statement: 'Missing',
+      openingCash: 8200.00,
+      netMovement: 1005.70,
+      endingCash: 9205.70,
+      cashDiff: -13.42,
+      holdingsVariance: '2 unmatched lines',
+      unsettledTrades: 3
+    },
+  ];
+
+  const differences = [
+    { date: '15 Oct 2025', account: 'Trading 212 GIA', category: 'Cash', description: 'Missing custody fee (£12.50 + FX variance)', status: 'Open' },
+    { date: '28 Oct 2025', account: 'Trading 212 GIA', category: 'Holdings', description: 'VWRL dividend reinvestment not in register', status: 'Open' },
+  ];
+
+  const requiredMissing = [
+    { title: 'Trading 212 GIA — Statement missing for Oct 2025', action: 'Upload', type: 'statement' },
+  ];
+
+  const dueSoon = [
+    { title: '42 Elm Street — Valuation overdue (RICS or agent letter)', action: 'Add valuation', type: 'valuation' },
+    { title: 'EIS — 3-year hold check in 30 days', action: 'Set reminder', type: 'reminder' },
   ];
 
   return (
-    <div>
-      <div id="tour-reconcile-cards" className="grid grid-cols-3 gap-4 mb-6">
+    <div className="space-y-6">
+      {/* Period + Scope Controls */}
+      <div className="flex items-center justify-between p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+        <div className="flex items-center gap-4">
+          {/* Period selector */}
+          <div className="flex items-center gap-2">
+            <button className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors" data-testid="button-prev-period">
+              <ChevronLeft className="h-4 w-4 text-[var(--foreground)]" />
+            </button>
+            <select 
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]"
+            >
+              <option>Oct 2025</option>
+              <option>Sep 2025</option>
+              <option>Aug 2025</option>
+              <option>Q3 2025</option>
+            </select>
+            <button className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors" data-testid="button-next-period">
+              <ChevronRight className="h-4 w-4 text-[var(--foreground)]" />
+            </button>
+          </div>
+
+          {/* Account filter */}
+          <select 
+            value={accountFilter}
+            onChange={(e) => setAccountFilter(e.target.value)}
+            className="px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)]"
+          >
+            <option value="all">All accounts</option>
+            <option value="vanguard">Vanguard</option>
+            <option value="ajbell">AJ Bell</option>
+            <option value="trading212">Trading 212</option>
+          </select>
+        </div>
+
+        {/* Reconcile all CTA */}
+        <button className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity">
+          Reconcile all
+        </button>
+      </div>
+
+      {/* Rich Account Cards */}
+      <div id="tour-reconcile-cards" className="grid grid-cols-3 gap-4">
         {accounts.map((acc, idx) => (
           <div key={idx} className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm" data-testid={`reconcile-${idx}`}>
-            <div className="flex justify-between items-start mb-3">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-4">
               <h3 className="text-sm font-semibold text-[var(--foreground)]">{acc.name}</h3>
-              <span className={`px-2 py-1 rounded-full text-xs border ${acc.status === 'Reconciled' ? 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20' : 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20'}`}>
-                {acc.status}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={`px-2 py-1 rounded-full text-xs border cursor-help ${getStatusStyle(acc.status)}`}>
+                    {acc.status}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">
+                    {acc.status === 'Reconciled' && 'Statement linked; cash & holdings match.'}
+                    {acc.status === 'Pending' && 'Missing statement or unmatched items.'}
+                    {acc.status === 'In progress' && 'Reconciliation wizard opened but not finalised.'}
+                    {acc.status === 'Exception' && 'Cash or holdings difference remains.'}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* Cash flow diagram */}
+            <div className="mb-4 p-3 bg-[var(--muted)] rounded-lg">
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="text-[var(--muted-foreground)]">Opening</span>
+                <span className="text-[var(--muted-foreground)]">Movement</span>
+                <span className="text-[var(--muted-foreground)]">Closing</span>
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-[var(--foreground)]">
+                  £{acc.openingCash.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                </span>
+                <span className={`text-sm font-semibold ${acc.netMovement >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                  {acc.netMovement >= 0 ? '+' : ''}£{acc.netMovement.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-sm font-semibold text-[var(--foreground)]">
+                  £{acc.endingCash.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="h-1 bg-[var(--border)] rounded-full relative">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-[var(--foreground)] rounded-full"></div>
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[var(--foreground)] rounded-full"></div>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-[var(--foreground)] rounded-full"></div>
+              </div>
+            </div>
+
+            {/* Cash difference */}
+            <div className="flex justify-between items-center mb-2 text-sm">
+              <span className="text-[var(--muted-foreground)]">Cash difference:</span>
+              <span className={`font-semibold px-2 py-0.5 rounded ${
+                acc.cashDiff === 0 
+                  ? 'text-[var(--success)] bg-[var(--success)]/10' 
+                  : 'text-[var(--destructive)] bg-[var(--destructive)]/10'
+              }`}>
+                {acc.cashDiff === 0 ? '£0.00' : `£${acc.cashDiff.toFixed(2)}`}
               </span>
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Period:</span>
-                <span className="text-[var(--foreground)]">{acc.period}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Statement:</span>
-                <span className="text-[var(--foreground)]">{acc.statement}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Differences:</span>
-                <span className="text-[var(--foreground)]">{acc.differences}</span>
-              </div>
+
+            {/* Holdings variance */}
+            <div className="flex justify-between items-center mb-2 text-sm">
+              <span className="text-[var(--muted-foreground)]">Holdings variance:</span>
+              <span className={`text-xs ${
+                acc.holdingsVariance === 'Units match' 
+                  ? 'text-[var(--success)]' 
+                  : 'text-[var(--warning)]'
+              }`}>
+                {acc.holdingsVariance}
+              </span>
+            </div>
+
+            {/* Unsettled trades */}
+            <div className="flex justify-between items-center mb-4 text-sm">
+              <span className="text-[var(--muted-foreground)]">Unsettled trades:</span>
+              <span className="text-xs text-[var(--foreground)]">
+                {acc.unsettledTrades === 0 ? '—' : `${acc.unsettledTrades} T+2`}
+              </span>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              <button 
+                onClick={() => {
+                  setWizardAccount(acc.name);
+                  setWizardStep(1);
+                  setWizardOpen(true);
+                }}
+                className="flex-1 px-3 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity"
+                data-testid={`button-reconcile-${idx}`}
+              >
+                Reconcile now
+              </button>
+              <button className="px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                View statement
+              </button>
             </div>
           </div>
         ))}
       </div>
 
-      <div id="tour-missing" className="p-4 bg-[var(--card)] border border-dashed border-[var(--border)] rounded-xl shadow-sm">
-        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">What's Missing</h3>
-        <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
-          <li className="flex items-start gap-2">
-            <span className="text-[var(--warning)]">⚠</span>
-            <span>Trading 212 GIA statement for Oct 2025 – Upload required</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-[var(--warning)]">⚠</span>
-            <span>Property valuation for 42 Elm Street – Due in 14 days</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-[var(--warning)]">⚠</span>
-            <span>EIS certificate renewal check – Review in 30 days</span>
-          </li>
-        </ul>
+      {/* Differences Log */}
+      {differences.length > 0 && (
+        <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Differences this period</h3>
+          <div className="overflow-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="text-left py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Date</th>
+                  <th className="text-left py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Account</th>
+                  <th className="text-left py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Category</th>
+                  <th className="text-left py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Description</th>
+                  <th className="text-center py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Status</th>
+                  <th className="text-right py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {differences.map((diff, idx) => (
+                  <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors cursor-pointer">
+                    <td className="py-3 px-3 text-[var(--foreground)]">{diff.date}</td>
+                    <td className="py-3 px-3 text-[var(--foreground)]">{diff.account}</td>
+                    <td className="py-3 px-3 text-[var(--muted-foreground)]">{diff.category}</td>
+                    <td className="py-3 px-3 text-[var(--foreground)]">{diff.description}</td>
+                    <td className="py-3 px-3 text-center">
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${
+                        diff.status === 'Open' 
+                          ? 'bg-[var(--warning)]/10 text-[var(--warning)]' 
+                          : 'bg-[var(--success)]/10 text-[var(--success)]'
+                      }`}>
+                        {diff.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                        Investigate
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced What's Missing */}
+      <div id="tour-missing" className="space-y-4">
+        {/* Required */}
+        {requiredMissing.length > 0 && (
+          <div className="p-4 bg-[var(--destructive)]/5 border border-[var(--destructive)]/20 rounded-xl">
+            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-[var(--destructive)]" />
+              Required
+            </h3>
+            <div className="space-y-2">
+              {requiredMissing.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--foreground)]">{item.title}</span>
+                  <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                    {item.action}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Due Soon */}
+        {dueSoon.length > 0 && (
+          <div className="p-4 bg-[var(--warning)]/5 border border-[var(--warning)]/20 rounded-xl">
+            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-[var(--warning)]" />
+              Due soon
+            </h3>
+            <div className="space-y-2">
+              {dueSoon.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--foreground)]">{item.title}</span>
+                  <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                    {item.action}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Reconciliation Wizard Modal */}
+      {wizardOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setWizardOpen(false)}></div>
+          <div className="relative w-full max-w-4xl max-h-[90vh] bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-[var(--card)] border-b border-[var(--border)] p-6 z-10">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-[var(--foreground)]">Reconcile {wizardAccount}</h2>
+                <button 
+                  onClick={() => setWizardOpen(false)}
+                  className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5 text-[var(--muted-foreground)]" />
+                </button>
+              </div>
+              {/* Step indicators */}
+              <div className="flex items-center gap-2">
+                {[
+                  { num: 1, label: 'Statement' },
+                  { num: 2, label: 'Transactions' },
+                  { num: 3, label: 'Holdings match' },
+                  { num: 4, label: 'Cash check' },
+                  { num: 5, label: 'Finalise' },
+                ].map((step) => (
+                  <div key={step.num} className="flex items-center gap-2 flex-1">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors ${
+                      wizardStep === step.num
+                        ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--primary-foreground)]'
+                        : wizardStep > step.num
+                        ? 'bg-[var(--success)] border-[var(--success)] text-[var(--success-foreground)]'
+                        : 'bg-[var(--card)] border-[var(--border)] text-[var(--muted-foreground)]'
+                    }`}>
+                      {wizardStep > step.num ? '✓' : step.num}
+                    </div>
+                    <span className={`text-xs ${wizardStep === step.num ? 'text-[var(--foreground)] font-semibold' : 'text-[var(--muted-foreground)]'}`}>
+                      {step.label}
+                    </span>
+                    {step.num < 5 && <div className="flex-1 h-0.5 bg-[var(--border)]"></div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              {wizardStep === 1 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Link statement</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Upload or link the statement for Oct 2025. We'll detect the opening and closing cash balances.
+                  </p>
+                  <div className="p-8 border-2 border-dashed border-[var(--border)] rounded-xl text-center hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors cursor-pointer">
+                    <Upload className="h-12 w-12 text-[var(--muted-foreground)] mx-auto mb-3" />
+                    <p className="text-sm font-semibold text-[var(--foreground)]">Drop statement or click to upload</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1">PDF, CSV, or link from Documents</p>
+                  </div>
+                  <div className="p-4 bg-[var(--muted)] rounded-lg">
+                    <div className="text-xs text-[var(--muted-foreground)] mb-2">Detected from statement:</div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-[var(--muted-foreground)]">Period:</span>
+                        <span className="ml-2 font-semibold text-[var(--foreground)]">01–31 Oct 2025</span>
+                      </div>
+                      <div>
+                        <span className="text-[var(--muted-foreground)]">Opening cash:</span>
+                        <span className="ml-2 font-semibold text-[var(--foreground)]">£12,450.00</span>
+                      </div>
+                      <div>
+                        <span className="text-[var(--muted-foreground)]">Closing cash:</span>
+                        <span className="ml-2 font-semibold text-[var(--foreground)]">£14,365.55</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 2 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Import transactions</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Import transactions by ⚡ Live / ⤿ CSV / 📎 From document / ✍ Manual. We'll show unsettled trades separately.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-left">
+                      <div className="font-semibold text-sm mb-1">⚡ Live (from broker)</div>
+                      <div className="text-xs text-[var(--muted-foreground)]">Read-only from your connection</div>
+                    </button>
+                    <button className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-left">
+                      <div className="font-semibold text-sm mb-1">⤿ CSV file</div>
+                      <div className="text-xs text-[var(--muted-foreground)]">Upload exported transactions</div>
+                    </button>
+                    <button className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-left">
+                      <div className="font-semibold text-sm mb-1">📎 From document</div>
+                      <div className="text-xs text-[var(--muted-foreground)]">Extract from this statement</div>
+                    </button>
+                    <button className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-left">
+                      <div className="font-semibold text-sm mb-1">✍ Manual entry</div>
+                      <div className="text-xs text-[var(--muted-foreground)]">Type in manually</div>
+                    </button>
+                  </div>
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    <strong>Note:</strong> Unsettled trades (outside statement window) will be highlighted
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 3 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Match holdings</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Compare statement units to register units. Resolve any differences.
+                  </p>
+                  <div className="overflow-auto border border-[var(--border)] rounded-lg">
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                          <th className="text-left py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Instrument</th>
+                          <th className="text-right py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Statement units</th>
+                          <th className="text-right py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Register units</th>
+                          <th className="text-center py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Delta</th>
+                          <th className="text-right py-2 px-3 text-xs text-[var(--muted-foreground)] font-medium">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-[var(--border)]">
+                          <td className="py-3 px-3">Vanguard FTSE Global</td>
+                          <td className="py-3 px-3 text-right">45.50</td>
+                          <td className="py-3 px-3 text-right">45.50</td>
+                          <td className="py-3 px-3 text-center"><span className="text-[var(--success)]">✓ Match</span></td>
+                          <td className="py-3 px-3 text-right">
+                            <button className="px-2 py-1 bg-[var(--success)]/10 text-[var(--success)] rounded text-xs">Accept</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 4 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Cash check</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Opening + settled movements − fees/tax = Closing. Unsettled and out-of-period items are excluded.
+                  </p>
+                  <div className="p-4 bg-[var(--muted)] rounded-lg">
+                    <div className="text-sm font-mono space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-[var(--muted-foreground)]">Opening cash:</span>
+                        <span className="text-[var(--foreground)]">£12,450.00</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--muted-foreground)]">+ Net movements:</span>
+                        <span className="text-[var(--success)]">+£1,915.55</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--muted-foreground)]">− Fees:</span>
+                        <span className="text-[var(--destructive)]">−£0.00</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--muted-foreground)]">− Tax:</span>
+                        <span className="text-[var(--destructive)]">−£0.00</span>
+                      </div>
+                      <div className="border-t border-[var(--border)] pt-2 mt-2 flex justify-between font-semibold">
+                        <span className="text-[var(--foreground)]">= Expected closing:</span>
+                        <span className="text-[var(--foreground)]">£14,365.55</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--muted-foreground)]">Actual closing:</span>
+                        <span className="text-[var(--foreground)]">£14,365.55</span>
+                      </div>
+                      <div className="border-t border-[var(--border)] pt-2 mt-2 flex justify-between font-semibold">
+                        <span className="text-[var(--foreground)]">Difference:</span>
+                        <span className="text-[var(--success)]">£0.00 ✓</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {wizardStep === 5 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">Finalise reconciliation</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    All checks complete. Mark this period as reconciled to lock it.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-[var(--success)]/10 rounded-lg">
+                      <span className="text-[var(--success)] text-2xl">✓</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-[var(--foreground)]">Statement linked</div>
+                        <div className="text-xs text-[var(--muted-foreground)]">Oct 2025 statement on file</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-[var(--success)]/10 rounded-lg">
+                      <span className="text-[var(--success)] text-2xl">✓</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-[var(--foreground)]">Holdings matched</div>
+                        <div className="text-xs text-[var(--muted-foreground)]">All units reconciled</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-[var(--success)]/10 rounded-lg">
+                      <span className="text-[var(--success)] text-2xl">✓</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-[var(--foreground)]">Cash balanced</div>
+                        <div className="text-xs text-[var(--muted-foreground)]">£0.00 difference</div>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="w-full px-4 py-3 bg-[var(--success)] text-[var(--success-foreground)] rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                    Mark period reconciled
+                  </button>
+                  <button className="w-full px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                    Download reconciliation note (PDF)
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-[var(--card)] border-t border-[var(--border)] p-6 flex items-center justify-between">
+              <button 
+                onClick={() => setWizardStep(Math.max(1, wizardStep - 1))}
+                disabled={wizardStep === 1}
+                className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Back
+              </button>
+              <div className="text-sm text-[var(--muted-foreground)]">
+                Step {wizardStep} of 5
+              </div>
+              <button 
+                onClick={() => {
+                  if (wizardStep === 5) {
+                    setWizardOpen(false);
+                  } else {
+                    setWizardStep(Math.min(5, wizardStep + 1));
+                  }
+                }}
+                className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity"
+              >
+                {wizardStep === 5 ? 'Close' : 'Next'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

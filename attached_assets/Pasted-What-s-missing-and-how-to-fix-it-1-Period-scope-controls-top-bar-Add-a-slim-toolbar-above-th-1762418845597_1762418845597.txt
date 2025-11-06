@@ -1,0 +1,144 @@
+What’s missing (and how to fix it)
+1) Period + scope controls (top bar)
+
+Add a slim toolbar above the cards:
+
+Period selector: Month (← →) + dropdown.
+
+Account filter: All / Custodian.
+
+CTA: Reconcile all (opens wizard for the first “Pending” account).
+
+Acceptance: Changing period re-renders cards and “What’s Missing”.
+
+2) Rich account cards (more signal, same footprint)
+
+On each card add:
+
+Starting cash → Net cash movement → Ending cash (tiny line with ticks).
+
+Cash difference (e.g., “£0.00” / “£-13.42”) with colour chip.
+
+Holdings variance: “2 unmatched lines” or “Units match”.
+
+Unsettled trades: “3 T+2” if any.
+
+Buttons: Reconcile now • View statement (opens doc lightbox).
+
+Acceptance: Cards show cash delta, holdings variance count, unsettled count.
+
+3) Guided “Reconcile now” wizard (CSS modal)
+
+Five short steps; each step matches the way ops teams actually work:
+
+Statement
+
+If missing: Upload / Link from Documents.
+
+Show detected period and opening/closing cash.
+
+Transactions
+
+Ingest by ⚡ Live / ⤿ CSV / 📎 From document / ✍ Manual (use the same menus from Transactions).
+
+Show review list for the period; highlight unsettled (outside statement window).
+
+Holdings match
+Table: Instrument • Statement units • Register units • Delta • Action (Accept, Create, Merge, Investigate).
+
+If a DRIP is found in statement but not in register, suggest “Create dividend + reinvest trade”.
+
+Cash check
+Equation: Opening + ∑ Net (settled) = Closing.
+
+Show differences by category (fees, taxes, FX, rounding, missing dividend).
+
+Provide quick actions (e.g., “Add custody fee £X on 15 Oct”).
+
+Finalise
+
+Show green ticks: Statement linked, Holdings matched, Cash balanced.
+
+Button: Mark period reconciled (locks it) + Download reconciliation note (PDF placeholder in prototype).
+
+Acceptance: Wizard completes only when the cash equation balances and all holdings are matched/explicitly ignored.
+
+4) Differences log (audit trail)
+
+Below the cards, add a small table “Differences this period”:
+
+Date • Account • Category (Cash/Holdings/Corporate action) • Description • Status (Open/Resolved).
+
+Clicking a row jumps to the wizard at the relevant step.
+
+Acceptance: When resolved, items move to “Resolved” with a tick.
+
+5) Stronger “What’s Missing”
+
+Split into Required and Due soon; each line shows why and a one-click action:
+
+“Trading 212 GIA — Statement missing for Oct 2025 → Upload”
+
+“42 Elm Street — Valuation overdue (RICS or agent letter) → Add valuation”
+
+“EIS — 3-year hold check in 30 days → Set reminder”
+
+Acceptance: Each item has a clear action; disappears when satisfied.
+
+6) Status taxonomy (consistent everywhere)
+
+Use these chips across cards and tables:
+
+Reconciled (green)
+
+In progress (blue) — wizard opened but not finalised
+
+Pending (amber) — statement or data missing
+
+Exception (red) — cash/holdings difference remains
+
+Acceptance: Status reflects wizard state automatically.
+
+7) Tolerances & rules (so “balanced” is unambiguous)
+
+Cash tolerance: ±£0.01 per statement currency.
+
+FX: Transactions in non-GBP must include an FX rate (or use ECB daily for demo).
+
+Unsettled trades: Excluded from the period by default (show count).
+
+Corporate actions: Splits/consolidations automatically adjust expected units; other actions prompt user to confirm.
+
+Acceptance: “Mark reconciled” is disabled until rules pass.
+
+8) Drawer tie-ins (from Holdings & Transactions)
+
+From a holding drawer, show Reconciled periods and linked statements.
+
+From a transaction drawer, show whether it’s Covered by statement and the cash account it impacted.
+
+Acceptance: Links navigate back to the relevant reconciliation step.
+
+9) Microcopy (paste-ready)
+
+Card badge tooltips:
+
+Reconciled: “Statement linked; cash & holdings match.”
+
+Pending: “Missing statement or unmatched items.”
+
+Wizard — Cash step helper: “Opening + settled movements − fees/tax = Closing. Unsettled and out-of-period items are excluded.”
+
+Finalise button tooltip: “Locks this period; changes require re-opening reconciliation.”
+
+10) Acceptance checklist (for this tab)
+
+Period toolbar works; account cards show cash delta, holdings variance, unsettled count.
+
+Reconcile now opens a 5-step wizard with statement link, transaction ingest, holdings match, cash check, finalise.
+
+Differences log appears and resolves when actions are taken.
+
+What’s Missing is actionable and updates in real time.
+
+Statuses propagate correctly and a Download reconciliation note appears on success.
