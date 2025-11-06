@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, TrendingDown, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock, Settings, AlertTriangle, ChevronDown, Pencil, Check } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, TrendingDown, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock, Settings, AlertTriangle, ChevronDown, Pencil, Check, CheckCircle } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
@@ -10,6 +10,7 @@ export default function AssetRegister() {
   const [docLightbox, setDocLightbox] = useState(false);
   const [addAssetModal, setAddAssetModal] = useState(false);
   const [addLiabilityModal, setAddLiabilityModal] = useState(false);
+  const [aiImportModal, setAiImportModal] = useState(false);
   const [density, setDensity] = useState<'normal' | 'compact'>('normal');
   const [tourOpen, setTourOpen] = useState(false);
 
@@ -204,6 +205,7 @@ export default function AssetRegister() {
                   ⇪ Import CSV
                 </button>
                 <button 
+                  onClick={() => setAiImportModal(true)}
                   className="w-full px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-sm text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] hover:border-[var(--primary)] hover:shadow-md transition-all flex items-center gap-2" 
                   data-testid="button-ai-import"
                   title="Use AI to automatically extract holdings from documents"
@@ -434,6 +436,11 @@ export default function AssetRegister() {
       {/* Add Liability Modal */}
       {addLiabilityModal && (
         <AddAssetModal onClose={() => setAddLiabilityModal(false)} initialMode="liability" />
+      )}
+
+      {/* AI Import Modal */}
+      {aiImportModal && (
+        <AIImportModal onClose={() => setAiImportModal(false)} />
       )}
 
       {/* Tour */}
@@ -4465,6 +4472,321 @@ function DocumentLightbox({ onClose }: any) {
               <p className="text-sm text-[var(--muted-foreground)] mt-2">Vanguard ISA Statement - Oct 2025</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AIImportModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(1);
+
+  const demoFiles = [
+    {
+      id: 1,
+      name: 'Vanguard ISA Statement — Oct 2025',
+      type: 'Statement',
+      icon: '📄',
+      detected: 'Vanguard Investor UK • Period Oct \'25 • Confidence 0.93',
+      wrapper: 'ISA',
+      action: 'Link & Reconcile'
+    },
+    {
+      id: 2,
+      name: 'AJ Bell Contract Note — 28 Oct 2025',
+      type: 'Contract note',
+      icon: '📄',
+      detected: 'Buy • IE00B5BMR087 • 45.50 @ £42.10 • Confidence 0.88',
+      wrapper: 'SIPP',
+      action: 'Create transaction'
+    },
+    {
+      id: 3,
+      name: 'HSBC Savings — Oct 2025',
+      type: 'Bank statement',
+      icon: '📄',
+      detected: 'Cash account • Ending £12,500 • Confidence 0.85',
+      wrapper: 'GIA',
+      action: 'Update cash & link'
+    }
+  ];
+
+  const getWrapperColor = (wrapper: string) => {
+    const colors: Record<string, string> = {
+      ISA: 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20',
+      SIPP: 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20',
+      GIA: 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20'
+    };
+    return colors[wrapper] || 'bg-[var(--muted)] text-[var(--foreground)] border-[var(--border)]';
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-[var(--card)] rounded-xl max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">✨ AI Import (beta)</h2>
+          <button onClick={onClose} className="p-2 hover:bg-[var(--muted)] rounded-lg transition-colors" data-testid="button-close-ai-import">
+            <X className="h-5 w-5 text-[var(--foreground)]" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {/* Stepper */}
+          <div className="flex gap-2 mb-6">
+            <div className={`flex-1 h-2 rounded-full transition-colors ${
+              step >= 1 ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' : 'bg-[var(--muted)]'
+            }`} />
+            <div className={`flex-1 h-2 rounded-full transition-colors ${
+              step >= 2 ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' : 'bg-[var(--muted)]'
+            }`} />
+            <div className={`flex-1 h-2 rounded-full transition-colors ${
+              step >= 3 ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]' : 'bg-[var(--muted)]'
+            }`} />
+          </div>
+
+          {/* Step 1: Upload */}
+          {step === 1 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">1) Upload files</h3>
+                <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                  Drop PDF statements, contract notes, CSV exports or screenshots. We'll detect the type, period and covered account.
+                </p>
+
+                <div className="border-2 border-dashed border-[var(--border)] rounded-xl p-8 text-center bg-[var(--muted)]/20 hover:bg-[var(--muted)]/30 transition-colors cursor-pointer">
+                  <Upload className="h-12 w-12 mx-auto mb-3 text-[var(--muted-foreground)]" />
+                  <div className="text-sm text-[var(--foreground)] mb-1">⬆ Drop files here or <span className="underline text-[var(--primary)]">browse…</span></div>
+                  <div className="text-xs text-[var(--muted-foreground)]">Supported: PDF, CSV, XLSX, PNG, JPG</div>
+                </div>
+              </div>
+
+              {/* Demo file list */}
+              <div className="space-y-3">
+                {demoFiles.map(file => (
+                  <div key={file.id} className="flex items-center gap-3 p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+                    <div className="text-2xl">{file.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-[var(--foreground)]">{file.name}</span>
+                        <span className="px-2 py-0.5 bg-[var(--muted)] border border-[var(--border)] text-xs rounded-full">
+                          {file.type}
+                        </span>
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">{file.detected}</div>
+                    </div>
+                    <div className={`px-3 py-1 border rounded-lg text-xs font-medium ${getWrapperColor(file.wrapper)}`}>
+                      Likely: {file.wrapper}
+                    </div>
+                    <div className="px-3 py-1 bg-[var(--muted)] border border-[var(--border)] text-xs rounded-lg">
+                      Action: {file.action}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+                <div className="text-xs text-[var(--muted-foreground)] max-w-md">
+                  Nothing leaves your browser in this demo. Real product would process securely in-region.
+                </div>
+                <button
+                  onClick={() => setStep(2)}
+                  className="px-6 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors"
+                  data-testid="ai-import-continue-1"
+                >
+                  Continue →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Review & Match */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">2) Review & match</h3>
+                <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                  Confirm what each file does. You can change coverage or ignore a file.
+                </p>
+              </div>
+
+              <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-[var(--muted)]">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">File</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">Detected</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">Coverage</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]">Creates</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)]"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t border-[var(--border)]">
+                      <td className="px-4 py-3 text-sm text-[var(--foreground)]">Vanguard ISA Statement — Oct 2025</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">Statement (period)</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 border rounded-lg text-xs font-medium ${getWrapperColor('ISA')}`}>
+                          Vanguard • ISA
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-[var(--foreground)]">
+                        Link evidence • Mark Oct '25 as <strong>Reconciled</strong> when cash balances
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-1 bg-[var(--muted)] border border-[var(--border)] text-xs rounded-lg">Keep</span>
+                      </td>
+                    </tr>
+                    <tr className="border-t border-[var(--border)]">
+                      <td className="px-4 py-3 text-sm text-[var(--foreground)]">AJ Bell Contract Note — 28 Oct 2025</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">Buy 45.5 of IE00B5BMR087 @ £42.10</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 border rounded-lg text-xs font-medium ${getWrapperColor('SIPP')}`}>
+                          AJ Bell • SIPP
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-[var(--foreground)]">
+                        Create <strong>1 transaction</strong> (with fees & tax) and link PDF as evidence
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-1 bg-[var(--muted)] border border-[var(--border)] text-xs rounded-lg">Keep</span>
+                      </td>
+                    </tr>
+                    <tr className="border-t border-[var(--border)]">
+                      <td className="px-4 py-3 text-sm text-[var(--foreground)]">HSBC Savings — Oct 2025</td>
+                      <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">Bank statement (cash)</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 border rounded-lg text-xs font-medium ${getWrapperColor('GIA')}`}>
+                          HSBC • GIA Cash
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-[var(--foreground)]">
+                        Update <strong>ending balance</strong> £12,500 • Option to extract <strong>interest</strong> entry
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-1 bg-[var(--muted)] border border-[var(--border)] text-xs rounded-lg">Keep</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="grid grid-cols-4 gap-4">
+                <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+                  <div className="text-sm font-semibold text-[var(--foreground)]">Holdings updates</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">0</div>
+                </div>
+                <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+                  <div className="text-sm font-semibold text-[var(--foreground)]">Transactions</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">1</div>
+                </div>
+                <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+                  <div className="text-sm font-semibold text-[var(--foreground)]">Evidence links</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">3</div>
+                </div>
+                <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+                  <div className="text-sm font-semibold text-[var(--foreground)]">Confidence</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">High</div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+                <button
+                  onClick={() => setStep(1)}
+                  className="px-6 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={() => setStep(3)}
+                  className="px-6 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors"
+                  data-testid="ai-import-continue-2"
+                >
+                  Continue →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Import Summary */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">3) Import</h3>
+                <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                  Here's what we'll do. You can change actions above before importing.
+                </p>
+              </div>
+
+              <div className="p-6 bg-[var(--muted)]/20 border border-[var(--border)] rounded-xl">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm text-[var(--foreground)]">
+                        Create <strong>1 transaction</strong> in AJ Bell SIPP (Buy Global All-Cap; links contract note).
+                      </div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm text-[var(--foreground)]">
+                        Link <strong>Vanguard ISA statement</strong> and mark period <strong>ready to reconcile</strong>.
+                      </div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm text-[var(--foreground)]">
+                        Update <strong>HSBC cash balance</strong> and link bank statement as evidence.
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="px-4 py-3 bg-[var(--success)]/10 border border-[var(--success)]/20 rounded-xl flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-[var(--success)] mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-[var(--foreground)]">Ready to import</div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                    All files processed successfully with high confidence
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+                <button
+                  onClick={() => setStep(2)}
+                  className="px-6 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+                >
+                  ← Back
+                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2 bg-transparent border border-[var(--border)] text-[var(--foreground)] rounded-xl text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors shadow-md"
+                    data-testid="ai-import-submit"
+                  >
+                    Import 3 items
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

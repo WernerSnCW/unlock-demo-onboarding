@@ -1,0 +1,196 @@
+How the AI Import screen behaves (for demo)
+
+Purpose: take messy inputs (PDF statements, contract notes, CSVs, screenshots) and propose clean actions: link evidence, create transactions, update holdings, or ignore.
+Flow (3 steps):
+
+Upload → user drops files; we classify each (e.g., “Vanguard ISA statement, Oct ’25”, “Contract note”, “Bank statement”, “Ledger CSV”).
+
+Review & match → for every file we show what we detected, confidence, which account/wrapper it likely covers, and what we’ll create (transactions, holdings updates, or just evidence links).
+
+Import → show a short summary (“Create 12 transactions • Link 4 docs • Update 2 prices”), then Import.
+
+Key affordances:
+
+File pills with type + confidence.
+
+A table of proposed actions per file (Create/Link/Ignore).
+
+Coverage selector (Account/Wrapper/Asset).
+
+A tiny privacy note (“demo: nothing leaves your browser”).
+
+Paste-ready additions
+A) Tiny CSS additions (add near the end of your <style> block)
+/* AI Import modal helpers */
+.stepper{display:flex;gap:10px;margin:10px 0 16px}
+.step{flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,.08)}
+.step.active{background:linear-gradient(90deg,var(--brand),#a0e9ff)}
+.dropzone{border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center;background:rgba(255,255,255,.03)}
+.filelist{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:12px}
+.file{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.conf{font-size:12px;color:var(--muted)}
+.kv-mini{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:10px}
+.kv-mini>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+.table-mini{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px}
+.table-mini th,.table-mini td{font-size:13px;padding:10px;border-bottom:1px solid var(--line)}
+.actions-row{display:flex;justify-content:space-between;margin-top:14px}
+.badge-soft{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+
+B) Modal markup (paste above </body>).
+
+It hooks to your existing AI Import button (label for="modal-ai" in the sidebar).
+
+<!-- AI IMPORT MODAL -->
+<input class="drawer-toggle" type="checkbox" id="modal-ai" />
+<div class="lightbox" role="dialog" aria-modal="true" aria-labelledby="ai-title">
+  <div class="frame">
+    <header style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px">
+      <strong id="ai-title">✨ AI Import (beta)</strong>
+      <label for="modal-ai" class="close-x" aria-label="Close">✕</label>
+    </header>
+    <div class="body" style="padding:18px;display:block;overflow:auto">
+
+      <!-- Stepper -->
+      <div class="stepper" aria-hidden="true">
+        <div class="step active"></div>
+        <div class="step"></div>
+        <div class="step"></div>
+      </div>
+
+      <!-- STEP 1: Upload -->
+      <div class="card"><div class="inner">
+        <strong>1) Upload files</strong>
+        <p class="muted" style="margin:6px 0 12px">Drop PDF statements, contract notes, CSV exports or screenshots. We’ll detect the type, period and covered account.</p>
+        <div class="dropzone">
+          <div>⬆︎ Drop files here or <u>browse…</u></div>
+          <div class="conf" style="margin-top:6px">Supported: PDF, CSV, XLSX, PNG, JPG</div>
+        </div>
+
+        <!-- Demo file list -->
+        <div class="filelist">
+          <div class="file">
+            <div>📄</div>
+            <div>
+              <div><strong>Vanguard ISA Statement — Oct 2025</strong> <span class="badge-soft">Statement</span></div>
+              <div class="conf">Detected: Vanguard Investor UK • Period Oct ’25 • Confidence 0.93</div>
+            </div>
+          </div>
+          <div><span class="tag isa">Likely: ISA</span></div>
+          <div><span class="badge-soft">Action: Link &amp; Reconcile</span></div>
+
+          <div class="file">
+            <div>📄</div>
+            <div>
+              <div><strong>AJ Bell Contract Note — 28 Oct 2025</strong> <span class="badge-soft">Contract note</span></div>
+              <div class="conf">Detected: Buy • IE00B5BMR087 • 45.50 @ £42.10 • Confidence 0.88</div>
+            </div>
+          </div>
+          <div><span class="tag sipp">Likely: SIPP</span></div>
+          <div><span class="badge-soft">Action: Create transaction</span></div>
+
+          <div class="file">
+            <div>📄</div>
+            <div>
+              <div><strong>HSBC Savings — Oct 2025</strong> <span class="badge-soft">Bank statement</span></div>
+              <div class="conf">Detected: Cash account • Ending £12,500 • Confidence 0.85</div>
+            </div>
+          </div>
+          <div><span class="tag gia">Likely: GIA</span></div>
+          <div><span class="badge-soft">Action: Update cash &amp; link</span></div>
+        </div>
+
+        <div class="actions-row">
+          <span class="conf">Nothing leaves your browser in this demo. Real product would process securely in-region.</span>
+          <label for="ai-step2" class="btn primary" style="cursor:default;opacity:.8">Continue →</label>
+        </div>
+      </div></div>
+
+      <!-- STEP 2: Review & match (static demo) -->
+      <input id="ai-step2" type="checkbox" class="skip-link" aria-hidden="true">
+      <div class="card" style="margin-top:12px"><div class="inner">
+        <strong>2) Review &amp; match</strong>
+        <p class="muted" style="margin:6px 0 6px">Confirm what each file does. You can change coverage or ignore a file.</p>
+
+        <table class="table-mini" aria-label="AI matches">
+          <thead>
+            <tr>
+              <th>File</th><th>Detected</th><th>Coverage</th><th>Creates</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Vanguard ISA Statement — Oct 2025</td>
+              <td>Statement (period)</td>
+              <td>
+                <span class="tag isa">Vanguard • ISA</span>
+              </td>
+              <td>Link evidence • Mark Oct ’25 as **Reconciled** when cash balances</td>
+              <td><span class="badge-soft">Keep</span></td>
+            </tr>
+            <tr>
+              <td>AJ Bell Contract Note — 28 Oct 2025</td>
+              <td>Buy 45.5 of IE00B5BMR087 @ £42.10</td>
+              <td><span class="tag sipp">AJ Bell • SIPP</span></td>
+              <td>Create **1 transaction** (with fees &amp; tax) and link PDF as evidence</td>
+              <td><span class="badge-soft">Keep</span></td>
+            </tr>
+            <tr>
+              <td>HSBC Savings — Oct 2025</td>
+              <td>Bank statement (cash)</td>
+              <td><span class="tag gia">HSBC • GIA Cash</span></td>
+              <td>Update **ending balance** £12,500 • Option to extract **interest** entry</td>
+              <td><span class="badge-soft">Keep</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="kv-mini">
+          <div><strong>Holdings updates</strong><div class="muted">0</div></div>
+          <div><strong>Transactions</strong><div class="muted">1</div></div>
+          <div><strong>Evidence links</strong><div class="muted">3</div></div>
+          <div><strong>Confidence</strong><div class="muted">High</div></div>
+        </div>
+
+        <div class="actions-row">
+          <span></span>
+          <label for="ai-step3" class="btn primary" style="cursor:default;opacity:.8">Continue →</label>
+        </div>
+      </div></div>
+
+      <!-- STEP 3: Import summary (static demo) -->
+      <input id="ai-step3" type="checkbox" class="skip-link" aria-hidden="true">
+      <div class="card" style="margin-top:12px"><div class="inner">
+        <strong>3) Import</strong>
+        <p class="muted" style="margin:6px 0 12px">Here’s what we’ll do. You can change actions above before importing.</p>
+        <ul>
+          <li>Create <strong>1 transaction</strong> in AJ Bell SIPP (Buy Global All-Cap; links contract note).</li>
+          <li>Link <strong>Vanguard ISA statement</strong> and mark period **ready to reconcile**.</li>
+          <li>Update **HSBC cash balance** and link bank statement as evidence.</li>
+        </ul>
+        <div class="actions-row">
+          <label for="modal-ai" class="btn">Cancel</label>
+          <button class="btn primary">Import 3 items</button>
+        </div>
+      </div></div>
+
+    </div>
+  </div>
+</div>
+
+Microcopy (optional, paste as tooltips)
+
+Detected: “We classify the file, extract dates, symbols and amounts, and guess the right account/wrapper.”
+
+Confidence: “Our certainty (0–1). Low confidence items default to Link only.”
+
+Creates: “What we’ll add to your register. Nothing is final until you tap Import.”
+
+Acceptance criteria for the demo
+
+Clicking ✨ AI Import opens the 3-step modal.
+
+Shows three example files with detected types, coverage, and actions.
+
+“Import 3 items” is a non-functional button (for demo only).
+
+Works with your existing dark UI and lightbox styles.
