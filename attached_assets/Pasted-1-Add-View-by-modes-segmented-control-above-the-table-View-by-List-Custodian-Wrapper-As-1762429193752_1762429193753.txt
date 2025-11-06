@@ -1,0 +1,149 @@
+1) Add “View by” modes (segmented control above the table)
+
+View by: List • Custodian • Wrapper • Asset Class • Instrument • Tax/Evidence • Currency • Maturity (Cash & Bonds) • Liabilities • Net Worth
+
+Each mode changes grouping + columns (no data change).
+
+A) List (current default)
+
+Columns: Asset, Identifier, Custodian, Wrapper, Units, Cost, Price, Value, Return, Bucket, Tax/Relief, Source, Evidence, Completeness, Actions.
+
+New: add Source (⚡ Live / ⤿ CSV / ✍ Manual / 📎 OCR) and Type (Equity/ETF/REIT/Bond/Derivative/Cash/Property/Crypto/PE).
+
+B) Custodian
+
+Group rows by Custodian/Account. Expanders for each account (ISA/SIPP/GIA).
+
+Summaries per account: listed value, cash, #holdings, reconcile status.
+
+Extra columns: Reconciled (Yes/No), Last statement date.
+
+C) Wrapper
+
+Group by Wrapper (ISA / SIPP / GIA / Personal).
+
+Show: Value, % of portfolio, Unrealised G/L, Income YTD (dividends/interest), Rebalance deviation.
+
+Action: “Move target” (opens Targets & Bands to adjust that wrapper’s bands).
+
+D) Asset Class
+
+Buckets: Global Equity, Fixed Income, Cash, Property, Alternatives (sub-buckets allowed).
+
+Show: Target %, Current %, Deviation, Suggested action (sell/buy).
+
+E) Instrument
+
+Group by Instrument type: Equity / ETF/ETP / Investment Trust/REIT / Listed Bond / Derivative / Cash / Property / Crypto / Private Equity.
+
+Type-aware columns:
+
+Bond: Nominal, Price (% of par), Coupon, Maturity, Accrued.
+
+Derivative: Contracts, Underlying, Expiry, Margin.
+
+Cash: Balance, Account type (Instant/Notice/Fixed), Rate (AER), Maturity/Notice.
+
+F) Tax / Evidence
+
+Two toggles: Tax lens and Evidence lens.
+
+Tax lens: columns = Tax treatment, Relief (EIS/SEIS/SIPP), Hold-period countdown, Disposal warnings.
+
+Evidence lens: Evidence Strength (High/Med/Low), Linked docs count, Last valuation date, On-file / Missing / Due soon.
+
+G) Currency
+
+Group by base currency of instrument/cash.
+
+Show: Native value, FX→GBP used (rate+date), GBP value.
+
+Banner note: “FX is display-only”.
+
+H) Maturity (Cash & Bonds)
+
+Timeline buckets: <30d • 30–90d • 3–12m • 1–3y • 3y+.
+
+Show: AER (cash), Coupon & YTM (bonds), Next action (roll/top-up).
+
+I) Liabilities (new tab or mode)
+
+Rows: Mortgage, Margin loan, Personal loan, Credit card, Car finance, Student loan.
+
+Columns: Lender, Account, Principal, Rate/APR, Type (Interest-only/Repayment), Term, Maturity, Payment, Outstanding, LTV (if property-linked), Evidence, Source.
+
+Group by: Linked asset (e.g., property) and by lender.
+
+J) Net Worth (overview)
+
+Two panels: Assets by class + Liabilities by type → Net worth.
+
+KPIs: Net worth, Debt ratio, Liquid ratio, Interest burden.
+
+Export: “Beneficiary/Advisor snapshot”.
+
+2) Filters, quick maths, and saved views
+
+Facets (left or toolbar): Entity, Custodian, Wrapper, Type, Bucket, Source, Evidence status, Currency, Period (by valuation date), Reconciled (Yes/No).
+
+Column chooser: show/hide columns; Save view and set as default.
+
+Inline totals: when filtered, show subtotals for value and count at the bottom.
+
+3) Liabilities: capture + cross-links
+
+Add Liability tiles (mirror Add Asset): Mortgages, Margin Loans, Personal Loans, Credit Cards, Car Finance, Student/Other.
+
+Liability drawer: APR, rate type, origination date, schedule (interest-only vs repayment), payment, remaining term, linked asset (for LTV), Evidence (statement, agreement), Source, Completeness.
+
+Auto LTV: if linked to property, show Value / Outstanding / LTV in both drawers.
+
+4) Table polish to make it “world-class”
+
+Row density toggle (you already have it; persist choice).
+
+Row stripes + sticky first column (present) + hover action: View • Add evidence • Reconcile jump.
+
+Return column: unify labels (IRR/TWR/APR/Yield) with tooltips explaining each.
+
+Valuation freshness chip on every non-priced asset (Property/PE) with “Update” shortcut.
+
+Provenance badge on each row: ⚡ Live / ⤿ CSV / ✍ Manual / 📎 OCR (tooltip explains locks).
+
+Instrument emojis/icons (subtle) to help skim.
+
+5) Actions that match each mode
+
+Custodian view: “Reconcile now”, “Open statement”, “Import CSV”.
+
+Wrapper view: “Adjust bands”, “See tax summary”.
+
+Instrument view: “Add similar”, “Import from CSV template”.
+
+Maturity view: “Roll cash”, “Ladder bonds”, “Set reminder”.
+
+6) Microcopy (paste-ready)
+
+View switcher label: “View by”
+
+Source legend: “⚡ Live (read-only) • ⤿ CSV • 📎 From document • ✍ Manual”
+
+Evidence strength: “High (statement/certificate) • Medium (export) • Low (screenshot)”
+
+Liability helper: “Link to the secured asset to compute LTV and show it in both drawers.”
+
+7) Acceptance criteria (so Replit knows when it’s done)
+
+A segmented View by control exists with the modes above; switching modes changes grouping/columns without losing filters.
+
+The Source and Type columns appear in List and Instrument modes; badges render consistently in all modes.
+
+Liabilities can be entered and displayed; property-linked liabilities show LTV in both the asset and liability drawers.
+
+Evidence lens highlights Missing / Due soon and links to the Documents picker; ticking items updates Completeness.
+
+Maturity view buckets both Cash (Instant/Notice/Fixed with AER) and Bonds (coupon/maturity) and supports reminders.
+
+Saved views remember chosen columns, sorts, and filters (local storage is fine for prototype).
+
+All views export correctly (CSV) and print cleanly.

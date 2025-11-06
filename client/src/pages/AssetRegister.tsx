@@ -434,45 +434,116 @@ function KPITile({ label, value, delta, sublabel, positive, negative, tooltip, .
 }
 
 function HoldingsTab({ onViewDetail, density }: any) {
+  const [viewMode, setViewMode] = useState('list');
+  
   const holdings = [
-    { asset: 'Vanguard FTSE Global All Cap', type: 'Accumulation fund', identifier: 'IE00B5BMR087', custodian: 'Vanguard Investor UK', wrapper: 'ISA', units: '1,234.56', cost: '£45,600', price: '£42.18', value: '£52,080', return: '14.2% IRR', bucket: 'Global Equity', tax: 'Accumulating', evidence: 'On file', completeness: 95 },
-    { asset: 'Vanguard Global Bond Index', type: 'ETF', identifier: 'IE00B1S75N64', custodian: 'AJ Bell', wrapper: 'SIPP', units: '845.20', cost: '£18,900', price: '£24.65', value: '£20,834', return: '10.2% TWR', bucket: 'Fixed Income', tax: 'SIPP relief', evidence: 'On file', completeness: 95 },
-    { asset: 'HSBC Savings Account', type: 'Cash', identifier: 'GB29HSBC12345678', custodian: 'HSBC', wrapper: 'GIA', units: '1', cost: '£12,500', price: '£12,500', value: '£12,500', return: '4.1% APR', bucket: 'Cash', tax: 'Taxable', evidence: 'On file', completeness: 100 },
-    { asset: '42 Elm Street, Manchester', type: 'BTL Property', identifier: 'Title: MAN123456', custodian: 'Personal', wrapper: 'Personal', units: '1', cost: '£165,000', price: '£195,000', value: '£195,000', return: '5.8% yield', bucket: 'Property', tax: 'CGT', evidence: 'Valuation due', completeness: 82 },
-    { asset: 'Bitcoin', type: 'Cryptocurrency', identifier: 'BTC', custodian: 'Ledger - Main', wrapper: 'Personal', units: '0.4520', cost: '£18,200', price: '£54,280', value: '£24,535', return: '+34.8%', bucket: 'Alternatives', tax: 'CGT', evidence: 'On file', completeness: 90 },
-    { asset: 'Ethereum', type: 'Cryptocurrency', identifier: 'ETH (on-chain)', custodian: 'MetaMask Wallet', wrapper: 'Personal', units: '6.82', cost: '£11,400', price: '£2,248', value: '£15,331', return: '+34.5%', bucket: 'Alternatives', tax: 'On-chain verify', evidence: 'On-chain verify', completeness: 88 },
-    { asset: 'FinTech Ventures Ltd', type: 'EIS shares', identifier: 'Unlisted', custodian: 'Personal', wrapper: 'Personal', units: '5,000', cost: '£50,000', price: '£50,000', value: '£50,000', return: 'Holding', bucket: 'Private Equity', tax: 'EIS', evidence: 'On file', completeness: 92, countdown: '~603 days' },
+    { asset: 'Vanguard FTSE Global All Cap', type: 'ETF', assetType: 'ETF', identifier: 'IE00B5BMR087', custodian: 'Vanguard Investor UK', account: 'Vanguard ISA', wrapper: 'ISA', units: '1,234.56', cost: '£45,600', price: '£42.18', value: '£52,080', return: '14.2% IRR', bucket: 'Global Equity', tax: 'Accumulating', evidence: 'On file', completeness: 95, source: 'live', reconciled: 'Yes', lastStatement: '31 Oct 2025' },
+    { asset: 'Vanguard Global Bond Index', type: 'ETF', assetType: 'Bond ETF', identifier: 'IE00B1S75N64', custodian: 'AJ Bell', account: 'AJ Bell SIPP', wrapper: 'SIPP', units: '845.20', cost: '£18,900', price: '£24.65', value: '£20,834', return: '10.2% TWR', bucket: 'Fixed Income', tax: 'SIPP relief', evidence: 'On file', completeness: 95, source: 'csv', reconciled: 'Yes', lastStatement: '31 Oct 2025' },
+    { asset: 'HSBC Savings Account', type: 'Cash', assetType: 'Cash', identifier: 'GB29HSBC12345678', custodian: 'HSBC', account: 'HSBC Instant', wrapper: 'GIA', units: '1', cost: '£12,500', price: '£12,500', value: '£12,500', return: '4.1% APR', bucket: 'Cash', tax: 'Taxable', evidence: 'On file', completeness: 100, source: 'live', reconciled: 'Yes', lastStatement: '31 Oct 2025' },
+    { asset: '42 Elm Street, Manchester', type: 'BTL Property', assetType: 'Property', identifier: 'Title: MAN123456', custodian: 'Personal', account: 'Direct ownership', wrapper: 'Personal', units: '1', cost: '£165,000', price: '£195,000', value: '£195,000', return: '5.8% yield', bucket: 'Property', tax: 'CGT', evidence: 'Valuation due', completeness: 82, source: 'manual', reconciled: 'No', lastStatement: '—' },
+    { asset: 'Bitcoin', type: 'Cryptocurrency', assetType: 'Crypto', identifier: 'BTC', custodian: 'Ledger - Main', account: 'Ledger hardware wallet', wrapper: 'Personal', units: '0.4520', cost: '£18,200', price: '£54,280', value: '£24,535', return: '+34.8%', bucket: 'Alternatives', tax: 'CGT', evidence: 'On file', completeness: 90, source: 'ocr', reconciled: 'No', lastStatement: '—' },
+    { asset: 'Ethereum', type: 'Cryptocurrency', assetType: 'Crypto', identifier: 'ETH (on-chain)', custodian: 'MetaMask Wallet', account: 'MetaMask hot wallet', wrapper: 'Personal', units: '6.82', cost: '£11,400', price: '£2,248', value: '£15,331', return: '+34.5%', bucket: 'Alternatives', tax: 'On-chain verify', evidence: 'On-chain verify', completeness: 88, source: 'ocr', reconciled: 'No', lastStatement: '—' },
+    { asset: 'FinTech Ventures Ltd', type: 'EIS shares', assetType: 'Private Equity', identifier: 'Unlisted', custodian: 'Personal', account: 'Direct ownership', wrapper: 'Personal', units: '5,000', cost: '£50,000', price: '£50,000', value: '£50,000', return: 'Holding', bucket: 'Private Equity', tax: 'EIS', evidence: 'On file', completeness: 92, countdown: '~603 days', source: 'manual', reconciled: 'No', lastStatement: '—' },
   ];
+
+  const getSourceIcon = (source: string) => {
+    switch(source) {
+      case 'live': return '⚡';
+      case 'csv': return '⤿';
+      case 'ocr': return '📎';
+      case 'manual': return '✍';
+      default: return '';
+    }
+  };
 
   const rowPadding = density === 'compact' ? 'py-2 px-3' : 'py-3 px-4';
 
+  const viewModes = [
+    { id: 'list', label: 'List' },
+    { id: 'custodian', label: 'Custodian' },
+    { id: 'wrapper', label: 'Wrapper' },
+    { id: 'asset-class', label: 'Asset Class' },
+    { id: 'instrument', label: 'Instrument' },
+    { id: 'tax-evidence', label: 'Tax/Evidence' },
+    { id: 'currency', label: 'Currency' },
+    { id: 'maturity', label: 'Maturity' },
+    { id: 'liabilities', label: 'Liabilities' },
+    { id: 'net-worth', label: 'Net Worth' }
+  ];
+
   return (
-    <div id="tour-holdings-table" className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-[var(--muted)] border-b border-[var(--border)] sticky top-0">
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Identifier</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Custodian</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
-            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
-            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Cost</th>
-            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price</th>
-            <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Return</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Bucket</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Tax/Relief</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Complete</th>
-            <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
-          </tr>
-        </thead>
+    <div className="space-y-4">
+      {/* View by segmented control */}
+      <div className="flex items-center gap-3 px-1">
+        <span className="text-sm font-medium text-[var(--muted-foreground)]">View by:</span>
+        <div className="flex items-center gap-1 p-1 bg-[var(--muted)] rounded-xl">
+          {viewModes.map(mode => (
+            <button
+              key={mode.id}
+              onClick={() => setViewMode(mode.id)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-xl transition-all ${
+                viewMode === mode.id
+                  ? 'bg-[var(--card)] text-[var(--foreground)] shadow-sm'
+                  : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
+              data-testid={`view-mode-${mode.id}`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Source legend */}
+      <div className="px-4 py-2 bg-[var(--muted)]/50 border border-[var(--border)] rounded-lg text-xs text-[var(--muted-foreground)]">
+        <span className="font-medium">Source legend:</span> ⚡ Live (read-only) • ⤿ CSV • 📎 From document • ✍ Manual
+      </div>
+
+      {viewMode === 'list' && (
+        <div id="tour-holdings-table" className="overflow-auto border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)] sticky top-0">
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Type</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Source</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Identifier</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Custodian</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Cost</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Return</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Bucket</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Tax/Relief</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Complete</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
+              </tr>
+            </thead>
         <tbody>
           {holdings.map((holding, idx) => (
             <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors">
               <td className={rowPadding}>
                 <div className="font-medium text-sm text-[var(--foreground)]" data-testid={`text-asset-${idx}`}>{holding.asset}</div>
-                <div className="text-xs text-[var(--muted-foreground)]">{holding.type}</div>
+              </td>
+              <td className={rowPadding}>
+                <span className="px-2 py-0.5 rounded text-xs bg-[var(--muted)] text-[var(--muted-foreground)]">
+                  {holding.assetType}
+                </span>
+              </td>
+              <td className={rowPadding}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-lg cursor-help" data-testid={`source-${idx}`}>
+                      {getSourceIcon(holding.source)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs capitalize">{holding.source === 'csv' ? 'CSV import' : holding.source === 'ocr' ? 'From document' : holding.source === 'live' ? 'Live connection (read-only)' : 'Manual entry'}</p>
+                  </TooltipContent>
+                </Tooltip>
               </td>
               <td className={`${rowPadding} text-sm text-[var(--foreground)]`} data-testid={`text-identifier-${idx}`}>{holding.identifier}</td>
               <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.custodian}</td>
@@ -483,7 +554,13 @@ function HoldingsTab({ onViewDetail, density }: any) {
               <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.cost}</td>
               <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.price}</td>
               <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{holding.value}</td>
-              <td className={`${rowPadding} text-sm text-[var(--success)]`}>{holding.return}</td>
+              <td className={`${rowPadding} text-sm ${
+                holding.return.includes('-') || holding.return.toLowerCase().includes('loss') 
+                  ? 'text-[var(--destructive)]' 
+                  : holding.return.includes('+') || holding.return.includes('%') || holding.return.includes('IRR') || holding.return.includes('TWR') || holding.return.includes('APR')
+                    ? 'text-[var(--success)]' 
+                    : 'text-[var(--muted-foreground)]'
+              }`}>{holding.return}</td>
               <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.bucket}</td>
               <td className={rowPadding}>
                 {holding.countdown ? (
@@ -521,10 +598,343 @@ function HoldingsTab({ onViewDetail, density }: any) {
             </tr>
           ))}
         </tbody>
-      </table>
-      <div className="px-4 py-3 bg-[var(--muted)] text-xs text-[var(--muted-foreground)] border-t border-[var(--border)]">
-        Total: £370,280 • 7 holdings across 4 wrappers
-      </div>
+          </table>
+          <div className="px-4 py-3 bg-[var(--muted)] text-xs text-[var(--muted-foreground)] border-t border-[var(--border)]">
+            Total: £370,280 • 7 holdings across 4 wrappers
+          </div>
+        </div>
+      )}
+
+      {/* Custodian View */}
+      {viewMode === 'custodian' && (
+        <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm overflow-hidden">
+          {/* Group by custodian */}
+          {['Vanguard Investor UK', 'AJ Bell', 'HSBC', 'Personal'].map((custodian, custIdx) => {
+            const custodianHoldings = holdings.filter(h => h.custodian === custodian);
+            if (custodianHoldings.length === 0) return null;
+            
+            const totalValue = custodianHoldings.reduce((sum, h) => {
+              const val = parseFloat(h.value.replace(/[£,]/g, ''));
+              return sum + val;
+            }, 0);
+            
+            return (
+              <div key={custodian} className="border-b border-[var(--border)] last:border-b-0">
+                {/* Custodian header */}
+                <div className="px-4 py-3 bg-[var(--muted)]/30 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ChevronRight className="h-4 w-4 text-[var(--muted-foreground)]" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-[var(--foreground)]">{custodian}</h3>
+                      <p className="text-xs text-[var(--muted-foreground)]">
+                        {custodianHoldings.length} holdings • £{totalValue.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-[var(--muted-foreground)]">Reconciled:</span>
+                    <span className={custodianHoldings[0].reconciled === 'Yes' ? 'text-[var(--success)]' : 'text-[var(--warning)]'}>
+                      {custodianHoldings[0].reconciled}
+                    </span>
+                    <span className="text-[var(--muted-foreground)] ml-3">Last statement:</span>
+                    <span className="text-[var(--foreground)]">{custodianHoldings[0].lastStatement}</span>
+                  </div>
+                </div>
+                
+                {/* Holdings table for this custodian */}
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-[var(--muted)]/10 border-b border-[var(--border)]">
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Account</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
+                      <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
+                      <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Return</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {custodianHoldings.map((holding, idx) => (
+                      <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30 transition-colors last:border-b-0">
+                        <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.account}</td>
+                        <td className={rowPadding}>
+                          <div className="font-medium text-sm text-[var(--foreground)]">{holding.asset}</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">{holding.assetType}</div>
+                        </td>
+                        <td className={rowPadding}>
+                          <WrapperTag wrapper={holding.wrapper} />
+                        </td>
+                        <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.units}</td>
+                        <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{holding.value}</td>
+                        <td className={`${rowPadding} text-sm text-[var(--success)]`}>{holding.return}</td>
+                        <td className={rowPadding}>
+                          <div className="flex gap-2">
+                            <button className="px-3 py-1 bg-transparent border border-[var(--border)] rounded-xl text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                              Reconcile
+                            </button>
+                            <button className="px-3 py-1 bg-transparent border border-[var(--border)] rounded-xl text-xs text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
+                              Statement
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Wrapper View */}
+      {viewMode === 'wrapper' && (
+        <div className="space-y-4">
+          {['ISA', 'SIPP', 'GIA', 'Personal'].map(wrapper => {
+            const wrapperHoldings = holdings.filter(h => h.wrapper === wrapper);
+            if (wrapperHoldings.length === 0) return null;
+            
+            const totalValue = wrapperHoldings.reduce((sum, h) => {
+              const val = parseFloat(h.value.replace(/[£,]/g, ''));
+              return sum + val;
+            }, 0);
+            
+            const totalCost = wrapperHoldings.reduce((sum, h) => {
+              const val = parseFloat(h.cost.replace(/[£,]/g, ''));
+              return sum + val;
+            }, 0);
+            
+            const gainLoss = totalValue - totalCost;
+            const gainLossPercent = ((gainLoss / totalCost) * 100).toFixed(1);
+            
+            return (
+              <div key={wrapper} className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm overflow-hidden">
+                <div className="px-4 py-3 bg-[var(--muted)]/20 border-b border-[var(--border)]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <WrapperTag wrapper={wrapper} />
+                      <div>
+                        <h3 className="text-sm font-semibold text-[var(--foreground)]">{wrapper} Wrapper</h3>
+                        <p className="text-xs text-[var(--muted-foreground)]">{wrapperHoldings.length} holdings</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6 text-sm">
+                      <div>
+                        <div className="text-xs text-[var(--muted-foreground)]">Total Value</div>
+                        <div className="font-semibold text-[var(--foreground)]">£{totalValue.toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-[var(--muted-foreground)]">Unrealised G/L</div>
+                        <div className={`font-semibold ${gainLoss >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                          £{gainLoss.toLocaleString()} ({gainLossPercent}%)
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-[var(--muted-foreground)]">% of Portfolio</div>
+                        <div className="font-semibold text-[var(--foreground)]">{((totalValue / 370280) * 100).toFixed(1)}%</div>
+                      </div>
+                      <button className="px-3 py-1.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs hover:opacity-90 transition-opacity">
+                        Move target
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-[var(--muted)]/5 border-b border-[var(--border)]">
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Custodian</th>
+                      <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Cost</th>
+                      <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
+                      <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>G/L</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Return</th>
+                      <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Bucket</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {wrapperHoldings.map((holding, idx) => {
+                      const cost = parseFloat(holding.cost.replace(/[£,]/g, ''));
+                      const value = parseFloat(holding.value.replace(/[£,]/g, ''));
+                      const gl = value - cost;
+                      const glPercent = ((gl / cost) * 100).toFixed(1);
+                      
+                      return (
+                        <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/30 transition-colors last:border-b-0">
+                          <td className={rowPadding}>
+                            <div className="font-medium text-sm text-[var(--foreground)]">{holding.asset}</div>
+                            <div className="text-xs text-[var(--muted-foreground)]">{holding.assetType}</div>
+                          </td>
+                          <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.custodian}</td>
+                          <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>{holding.cost}</td>
+                          <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>{holding.value}</td>
+                          <td className={`${rowPadding} text-right text-sm ${gl >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                            £{gl.toLocaleString()} ({glPercent}%)
+                          </td>
+                          <td className={`${rowPadding} text-sm text-[var(--success)]`}>{holding.return}</td>
+                          <td className={`${rowPadding} text-sm text-[var(--foreground)]`}>{holding.bucket}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Asset Class View */}
+      {viewMode === 'asset-class' && (
+        <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset Class</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Current Value</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Target %</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Current %</th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Deviation</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Suggested Action</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Holdings</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { bucket: 'Global Equity', target: 40, value: 52080 },
+                { bucket: 'Fixed Income', target: 25, value: 20834 },
+                { bucket: 'Cash', target: 10, value: 12500 },
+                { bucket: 'Property', target: 15, value: 195000 },
+                { bucket: 'Alternatives', target: 7, value: 39866 },
+                { bucket: 'Private Equity', target: 3, value: 50000 }
+              ].map((assetClass, idx) => {
+                const currentPercent = ((assetClass.value / 370280) * 100);
+                const deviation = currentPercent - assetClass.target;
+                const absDeviation = Math.abs(deviation);
+                
+                const suggestedAction = absDeviation < 2 ? 'On target' : 
+                                      deviation > 0 ? `Reduce by £${((deviation / 100) * 370280).toLocaleString(undefined, {maximumFractionDigits: 0})}` : 
+                                      `Increase by £${((Math.abs(deviation) / 100) * 370280).toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+                
+                const classHoldings = holdings.filter(h => h.bucket === assetClass.bucket);
+                
+                return (
+                  <tr key={idx} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors last:border-b-0">
+                    <td className={rowPadding}>
+                      <div className="font-medium text-sm text-[var(--foreground)]">{assetClass.bucket}</div>
+                    </td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--foreground)] font-medium`}>
+                      £{assetClass.value.toLocaleString()}
+                    </td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--muted-foreground)]`}>
+                      {assetClass.target}%
+                    </td>
+                    <td className={`${rowPadding} text-right text-sm text-[var(--foreground)]`}>
+                      {currentPercent.toFixed(1)}%
+                    </td>
+                    <td className={`${rowPadding} text-right text-sm font-medium ${
+                      absDeviation < 2 ? 'text-[var(--success)]' : 
+                      absDeviation < 5 ? 'text-[var(--warning)]' : 
+                      'text-[var(--destructive)]'
+                    }`}>
+                      {deviation > 0 ? '+' : ''}{deviation.toFixed(1)}%
+                    </td>
+                    <td className={rowPadding}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        absDeviation < 2 ? 'bg-[var(--success)]/10 text-[var(--success)]' : 
+                        deviation > 0 ? 'bg-[var(--destructive)]/10 text-[var(--destructive)]' : 
+                        'bg-[var(--warning)]/10 text-[var(--warning)]'
+                      }`}>
+                        {suggestedAction}
+                      </span>
+                    </td>
+                    <td className={`${rowPadding} text-sm text-[var(--muted-foreground)]`}>
+                      {classHoldings.length} {classHoldings.length === 1 ? 'holding' : 'holdings'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Net Worth View */}
+      {viewMode === 'net-worth' && (
+        <div className="space-y-6">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-4 gap-4">
+            <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+              <div className="text-xs text-[var(--muted-foreground)] mb-1">Net Worth</div>
+              <div className="text-2xl font-bold text-[var(--foreground)]">£370,280</div>
+              <div className="text-xs text-[var(--success)] mt-1">Assets only (demo)</div>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+              <div className="text-xs text-[var(--muted-foreground)] mb-1">Total Assets</div>
+              <div className="text-2xl font-bold text-[var(--foreground)]">£370,280</div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">7 holdings</div>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+              <div className="text-xs text-[var(--muted-foreground)] mb-1">Total Liabilities</div>
+              <div className="text-2xl font-bold text-[var(--muted-foreground)]">£0</div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">No debts recorded</div>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--card)]">
+              <div className="text-xs text-[var(--muted-foreground)] mb-1">Liquid Ratio</div>
+              <div className="text-2xl font-bold text-[var(--foreground)]">23.2%</div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">Cash + liquid securities</div>
+            </div>
+          </div>
+
+          {/* Assets by Class */}
+          <div className="border border-[var(--border)] rounded-xl bg-[var(--card)] shadow-sm p-6">
+            <h3 className="text-sm font-semibold text-[var(--foreground)] mb-4">Assets by Class</h3>
+            <div className="space-y-3">
+              {[
+                { name: 'Property', value: 195000, color: 'var(--primary)' },
+                { name: 'Global Equity', value: 52080, color: 'var(--success)' },
+                { name: 'Private Equity', value: 50000, color: 'var(--accent)' },
+                { name: 'Alternatives', value: 39866, color: 'var(--warning)' },
+                { name: 'Fixed Income', value: 20834, color: 'var(--info)' },
+                { name: 'Cash', value: 12500, color: 'var(--secondary)' }
+              ].map((asset, idx) => {
+                const percentage = ((asset.value / 370280) * 100).toFixed(1);
+                return (
+                  <div key={idx}>
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-[var(--foreground)]">{asset.name}</span>
+                      <span className="text-[var(--muted-foreground)]">£{asset.value.toLocaleString()} ({percentage}%)</span>
+                    </div>
+                    <div className="h-2 bg-[var(--muted)] rounded-full overflow-hidden">
+                      <div 
+                        className="h-full transition-all"
+                        style={{ width: `${percentage}%`, backgroundColor: `var(${asset.color})` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Export button */}
+          <div className="flex justify-end">
+            <button className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm hover:opacity-90 transition-opacity">
+              Export Beneficiary/Advisor Snapshot
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Placeholder for other view modes */}
+      {!['list', 'custodian', 'wrapper', 'asset-class', 'net-worth'].includes(viewMode) && (
+        <div className="p-12 border border-[var(--border)] rounded-xl bg-[var(--card)] text-center">
+          <p className="text-[var(--muted-foreground)]">
+            {viewMode.charAt(0).toUpperCase() + viewMode.slice(1).replace('-', ' ')} view coming soon...
+          </p>
+        </div>
+      )}
     </div>
   );
 }
