@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, TrendingDown, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock, Settings, AlertTriangle, ChevronDown, Pencil, Check } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
