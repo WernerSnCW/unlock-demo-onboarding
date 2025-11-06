@@ -963,7 +963,7 @@ function DocumentsTab({ onViewDoc }: any) {
             {missingDocs.map((missing, idx) => (
               <div key={idx} className="flex items-center justify-between text-sm">
                 <span className="text-[var(--foreground)]">{missing.title}</span>
-                <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg text-xs hover:opacity-90 transition-opacity">
+                <button className="px-3 py-1 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-xs hover:opacity-90 transition-opacity">
                   Upload
                 </button>
               </div>
