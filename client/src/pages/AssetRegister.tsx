@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, TrendingDown, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock, Settings, AlertTriangle, ChevronDown, Pencil, Check, CheckCircle } from 'lucide-react';
+import { Search, FileText, Upload, Download, Printer, X, Command, HelpCircle, Info, TrendingUp, TrendingDown, Wallet, Bitcoin, Home, Briefcase, Sparkles, FileEdit, Building2, CreditCard, Landmark, Car, Plug, PlugZap, FileStack, ChevronLeft, ChevronRight, AlertCircle, Clock, Settings, AlertTriangle, ChevronDown, Pencil, Check, CheckCircle, Zap, FileDown, Paperclip, Edit3 } from 'lucide-react';
 import Header from '../components/Header';
 import { AssetRegisterTour, TourBeacon } from '../components/AssetRegisterTour';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
@@ -493,12 +493,13 @@ function HoldingsTab({ onViewDetail, density }: any) {
   ];
 
   const getSourceIcon = (source: string) => {
+    const iconClass = "h-3.5 w-3.5";
     switch(source) {
-      case 'live': return '⚡';
-      case 'csv': return '⤿';
-      case 'ocr': return '📎';
-      case 'manual': return '✍';
-      default: return '';
+      case 'live': return <Zap className={iconClass} />;
+      case 'csv': return <FileDown className={iconClass} />;
+      case 'ocr': return <Paperclip className={iconClass} />;
+      case 'manual': return <Edit3 className={iconClass} />;
+      default: return null;
     }
   };
 
@@ -541,8 +542,12 @@ function HoldingsTab({ onViewDetail, density }: any) {
       </div>
 
       {/* Source legend */}
-      <div className="px-4 py-2 bg-[var(--muted)]/50 border border-[var(--border)] rounded-lg text-xs text-[var(--muted-foreground)]">
-        <span className="font-medium">Source legend:</span> ⚡ Live (read-only) • ⤿ CSV • 📎 From document • ✍ Manual
+      <div className="px-4 py-2 bg-[var(--muted)]/50 border border-[var(--border)] rounded-lg text-xs text-[var(--muted-foreground)] flex items-center gap-4">
+        <span className="font-medium">Source legend:</span>
+        <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> Live (read-only)</span>
+        <span className="flex items-center gap-1"><FileDown className="h-3 w-3" /> CSV</span>
+        <span className="flex items-center gap-1"><Paperclip className="h-3 w-3" /> From document</span>
+        <span className="flex items-center gap-1"><Edit3 className="h-3 w-3" /> Manual</span>
       </div>
 
       {viewMode === 'list' && (
@@ -590,7 +595,7 @@ function HoldingsTab({ onViewDetail, density }: any) {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        <p className="text-xs">How this data was added: ⚡ Live (real-time API), ⤿ CSV import, 📎 From document/OCR, or ✍ Manual entry.</p>
+                        <p className="text-xs">How this data was added: Live (real-time API), CSV import, From document/OCR, or Manual entry.</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -2556,12 +2561,13 @@ function TransactionsTab({ density }: any) {
   };
 
   const getSourceIcon = (source: string) => {
+    const iconClass = "h-3.5 w-3.5";
     switch(source) {
-      case 'live': return '⚡';
-      case 'csv': return '⤿';
-      case 'ocr': return '📎';
-      case 'manual': return '✍';
-      default: return '';
+      case 'live': return <Zap className={iconClass} />;
+      case 'csv': return <FileDown className={iconClass} />;
+      case 'ocr': return <Paperclip className={iconClass} />;
+      case 'manual': return <Edit3 className={iconClass} />;
+      default: return null;
     }
   };
   
@@ -2609,10 +2615,10 @@ function TransactionsTab({ density }: any) {
           </select>
           <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
             <option>All sources</option>
-            <option>⚡ Live</option>
-            <option>⤿ CSV</option>
-            <option>📎 OCR</option>
-            <option>✍ Manual</option>
+            <option>Live</option>
+            <option>CSV</option>
+            <option>OCR</option>
+            <option>Manual</option>
           </select>
           <select className="px-3 py-1.5 bg-[var(--input)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]">
             <option>All reconciled</option>
@@ -2634,19 +2640,19 @@ function TransactionsTab({ density }: any) {
             {showAddMenu && (
               <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-lg z-10 overflow-hidden">
                 <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
-                  <div className="font-semibold mb-1">⚡ Live (from connected broker)</div>
+                  <div className="font-semibold mb-1 flex items-center gap-2"><Zap className="h-4 w-4" /> Live (from connected broker)</div>
                   <div className="text-xs text-[var(--muted-foreground)]">Read-only from your broker</div>
                 </button>
                 <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
-                  <div className="font-semibold mb-1">⤿ CSV file</div>
+                  <div className="font-semibold mb-1 flex items-center gap-2"><FileDown className="h-4 w-4" /> CSV file</div>
                   <div className="text-xs text-[var(--muted-foreground)]">Upload exported transactions</div>
                 </button>
                 <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors border-b border-[var(--border)]">
-                  <div className="font-semibold mb-1">📎 From a document (OCR)</div>
+                  <div className="font-semibold mb-1 flex items-center gap-2"><Paperclip className="h-4 w-4" /> From a document (OCR)</div>
                   <div className="text-xs text-[var(--muted-foreground)]">Extract from statement</div>
                 </button>
                 <button className="w-full px-4 py-3 text-left text-sm text-[var(--foreground)] hover:bg-[var(--muted)] transition-colors">
-                  <div className="font-semibold mb-1">✍ Manual entry</div>
+                  <div className="font-semibold mb-1 flex items-center gap-2"><Edit3 className="h-4 w-4" /> Manual entry</div>
                   <div className="text-xs text-[var(--muted-foreground)]">Type in manually</div>
                 </button>
               </div>
@@ -2739,7 +2745,7 @@ function TransactionsTab({ density }: any) {
       {/* Footer note */}
       <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-sm">
         <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-          <strong className="text-[var(--foreground)]">Audit-ready ledger:</strong> All economic events are recorded for Section 104 pooling, cost basis tracking, and CGT reporting. ISA and SIPP transactions are exempt from capital gains tax. Source indicators: ⚡ Live (read-only from broker) • ⤿ CSV • 📎 OCR • ✍ Manual
+          <strong className="text-[var(--foreground)]">Audit-ready ledger:</strong> All economic events are recorded for Section 104 pooling, cost basis tracking, and CGT reporting. ISA and SIPP transactions are exempt from capital gains tax. Source indicators: Live (read-only from broker) • CSV • OCR • Manual
         </p>
       </div>
     </div>
@@ -3318,7 +3324,7 @@ function ReconciliationTab() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-[var(--foreground)]">Import transactions</h3>
                   <p className="text-sm text-[var(--muted-foreground)]">
-                    Import transactions by ⚡ Live / ⤿ CSV / 📎 From document / ✍ Manual. We'll show unsettled trades separately.
+                    Import transactions by Live / CSV / From document / Manual. We'll show unsettled trades separately.
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <button className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors text-left">
@@ -5071,7 +5077,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   data-testid="source-live"
                 >
                   <div className="text-center">
-                    <div className="text-3xl mb-3">⚡</div>
+                    <div className="mb-3 flex justify-center"><Zap className="h-12 w-12 text-[var(--primary)]" /></div>
                     <h4 className="font-semibold text-[var(--foreground)] mb-2">Connect broker</h4>
                     <p className="text-xs text-[var(--muted-foreground)]">
                       Batch import from connected account (recommended)
@@ -5090,7 +5096,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   data-testid="source-semi-auto"
                 >
                   <div className="text-center">
-                    <div className="text-3xl mb-3">⤿</div>
+                    <div className="mb-3 flex justify-center"><FileDown className="h-12 w-12 text-[var(--primary)]" /></div>
                     <h4 className="font-semibold text-[var(--foreground)] mb-2">Import CSV</h4>
                     <p className="text-xs text-[var(--muted-foreground)]">
                       Prices/FX auto; positions from CSV or manual entry
@@ -5104,7 +5110,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   data-testid="source-manual"
                 >
                   <div className="text-center">
-                    <div className="text-3xl mb-3">✍</div>
+                    <div className="mb-3 flex justify-center"><Edit3 className="h-12 w-12 text-[var(--primary)]" /></div>
                     <h4 className="font-semibold text-[var(--foreground)] mb-2">Enter manually</h4>
                     <p className="text-xs text-[var(--muted-foreground)]">
                       Entered by you; attach evidence for defensibility
@@ -5516,7 +5522,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                         </button>
                         <button 
                           onClick={() => {
-                            alert(`Imported ${selectedHoldings.length} holdings with Source = ⚡ Live`);
+                            alert(`Imported ${selectedHoldings.length} holdings with Source = Live`);
                             onClose();
                           }}
                           disabled={selectedHoldings.length === 0}
@@ -5538,7 +5544,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--foreground)]">
-                        <span>{sourceType === 'semi-auto' ? '⤿' : '✍'}</span>
+                        {sourceType === 'semi-auto' ? <FileDown className="h-3 w-3" /> : <Edit3 className="h-3 w-3" />}
                         {sourceType === 'semi-auto' ? 'Semi-auto' : 'Manual'}
                       </span>
                     </TooltipTrigger>
@@ -6001,7 +6007,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                       data-testid="source-live-cash"
                     >
                       <div className="text-center">
-                        <div className="text-3xl mb-3">⚡</div>
+                        <div className="mb-3 flex justify-center"><Zap className="h-12 w-12 text-[var(--primary)]" /></div>
                         <h4 className="font-semibold text-[var(--foreground)] mb-2">Connect bank</h4>
                         <p className="text-xs text-[var(--muted-foreground)]">
                           Batch import via Open Banking (recommended)
@@ -6018,7 +6024,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                       data-testid="source-csv-cash"
                     >
                       <div className="text-center">
-                        <div className="text-3xl mb-3">⇪</div>
+                        <div className="mb-3 flex justify-center"><FileDown className="h-12 w-12 text-[var(--primary)]" /></div>
                         <h4 className="font-semibold text-[var(--foreground)] mb-2">Import CSV</h4>
                         <p className="text-xs text-[var(--muted-foreground)]">
                           Upload exported bank statement
@@ -6035,7 +6041,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                       data-testid="source-manual-cash"
                     >
                       <div className="text-center">
-                        <div className="text-3xl mb-3">✍</div>
+                        <div className="mb-3 flex justify-center"><Edit3 className="h-12 w-12 text-[var(--primary)]" /></div>
                         <h4 className="font-semibold text-[var(--foreground)] mb-2">Enter manually</h4>
                         <p className="text-xs text-[var(--muted-foreground)]">
                           Type account details by hand
@@ -6261,7 +6267,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                         </button>
                         <button 
                           onClick={() => {
-                            alert(`Imported ${selectedAccounts.length} cash accounts via ⚡ Live connection (Open Banking)`);
+                            alert(`Imported ${selectedAccounts.length} cash accounts via Live connection (Open Banking)`);
                             onClose();
                           }}
                           disabled={selectedAccounts.length === 0}
@@ -6283,7 +6289,7 @@ function AddAssetModal({ onClose, initialMode = 'asset' }: any) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded-full text-xs text-[var(--foreground)]">
-                        <span>{sourceType === 'semi-auto' ? '⇪' : '✍'}</span>
+                        {sourceType === 'semi-auto' ? <FileDown className="h-3 w-3" /> : <Edit3 className="h-3 w-3" />}
                         {sourceType === 'semi-auto' ? 'CSV' : 'Manual'}
                       </span>
                     </TooltipTrigger>
