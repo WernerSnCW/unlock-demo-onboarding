@@ -1,0 +1,126 @@
+What the page is (for users)
+
+Targets = your long-run strategic weights (e.g., Equity 40%).
+
+Bands = tolerance ranges around each target (e.g., 35–45%) to avoid over-trading.
+
+Logic: if a bucket drifts outside its band, we propose trades to bring it back inside (by default to the mid-point), respecting wrappers, tax and costs.
+
+Pasteable helper text (top of page, “ⓘ How it works”):
+
+“This page tracks your strategic allocation. We watch drift vs. your target ranges and suggest low-friction actions (sell/buy/cash moves) that keep you in band while minimising tax and fees. Illiquid assets (e.g., property, private equity) are handled with gentle nudges, not trade orders.”
+
+UX improvements
+1) Add a compact header strip (above the buckets)
+
+Overall drift: “2 buckets out of band” (click → highlights offenders).
+
+Policy: “Rebalance rule: band breach • Trade min £500 • Review quarterly”.
+
+Toggle: Show by Account / Wrapper (see §3).
+
+2) Enhance each bucket card
+
+Current % • Target % • Band % (already there).
+
+Drift chip: “+6% over (hard breach)”.
+
+Breakdown link: “See holdings (6)” → opens drawer with contributions by account/wrapper/holding.
+
+Action line becomes buttons:
+
+Propose trades (opens planner)
+
+Snooze (e.g., 30 days)
+
+Why this? (mini explainer: driver of drift: price move vs. cash flow)
+
+3) View controls (segmented)
+
+By Bucket (default) • By Wrapper • By Account • With Liabilities
+
+By Wrapper: shows Equity/Bonds/Cash within ISA/SIPP/GIA; highlights where to trade to avoid CGT (prefer ISA/SIPP first).
+
+By Account: same visuals, grouped per custodian.
+
+With Liabilities: overlays debt impact (e.g., mortgage → effective property exposure; margin loan → reduce “cash” bucket).
+
+4) Rebalance Planner (one overlay)
+
+When a bucket is out of band:
+
+Goal: move from Current → Mid-point (or edge of band, user-selectable).
+
+Heuristics (v1):
+
+Prefer trades inside ISA/SIPP (no CGT).
+
+If GIA needed, show an estimated CGT impact (use simple placeholders).
+
+Respect min trade size and do not sell illiquid (property/PE) automatically.
+
+Output table (editable):
+
+Action (Sell/Buy) • Holding • Account/Wrapper • Amount (£/units) • Est. Fees • Est. CGT • Resulting %
+
+CTA: “Save plan” (for demo) and “Explain plan” (plain-English summary).
+
+5) Policy drawer (right-side link “Edit policy”)
+
+Target & band per bucket.
+
+Rebalance rule: Time (quarterly) / Threshold (band breach) / Hybrid.
+
+Min trade size; Cash buffer floor; Include property in rebalance? (Yes/No).
+
+Tax preference: Prefer ISA/SIPP • Allow GIA if needed • Never GIA (shows warnings if impossible).
+
+6) Evidence & audit hooks
+
+If a bucket includes illiquids with stale valuation, show “Actions paused — valuation due”.
+
+Log “Plan created on 05 Nov 2025” in Reconciliation → Differences log (read-only for demo).
+
+Data & calculations (simple, prototype-safe)
+
+Drift = Current% – Target%.
+Breach if Current% < BandMin OR > BandMax.
+Trade amount to mid-point = (Mid% – Current%) × (Portfolio Value) restricted to eligible wrappers and eligible holdings.
+
+Eligible holdings (v1)
+
+Sell: liquid listed funds/ETFs/equities; inside wrappers first.
+
+Buy: liquid listed funds/ETFs; cash source inside same wrapper if possible.
+
+Property/PE: view-only nudges (“consider rebalancing after valuation”).
+
+Microcopy (paste-ready)
+
+Page intro (“ⓘ How it works”)
+“Targets set your long-run mix. Bands prevent over-trading. When a bucket drifts outside its band, we suggest the smallest set of trades to get you back inside—preferably inside your ISA/SIPP to avoid CGT.”
+
+Bucket tooltip
+“Drift is the gap to target. ‘Out of band’ means your allocation left the allowed range.”
+
+Planner banner
+“We prioritise ISA/SIPP changes first. GIA trades show estimated CGT and fees.”
+
+Illiquid note
+“We don’t sell property/private equity automatically. We’ll remind you when a valuation is due and reflect it in drift.”
+
+Acceptance criteria (so Replit knows when it’s done)
+
+Header shows Overall drift, Rebalance rule, Review cadence.
+
+Each bucket card displays Current/Target/Band, a drift chip, breakdown link, and Propose trades button.
+
+View controls switch between Bucket / Wrapper / Account / With Liabilities (groups & subtotals change).
+
+Rebalance Planner opens with a prefilled, editable table of suggested trades using the heuristics above and shows the post-trade percentages.
+
+If any constituent asset has Valuation due, the bucket shows a pause state and the action button becomes Update valuation.
+
+Saving a plan produces a plain-English summary (e.g., “Sell £7,200 of Global All-Cap in ISA; Buy £1,000 Cash”).
+
+All copy uses UK English and matches your existing visual style.
