@@ -504,22 +504,246 @@ function HoldingsTab({ onViewDetail, density }: any) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[var(--muted)] border-b border-[var(--border)] sticky top-0">
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Asset</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Type</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Source</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Identifier</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Custodian</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Wrapper</th>
-                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Units</th>
-                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Cost</th>
-                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Price</th>
-                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>Value</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Return</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Bucket</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Tax/Relief</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Evidence</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Complete</th>
-                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>Actions</th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Asset
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">The name of the investment or asset, such as a fund, property, or cash account.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Type
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">The asset class or instrument type (e.g., ETF, Bond ETF, Property, Crypto, Cash).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Source
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">How this data was added: ⚡ Live (real-time API), ⤿ CSV import, 📎 From document/OCR, or ✍ Manual entry.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Identifier
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Unique identifier such as ISIN (listed securities), property title number, or wallet address (crypto).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Custodian
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">The institution or platform holding the asset (e.g., Vanguard, AJ Bell, HSBC, or Personal for direct holdings).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Wrapper
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Tax wrapper or account type: ISA (tax-free), SIPP (pension), GIA (general investment account), or Personal (direct ownership).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center justify-end gap-1">
+                    Units
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Number of shares, units, or quantity held. For property or cash, typically shown as 1.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center justify-end gap-1">
+                    Cost
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Your original purchase price or cost basis. Used to calculate capital gains and track performance.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center justify-end gap-1">
+                    Price
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Current market price per unit or latest valuation for properties and unlisted assets.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-right text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center justify-end gap-1">
+                    Value
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Total current market value (Price × Units). This is the amount you would receive if liquidated today.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Return
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Performance measure: IRR (internal rate of return), TWR (time-weighted return), APR (annual percentage rate), or yield %.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Bucket
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Strategic allocation category used for portfolio rebalancing and Targets & Bands (e.g., Equity, Bonds, Cash, Property, Alternatives).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Tax/Relief
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Tax treatment or relief status: EIS/SEIS/VCT (tax-advantaged schemes), SIPP relief (pension tax relief), CGT (capital gains tax), or fund treatment (accumulating/distributing).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Evidence
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Supporting documentation status: "On file" (statement uploaded), "Valuation due" (needs update), or verification method (e.g., on-chain for crypto).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Complete
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Data completeness score (0-100%). Higher scores indicate all required fields are filled and documentation is on file. Aim for 90%+ for audit-ready records.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
+                <th className={`${rowPadding} text-left text-xs text-[var(--muted-foreground)] font-medium`}>
+                  <div className="flex items-center gap-1">
+                    Actions
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                          <Info className="h-3 w-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">Click "View" to see detailed information, edit fields, upload documents, or manage transactions for this holding.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </th>
               </tr>
             </thead>
         <tbody>
