@@ -83,7 +83,7 @@ export default function Header() {
               data-testid="button-demo"
             >
               <Play className="h-4 w-4 mr-2" />
-              Live Demo
+              Start Onboarding
             </Link>
 
             <button 
@@ -206,7 +206,7 @@ export default function Header() {
               data-testid="button-demo-mobile"
             >
               <Play className="h-5 w-5 mr-2" />
-              Live Demo
+              Start Onboarding
             </Link>
             
             {navigation.map((item) => (
