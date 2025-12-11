@@ -78,7 +78,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {/* Demo Button */}
             <Link 
-              href="/investor-preferences-v2"
+              href="/onboarding-v2/welcome"
               className="hidden sm:inline-flex items-center px-4 py-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white rounded-2xl font-semibold hover:opacity-90 transition-opacity shadow-sm"
               data-testid="button-demo"
             >
@@ -200,7 +200,7 @@ export default function Header() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {/* Mobile Demo Button */}
             <Link 
-              href="/investor-preferences-v2"
+              href="/onboarding-v2/welcome"
               className="flex items-center px-3 py-2 text-base font-medium rounded-2xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white mb-2"
               onClick={() => setIsMobileMenuOpen(false)}
               data-testid="button-demo-mobile"
