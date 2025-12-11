@@ -186,6 +186,7 @@ export default function Holdings() {
       title="Your Current Holdings"
       description="Enter your investment holdings. We'll use this to analyse your portfolio and provide personalised recommendations."
       hideNav
+      wideLayout
     >
       <div className="space-y-6">
         <div className="grid lg:grid-cols-4 gap-4 mb-6">
@@ -281,12 +282,12 @@ export default function Holdings() {
               {holdings.map((holding, index) => (
                 <>
                   <tr key={holding.id} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/20">
-                    <td className="py-2 px-2">
+                    <td className="py-2 px-2 min-w-[200px]">
                       <Input
                         value={holding.instrument_name}
                         onChange={(e) => handleUpdateHolding(holding.id, 'instrument_name', e.target.value)}
                         placeholder="e.g. Vanguard FTSE 100"
-                        className={`h-9 ${errors[holding.id]?.instrument_name ? 'border-[var(--destructive)]' : ''}`}
+                        className={`h-9 min-w-[180px] ${errors[holding.id]?.instrument_name ? 'border-[var(--destructive)]' : ''}`}
                         data-testid={`input-holding-name-${index}`}
                       />
                       {errors[holding.id]?.instrument_name && (

@@ -13,6 +13,7 @@ interface OnboardingLayoutProps {
   nextPath?: string;
   prevPath?: string;
   hideNav?: boolean;
+  wideLayout?: boolean;
 }
 
 export default function OnboardingLayout({
@@ -23,6 +24,7 @@ export default function OnboardingLayout({
   nextPath,
   prevPath,
   hideNav = false,
+  wideLayout = false,
 }: OnboardingLayoutProps) {
   const [, navigate] = useLocation();
   
@@ -38,7 +40,7 @@ export default function OnboardingLayout({
       <Header />
       <StepIndicator currentStepId={stepId} />
       
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+      <main className={`flex-1 mx-auto w-full px-4 py-8 ${wideLayout ? 'max-w-6xl' : 'max-w-4xl'}`}>
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8">
           <div className="text-center mb-8">
             <h1 
