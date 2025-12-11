@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { User, Settings, Mail, MessageCircle, TrendingUp, Eye, HelpCircle, Users, Crown, Star, Award, Edit3, Bell, PinIcon as Pin, Zap, PieChart, Home, Briefcase } from 'lucide-react';
+import { Link } from 'wouter';
+import { User, Settings, Mail, MessageCircle, TrendingUp, Eye, HelpCircle, Users, Crown, Star, Award, Edit3, Bell, PinIcon as Pin, Zap, PieChart, Home, Briefcase, Rocket } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
 interface Profile {
@@ -321,6 +322,27 @@ export default function WelcomePanel({ profile, selectedInvestorId, onChangePref
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Try Onboarding Demo */}
+      <div className="p-6 rounded-xl mb-6" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)' }}>
+        <div className="flex items-center gap-3 mb-2">
+          <Rocket className="h-5 w-5 text-white" />
+          <h3 className="text-lg font-semibold text-white">
+            Try Investor Onboarding
+          </h3>
+        </div>
+        <p className="text-sm mb-4 text-white/80">
+          Experience our new streamlined onboarding flow designed for investors.
+        </p>
+        <Link href="/onboarding-v2/welcome">
+          <button 
+            className="w-full py-3 px-4 rounded-xl font-medium hover:opacity-90 transition-opacity bg-white text-[var(--primary)]"
+            data-testid="button-start-onboarding-v2"
+          >
+            Start Onboarding Demo
+          </button>
+        </Link>
       </div>
 
       {/* Upgrade to PRO */}

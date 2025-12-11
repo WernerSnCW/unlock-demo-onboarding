@@ -36,6 +36,17 @@ import EndingSplashScreen from "@/pages/EndingSplashScreen";
 import AssetRegister from "@/pages/AssetRegister";
 import TargetsAndBands from "@/pages/TargetsAndBands";
 
+import OnboardingV2Welcome from "@/pages/onboarding-v2/Welcome";
+import OnboardingV2Method from "@/pages/onboarding-v2/Method";
+import OnboardingV2Intake from "@/pages/onboarding-v2/Intake";
+import OnboardingV2Holdings from "@/pages/onboarding-v2/Holdings";
+import OnboardingV2Beliefs from "@/pages/onboarding-v2/Beliefs";
+import OnboardingV2Analysis from "@/pages/onboarding-v2/Analysis";
+import OnboardingV2Target from "@/pages/onboarding-v2/Target";
+import OnboardingV2PlanTransition from "@/pages/onboarding-v2/PlanTransition";
+import OnboardingV2PlanWrappers from "@/pages/onboarding-v2/PlanWrappers";
+import OnboardingV2Report from "@/pages/onboarding-v2/Report";
+
 
 function Router() {
   return (
@@ -70,6 +81,19 @@ function Router() {
       <Route path="/investor-preferences-v2" component={InvestorPreferencesWizard} />
       <Route path="/splash" component={SplashScreen} />
       <Route path="/ending" component={EndingSplashScreen} />
+      
+      {/* Onboarding v2 Routes */}
+      <Route path="/onboarding-v2/welcome" component={OnboardingV2Welcome} />
+      <Route path="/onboarding-v2/method" component={OnboardingV2Method} />
+      <Route path="/onboarding-v2/intake" component={OnboardingV2Intake} />
+      <Route path="/onboarding-v2/holdings" component={OnboardingV2Holdings} />
+      <Route path="/onboarding-v2/beliefs" component={OnboardingV2Beliefs} />
+      <Route path="/onboarding-v2/analysis" component={OnboardingV2Analysis} />
+      <Route path="/onboarding-v2/target" component={OnboardingV2Target} />
+      <Route path="/onboarding-v2/plan/transition" component={OnboardingV2PlanTransition} />
+      <Route path="/onboarding-v2/plan/wrappers" component={OnboardingV2PlanWrappers} />
+      <Route path="/onboarding-v2/report" component={OnboardingV2Report} />
+      
       <Route component={NotFound} />
     </Switch>
   );
