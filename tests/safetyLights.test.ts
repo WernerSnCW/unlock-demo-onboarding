@@ -429,3 +429,91 @@ describe('Safety Lights', () => {
     });
   });
 });
+
+describe('Overall Status Code and Labels', () => {
+  it('should return ALL_CLEAR when all lights are GREEN', () => {
+    const intake: Intake = {
+      cash: 50000,
+      spend: 60000,
+      largest_line_pct: 0.10,
+      illiquid_pct: 0.03,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.liquidity).toBe('GREEN');
+    expect(result.concentration).toBe('GREEN');
+    expect(result.illiquids).toBe('GREEN');
+    expect(result.overall_status_code).toBe('ALL_CLEAR');
+    expect(result.overall_status_label).toBe('Within guardrails');
+    expect(result.overall_status_message).toContain('All Safety Lights are green');
+    expect(result.tilts_allowed).toBe(true);
+  });
+
+  it('should return CAUTION when one light is AMBER (none RED)', () => {
+    const intake: Intake = {
+      cash: 35000,
+      spend: 60000,
+      largest_line_pct: 0.10,
+      illiquid_pct: 0.03,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.liquidity).toBe('AMBER');
+    expect(result.overall_status_code).toBe('CAUTION');
+    expect(result.overall_status_label).toBe('Caution: amber flags present');
+    expect(result.overall_status_message).toContain('One or more Safety Lights are amber');
+    expect(result.tilts_allowed).toBe(true);
+  });
+
+  it('should return ACTION_REQUIRED when any light is RED', () => {
+    const intake: Intake = {
+      cash: 10000,
+      spend: 60000,
+      largest_line_pct: 0.10,
+      illiquid_pct: 0.03,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.liquidity).toBe('RED');
+    expect(result.overall_status_code).toBe('ACTION_REQUIRED');
+    expect(result.overall_status_label).toBe('Action required: red flags present');
+    expect(result.overall_status_message).toContain('One or more Safety Lights are red');
+    expect(result.tilts_allowed).toBe(false);
+  });
+
+  it('should include correct metrics in the response', () => {
+    const intake: Intake = {
+      cash: 90000,
+      spend: 60000,
+      largest_line_pct: 0.139,
+      illiquid_pct: 0.048,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.metrics).toBeDefined();
+    expect(result.metrics.cash_runway_months).toBe(18);
+    expect(result.metrics.largest_line_pct).toBe(0.139);
+    expect(result.metrics.illiquid_pct).toBe(0.048);
+  });
+
+  it('should return ACTION_REQUIRED when RED concentration even if other lights are GREEN', () => {
+    const intake: Intake = {
+      cash: 90000,
+      spend: 60000,
+      largest_line_pct: 0.25,
+      illiquid_pct: 0.03,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.liquidity).toBe('GREEN');
+    expect(result.concentration).toBe('RED');
+    expect(result.illiquids).toBe('GREEN');
+    expect(result.overall_status_code).toBe('ACTION_REQUIRED');
+    expect(result.tilts_allowed).toBe(false);
+  });
+});

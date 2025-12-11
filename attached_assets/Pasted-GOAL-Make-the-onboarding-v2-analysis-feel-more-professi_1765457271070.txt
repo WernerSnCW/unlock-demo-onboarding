@@ -1,0 +1,175 @@
+GOAL
+Make the onboarding v2 analysis feel more professional and complete by:
+
+Replacing the casual Portfolio Status: Looking good label with a proper guardrails-based status.
+
+Surfacing that status consistently on both the Holdings summary and the Analysis page.
+
+Adding a concise “Key metrics” section on the Analysis page so it doesn’t feel sparse.
+
+Do not change the underlying Safety Lights maths. We only want to:
+
+Derive an overall status from the existing lights.
+
+Expose the metrics we already compute in a more structured way.
+
+STEP 1 – Add an overall status to the analysis service
+
+Open the analysis service used by the onboarding v2 analysis endpoint (the module that returns liquidity, concentration, illiquids, tilts_allowed, and thresholds).
+
+After computing the three Safety Lights, derive an overall status code as follows:
+
+If any of liquidity, concentration or illiquids is "RED":
+
+overall_status_code = "ACTION_REQUIRED".
+
+Else if any of them is "AMBER" (and none are "RED"):
+
+overall_status_code = "CAUTION".
+
+Else (all "GREEN"):
+
+overall_status_code = "ALL_CLEAR".
+
+For each code, define a professional label and message:
+
+"ALL_CLEAR":
+
+overall_status_label = "Within guardrails"
+
+overall_status_message = "All Safety Lights are green. Your portfolio is currently within Unlock’s guardrails for liquidity, concentration and illiquid exposure."
+
+"CAUTION":
+
+overall_status_label = "Caution: amber flags present"
+
+overall_status_message = "One or more Safety Lights are amber. We recommend addressing these areas before significantly increasing risk."
+
+"ACTION_REQUIRED":
+
+overall_status_label = "Action required: red flags present"
+
+overall_status_message = "One or more Safety Lights are red. We will not recommend risk-increasing moves until these issues are addressed."
+
+Add these new fields to the Safety Lights result object returned by the analysis service:
+
+overall_status_code
+
+overall_status_label
+
+overall_status_message
+
+Also, expose the key numeric metrics already used in the classification so the UI can show them without re-implementing the maths:
+
+metrics.cash_runway_months
+
+metrics.largest_line_pct
+
+metrics.illiquid_pct
+
+STEP 2 – Ensure the analysis API returns the new status and metrics
+
+Open the onboarding v2 analysis API endpoint (POST /api/onboarding-v2/analyse).
+
+Make sure the JSON response now includes:
+
+overall_status_code, overall_status_label, overall_status_message
+
+metrics.cash_runway_months, metrics.largest_line_pct, metrics.illiquid_pct
+along with the existing lights and thresholds.
+
+Do not remove or rename existing fields; just extend the response.
+
+STEP 3 – Update the Holdings “Portfolio Status” card
+
+On the /onboarding-v2/holdings page, locate the “Portfolio Status” summary card that currently shows text like “Looking good”.
+
+Replace that implementation so that:
+
+The card title is something like “Safety Lights Status” or “Portfolio status” (keep whichever fits the design best).
+
+The main value text comes from either:
+
+The latest overall_status_label from the analysis result in onboarding v2 state, if analysis has already been run, or
+
+A sensible default like “Not yet analysed” if analysis hasn’t been called.
+
+Add a short subtext under the label, for example:
+
+If overall_status_code === "ALL_CLEAR":
+
+“All Safety Lights are green and within current policy limits.”
+
+If "CAUTION":
+
+“Some amber flags are present. Review the Analysis step for details.”
+
+If "ACTION_REQUIRED":
+
+“Red flags detected. Review liquidity, concentration or illiquids on the Analysis step.”
+
+Ensure that changing holdings and re-running the analysis updates this card appropriately.
+
+STEP 4 – Enrich the Analysis page with status + key metrics
+
+On the /onboarding-v2/analysis page, read the new fields from the onboarding v2 analysis state:
+
+overall_status_label
+
+overall_status_message
+
+metrics.cash_runway_months
+
+metrics.largest_line_pct
+
+metrics.illiquid_pct
+
+At the top of the Analysis content (just under the page title and intro), add a status banner that:
+
+Shows overall_status_label as a bold heading (e.g. Within guardrails).
+
+Shows overall_status_message as one or two sentences of body text.
+
+Uses an icon/colour consistent with the underlying status:
+
+Green for ALL_CLEAR
+
+Amber for CAUTION
+
+Red for ACTION_REQUIRED
+
+Beneath the three Safety Lights cards, add a “Key metrics” row or panel that displays:
+
+Cash runway: {cash_runway_months} months plus the min/ideal months from liquidity.thresholds.
+
+Largest holding: {metrics.largest_line_pct}% plus the amber/red thresholds from concentration.thresholds.
+
+Illiquid allocation: {metrics.illiquid_pct}% plus the amber/red thresholds from illiquids.thresholds.
+
+Keep the layout clean and inline with the existing design system (e.g. three small metric items in a row, or a simple descriptive paragraph with the numbers).
+
+Leave the Belief Tilts section as it is, but update the copy if useful so it references the overall status, for example:
+
+If tilts_allowed === true:
+
+“No red flags detected. You can customise your portfolio with belief-based tilts and optimisation within our guardrails.”
+
+If tilts_allowed === false:
+
+“Because one or more Safety Lights are red, we will not recommend belief-based tilts that increase overall risk.”
+
+STEP 5 – Tests and manual checks
+
+Add or update tests to verify:
+
+For a scenario with all lights GREEN, the service returns overall_status_code = "ALL_CLEAR" and the expected label/message.
+
+For at least one scenario with RED, it returns "ACTION_REQUIRED" and tilts_allowed === false.
+
+Run the full test suite and ensure everything passes.
+
+Manually test in the browser with:
+
+Scenario 1 (all green): confirm the status label “Within guardrails” appears on both Holdings and Analysis, and the metrics show 18 months, 13.9%, 4.8% with the correct thresholds.
+
+A scenario with red liquidity or concentration: confirm the label flips to “Action required: red flags present” and the Belief Tilts section explains that tilts are locked.

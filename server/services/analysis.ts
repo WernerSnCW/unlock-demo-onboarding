@@ -1,10 +1,17 @@
 import { Policy, getPolicy, applyPolicyOverrides } from './policy';
 
 export type SafetyStatus = 'GREEN' | 'AMBER' | 'RED';
+export type OverallStatusCode = 'ALL_CLEAR' | 'CAUTION' | 'ACTION_REQUIRED';
 
 export interface Intake {
   cash: number;
   spend: number;
+  largest_line_pct: number;
+  illiquid_pct: number;
+}
+
+export interface SafetyLightsMetrics {
+  cash_runway_months: number;
   largest_line_pct: number;
   illiquid_pct: number;
 }
@@ -14,7 +21,11 @@ export interface SafetyLightsResult {
   concentration: SafetyStatus;
   illiquids: SafetyStatus;
   overall_status: SafetyStatus;
+  overall_status_code: OverallStatusCode;
+  overall_status_label: string;
+  overall_status_message: string;
   tilts_allowed: boolean;
+  metrics: SafetyLightsMetrics;
   details: {
     cash_runway_months: number;
     liquidity_thresholds: {
@@ -107,14 +118,43 @@ export function computeSafetyLights(intake: Intake, policy?: Policy): SafetyLigh
   // "Any Red ⇒ tilts disabled" rule
   const tilts_allowed = overall_status !== 'RED';
 
+  // Derive overall status code, label, and message
+  let overall_status_code: OverallStatusCode;
+  let overall_status_label: string;
+  let overall_status_message: string;
+
+  if (overall_status === 'RED') {
+    overall_status_code = 'ACTION_REQUIRED';
+    overall_status_label = 'Action required: red flags present';
+    overall_status_message = 'One or more Safety Lights are red. We will not recommend risk-increasing moves until these issues are addressed.';
+  } else if (overall_status === 'AMBER') {
+    overall_status_code = 'CAUTION';
+    overall_status_label = 'Caution: amber flags present';
+    overall_status_message = 'One or more Safety Lights are amber. We recommend addressing these areas before significantly increasing risk.';
+  } else {
+    overall_status_code = 'ALL_CLEAR';
+    overall_status_label = 'Within guardrails';
+    overall_status_message = "All Safety Lights are green. Your portfolio is currently within Unlock's guardrails for liquidity, concentration and illiquid exposure.";
+  }
+
+  const cashRunwayRounded = cashRunwayMonths === Number.MAX_SAFE_INTEGER ? -1 : Math.round(cashRunwayMonths * 10) / 10;
+
   return {
     liquidity,
     concentration,
     illiquids,
     overall_status,
+    overall_status_code,
+    overall_status_label,
+    overall_status_message,
     tilts_allowed,
+    metrics: {
+      cash_runway_months: cashRunwayRounded,
+      largest_line_pct: intake.largest_line_pct,
+      illiquid_pct: intake.illiquid_pct,
+    },
     details: {
-      cash_runway_months: cashRunwayMonths === Number.MAX_SAFE_INTEGER ? -1 : Math.round(cashRunwayMonths * 10) / 10,
+      cash_runway_months: cashRunwayRounded,
       liquidity_thresholds: {
         red_below: minCashMonths,
         amber_below: amberThreshold,

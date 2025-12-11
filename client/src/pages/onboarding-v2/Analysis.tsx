@@ -189,7 +189,10 @@ export default function Analysis() {
   }
 
   const { safety_lights, persona } = result;
-  const { liquidity, concentration, illiquids, tilts_allowed, details } = safety_lights;
+  const { liquidity, concentration, illiquids, tilts_allowed, details, overall_status, overall_status_code, overall_status_label, overall_status_message, metrics } = safety_lights;
+
+  const overallStatusConfig = statusConfig[overall_status];
+  const OverallStatusIcon = overallStatusConfig.icon;
 
   const lights = [
     {
@@ -226,6 +229,23 @@ export default function Analysis() {
       hideNav
     >
       <div className="space-y-6">
+        <div
+          className={`p-5 rounded-lg border ${overallStatusConfig.bgColor} ${overallStatusConfig.borderColor}`}
+          data-testid="overall-status-banner"
+        >
+          <div className="flex items-start gap-3">
+            <OverallStatusIcon className={`w-7 h-7 ${overallStatusConfig.color} flex-shrink-0`} />
+            <div>
+              <h3 className={`text-lg font-bold ${overallStatusConfig.color} mb-1`} data-testid="overall-status-label">
+                {overall_status_label}
+              </h3>
+              <p className="text-sm text-[var(--foreground)]" data-testid="overall-status-message">
+                {overall_status_message}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex items-center justify-center gap-2 mb-4">
           <Shield className="w-6 h-6 text-[var(--primary)]" />
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Safety Lights</h3>
@@ -255,6 +275,39 @@ export default function Analysis() {
               </div>
             );
           })}
+        </div>
+
+        <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--muted)]/10" data-testid="key-metrics-section">
+          <h4 className="text-sm font-semibold text-[var(--foreground)] mb-3">Key Metrics</h4>
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="text-[var(--muted-foreground)]">Cash runway: </span>
+              <span className="font-medium text-[var(--foreground)]">
+                {metrics.cash_runway_months === -1 ? '∞' : metrics.cash_runway_months.toFixed(1)} months
+              </span>
+              <span className="text-xs text-[var(--muted-foreground)] ml-1">
+                (min: {details.liquidity_thresholds.red_below}, ideal: {details.liquidity_thresholds.amber_below}+)
+              </span>
+            </div>
+            <div>
+              <span className="text-[var(--muted-foreground)]">Largest holding: </span>
+              <span className="font-medium text-[var(--foreground)]">
+                {(metrics.largest_line_pct * 100).toFixed(1)}%
+              </span>
+              <span className="text-xs text-[var(--muted-foreground)] ml-1">
+                (amber: &gt;{(details.concentration_thresholds.amber_above * 100).toFixed(0)}%, red: &gt;{(details.concentration_thresholds.red_above * 100).toFixed(0)}%)
+              </span>
+            </div>
+            <div>
+              <span className="text-[var(--muted-foreground)]">Illiquid allocation: </span>
+              <span className="font-medium text-[var(--foreground)]">
+                {(metrics.illiquid_pct * 100).toFixed(1)}%
+              </span>
+              <span className="text-xs text-[var(--muted-foreground)] ml-1">
+                (amber: &gt;{(details.illiquids_thresholds.amber_above * 100).toFixed(0)}%, red: &gt;{(details.illiquids_thresholds.red_above * 100).toFixed(0)}%)
+              </span>
+            </div>
+          </div>
         </div>
 
         <div

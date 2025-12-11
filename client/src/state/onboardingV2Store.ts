@@ -50,13 +50,24 @@ export interface PortfolioSummary {
 }
 
 export type SafetyStatus = 'GREEN' | 'AMBER' | 'RED';
+export type OverallStatusCode = 'ALL_CLEAR' | 'CAUTION' | 'ACTION_REQUIRED';
+
+export interface SafetyLightsMetrics {
+  cash_runway_months: number;
+  largest_line_pct: number;
+  illiquid_pct: number;
+}
 
 export interface SafetyLightsResult {
   liquidity: SafetyStatus;
   concentration: SafetyStatus;
   illiquids: SafetyStatus;
   overall_status: SafetyStatus;
+  overall_status_code: OverallStatusCode;
+  overall_status_label: string;
+  overall_status_message: string;
   tilts_allowed: boolean;
+  metrics: SafetyLightsMetrics;
   details: {
     cash_runway_months: number;
     liquidity_thresholds: {

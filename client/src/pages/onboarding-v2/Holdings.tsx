@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { Plus, Trash2, AlertCircle, PieChart, TrendingUp, Lock, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, PieChart, TrendingUp, Lock, ChevronDown, ChevronUp, Info, Shield, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { useOnboardingV2Store, Holding } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -72,7 +72,7 @@ interface HoldingErrors {
 }
 
 export default function Holdings() {
-  const { holdings, summary, addHolding, updateHolding, removeHolding, recalculateSummary, resetAnalysis } = useOnboardingV2Store();
+  const { holdings, summary, analysis, addHolding, updateHolding, removeHolding, recalculateSummary, resetAnalysis } = useOnboardingV2Store();
   const [, navigate] = useLocation();
   const [errors, setErrors] = useState<HoldingErrors>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
@@ -96,6 +96,8 @@ export default function Holdings() {
 
   const handleUpdateHolding = (id: string, field: keyof Holding, value: string | number | boolean | null) => {
     updateHolding(id, { [field]: value } as Partial<Holding>);
+    // Reset analysis when holdings change so status card shows "Not yet analysed"
+    resetAnalysis();
     if (errors[id]?.[field as keyof HoldingErrors[string]]) {
       setErrors((prev) => ({
         ...prev,
@@ -103,6 +105,16 @@ export default function Holdings() {
       }));
     }
     setGlobalError(null);
+  };
+
+  const handleAddHolding = () => {
+    addHolding();
+    resetAnalysis();
+  };
+
+  const handleRemoveHolding = (id: string) => {
+    removeHolding(id);
+    resetAnalysis();
   };
 
   const validateHoldings = (): boolean => {
@@ -229,14 +241,44 @@ export default function Holdings() {
             </div>
           </div>
 
-          <div className="p-4 border border-[var(--primary)]/30 rounded-lg bg-[var(--primary)]/5">
-            <div className="text-sm text-[var(--muted-foreground)] mb-1">Portfolio Status</div>
-            <div className="text-lg font-semibold text-[var(--foreground)]">
+          <div className={`p-4 border rounded-lg ${
+            analysis.status === 'ready' && analysis.result
+              ? analysis.result.safety_lights.overall_status === 'GREEN'
+                ? 'border-[var(--success)]/30 bg-[var(--success)]/5'
+                : analysis.result.safety_lights.overall_status === 'AMBER'
+                ? 'border-[var(--warning)]/30 bg-[var(--warning)]/5'
+                : 'border-[var(--destructive)]/30 bg-[var(--destructive)]/5'
+              : 'border-[var(--primary)]/30 bg-[var(--primary)]/5'
+          }`}>
+            <div className="flex items-center gap-2 mb-1">
+              <Shield className="w-4 h-4 text-[var(--muted-foreground)]" />
+              <span className="text-sm text-[var(--muted-foreground)]">Safety Lights Status</span>
+            </div>
+            <div className={`text-lg font-semibold ${
+              analysis.status === 'ready' && analysis.result
+                ? analysis.result.safety_lights.overall_status === 'GREEN'
+                  ? 'text-[var(--success)]'
+                  : analysis.result.safety_lights.overall_status === 'AMBER'
+                  ? 'text-[var(--warning)]'
+                  : 'text-[var(--destructive)]'
+                : 'text-[var(--foreground)]'
+            }`} data-testid="summary-safety-status">
               {summary.holding_count === 0
                 ? 'Add holdings'
-                : summary.largest_line_pct > 20 || summary.illiquid_pct > 10
-                ? 'Review needed'
-                : 'Looking good'}
+                : analysis.status === 'ready' && analysis.result
+                ? analysis.result.safety_lights.overall_status_label
+                : 'Not yet analysed'}
+            </div>
+            <div className="text-xs text-[var(--muted-foreground)]">
+              {summary.holding_count === 0
+                ? 'Enter your holdings to continue'
+                : analysis.status === 'ready' && analysis.result
+                ? analysis.result.safety_lights.overall_status_code === 'ALL_CLEAR'
+                  ? 'All Safety Lights are green and within current policy limits.'
+                  : analysis.result.safety_lights.overall_status_code === 'CAUTION'
+                  ? 'Some amber flags are present. Review the Analysis step for details.'
+                  : 'Red flags detected. Review liquidity, concentration or illiquids on the Analysis step.'
+                : 'Continue to Analysis to check your portfolio'}
             </div>
           </div>
         </div>
@@ -393,7 +435,7 @@ export default function Holdings() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeHolding(holding.id)}
+                          onClick={() => handleRemoveHolding(holding.id)}
                           className="h-8 w-8 p-0 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
                           data-testid={`button-remove-holding-${index}`}
                         >
@@ -521,7 +563,7 @@ export default function Holdings() {
 
         <Button
           variant="outline"
-          onClick={addHolding}
+          onClick={handleAddHolding}
           className="gap-2 text-[var(--primary)] border-[var(--primary)] hover:bg-[var(--primary)]/10"
           data-testid="button-add-holding"
         >
