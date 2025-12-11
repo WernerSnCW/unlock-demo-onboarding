@@ -1,0 +1,311 @@
+PROJECT CONTEXT
+You have a new /onboarding-v2 wizard with steps:
+Welcome → Method → Intake → Holdings → Beliefs → Analysis → Target → Transition → Wrappers → Report.
+
+A policy loader, Safety Lights maths, and an analysis API endpoint (for example POST /api/onboarding-v2/analyse) should either already exist from previous work, or you will create/adjust them as needed in this task.
+
+In this step we want to:
+
+Make Intake and Holdings fully functional, investor-grade screens.
+
+Store all data in a shared Onboarding v2 state.
+
+Use Intake + Holdings to call the analysis endpoint and show real Safety Lights on the Analysis screen.
+
+For now, only Manual Entry is a working intake method; other methods are “Coming soon”.
+
+Please keep everything consistent with the existing styling and component patterns in the app (buttons, form controls, typography, layout).
+
+STEP 1 – Inspect the analysis endpoint and Safety Lights types
+
+Locate the backend endpoint for onboarding analysis (for example POST /api/onboarding-v2/analyse or similar). If it doesn’t exist yet, create it following the earlier pattern:
+
+It should accept an intake/summary payload.
+
+It should call the Safety Lights service using the policy loader.
+
+It should return a JSON object containing Safety Lights (liquidity, concentration, illiquids, etc.), an overall status (if defined), and tilts_allowed.
+
+Identify:
+
+The input fields the endpoint expects (for example cash, spend, largest_line_pct, illiquid_pct, etc.).
+
+The shape of the response (field names for the lights and flags).
+
+Do not change the maths in the analysis service here. Only adjust the endpoint signature if necessary so it cleanly accepts a payload from the frontend and returns a clear result object.
+
+STEP 2 – Create shared Onboarding v2 state
+
+Create a shared state mechanism dedicated to the /onboarding-v2 flow, using whatever state pattern is already idiomatic in this project (React Context, a custom hook, Zustand, Redux, etc.). For example, you might create:
+
+onboarding-v2/OnboardingV2Provider and useOnboardingV2() hook, or
+
+A store module under state/ or hooks/.
+
+The onboarding v2 state should include at least:
+
+intake: object with all fields captured on the Intake page (personal + financial).
+
+holdings: array of holding rows (captured on the Holdings page).
+
+summary: derived values used by analysis, such as:
+
+cash (liquid cash / emergency fund)
+
+spend (annual or monthly, whichever you standardise on)
+
+largest_line_pct
+
+illiquid_pct
+
+total_investable_value
+
+analysis: object with:
+
+status: "idle" | "loading" | "ready" | "error"
+
+result: the Safety Lights result returned by the backend (or null).
+
+error: optional error message for internal/debug display.
+
+Provide update functions such as:
+
+updateIntake(partialIntake)
+
+setHoldings(holdingsArray)
+
+updateHolding(index, partialHolding)
+
+removeHolding(index)
+
+setAnalysisLoading(), setAnalysisResult(result), setAnalysisError(message)
+
+Wrap all /onboarding-v2/* pages inside this provider so that navigating between steps preserves state (Intake and Holdings values should not disappear when the user navigates back and forth).
+
+STEP 3 – Upgrade the Method step to favour manual entry
+
+On the Method step (/onboarding-v2/method):
+
+Ensure the Manual Entry option is the only fully functional method for now.
+
+When the user clicks Manual Entry or presses Next, store intake_method: "manual" in the onboarding v2 state.
+
+Other options (Upload File, Connect Account, Advisor Import) should:
+
+Display a small “Coming soon” label or badge.
+
+Either be disabled or show a non-blocking message explaining that for this demo, manual entry is used.
+
+The text at the bottom (“For this demo, click Next to continue with sample data” or similar) should be updated to clearly state that Manual Entry is the path we use in demos.
+
+STEP 4 – Implement a comprehensive Intake form
+
+On the Intake step (/onboarding-v2/intake), turn the page into a full, validated Intake form with three logical sections:
+
+A. Basic details
+
+Fields:
+
+full_name (required text)
+
+email (required email)
+
+investor_type (select, e.g. Individual / Joint / Company / Trust / Other)
+
+region or tax_residency (select, e.g. UK / EU / US / Other)
+
+B. Financial picture (for Safety Lights and later persona/risk logic)
+
+Fields (all numeric, with GBP labels and helper text):
+
+annual_income_gbp – approximate household annual income.
+
+annual_essential_spend_gbp – typical essential spending per year (used for runway).
+
+liquid_cash_gbp – current emergency fund / cash buffer.
+
+total_investable_assets_gbp – rough size of investable portfolio (can later be reconciled with holdings).
+
+regular_monthly_contribution_gbp – optional regular investing amount.
+
+C. Goals and risk profile (for persona and later constraints)
+
+Fields:
+
+primary_goal (select – e.g. Grow wealth / Preserve capital / Income focus / Specific goal).
+
+time_horizon_years (select or numeric – e.g. <3 / 3–7 / 7–15 / 15+).
+
+risk_comfort (scale or select – e.g. “Very low” to “Very high” or 1–5).
+
+Implement client-side validation:
+
+Required fields must be completed (name, email, investor type, region, annual essential spend, liquid cash).
+
+Numeric fields must be non-negative and within reasonable bounds (e.g. no absurdly large numbers without at least a generic error).
+
+Display inline, user-friendly error messages beneath each field and an overall message near the submit button if needed.
+
+When the user clicks Next on this page:
+
+Validate the form.
+
+If there are errors, do not navigate; show errors in place.
+
+If the form is valid:
+
+Call updateIntake() on the onboarding v2 state with all Intake form values.
+
+Navigate to /onboarding-v2/holdings.
+
+Ensure that when the user returns to the Intake step, the form is pre-populated from the onboarding v2 state so they don’t lose entries.
+
+STEP 5 – Implement a proper manual Holdings entry screen
+
+On the Holdings step (/onboarding-v2/holdings), implement a manual holdings grid suitable for a serious investor demo:
+
+Display an initial table with at least one editable row.
+
+Each row should have fields such as:
+
+instrument_name (required text)
+
+ticker (optional text)
+
+wrapper (select: ISA / SIPP / GIA / Cash Account / Offshore Bond / Other)
+
+asset_class (select: Equity / Bond / Cash / Property / Alternatives / Other)
+
+region (select: UK / US / Europe / Global / Emerging Markets / Other)
+
+value_gbp (required numeric, > 0)
+
+illiquid (checkbox; for property, private equity, collectibles, etc.)
+
+Provide an “Add holding” button to append a new row.
+
+Provide a delete/remove icon on each row (except perhaps the last one) so users can remove entries.
+
+As the user edits holdings:
+
+Continuously compute a summary:
+
+total_investable_value = sum of value_gbp across all rows.
+
+largest_line_pct = max row value / total_investable_value (if total > 0).
+
+illiquid_pct = sum of value_gbp for rows marked illiquid / total_investable_value.
+
+Show this summary clearly on the page (for example, in a sidebar or panel beneath the table) so the user sees their own concentration and illiquid exposure.
+
+Store both the raw holdings array and the derived summary fields in the onboarding v2 state.
+
+Validation on Next:
+
+Require at least one holding with a positive value_gbp.
+
+For each filled row, ensure required columns (instrument name, wrapper, asset class, value) are present and valid.
+
+If validation fails, show inline errors and an overall message.
+
+When the user clicks Next:
+
+Save the current holdings and summary into the onboarding v2 state via the provided state functions.
+
+Navigate to /onboarding-v2/analysis.
+
+STEP 6 – Wire the Analysis step to call the backend and display Safety Lights
+
+On the Analysis step (/onboarding-v2/analysis), implement logic that:
+
+Reads intake, holdings, and summary from the onboarding v2 state.
+
+If required pieces are missing or obviously incomplete (for example total_investable_value is 0 or undefined), redirect the user back to the relevant step (Intake or Holdings) with a small message.
+
+Build the payload expected by the analysis endpoint using the state:
+
+Map intake.liquid_cash_gbp to the cash field in the payload.
+
+Map intake.annual_essential_spend_gbp (or monthly equivalent) to spend in the payload, consistent with the backend’s expectation.
+
+Map summary.largest_line_pct to largest_line_pct.
+
+Map summary.illiquid_pct to illiquid_pct.
+
+Include any other fields the analysis endpoint expects.
+
+On first render (and whenever relevant state changes), if analysis.status is "idle" or the current state hasn’t been analysed yet:
+
+Set analysis.status to "loading" in the onboarding v2 state.
+
+Call the analysis endpoint (/api/onboarding-v2/analyse) with the payload.
+
+On success:
+
+Store the returned Safety Lights result in analysis.result.
+
+Set analysis.status to "ready".
+
+On failure:
+
+Set analysis.status to "error" and capture an internal error message.
+
+Render the Analysis page with:
+
+A loading state while the analysis call is in progress.
+
+On success:
+
+A Safety Lights section with three cards (Liquidity, Concentration, Illiquids), using colour and iconography consistent with the design system:
+
+Each card shows:
+
+The light (Green / Amber / Red).
+
+A short explanation derived from the result and thresholds (for example: “Runway below 6 months: we flag this as Red and avoid increasing risk until liquidity improves”).
+
+A summary banner that uses tilts_allowed to explain:
+
+If tilts_allowed === false: “One or more Safety Lights are Red. Unlock will not recommend moves that increase overall risk until these red flags are addressed.”
+
+If tilts_allowed === true: “No red flags detected. Belief-based tilts and optimisation are allowed within guardrails.”
+
+A “Continue” button to proceed to the Target step.
+
+Keep persona as a placeholder for now:
+
+If the analysis response already includes a persona field, display a small placeholder card or label like “Persona insights coming in the next iteration”.
+
+In a later task, we will implement proper persona scoring and a full persona card on this page.
+
+STEP 7 – Basic tests and sanity checks
+
+Add or extend frontend tests (for example using React Testing Library or the project’s chosen framework) to cover at least:
+
+The Intake form:
+
+Filling out key fields and clicking Next calls the intake state update function and navigates to the Holdings page.
+
+Required fields trigger visible validation messages if left empty.
+
+The Holdings form:
+
+Adding holdings updates total value, largest line percentage and illiquid percentage correctly for a simple case.
+
+Attempting to proceed with no holdings shows a validation error.
+
+The Analysis page:
+
+With a mocked analysis endpoint, the correct payload is sent (cash, spend, largest_line_pct, illiquid_pct).
+
+The three Safety Lights cards render with the expected labels based on a mocked response.
+
+Run the full test suite and ensure all tests, old and new, pass.
+
+Manually walk through the flow in the browser:
+
+Method → Intake → Holdings → Analysis.
+
+Enter realistic numbers and holdings.
+
+Confirm that Safety Lights look sensible and that changing holdings (e.g. making one line very large or marking most holdings as illiquid) changes the analysis as expected.
