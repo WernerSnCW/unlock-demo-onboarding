@@ -66,10 +66,12 @@ export default function Analysis() {
 
     try {
       const payload = {
-        cash: intake.liquid_cash_gbp,
-        spend: intake.annual_essential_spend_gbp,
-        largest_line_pct: summary.largest_line_pct,
-        illiquid_pct: summary.illiquid_pct,
+        intake: {
+          cash: intake.liquid_cash_gbp,
+          spend: intake.annual_essential_spend_gbp,
+          largest_line_pct: summary.largest_line_pct / 100,
+          illiquid_pct: summary.illiquid_pct / 100,
+        },
       };
 
       const response = await apiRequest('POST', '/api/onboarding-v2/analyse', payload);
