@@ -1,0 +1,79 @@
+# Policy Defaults Configuration
+# This file contains numeric policy parameters for the onboarding v2 analysis engine.
+# All values here are configurable - code should never hard-code these numbers.
+
+# =============================================================================
+# PROJECTION - Cash runway and concentration thresholds
+# =============================================================================
+projection:
+  # Minimum months of expenses that should be held in liquid cash/emergency fund
+  # Below this threshold = RED liquidity status
+  min_cash_months: 6
+  
+  # Multiplier applied to min_cash_months to determine AMBER threshold
+  # AMBER zone: min_cash_months <= runway < min_cash_months * cash_amber_multiple
+  # GREEN zone: runway >= min_cash_months * cash_amber_multiple (i.e. >= 9 months)
+  cash_amber_multiple: 1.5
+  
+  # Maximum percentage of portfolio in any single holding (0.20 = 20%)
+  # Above this = RED concentration status
+  max_single_name_pct: 0.20
+  
+  # Fraction of max_single_name_pct that defines AMBER threshold
+  # AMBER zone: concentration_amber_fraction * max_single_name_pct to max_single_name_pct
+  # (i.e. 15% to 20% is AMBER, above 20% is RED, below 15% is GREEN)
+  concentration_amber_fraction: 0.75
+
+# =============================================================================
+# COLLECTIBLES - Illiquid assets and collectibles limits
+# =============================================================================
+collectibles:
+  # Maximum percentage of portfolio in illiquid assets/collectibles (0.10 = 10%)
+  # Above this = RED illiquids status
+  max_weight_pct: 0.10
+  
+  # Fraction of max_weight_pct that defines AMBER threshold
+  # GREEN: 0% to 7%, AMBER: 7% to 10%, RED: above 10%
+  amber_fraction: 0.70
+
+# =============================================================================
+# FACTORS - Beliefs to tilts calculation parameters (for future implementation)
+# =============================================================================
+factors:
+  # Maximum z-score cap for belief strength normalization
+  z_cap: 2.0
+  
+  # Maximum fraction of current portfolio volatility that can be allocated to tilts
+  # E.g. 0.30 means tilts can add at most 30% of baseline portfolio risk
+  tilt_budget_risk: 0.30
+
+# =============================================================================
+# CGT - Capital Gains Tax pacing for transition planning
+# =============================================================================
+cgt:
+  # Current UK annual CGT allowance in GBP (as of 2024/25)
+  cgt_allowance_per_year_gbp: 3000
+  
+  # Maximum fraction of an oversized position to sell in any single year
+  # E.g. 0.25 means sell at most 25% of a position per year
+  max_annual_disposal_ratio: 0.25
+  
+  # Minimum number of years over which to spread a large position reduction
+  min_reduce_plan_years: 3
+
+# =============================================================================
+# WRAPPERS - Tax wrapper priorities and Bed & ISA parameters
+# =============================================================================
+wrappers:
+  # Order of preference for placing new investments
+  # ISA first (tax-free), then SIPP (pension), then GIA (taxable)
+  priority_order:
+    - ISA
+    - SIPP
+    - GIA
+  
+  # Bed & ISA strategy parameters
+  bed_and_isa:
+    # Only suggest Bed & ISA moves if unrealised gain exceeds this threshold (GBP)
+    # Helps avoid suggesting moves for trivial gains
+    min_gain_trigger_gbp: 1000

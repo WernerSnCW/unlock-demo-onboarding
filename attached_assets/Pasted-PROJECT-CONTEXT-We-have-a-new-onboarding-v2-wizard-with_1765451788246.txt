@@ -1,0 +1,340 @@
+PROJECT CONTEXT
+We have a new /onboarding-v2 wizard with steps like Welcome, Method, Intake, Holdings, Beliefs, Analysis, Target, Transition, Wrappers, Report.
+
+The next milestone is to implement the real analysis maths that:
+
+Loads numeric policy/guardrail parameters from a config file.
+
+Computes Safety Lights (liquidity, concentration, illiquids) from investor intake.
+
+Enforces “any Red ⇒ tilts disabled”.
+
+Exposes this via a backend API endpoint that the v2 wizard can call.
+
+Uses a small set of golden cases as tests.
+
+You should create the necessary config/test files inside the repo as part of this task, since they don’t exist yet.
+
+STEP 1 – Create a policy defaults file
+
+Create a policy config file in a sensible place, for example config/policy_defaults.yaml or config/14_POLICY_DEFAULTS.yaml. Use YAML format.
+
+Give it a clear structure with sections. At minimum include:
+
+projection (for cash runway and concentration)
+
+collectibles (for illiquids / collectibles limits)
+
+factors (for beliefs → tilts later)
+
+cgt (for CGT pacing later)
+
+wrappers (for wrapper priorities and Bed & ISA)
+
+Populate these sections with explicit numeric defaults (these are policy, not hard-coded in code). Use these values:
+
+Under projection:
+
+min_cash_months: 6
+
+cash_amber_multiple: 1.5
+
+(i.e. runway < 6 months = Red, 6–9 months = Amber, ≥ 9 months = Green).
+
+max_single_name_pct: 0.20 (20% cap for any single holding).
+
+concentration_amber_fraction: 0.75
+
+(i.e. up to 15% is Green, 15–20% is Amber, above 20% is Red).
+
+Under collectibles:
+
+max_weight_pct: 0.10 (10% cap for illiquids/collectibles).
+
+amber_fraction: 0.7
+
+(i.e. up to 7% Green, 7–10% Amber, above 10% Red).
+
+Under factors (for later use in beliefs → tilts maths):
+
+z_cap: 2.0
+
+tilt_budget_risk: 0.30 (for example, at most 30% of current portfolio volatility can be used for tilts).
+
+Under cgt (for later transition planning):
+
+cgt_allowance_per_year_gbp: 3000 (current UK CGT allowance, can be tuned later).
+
+max_annual_disposal_ratio: 0.25 (e.g. sell at most 25% of an oversized position per year).
+
+min_reduce_plan_years: 3 (minimum number of years over which to spread a large reduction).
+
+Under wrappers:
+
+priority_order: a list, in order of preference, like ["ISA", "SIPP", "GIA"].
+
+bed_and_isa with:
+
+min_gain_trigger_gbp: 1000 (only suggest Bed & ISA moves if unrealised gains exceed this).
+
+Add comments in the YAML file explaining each parameter in plain English so that future editors understand what they are tuning.
+
+STEP 2 – Policy loader module
+
+Create a policy loader module in the backend / services layer, for example services/policy.ts or src/services/policy.ts (choose a path consistent with the existing codebase).
+
+This module should:
+
+Load and parse the YAML policy file created in Step 1.
+
+Validate basic structure and types (e.g. ensure percentages are numbers between 0 and 1 where appropriate, months and allowances are positive numbers, etc.).
+
+Expose a function like getPolicy() that returns a typed, cached policy object with properties matching the sections above:
+
+policy.projection.min_cash_months
+
+policy.projection.cash_amber_multiple
+
+policy.projection.max_single_name_pct
+
+policy.projection.concentration_amber_fraction
+
+policy.collectibles.max_weight_pct
+
+policy.collectibles.amber_fraction
+
+policy.factors.z_cap
+
+policy.factors.tilt_budget_risk
+
+policy.cgt.cgt_allowance_per_year_gbp
+
+policy.cgt.max_annual_disposal_ratio
+
+policy.cgt.min_reduce_plan_years
+
+policy.wrappers.priority_order
+
+policy.wrappers.bed_and_isa.min_gain_trigger_gbp
+
+Ensure that other services do not hard-code these numeric values. They should always obtain them via getPolicy().
+
+STEP 3 – Golden cases file for tests
+
+Create a JSON file, for example tests/golden/13_GOLDEN_CASES.json (or similar), containing an array of golden test cases.
+
+Include at least the following three objects (you can choose the exact JSON structure, but it must capture the fields below clearly):
+
+Case 1: “Liquidity Red locks beliefs”
+
+name: "Liquidity Red locks beliefs"
+
+intake object with:
+
+cash: 10000
+
+spend: 60000 (annual spend)
+
+largest_line_pct: 0.10
+
+illiquid_pct: 0.05
+
+policy override object with:
+
+projection.min_cash_months: 6
+
+expect object with:
+
+liquidity: "RED"
+
+tilts_allowed: false
+
+Case 2: “Concentration breach no-worsen”
+
+name: "Concentration breach no-worsen"
+
+intake with:
+
+largest_line_pct: 0.50
+
+illiquid_pct: 0.05
+
+policy override:
+
+projection.max_single_name_pct: 0.20
+
+current_weights with a realistic weight breakdown (for example equity/bond/cash/property/commodities summing to 1).
+
+expect with at least:
+
+target_no_worsen: true (used later when target maths is implemented).
+
+Case 3: “Bed & ISA suggestion”
+
+name: "Bed & ISA suggestion"
+
+holdings: an array containing at least one GIA position with:
+
+wrapper: "GIA"
+
+instrument: "Bond Fund" (or similar)
+
+qty: 100
+
+price: 10
+
+cost_basis: 5 (so unrealised gain is 100 * (10-5) = 500)
+
+policy override:
+
+wrappers.bed_and_isa.min_gain_trigger_gbp: 1000
+
+context object:
+
+isa_headroom_gbp: 20000
+
+expect with:
+
+bed_isa_suggested: true (for later use when wrapper logic is implemented).
+
+The exact JSON layout is up to you, but design it so tests can easily read a case, apply any policy overrides on top of the base policy, and then assert expectations.
+
+STEP 4 – Safety Lights analysis service
+
+Create or extend an analysis service module, for example services/analysis.ts (or similar). This will implement the Safety Lights maths and later other onboarding algorithms.
+
+Implement a function (name it appropriately) that:
+
+Takes as input:
+
+An intake or summary object with at least:
+
+cash (liquid cash / emergency fund, in GBP)
+
+spend (annual spend in GBP, or monthly if you prefer, but be consistent)
+
+largest_line_pct (fraction 0–1)
+
+illiquid_pct (fraction 0–1)
+
+A policy object from getPolicy().
+
+Computes cash runway in months:
+
+If spend is annual, use cash_months = cash / (spend / 12).
+
+Handle spend <= 0 robustly (for example, treat runway as a very large number or clamp to a high maximum).
+
+Classifies liquidity:
+
+Red if cash_months < min_cash_months.
+
+Amber if min_cash_months ≤ cash_months < min_cash_months * cash_amber_multiple.
+
+Green otherwise.
+
+Classifies concentration using largest_line_pct:
+
+Use max_single_name_pct as the Red cap.
+
+Use concentration_amber_fraction * max_single_name_pct as the Amber threshold.
+
+Below Amber threshold = Green; between Amber and cap = Amber; above cap = Red.
+
+Classifies illiquids / collectibles using illiquid_pct:
+
+Red if illiquid_pct > max_weight_pct.
+
+Amber if between amber_fraction * max_weight_pct and max_weight_pct.
+
+Green below that.
+
+Combines these into a result object with at least:
+
+liquidity: "GREEN" | "AMBER" | "RED"
+
+concentration: "GREEN" | "AMBER" | "RED"
+
+illiquids: "GREEN" | "AMBER" | "RED"
+
+Optionally overall_status (for example, the worst of the three).
+
+tilts_allowed: boolean which is false if any of the three are Red, otherwise true.
+
+Ensure the maths is written cleanly and uses the policy loader for all thresholds, not hard-coded numbers.
+
+Add brief comments referencing the business rules:
+
+Cash runway rule.
+
+Concentration cap and Amber zone.
+
+Illiquids cap and Amber zone.
+
+“Any Red ⇒ tilts disabled”.
+
+STEP 5 – Backend API for onboarding-v2 analysis
+
+Add a backend API endpoint for onboarding v2 analysis, following the project’s existing backend conventions. For example:
+
+POST /api/onboarding-v2/analyse
+
+This endpoint should:
+
+Accept a JSON body representing intake data with at least the fields needed for Safety Lights.
+
+Call getPolicy() to fetch the current policy.
+
+Call the Safety Lights function from the analysis service.
+
+Return a JSON response containing:
+
+The Safety Lights object (liquidity, concentration, illiquids, overall_status, tilts_allowed).
+
+A placeholder persona field (e.g. persona: null or { id: null, name: null }) that we will populate later when persona scoring is implemented.
+
+Make sure the endpoint is clearly documented in comments as “Onboarding v2 analysis – MVP”.
+
+STEP 6 – Tests using the golden cases
+
+Under the test suite (e.g. tests/ or __tests__/), create tests that:
+
+Load the golden cases from 13_GOLDEN_CASES.json.
+
+For “Liquidity Red locks beliefs”:
+
+Apply the policy override to the base policy where necessary.
+
+Feed the intake into the Safety Lights function.
+
+Assert:
+
+liquidity is "RED".
+
+tilts_allowed is false.
+
+For “Concentration breach no-worsen”:
+
+Feed the intake into the Safety Lights function.
+
+Assert:
+
+concentration is "RED" when largest_line_pct is 0.50 and the cap is 0.20.
+
+tilts_allowed is false.
+
+Add a TODO/note that when target-portfolio maths is implemented, this case should also assert the “no-worsen” property.
+
+For “Bed & ISA suggestion”:
+
+Assert that the policy loader exposes wrappers.bed_and_isa.min_gain_trigger_gbp and wrappers.priority_order and that these values can be read successfully.
+
+Add a TODO/note that wrapper planning logic will later use this case.
+
+Run the tests and ensure:
+
+All existing tests still pass.
+
+New tests for Safety Lights and policy/golden cases pass.
+
+Keep the code clean, well-structured and clearly separated (policy loader, analysis service, API layer, tests) so that we can extend this later with beliefs, persona scoring, target construction, CGT planning and wrapper placement.

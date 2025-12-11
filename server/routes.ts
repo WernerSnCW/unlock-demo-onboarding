@@ -28,6 +28,8 @@ import { buildWhy, type WhyContext } from './lib/gap/why';
 import { SCENARIO_LABELS } from './config/scenarios';
 import { type SimV2Request } from './lib/simulate/engine_v2';
 import { buildActions, type ActionsRequest } from './lib/actions/engine';
+import { analyzeOnboarding, type Intake } from './services/analysis';
+import { getPolicy } from './services/policy';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -2539,6 +2541,70 @@ Return as JSON with this exact structure:
     } catch (error) {
       console.error("Chat error:", error);
       res.status(500).json({ error: "Failed to process chat message" });
+    }
+  });
+
+  // =============================================================================
+  // Onboarding v2 analysis – MVP
+  // Computes Safety Lights (liquidity, concentration, illiquids) from intake data
+  // Returns analysis results with tilts_allowed flag and placeholder persona
+  // =============================================================================
+  app.post("/api/onboarding-v2/analyse", async (req, res) => {
+    try {
+      const { intake, policy_overrides } = req.body;
+
+      if (!intake || typeof intake !== 'object') {
+        return res.status(400).json({ 
+          error: "Invalid request body", 
+          message: "intake object is required with cash, spend, largest_line_pct, illiquid_pct" 
+        });
+      }
+
+      const { cash, spend, largest_line_pct, illiquid_pct } = intake;
+
+      if (typeof cash !== 'number' || cash < 0) {
+        return res.status(400).json({ error: "intake.cash must be a non-negative number" });
+      }
+      if (typeof spend !== 'number' || spend < 0) {
+        return res.status(400).json({ error: "intake.spend must be a non-negative number" });
+      }
+      if (typeof largest_line_pct !== 'number' || largest_line_pct < 0 || largest_line_pct > 1) {
+        return res.status(400).json({ error: "intake.largest_line_pct must be a number between 0 and 1" });
+      }
+      if (typeof illiquid_pct !== 'number' || illiquid_pct < 0 || illiquid_pct > 1) {
+        return res.status(400).json({ error: "intake.illiquid_pct must be a number between 0 and 1" });
+      }
+
+      const validatedIntake: Intake = {
+        cash,
+        spend,
+        largest_line_pct,
+        illiquid_pct
+      };
+
+      const result = analyzeOnboarding(validatedIntake, policy_overrides);
+
+      res.json(result);
+    } catch (error) {
+      console.error("Onboarding v2 analysis error:", error);
+      res.status(500).json({ 
+        error: "Failed to analyze onboarding data",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Get current policy configuration (for debugging/testing)
+  app.get("/api/onboarding-v2/policy", async (_req, res) => {
+    try {
+      const policy = getPolicy();
+      res.json(policy);
+    } catch (error) {
+      console.error("Policy fetch error:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch policy",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
