@@ -1,0 +1,107 @@
+PROJECT CONTEXT
+You are working in the Unlock prototype codebase. There is an existing investor onboarding flow that is complex and hard to maintain. We want to create a completely new, cleaner “Onboarding v2” flow specifically for demos, without breaking or modifying the existing onboarding implementation.
+
+Please carefully read the Unlock onboarding spec files already in this repo:
+
+00_INDEX_AND_SUMMARY.md — to understand the overall onboarding concept.
+
+01_FEATURE_SPEC.md — to see the high-level journey and functional requirements.
+
+02_TECH_PLAN.md — to understand the architecture and layering approach.
+
+06_UI_SPEC.md — to see the intended screens and routes.
+Also skim Unlock_Foundation_Product_Information.docx for product context, but do not edit these documents.
+
+STEP 1 – Understand the current app
+
+Inspect the codebase to identify:
+
+The frontend framework (for example, whether this is using Next.js app router, Next.js pages router, create-react-app, or another structure).
+
+Where routes/pages are currently defined (for example, app/ vs pages/ vs src/routes/).
+
+Where the existing investor onboarding flow lives (for example, specific route files, wizard components, or pages).
+
+Do not change or delete anything in the existing onboarding flow. Treat it as read-only.
+
+Add a short internal note for developers (for example a small markdown file such as docs/current-onboarding-notes.md or a short comment in an existing dev-only README) that summarises:
+
+Where the old onboarding flow lives (folder and key files).
+
+How it is currently entered from the UI.
+
+A warning that “Onboarding v2” will live separately and that the old flow should not be modified while we build the new one.
+
+STEP 2 – Create a new route group for “Onboarding v2”
+4. Create a new route group, namespace, or top-level route for the new onboarding flow. Use a name that clearly indicates this is the v2 flow and avoids clashing with existing routes, for example /onboarding-v2.
+
+If the app uses Next.js app router, this would typically be a new folder such as app/onboarding-v2/ with nested routes.
+
+If the app uses another routing system, follow the existing pattern in that system to register the routes under /onboarding-v2.
+
+Under this new onboarding-v2 area, create separate routes/pages for each onboarding step described in 06_UI_SPEC.md. For now, they are:
+
+/onboarding-v2/welcome
+
+/onboarding-v2/method
+
+/onboarding-v2/intake
+
+/onboarding-v2/holdings
+
+/onboarding-v2/beliefs
+
+/onboarding-v2/analysis
+
+/onboarding-v2/target
+
+/onboarding-v2/plan/transition
+
+/onboarding-v2/plan/wrappers
+
+/onboarding-v2/report
+
+Each of these new pages should:
+
+Render a prominent heading indicating the step name and a short paragraph describing what the step will eventually do, based on the feature spec and UI spec.
+
+Include simple navigation controls using the existing routing solution:
+
+A “Next” button that routes to the next step in the flow.
+
+A “Back” button that routes to the previous step (except on the first step).
+
+Re-use the existing design system where possible (for example, existing button components, typography, and layout patterns) so that the pages look visually consistent with the rest of the app.
+
+Implement a simple step indicator that appears consistently on every onboarding-v2 page. It should:
+
+Show the sequence of steps (for example, Welcome → Method → Intake → Holdings → Beliefs → Analysis → Target → Plan → Report).
+
+Highlight the current step.
+
+Be implemented in a re-usable way (for example, a shared component imported into each step page), but keep the implementation simple for now.
+
+STEP 3 – Entry point from the existing UI
+8. Identify the most logical place in the existing UI where a user would start the onboarding demo (for example, a hero section or a main “Try Unlock” / “Start now” button on the landing page or dashboard).
+9. Add a single clear call-to-action button there, labelled something like “Start investor onboarding” or “Try the onboarding demo”.
+10. Wire this new button to navigate to /onboarding-v2/welcome.
+11. Ensure this change does not remove or alter any existing navigation to the old onboarding flow. The old flow should remain accessible for now.
+
+STEP 4 – Basic behaviour and checks
+12. Make sure that:
+- The app still builds and runs without errors.
+- Navigating to /onboarding-v2/welcome works.
+- You can click through all the onboarding-v2 steps forward and backward using the “Next” and “Back” controls.
+13. If there are existing automated tests that refer to routing or navigation, update or extend them only as needed to include the new /onboarding-v2 routes, without breaking existing tests for the older onboarding.
+14. If there is no obvious place for routing tests, create a very small smoke test that asserts at least:
+- The /onboarding-v2/welcome route renders successfully.
+- One or two other routes in the sequence render successfully.
+
+STEP 5 – Developer note
+15. Add a brief developer-facing markdown document such as docs/onboarding-v2-overview.md that explains:
+- The purpose of Onboarding v2 (cleaner, spec-driven onboarding demo).
+- The routes included under /onboarding-v2.
+- That the next steps will be to wire these pages to a new onboarding API and to the policy-based Safety Lights logic.
+16. Keep all new code well-organised and named clearly so that future changes for Onboarding v2 are isolated from the rest of the app.
+
+When you are done with all of the above, report any important observations you made about the existing onboarding implementation (for example, stack details, routing patterns, or obvious technical debt) in comments inside the new docs/onboarding-v2-overview.md file.
