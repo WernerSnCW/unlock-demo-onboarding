@@ -280,17 +280,18 @@ export default function Analysis() {
         <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
           <Button
             variant="outline"
-            onClick={() => navigate('/onboarding-v2/beliefs')}
+            onClick={() => navigate('/onboarding-v2/holdings')}
+            className="text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             data-testid="button-back"
           >
             Back
           </Button>
           <Button
-            onClick={() => navigate('/onboarding-v2/target')}
-            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90"
+            onClick={() => navigate('/onboarding-v2/beliefs')}
+            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
             data-testid="button-next"
           >
-            Continue to Target
+            Continue to Beliefs
           </Button>
         </div>
       </div>

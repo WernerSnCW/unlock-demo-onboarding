@@ -359,6 +359,7 @@ export default function Holdings() {
           <Button
             variant="outline"
             onClick={() => navigate('/onboarding-v2/intake')}
+            className="text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             data-testid="button-back"
           >
             Back
