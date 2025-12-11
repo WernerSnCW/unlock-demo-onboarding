@@ -202,98 +202,143 @@ export default function Holdings() {
     >
       <div className="space-y-6">
         <div className="grid lg:grid-cols-4 gap-4 mb-6">
-          <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--muted)]/20">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-[var(--primary)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">Total Value</span>
-            </div>
-            <div className="text-xl font-bold text-[var(--foreground)]" data-testid="summary-total-value">
-              {formatCurrency(summary.total_investable_value)}
-            </div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              {summary.holding_count} holding{summary.holding_count !== 1 ? 's' : ''}
-            </div>
-          </div>
-
-          <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--muted)]/20">
-            <div className="flex items-center gap-2 mb-2">
-              <PieChart className="w-4 h-4 text-[var(--secondary)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">Largest Holding</span>
-            </div>
-            <div className={`text-xl font-bold ${getConcentrationColor(summary.largest_line_pct)}`} data-testid="summary-concentration">
-              {formatPercent(summary.largest_line_pct)}
-            </div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              {summary.largest_line_pct > 20 ? 'High concentration' : summary.largest_line_pct > 15 ? 'Moderate' : 'Diversified'}
+          <div className="relative overflow-hidden p-5 rounded-xl bg-gradient-to-br from-[var(--primary)]/5 via-white to-[var(--primary)]/10 dark:from-[var(--primary)]/10 dark:via-gray-900 dark:to-[var(--primary)]/5 border border-[var(--primary)]/20 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-[var(--primary)]/5 rounded-full -mr-10 -mt-10"></div>
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-[var(--primary)]/10">
+                  <TrendingUp className="w-4 h-4 text-[var(--primary)]" />
+                </div>
+                <span className="text-sm font-medium text-[var(--muted-foreground)]">Total Value</span>
+              </div>
+              <div className="text-2xl font-bold text-[var(--foreground)] tracking-tight" data-testid="summary-total-value">
+                {formatCurrency(summary.total_investable_value)}
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                {summary.holding_count} holding{summary.holding_count !== 1 ? 's' : ''}
+              </div>
             </div>
           </div>
 
-          <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--muted)]/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Lock className="w-4 h-4 text-[var(--accent)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">Illiquid Assets</span>
-            </div>
-            <div className={`text-xl font-bold ${getIlliquidColor(summary.illiquid_pct)}`} data-testid="summary-illiquid">
-              {formatPercent(summary.illiquid_pct)}
-            </div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              {summary.illiquid_pct > 10 ? 'High illiquidity' : summary.illiquid_pct > 7 ? 'Moderate' : 'Good liquidity'}
+          <div className="relative overflow-hidden p-5 rounded-xl bg-gradient-to-br from-[var(--secondary)]/5 via-white to-[var(--secondary)]/10 dark:from-[var(--secondary)]/10 dark:via-gray-900 dark:to-[var(--secondary)]/5 border border-[var(--secondary)]/20 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-[var(--secondary)]/5 rounded-full -mr-10 -mt-10"></div>
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-[var(--secondary)]/10">
+                  <PieChart className="w-4 h-4 text-[var(--secondary)]" />
+                </div>
+                <span className="text-sm font-medium text-[var(--muted-foreground)]">Largest Holding</span>
+              </div>
+              <div className={`text-2xl font-bold tracking-tight ${getConcentrationColor(summary.largest_line_pct)}`} data-testid="summary-concentration">
+                {formatPercent(summary.largest_line_pct)}
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                {summary.largest_line_pct > 20 ? 'High concentration' : summary.largest_line_pct > 15 ? 'Moderate' : 'Diversified'}
+              </div>
             </div>
           </div>
 
-          <div className={`p-4 border rounded-lg ${
+          <div className="relative overflow-hidden p-5 rounded-xl bg-gradient-to-br from-amber-500/5 via-white to-amber-500/10 dark:from-amber-500/10 dark:via-gray-900 dark:to-amber-500/5 border border-amber-500/20 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/5 rounded-full -mr-10 -mt-10"></div>
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-amber-500/10">
+                  <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <span className="text-sm font-medium text-[var(--muted-foreground)]">Illiquid Assets</span>
+              </div>
+              <div className={`text-2xl font-bold tracking-tight ${getIlliquidColor(summary.illiquid_pct)}`} data-testid="summary-illiquid">
+                {formatPercent(summary.illiquid_pct)}
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                {summary.illiquid_pct > 10 ? 'High illiquidity' : summary.illiquid_pct > 7 ? 'Moderate' : 'Good liquidity'}
+              </div>
+            </div>
+          </div>
+
+          <div className={`relative overflow-hidden p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 ${
             analysis.status === 'ready' && analysis.result
               ? analysis.result.safety_lights.overall_status === 'GREEN'
-                ? 'border-[var(--success)]/30 bg-[var(--success)]/5'
+                ? 'bg-gradient-to-br from-emerald-500/5 via-white to-emerald-500/10 dark:from-emerald-500/10 dark:via-gray-900 dark:to-emerald-500/5 border border-emerald-500/30'
                 : analysis.result.safety_lights.overall_status === 'AMBER'
-                ? 'border-[var(--warning)]/30 bg-[var(--warning)]/5'
-                : 'border-[var(--destructive)]/30 bg-[var(--destructive)]/5'
-              : 'border-[var(--primary)]/30 bg-[var(--primary)]/5'
+                ? 'bg-gradient-to-br from-amber-500/5 via-white to-amber-500/10 dark:from-amber-500/10 dark:via-gray-900 dark:to-amber-500/5 border border-amber-500/30'
+                : 'bg-gradient-to-br from-rose-500/5 via-white to-rose-500/10 dark:from-rose-500/10 dark:via-gray-900 dark:to-rose-500/5 border border-rose-500/30'
+              : 'bg-gradient-to-br from-slate-500/5 via-white to-slate-500/10 dark:from-slate-500/10 dark:via-gray-900 dark:to-slate-500/5 border border-slate-500/20'
           }`}>
-            <div className="flex items-center gap-2 mb-1">
-              <Shield className="w-4 h-4 text-[var(--muted-foreground)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">Safety Lights Status</span>
-            </div>
-            <div className={`text-lg font-semibold ${
-              analysis.status === 'ready' && analysis.result
-                ? analysis.result.safety_lights.overall_status === 'GREEN'
-                  ? 'text-[var(--success)]'
-                  : analysis.result.safety_lights.overall_status === 'AMBER'
-                  ? 'text-[var(--warning)]'
-                  : 'text-[var(--destructive)]'
-                : 'text-[var(--foreground)]'
-            }`} data-testid="summary-safety-status">
-              {summary.holding_count === 0
-                ? 'Add holdings'
-                : analysis.status === 'ready' && analysis.result
-                ? analysis.result.safety_lights.overall_status_label
-                : 'Not yet analysed'}
-            </div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              {summary.holding_count === 0
-                ? 'Enter your holdings to continue'
-                : analysis.status === 'ready' && analysis.result
-                ? analysis.result.safety_lights.overall_status_code === 'ALL_CLEAR'
-                  ? 'All Safety Lights are green and within current policy limits.'
-                  : analysis.result.safety_lights.overall_status_code === 'CAUTION'
-                  ? 'Some amber flags are present. Review the Analysis step for details.'
-                  : 'Red flags detected. Review liquidity, concentration or illiquids on the Analysis step.'
-                : 'Continue to Analysis to check your portfolio'}
+            <div className="absolute top-0 right-0 w-20 h-20 bg-current opacity-[0.03] rounded-full -mr-10 -mt-10"></div>
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`p-2 rounded-lg ${
+                  analysis.status === 'ready' && analysis.result
+                    ? analysis.result.safety_lights.overall_status === 'GREEN'
+                      ? 'bg-emerald-500/10'
+                      : analysis.result.safety_lights.overall_status === 'AMBER'
+                      ? 'bg-amber-500/10'
+                      : 'bg-rose-500/10'
+                    : 'bg-slate-500/10'
+                }`}>
+                  <Shield className={`w-4 h-4 ${
+                    analysis.status === 'ready' && analysis.result
+                      ? analysis.result.safety_lights.overall_status === 'GREEN'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : analysis.result.safety_lights.overall_status === 'AMBER'
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-rose-600 dark:text-rose-400'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`} />
+                </div>
+                <span className="text-sm font-medium text-[var(--muted-foreground)]">Safety Lights</span>
+              </div>
+              <div className={`text-lg font-bold tracking-tight ${
+                analysis.status === 'ready' && analysis.result
+                  ? analysis.result.safety_lights.overall_status === 'GREEN'
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : analysis.result.safety_lights.overall_status === 'AMBER'
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-rose-600 dark:text-rose-400'
+                  : 'text-[var(--foreground)]'
+              }`} data-testid="summary-safety-status">
+                {summary.holding_count === 0
+                  ? 'Add holdings'
+                  : analysis.status === 'ready' && analysis.result
+                  ? analysis.result.safety_lights.overall_status_label
+                  : 'Not yet analysed'}
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1 line-clamp-2">
+                {summary.holding_count === 0
+                  ? 'Enter your holdings to continue'
+                  : analysis.status === 'ready' && analysis.result
+                  ? analysis.result.safety_lights.overall_status_code === 'ALL_CLEAR'
+                    ? 'All lights green'
+                    : analysis.result.safety_lights.overall_status_code === 'CAUTION'
+                    ? 'Review recommended'
+                    : 'Action required'
+                  : 'Run analysis to check'}
+              </div>
             </div>
           </div>
         </div>
 
         {summary.holdings_with_cost_basis > 0 && (
-          <div className="p-4 border border-[var(--border)] rounded-lg bg-[var(--muted)]/20">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-[var(--success)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">Unrealised Gain</span>
-            </div>
-            <div className={`text-xl font-bold ${summary.total_unrealised_gain_gbp >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`} data-testid="summary-unrealised-gain">
-              {summary.total_unrealised_gain_gbp >= 0 ? '+' : ''}{formatCurrency(summary.total_unrealised_gain_gbp)}
-            </div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              From {summary.holdings_with_cost_basis} holding{summary.holdings_with_cost_basis !== 1 ? 's' : ''} with cost basis
+          <div className={`relative overflow-hidden p-5 rounded-xl border shadow-sm ${
+            summary.total_unrealised_gain_gbp >= 0 
+              ? 'bg-gradient-to-br from-emerald-500/5 via-white to-emerald-500/10 dark:from-emerald-500/10 dark:via-gray-900 dark:to-emerald-500/5 border-emerald-500/20' 
+              : 'bg-gradient-to-br from-rose-500/5 via-white to-rose-500/10 dark:from-rose-500/10 dark:via-gray-900 dark:to-rose-500/5 border-rose-500/20'
+          }`}>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-current opacity-[0.03] rounded-full -mr-10 -mt-10"></div>
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`p-2 rounded-lg ${summary.total_unrealised_gain_gbp >= 0 ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`}>
+                  <TrendingUp className={`w-4 h-4 ${summary.total_unrealised_gain_gbp >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} />
+                </div>
+                <span className="text-sm font-medium text-[var(--muted-foreground)]">Unrealised Gain</span>
+              </div>
+              <div className={`text-2xl font-bold tracking-tight ${summary.total_unrealised_gain_gbp >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} data-testid="summary-unrealised-gain">
+                {summary.total_unrealised_gain_gbp >= 0 ? '+' : ''}{formatCurrency(summary.total_unrealised_gain_gbp)}
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                From {summary.holdings_with_cost_basis} holding{summary.holdings_with_cost_basis !== 1 ? 's' : ''} with cost basis
+              </div>
             </div>
           </div>
         )}
@@ -305,25 +350,25 @@ export default function Holdings() {
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-[var(--border)] shadow-sm bg-white dark:bg-gray-900/50">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[var(--border)]">
-                <th className="text-left py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Name</th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Ticker</th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Wrapper</th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Asset Class</th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Region</th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Value (£)</th>
-                <th className="text-center py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Illiquid</th>
-                <th className="text-center py-3 px-2 text-sm font-medium text-[var(--muted-foreground)]">Details</th>
-                <th className="py-3 px-2"></th>
+              <tr className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30 border-b border-[var(--border)]">
+                <th className="text-left py-4 px-4 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Name</th>
+                <th className="text-left py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Ticker</th>
+                <th className="text-left py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Wrapper</th>
+                <th className="text-left py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Asset Class</th>
+                <th className="text-left py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Region</th>
+                <th className="text-left py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Value (£)</th>
+                <th className="text-center py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Illiquid</th>
+                <th className="text-center py-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Details</th>
+                <th className="py-4 px-2"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[var(--border)]">
               {holdings.map((holding, index) => (
                 <>
-                  <tr key={holding.id} className="border-b border-[var(--border)] hover:bg-[var(--muted)]/20">
+                  <tr key={holding.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors duration-150">
                     <td className="py-2 px-2 min-w-[200px]">
                       <Input
                         value={holding.instrument_name}
@@ -564,7 +609,7 @@ export default function Holdings() {
         <Button
           variant="outline"
           onClick={handleAddHolding}
-          className="gap-2 text-[var(--primary)] border-[var(--primary)] hover:bg-[var(--primary)]/10"
+          className="gap-2 text-[var(--primary)] border-[var(--primary)]/50 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 shadow-sm transition-all duration-200"
           data-testid="button-add-holding"
         >
           <Plus className="w-4 h-4" />
@@ -579,14 +624,14 @@ export default function Holdings() {
           <Button
             variant="outline"
             onClick={() => navigate('/onboarding-v2/intake')}
-            className="text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
+            className="text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
             data-testid="button-back"
           >
             Back
           </Button>
           <Button
             onClick={handleNext}
-            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
+            className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             data-testid="button-next"
           >
             Continue to Analysis

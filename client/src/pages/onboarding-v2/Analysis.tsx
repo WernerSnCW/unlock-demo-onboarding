@@ -6,24 +6,30 @@ import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
 
-const statusConfig: Record<SafetyStatus, { color: string; icon: typeof CheckCircle2; bgColor: string; borderColor: string }> = {
+const statusConfig: Record<SafetyStatus, { color: string; icon: typeof CheckCircle2; bgColor: string; borderColor: string; gradient: string; iconBg: string }> = {
   GREEN: {
-    color: 'text-[var(--success)]',
+    color: 'text-emerald-600 dark:text-emerald-400',
     icon: CheckCircle2,
-    bgColor: 'bg-[var(--success)]/10',
-    borderColor: 'border-[var(--success)]/30',
+    bgColor: 'bg-emerald-500/5',
+    borderColor: 'border-emerald-500/30',
+    gradient: 'bg-gradient-to-br from-emerald-500/10 via-white to-emerald-500/5 dark:from-emerald-500/15 dark:via-gray-900 dark:to-emerald-500/5',
+    iconBg: 'bg-emerald-500/10',
   },
   AMBER: {
-    color: 'text-[var(--warning)]',
+    color: 'text-amber-600 dark:text-amber-400',
     icon: AlertTriangle,
-    bgColor: 'bg-[var(--warning)]/10',
-    borderColor: 'border-[var(--warning)]/30',
+    bgColor: 'bg-amber-500/5',
+    borderColor: 'border-amber-500/30',
+    gradient: 'bg-gradient-to-br from-amber-500/10 via-white to-amber-500/5 dark:from-amber-500/15 dark:via-gray-900 dark:to-amber-500/5',
+    iconBg: 'bg-amber-500/10',
   },
   RED: {
-    color: 'text-[var(--destructive)]',
+    color: 'text-rose-600 dark:text-rose-400',
     icon: XCircle,
-    bgColor: 'bg-[var(--destructive)]/10',
-    borderColor: 'border-[var(--destructive)]/30',
+    bgColor: 'bg-rose-500/5',
+    borderColor: 'border-rose-500/30',
+    gradient: 'bg-gradient-to-br from-rose-500/10 via-white to-rose-500/5 dark:from-rose-500/15 dark:via-gray-900 dark:to-rose-500/5',
+    iconBg: 'bg-rose-500/10',
   },
 };
 
@@ -228,30 +234,35 @@ export default function Analysis() {
       description="We've analysed your portfolio against our Safety Lights framework. Here's what we found."
       hideNav
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div
-          className={`p-5 rounded-lg border ${overallStatusConfig.bgColor} ${overallStatusConfig.borderColor}`}
+          className={`relative overflow-hidden p-6 rounded-2xl border-2 shadow-lg ${overallStatusConfig.gradient} ${overallStatusConfig.borderColor}`}
           data-testid="overall-status-banner"
         >
-          <div className="flex items-start gap-3">
-            <OverallStatusIcon className={`w-7 h-7 ${overallStatusConfig.color} flex-shrink-0`} />
-            <div>
-              <h3 className={`text-lg font-bold ${overallStatusConfig.color} mb-1`} data-testid="overall-status-label">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-current opacity-[0.03] rounded-full -mr-16 -mt-16"></div>
+          <div className="relative flex items-start gap-4">
+            <div className={`p-3 rounded-xl ${overallStatusConfig.iconBg} shadow-sm`}>
+              <OverallStatusIcon className={`w-8 h-8 ${overallStatusConfig.color}`} />
+            </div>
+            <div className="flex-1">
+              <h3 className={`text-xl font-bold ${overallStatusConfig.color} mb-2 tracking-tight`} data-testid="overall-status-label">
                 {overall_status_label}
               </h3>
-              <p className="text-sm text-[var(--foreground)]" data-testid="overall-status-message">
+              <p className="text-sm text-[var(--foreground)] leading-relaxed" data-testid="overall-status-message">
                 {overall_status_message}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Shield className="w-6 h-6 text-[var(--primary)]" />
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Safety Lights</h3>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-[var(--primary)]/10">
+            <Shield className="w-5 h-5 text-[var(--primary)]" />
+          </div>
+          <h3 className="text-xl font-bold text-[var(--foreground)] tracking-tight">Safety Lights</h3>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-5">
           {lights.map((light) => {
             const config = statusConfig[light.status];
             const Icon = light.icon;
@@ -260,75 +271,83 @@ export default function Analysis() {
             return (
               <div
                 key={light.key}
-                className={`p-5 border rounded-lg ${config.bgColor} ${config.borderColor}`}
+                className={`relative overflow-hidden p-5 rounded-xl border shadow-sm hover:shadow-md transition-shadow duration-200 ${config.gradient} ${config.borderColor}`}
                 data-testid={`safety-light-${light.key}`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Icon className={`w-5 h-5 ${config.color}`} />
-                    <span className="font-semibold text-[var(--foreground)]">{light.label}</span>
+                <div className="absolute top-0 right-0 w-16 h-16 bg-current opacity-[0.03] rounded-full -mr-8 -mt-8"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${config.iconBg}`}>
+                        <Icon className={`w-5 h-5 ${config.color}`} />
+                      </div>
+                      <span className="font-bold text-[var(--foreground)] tracking-tight">{light.label}</span>
+                    </div>
+                    <StatusIcon className={`w-6 h-6 ${config.color}`} />
                   </div>
-                  <StatusIcon className={`w-6 h-6 ${config.color}`} />
+                  <p className="text-sm text-[var(--foreground)] mb-3 leading-relaxed">{light.description}</p>
+                  <p className="text-xs text-[var(--muted-foreground)] font-medium">{light.detail}</p>
                 </div>
-                <p className="text-sm text-[var(--foreground)] mb-2">{light.description}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">{light.detail}</p>
               </div>
             );
           })}
         </div>
 
-        <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--muted)]/10" data-testid="key-metrics-section">
-          <h4 className="text-sm font-semibold text-[var(--foreground)] mb-3">Key Metrics</h4>
-          <div className="grid md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="text-[var(--muted-foreground)]">Cash runway: </span>
-              <span className="font-medium text-[var(--foreground)]">
+        <div className="p-5 rounded-xl border border-[var(--border)] bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-gray-900 shadow-sm" data-testid="key-metrics-section">
+          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-4">Key Metrics</h4>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Cash Runway</div>
+              <div className="text-lg font-bold text-[var(--foreground)]">
                 {metrics.cash_runway_months === -1 ? '∞' : metrics.cash_runway_months.toFixed(1)} months
-              </span>
-              <span className="text-xs text-[var(--muted-foreground)] ml-1">
-                (min: {details.liquidity_thresholds.red_below}, ideal: {details.liquidity_thresholds.amber_below}+)
-              </span>
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)]">
+                Min: {details.liquidity_thresholds.red_below} | Ideal: {details.liquidity_thresholds.amber_below}+
+              </div>
             </div>
-            <div>
-              <span className="text-[var(--muted-foreground)]">Largest holding: </span>
-              <span className="font-medium text-[var(--foreground)]">
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Largest Holding</div>
+              <div className="text-lg font-bold text-[var(--foreground)]">
                 {(metrics.largest_line_pct * 100).toFixed(1)}%
-              </span>
-              <span className="text-xs text-[var(--muted-foreground)] ml-1">
-                (amber: &gt;{(details.concentration_thresholds.amber_above * 100).toFixed(0)}%, red: &gt;{(details.concentration_thresholds.red_above * 100).toFixed(0)}%)
-              </span>
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)]">
+                Amber: &gt;{(details.concentration_thresholds.amber_above * 100).toFixed(0)}% | Red: &gt;{(details.concentration_thresholds.red_above * 100).toFixed(0)}%
+              </div>
             </div>
-            <div>
-              <span className="text-[var(--muted-foreground)]">Illiquid allocation: </span>
-              <span className="font-medium text-[var(--foreground)]">
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Illiquid Allocation</div>
+              <div className="text-lg font-bold text-[var(--foreground)]">
                 {(metrics.illiquid_pct * 100).toFixed(1)}%
-              </span>
-              <span className="text-xs text-[var(--muted-foreground)] ml-1">
-                (amber: &gt;{(details.illiquids_thresholds.amber_above * 100).toFixed(0)}%, red: &gt;{(details.illiquids_thresholds.red_above * 100).toFixed(0)}%)
-              </span>
+              </div>
+              <div className="text-xs text-[var(--muted-foreground)]">
+                Amber: &gt;{(details.illiquids_thresholds.amber_above * 100).toFixed(0)}% | Red: &gt;{(details.illiquids_thresholds.red_above * 100).toFixed(0)}%
+              </div>
             </div>
           </div>
         </div>
 
         <div
-          className={`p-5 rounded-lg border ${
+          className={`relative overflow-hidden p-5 rounded-xl border shadow-sm ${
             tilts_allowed
-              ? 'bg-[var(--success)]/5 border-[var(--success)]/30'
-              : 'bg-[var(--destructive)]/5 border-[var(--destructive)]/30'
+              ? 'bg-gradient-to-br from-emerald-500/5 via-white to-emerald-500/10 dark:from-emerald-500/10 dark:via-gray-900 dark:to-emerald-500/5 border-emerald-500/30'
+              : 'bg-gradient-to-br from-rose-500/5 via-white to-rose-500/10 dark:from-rose-500/10 dark:via-gray-900 dark:to-rose-500/5 border-rose-500/30'
           }`}
           data-testid="tilts-banner"
         >
-          <div className="flex items-start gap-3">
-            {tilts_allowed ? (
-              <CheckCircle2 className="w-6 h-6 text-[var(--success)] flex-shrink-0" />
-            ) : (
-              <AlertTriangle className="w-6 h-6 text-[var(--destructive)] flex-shrink-0" />
-            )}
+          <div className="absolute top-0 right-0 w-20 h-20 bg-current opacity-[0.03] rounded-full -mr-10 -mt-10"></div>
+          <div className="relative flex items-start gap-4">
+            <div className={`p-2 rounded-lg ${tilts_allowed ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`}>
+              {tilts_allowed ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+              )}
+            </div>
             <div>
-              <h4 className="font-semibold text-[var(--foreground)] mb-1">
+              <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${tilts_allowed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}`}>
                 {tilts_allowed ? 'Belief Tilts Enabled' : 'Belief Tilts Locked'}
               </h4>
-              <p className="text-sm text-[var(--muted-foreground)]">
+              <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                 {tilts_allowed
                   ? 'No red flags detected. You can customise your portfolio with belief-based tilts and optimisation within our guardrails.'
                   : 'One or more Safety Lights are Red. Unlock will not recommend moves that increase overall risk until these red flags are addressed. Focus on improving your liquidity, reducing concentration, or lowering illiquid exposure first.'}
@@ -348,18 +367,18 @@ export default function Analysis() {
           </div>
         )}
 
-        <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
+        <div className="flex justify-between items-center pt-8 border-t border-[var(--border)]">
           <Button
             variant="outline"
             onClick={() => navigate('/onboarding-v2/holdings')}
-            className="text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
+            className="text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
             data-testid="button-back"
           >
             Back
           </Button>
           <Button
             onClick={() => navigate('/onboarding-v2/beliefs')}
-            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
+            className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             data-testid="button-next"
           >
             Continue to Beliefs
