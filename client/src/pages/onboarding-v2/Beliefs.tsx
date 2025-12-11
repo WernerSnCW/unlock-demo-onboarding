@@ -1,5 +1,5 @@
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { Scale, Shield, Leaf, Globe } from 'lucide-react';
+import { Scale, Shield, Leaf, Globe, Info } from 'lucide-react';
 
 export default function Beliefs() {
   return (
@@ -9,6 +9,13 @@ export default function Beliefs() {
       description="Understanding your investment philosophy helps us create recommendations that align with your values and risk tolerance."
     >
       <div className="space-y-6">
+        <div className="p-4 bg-[var(--muted)]/50 border border-[var(--border)] rounded-lg flex items-start gap-3">
+          <Info className="w-5 h-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Belief settings are optional in this version; defaults will be used if you skip this step.
+          </p>
+        </div>
+
         <div className="space-y-4">
           <div className="p-5 border border-[var(--border)] rounded-lg">
             <div className="flex items-start gap-4">
