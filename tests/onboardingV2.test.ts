@@ -271,3 +271,179 @@ describe('Portfolio Summary Calculations', () => {
     expect(illiquid_pct).toBe(0);
   });
 });
+
+describe('Advanced Holdings Fields', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    localStorageMock.clear();
+  });
+
+  it('should create new holdings with default currency = GBP and other fields empty/null', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+
+    store.addHolding();
+    const holdings = useOnboardingV2Store.getState().holdings;
+    const newHolding = holdings[holdings.length - 1];
+
+    expect(newHolding.currency).toBe('GBP');
+    expect(newHolding.instrument_type).toBe('Fund');
+    expect(newHolding.isin).toBeNull();
+    expect(newHolding.cost_basis_gbp).toBeNull();
+    expect(newHolding.acquisition_date).toBeNull();
+    expect(newHolding.notes).toBeNull();
+  });
+
+  it('should update advanced fields correctly', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+
+    store.addHolding();
+    const holdings = useOnboardingV2Store.getState().holdings;
+    const holdingId = holdings[holdings.length - 1].id;
+
+    store.updateHolding(holdingId, {
+      currency: 'USD',
+      instrument_type: 'ETF',
+      isin: 'US1234567890',
+      cost_basis_gbp: 7500,
+      acquisition_date: '2023-04-01',
+      notes: 'Test notes',
+    });
+
+    const updatedHolding = useOnboardingV2Store.getState().holdings.find(h => h.id === holdingId);
+
+    expect(updatedHolding?.currency).toBe('USD');
+    expect(updatedHolding?.instrument_type).toBe('ETF');
+    expect(updatedHolding?.isin).toBe('US1234567890');
+    expect(updatedHolding?.cost_basis_gbp).toBe(7500);
+    expect(updatedHolding?.acquisition_date).toBe('2023-04-01');
+    expect(updatedHolding?.notes).toBe('Test notes');
+  });
+
+  it('should compute unrealized gain correctly for individual holding', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+
+    store.setHoldings([
+      {
+        id: 'h1',
+        instrument_name: 'Test Fund',
+        ticker: 'TEST',
+        wrapper: 'isa',
+        asset_class: 'equity',
+        region: 'uk',
+        value_gbp: 10000,
+        illiquid: false,
+        currency: 'GBP',
+        instrument_type: 'Fund',
+        isin: null,
+        cost_basis_gbp: 7500,
+        acquisition_date: null,
+        notes: null,
+      },
+    ]);
+
+    const holdings = useOnboardingV2Store.getState().holdings;
+    const holding = holdings[0];
+
+    expect(holding.unrealised_gain_gbp).toBe(2500);
+    expect(holding.unrealised_gain_pct).toBeCloseTo(33.33, 1);
+  });
+
+  it('should compute total unrealized gain in summary', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+
+    store.setHoldings([
+      {
+        id: 'h1',
+        instrument_name: 'Fund A',
+        ticker: 'FUNDA',
+        wrapper: 'isa',
+        asset_class: 'equity',
+        region: 'uk',
+        value_gbp: 10000,
+        illiquid: false,
+        currency: 'GBP',
+        instrument_type: 'Fund',
+        isin: null,
+        cost_basis_gbp: 7500,
+        acquisition_date: null,
+        notes: null,
+      },
+      {
+        id: 'h2',
+        instrument_name: 'Fund B',
+        ticker: 'FUNDB',
+        wrapper: 'gia',
+        asset_class: 'equity',
+        region: 'us',
+        value_gbp: 5000,
+        illiquid: false,
+        currency: 'GBP',
+        instrument_type: 'ETF',
+        isin: null,
+        cost_basis_gbp: 6000,
+        acquisition_date: null,
+        notes: null,
+      },
+      {
+        id: 'h3',
+        instrument_name: 'Fund C (no cost basis)',
+        ticker: 'FUNDC',
+        wrapper: 'sipp',
+        asset_class: 'bond',
+        region: 'global',
+        value_gbp: 20000,
+        illiquid: false,
+        currency: 'GBP',
+        instrument_type: 'Fund',
+        isin: null,
+        cost_basis_gbp: null,
+        acquisition_date: null,
+        notes: null,
+      },
+    ]);
+
+    const summary = useOnboardingV2Store.getState().summary;
+
+    // Fund A: 10000 - 7500 = +2500
+    // Fund B: 5000 - 6000 = -1000
+    // Total: 2500 - 1000 = 1500
+    expect(summary.total_unrealised_gain_gbp).toBe(1500);
+    expect(summary.holdings_with_cost_basis).toBe(2);
+  });
+
+  it('should not include holdings without cost basis in unrealized gain calculation', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+
+    store.setHoldings([
+      {
+        id: 'h1',
+        instrument_name: 'No Cost Basis',
+        ticker: 'NCB',
+        wrapper: 'isa',
+        asset_class: 'equity',
+        region: 'uk',
+        value_gbp: 50000,
+        illiquid: false,
+        currency: 'GBP',
+        instrument_type: 'Fund',
+        isin: null,
+        cost_basis_gbp: null,
+        acquisition_date: null,
+        notes: null,
+      },
+    ]);
+
+    const summary = useOnboardingV2Store.getState().summary;
+    const holding = useOnboardingV2Store.getState().holdings[0];
+
+    expect(holding.unrealised_gain_gbp).toBeNull();
+    expect(holding.unrealised_gain_pct).toBeNull();
+    expect(summary.total_unrealised_gain_gbp).toBe(0);
+    expect(summary.holdings_with_cost_basis).toBe(0);
+  });
+});

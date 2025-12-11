@@ -46,7 +46,7 @@ const lightDescriptions = {
 };
 
 export default function Analysis() {
-  const { intake, summary, analysis, setAnalysisLoading, setAnalysisResult, setAnalysisError } = useOnboardingV2Store();
+  const { intake, holdings, summary, analysis, setAnalysisLoading, setAnalysisResult, setAnalysisError } = useOnboardingV2Store();
   const [, navigate] = useLocation();
 
   const hasValidData = summary.total_investable_value > 0 && intake.annual_essential_spend_gbp > 0;
@@ -72,6 +72,24 @@ export default function Analysis() {
           largest_line_pct: summary.largest_line_pct / 100,
           illiquid_pct: summary.illiquid_pct / 100,
         },
+        // Include full holdings for future transition planning
+        holdings: holdings.filter(h => h.value_gbp > 0).map(h => ({
+          id: h.id,
+          instrument_name: h.instrument_name,
+          ticker: h.ticker,
+          wrapper: h.wrapper,
+          asset_class: h.asset_class,
+          region: h.region,
+          value_gbp: h.value_gbp,
+          illiquid: h.illiquid,
+          // Advanced fields for transition/tax planning
+          currency: h.currency,
+          instrument_type: h.instrument_type,
+          isin: h.isin,
+          cost_basis_gbp: h.cost_basis_gbp,
+          acquisition_date: h.acquisition_date,
+          notes: h.notes,
+        })),
       };
 
       const response = await apiRequest('POST', '/api/onboarding-v2/analyse', payload);

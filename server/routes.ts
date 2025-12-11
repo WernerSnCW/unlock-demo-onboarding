@@ -2548,10 +2548,18 @@ Return as JSON with this exact structure:
   // Onboarding v2 analysis – MVP
   // Computes Safety Lights (liquidity, concentration, illiquids) from intake data
   // Returns analysis results with tilts_allowed flag and placeholder persona
+  // Optionally accepts holdings array for future transition planning
   // =============================================================================
   app.post("/api/onboarding-v2/analyse", async (req, res) => {
     try {
-      const { intake, policy_overrides } = req.body;
+      const { intake, policy_overrides, holdings } = req.body;
+      
+      // Holdings are accepted for future transition planning but not used in Safety Lights
+      // Holdings may contain advanced fields: currency, instrument_type, isin, cost_basis_gbp,
+      // acquisition_date, notes - these are stored for future use
+      if (holdings && Array.isArray(holdings)) {
+        console.log(`Received ${holdings.length} holdings for transition planning`);
+      }
 
       if (!intake || typeof intake !== 'object') {
         return res.status(400).json({ 

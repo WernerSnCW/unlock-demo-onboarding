@@ -1,0 +1,157 @@
+GOAL
+Enrich the /onboarding-v2/holdings screen so it looks and behaves like a portfolio tool built for real investors, by:
+
+Adding advanced fields (currency, instrument type, ISIN, cost basis, acquisition date, notes) to each holding.
+
+Computing per-holding and summary unrealised gains where cost basis is provided.
+
+Making these fields optional and persisted, but not required for the demo and not yet used in Safety Lights maths.
+
+The existing behaviour for Safety Lights (using value_gbp, illiquid, largest_line_pct, illiquid_pct) should stay exactly the same.
+
+STEP 1 – Extend the holdings data model and onboarding v2 state
+
+Locate the type/interface or shape used for a holding row in the onboarding v2 state/store (for example Holding, HoldingRow, etc.).
+
+Extend this type to include the following additional fields (keep naming consistent with existing conventions, but conceptually they should cover these attributes):
+
+currency: string – ISO code such as "GBP", "USD", "EUR".
+
+Default "GBP" for new holdings.
+
+instrument_type: string – for example one of "Fund", "ETF", "Single share", "Bond", "Property", "Private asset", "Cash", "Other".
+
+isin: string | null – optional ISIN or identifier.
+
+cost_basis_gbp: number | null – optional total cost basis in GBP for this holding.
+
+acquisition_date: string | null – optional ISO date string, e.g. "2023-04-01".
+
+notes: string | null – optional free-text notes.
+
+Update any default initial holding object used when you add a new row so that:
+
+currency defaults to "GBP".
+
+instrument_type can default to a sensible value based on the asset class (e.g. "Fund" for funds, "Cash" for cash), or simply "Fund" by default.
+
+The other new fields default to null or empty strings.
+
+Ensure the onboarding v2 state update functions (setHoldings, updateHolding, etc.) correctly handle these additional fields without breaking existing behaviour.
+
+STEP 2 – Update the Holdings UI to show advanced fields
+
+Open the /onboarding-v2/holdings page/component that renders the manual holdings table.
+
+Keep the current “core” columns as they are (Name, Ticker, Wrapper, Asset Class, Region, Value (£), Illiquid) so the table stays readable.
+
+Add a way to view and edit advanced details per holding without overloading the main grid. For example:
+
+Add a “Details” icon or button in a new column (e.g. “Details” or “Advanced”).
+
+When clicked, expand a small panel beneath that row or open a simple inline drawer/modal containing the advanced fields.
+
+In this advanced details view for each holding, include form controls for:
+
+Currency – select, with options like GBP, USD, EUR, ZAR, CHF, Other. Default should be GBP.
+
+Instrument type – select: Fund, ETF, Single share, Bond, Property, Private asset, Cash, Other.
+
+ISIN – text input (optional).
+
+Cost basis (£) – numeric input, labelled clearly as “Total cost basis (GBP)”.
+
+Acquisition date – date input.
+
+Notes – multi-line text area.
+
+All these advanced fields must:
+
+Be optional – no validation errors if left empty.
+
+Persist in the onboarding v2 state when changed.
+
+Not change any Safety Lights calculations at this stage.
+
+Add a short help text inside the advanced panel, for example:
+
+“These details are used for transition and tax-aware planning in the next step of Unlock. They’re optional for now, but capturing them lets us model CGT and wrapper moves more precisely.”
+
+STEP 3 – Compute unrealised gain per holding and in summary
+
+In the holdings summary logic (where total_investable_value, largest_line_pct and illiquid_pct are computed), extend the calculation to also compute unrealised gains where possible:
+
+For each holding, if both value_gbp and cost_basis_gbp are valid numbers and cost_basis_gbp > 0:
+
+Compute unrealised_gain_gbp = value_gbp - cost_basis_gbp.
+
+Optionally compute unrealised_gain_pct = unrealised_gain_gbp / cost_basis_gbp.
+
+Store these derived values on the holding object or in a parallel derived structure (whichever is more idiomatic, but they should be easy for the UI to access).
+
+In the summary, compute:
+
+total_unrealised_gain_gbp = sum of unrealised_gain_gbp across holdings where cost basis is provided.
+
+Do not feed these gains into Safety Lights or any other maths yet; they’re purely for display and for future transition planning.
+
+STEP 4 – Display unrealised gains in the UI
+
+At the top of the Holdings page, where you show the summary cards (Total Value, Largest Holding, Illiquid Assets, Portfolio Status), add an additional summary item that appears when any holding has a cost basis:
+
+Title: “Unrealised gain (where cost basis captured)”.
+
+Value: £{total_unrealised_gain_gbp} (rounded to the nearest pound, with a + sign for positive and – for negative).
+
+Subtext: something like “Approximate gain on positions where original cost is known. Used for transition & tax planning.”
+
+In the advanced details view for each holding:
+
+If unrealised_gain_gbp is available, show a small read-only line such as:
+
+“Unrealised gain: £X (Y%)”
+using sensible rounding.
+
+If cost_basis_gbp is empty, you can briefly say “Enter cost basis to see estimated gain for this position.”
+
+STEP 5 – Wire through to any backend holdings payloads (without changing maths)
+
+If there is an API or backend model that receives holdings from the frontend for onboarding v2 (for example a payload sent alongside the analysis request or saved to a session), extend that payload schema to include the new fields:
+
+currency, instrument_type, isin, cost_basis_gbp, acquisition_date, notes.
+
+Ensure backend handlers accept these fields and store or ignore them safely, without breaking existing endpoints:
+
+It is fine if the backend currently ignores these fields for Safety Lights computations.
+
+The key is that they are available in the request/response pipeline so that future transition planning logic can use them without more schema changes.
+
+STEP 6 – Tests and sanity checks
+
+Add or extend tests to verify:
+
+New holdings created by default have currency = "GBP" and other new fields empty/null.
+
+Updating advanced fields via the UI correctly updates onboarding v2 state.
+
+Unrealised gain is computed correctly for a holding where value_gbp = 10,000 and cost_basis_gbp = 7,500 (gain £2,500, ~33.3%).
+
+total_unrealised_gain_gbp in the summary matches the sum of per-holding gains for a small test portfolio.
+
+Run the full test suite and ensure everything passes.
+
+Manually check in the browser:
+
+Open Holdings for an investor.
+
+Open the advanced details for one row, set:
+
+currency to non-GBP (e.g. USD), enter an ISIN, cost basis and acquisition date, and a note.
+
+Confirm those values persist when you navigate away and back.
+
+Confirm the per-holding unrealised gain line appears when cost basis is present.
+
+Confirm the new summary card for unrealised gain appears only when at least one holding has a cost basis.
+
+Confirm Safety Lights on Analysis behave exactly as before (liquidity, concentration, illiquids unchanged for the same values).

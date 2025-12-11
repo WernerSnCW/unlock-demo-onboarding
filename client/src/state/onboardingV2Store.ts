@@ -28,6 +28,16 @@ export interface Holding {
   region: string;
   value_gbp: number;
   illiquid: boolean;
+  // Advanced fields
+  currency: string;
+  instrument_type: string;
+  isin: string | null;
+  cost_basis_gbp: number | null;
+  acquisition_date: string | null;
+  notes: string | null;
+  // Computed unrealized gain (derived)
+  unrealised_gain_gbp?: number | null;
+  unrealised_gain_pct?: number | null;
 }
 
 export interface PortfolioSummary {
@@ -35,6 +45,8 @@ export interface PortfolioSummary {
   largest_line_pct: number;
   illiquid_pct: number;
   holding_count: number;
+  total_unrealised_gain_gbp: number;
+  holdings_with_cost_basis: number;
 }
 
 export type SafetyStatus = 'GREEN' | 'AMBER' | 'RED';
@@ -126,6 +138,12 @@ const createEmptyHolding = (): Holding => ({
   region: '',
   value_gbp: 0,
   illiquid: false,
+  currency: 'GBP',
+  instrument_type: 'Fund',
+  isin: null,
+  cost_basis_gbp: null,
+  acquisition_date: null,
+  notes: null,
 });
 
 const initialSummary: PortfolioSummary = {
@@ -133,6 +151,8 @@ const initialSummary: PortfolioSummary = {
   largest_line_pct: 0,
   illiquid_pct: 0,
   holding_count: 0,
+  total_unrealised_gain_gbp: 0,
+  holdings_with_cost_basis: 0,
 };
 
 const initialAnalysis: AnalysisState = {
@@ -140,6 +160,23 @@ const initialAnalysis: AnalysisState = {
   result: null,
   error: null,
 };
+
+function computeHoldingWithGains(holding: Holding): Holding {
+  if (holding.value_gbp > 0 && holding.cost_basis_gbp != null && holding.cost_basis_gbp > 0) {
+    const gain = holding.value_gbp - holding.cost_basis_gbp;
+    const gainPct = (gain / holding.cost_basis_gbp) * 100;
+    return {
+      ...holding,
+      unrealised_gain_gbp: gain,
+      unrealised_gain_pct: gainPct,
+    };
+  }
+  return {
+    ...holding,
+    unrealised_gain_gbp: null,
+    unrealised_gain_pct: null,
+  };
+}
 
 function computeSummaryFromHoldings(holdings: Holding[]): PortfolioSummary {
   const validHoldings = holdings.filter((h) => h.value_gbp > 0);
@@ -151,11 +188,22 @@ function computeSummaryFromHoldings(holdings: Holding[]): PortfolioSummary {
     .filter((h) => h.illiquid)
     .reduce((sum, h) => sum + h.value_gbp, 0);
 
+  // Compute unrealized gains for holdings with cost basis
+  const holdingsWithCostBasis = validHoldings.filter(
+    (h) => h.cost_basis_gbp != null && h.cost_basis_gbp > 0
+  );
+  const totalUnrealisedGain = holdingsWithCostBasis.reduce((sum, h) => {
+    const gain = h.value_gbp - (h.cost_basis_gbp || 0);
+    return sum + gain;
+  }, 0);
+
   return {
     total_investable_value: total,
     largest_line_pct: total > 0 ? (largestValue / total) * 100 : 0,
     illiquid_pct: total > 0 ? (illiquidValue / total) * 100 : 0,
     holding_count: validHoldings.length,
+    total_unrealised_gain_gbp: totalUnrealisedGain,
+    holdings_with_cost_basis: holdingsWithCostBasis.length,
   };
 }
 
@@ -174,9 +222,10 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       },
 
       setHoldings: (holdings) => {
+        const holdingsWithGains = holdings.map(computeHoldingWithGains);
         set({
-          holdings,
-          summary: computeSummaryFromHoldings(holdings),
+          holdings: holdingsWithGains,
+          summary: computeSummaryFromHoldings(holdingsWithGains),
         });
       },
 
@@ -189,7 +238,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       updateHolding: (id, partial) => {
         set((state) => {
           const newHoldings = state.holdings.map((h) =>
-            h.id === id ? { ...h, ...partial } : h
+            h.id === id ? computeHoldingWithGains({ ...h, ...partial }) : h
           );
           return {
             holdings: newHoldings,
@@ -259,6 +308,14 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
     }),
     {
       name: 'onboarding-v2-storage',
+      onRehydrateStorage: () => (state) => {
+        // Recompute gains for all holdings after rehydrating from localStorage
+        if (state && state.holdings) {
+          const holdingsWithGains = state.holdings.map(computeHoldingWithGains);
+          state.holdings = holdingsWithGains;
+          state.summary = computeSummaryFromHoldings(holdingsWithGains);
+        }
+      },
     }
   )
 );
