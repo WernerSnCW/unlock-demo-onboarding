@@ -64,7 +64,7 @@ export default function OnboardingLayout({
                 <Button
                   variant="outline"
                   onClick={() => navigate(effectivePrevPath)}
-                  className="gap-2"
+                  className="gap-2 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
                   data-testid="button-back"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -77,7 +77,7 @@ export default function OnboardingLayout({
               {effectiveNextPath && (
                 <Button
                   onClick={() => navigate(effectiveNextPath)}
-                  className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary)]/90"
+                  className="gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
                   data-testid="button-next"
                 >
                   Next

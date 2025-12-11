@@ -123,7 +123,7 @@ export default function Method() {
         <div className="flex justify-center pt-4">
           <Button
             onClick={() => handleSelectMethod('manual')}
-            className="gap-2 bg-[var(--primary)] hover:bg-[var(--primary)]/90 px-8"
+            className="gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium px-8"
             data-testid="button-continue-manual"
           >
             Continue with Manual Entry

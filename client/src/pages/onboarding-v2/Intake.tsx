@@ -419,13 +419,14 @@ export default function Intake() {
               type="button"
               variant="outline"
               onClick={() => navigate('/onboarding-v2/method')}
+              className="text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
               data-testid="button-back"
             >
               Back
             </Button>
             <Button
               type="submit"
-              className="bg-[var(--primary)] hover:bg-[var(--primary)]/90"
+              className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
               data-testid="button-next"
             >
               Continue to Holdings

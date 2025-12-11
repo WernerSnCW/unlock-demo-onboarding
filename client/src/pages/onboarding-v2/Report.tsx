@@ -65,11 +65,11 @@ export default function Report() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button variant="outline" className="gap-2" data-testid="button-download-report">
+          <Button variant="outline" className="gap-2 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200" data-testid="button-download-report">
             <Download className="w-4 h-4" />
             Download PDF
           </Button>
-          <Button variant="outline" className="gap-2" data-testid="button-share-report">
+          <Button variant="outline" className="gap-2 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200" data-testid="button-share-report">
             <Share2 className="w-4 h-4" />
             Share with Advisor
           </Button>
@@ -77,7 +77,7 @@ export default function Report() {
 
         <div className="pt-6 border-t border-[var(--border)]">
           <Link href="/">
-            <Button className="w-full gap-2 bg-[var(--primary)] hover:bg-[var(--primary)]/90" data-testid="button-go-home">
+            <Button className="w-full gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium" data-testid="button-go-home">
               <Home className="w-4 h-4" />
               Return to Dashboard
             </Button>
