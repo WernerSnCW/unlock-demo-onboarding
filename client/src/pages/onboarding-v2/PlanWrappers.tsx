@@ -4,10 +4,9 @@ import { Shield, Wallet, Building2, Banknote } from 'lucide-react';
 export default function PlanWrappers() {
   return (
     <OnboardingLayout
-      stepId="plan"
+      stepId="plan-wrappers"
       title="Recommended Wrappers"
       description="Optimize your tax efficiency by using the right investment wrappers for each asset class."
-      prevPath="/onboarding-v2/plan/transition"
     >
       <div className="space-y-6">
         <div className="grid md:grid-cols-2 gap-4">

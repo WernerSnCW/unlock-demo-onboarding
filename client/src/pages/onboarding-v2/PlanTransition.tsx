@@ -4,10 +4,9 @@ import { ArrowRightLeft, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 export default function PlanTransition() {
   return (
     <OnboardingLayout
-      stepId="plan"
+      stepId="plan-transition"
       title="Transition Plan"
       description="Here's a phased approach to move from your current allocation to your target portfolio while minimizing tax impact and transaction costs."
-      nextPath="/onboarding-v2/plan/wrappers"
     >
       <div className="space-y-6">
         <div className="space-y-4">
