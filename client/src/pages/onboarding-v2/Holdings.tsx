@@ -118,7 +118,7 @@ export default function Holdings() {
   const handleNext = () => {
     if (validateHoldings()) {
       resetAnalysis();
-      navigate('/onboarding-v2/beliefs');
+      navigate('/onboarding-v2/analysis');
     }
   };
 
@@ -258,14 +258,14 @@ export default function Holdings() {
                       onValueChange={(v) => handleUpdateHolding(holding.id, 'wrapper', v)}
                     >
                       <SelectTrigger 
-                        className={`h-9 w-28 ${errors[holding.id]?.wrapper ? 'border-[var(--destructive)]' : ''}`}
+                        className={`h-9 w-28 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 ${errors[holding.id]?.wrapper ? 'border-[var(--destructive)]' : ''}`}
                         data-testid={`select-holding-wrapper-${index}`}
                       >
-                        <SelectValue placeholder="Select" />
+                        <SelectValue placeholder="Select" className="text-gray-900 dark:text-gray-100" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-800">
                         {WRAPPERS.map((w) => (
-                          <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>
+                          <SelectItem key={w.value} value={w.value} className="text-gray-900 dark:text-gray-100">{w.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -276,14 +276,14 @@ export default function Holdings() {
                       onValueChange={(v) => handleUpdateHolding(holding.id, 'asset_class', v)}
                     >
                       <SelectTrigger 
-                        className={`h-9 w-28 ${errors[holding.id]?.asset_class ? 'border-[var(--destructive)]' : ''}`}
+                        className={`h-9 w-28 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 ${errors[holding.id]?.asset_class ? 'border-[var(--destructive)]' : ''}`}
                         data-testid={`select-holding-asset-class-${index}`}
                       >
-                        <SelectValue placeholder="Select" />
+                        <SelectValue placeholder="Select" className="text-gray-900 dark:text-gray-100" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-800">
                         {ASSET_CLASSES.map((a) => (
-                          <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                          <SelectItem key={a.value} value={a.value} className="text-gray-900 dark:text-gray-100">{a.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -293,12 +293,12 @@ export default function Holdings() {
                       value={holding.region}
                       onValueChange={(v) => handleUpdateHolding(holding.id, 'region', v)}
                     >
-                      <SelectTrigger className="h-9 w-28" data-testid={`select-holding-region-${index}`}>
-                        <SelectValue placeholder="Select" />
+                      <SelectTrigger className="h-9 w-28 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800" data-testid={`select-holding-region-${index}`}>
+                        <SelectValue placeholder="Select" className="text-gray-900 dark:text-gray-100" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white dark:bg-gray-800">
                         {REGIONS.map((r) => (
-                          <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                          <SelectItem key={r.value} value={r.value} className="text-gray-900 dark:text-gray-100">{r.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -344,7 +344,7 @@ export default function Holdings() {
         <Button
           variant="outline"
           onClick={addHolding}
-          className="gap-2"
+          className="gap-2 text-[var(--primary)] border-[var(--primary)] hover:bg-[var(--primary)]/10"
           data-testid="button-add-holding"
         >
           <Plus className="w-4 h-4" />
@@ -365,10 +365,10 @@ export default function Holdings() {
           </Button>
           <Button
             onClick={handleNext}
-            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90"
+            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white"
             data-testid="button-next"
           >
-            Continue to Beliefs
+            Continue to Analysis
           </Button>
         </div>
       </div>
