@@ -284,6 +284,56 @@ describe('Safety Lights', () => {
     });
   });
 
+  describe('Threshold values from policy', () => {
+    it('should return correct threshold values with default policy', () => {
+      const intake: Intake = {
+        cash: 50000,
+        spend: 40000,
+        largest_line_pct: 0.10,
+        illiquid_pct: 0.03,
+      };
+      
+      const result = computeSafetyLights(intake);
+      
+      expect(result.details.liquidity_thresholds.red_below).toBe(6);
+      expect(result.details.liquidity_thresholds.amber_below).toBe(9);
+      expect(result.details.concentration_thresholds.amber_above).toBeCloseTo(0.15, 5);
+      expect(result.details.concentration_thresholds.red_above).toBeCloseTo(0.20, 5);
+      expect(result.details.illiquids_thresholds.amber_above).toBeCloseTo(0.07, 5);
+      expect(result.details.illiquids_thresholds.red_above).toBeCloseTo(0.10, 5);
+    });
+
+    it('should adjust threshold values when policy is overridden', () => {
+      const intake: Intake = {
+        cash: 50000,
+        spend: 40000,
+        largest_line_pct: 0.10,
+        illiquid_pct: 0.03,
+      };
+      
+      const customPolicy: Policy = {
+        ...basePolicy,
+        projection: {
+          ...basePolicy.projection,
+          min_cash_months: 12,
+          cash_amber_multiple: 2.0,
+        },
+        collectibles: {
+          ...basePolicy.collectibles,
+          max_weight_pct: 0.15,
+          amber_fraction: 0.5,
+        },
+      };
+      
+      const result = computeSafetyLights(intake, customPolicy);
+      
+      expect(result.details.liquidity_thresholds.red_below).toBe(12);
+      expect(result.details.liquidity_thresholds.amber_below).toBe(24);
+      expect(result.details.illiquids_thresholds.amber_above).toBeCloseTo(0.075, 3);
+      expect(result.details.illiquids_thresholds.red_above).toBe(0.15);
+    });
+  });
+
   describe('Golden cases', () => {
     it('Liquidity Red locks beliefs', () => {
       const testCase = goldenCases.find(c => c.name === 'Liquidity Red locks beliefs');

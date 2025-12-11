@@ -1,0 +1,130 @@
+GOAL
+Make the Safety Lights cards on /onboarding-v2/analysis show the real thresholds from policy instead of placeholder values like amber: >0%, red: >0%.
+
+We do not want to change the existing Green/Amber/Red maths, only:
+
+Expose the threshold values used for classification, and
+
+Display them correctly in the UI.
+
+STEP 1 – Derive threshold values in the analysis service
+
+Open the analysis service module used by the onboarding v2 analysis endpoint (the module that computes liquidity, concentration, illiquids and tilts_allowed using the policy loader).
+
+Using the policy object (from getPolicy() or equivalent), explicitly compute the threshold values used for classification:
+
+Liquidity
+
+min_red_months = projection.min_cash_months (for example 6).
+
+min_green_months = projection.min_cash_months * projection.cash_amber_multiple (for example 6 * 1.5 = 9).
+
+Concentration
+
+red_from_pct = projection.max_single_name_pct (for example 0.20 → 20%).
+
+amber_from_pct = projection.concentration_amber_fraction * projection.max_single_name_pct (for example 0.75 × 0.20 = 0.15 → 15%).
+
+Illiquids / Collectibles
+
+red_from_pct = collectibles.max_weight_pct (for example 0.10 → 10%).
+
+amber_from_pct = collectibles.amber_fraction * collectibles.max_weight_pct (for example 0.7 × 0.10 = 0.07 → 7%).
+
+Extend the Safety Lights result object returned by the analysis service so that, in addition to the existing fields (liquidity, concentration, illiquids, tilts_allowed, etc.), each dimension also includes a thresholds object:
+
+For liquidity, e.g.:
+
+liquidity.thresholds = { min_red_months, min_green_months }
+
+For concentration, e.g.:
+
+concentration.thresholds = { amber_from_pct, red_from_pct }
+
+For illiquids, e.g.:
+
+illiquids.thresholds = { amber_from_pct, red_from_pct }
+
+Keep this change backwards-compatible:
+
+Do not rename or remove existing fields.
+
+Only add thresholds objects to the existing structure.
+
+STEP 2 – Ensure the analysis API returns thresholds
+
+Open the onboarding v2 analysis API endpoint (for example POST /api/onboarding-v2/analyse).
+
+Make sure the endpoint now includes the new thresholds fields from the analysis service in its JSON response.
+
+No hard-coded threshold values should remain in the endpoint; it should simply pass through what it receives from the analysis service.
+
+STEP 3 – Update the Analysis UI to use real thresholds
+
+Open the /onboarding-v2/analysis page/component where the Liquidity / Concentration / Illiquids cards are rendered.
+
+Replace any placeholder threshold strings such as:
+
+amber: >0%
+
+red: >0%
+
+or any hard-coded text for min/ideal months
+with values taken from the analysis response:
+
+Liquidity card:
+
+Use min_red_months and min_green_months from liquidity.thresholds.
+
+Format something like:
+Cash runway: {runwayMonths} months (min: {min_red_months}, ideal: {min_green_months}+ months)
+
+Concentration card:
+
+Use amber_from_pct and red_from_pct from concentration.thresholds.
+
+Convert them to percentages (e.g. 0.15 → 15%) and round appropriately.
+
+Format something like:
+Largest position: {largestLinePct}% (amber: >{amber_from_pct}%, red: >{red_from_pct}%)
+
+Illiquids card:
+
+Use amber_from_pct and red_from_pct from illiquids.thresholds.
+
+Convert to percentages as above.
+
+Format something like:
+Illiquid allocation: {illiquidPct}% (amber: >{amber_from_pct}%, red: >{red_from_pct}%)
+
+Make sure percentage and month formatting is user-friendly:
+
+Months: whole numbers.
+
+Percentages: 1 decimal place is fine (e.g. 13.9%, 4.8%, 15%, 20%).
+
+STEP 4 – Tests and sanity checks
+
+Add or update tests around the analysis service and/or endpoint to assert that:
+
+With default policy values, the thresholds in the response are:
+
+Liquidity: min_red_months = 6, min_green_months = 9.
+
+Concentration: amber_from_pct = 0.15, red_from_pct = 0.20.
+
+Illiquids: amber_from_pct = 0.07, red_from_pct = 0.10.
+
+Changing the policy config adjusts these thresholds accordingly.
+
+Run the full test suite and ensure everything passes.
+
+Manually walk through onboarding v2 with the “comfortable & diversified” scenario and confirm that:
+
+Liquidity shows something like: Cash runway: 18.0 months (min: 6, ideal: 9+ months).
+
+Concentration shows something like: Largest position: 13.9% (amber: >15%, red: >20%).
+
+Illiquids shows something like: Illiquid allocation: 4.8% (amber: >7%, red: >10%).
+
+After this change, there should be no “>0%” placeholders anywhere in the Safety Lights thresholds – all values must flow from the policy.

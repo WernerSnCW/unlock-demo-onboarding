@@ -188,7 +188,7 @@ export default function Analysis() {
       status: concentration,
       icon: Target,
       description: lightDescriptions.concentration[concentration],
-      detail: `Largest position: ${summary.largest_line_pct.toFixed(1)}% (amber: >${(details.concentration_thresholds.amber_above).toFixed(0)}%, red: >${(details.concentration_thresholds.red_above).toFixed(0)}%)`,
+      detail: `Largest position: ${summary.largest_line_pct.toFixed(1)}% (amber: >${(details.concentration_thresholds.amber_above * 100).toFixed(0)}%, red: >${(details.concentration_thresholds.red_above * 100).toFixed(0)}%)`,
     },
     {
       key: 'illiquids',
@@ -196,7 +196,7 @@ export default function Analysis() {
       status: illiquids,
       icon: Lock,
       description: lightDescriptions.illiquids[illiquids],
-      detail: `Illiquid allocation: ${summary.illiquid_pct.toFixed(1)}% (amber: >${(details.illiquids_thresholds.amber_above).toFixed(0)}%, red: >${(details.illiquids_thresholds.red_above).toFixed(0)}%)`,
+      detail: `Illiquid allocation: ${summary.illiquid_pct.toFixed(1)}% (amber: >${(details.illiquids_thresholds.amber_above * 100).toFixed(0)}%, red: >${(details.illiquids_thresholds.red_above * 100).toFixed(0)}%)`,
     },
   ];
 
