@@ -1,0 +1,442 @@
+GOAL
+Implement end-to-end investor personas in onboarding v2 so that:
+
+We capture a small set of persona cues on the Intake screen.
+
+The backend combines those cues with holdings, Safety Lights and goals to assign one of 8 persona families.
+
+The Analysis page shows a professional persona card explaining who this investor is and how Unlock will treat them.
+
+We do not need 19 front-of-house personas. We’ll implement 8 persona families in a config-driven persona engine so it’s easy to extend later.
+
+PART A – Add persona cues to the Intake screen & onboarding state
+
+What we want:
+Extend the existing /onboarding-v2/intake screen with a small section called “Investor profile (optional but recommended)” that captures a few high-signal persona cues:
+
+Age band
+
+Portfolio usage stage (accumulating vs drawing)
+
+Where they focus their investing energy (multi-select)
+
+DB pension indicator
+
+Business ownership
+
+Employer stock/RSUs
+
+Crypto significance
+
+Adviser usage
+
+Cross-border complexity
+
+All of these are optional, but should be persisted in onboarding v2 state and available to the backend.
+
+A1. Extend the onboarding v2 intake state
+
+Locate the type/interface used for the onboarding v2 intake data (e.g. OnboardingIntake, IntakeState, or similar).
+
+Extend it with a nested personaCues object (or equivalent structure) that at least holds:
+
+age_band: enum/string, e.g. "25_34" | "35_44" | "45_54" | "55_64" | "65_plus" | null
+
+portfolio_stage: "ACCUMULATING" | "STARTING_DRAWDOWN" | "PRIMARILY_DRAWDOWN" | null
+
+investing_focus: an array of enum values like:
+
+"FUNDS_ETFS", "INDIVIDUAL_SHARES", "PROPERTY_BTL", "PRIVATE_BUSINESS", "CRYPTO", "OTHER"
+
+has_defined_benefit_pension: boolean | null
+
+owns_business: boolean | null
+
+has_employer_stock: boolean | null
+
+has_meaningful_crypto: boolean | null
+
+adviser_usage: "SELF_DIRECTED" | "SOMETIMES_ADVISED" | "FULL_SERVICE_ADVISER" | "I_AM_AN_ADVISER" | null
+
+is_cross_border: boolean | null
+
+Ensure default state initialisation sets:
+
+personaCues to this structure with all fields initialised to null or empty arrays.
+
+A2. Update the Intake UI
+
+Open the /onboarding-v2/intake page/component.
+
+Add a new section near the bottom titled “Investor profile (optional but recommended)” with a short explanation like:
+
+“These questions help Unlock understand what kind of investor you are so we can tailor your plan. They’re optional, but answering them improves the recommendations.”
+
+Add the following inputs, bound to personaCues:
+
+Age band (single select / radio group):
+
+25–34, 35–44, 45–54, 55–64, 65+
+
+How are you currently using this portfolio? (single select):
+
+“Mostly building up (accumulating)” → ACCUMULATING
+
+“Starting to draw from it” → STARTING_DRAWDOWN
+
+“Primarily drawing from it for ongoing spending” → PRIMARILY_DRAWDOWN
+
+Where do you actively focus your investing? (multi-select checkboxes):
+
+Listed funds & ETFs → "FUNDS_ETFS"
+
+Individual shares → "INDIVIDUAL_SHARES"
+
+Property / buy-to-let → "PROPERTY_BTL"
+
+Private business / private equity / venture → "PRIVATE_BUSINESS"
+
+Crypto / digital assets → "CRYPTO"
+
+Other → "OTHER" (with an optional free-text notes field if you want).
+
+Specific structural cues (yes/no toggles):
+
+“Do you have a Defined Benefit / final salary pension that will cover a meaningful part of your retirement income?” → has_defined_benefit_pension
+
+“Do you own a private business that makes up a significant part of your wealth?” → owns_business
+
+“Do you hold a meaningful amount of employer stock or options/RSUs?” → has_employer_stock
+
+“Do you hold a meaningful crypto/digital asset allocation?” → has_meaningful_crypto
+
+Adviser usage:
+
+“How do you typically manage your investments?” (single select)
+
+“I make my own decisions” → SELF_DIRECTED
+
+“I sometimes get advice but mostly decide myself” → SOMETIMES_ADVISED
+
+“I work with a dedicated adviser/wealth manager” → FULL_SERVICE_ADVISER
+
+“I am a financial adviser or investment professional” → I_AM_AN_ADVISER
+
+Cross-border complexity:
+
+“Do you have a cross-border or multi-country setup (live, earn, or invest in multiple countries)?” → is_cross_border yes/no.
+
+None of these fields should be required for the user to continue. Validation should not block the Next button if they’re empty.
+
+A3. Ensure persona cues flow to the backend
+
+Wherever the onboarding v2 intake data is sent to the backend for analysis (e.g. payload for /api/onboarding-v2/analyse or a similar endpoint), extend the payload to include the personaCues object unchanged.
+
+Keep the existing analysis fields intact; this is an additive change only.
+
+PART B – Implement the persona engine on the backend
+
+What we want:
+Create a small, config-driven persona engine module that:
+
+Defines the 8 persona families with labels and content.
+
+Accepts an InvestorProfile (built from Intake, Holdings summary, Safety Lights, persona cues).
+
+Computes a score for each persona family and selects the best match.
+
+Returns persona info (title, summary, trait scores, bullets) to be included in the analysis result.
+
+B1. Create a persona engine module
+
+Create a new backend module (e.g. personaEngine.ts or similar in the analysis domain).
+
+Define an InvestorProfile type that includes:
+
+From Intake:
+
+age_band, portfolio_stage, primary_goal, time_horizon, risk_comfort
+
+personaCues as above
+
+From Safety Lights / holdings summary:
+
+total_portfolio_value_gbp
+
+cash_runway_months
+
+largest_line_pct
+
+illiquid_pct
+
+asset_class_breakdown (percentages for equity, bond, property, cash, alternatives/crypto etc.)
+
+wrapper_breakdown if needed
+
+From Safety Lights:
+
+liquidity_status, concentration_status, illiquids_status
+
+Define a PersonaFamily config type with:
+
+code (e.g. "RETIREMENT_DRAWDOWN")
+
+label (e.g. "Retirement & Drawdown Planner")
+
+one_liner (short description)
+
+plan_focus_bullets: string[] (3 bullets describing how Unlock will treat this persona)
+
+risks_bullets?: string[] (1–2 bullets for “Risks to watch”)
+
+trait_weights object with numeric weights for traits like risk, property, alternatives, liquidity, concentration, tax_complexity, cross_border, etc. (used to compute trait scores and scoring)
+
+Define at least these 8 persona families in a config array:
+
+RETIREMENT_DRAWDOWN – “Retirement & Drawdown Planner”
+
+CAUTIOUS_INCOME – “Cautious Saver & Income Seeker”
+
+GROWTH_BUILDER – “Growth Builder (Long-term Accumulator)”
+
+PROPERTY_LED – “Property-Led Investor”
+
+CONCENTRATED_CONVICTION – “Concentrated Conviction Holder”
+
+CRYPTO_ALTS_ADVENTURER – “Crypto & Alternatives Adventurer”
+
+LEGACY_HNW – “Legacy & HNW Architect”
+
+GLOBAL_CROSS_BORDER – “Global & Cross-Border Investor”
+
+For each persona family, configure:
+
+A sensible one_liner, for example:
+
+Retirement & Drawdown Planner:
+“Focused on funding retirement sustainably and not running out of money.”
+
+Property-Led Investor:
+“A large share of your wealth and attention is focused on property and rental income.”
+
+Growth Builder:
+“Still in the build-up phase, comfortable with market ups and downs for long-term growth.”
+
+3× plan_focus_bullets explaining what Unlock will prioritise for them. These can follow the patterns described earlier (retirement sequencing, diversification, liquidity, tax placement, etc.).
+
+1–2 risks_bullets (optional) highlighting key behavioural/planning risks for that persona.
+
+B2. Derive numeric features & trait scores
+
+In the persona engine module, implement helper(s) that map an InvestorProfile to:
+
+Numeric features such as:
+
+equity_pct, bond_pct, property_pct, cash_pct, alts_pct
+
+risk_score from risk comfort
+
+stage_score based on portfolio_stage
+
+wealth_score based on total_portfolio_value_gbp
+
+concentration_score from largest_line_pct
+
+liquidity_score from cash_runway_months and liquidity_status
+
+Boolean or 0/1 flags from persona cues: property_focus, crypto_focus, employer_stock, db_pension, owns_business, adviser_usage, cross_border.
+
+A small set of trait scores on a normalised scale (e.g. 0–1) for:
+
+risk
+
+property_bias
+
+alts_bias
+
+liquidity_comfort
+
+tax_complexity
+
+cross_border_complexity
+
+Use these trait scores to:
+
+Compute a match score for each PersonaFamily using its trait_weights (e.g. weighted sum / dot-product of traits).
+
+Select the persona family with the highest score as the primary persona.
+
+B3. Generate persona output object
+
+Define a PersonaResult type that the frontend can use, including:
+
+code (family code)
+
+label (persona label)
+
+one_liner
+
+plan_focus_bullets (3 strings)
+
+risks_bullets (0–2 strings)
+
+traits – a small object with trait scores on a 0–1 scale for Risk, Property, Alts, Liquidity etc. for use in a mini trait bar.
+
+why_fits_bullets – 2–3 bullets generated dynamically from the actual data, for example:
+
+“Property and other illiquid assets make up {property_pct}% of your portfolio.”
+
+“You selected Property / BTL as one of your main focus areas.”
+
+“Your largest single position is {largest_line_pct}% of your portfolio.”
+
+Implement a function like computePersona(profile: InvestorProfile): PersonaResult that:
+
+Builds trait scores and numeric features.
+
+Scores each persona family and picks the best one.
+
+Fills the PersonaResult with:
+
+Persona label + copy from config,
+
+Trait scores,
+
+Data-driven why_fits_bullets using the actual profile values.
+
+PART C – Integrate persona engine into the analysis service & API
+
+What we want:
+When onboarding v2 calls the analysis endpoint, the backend should:
+
+Build an InvestorProfile from Intake + Holdings + Safety Lights + persona cues.
+
+Call computePersona(...).
+
+Return persona data as part of the analysis response.
+
+C1. Extend the analysis service
+
+In the existing onboarding v2 analysis service (where Safety Lights and metrics are computed), construct an InvestorProfile:
+
+Use existing values for holdings, Safety Lights and metrics.
+
+Incorporate the new personaCues from Intake.
+
+Map intake fields (primary_goal, time_horizon, risk_comfort, etc.) to the profile.
+
+Call computePersona(profile) from the persona engine module.
+
+Extend the analysis result object to include a persona field of type PersonaResult.
+
+C2. Extend the analysis API response
+
+In the onboarding v2 analysis API endpoint (/api/onboarding-v2/analyse or equivalent), include the persona field in the JSON response alongside:
+
+Safety Lights (liquidity, concentration, illiquids, thresholds, overall_status_*, metrics), etc.
+
+Do this in a backwards-compatible manner (no breaking changes to existing fields).
+
+PART D – Render the persona card on the Analysis page
+
+What we want:
+On /onboarding-v2/analysis, show a Persona card under the portfolio snapshot and above Belief Tilts with:
+
+Persona name & one-liner
+
+“Why this fits you” bullets
+
+“What this means for your plan” bullets
+
+Optional “Risks to watch” and mini trait bar
+
+D1. Read persona data in the Analysis page
+
+Open the /onboarding-v2/analysis page/component.
+
+Read the persona object from the onboarding v2 analysis state (as returned by the analysis API).
+
+If persona is null/undefined (e.g. analysis not yet run), hide the persona section.
+
+D2. Build the Persona card UI
+
+Under the Current Portfolio Snapshot section and above the Belief Tilts banner, add a new section:
+
+Title: “Investor persona”
+
+Short intro: “Based on your answers and current portfolio, Unlock classifies you as:”
+
+Inside this section, render a card using persona data:
+
+Header:
+
+Persona label (e.g. “Property-Led Investor”) as the main heading.
+
+One-liner as a subheading (e.g. “A large share of your wealth and attention is focused on property and rental income.”).
+
+Two sub-sections:
+
+“Why this fits you” – bullet list from persona.why_fits_bullets.
+
+“What this means for your plan” – bullet list from persona.plan_focus_bullets.
+
+Optional “Risks to watch” section that appears only if persona.risks_bullets is non-empty.
+
+A simple trait strip at the bottom:
+
+For each trait (Risk, Property, Alternatives, Liquidity), show a label plus a small bar whose fill is based on persona.traits.risk, persona.traits.property_bias, etc.
+
+Follow the existing design system for cards (spacing, typography, colours). Keep it clean and professional – this card should look like it belongs in a Fortune 500-grade tool.
+
+PART E – Tests & manual verification
+E1. Automated tests
+
+Add unit tests for the persona engine module to verify that:
+
+A clearly property-dominated profile with property focus checked and high property % is classified as PROPERTY_LED.
+
+A crypto-heavy, high-risk profile is classified as CRYPTO_ALTS_ADVENTURER.
+
+An older, drawdown-stage profile with retirement goals is classified as RETIREMENT_DRAWDOWN.
+
+A younger, accumulation-stage, equity-heavy, diversified profile is classified as GROWTH_BUILDER.
+
+Add at least one test confirming that why_fits_bullets includes actual numeric values from the profile (e.g. property %, concentration %, cash runway).
+
+E2. Manual checks
+
+In the browser, run through several onboarding scenarios:
+
+Scenario 1 (diversified Growth Builder):
+
+Middle age band, accumulating, funds/ETFs focus, diversified holdings, Safety Lights green.
+
+Confirm persona is “Growth Builder (Long-term Accumulator)” and that “Why this fits you” references equity %, time horizon, contributions.
+
+Property-heavy scenario:
+
+High property %, “Property / BTL” ticked, maybe some illiquids.
+
+Confirm persona is “Property-Led Investor” and bullets talk about property % and illiquidity.
+
+Retirement/drawdown scenario:
+
+Age 60+, drawing from portfolio, DB pension ticked.
+
+Confirm persona is “Retirement & Drawdown Planner”.
+
+Crypto/adventurous scenario:
+
+Crypto focus ticked, high alts %, high risk comfort.
+
+Confirm persona is “Crypto & Alternatives Adventurer”.
+
+On the Analysis page, confirm that:
+
+Safety Lights, Key Metrics and Current Portfolio Snapshot behave exactly as before.
+
+The new Persona section appears only after analysis has run.
+
+All persona text feels consistent and professional, with no placeholder copy.
+
+Please keep all implementation details (types, trait weights, scoring constants) in code/config, and keep this instruction focused on structure and behaviour rather than concrete code.
