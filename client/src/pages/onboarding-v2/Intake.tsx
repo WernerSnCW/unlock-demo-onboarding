@@ -49,10 +49,22 @@ export default function Intake() {
   const [, navigate] = useLocation();
   const [showInvestorProfile, setShowInvestorProfile] = useState(false);
 
-  const personaCues = intake.personaCues;
+  // Default personaCues if not present (handles old localStorage data)
+  const defaultPersonaCues: PersonaCues = {
+    age_band: null,
+    portfolio_stage: null,
+    investing_focus: [],
+    has_defined_benefit_pension: null,
+    owns_business: null,
+    has_employer_stock: null,
+    has_meaningful_crypto: null,
+    adviser_usage: null,
+    is_cross_border: null,
+  };
+  const personaCues = intake.personaCues ?? defaultPersonaCues;
 
   const toggleInvestingFocus = (focus: InvestingFocus) => {
-    const current = personaCues.investing_focus || [];
+    const current = personaCues.investing_focus ?? [];
     const updated = current.includes(focus)
       ? current.filter(f => f !== focus)
       : [...current, focus];
