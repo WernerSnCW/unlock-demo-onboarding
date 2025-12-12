@@ -2583,11 +2583,21 @@ Return as JSON with this exact structure:
         return res.status(400).json({ error: "intake.illiquid_pct must be a number between 0 and 1" });
       }
 
-      const validatedIntake: Intake = {
+      // Build extended intake with persona cues and additional data
+      const validatedIntake = {
         cash,
         spend,
         largest_line_pct,
-        illiquid_pct
+        illiquid_pct,
+        // Extended fields for persona computation
+        total_portfolio_value_gbp: intake.total_portfolio_value_gbp,
+        primary_goal: intake.primary_goal,
+        time_horizon: intake.time_horizon,
+        risk_comfort: intake.risk_comfort,
+        age_band: intake.age_band,
+        portfolio_stage: intake.portfolio_stage,
+        personaCues: intake.personaCues,
+        asset_class_breakdown: intake.asset_class_breakdown,
       };
 
       const result = analyzeOnboarding(validatedIntake, policy_overrides);

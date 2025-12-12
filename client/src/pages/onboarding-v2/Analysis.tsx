@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import PortfolioSnapshot from '@/components/onboarding-v2/PortfolioSnapshot';
-import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2, User } from 'lucide-react';
-import { useOnboardingV2Store, SafetyStatus } from '@/state/onboardingV2Store';
+import PersonaCard from '@/components/onboarding-v2/PersonaCard';
+import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
+import { useOnboardingV2Store, SafetyStatus, computePortfolioBreakdowns } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
@@ -58,6 +59,29 @@ export default function Analysis() {
 
   const hasValidData = summary.total_investable_value > 0 && intake.annual_essential_spend_gbp > 0;
 
+  const breakdowns = useMemo(() => computePortfolioBreakdowns(holdings), [holdings]);
+
+  const computeAssetClassBreakdown = () => {
+    const result = { equity_pct: 0, bond_pct: 0, property_pct: 0, cash_pct: 0, alts_pct: 0, crypto_pct: 0 };
+    for (const item of breakdowns.by_asset_class) {
+      const name = item.name.toLowerCase();
+      if (name.includes('equity') || name.includes('share') || name.includes('stock')) {
+        result.equity_pct += item.weight_pct;
+      } else if (name.includes('bond') || name.includes('fixed')) {
+        result.bond_pct += item.weight_pct;
+      } else if (name.includes('property') || name.includes('real estate')) {
+        result.property_pct += item.weight_pct;
+      } else if (name.includes('cash') || name.includes('money market')) {
+        result.cash_pct += item.weight_pct;
+      } else if (name.includes('crypto') || name.includes('digital')) {
+        result.crypto_pct += item.weight_pct;
+      } else {
+        result.alts_pct += item.weight_pct;
+      }
+    }
+    return result;
+  };
+
   useEffect(() => {
     if (!hasValidData) {
       return;
@@ -72,14 +96,21 @@ export default function Analysis() {
     setAnalysisLoading();
 
     try {
+      const assetBreakdown = computeAssetClassBreakdown();
+      
       const payload = {
         intake: {
           cash: intake.liquid_cash_gbp,
           spend: intake.annual_essential_spend_gbp,
           largest_line_pct: summary.largest_line_pct / 100,
           illiquid_pct: summary.illiquid_pct / 100,
+          total_portfolio_value_gbp: summary.total_investable_value,
+          primary_goal: intake.primary_goal,
+          time_horizon: intake.time_horizon_years,
+          risk_comfort: intake.risk_comfort,
+          personaCues: intake.personaCues,
+          asset_class_breakdown: assetBreakdown,
         },
-        // Include full holdings for future transition planning
         holdings: holdings.filter(h => h.value_gbp > 0).map(h => ({
           id: h.id,
           instrument_name: h.instrument_name,
@@ -89,7 +120,6 @@ export default function Analysis() {
           region: h.region,
           value_gbp: h.value_gbp,
           illiquid: h.illiquid,
-          // Advanced fields for transition/tax planning
           currency: h.currency,
           instrument_type: h.instrument_type,
           isin: h.isin,
@@ -329,6 +359,19 @@ export default function Analysis() {
 
         <PortfolioSnapshot />
 
+        {/* Investor Persona Card */}
+        {persona && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+              Investor Persona
+            </h3>
+            <p className="text-sm text-[var(--muted-foreground)] -mt-1">
+              Based on your answers and current portfolio, Unlock classifies you as:
+            </p>
+            <PersonaCard persona={persona} />
+          </div>
+        )}
+
         <div
           className={`relative overflow-hidden p-5 rounded-xl border shadow-sm ${
             tilts_allowed
@@ -358,17 +401,6 @@ export default function Analysis() {
             </div>
           </div>
         </div>
-
-        {persona.id === null && (
-          <div className="p-4 rounded-lg border border-[var(--border)] bg-[var(--muted)]/20">
-            <div className="flex items-center gap-2">
-              <User className="w-5 h-5 text-[var(--muted-foreground)]" />
-              <span className="text-sm text-[var(--muted-foreground)]">
-                <strong>Persona insights</strong> coming in the next iteration.
-              </span>
-            </div>
-          </div>
-        )}
 
         <div className="flex justify-between items-center pt-8 border-t border-[var(--border)]">
           <Button

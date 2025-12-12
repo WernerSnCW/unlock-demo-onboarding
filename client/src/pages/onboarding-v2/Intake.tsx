@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { User, Mail, Building, MapPin, Wallet, Target, Clock } from 'lucide-react';
-import { useOnboardingV2Store, IntakeData } from '@/state/onboardingV2Store';
+import { User, Mail, Building, MapPin, Wallet, Target, Clock, UserCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { useOnboardingV2Store, IntakeData, PersonaCues, InvestingFocus } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const intakeSchema = z.object({
   full_name: z.string().min(2, 'Please enter your full name'),
@@ -42,8 +45,19 @@ const intakeSchema = z.object({
 type IntakeFormData = z.infer<typeof intakeSchema>;
 
 export default function Intake() {
-  const { intake, updateIntake, resetAnalysis } = useOnboardingV2Store();
+  const { intake, updateIntake, updatePersonaCues, resetAnalysis } = useOnboardingV2Store();
   const [, navigate] = useLocation();
+  const [showInvestorProfile, setShowInvestorProfile] = useState(false);
+
+  const personaCues = intake.personaCues;
+
+  const toggleInvestingFocus = (focus: InvestingFocus) => {
+    const current = personaCues.investing_focus || [];
+    const updated = current.includes(focus)
+      ? current.filter(f => f !== focus)
+      : [...current, focus];
+    updatePersonaCues({ investing_focus: updated });
+  };
 
   const form = useForm<IntakeFormData>({
     resolver: zodResolver(intakeSchema),
@@ -408,6 +422,183 @@ export default function Intake() {
                 )}
               />
             </div>
+          </div>
+
+          {/* Investor Profile Section (Optional) */}
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={() => setShowInvestorProfile(!showInvestorProfile)}
+              className="w-full flex items-center justify-between text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2 hover:text-[var(--primary)] transition-colors"
+              data-testid="toggle-investor-profile"
+            >
+              <div className="flex items-center gap-2">
+                <UserCircle className="w-5 h-5 text-[var(--secondary)]" />
+                Investor Profile (optional but recommended)
+              </div>
+              {showInvestorProfile ? (
+                <ChevronUp className="w-5 h-5" />
+              ) : (
+                <ChevronDown className="w-5 h-5" />
+              )}
+            </button>
+
+            {showInvestorProfile && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  These questions help Unlock understand what kind of investor you are so we can tailor your plan. They're optional, but answering them improves the recommendations.
+                </p>
+
+                {/* Age Band */}
+                <div className="space-y-2">
+                  <Label className="text-[var(--foreground)] font-medium">Age Band</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: '25_34', label: '25–34' },
+                      { value: '35_44', label: '35–44' },
+                      { value: '45_54', label: '45–54' },
+                      { value: '55_64', label: '55–64' },
+                      { value: '65_plus', label: '65+' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => updatePersonaCues({ age_band: option.value as PersonaCues['age_band'] })}
+                        className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                          personaCues.age_band === option.value
+                            ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                            : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)]'
+                        }`}
+                        data-testid={`btn-age-${option.value}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Portfolio Stage */}
+                <div className="space-y-2">
+                  <Label className="text-[var(--foreground)] font-medium">How are you currently using this portfolio?</Label>
+                  <div className="grid gap-2">
+                    {[
+                      { value: 'ACCUMULATING', label: 'Mostly building up (accumulating)' },
+                      { value: 'STARTING_DRAWDOWN', label: 'Starting to draw from it' },
+                      { value: 'PRIMARILY_DRAWDOWN', label: 'Primarily drawing from it for ongoing spending' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => updatePersonaCues({ portfolio_stage: option.value as PersonaCues['portfolio_stage'] })}
+                        className={`px-4 py-3 rounded-lg border text-sm text-left transition-all ${
+                          personaCues.portfolio_stage === option.value
+                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]'
+                            : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)]'
+                        }`}
+                        data-testid={`btn-stage-${option.value}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Investing Focus (Multi-select) */}
+                <div className="space-y-2">
+                  <Label className="text-[var(--foreground)] font-medium">Where do you actively focus your investing? (select all that apply)</Label>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {[
+                      { value: 'FUNDS_ETFS', label: 'Listed funds & ETFs' },
+                      { value: 'INDIVIDUAL_SHARES', label: 'Individual shares' },
+                      { value: 'PROPERTY_BTL', label: 'Property / buy-to-let' },
+                      { value: 'PRIVATE_BUSINESS', label: 'Private business / PE / venture' },
+                      { value: 'CRYPTO', label: 'Crypto / digital assets' },
+                      { value: 'OTHER', label: 'Other' },
+                    ].map((option) => (
+                      <label
+                        key={option.value}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-all ${
+                          personaCues.investing_focus?.includes(option.value as InvestingFocus)
+                            ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                            : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'
+                        }`}
+                      >
+                        <Checkbox
+                          checked={personaCues.investing_focus?.includes(option.value as InvestingFocus) || false}
+                          onCheckedChange={() => toggleInvestingFocus(option.value as InvestingFocus)}
+                          data-testid={`check-focus-${option.value}`}
+                        />
+                        <span className="text-sm text-[var(--foreground)]">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Structural Cues (Toggles) */}
+                <div className="space-y-4">
+                  <Label className="text-[var(--foreground)] font-medium">Specific structural cues</Label>
+                  <div className="space-y-3">
+                    {[
+                      { key: 'has_defined_benefit_pension', label: 'Do you have a Defined Benefit / final salary pension that will cover a meaningful part of your retirement income?' },
+                      { key: 'owns_business', label: 'Do you own a private business that makes up a significant part of your wealth?' },
+                      { key: 'has_employer_stock', label: 'Do you hold a meaningful amount of employer stock or options/RSUs?' },
+                      { key: 'has_meaningful_crypto', label: 'Do you hold a meaningful crypto/digital asset allocation?' },
+                    ].map((item) => (
+                      <div key={item.key} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--muted)]/30">
+                        <Switch
+                          checked={personaCues[item.key as keyof PersonaCues] === true}
+                          onCheckedChange={(checked) => updatePersonaCues({ [item.key]: checked })}
+                          data-testid={`switch-${item.key}`}
+                        />
+                        <span className="text-sm text-[var(--foreground)] leading-tight">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Adviser Usage */}
+                <div className="space-y-2">
+                  <Label className="text-[var(--foreground)] font-medium">How do you typically manage your investments?</Label>
+                  <div className="grid gap-2">
+                    {[
+                      { value: 'SELF_DIRECTED', label: 'I make my own decisions' },
+                      { value: 'SOMETIMES_ADVISED', label: 'I sometimes get advice but mostly decide myself' },
+                      { value: 'FULL_SERVICE_ADVISER', label: 'I work with a dedicated adviser/wealth manager' },
+                      { value: 'I_AM_AN_ADVISER', label: 'I am a financial adviser or investment professional' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => updatePersonaCues({ adviser_usage: option.value as PersonaCues['adviser_usage'] })}
+                        className={`px-4 py-3 rounded-lg border text-sm text-left transition-all ${
+                          personaCues.adviser_usage === option.value
+                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]'
+                            : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)]'
+                        }`}
+                        data-testid={`btn-adviser-${option.value}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cross-border */}
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-[var(--border)] bg-[var(--muted)]/20">
+                  <Switch
+                    checked={personaCues.is_cross_border === true}
+                    onCheckedChange={(checked) => updatePersonaCues({ is_cross_border: checked })}
+                    data-testid="switch-cross-border"
+                  />
+                  <div>
+                    <Label className="text-[var(--foreground)] font-medium">Cross-border complexity</Label>
+                    <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                      Do you have a cross-border or multi-country setup (live, earn, or invest in multiple countries)?
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <p className="text-center text-xs text-[var(--muted-foreground)]">

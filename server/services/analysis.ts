@@ -1,4 +1,11 @@
 import { Policy, getPolicy, applyPolicyOverrides } from './policy';
+import { computePersona } from './personaEngine';
+import type { 
+  PersonaResult, 
+  InvestorProfile, 
+  PersonaCues, 
+  AssetClassBreakdown 
+} from './personaEngine';
 
 export type SafetyStatus = 'GREEN' | 'AMBER' | 'RED';
 export type OverallStatusCode = 'ALL_CLEAR' | 'CAUTION' | 'ACTION_REQUIRED';
@@ -173,13 +180,42 @@ export function computeSafetyLights(intake: Intake, policy?: Policy): SafetyLigh
 
 export interface OnboardingAnalysisResult {
   safety_lights: SafetyLightsResult;
-  persona: {
-    id: string | null;
-    name: string | null;
-  };
+  persona: PersonaResult | null;
 }
 
-export function analyzeOnboarding(intake: Intake, policyOverrides?: Partial<Policy>): OnboardingAnalysisResult {
+export interface ExtendedIntake extends Intake {
+  total_portfolio_value_gbp?: number;
+  primary_goal?: string;
+  time_horizon?: string;
+  risk_comfort?: string;
+  age_band?: string;
+  portfolio_stage?: string;
+  personaCues?: PersonaCues;
+  asset_class_breakdown?: AssetClassBreakdown;
+}
+
+const defaultPersonaCues: PersonaCues = {
+  age_band: null,
+  portfolio_stage: null,
+  investing_focus: [],
+  has_defined_benefit_pension: null,
+  owns_business: null,
+  has_employer_stock: null,
+  has_meaningful_crypto: null,
+  adviser_usage: null,
+  is_cross_border: null,
+};
+
+const defaultAssetClassBreakdown: AssetClassBreakdown = {
+  equity_pct: 60,
+  bond_pct: 20,
+  property_pct: 10,
+  cash_pct: 5,
+  alts_pct: 5,
+  crypto_pct: 0,
+};
+
+export function analyzeOnboarding(intake: ExtendedIntake, policyOverrides?: Partial<Policy>): OnboardingAnalysisResult {
   let policy = getPolicy();
   
   if (policyOverrides) {
@@ -188,11 +224,31 @@ export function analyzeOnboarding(intake: Intake, policyOverrides?: Partial<Poli
 
   const safetyLights = computeSafetyLights(intake, policy);
 
+  // Build investor profile for persona computation
+  const investorProfile: InvestorProfile = {
+    age_band: (intake.personaCues?.age_band || intake.age_band || null) as InvestorProfile['age_band'],
+    portfolio_stage: (intake.personaCues?.portfolio_stage || intake.portfolio_stage || null) as InvestorProfile['portfolio_stage'],
+    primary_goal: intake.primary_goal || '',
+    time_horizon: intake.time_horizon || '',
+    risk_comfort: intake.risk_comfort || '',
+    personaCues: intake.personaCues || defaultPersonaCues,
+    total_portfolio_value_gbp: intake.total_portfolio_value_gbp || 0,
+    cash_runway_months: safetyLights.metrics.cash_runway_months,
+    largest_line_pct: intake.largest_line_pct,
+    illiquid_pct: intake.illiquid_pct,
+    asset_class_breakdown: intake.asset_class_breakdown || defaultAssetClassBreakdown,
+    liquidity_status: safetyLights.liquidity,
+    concentration_status: safetyLights.concentration,
+    illiquids_status: safetyLights.illiquids,
+  };
+
+  // Compute persona
+  const persona = computePersona(investorProfile);
+
   return {
     safety_lights: safetyLights,
-    persona: {
-      id: null,
-      name: null,
-    },
+    persona,
   };
 }
+
+export { PersonaResult };

@@ -53,6 +53,15 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 - Fixed property valuation data integration using latestValuation.valueGbp field structure
 - All analysis includes professional disclaimers emphasizing informational purpose only
 
+**Investor Persona Feature Complete (Dec 12, 2025):** Successfully implemented end-to-end investor personas for Onboarding v2:
+- Created persona engine module (`server/services/personaEngine.ts`) with 8 persona families: YOUNG_ACCUMULATOR, MID_CAREER_BALANCED, PROPERTY_LED, ESG_CONSCIOUS, CRYPTO_ALTS_ADVENTURER, NEAR_RETIREMENT_CAUTIOUS, RETIREMENT_DRAWDOWN, WEALTH_PRESERVATION
+- Implemented trait-based scoring system using 9 weighted traits (risk, property_bias, alts_bias, liquidity_comfort, tax_complexity, cross_border_complexity, drawdown_focus, wealth_level, concentration)
+- Extended analysis service to accept personaCues, asset_class_breakdown, and extended intake data
+- Built PersonaCard component with Fortune 500 professional styling displaying: label, one-liner, "Why This Fits You" bullets, "What This Means For Your Plan" bullets, "Risks to Watch" bullets, and horizontal trait bars
+- Added PersonaCues interface to onboarding store with optional fields (age_band, portfolio_stage, investing_focus, has_defined_benefit_pension, owns_business, etc.)
+- Integrated persona computation into Analysis page with asset class breakdown derived from holdings
+- All persona cues are optional - validation doesn't block navigation
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

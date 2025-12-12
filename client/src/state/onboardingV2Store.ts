@@ -3,6 +3,23 @@ import { persist } from 'zustand/middleware';
 
 export type IntakeMethod = 'manual' | 'upload' | 'connect' | 'advisor';
 
+export type AgeBand = '25_34' | '35_44' | '45_54' | '55_64' | '65_plus' | null;
+export type PortfolioStage = 'ACCUMULATING' | 'STARTING_DRAWDOWN' | 'PRIMARILY_DRAWDOWN' | null;
+export type InvestingFocus = 'FUNDS_ETFS' | 'INDIVIDUAL_SHARES' | 'PROPERTY_BTL' | 'PRIVATE_BUSINESS' | 'CRYPTO' | 'OTHER';
+export type AdviserUsage = 'SELF_DIRECTED' | 'SOMETIMES_ADVISED' | 'FULL_SERVICE_ADVISER' | 'I_AM_AN_ADVISER' | null;
+
+export interface PersonaCues {
+  age_band: AgeBand;
+  portfolio_stage: PortfolioStage;
+  investing_focus: InvestingFocus[];
+  has_defined_benefit_pension: boolean | null;
+  owns_business: boolean | null;
+  has_employer_stock: boolean | null;
+  has_meaningful_crypto: boolean | null;
+  adviser_usage: AdviserUsage;
+  is_cross_border: boolean | null;
+}
+
 export interface IntakeData {
   intake_method: IntakeMethod;
   full_name: string;
@@ -17,6 +34,7 @@ export interface IntakeData {
   primary_goal: string;
   time_horizon_years: string;
   risk_comfort: string;
+  personaCues: PersonaCues;
 }
 
 export interface Holding {
@@ -108,12 +126,28 @@ export interface SafetyLightsResult {
   };
 }
 
+export interface PersonaTraits {
+  risk: number;
+  property_bias: number;
+  alts_bias: number;
+  liquidity_comfort: number;
+  tax_complexity: number;
+  cross_border_complexity: number;
+}
+
+export interface PersonaResult {
+  code: string;
+  label: string;
+  one_liner: string;
+  plan_focus_bullets: string[];
+  risks_bullets: string[];
+  traits: PersonaTraits;
+  why_fits_bullets: string[];
+}
+
 export interface AnalysisResult {
   safety_lights: SafetyLightsResult;
-  persona: {
-    id: string | null;
-    name: string | null;
-  };
+  persona: PersonaResult | null;
 }
 
 export type AnalysisStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -131,6 +165,7 @@ interface OnboardingV2State {
   analysis: AnalysisState;
   
   updateIntake: (partial: Partial<IntakeData>) => void;
+  updatePersonaCues: (partial: Partial<PersonaCues>) => void;
   setHoldings: (holdings: Holding[]) => void;
   addHolding: () => void;
   updateHolding: (id: string, partial: Partial<Holding>) => void;
@@ -147,6 +182,18 @@ interface OnboardingV2State {
 
 const generateId = () => `holding_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+const initialPersonaCues: PersonaCues = {
+  age_band: null,
+  portfolio_stage: null,
+  investing_focus: [],
+  has_defined_benefit_pension: null,
+  owns_business: null,
+  has_employer_stock: null,
+  has_meaningful_crypto: null,
+  adviser_usage: null,
+  is_cross_border: null,
+};
+
 const initialIntake: IntakeData = {
   intake_method: 'manual',
   full_name: '',
@@ -161,6 +208,7 @@ const initialIntake: IntakeData = {
   primary_goal: '',
   time_horizon_years: '',
   risk_comfort: '',
+  personaCues: initialPersonaCues,
 };
 
 const createEmptyHolding = (): Holding => ({
@@ -337,6 +385,15 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       updateIntake: (partial) => {
         set((state) => ({
           intake: { ...state.intake, ...partial },
+        }));
+      },
+
+      updatePersonaCues: (partial) => {
+        set((state) => ({
+          intake: {
+            ...state.intake,
+            personaCues: { ...state.intake.personaCues, ...partial },
+          },
         }));
       },
 
