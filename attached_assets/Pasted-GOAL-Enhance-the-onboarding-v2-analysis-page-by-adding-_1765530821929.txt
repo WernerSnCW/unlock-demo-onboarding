@@ -1,0 +1,180 @@
+GOAL
+Enhance the /onboarding-v2/analysis page by adding a Current Portfolio Snapshot section that visualises the investor’s current portfolio using the holdings data already captured in onboarding v2.
+
+This should:
+
+Use the existing holdings from the onboarding v2 state (no new inputs).
+
+Compute breakdowns by asset class, wrapper, and top holdings.
+
+Display them in a clean, professional layout that fits the current design system.
+
+Be descriptive only (no change to Safety Lights maths).
+
+STEP 1 – Compute portfolio breakdowns from holdings
+
+Locate the shared onboarding v2 state/store where holdings, summary.total_investable_value, summary.largest_line_pct and summary.illiquid_pct are computed.
+
+Add a small helper/selector (either in the store or a separate utilities module) that, given the current holdings, computes:
+
+total_value – sum of value_gbp across all valid holdings (reuse the same logic used for the existing summary).
+
+By asset class:
+
+A list of { asset_class, value_gbp, weight_pct }, where:
+
+value_gbp is the sum of value_gbp for holdings in that asset_class.
+
+weight_pct = value_gbp / total_value (0 if total_value is 0).
+
+By wrapper:
+
+A list of { wrapper, value_gbp, weight_pct } computed in the same way by wrapper.
+
+Top holdings:
+
+Sort holdings by value_gbp descending.
+
+Take the top 5 entries (or fewer if there are fewer holdings).
+
+For each, compute:
+
+name
+
+wrapper
+
+asset_class
+
+region
+
+value_gbp
+
+weight_pct = value_gbp / total_value
+
+illiquid flag
+
+Store these breakdowns in the onboarding v2 state (for example under a breakdowns or snapshot property), or expose them via a memoised selector so the Analysis page can access them without re-implementing the logic.
+
+Handle edge cases:
+
+If total_value <= 0, return empty arrays and 0% weights.
+
+STEP 2 – Add a “Current Portfolio Snapshot” section to the Analysis page
+
+Open the /onboarding-v2/analysis page/component.
+
+Read the computed breakdowns from the onboarding v2 state or selector:
+
+assetClassBreakdown
+
+wrapperBreakdown
+
+topHoldings
+
+Below the Safety Lights and Key Metrics sections, but above the “Belief Tilts” banner, add a new section titled:
+
+“Current Portfolio Snapshot”
+with a short description, e.g.:
+
+“Here’s how your current portfolio is allocated before we propose any changes.”
+
+STEP 3 – Visualise allocation by asset class and wrapper
+
+For asset class allocation:
+
+Present a compact visual plus numbers. You can either:
+
+Use any existing charting component already used in the project, or, if there is no chart library in use:
+
+Implement a simple horizontal bar representation using CSS (e.g. a single bar split into segments proportional to weight_pct).
+
+For each asset class entry, show:
+
+Asset class name (e.g. Equity, Bond, Property, Cash, Alternatives).
+
+Percentage weight (e.g. “38%”).
+
+Keep to the app’s visual style (cards, muted text, subtle borders).
+
+For wrapper allocation:
+
+Similarly, show the breakdown by wrapper (ISA, SIPP, GIA, Cash, Other).
+
+You may use:
+
+A small stacked bar, or
+
+A simple list of wrappers with percentage values and short labels, e.g.:
+
+“ISA – 42%”
+
+“SIPP – 35%”
+
+“GIA – 18%”
+
+“Cash – 5%”
+
+Ensure the percentages sum to ~100% (allow for rounding).
+
+If there is no portfolio value yet (e.g. total 0), display a simple message in this section such as:
+
+“We’ll show your portfolio breakdown here once you’ve entered holdings.”
+
+STEP 4 – Add a “Top holdings” list
+
+In the same “Current Portfolio Snapshot” section, add a Top holdings card or sub-section.
+
+Display up to the top 5 holdings, each row showing:
+
+Name (e.g. “Global Equity Index Fund”)
+
+Wrapper (e.g. ISA)
+
+Asset class (e.g. Equity)
+
+Region (e.g. Global / UK / US)
+
+Value in GBP (formatted with £ and thousand separators)
+
+Percentage of portfolio (e.g. “13.9% of portfolio”)
+
+A small icon or tag if illiquid === true, e.g. “Illiquid”.
+
+If there are fewer than 5 holdings, show only the holdings that exist.
+
+If there are no holdings, show a short message instead of the list, consistent with the message in the allocation view.
+
+STEP 5 – Keep everything descriptive and consistent
+
+This snapshot is descriptive only:
+
+Do not change or reclassify Safety Lights based on this section.
+
+Do not add any new maths for risk or optimisation here – it is just summarising the current portfolio.
+
+Ensure visual consistency:
+
+Use existing card styles, typography and spacing so the Snapshot section looks like a natural part of the page.
+
+Avoid introducing a heavy new chart dependency if a simple visual can be produced with existing components; if a chart library is already in use, reuse it.
+
+STEP 6 – Tests and manual checks
+
+Add or extend tests to verify that:
+
+Given a known set of holdings, the breakdown helper returns the correct weights by asset class and wrapper and correct top holdings list.
+
+Run the full test suite and ensure all tests pass.
+
+Manually test in the browser using:
+
+The diversified Scenario 1 portfolio.
+
+A more concentrated / property-heavy portfolio.
+Confirm that:
+
+The asset class and wrapper breakdowns match the holdings you entered.
+
+The top holdings list shows the correct top positions and percentages.
+
+The snapshot updates when you change holdings and re-run the analysis.
