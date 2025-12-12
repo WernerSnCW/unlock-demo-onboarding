@@ -447,3 +447,184 @@ describe('Advanced Holdings Fields', () => {
     expect(summary.holdings_with_cost_basis).toBe(0);
   });
 });
+
+describe('Portfolio Breakdowns', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    localStorageMock.clear();
+  });
+
+  const createHolding = (overrides: Partial<{
+    id: string; instrument_name: string; ticker: string; wrapper: string;
+    asset_class: string; region: string; value_gbp: number; illiquid: boolean;
+  }>) => ({
+    id: overrides.id || 'h1',
+    instrument_name: overrides.instrument_name || '',
+    ticker: overrides.ticker || '',
+    wrapper: overrides.wrapper || '',
+    asset_class: overrides.asset_class || '',
+    region: overrides.region || '',
+    value_gbp: overrides.value_gbp ?? 0,
+    illiquid: overrides.illiquid ?? false,
+    currency: 'GBP',
+    instrument_type: 'Fund',
+    isin: null,
+    cost_basis_gbp: null,
+    acquisition_date: null,
+    notes: null,
+  });
+
+  it('should compute asset class breakdown correctly', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = [
+      createHolding({ id: 'h1', instrument_name: 'UK Equity Fund', ticker: 'UKE', wrapper: 'ISA', asset_class: 'Equity', region: 'UK', value_gbp: 50000 }),
+      createHolding({ id: 'h2', instrument_name: 'Property Fund', ticker: 'PROP', wrapper: 'GIA', asset_class: 'Property', region: 'UK', value_gbp: 30000, illiquid: true }),
+      createHolding({ id: 'h3', instrument_name: 'Global Bonds', ticker: 'BOND', wrapper: 'SIPP', asset_class: 'Bond', region: 'Global', value_gbp: 20000 }),
+    ];
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    expect(breakdowns.total_value).toBe(100000);
+    expect(breakdowns.by_asset_class.length).toBe(3);
+
+    const equity = breakdowns.by_asset_class.find(a => a.name === 'Equity');
+    expect(equity?.value_gbp).toBe(50000);
+    expect(equity?.weight_pct).toBe(50);
+
+    const property = breakdowns.by_asset_class.find(a => a.name === 'Property');
+    expect(property?.value_gbp).toBe(30000);
+    expect(property?.weight_pct).toBe(30);
+
+    const bond = breakdowns.by_asset_class.find(a => a.name === 'Bond');
+    expect(bond?.value_gbp).toBe(20000);
+    expect(bond?.weight_pct).toBe(20);
+  });
+
+  it('should normalize case differences in asset class and wrapper', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = [
+      createHolding({ id: 'h1', wrapper: 'ISA', asset_class: 'equity', value_gbp: 30000 }),
+      createHolding({ id: 'h2', wrapper: 'isa', asset_class: 'EQUITY', value_gbp: 20000 }),
+      createHolding({ id: 'h3', wrapper: 'Isa', asset_class: 'Equity', value_gbp: 10000 }),
+    ];
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    expect(breakdowns.by_asset_class.length).toBe(1);
+    expect(breakdowns.by_asset_class[0].name).toBe('Equity');
+    expect(breakdowns.by_asset_class[0].value_gbp).toBe(60000);
+
+    expect(breakdowns.by_wrapper.length).toBe(1);
+    expect(breakdowns.by_wrapper[0].name).toBe('ISA');
+    expect(breakdowns.by_wrapper[0].value_gbp).toBe(60000);
+  });
+
+  it('should compute wrapper breakdown correctly', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = [
+      createHolding({ id: 'h1', instrument_name: 'ISA Fund 1', wrapper: 'ISA', asset_class: 'Equity', value_gbp: 40000 }),
+      createHolding({ id: 'h2', instrument_name: 'ISA Fund 2', wrapper: 'ISA', asset_class: 'Bond', value_gbp: 20000 }),
+      createHolding({ id: 'h3', instrument_name: 'SIPP Fund', wrapper: 'SIPP', asset_class: 'Equity', value_gbp: 40000 }),
+    ];
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    expect(breakdowns.by_wrapper.length).toBe(2);
+
+    const isa = breakdowns.by_wrapper.find(w => w.name === 'ISA');
+    expect(isa?.value_gbp).toBe(60000);
+    expect(isa?.weight_pct).toBe(60);
+
+    const sipp = breakdowns.by_wrapper.find(w => w.name === 'SIPP');
+    expect(sipp?.value_gbp).toBe(40000);
+    expect(sipp?.weight_pct).toBe(40);
+  });
+
+  it('should return top 5 holdings sorted by value', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = Array.from({ length: 7 }, (_, i) => createHolding({
+      id: `h${i + 1}`,
+      instrument_name: `Fund ${i + 1}`,
+      ticker: `F${i + 1}`,
+      wrapper: 'ISA',
+      asset_class: 'Equity',
+      region: 'UK',
+      value_gbp: (7 - i) * 10000,
+      illiquid: i === 2,
+    }));
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    expect(breakdowns.top_holdings.length).toBe(5);
+    expect(breakdowns.top_holdings[0].value_gbp).toBe(70000);
+    expect(breakdowns.top_holdings[0].name).toBe('Fund 1');
+    expect(breakdowns.top_holdings[4].value_gbp).toBe(30000);
+    expect(breakdowns.top_holdings[4].name).toBe('Fund 5');
+
+    const illiquidHolding = breakdowns.top_holdings.find(h => h.name === 'Fund 3');
+    expect(illiquidHolding?.illiquid).toBe(true);
+  });
+
+  it('should handle empty holdings gracefully', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const breakdowns = computePortfolioBreakdowns([]);
+
+    expect(breakdowns.total_value).toBe(0);
+    expect(breakdowns.by_asset_class).toEqual([]);
+    expect(breakdowns.by_wrapper).toEqual([]);
+    expect(breakdowns.top_holdings).toEqual([]);
+  });
+
+  it('should handle holdings with zero value', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = [
+      createHolding({ id: 'h1', instrument_name: 'Valid Fund', wrapper: 'ISA', asset_class: 'Equity', value_gbp: 10000 }),
+      createHolding({ id: 'h2', instrument_name: 'Zero Value Fund', wrapper: 'ISA', asset_class: 'Equity', value_gbp: 0 }),
+    ];
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    expect(breakdowns.total_value).toBe(10000);
+    expect(breakdowns.by_asset_class.length).toBe(1);
+    expect(breakdowns.top_holdings.length).toBe(1);
+  });
+
+  it('should use "Other" for missing asset class or wrapper', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = [
+      createHolding({ id: 'h1', instrument_name: 'Mystery Fund', wrapper: '', asset_class: '', region: '', value_gbp: 10000 }),
+    ];
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    expect(breakdowns.by_asset_class[0].name).toBe('Other');
+    expect(breakdowns.by_wrapper[0].name).toBe('Other');
+    expect(breakdowns.top_holdings[0].asset_class).toBe('Other');
+    expect(breakdowns.top_holdings[0].wrapper).toBe('Other');
+  });
+
+  it('should calculate weight percentages that sum to 100%', async () => {
+    const { computePortfolioBreakdowns } = await import('../client/src/state/onboardingV2Store');
+
+    const holdings = [
+      createHolding({ id: 'h1', wrapper: 'ISA', asset_class: 'Equity', value_gbp: 33333 }),
+      createHolding({ id: 'h2', wrapper: 'SIPP', asset_class: 'Bond', value_gbp: 33333 }),
+      createHolding({ id: 'h3', wrapper: 'GIA', asset_class: 'Property', value_gbp: 33334 }),
+    ];
+
+    const breakdowns = computePortfolioBreakdowns(holdings);
+
+    const assetClassTotal = breakdowns.by_asset_class.reduce((sum, a) => sum + a.weight_pct, 0);
+    const wrapperTotal = breakdowns.by_wrapper.reduce((sum, w) => sum + w.weight_pct, 0);
+
+    expect(assetClassTotal).toBeCloseTo(100, 1);
+    expect(wrapperTotal).toBeCloseTo(100, 1);
+  });
+});

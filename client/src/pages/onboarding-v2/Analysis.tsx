@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
+import PortfolioSnapshot from '@/components/onboarding-v2/PortfolioSnapshot';
 import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2, User } from 'lucide-react';
 import { useOnboardingV2Store, SafetyStatus } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
@@ -325,6 +326,8 @@ export default function Analysis() {
             </div>
           </div>
         </div>
+
+        <PortfolioSnapshot />
 
         <div
           className={`relative overflow-hidden p-5 rounded-xl border shadow-sm ${

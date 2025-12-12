@@ -49,6 +49,29 @@ export interface PortfolioSummary {
   holdings_with_cost_basis: number;
 }
 
+export interface AllocationBreakdown {
+  name: string;
+  value_gbp: number;
+  weight_pct: number;
+}
+
+export interface TopHoldingEntry {
+  name: string;
+  wrapper: string;
+  asset_class: string;
+  region: string;
+  value_gbp: number;
+  weight_pct: number;
+  illiquid: boolean;
+}
+
+export interface PortfolioBreakdowns {
+  total_value: number;
+  by_asset_class: AllocationBreakdown[];
+  by_wrapper: AllocationBreakdown[];
+  top_holdings: TopHoldingEntry[];
+}
+
 export type SafetyStatus = 'GREEN' | 'AMBER' | 'RED';
 export type OverallStatusCode = 'ALL_CLEAR' | 'CAUTION' | 'ACTION_REQUIRED';
 
@@ -215,6 +238,91 @@ function computeSummaryFromHoldings(holdings: Holding[]): PortfolioSummary {
     holding_count: validHoldings.length,
     total_unrealised_gain_gbp: totalUnrealisedGain,
     holdings_with_cost_basis: holdingsWithCostBasis.length,
+  };
+}
+
+function normalizeKey(value: string | undefined | null): string {
+  if (!value || value.trim() === '') return 'Other';
+  const trimmed = value.trim();
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+}
+
+function normalizeWrapper(value: string | undefined | null): string {
+  if (!value || value.trim() === '') return 'Other';
+  const trimmed = value.trim().toUpperCase();
+  const wrapperMap: Record<string, string> = {
+    'ISA': 'ISA',
+    'SIPP': 'SIPP',
+    'GIA': 'GIA',
+    'CASH': 'Cash',
+    'EIS': 'EIS/SEIS',
+    'SEIS': 'EIS/SEIS',
+    'EIS/SEIS': 'EIS/SEIS',
+    'VCT': 'VCT',
+  };
+  return wrapperMap[trimmed] || (trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase());
+}
+
+export function computePortfolioBreakdowns(holdings: Holding[]): PortfolioBreakdowns {
+  const validHoldings = holdings.filter((h) => h.value_gbp > 0);
+  const total = validHoldings.reduce((sum, h) => sum + h.value_gbp, 0);
+
+  if (total <= 0) {
+    return {
+      total_value: 0,
+      by_asset_class: [],
+      by_wrapper: [],
+      top_holdings: [],
+    };
+  }
+
+  // Group by asset class with normalization
+  const assetClassMap = new Map<string, number>();
+  validHoldings.forEach((h) => {
+    const key = normalizeKey(h.asset_class);
+    assetClassMap.set(key, (assetClassMap.get(key) || 0) + h.value_gbp);
+  });
+  const byAssetClass: AllocationBreakdown[] = Array.from(assetClassMap.entries())
+    .map(([name, value_gbp]) => ({
+      name,
+      value_gbp,
+      weight_pct: (value_gbp / total) * 100,
+    }))
+    .sort((a, b) => b.value_gbp - a.value_gbp);
+
+  // Group by wrapper with normalization
+  const wrapperMap = new Map<string, number>();
+  validHoldings.forEach((h) => {
+    const key = normalizeWrapper(h.wrapper);
+    wrapperMap.set(key, (wrapperMap.get(key) || 0) + h.value_gbp);
+  });
+  const byWrapper: AllocationBreakdown[] = Array.from(wrapperMap.entries())
+    .map(([name, value_gbp]) => ({
+      name,
+      value_gbp,
+      weight_pct: (value_gbp / total) * 100,
+    }))
+    .sort((a, b) => b.value_gbp - a.value_gbp);
+
+  // Top 5 holdings with normalized display values
+  const topHoldings: TopHoldingEntry[] = [...validHoldings]
+    .sort((a, b) => b.value_gbp - a.value_gbp)
+    .slice(0, 5)
+    .map((h) => ({
+      name: h.instrument_name || h.ticker || 'Unnamed',
+      wrapper: normalizeWrapper(h.wrapper),
+      asset_class: normalizeKey(h.asset_class),
+      region: normalizeKey(h.region),
+      value_gbp: h.value_gbp,
+      weight_pct: (h.value_gbp / total) * 100,
+      illiquid: h.illiquid,
+    }));
+
+  return {
+    total_value: total,
+    by_asset_class: byAssetClass,
+    by_wrapper: byWrapper,
+    top_holdings: topHoldings,
   };
 }
 
