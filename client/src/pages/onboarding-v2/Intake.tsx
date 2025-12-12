@@ -556,10 +556,18 @@ export default function Intake() {
                       { key: 'has_employer_stock', label: 'Do you hold a meaningful amount of employer stock or options/RSUs?' },
                       { key: 'has_meaningful_crypto', label: 'Do you hold a meaningful crypto/digital asset allocation?' },
                     ].map((item) => (
-                      <div key={item.key} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--muted)]/30">
+                      <div 
+                        key={item.key} 
+                        className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                          personaCues[item.key as keyof PersonaCues] === true
+                            ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                            : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                        }`}
+                      >
                         <Switch
                           checked={personaCues[item.key as keyof PersonaCues] === true}
                           onCheckedChange={(checked) => updatePersonaCues({ [item.key]: checked })}
+                          className="data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-600"
                           data-testid={`switch-${item.key}`}
                         />
                         <span className="text-sm text-[var(--foreground)] leading-tight">{item.label}</span>
@@ -596,10 +604,15 @@ export default function Intake() {
                 </div>
 
                 {/* Cross-border */}
-                <div className="flex items-start gap-3 p-4 rounded-lg border border-[var(--border)] bg-[var(--muted)]/20">
+                <div className={`flex items-start gap-3 p-4 rounded-lg border transition-all ${
+                  personaCues.is_cross_border === true
+                    ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                    : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                }`}>
                   <Switch
                     checked={personaCues.is_cross_border === true}
                     onCheckedChange={(checked) => updatePersonaCues({ is_cross_border: checked })}
+                    className="data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-600"
                     data-testid="switch-cross-border"
                   />
                   <div>
