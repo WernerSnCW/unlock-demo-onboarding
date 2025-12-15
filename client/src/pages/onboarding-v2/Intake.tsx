@@ -125,14 +125,19 @@ export default function Intake() {
       hideNav
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl mx-auto">
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
-              <User className="w-5 h-5 text-[var(--primary)]" />
-              Basic Details
-            </h3>
-            
-            <div className="grid md:grid-cols-2 gap-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
+          {/* Basic Details Card */}
+          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+            <div className="bg-gradient-to-r from-[var(--primary)]/5 to-transparent px-6 py-4 border-b border-[var(--border)]">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--primary)]/10">
+                  <User className="w-5 h-5 text-[var(--primary)]" />
+                </div>
+                Basic Details
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="full_name"
@@ -220,16 +225,22 @@ export default function Intake() {
                   </FormItem>
                 )}
               />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
-              <Wallet className="w-5 h-5 text-[var(--secondary)]" />
-              Financial Picture
-            </h3>
-            
-            <div className="grid md:grid-cols-2 gap-4">
+          {/* Financial Picture Card */}
+          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+            <div className="bg-gradient-to-r from-[var(--secondary)]/5 to-transparent px-6 py-4 border-b border-[var(--border)]">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--secondary)]/10">
+                  <Wallet className="w-5 h-5 text-[var(--secondary)]" />
+                </div>
+                Financial Picture
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="annual_income_gbp"
@@ -351,16 +362,22 @@ export default function Intake() {
                   </FormItem>
                 )}
               />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
-              <Target className="w-5 h-5 text-[var(--accent)]" />
-              Goals & Risk Profile
-            </h3>
-            
-            <div className="grid md:grid-cols-2 gap-4">
+          {/* Goals & Risk Profile Card */}
+          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+            <div className="bg-gradient-to-r from-amber-500/5 to-transparent px-6 py-4 border-b border-[var(--border)]">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-500/10">
+                  <Target className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                Goals & Risk Profile
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="primary_goal"
@@ -433,32 +450,36 @@ export default function Intake() {
                   </FormItem>
                 )}
               />
+              </div>
             </div>
           </div>
 
           {/* Investor Profile Section (Optional) */}
-          <div className="space-y-4">
+          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
             <button
               type="button"
               onClick={() => setShowInvestorProfile(!showInvestorProfile)}
-              className="w-full flex items-center justify-between text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2 hover:text-[var(--primary)] transition-colors"
+              className="w-full flex items-center justify-between px-6 py-4 hover:bg-[var(--muted)]/30 transition-colors"
               data-testid="toggle-investor-profile"
             >
-              <div className="flex items-center gap-2">
-                <UserCircle className="w-5 h-5 text-[var(--secondary)]" />
-                Investor Profile (optional but recommended)
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--secondary)]/10">
+                  <UserCircle className="w-5 h-5 text-[var(--secondary)]" />
+                </div>
+                <span className="text-lg font-semibold text-[var(--foreground)]">Investor Profile</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--secondary)]/10 text-[var(--secondary)]">Optional</span>
               </div>
               {showInvestorProfile ? (
-                <ChevronUp className="w-5 h-5" />
+                <ChevronUp className="w-5 h-5 text-[var(--muted-foreground)]" />
               ) : (
-                <ChevronDown className="w-5 h-5" />
+                <ChevronDown className="w-5 h-5 text-[var(--muted-foreground)]" />
               )}
             </button>
 
             {showInvestorProfile && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  These questions help Unlock understand what kind of investor you are so we can tailor your plan. They're optional, but answering them improves the recommendations.
+              <div className="p-6 pt-4 border-t border-[var(--border)] space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <p className="text-sm text-[var(--muted-foreground)] bg-[var(--muted)]/30 p-3 rounded-lg">
+                  These questions help us understand what kind of investor you are so we can tailor your plan. They're optional, but answering them improves the recommendations.
                 </p>
 
                 {/* Age Band */}
