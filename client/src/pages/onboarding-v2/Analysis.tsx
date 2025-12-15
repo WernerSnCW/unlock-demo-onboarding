@@ -265,15 +265,26 @@ export default function Analysis() {
       description="We've analysed your portfolio against our Safety Lights framework. Here's what we found."
       hideNav
     >
-      <div className="space-y-8">
-        <div
-          className={`relative overflow-hidden p-6 rounded-2xl border-2 shadow-lg ${overallStatusConfig.gradient} ${overallStatusConfig.borderColor}`}
-          data-testid="overall-status-banner"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-current opacity-[0.03] rounded-full -mr-16 -mt-16"></div>
-          <div className="relative flex items-start gap-4">
-            <div className={`p-3 rounded-xl ${overallStatusConfig.iconBg} shadow-sm`}>
-              <OverallStatusIcon className={`w-8 h-8 ${overallStatusConfig.color}`} />
+      <div className="space-y-8 pt-6">
+        {/* Overall Status Banner */}
+        <div className="group relative">
+          <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+            overall_status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500/30 to-transparent' :
+            overall_status === 'AMBER' ? 'bg-gradient-to-br from-amber-500/30 to-transparent' :
+            'bg-gradient-to-br from-rose-500/30 to-transparent'
+          }`} />
+          <div
+            className={`relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-10 ${overallStatusConfig.borderColor}`}
+            data-testid="overall-status-banner"
+          >
+            <div className="absolute -top-5 left-6 z-10">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
+                overall_status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25' :
+                overall_status === 'AMBER' ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/25' :
+                'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+              }`}>
+                <OverallStatusIcon className="w-6 h-6 text-white" />
+              </div>
             </div>
             <div className="flex-1">
               <h3 className={`text-xl font-bold ${overallStatusConfig.color} mb-2 tracking-tight`} data-testid="overall-status-label">
@@ -293,27 +304,34 @@ export default function Analysis() {
           <h3 className="text-xl font-bold text-[var(--foreground)] tracking-tight">Safety Lights</h3>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-3 gap-6 pt-4">
           {lights.map((light) => {
             const config = statusConfig[light.status];
             const Icon = light.icon;
             const StatusIcon = config.icon;
 
             return (
-              <div
-                key={light.key}
-                className={`relative overflow-hidden p-5 rounded-xl border shadow-sm hover:shadow-md transition-shadow duration-200 ${config.gradient} ${config.borderColor}`}
-                data-testid={`safety-light-${light.key}`}
-              >
-                <div className="absolute top-0 right-0 w-16 h-16 bg-current opacity-[0.03] rounded-full -mr-8 -mt-8"></div>
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${config.iconBg}`}>
-                        <Icon className={`w-5 h-5 ${config.color}`} />
-                      </div>
-                      <span className="font-bold text-[var(--foreground)] tracking-tight">{light.label}</span>
+              <div key={light.key} className="group relative">
+                <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+                  light.status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500/20 to-transparent' :
+                  light.status === 'AMBER' ? 'bg-gradient-to-br from-amber-500/20 to-transparent' :
+                  'bg-gradient-to-br from-rose-500/20 to-transparent'
+                }`} />
+                <div
+                  className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10"
+                  data-testid={`safety-light-${light.key}`}
+                >
+                  <div className="absolute -top-4 left-4 z-10">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
+                      light.status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25' :
+                      light.status === 'AMBER' ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/25' :
+                      'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+                    }`}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
+                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-[var(--foreground)] tracking-tight">{light.label}</span>
                     <StatusIcon className={`w-6 h-6 ${config.color}`} />
                   </div>
                   <p className="text-sm text-[var(--foreground)] mb-3 leading-relaxed">{light.description}</p>
@@ -324,34 +342,43 @@ export default function Analysis() {
           })}
         </div>
 
-        <div className="p-5 rounded-xl border border-[var(--border)] bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-gray-900 shadow-sm" data-testid="key-metrics-section">
-          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-4">Key Metrics</h4>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Cash Runway</div>
-              <div className="text-lg font-bold text-[var(--foreground)]">
-                {metrics.cash_runway_months === -1 ? '∞' : metrics.cash_runway_months.toFixed(1)} months
-              </div>
-              <div className="text-xs text-[var(--muted-foreground)]">
-                Min: {details.liquidity_thresholds.red_below} | Ideal: {details.liquidity_thresholds.amber_below}+
+        {/* Key Metrics Section */}
+        <div className="group relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10" data-testid="key-metrics-section">
+            <div className="absolute -top-4 left-4 z-10">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <Target className="w-5 h-5 text-white" />
               </div>
             </div>
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Largest Holding</div>
-              <div className="text-lg font-bold text-[var(--foreground)]">
-                {(metrics.largest_line_pct * 100).toFixed(1)}%
+            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-4">Key Metrics</h4>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Cash Runway</div>
+                <div className="text-lg font-bold text-[var(--foreground)]">
+                  {metrics.cash_runway_months === -1 ? '∞' : metrics.cash_runway_months.toFixed(1)} months
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  Min: {details.liquidity_thresholds.red_below} | Ideal: {details.liquidity_thresholds.amber_below}+
+                </div>
               </div>
-              <div className="text-xs text-[var(--muted-foreground)]">
-                Amber: &gt;{(details.concentration_thresholds.amber_above * 100).toFixed(0)}% | Red: &gt;{(details.concentration_thresholds.red_above * 100).toFixed(0)}%
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Largest Holding</div>
+                <div className="text-lg font-bold text-[var(--foreground)]">
+                  {(metrics.largest_line_pct * 100).toFixed(1)}%
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  Amber: &gt;{(details.concentration_thresholds.amber_above * 100).toFixed(0)}% | Red: &gt;{(details.concentration_thresholds.red_above * 100).toFixed(0)}%
+                </div>
               </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Illiquid Allocation</div>
-              <div className="text-lg font-bold text-[var(--foreground)]">
-                {(metrics.illiquid_pct * 100).toFixed(1)}%
-              </div>
-              <div className="text-xs text-[var(--muted-foreground)]">
-                Amber: &gt;{(details.illiquids_thresholds.amber_above * 100).toFixed(0)}% | Red: &gt;{(details.illiquids_thresholds.red_above * 100).toFixed(0)}%
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">Illiquid Allocation</div>
+                <div className="text-lg font-bold text-[var(--foreground)]">
+                  {(metrics.illiquid_pct * 100).toFixed(1)}%
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  Amber: &gt;{(details.illiquids_thresholds.amber_above * 100).toFixed(0)}% | Red: &gt;{(details.illiquids_thresholds.red_above * 100).toFixed(0)}%
+                </div>
               </div>
             </div>
           </div>
@@ -372,22 +399,29 @@ export default function Analysis() {
           </div>
         )}
 
-        <div
-          className={`relative overflow-hidden p-5 rounded-xl border shadow-sm ${
-            tilts_allowed
-              ? 'bg-gradient-to-br from-emerald-500/5 via-white to-emerald-500/10 dark:from-emerald-500/10 dark:via-gray-900 dark:to-emerald-500/5 border-emerald-500/30'
-              : 'bg-gradient-to-br from-rose-500/5 via-white to-rose-500/10 dark:from-rose-500/10 dark:via-gray-900 dark:to-rose-500/5 border-rose-500/30'
-          }`}
-          data-testid="tilts-banner"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-current opacity-[0.03] rounded-full -mr-10 -mt-10"></div>
-          <div className="relative flex items-start gap-4">
-            <div className={`p-2 rounded-lg ${tilts_allowed ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`}>
-              {tilts_allowed ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-              )}
+        {/* Tilts Banner */}
+        <div className="group relative">
+          <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+            tilts_allowed ? 'bg-gradient-to-br from-emerald-500/20 to-transparent' : 'bg-gradient-to-br from-rose-500/20 to-transparent'
+          }`} />
+          <div
+            className={`relative bg-white dark:bg-slate-800/80 rounded-2xl border shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10 ${
+              tilts_allowed ? 'border-emerald-500/30' : 'border-rose-500/30'
+            }`}
+            data-testid="tilts-banner"
+          >
+            <div className="absolute -top-4 left-4 z-10">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
+                tilts_allowed 
+                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25' 
+                  : 'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+              }`}>
+                {tilts_allowed ? (
+                  <CheckCircle2 className="w-5 h-5 text-white" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-white" />
+                )}
+              </div>
             </div>
             <div>
               <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${tilts_allowed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}`}>
