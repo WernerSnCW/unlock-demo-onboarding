@@ -125,19 +125,20 @@ export default function Intake() {
       hideNav
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl mx-auto pt-4">
           {/* Basic Details Card */}
-          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-            <div className="bg-gradient-to-r from-[var(--primary)]/5 to-transparent px-6 py-4 border-b border-[var(--border)]">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[var(--primary)]/10">
-                  <User className="w-5 h-5 text-[var(--primary)]" />
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+              {/* Floating icon */}
+              <div className="absolute -top-5 left-6 z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <User className="w-6 h-6 text-white" />
                 </div>
-                Basic Details
-              </h3>
-            </div>
-            <div className="p-6">
-              <div className="grid md:grid-cols-2 gap-4">
+              </div>
+              <div className="p-6 pt-10">
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">Basic Details</h3>
+                <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="full_name"
@@ -225,22 +226,23 @@ export default function Intake() {
                   </FormItem>
                 )}
               />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Financial Picture Card */}
-          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-            <div className="bg-gradient-to-r from-[var(--secondary)]/5 to-transparent px-6 py-4 border-b border-[var(--border)]">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[var(--secondary)]/10">
-                  <Wallet className="w-5 h-5 text-[var(--secondary)]" />
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--secondary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="absolute -top-5 left-6 z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[var(--secondary)]/70 flex items-center justify-center shadow-lg shadow-[var(--secondary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <Wallet className="w-6 h-6 text-white" />
                 </div>
-                Financial Picture
-              </h3>
-            </div>
-            <div className="p-6">
-              <div className="grid md:grid-cols-2 gap-4">
+              </div>
+              <div className="p-6 pt-10">
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">Financial Picture</h3>
+                <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="annual_income_gbp"
@@ -362,22 +364,23 @@ export default function Intake() {
                   </FormItem>
                 )}
               />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Goals & Risk Profile Card */}
-          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-500/5 to-transparent px-6 py-4 border-b border-[var(--border)]">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10">
-                  <Target className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="absolute -top-5 left-6 z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <Target className="w-6 h-6 text-white" />
                 </div>
-                Goals & Risk Profile
-              </h3>
-            </div>
-            <div className="p-6">
-              <div className="grid md:grid-cols-2 gap-4">
+              </div>
+              <div className="p-6 pt-10">
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">Goals & Risk Profile</h3>
+                <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="primary_goal"
@@ -450,24 +453,29 @@ export default function Intake() {
                   </FormItem>
                 )}
               />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Investor Profile Section (Optional) */}
-          <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="absolute -top-5 left-6 z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <UserCircle className="w-6 h-6 text-white" />
+                </div>
+              </div>
             <button
               type="button"
               onClick={() => setShowInvestorProfile(!showInvestorProfile)}
-              className="w-full flex items-center justify-between px-6 py-4 hover:bg-[var(--muted)]/30 transition-colors"
+              className="w-full flex items-center justify-between px-6 py-4 pt-8 hover:bg-[var(--muted)]/30 transition-colors"
               data-testid="toggle-investor-profile"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[var(--secondary)]/10">
-                  <UserCircle className="w-5 h-5 text-[var(--secondary)]" />
-                </div>
                 <span className="text-lg font-semibold text-[var(--foreground)]">Investor Profile</span>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--secondary)]/10 text-[var(--secondary)]">Optional</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">Optional</span>
               </div>
               {showInvestorProfile ? (
                 <ChevronUp className="w-5 h-5 text-[var(--muted-foreground)]" />
@@ -645,6 +653,7 @@ export default function Intake() {
                 </div>
               </div>
             )}
+            </div>
           </div>
 
           <p className="text-center text-xs text-[var(--muted-foreground)]">
