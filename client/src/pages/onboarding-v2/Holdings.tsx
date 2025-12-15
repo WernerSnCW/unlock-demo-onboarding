@@ -201,17 +201,18 @@ export default function Holdings() {
       wideLayout
     >
       <div className="space-y-6">
-        <div className="grid lg:grid-cols-4 gap-4 mb-6">
-          <div className="relative overflow-hidden p-5 rounded-xl bg-gradient-to-br from-[var(--primary)]/5 via-white to-[var(--primary)]/10 dark:from-[var(--primary)]/10 dark:via-gray-900 dark:to-[var(--primary)]/5 border border-[var(--primary)]/20 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-[var(--primary)]/5 rounded-full -mr-10 -mt-10"></div>
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 rounded-lg bg-[var(--primary)]/10">
-                  <TrendingUp className="w-4 h-4 text-[var(--primary)]" />
+        <div className="grid lg:grid-cols-4 gap-6 mb-6 pt-6">
+          {/* Total Value Card */}
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
+              <div className="absolute -top-4 left-4 z-10">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <TrendingUp className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-[var(--muted-foreground)]">Total Value</span>
               </div>
-              <div className="text-2xl font-bold text-[var(--foreground)] tracking-tight" data-testid="summary-total-value">
+              <span className="text-sm font-medium text-[var(--muted-foreground)]">Total Value</span>
+              <div className="text-2xl font-bold text-[var(--foreground)] tracking-tight mt-1" data-testid="summary-total-value">
                 {formatCurrency(summary.total_investable_value)}
               </div>
               <div className="text-xs text-[var(--muted-foreground)] mt-1">
@@ -220,16 +221,17 @@ export default function Holdings() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden p-5 rounded-xl bg-gradient-to-br from-[var(--secondary)]/5 via-white to-[var(--secondary)]/10 dark:from-[var(--secondary)]/10 dark:via-gray-900 dark:to-[var(--secondary)]/5 border border-[var(--secondary)]/20 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-[var(--secondary)]/5 rounded-full -mr-10 -mt-10"></div>
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 rounded-lg bg-[var(--secondary)]/10">
-                  <PieChart className="w-4 h-4 text-[var(--secondary)]" />
+          {/* Largest Holding Card */}
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--secondary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
+              <div className="absolute -top-4 left-4 z-10">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[var(--secondary)]/70 flex items-center justify-center shadow-lg shadow-[var(--secondary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <PieChart className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-[var(--muted-foreground)]">Largest Holding</span>
               </div>
-              <div className={`text-2xl font-bold tracking-tight ${getConcentrationColor(summary.largest_line_pct)}`} data-testid="summary-concentration">
+              <span className="text-sm font-medium text-[var(--muted-foreground)]">Largest Holding</span>
+              <div className={`text-2xl font-bold tracking-tight mt-1 ${getConcentrationColor(summary.largest_line_pct)}`} data-testid="summary-concentration">
                 {formatPercent(summary.largest_line_pct)}
               </div>
               <div className="text-xs text-[var(--muted-foreground)] mt-1">
@@ -238,16 +240,17 @@ export default function Holdings() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden p-5 rounded-xl bg-gradient-to-br from-amber-500/5 via-white to-amber-500/10 dark:from-amber-500/10 dark:via-gray-900 dark:to-amber-500/5 border border-amber-500/20 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/5 rounded-full -mr-10 -mt-10"></div>
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 rounded-lg bg-amber-500/10">
-                  <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          {/* Illiquid Assets Card */}
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
+              <div className="absolute -top-4 left-4 z-10">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <Lock className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-[var(--muted-foreground)]">Illiquid Assets</span>
               </div>
-              <div className={`text-2xl font-bold tracking-tight ${getIlliquidColor(summary.illiquid_pct)}`} data-testid="summary-illiquid">
+              <span className="text-sm font-medium text-[var(--muted-foreground)]">Illiquid Assets</span>
+              <div className={`text-2xl font-bold tracking-tight mt-1 ${getIlliquidColor(summary.illiquid_pct)}`} data-testid="summary-illiquid">
                 {formatPercent(summary.illiquid_pct)}
               </div>
               <div className="text-xs text-[var(--muted-foreground)] mt-1">
@@ -256,40 +259,33 @@ export default function Holdings() {
             </div>
           </div>
 
-          <div className={`relative overflow-hidden p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 ${
-            analysis.status === 'ready' && analysis.result
-              ? analysis.result.safety_lights.overall_status === 'GREEN'
-                ? 'bg-gradient-to-br from-emerald-500/5 via-white to-emerald-500/10 dark:from-emerald-500/10 dark:via-gray-900 dark:to-emerald-500/5 border border-emerald-500/30'
-                : analysis.result.safety_lights.overall_status === 'AMBER'
-                ? 'bg-gradient-to-br from-amber-500/5 via-white to-amber-500/10 dark:from-amber-500/10 dark:via-gray-900 dark:to-amber-500/5 border border-amber-500/30'
-                : 'bg-gradient-to-br from-rose-500/5 via-white to-rose-500/10 dark:from-rose-500/10 dark:via-gray-900 dark:to-rose-500/5 border border-rose-500/30'
-              : 'bg-gradient-to-br from-slate-500/5 via-white to-slate-500/10 dark:from-slate-500/10 dark:via-gray-900 dark:to-slate-500/5 border border-slate-500/20'
-          }`}>
-            <div className="absolute top-0 right-0 w-20 h-20 bg-current opacity-[0.03] rounded-full -mr-10 -mt-10"></div>
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <div className={`p-2 rounded-lg ${
+          {/* Safety Lights Card */}
+          <div className="group relative">
+            <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+              analysis.status === 'ready' && analysis.result
+                ? analysis.result.safety_lights.overall_status === 'GREEN'
+                  ? 'bg-gradient-to-br from-emerald-500/20 to-transparent'
+                  : analysis.result.safety_lights.overall_status === 'AMBER'
+                  ? 'bg-gradient-to-br from-amber-500/20 to-transparent'
+                  : 'bg-gradient-to-br from-rose-500/20 to-transparent'
+                : 'bg-gradient-to-br from-purple-500/20 to-transparent'
+            }`} />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
+              <div className="absolute -top-4 left-4 z-10">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg -rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
                   analysis.status === 'ready' && analysis.result
                     ? analysis.result.safety_lights.overall_status === 'GREEN'
-                      ? 'bg-emerald-500/10'
+                      ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25'
                       : analysis.result.safety_lights.overall_status === 'AMBER'
-                      ? 'bg-amber-500/10'
-                      : 'bg-rose-500/10'
-                    : 'bg-slate-500/10'
+                      ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/25'
+                      : 'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+                    : 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-500/25'
                 }`}>
-                  <Shield className={`w-4 h-4 ${
-                    analysis.status === 'ready' && analysis.result
-                      ? analysis.result.safety_lights.overall_status === 'GREEN'
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : analysis.result.safety_lights.overall_status === 'AMBER'
-                        ? 'text-amber-600 dark:text-amber-400'
-                        : 'text-rose-600 dark:text-rose-400'
-                      : 'text-slate-600 dark:text-slate-400'
-                  }`} />
+                  <Shield className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-[var(--muted-foreground)]">Safety Lights</span>
               </div>
-              <div className={`text-lg font-bold tracking-tight ${
+              <span className="text-sm font-medium text-[var(--muted-foreground)]">Safety Lights</span>
+              <div className={`text-lg font-bold tracking-tight mt-1 ${
                 analysis.status === 'ready' && analysis.result
                   ? analysis.result.safety_lights.overall_status === 'GREEN'
                     ? 'text-emerald-600 dark:text-emerald-400'
