@@ -10,11 +10,11 @@ export default function Welcome() {
     >
       <div className="space-y-10">
         {/* Feature Cards with enhanced depth */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 items-stretch">
           {/* Secure & Private Card */}
-          <div className="group relative">
+          <div className="group relative h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="relative h-full bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Shield className="w-7 h-7 text-white" />
@@ -30,9 +30,9 @@ export default function Welcome() {
           </div>
           
           {/* AI-Powered Card */}
-          <div className="group relative">
+          <div className="group relative h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--secondary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="relative h-full bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--secondary)] to-[var(--secondary)]/70 flex items-center justify-center shadow-lg shadow-[var(--secondary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Sparkles className="w-7 h-7 text-white" />
@@ -48,9 +48,9 @@ export default function Welcome() {
           </div>
           
           {/* Optimized Strategy Card */}
-          <div className="group relative">
+          <div className="group relative h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="relative h-full bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <TrendingUp className="w-7 h-7 text-white" />
