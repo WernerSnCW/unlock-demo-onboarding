@@ -356,14 +356,14 @@ export default function Analysis() {
             const StatusIcon = config.icon;
 
             return (
-              <div key={light.key} className="group relative">
+              <div key={light.key} className="group relative h-full">
                 <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
                   light.status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500/20 to-transparent' :
                   light.status === 'AMBER' ? 'bg-gradient-to-br from-amber-500/20 to-transparent' :
                   'bg-gradient-to-br from-rose-500/20 to-transparent'
                 }`} />
                 <div
-                  className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10"
+                  className="relative h-full flex flex-col bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10"
                   data-testid={`safety-light-${light.key}`}
                 >
                   <div className="absolute -top-4 left-4 z-10">
@@ -379,8 +379,8 @@ export default function Analysis() {
                     <span className="font-bold text-[var(--foreground)] tracking-tight">{light.label}</span>
                     <StatusIcon className={`w-6 h-6 ${config.color}`} />
                   </div>
-                  <p className="text-sm text-[var(--foreground)] mb-3 leading-relaxed">{light.description}</p>
-                  <p className="text-xs text-[var(--muted-foreground)] font-medium">{light.detail}</p>
+                  <p className="text-sm text-[var(--foreground)] mb-3 leading-relaxed flex-1">{light.description}</p>
+                  <p className="text-xs text-[var(--muted-foreground)] font-medium mt-auto">{light.detail}</p>
                 </div>
               </div>
             );
