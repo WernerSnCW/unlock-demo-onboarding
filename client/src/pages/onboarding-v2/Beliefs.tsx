@@ -349,21 +349,33 @@ export default function Beliefs() {
 
         {/* Transparency Section - Always visible, collapsed by default */}
         <Collapsible open={transparencyOpen} onOpenChange={setTransparencyOpen}>
-          <CollapsibleTrigger asChild>
-            <button className="group/trigger flex items-center gap-3 text-sm w-full justify-between p-4 rounded-xl border border-[var(--border)] bg-white dark:bg-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover/trigger:bg-[var(--primary)]/10 transition-colors">
-                  <Info className="w-4 h-4 text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)]" />
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
+              <div className="absolute -top-5 left-6 z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center shadow-lg shadow-slate-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <Info className="w-6 h-6 text-white" />
                 </div>
-                <span className="font-medium text-[var(--foreground)]">Transparency</span>
               </div>
-              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-                {transparencyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </div>
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-4">
-              <div className="space-y-6 p-6 rounded-2xl border border-[var(--border)] bg-white dark:bg-slate-800/80 shadow-lg">
+              
+              <CollapsibleTrigger asChild>
+                <button className="w-full flex items-center justify-between mb-4 cursor-pointer group/trigger">
+                  <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
+                    Transparency
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)] transition-colors">
+                    <span>{transparencyOpen ? 'Hide details' : 'Show details'}</span>
+                    {transparencyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </button>
+              </CollapsibleTrigger>
+              
+              <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                See how your responses translate into portfolio tilts.
+              </p>
+
+              <CollapsibleContent>
+                <div className="space-y-6 pt-4 border-t border-[var(--border)]">
                 {/* Question Responses */}
                 <div>
                   <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-4">Your Responses</h4>
@@ -433,8 +445,10 @@ export default function Beliefs() {
                     </div>
                   </div>
                 </div>
-              </div>
-          </CollapsibleContent>
+                </div>
+              </CollapsibleContent>
+            </div>
+          </div>
         </Collapsible>
 
         {/* Validation Error Summary */}
@@ -462,7 +476,7 @@ export default function Beliefs() {
           <Button
             variant="outline"
             onClick={handleBack}
-            className="px-6 py-2.5"
+            className="px-6 py-2.5 border-2 border-[var(--border)] bg-white dark:bg-slate-800 text-[var(--foreground)] hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-[var(--primary)] transition-all duration-300"
             data-testid="beliefs-back-button"
           >
             Back
