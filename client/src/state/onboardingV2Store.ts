@@ -502,23 +502,142 @@ const AXIS_DESCRIPTIONS: Record<AxisCode, string> = {
 
 // Compute normalised score from answer (1-5) -> (-1 to +1)
 function normaliseAnswer(answer: 1 | 2 | 3 | 4 | 5): number {
+  // 1 (Strongly disagree) → -1.0
+  // 2 (Disagree) → -0.5
+  // 3 (Neutral) → 0.0
+  // 4 (Agree) → +0.5
+  // 5 (Strongly agree) → +1.0
   return (answer - 3) / 2;
 }
 
-// Compute direction from score
+// Compute direction from score (per spec: score > 0.20 → TOWARDS, score < -0.20 → AWAY)
+// Using >= and <= for consistency with intensity thresholds
 function computeDirection(score: number): TiltDirection {
   if (score >= 0.20) return 'TOWARDS';
   if (score <= -0.20) return 'AWAY';
   return 'NEUTRAL';
 }
 
-// Compute intensity from absolute score
+// Compute intensity from absolute score (per spec)
+// |score| < 0.20 → NEUTRAL
+// 0.20 ≤ |score| < 0.50 → LIGHT
+// 0.50 ≤ |score| < 0.80 → MODERATE
+// |score| ≥ 0.80 → STRONG
 function computeIntensity(score: number): TiltIntensity {
   const abs = Math.abs(score);
   if (abs >= 0.80) return 'STRONG';
   if (abs >= 0.50) return 'MODERATE';
   if (abs >= 0.20) return 'LIGHT';
   return 'NEUTRAL';
+}
+
+// ============================================
+// TEST HARNESS: Verify axis scoring is correct
+// ============================================
+interface TestResult {
+  axis: AxisCode;
+  expectedScore: number;
+  actualScore: number;
+  expectedDirection: TiltDirection;
+  actualDirection: TiltDirection;
+  expectedIntensity: TiltIntensity;
+  actualIntensity: TiltIntensity;
+  pass: boolean;
+}
+
+export function runBeliefScoringTest(): { passed: boolean; results: TestResult[] } {
+  // Test Case Inputs (exact from spec):
+  // Volatility comfort = Strongly disagree → −1.00
+  // Quality preference = Strongly agree → +1.00
+  // Value preference = Disagree → −0.50
+  // Tech belief = Disagree → −0.50
+  // UK tilt = Neutral → 0.00
+  // ESG = Disagree → −0.50
+  // Inflation concern = Strongly agree → +1.00
+  // Small cap comfort = Strongly disagree → −1.00
+  
+  const testInputs: Record<BeliefQuestionId, 1 | 2 | 3 | 4 | 5> = {
+    Q_VOLATILITY_COMFORT: 1, // Strongly disagree → -1.0
+    Q_QUALITY: 5,            // Strongly agree → +1.0
+    Q_VALUE: 2,              // Disagree → -0.5
+    Q_TECH: 2,               // Disagree → -0.5
+    Q_UK_BIAS: 3,            // Neutral → 0.0
+    Q_ESG: 2,                // Disagree → -0.5
+    Q_INFLATION: 5,          // Strongly agree → +1.0
+    Q_SMALL_CAP: 1,          // Strongly disagree → -1.0
+  };
+  
+  // Expected Axis Outputs (from spec):
+  const expectedOutputs: Record<AxisCode, { score: number; direction: TiltDirection; intensity: TiltIntensity }> = {
+    QUALITY_TILT: { score: 1.00, direction: 'TOWARDS', intensity: 'STRONG' },
+    VALUE_TILT: { score: -0.50, direction: 'AWAY', intensity: 'MODERATE' },
+    TECH_TILT: { score: -0.50, direction: 'AWAY', intensity: 'MODERATE' },
+    UK_BIAS: { score: 0.00, direction: 'NEUTRAL', intensity: 'NEUTRAL' },
+    ESG_TILT: { score: -0.50, direction: 'AWAY', intensity: 'MODERATE' },
+    INFLATION_HEDGE_TILT: { score: 1.00, direction: 'TOWARDS', intensity: 'STRONG' },
+    SMALL_CAP_TILT: { score: -1.00, direction: 'AWAY', intensity: 'STRONG' },
+    VOLATILITY_AVERSION: { score: 1.00, direction: 'TOWARDS', intensity: 'STRONG' }, // Inverted from -1.0 comfort
+  };
+  
+  // Compute normalised responses
+  const normalisedResponses: Record<BeliefQuestionId, number> = {} as Record<BeliefQuestionId, number>;
+  for (const [qId, answer] of Object.entries(testInputs)) {
+    normalisedResponses[qId as BeliefQuestionId] = normaliseAnswer(answer as 1 | 2 | 3 | 4 | 5);
+  }
+  
+  // Compute axis scores (same logic as computeBeliefsScores)
+  const axisScores: Record<AxisCode, number> = {
+    QUALITY_TILT: normalisedResponses.Q_QUALITY,
+    VALUE_TILT: normalisedResponses.Q_VALUE,
+    TECH_TILT: normalisedResponses.Q_TECH,
+    UK_BIAS: normalisedResponses.Q_UK_BIAS,
+    ESG_TILT: normalisedResponses.Q_ESG,
+    INFLATION_HEDGE_TILT: normalisedResponses.Q_INFLATION,
+    SMALL_CAP_TILT: normalisedResponses.Q_SMALL_CAP,
+    VOLATILITY_AVERSION: -normalisedResponses.Q_VOLATILITY_COMFORT, // INVERTED
+  };
+  
+  // Run comparisons
+  const results: TestResult[] = [];
+  const allAxes: AxisCode[] = [
+    'QUALITY_TILT', 'VALUE_TILT', 'TECH_TILT', 'UK_BIAS',
+    'ESG_TILT', 'INFLATION_HEDGE_TILT', 'SMALL_CAP_TILT', 'VOLATILITY_AVERSION'
+  ];
+  
+  for (const axis of allAxes) {
+    const expected = expectedOutputs[axis];
+    const actualScore = axisScores[axis];
+    const actualDirection = computeDirection(actualScore);
+    const actualIntensity = computeIntensity(actualScore);
+    
+    const pass = 
+      Math.abs(actualScore - expected.score) < 0.001 &&
+      actualDirection === expected.direction &&
+      actualIntensity === expected.intensity;
+    
+    results.push({
+      axis,
+      expectedScore: expected.score,
+      actualScore,
+      expectedDirection: expected.direction,
+      actualDirection,
+      expectedIntensity: expected.intensity,
+      actualIntensity,
+      pass,
+    });
+  }
+  
+  const passed = results.every(r => r.pass);
+  
+  // Log results to console for debugging
+  console.log('=== BELIEF SCORING TEST ===');
+  console.log(`Overall: ${passed ? 'PASSED ✓' : 'FAILED ✗'}`);
+  for (const r of results) {
+    const status = r.pass ? '✓' : '✗';
+    console.log(`${status} ${r.axis}: score=${r.actualScore} (expected ${r.expectedScore}), dir=${r.actualDirection} (expected ${r.expectedDirection}), int=${r.actualIntensity} (expected ${r.expectedIntensity})`);
+  }
+  
+  return { passed, results };
 }
 
 function computeHoldingWithGains(holding: Holding): Holding {

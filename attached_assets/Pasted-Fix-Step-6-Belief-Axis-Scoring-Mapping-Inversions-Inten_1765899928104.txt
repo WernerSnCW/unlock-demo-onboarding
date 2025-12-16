@@ -1,0 +1,160 @@
+Fix Step 6 Belief Axis Scoring (Mapping + Inversions + Intensity)
+What we’re doing (summary)
+
+Step 6 converts the 8 questionnaire answers into 8 axis scores (direction + intensity), which then feeds Step 7 scenario generation and the “tilts reflected” display. The current output is wrong because multiple axes are mapped incorrectly and/or inverted incorrectly (especially Value, Tech, Inflation Hedge, Small Cap, and Volatility Aversion). We will fix the scoring so the axis scores are a direct, deterministic transformation of the Step 6 answers, with only Volatility Aversion inverted.
+
+Why this matters downstream
+
+Step 7’s “Guardrail-first / Preference-leaning” scenarios rely on these axis scores. If the axis scores are wrong, scenario ranges become meaningless.
+
+The “Transparency” section must reconcile exactly with axis scores, otherwise it looks unreliable to investors.
+
+Task list (for tracking)
+
+Task 6.1 — Fix axis mapping and inversion
+Task 6.2 — Fix intensity labelling thresholds
+Task 6.3 — Add a deterministic test harness using the provided test case
+Task 6.4 — Ensure UI uses the corrected axis score object everywhere (preview + transparency + scenario input)
+
+This instruction completes Task 6.1–6.4.
+
+Replit: implement the following changes
+1) Locate the Step 6 scoring logic
+
+Find the function/module that:
+
+takes the Step 6 questionnaire answers (the 8 responses)
+
+normalises them into values in [-1, -0.5, 0, +0.5, +1]
+
+produces the “AXIS SCORES” table and the tilt preview cards
+
+If this is split across multiple files, treat one as the “source of truth” and make others call into it.
+
+2) Enforce a single canonical mapping: Question → Axis (1:1)
+
+Update the mapping so each question drives exactly one axis, with no cross-wiring:
+
+Volatility comfort question → Volatility Aversion axis
+
+Prefer profitable/financially strong → Quality Tilt
+
+Prefer cheaper/out-of-favour → Value Tilt
+
+Tech will outperform → Technology Tilt
+
+Deliberate tilt to UK assets → UK Bias
+
+Sustainability deciding factor → ESG/Sustainability Tilt
+
+Inflation concern → Inflation Hedge Tilt
+
+Comfortable allocating to smaller companies → Small Cap Tilt
+
+Critical: No axis should read from the wrong question. No axis should combine multiple questions. No averaging/dampening unless explicitly stated below.
+
+3) Apply inversion rules correctly (only one axis is inverted)
+
+Implement these sign rules:
+
+All axes use the normalised value directly (score = normalised_response) EXCEPT:
+
+Volatility Aversion must be inverted because the question measures comfort, but the axis is aversion:
+
+volatility_aversion_score = -1 * volatility_comfort_score
+
+Do not invert:
+
+Inflation Hedge
+
+Value
+
+Technology
+
+Small Cap
+
+Quality
+
+ESG
+
+UK
+
+This is where the current logic is failing.
+
+4) Fix intensity labels to be deterministic and consistent
+
+Intensity is based on absolute value of the axis score:
+
+|score| < 0.20 → Neutral
+
+0.20 ≤ |score| < 0.50 → Light
+
+0.50 ≤ |score| < 0.80 → Moderate
+
+|score| ≥ 0.80 → Strong
+
+Direction rules:
+
+score > +0.20 → TOWARDS
+
+score < −0.20 → AWAY
+
+otherwise → NEUTRAL
+
+Important: Do not “dampen” a +1.00 into +0.50. If a user selects Strongly Agree, the score must remain ±1.00 (except volatility inversion).
+
+5) Ensure the UI uses this same computed object everywhere
+
+Once axis scores are computed, make sure the same “axisScores” object powers:
+
+the Tilt preview cards
+
+the Axis Scores table
+
+the Transparency responses mapping
+
+the values passed forward to Step 7 scenario generation
+
+No duplicate calculations in UI components. No local re-mapping.
+
+6) Add a hard test case and assert expected results
+
+Add a small dev-only test harness (could be a console output, a hidden debug block, or unit tests) that uses the exact input set below and verifies the axis scores produced:
+
+Test Case Inputs (exact)
+
+Volatility comfort = Strongly disagree → −1.00
+
+Quality preference = Strongly agree → +1.00
+
+Value preference = Disagree → −0.50
+
+Tech belief = Disagree → −0.50
+
+UK tilt = Neutral → 0.00
+
+ESG = Disagree → −0.50
+
+Inflation concern = Strongly agree → +1.00
+
+Small cap comfort = Strongly disagree → −1.00
+
+Expected Axis Outputs
+
+Quality Tilt: +1.00 → TOWARDS, STRONG
+
+Value Tilt: −0.50 → AWAY, MODERATE
+
+Technology Tilt: −0.50 → AWAY, MODERATE
+
+UK Bias: 0.00 → NEUTRAL, NEUTRAL
+
+ESG/Sustainability Tilt: −0.50 → AWAY, MODERATE
+
+Inflation Hedge Tilt: +1.00 → TOWARDS, STRONG
+
+Small Cap Tilt: −1.00 → AWAY, STRONG
+
+Volatility Aversion: +1.00 (inverted from −1.00 comfort) → TOWARDS, STRONG
+
+If the UI shows anything else, fail the test or print a clear mismatch report.
