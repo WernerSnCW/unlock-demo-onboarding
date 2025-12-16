@@ -12,7 +12,6 @@ import { useEffect, useMemo } from 'react';
 import { 
   ShieldAlert, 
   ShieldCheck,
-  AlertTriangle,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -25,9 +24,18 @@ import {
   Target as TargetIcon,
   Scale,
   ChevronRight,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+
+const TOTAL_BELIEF_AXES = 8;
 
 const SCENARIO_LABELS: Record<ScenarioType, { label: string; description: string; icon: typeof ShieldCheck }> = {
   GUARDRAIL_FIRST: {
@@ -37,7 +45,7 @@ const SCENARIO_LABELS: Record<ScenarioType, { label: string; description: string
   },
   PREFERENCE_LEANING: {
     label: 'Preference-leaning',
-    description: 'Applies tilts within guardrail budgets.',
+    description: 'Reflects beliefs within guardrail budgets.',
     icon: Scale,
   },
   NEUTRAL_BASELINE: {
@@ -60,10 +68,10 @@ const DIRECTION_COLORS: Record<string, string> = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: typeof Check }> = {
-  APPLIED: { label: 'Applied', color: 'text-[#10A957]', bgColor: 'bg-[#10A957]/10', icon: Check },
-  PARTIALLY_APPLIED: { label: 'Partially applied', color: 'text-[#13683B]', bgColor: 'bg-[#13683B]/10', icon: Check },
+  APPLIED: { label: 'Reflected', color: 'text-[#10A957]', bgColor: 'bg-[#10A957]/10', icon: Check },
+  PARTIALLY_APPLIED: { label: 'Partially reflected', color: 'text-[#13683B]', bgColor: 'bg-[#13683B]/10', icon: Check },
   CONSTRAINED: { label: 'Constrained', color: 'text-[#FE9239]', bgColor: 'bg-[#FE9239]/10', icon: Lock },
-  NOT_APPLIED: { label: 'Not applied', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
+  NOT_APPLIED: { label: 'Not reflected', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
 };
 
 function AllocationBandRow({ band }: { band: AllocationBand }) {
@@ -132,18 +140,22 @@ function ConstraintRow({ constraint }: { constraint: BindingConstraint }) {
 }
 
 function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
+  const axesReflectedCount = scenario.scenario_type === 'NEUTRAL_BASELINE' 
+    ? 0 
+    : scenario.tilts_applied_count;
+
   return (
     <div className="space-y-6">
       <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
         <p className="text-sm text-[var(--muted-foreground)]">{scenario.scenario_description}</p>
         <div className="flex items-center gap-6 mt-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--muted-foreground)]">Tilts reflected:</span>
-            <span className="text-sm font-semibold text-[#10A957]">{scenario.tilts_applied_count}</span>
+            <span className="text-xs text-[var(--muted-foreground)]">Belief axes reflected:</span>
+            <span className="text-sm font-semibold text-[#10A957]">{axesReflectedCount} of {TOTAL_BELIEF_AXES}</span>
           </div>
           {scenario.tilts_constrained_count > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--muted-foreground)]">Tilts constrained:</span>
+              <span className="text-xs text-[var(--muted-foreground)]">Axes constrained:</span>
               <span className="text-sm font-semibold text-[#FE9239]">{scenario.tilts_constrained_count}</span>
             </div>
           )}
@@ -154,10 +166,14 @@ function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
-          <h3 className="text-lg font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
             <Layers className="w-5 h-5 text-[var(--primary)]" />
             Asset Class Allocation
           </h3>
+          {/* Ranges meaning micro-disclosure */}
+          <p className="text-xs text-[var(--muted-foreground)] mb-4">
+            Ranges illustrate feasible directions under the scenario constraints. They do not represent target allocations.
+          </p>
           <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
             {scenario.asset_class_bands.map((band) => (
               <AllocationBandRow key={band.sleeve} band={band} />
@@ -180,12 +196,16 @@ function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
 
       {/* Applied Tilts Panel */}
       <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
-        <h3 className="text-lg font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
           <TargetIcon className="w-5 h-5 text-[var(--primary)]" />
-          Belief Tilts Reflected
+          Belief Axes Reflected
         </h3>
-        <p className="text-sm text-[var(--muted-foreground)] mb-4">
+        <p className="text-sm text-[var(--muted-foreground)] mb-2">
           This shows how each belief axis from Step 6 is reflected in this illustrative scenario.
+        </p>
+        {/* Helper caption for Applied badges */}
+        <p className="text-xs text-[var(--muted-foreground)] italic mb-4">
+          "Reflected" indicates the scenario incorporates this preference directionally within constraints. It is not a buy or sell instruction.
         </p>
         <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
           {scenario.applied_tilts.map((tilt) => (
@@ -203,7 +223,7 @@ function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
           </h3>
           <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl mb-4">
             <p className="text-sm text-[var(--foreground)] font-medium">
-              Safety Lights guardrails take precedence over belief tilts.
+              Safety Lights guardrails take precedence over belief axes.
             </p>
             <p className="text-xs text-[var(--muted-foreground)] mt-1">
               The following guardrails are binding constraints in this scenario.
@@ -232,7 +252,6 @@ export default function Target() {
   } = useOnboardingV2Store();
 
   const tiltsAllowed = beliefs.tilts_allowed;
-  const safetyLights = analysis.result?.safety_lights;
 
   // Compute scenarios on mount if not already computed
   useEffect(() => {
@@ -291,6 +310,34 @@ export default function Target() {
           </div>
         </div>
 
+        {/* How to read these scenarios - Collapsible Accordion */}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="how-to-read" className="border border-[var(--border)] rounded-xl overflow-hidden bg-white dark:bg-slate-800/80">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-slate-50/50 dark:hover:bg-slate-700/50">
+              <div className="flex items-center gap-3">
+                <HelpCircle className="w-5 h-5 text-[var(--primary)]" />
+                <span className="font-semibold text-[var(--foreground)]">How to read these scenarios</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <ul className="space-y-3 text-sm text-[var(--muted-foreground)]">
+                <li className="flex items-start gap-3">
+                  <ShieldCheck className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                  <span><strong className="text-[var(--foreground)]">Guardrail-first</strong> prioritises reducing risk flags identified by Safety Lights.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Scale className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                  <span><strong className="text-[var(--foreground)]">Preference-leaning</strong> reflects your stated beliefs as far as guardrail constraints allow.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Layers className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                  <span><strong className="text-[var(--foreground)]">Neutral baseline</strong> shows minimal deviation from your current allocation without incorporating belief axes.</span>
+                </li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
         {/* Tilts Locked Banner */}
         {scenario.tilts_locked_banner && (
           <div className="group relative">
@@ -301,9 +348,9 @@ export default function Target() {
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#FE9239]">Belief tilts captured but not applied</h4>
+                  <h4 className="font-bold text-[#FE9239]">Belief axes captured but not reflected</h4>
                   <p className="text-sm text-[var(--muted-foreground)]">
-                    Safety Lights guardrails prevent tilt application in this scenario. Address the underlying constraints to enable tilts.
+                    Safety Lights guardrails prevent preference reflection in this scenario. Address the underlying constraints to enable reflection.
                   </p>
                 </div>
               </div>
