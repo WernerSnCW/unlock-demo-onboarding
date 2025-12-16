@@ -1,0 +1,176 @@
+Step 7 — Non-advice guardrails (must be implemented)
+A. Rename and frame Step 7 correctly
+
+Do not call it “Target Portfolio” on-screen if you can avoid it. “Target” implies prescription.
+
+Preferred UI titles (choose one):
+
+“Illustrative Portfolio Direction”
+
+“Proposed Portfolio Shape”
+
+“Portfolio Scenario (Illustrative)”
+
+And the subtitle must state:
+
+“This is an illustrative analysis based on the information provided. It is not financial advice.”
+
+B. Explicit “what this is / isn’t” box (always visible)
+
+Above the charts, show a short boxed disclaimer:
+
+This page provides an illustrative portfolio scenario.
+It reflects the constraints and preferences captured in onboarding.
+It does not account for the full suitability assessment required for regulated advice, and it does not instruct you to buy or sell any asset.
+
+C. Language constraints (hard rules)
+Ban these words/phrases everywhere in Step 7:
+
+“recommend”, “we recommend”
+
+“should”, “you should”
+
+“best”, “optimal”
+
+“must”
+
+“buy”, “sell”, “switch”, “move your money”, “reduce your holding in X”
+
+“to improve returns”
+
+“to minimise tax” (unless phrased as “tax-aware modelling”)
+
+Approved alternatives:
+
+“Unlock models an illustrative scenario…”
+
+“This reflects your stated preferences…”
+
+“This constrains changes to remain within guardrails…”
+
+“This highlights trade-offs…”
+
+“A common consideration in this situation is…”
+
+“This can be used as a starting point for discussion…”
+
+D. Output structure: show ranges and trade-offs, not instructions
+
+Instead of “set equity to 60%”, do:
+
+Ranges (e.g. Equity: 45–55% illustrative band)
+
+Or “directional arrows” (“equity risk: neutral / slightly lower / slightly higher”)
+
+Instead of “reduce concentration”, do:
+
+“Concentration: modelled to remain within guardrails”
+
+“Concentration: constrained (cannot apply some tilts without increasing concentration risk)”
+
+E. “Choice architecture” (optional but very good)
+
+Offer 2–3 labelled illustrative scenarios:
+
+Guardrail-first (Default) – prioritises bringing lights to green
+
+Preference-leaning (Constrained) – applies tilts as far as budgets allow
+
+Neutral baseline – minimal deviation from current
+
+This avoids “we’re telling you what to do” because you’re showing options within constraints.
+
+Updated Replit instruction for Step 7 (safe, non-advice version)
+
+Copy/paste this (it replaces the earlier Step 7 instruction):
+
+TASK: Implement onboarding Step 7 as a non-advice, investor-grade “illustrative portfolio scenario” step that applies belief tilts only within Safety Lights guardrails and avoids advisory language.
+
+A) Page framing (non-advice)
+
+On-screen page title must avoid prescriptive language. Use: “Illustrative Portfolio Direction” (or similar).
+
+Add an always-visible disclaimer box near the top:
+
+“This page provides an illustrative portfolio scenario based on the information provided. It is not financial advice and does not instruct you to buy or sell any asset. It does not replace a full suitability assessment.”
+
+B) Inputs
+
+Read Step 5 outputs (portfolio breakdowns + Safety Lights + key metrics).
+
+Read Step 6 outputs (tilt_profile, axis_scores, tilts_allowed).
+
+C) Guardrails > beliefs (hard constraints)
+
+If any Safety Light is RED (tilts_allowed=false):
+
+Do not apply belief tilts.
+
+Show banner: “Belief tilts captured but not applied due to Safety Lights.”
+
+Produce a “guardrail-first” illustrative scenario only.
+
+If tilts_allowed=true:
+
+Apply tilts only if they do not worsen any Safety Light metric.
+
+Enforce budgets:
+
+target largest holding % must not increase
+
+cash runway must not decrease
+
+illiquid % must not increase
+
+D) Output format (directional, not prescriptive)
+
+Do not present single-point allocation prescriptions. Present either:
+
+ranges/bands (illustrative), OR
+
+directional deltas (increase/decrease/neutral) for each sleeve.
+
+Show current vs illustrative scenario for:
+
+asset class
+
+region
+
+wrapper
+
+E) Explainability (not advice)
+
+Add “Applied tilts” list showing each belief axis:
+
+Applied / Partially applied / Constrained
+
+Include neutral explanation of why constrained (e.g., “Constrained to avoid worsening concentration risk.”)
+
+Add “Trade-offs and constraints” panel:
+
+“Safety Lights guardrails take precedence over belief tilts.”
+
+highlight which guardrails were binding constraints
+
+F) Language constraints
+
+Implement a copy/style rule: Step 7 must not contain words like “recommend”, “should”, “buy”, “sell”, “best”, “optimal”.
+
+Use neutral phrasing: “models”, “reflects”, “constrains”, “illustrative”, “scenario”.
+
+G) Optional: scenarios (preferred)
+
+Provide 2–3 scenario tabs:
+
+Guardrail-first (default)
+
+Preference-leaning (constrained)
+
+Neutral baseline
+Each must still respect budgets.
+
+H) Persistence
+
+Persist Step 7 outputs to onboarding state for Step 8 (Transition).
+
+DELIVERABLE: Step 7 produces a credible illustrative portfolio scenario that is transparent, constrained by Safety Lights, and clearly non-advice in both structure and language.

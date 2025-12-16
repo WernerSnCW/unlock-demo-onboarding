@@ -259,12 +259,67 @@ export interface AnalysisState {
   error: string | null;
 }
 
+// ============================================
+// Step 7: Illustrative Scenario Data Contract
+// ============================================
+
+export type ScenarioType = 'GUARDRAIL_FIRST' | 'PREFERENCE_LEANING' | 'NEUTRAL_BASELINE';
+export type DirectionalDelta = 'INCREASE' | 'DECREASE' | 'NEUTRAL';
+export type TiltApplicationStatus = 'APPLIED' | 'PARTIALLY_APPLIED' | 'CONSTRAINED' | 'NOT_APPLIED';
+
+export interface AllocationBand {
+  sleeve: string;
+  current_pct: number;
+  illustrative_low_pct: number;
+  illustrative_high_pct: number;
+  direction: DirectionalDelta;
+  midpoint_pct: number;
+}
+
+export interface AppliedTiltEntry {
+  axis_code: AxisCode;
+  axis_label: string;
+  status: TiltApplicationStatus;
+  constraint_reason: string | null;
+}
+
+export interface BindingConstraint {
+  constraint_type: 'LIQUIDITY' | 'CONCENTRATION' | 'ILLIQUIDS';
+  description: string;
+  current_value: number;
+  threshold: number;
+}
+
+export interface IllustrativeScenario {
+  scenario_type: ScenarioType;
+  scenario_label: string;
+  scenario_description: string;
+  asset_class_bands: AllocationBand[];
+  region_bands: AllocationBand[];
+  wrapper_bands: AllocationBand[];
+  applied_tilts: AppliedTiltEntry[];
+  binding_constraints: BindingConstraint[];
+  tilts_applied_count: number;
+  tilts_constrained_count: number;
+}
+
+export interface ScenarioState {
+  version: string;
+  computed: boolean;
+  computed_at: string | null;
+  active_scenario: ScenarioType;
+  scenarios: IllustrativeScenario[];
+  guardrails_binding: boolean;
+  tilts_locked_banner: boolean;
+}
+
 interface OnboardingV2State {
   intake: IntakeData;
   holdings: Holding[];
   summary: PortfolioSummary;
   analysis: AnalysisState;
   beliefs: BeliefsState;
+  scenario: ScenarioState;
   
   updateIntake: (partial: Partial<IntakeData>) => void;
   updatePersonaCues: (partial: Partial<PersonaCues>) => void;
@@ -284,6 +339,12 @@ interface OnboardingV2State {
   computeBeliefsScores: () => void;
   completeBeliefsStep: () => void;
   resetBeliefs: () => void;
+  
+  // Scenario actions
+  computeScenarios: () => void;
+  setActiveScenario: (scenarioType: ScenarioType) => void;
+  completeScenarioStep: () => void;
+  resetScenario: () => void;
   
   resetOnboarding: () => void;
 }
@@ -365,6 +426,28 @@ const initialBeliefs: BeliefsState = {
   tilt_profile: [],
   tilts_allowed: true,
   tilts_gate_reason: 'NO_RED_FLAGS',
+};
+
+const initialScenario: ScenarioState = {
+  version: '1.0',
+  computed: false,
+  computed_at: null,
+  active_scenario: 'GUARDRAIL_FIRST',
+  scenarios: [],
+  guardrails_binding: false,
+  tilts_locked_banner: false,
+};
+
+// Axis labels for display
+const AXIS_LABELS: Record<AxisCode, string> = {
+  QUALITY_TILT: 'Quality Tilt',
+  VALUE_TILT: 'Value Tilt',
+  TECH_TILT: 'Technology Tilt',
+  UK_BIAS: 'UK Bias',
+  ESG_TILT: 'ESG/Sustainability Tilt',
+  INFLATION_HEDGE_TILT: 'Inflation Hedge Tilt',
+  SMALL_CAP_TILT: 'Small Cap Tilt',
+  VOLATILITY_AVERSION: 'Volatility Aversion',
 };
 
 // Belief question answer labels
@@ -548,6 +631,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       summary: initialSummary,
       analysis: initialAnalysis,
       beliefs: initialBeliefs,
+      scenario: initialScenario,
 
       updateIntake: (partial) => {
         set((state) => ({
@@ -765,6 +849,232 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         set({ beliefs: initialBeliefs });
       },
 
+      // Scenario actions
+      computeScenarios: () => {
+        const state = get();
+        const beliefs = state.beliefs;
+        const analysis = state.analysis.result;
+        const holdings = state.holdings;
+        
+        if (!analysis) return;
+        
+        const safetyLights = analysis.safety_lights;
+        const tiltsAllowed = beliefs.tilts_allowed;
+        
+        // Compute current allocations from holdings
+        const validHoldings = holdings.filter(h => h.value_gbp > 0);
+        const totalValue = validHoldings.reduce((sum, h) => sum + h.value_gbp, 0);
+        
+        // Helper to compute current allocation percentages
+        const computeCurrentAllocation = (groupByKey: keyof Holding): Record<string, number> => {
+          const groups: Record<string, number> = {};
+          validHoldings.forEach(h => {
+            const key = String(h[groupByKey] || 'Other');
+            groups[key] = (groups[key] || 0) + h.value_gbp;
+          });
+          const result: Record<string, number> = {};
+          Object.entries(groups).forEach(([k, v]) => {
+            result[k] = totalValue > 0 ? (v / totalValue) * 100 : 0;
+          });
+          return result;
+        };
+        
+        const currentAssetClass = computeCurrentAllocation('asset_class');
+        const currentRegion = computeCurrentAllocation('region');
+        const currentWrapper = computeCurrentAllocation('wrapper');
+        
+        // Helper to create allocation bands with directional deltas
+        const createBands = (
+          current: Record<string, number>,
+          scenarioType: ScenarioType
+        ): AllocationBand[] => {
+          return Object.entries(current).map(([sleeve, currentPct]) => {
+            // Compute illustrative range based on scenario type
+            let bandWidth = 5; // Default band width
+            let shift = 0;
+            
+            if (scenarioType === 'GUARDRAIL_FIRST') {
+              // Minimal changes, prioritize bringing lights to green
+              bandWidth = 3;
+            } else if (scenarioType === 'PREFERENCE_LEANING') {
+              // Apply tilts as far as budgets allow
+              bandWidth = 7;
+              // Apply slight shifts based on belief tilts
+              if (sleeve.toLowerCase().includes('equity') || sleeve.toLowerCase().includes('stock')) {
+                const techTilt = beliefs.axis_scores.TECH_TILT ?? 0;
+                const smallCapTilt = beliefs.axis_scores.SMALL_CAP_TILT ?? 0;
+                shift = (techTilt + smallCapTilt) * 2;
+              }
+            } else {
+              // Neutral baseline - minimal deviation
+              bandWidth = 2;
+            }
+            
+            const lowPct = Math.max(0, currentPct - bandWidth + shift);
+            const highPct = Math.min(100, currentPct + bandWidth + shift);
+            const midpoint = (lowPct + highPct) / 2;
+            
+            let direction: DirectionalDelta = 'NEUTRAL';
+            if (midpoint > currentPct + 1) direction = 'INCREASE';
+            else if (midpoint < currentPct - 1) direction = 'DECREASE';
+            
+            return {
+              sleeve,
+              current_pct: Math.round(currentPct * 10) / 10,
+              illustrative_low_pct: Math.round(lowPct * 10) / 10,
+              illustrative_high_pct: Math.round(highPct * 10) / 10,
+              direction,
+              midpoint_pct: Math.round(midpoint * 10) / 10,
+            };
+          }).sort((a, b) => b.current_pct - a.current_pct);
+        };
+        
+        // Compute applied tilts status
+        const computeAppliedTilts = (scenarioType: ScenarioType): AppliedTiltEntry[] => {
+          return beliefs.tilt_profile.map(tilt => {
+            let status: TiltApplicationStatus = 'NOT_APPLIED';
+            let constraintReason: string | null = null;
+            
+            if (!tiltsAllowed) {
+              status = 'CONSTRAINED';
+              constraintReason = 'Safety Lights guardrails prevent tilt application.';
+            } else if (scenarioType === 'NEUTRAL_BASELINE') {
+              status = 'NOT_APPLIED';
+              constraintReason = 'Neutral baseline scenario does not apply tilts.';
+            } else if (tilt.intensity === 'NEUTRAL') {
+              status = 'NEUTRAL' as TiltApplicationStatus;
+              constraintReason = null;
+            } else if (scenarioType === 'GUARDRAIL_FIRST') {
+              // Guardrail-first: only apply if no risk of worsening lights
+              if (safetyLights.concentration === 'RED' || safetyLights.illiquids === 'RED') {
+                status = 'CONSTRAINED';
+                constraintReason = 'Constrained to avoid worsening Safety Lights.';
+              } else {
+                status = 'PARTIALLY_APPLIED';
+                constraintReason = 'Applied within guardrail constraints.';
+              }
+            } else {
+              // Preference-leaning: apply as much as possible
+              status = 'APPLIED';
+              constraintReason = null;
+            }
+            
+            return {
+              axis_code: tilt.axis_code,
+              axis_label: AXIS_LABELS[tilt.axis_code],
+              status: status === 'NEUTRAL' as TiltApplicationStatus ? 'NOT_APPLIED' : status,
+              constraint_reason: constraintReason,
+            };
+          });
+        };
+        
+        // Compute binding constraints
+        const computeBindingConstraints = (): BindingConstraint[] => {
+          const constraints: BindingConstraint[] = [];
+          
+          if (safetyLights.liquidity === 'RED' || safetyLights.liquidity === 'AMBER') {
+            constraints.push({
+              constraint_type: 'LIQUIDITY',
+              description: 'Cash runway constraint limits changes that would reduce liquidity.',
+              current_value: safetyLights.metrics.cash_runway_months,
+              threshold: 3, // months
+            });
+          }
+          
+          if (safetyLights.concentration === 'RED' || safetyLights.concentration === 'AMBER') {
+            constraints.push({
+              constraint_type: 'CONCENTRATION',
+              description: 'Concentration constraint prevents increasing single-line exposure.',
+              current_value: safetyLights.metrics.largest_line_pct,
+              threshold: 15, // percent
+            });
+          }
+          
+          if (safetyLights.illiquids === 'RED' || safetyLights.illiquids === 'AMBER') {
+            constraints.push({
+              constraint_type: 'ILLIQUIDS',
+              description: 'Illiquidity constraint prevents increasing illiquid allocation.',
+              current_value: safetyLights.metrics.illiquid_pct,
+              threshold: 20, // percent
+            });
+          }
+          
+          return constraints;
+        };
+        
+        // Build all three scenarios
+        const scenarios: IllustrativeScenario[] = [
+          {
+            scenario_type: 'GUARDRAIL_FIRST',
+            scenario_label: 'Guardrail-first',
+            scenario_description: 'Prioritises bringing Safety Lights to green. Minimal deviation from current allocation.',
+            asset_class_bands: createBands(currentAssetClass, 'GUARDRAIL_FIRST'),
+            region_bands: createBands(currentRegion, 'GUARDRAIL_FIRST'),
+            wrapper_bands: createBands(currentWrapper, 'GUARDRAIL_FIRST'),
+            applied_tilts: computeAppliedTilts('GUARDRAIL_FIRST'),
+            binding_constraints: computeBindingConstraints(),
+            tilts_applied_count: computeAppliedTilts('GUARDRAIL_FIRST').filter(t => t.status === 'APPLIED' || t.status === 'PARTIALLY_APPLIED').length,
+            tilts_constrained_count: computeAppliedTilts('GUARDRAIL_FIRST').filter(t => t.status === 'CONSTRAINED').length,
+          },
+          {
+            scenario_type: 'PREFERENCE_LEANING',
+            scenario_label: 'Preference-leaning',
+            scenario_description: 'Applies belief tilts as far as guardrail budgets allow.',
+            asset_class_bands: createBands(currentAssetClass, 'PREFERENCE_LEANING'),
+            region_bands: createBands(currentRegion, 'PREFERENCE_LEANING'),
+            wrapper_bands: createBands(currentWrapper, 'PREFERENCE_LEANING'),
+            applied_tilts: computeAppliedTilts('PREFERENCE_LEANING'),
+            binding_constraints: computeBindingConstraints(),
+            tilts_applied_count: computeAppliedTilts('PREFERENCE_LEANING').filter(t => t.status === 'APPLIED' || t.status === 'PARTIALLY_APPLIED').length,
+            tilts_constrained_count: computeAppliedTilts('PREFERENCE_LEANING').filter(t => t.status === 'CONSTRAINED').length,
+          },
+          {
+            scenario_type: 'NEUTRAL_BASELINE',
+            scenario_label: 'Neutral baseline',
+            scenario_description: 'Minimal deviation from current allocation. No tilts applied.',
+            asset_class_bands: createBands(currentAssetClass, 'NEUTRAL_BASELINE'),
+            region_bands: createBands(currentRegion, 'NEUTRAL_BASELINE'),
+            wrapper_bands: createBands(currentWrapper, 'NEUTRAL_BASELINE'),
+            applied_tilts: computeAppliedTilts('NEUTRAL_BASELINE'),
+            binding_constraints: computeBindingConstraints(),
+            tilts_applied_count: 0,
+            tilts_constrained_count: 0,
+          },
+        ];
+        
+        set({
+          scenario: {
+            version: '1.0',
+            computed: true,
+            computed_at: new Date().toISOString(),
+            active_scenario: 'GUARDRAIL_FIRST',
+            scenarios,
+            guardrails_binding: !tiltsAllowed || computeBindingConstraints().length > 0,
+            tilts_locked_banner: !tiltsAllowed,
+          },
+        });
+      },
+
+      setActiveScenario: (scenarioType) => {
+        set((state) => ({
+          scenario: {
+            ...state.scenario,
+            active_scenario: scenarioType,
+          },
+        }));
+      },
+
+      completeScenarioStep: () => {
+        const state = get();
+        if (!state.scenario.computed) {
+          state.computeScenarios();
+        }
+      },
+
+      resetScenario: () => {
+        set({ scenario: initialScenario });
+      },
+
       resetOnboarding: () => {
         set({
           intake: initialIntake,
@@ -772,6 +1082,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           summary: initialSummary,
           analysis: initialAnalysis,
           beliefs: initialBeliefs,
+          scenario: initialScenario,
         });
       },
     }),

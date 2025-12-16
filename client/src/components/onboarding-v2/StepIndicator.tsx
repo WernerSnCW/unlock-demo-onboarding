@@ -13,7 +13,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   { id: 'holdings', label: 'Holdings', path: '/onboarding-v2/holdings' },
   { id: 'analysis', label: 'Analysis', path: '/onboarding-v2/analysis' },
   { id: 'beliefs', label: 'Beliefs', path: '/onboarding-v2/beliefs' },
-  { id: 'target', label: 'Target', path: '/onboarding-v2/target' },
+  { id: 'target', label: 'Scenario', path: '/onboarding-v2/target' },
   { id: 'plan-transition', label: 'Transition', path: '/onboarding-v2/plan/transition' },
   { id: 'plan-wrappers', label: 'Wrappers', path: '/onboarding-v2/plan/wrappers' },
   { id: 'report', label: 'Report', path: '/onboarding-v2/report' },
