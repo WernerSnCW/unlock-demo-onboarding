@@ -487,7 +487,7 @@ export default function Beliefs() {
                   <div>
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">What this step captures</h4>
                     <p className="text-[var(--muted-foreground)] leading-relaxed">
-                      Step 6 records your investment preferences across eight dimensions. These preferences inform how Unlock proposes a target portfolio but do not make any changes to your holdings. Your responses are stored as preference signals that guide portfolio construction within your established guardrails.
+                      Step 6 records your investment preferences across eight dimensions. These preferences inform how Unlock proposes a target portfolio but do not make any changes to your holdings. Your responses are stored as preference signals that inform portfolio construction within your established guardrails.
                     </p>
                   </div>
 
@@ -536,7 +536,7 @@ export default function Beliefs() {
                       </table>
                     </div>
                     <p className="text-xs text-[var(--muted-foreground)] mt-2 italic">
-                      Formula: normalised = (raw − 3) ÷ 2
+                      Normalised score = (raw value − 3) / 2
                     </p>
                   </div>
 
@@ -548,19 +548,19 @@ export default function Beliefs() {
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-center">
-                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| = 0</div>
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| &lt; 0.20</div>
                         <div className="font-semibold text-slate-500">Neutral</div>
                       </div>
                       <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-center">
-                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0 &lt; |score| ≤ 0.5</div>
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0.20 ≤ |score| &lt; 0.50</div>
                         <div className="font-semibold text-blue-600 dark:text-blue-400">Light</div>
                       </div>
                       <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-center">
-                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0.5 &lt; |score| ≤ 0.75</div>
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0.50 ≤ |score| &lt; 0.80</div>
                         <div className="font-semibold text-amber-600 dark:text-amber-400">Moderate</div>
                       </div>
                       <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-center">
-                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| &gt; 0.75</div>
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| ≥ 0.80</div>
                         <div className="font-semibold text-emerald-600 dark:text-emerald-400">Strong</div>
                       </div>
                     </div>
@@ -578,7 +578,7 @@ export default function Beliefs() {
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-[var(--border)]">
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Safety Lights guardrails</h4>
                     <p className="text-[var(--muted-foreground)] leading-relaxed">
-                      Tilts are applied only when Safety Lights permit. If any Safety Light shows <span className="text-rose-600 font-semibold">RED</span>, belief tilts are recorded but locked — they remain captured for reference but are not applied to the target portfolio until the underlying concern is addressed. When all lights are <span className="text-emerald-600 font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, tilts inform portfolio construction within the established guardrails.
+                      Safety Lights guardrails take precedence over belief tilts. Tilts are applied only when Safety Lights permit. If any Safety Light shows <span className="text-rose-600 font-semibold">RED</span>, belief tilts are recorded but locked — they remain captured for reference but are not applied to the target portfolio until the underlying constraint is addressed. When all lights are <span className="text-emerald-600 font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, tilts inform portfolio construction within the established guardrails.
                     </p>
                   </div>
 
