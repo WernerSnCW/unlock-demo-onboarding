@@ -8,14 +8,29 @@ export type PortfolioStage = 'ACCUMULATING' | 'STARTING_DRAWDOWN' | 'PRIMARILY_D
 export type InvestingFocus = 'FUNDS_ETFS' | 'INDIVIDUAL_SHARES' | 'PROPERTY_BTL' | 'PRIVATE_BUSINESS' | 'CRYPTO' | 'OTHER';
 export type AdviserUsage = 'SELF_DIRECTED' | 'SOMETIMES_ADVISED' | 'FULL_SERVICE_ADVISER' | 'I_AM_AN_ADVISER' | null;
 
+// Structural cue band types for deterministic inputs
+export type DBIncomeCoverageBand = 'LT_25' | '25_50' | '50_75' | 'GT_75' | 'NOT_SURE' | null;
+export type PrivateBusinessWealthBand = 'LT_10' | '10_25' | '25_50' | 'GT_50' | 'NOT_SURE' | null;
+export type EmployerStockAllocBand = 'LT_5' | '5_15' | '15_30' | 'GT_30' | 'NOT_SURE' | null;
+export type CryptoAllocBand = 'LT_5' | '5_10' | '10_25' | 'GT_25' | 'NOT_SURE' | null;
+
 export interface PersonaCues {
   age_band: AgeBand;
   portfolio_stage: PortfolioStage;
   investing_focus: InvestingFocus[];
+  // Defined Benefit pension
   has_defined_benefit_pension: boolean | null;
+  db_income_coverage_band: DBIncomeCoverageBand;
+  // Private business / PE
   owns_business: boolean | null;
+  private_business_wealth_band: PrivateBusinessWealthBand;
+  // Employer stock / RSUs
   has_employer_stock: boolean | null;
-  has_meaningful_crypto: boolean | null;
+  employer_stock_alloc_band: EmployerStockAllocBand;
+  // Crypto / digital assets (renamed from has_meaningful_crypto)
+  has_crypto: boolean | null;
+  crypto_alloc_band: CryptoAllocBand;
+  // Other cues
   adviser_usage: AdviserUsage;
   is_cross_border: boolean | null;
 }
@@ -187,9 +202,13 @@ const initialPersonaCues: PersonaCues = {
   portfolio_stage: null,
   investing_focus: [],
   has_defined_benefit_pension: null,
+  db_income_coverage_band: null,
   owns_business: null,
+  private_business_wealth_band: null,
   has_employer_stock: null,
-  has_meaningful_crypto: null,
+  employer_stock_alloc_band: null,
+  has_crypto: null,
+  crypto_alloc_band: null,
   adviser_usage: null,
   is_cross_border: null,
 };
@@ -490,6 +509,28 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           const holdingsWithGains = state.holdings.map(computeHoldingWithGains);
           state.holdings = holdingsWithGains;
           state.summary = computeSummaryFromHoldings(holdingsWithGains);
+        }
+        // Backward compatibility: migrate old personaCues fields
+        if (state && state.intake?.personaCues) {
+          const cues = state.intake.personaCues as PersonaCues & { has_meaningful_crypto?: boolean | null };
+          // Migrate has_meaningful_crypto to has_crypto
+          if ('has_meaningful_crypto' in cues && cues.has_crypto === undefined) {
+            cues.has_crypto = cues.has_meaningful_crypto ?? null;
+            delete cues.has_meaningful_crypto;
+          }
+          // Initialize new band fields if missing (set to NOT_SURE if toggle is true, otherwise null)
+          if (cues.db_income_coverage_band === undefined) {
+            cues.db_income_coverage_band = cues.has_defined_benefit_pension ? 'NOT_SURE' : null;
+          }
+          if (cues.private_business_wealth_band === undefined) {
+            cues.private_business_wealth_band = cues.owns_business ? 'NOT_SURE' : null;
+          }
+          if (cues.employer_stock_alloc_band === undefined) {
+            cues.employer_stock_alloc_band = cues.has_employer_stock ? 'NOT_SURE' : null;
+          }
+          if (cues.crypto_alloc_band === undefined) {
+            cues.crypto_alloc_band = cues.has_crypto ? 'NOT_SURE' : null;
+          }
         }
       },
     }

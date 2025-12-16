@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { User, Mail, Building, MapPin, Wallet, Target, Clock, UserCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { useOnboardingV2Store, IntakeData, PersonaCues, InvestingFocus } from '@/state/onboardingV2Store';
+import { useOnboardingV2Store, IntakeData, PersonaCues, InvestingFocus, DBIncomeCoverageBand, PrivateBusinessWealthBand, EmployerStockAllocBand, CryptoAllocBand } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +26,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const intakeSchema = z.object({
   full_name: z.string().min(2, 'Please enter your full name'),
@@ -48,6 +49,7 @@ export default function Intake() {
   const { intake, updateIntake, updatePersonaCues, resetAnalysis } = useOnboardingV2Store();
   const [, navigate] = useLocation();
   const [showInvestorProfile, setShowInvestorProfile] = useState(false);
+  const { toast } = useToast();
 
   // Default personaCues if not present (handles old localStorage data)
   const defaultPersonaCues: PersonaCues = {
@@ -55,13 +57,30 @@ export default function Intake() {
     portfolio_stage: null,
     investing_focus: [],
     has_defined_benefit_pension: null,
+    db_income_coverage_band: null,
     owns_business: null,
+    private_business_wealth_band: null,
     has_employer_stock: null,
-    has_meaningful_crypto: null,
+    employer_stock_alloc_band: null,
+    has_crypto: null,
+    crypto_alloc_band: null,
     adviser_usage: null,
     is_cross_border: null,
   };
   const personaCues = intake.personaCues ?? defaultPersonaCues;
+
+  // Handler for structural cue toggles - clears band when toggle is OFF
+  const handleStructuralToggle = (
+    toggleKey: 'has_defined_benefit_pension' | 'owns_business' | 'has_employer_stock' | 'has_crypto',
+    bandKey: 'db_income_coverage_band' | 'private_business_wealth_band' | 'employer_stock_alloc_band' | 'crypto_alloc_band',
+    checked: boolean
+  ) => {
+    if (checked) {
+      updatePersonaCues({ [toggleKey]: true });
+    } else {
+      updatePersonaCues({ [toggleKey]: false, [bandKey]: null });
+    }
+  };
 
   const toggleInvestingFocus = (focus: InvestingFocus) => {
     const current = personaCues.investing_focus ?? [];
@@ -110,6 +129,35 @@ export default function Intake() {
       intake.primary_goal, intake.time_horizon_years, intake.risk_comfort, form]);
 
   const onSubmit = (data: IntakeFormData) => {
+    // Validate structural cue bands if toggles are ON
+    const validationErrors: string[] = [];
+    
+    if (personaCues.has_defined_benefit_pension && !personaCues.db_income_coverage_band) {
+      validationErrors.push('Please select a coverage level for your Defined Benefit pension');
+    }
+    if (personaCues.owns_business && !personaCues.private_business_wealth_band) {
+      validationErrors.push('Please select a proportion for your private business / PE interest');
+    }
+    if (personaCues.has_employer_stock && !personaCues.employer_stock_alloc_band) {
+      validationErrors.push('Please select a percentage for your employer stock / RSUs');
+    }
+    if (personaCues.has_crypto && !personaCues.crypto_alloc_band) {
+      validationErrors.push('Please select a percentage for your crypto / digital assets');
+    }
+
+    if (validationErrors.length > 0) {
+      // Expand the Investor Profile section if it's collapsed
+      if (!showInvestorProfile) {
+        setShowInvestorProfile(true);
+      }
+      toast({
+        title: 'Please complete required fields',
+        description: validationErrors[0],
+        variant: 'destructive',
+      });
+      return;
+    }
+
     updateIntake(data as Partial<IntakeData>);
     resetAnalysis();
     navigate('/onboarding-v2/holdings');
@@ -575,33 +623,178 @@ export default function Intake() {
                   </div>
                 </div>
 
-                {/* Structural Cues (Toggles) */}
+                {/* Structural Cues with Banded Follow-ups */}
                 <div className="space-y-4">
-                  <Label className="text-[var(--foreground)] font-medium">Specific structural cues</Label>
-                  <div className="space-y-3">
-                    {[
-                      { key: 'has_defined_benefit_pension', label: 'Do you have a Defined Benefit / final salary pension that will cover a meaningful part of your retirement income?' },
-                      { key: 'owns_business', label: 'Do you own a private business that makes up a significant part of your wealth?' },
-                      { key: 'has_employer_stock', label: 'Do you hold a meaningful amount of employer stock or options/RSUs?' },
-                      { key: 'has_meaningful_crypto', label: 'Do you hold a meaningful crypto/digital asset allocation?' },
-                    ].map((item) => (
-                      <div 
-                        key={item.key} 
-                        className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
-                          personaCues[item.key as keyof PersonaCues] === true
-                            ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
-                            : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
-                        }`}
-                      >
+                  <div>
+                    <Label className="text-[var(--foreground)] font-medium">Specific structural cues</Label>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                      Approximate is fine — this helps tailor guardrails and planning.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    {/* Defined Benefit Pension */}
+                    <div className={`p-4 rounded-lg border transition-all ${
+                      personaCues.has_defined_benefit_pension
+                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                    }`}>
+                      <div className="flex items-start gap-3">
                         <Switch
-                          checked={personaCues[item.key as keyof PersonaCues] === true}
-                          onCheckedChange={(checked) => updatePersonaCues({ [item.key]: checked })}
+                          checked={personaCues.has_defined_benefit_pension === true}
+                          onCheckedChange={(checked) => handleStructuralToggle('has_defined_benefit_pension', 'db_income_coverage_band', checked)}
                           className="data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-600"
-                          data-testid={`switch-${item.key}`}
+                          data-testid="switch-has_defined_benefit_pension"
                         />
-                        <span className="text-sm text-[var(--foreground)] leading-tight">{item.label}</span>
+                        <span className="text-sm text-[var(--foreground)] leading-tight">
+                          Do you have a Defined Benefit (final salary) pension?
+                        </span>
                       </div>
-                    ))}
+                      {personaCues.has_defined_benefit_pension && (
+                        <div className="mt-4 ml-10 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <Label className="text-sm text-[var(--foreground)]">
+                            Approximately what proportion of your expected retirement income will this cover? *
+                          </Label>
+                          <Select
+                            value={personaCues.db_income_coverage_band || ''}
+                            onValueChange={(v) => updatePersonaCues({ db_income_coverage_band: v as DBIncomeCoverageBand })}
+                          >
+                            <SelectTrigger className={inputClass} data-testid="select-db-coverage-band">
+                              <SelectValue placeholder="Select coverage level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="LT_25">Less than 25%</SelectItem>
+                              <SelectItem value="25_50">25–50%</SelectItem>
+                              <SelectItem value="50_75">50–75%</SelectItem>
+                              <SelectItem value="GT_75">More than 75%</SelectItem>
+                              <SelectItem value="NOT_SURE">Not sure</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Private Business / PE */}
+                    <div className={`p-4 rounded-lg border transition-all ${
+                      personaCues.owns_business
+                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                    }`}>
+                      <div className="flex items-start gap-3">
+                        <Switch
+                          checked={personaCues.owns_business === true}
+                          onCheckedChange={(checked) => handleStructuralToggle('owns_business', 'private_business_wealth_band', checked)}
+                          className="data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-600"
+                          data-testid="switch-owns_business"
+                        />
+                        <span className="text-sm text-[var(--foreground)] leading-tight">
+                          Do you own a private business or hold a private equity interest?
+                        </span>
+                      </div>
+                      {personaCues.owns_business && (
+                        <div className="mt-4 ml-10 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <Label className="text-sm text-[var(--foreground)]">
+                            Roughly what proportion of your total net worth does this represent? *
+                          </Label>
+                          <Select
+                            value={personaCues.private_business_wealth_band || ''}
+                            onValueChange={(v) => updatePersonaCues({ private_business_wealth_band: v as PrivateBusinessWealthBand })}
+                          >
+                            <SelectTrigger className={inputClass} data-testid="select-business-wealth-band">
+                              <SelectValue placeholder="Select proportion" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="LT_10">Less than 10%</SelectItem>
+                              <SelectItem value="10_25">10–25%</SelectItem>
+                              <SelectItem value="25_50">25–50%</SelectItem>
+                              <SelectItem value="GT_50">More than 50%</SelectItem>
+                              <SelectItem value="NOT_SURE">Not sure</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Employer Stock / RSUs */}
+                    <div className={`p-4 rounded-lg border transition-all ${
+                      personaCues.has_employer_stock
+                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                    }`}>
+                      <div className="flex items-start gap-3">
+                        <Switch
+                          checked={personaCues.has_employer_stock === true}
+                          onCheckedChange={(checked) => handleStructuralToggle('has_employer_stock', 'employer_stock_alloc_band', checked)}
+                          className="data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-600"
+                          data-testid="switch-has_employer_stock"
+                        />
+                        <span className="text-sm text-[var(--foreground)] leading-tight">
+                          Do you hold employer shares, options or RSUs?
+                        </span>
+                      </div>
+                      {personaCues.has_employer_stock && (
+                        <div className="mt-4 ml-10 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <Label className="text-sm text-[var(--foreground)]">
+                            Approximately what percentage of your investable assets does this represent? *
+                          </Label>
+                          <Select
+                            value={personaCues.employer_stock_alloc_band || ''}
+                            onValueChange={(v) => updatePersonaCues({ employer_stock_alloc_band: v as EmployerStockAllocBand })}
+                          >
+                            <SelectTrigger className={inputClass} data-testid="select-employer-stock-band">
+                              <SelectValue placeholder="Select percentage" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="LT_5">Less than 5%</SelectItem>
+                              <SelectItem value="5_15">5–15%</SelectItem>
+                              <SelectItem value="15_30">15–30%</SelectItem>
+                              <SelectItem value="GT_30">More than 30%</SelectItem>
+                              <SelectItem value="NOT_SURE">Not sure</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Crypto / Digital Assets */}
+                    <div className={`p-4 rounded-lg border transition-all ${
+                      personaCues.has_crypto
+                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                    }`}>
+                      <div className="flex items-start gap-3">
+                        <Switch
+                          checked={personaCues.has_crypto === true}
+                          onCheckedChange={(checked) => handleStructuralToggle('has_crypto', 'crypto_alloc_band', checked)}
+                          className="data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-600"
+                          data-testid="switch-has_crypto"
+                        />
+                        <span className="text-sm text-[var(--foreground)] leading-tight">
+                          Do you currently hold crypto or digital assets?
+                        </span>
+                      </div>
+                      {personaCues.has_crypto && (
+                        <div className="mt-4 ml-10 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <Label className="text-sm text-[var(--foreground)]">
+                            Approximately what percentage of your portfolio does this represent? *
+                          </Label>
+                          <Select
+                            value={personaCues.crypto_alloc_band || ''}
+                            onValueChange={(v) => updatePersonaCues({ crypto_alloc_band: v as CryptoAllocBand })}
+                          >
+                            <SelectTrigger className={inputClass} data-testid="select-crypto-band">
+                              <SelectValue placeholder="Select percentage" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="LT_5">Less than 5%</SelectItem>
+                              <SelectItem value="5_10">5–10%</SelectItem>
+                              <SelectItem value="10_25">10–25%</SelectItem>
+                              <SelectItem value="GT_25">More than 25%</SelectItem>
+                              <SelectItem value="NOT_SURE">Not sure</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -3,7 +3,7 @@ import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import PortfolioSnapshot from '@/components/onboarding-v2/PortfolioSnapshot';
 import PersonaCard from '@/components/onboarding-v2/PersonaCard';
 import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
-import { useOnboardingV2Store, SafetyStatus, computePortfolioBreakdowns } from '@/state/onboardingV2Store';
+import { useOnboardingV2Store, SafetyStatus, computePortfolioBreakdowns, DBIncomeCoverageBand, PrivateBusinessWealthBand, EmployerStockAllocBand, CryptoAllocBand } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
@@ -51,6 +51,51 @@ const lightDescriptions = {
     AMBER: 'Your illiquid allocation is approaching the upper limit. Consider your liquidity needs.',
     RED: 'Your illiquid allocation exceeds recommended limits. You may face challenges accessing funds when needed.',
   },
+};
+
+// Helper functions to format band values for display
+const formatDBCoverageBand = (band: DBIncomeCoverageBand): string => {
+  const labels: Record<string, string> = {
+    'LT_25': '~less than 25%',
+    '25_50': '~25–50%',
+    '50_75': '~50–75%',
+    'GT_75': '~more than 75%',
+    'NOT_SURE': 'Not sure',
+  };
+  return band ? labels[band] || 'Unknown' : '';
+};
+
+const formatBusinessWealthBand = (band: PrivateBusinessWealthBand): string => {
+  const labels: Record<string, string> = {
+    'LT_10': '~less than 10%',
+    '10_25': '~10–25%',
+    '25_50': '~25–50%',
+    'GT_50': '~more than 50%',
+    'NOT_SURE': 'Not sure',
+  };
+  return band ? labels[band] || 'Unknown' : '';
+};
+
+const formatEmployerStockBand = (band: EmployerStockAllocBand): string => {
+  const labels: Record<string, string> = {
+    'LT_5': '~less than 5%',
+    '5_15': '~5–15%',
+    '15_30': '~15–30%',
+    'GT_30': '~more than 30%',
+    'NOT_SURE': 'Not sure',
+  };
+  return band ? labels[band] || 'Unknown' : '';
+};
+
+const formatCryptoBand = (band: CryptoAllocBand): string => {
+  const labels: Record<string, string> = {
+    'LT_5': '~less than 5%',
+    '5_10': '~5–10%',
+    '10_25': '~10–25%',
+    'GT_25': '~more than 25%',
+    'NOT_SURE': 'Not sure',
+  };
+  return band ? labels[band] || 'Unknown' : '';
 };
 
 export default function Analysis() {
@@ -383,6 +428,52 @@ export default function Analysis() {
             </div>
           </div>
         </div>
+
+        {/* Self-Reported Context Section */}
+        {(intake.personaCues?.has_defined_benefit_pension || 
+          intake.personaCues?.owns_business || 
+          intake.personaCues?.has_employer_stock || 
+          intake.personaCues?.has_crypto) && (
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4" data-testid="context-section">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+              Self-reported context from Intake
+            </h4>
+            <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              {intake.personaCues?.has_defined_benefit_pension && (
+                <div className="flex items-start gap-2" data-testid="context-db-pension">
+                  <span className="text-slate-400">•</span>
+                  <span>
+                    Defined Benefit pension: Yes (covers {formatDBCoverageBand(intake.personaCues.db_income_coverage_band)} of retirement income)
+                  </span>
+                </div>
+              )}
+              {intake.personaCues?.owns_business && (
+                <div className="flex items-start gap-2" data-testid="context-business">
+                  <span className="text-slate-400">•</span>
+                  <span>
+                    Private business / PE: Yes ({formatBusinessWealthBand(intake.personaCues.private_business_wealth_band)} of net worth)
+                  </span>
+                </div>
+              )}
+              {intake.personaCues?.has_employer_stock && (
+                <div className="flex items-start gap-2" data-testid="context-employer-stock">
+                  <span className="text-slate-400">•</span>
+                  <span>
+                    Employer stock exposure: Yes ({formatEmployerStockBand(intake.personaCues.employer_stock_alloc_band)} of investable assets)
+                  </span>
+                </div>
+              )}
+              {intake.personaCues?.has_crypto && (
+                <div className="flex items-start gap-2" data-testid="context-crypto">
+                  <span className="text-slate-400">•</span>
+                  <span>
+                    Crypto exposure: Yes ({formatCryptoBand(intake.personaCues.crypto_alloc_band)} of portfolio)
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <PortfolioSnapshot />
 

@@ -1,0 +1,222 @@
+TASK: Tighten Step 3 (Intake) “Structural cues” questions by removing ambiguous wording and replacing it with deterministic, banded inputs. Ensure Steps 4–5 continue to work unchanged, and enrich Step 5 explanations using the new fields (no changes to Safety Lights maths).
+
+Scope note
+
+The app currently works up to Step 5. Do not implement Step 6 in this task. Focus only on:
+
+Step 3 UI changes + state model changes
+
+Backward-compatible defaults for existing demo flows
+
+Step 5 copy/explanations improved using new intake fields
+
+Part A — Update the Step 3 data model (state + persistence)
+
+Locate the onboarding-v2 state model where Step 3 Intake fields are stored (the same place you store name/email/type/region and the “structural cues” currently shown as toggles).
+
+Replace the existing vague boolean fields (or extend them) to support both:
+
+a boolean “has_x” value
+
+a percentage “band” value (string enum)
+
+Add these fields to the intake model:
+
+Defined Benefit pension
+
+has_db_pension: boolean
+
+db_income_coverage_band: "LT_25" | "25_50" | "50_75" | "GT_75" | "NOT_SURE" | null
+
+Private business / PE interest
+
+has_private_business: boolean
+
+private_business_wealth_band: "LT_10" | "10_25" | "25_50" | "GT_50" | "NOT_SURE" | null
+
+Employer stock / RSUs
+
+has_employer_stock: boolean
+
+employer_stock_alloc_band: "LT_5" | "5_15" | "15_30" | "GT_30" | "NOT_SURE" | null
+
+Crypto allocation
+
+has_crypto: boolean
+
+crypto_alloc_band: "LT_5" | "5_10" | "10_25" | "GT_25" | "NOT_SURE" | null
+
+Persistence requirement:
+
+These fields must persist the same way other intake fields persist today (store/session/local storage).
+
+Back/forward navigation must not wipe them.
+
+Backward compatibility:
+
+If older demo state exists with only the previous booleans, initialise the new band fields to NOT_SURE when the boolean is true, otherwise null.
+
+Part B — Update the Step 3 UI (remove “meaningful”/“significant”)
+
+In the Intake screen under “Specific structural cues”, replace the current ambiguous toggle questions with the following exact UI behaviour:
+
+B1. Defined Benefit pension
+
+Primary question (toggle):
+“Do you have a Defined Benefit (final salary) pension?”
+
+If toggle is ON, show a required follow-up control:
+“Approximately what proportion of your expected retirement income will this cover?”
+Options:
+
+Less than 25%
+
+25–50%
+
+50–75%
+
+More than 75%
+
+Not sure
+
+If toggle is OFF:
+
+hide the follow-up
+
+set db_income_coverage_band = null
+
+B2. Private business / PE
+
+Primary question (toggle):
+“Do you own a private business or hold a private equity interest?”
+
+If ON, show required follow-up:
+“Roughly what proportion of your total net worth does this represent?”
+Options:
+
+Less than 10%
+
+10–25%
+
+25–50%
+
+More than 50%
+
+Not sure
+
+If OFF:
+
+hide follow-up
+
+set private_business_wealth_band = null
+
+B3. Employer stock / RSUs
+
+Primary question (toggle):
+“Do you hold employer shares, options or RSUs?”
+
+If ON, show required follow-up:
+“Approximately what percentage of your investable assets does this represent?”
+Options:
+
+Less than 5%
+
+5–15%
+
+15–30%
+
+More than 30%
+
+Not sure
+
+If OFF:
+
+hide follow-up
+
+set employer_stock_alloc_band = null
+
+B4. Crypto / digital assets
+
+Primary question (toggle):
+“Do you currently hold crypto or digital assets?”
+
+If ON, show required follow-up:
+“Approximately what percentage of your portfolio does this represent?”
+Options:
+
+Less than 5%
+
+5–10%
+
+10–25%
+
+More than 25%
+
+Not sure
+
+If OFF:
+
+hide follow-up
+
+set crypto_alloc_band = null
+
+Validation rules for Step 3:
+
+If any toggle is ON, its band must be selected before allowing Next.
+
+“Not sure” counts as a valid selection (do not block).
+
+UX copy improvements:
+
+Add one short helper sentence above the bands:
+“Approximate is fine — this helps tailor guardrails and planning.”
+
+Part C — Update Step 5 (Analysis) to reference the new fields (no maths changes)
+
+Do not change the Safety Lights calculations (Liquidity, Concentration, Illiquids) or thresholds.
+
+Enhance Step 5 “Current Portfolio Snapshot” / explanation areas by adding a small “Context” line-item section that uses these new Step 3 fields when present. Examples:
+
+If has_db_pension is true:
+“Defined Benefit pension: Yes (covers ~25–50% of retirement income)” (or “Not sure”)
+
+If has_employer_stock is true:
+“Employer stock exposure: Yes (~15–30% of investable assets)” (or “Not sure”)
+
+If has_crypto is true:
+“Crypto exposure: Yes (~5–10% of portfolio)” (or “Not sure”)
+
+If has_private_business is true:
+“Private business / PE: Yes (~10–25% of net worth)” (or “Not sure”)
+
+This “Context” section must be:
+
+visually subtle (not competing with Safety Lights)
+
+clearly labelled as “Self-reported context from Intake”
+
+used purely for explanation (not for Safety Lights computation)
+
+Part D — Regression check: ensure Steps 4–5 still function
+
+Confirm Step 4 (Holdings entry) and Step 5 (Analysis) still work end-to-end after these changes:
+
+The onboarding flow can proceed Step 3 → Step 4 → Step 5.
+
+Existing sample/demo data paths still work.
+
+No runtime errors from new fields being null.
+
+Add a lightweight manual test checklist in the codebase (or in a README comment) describing how to test:
+
+toggle OFF → no band shown; proceed
+
+toggle ON → band required
+
+“Not sure” accepted
+
+Back/forward preserves selected values
+
+Step 5 shows “Context” section correctly
+
+DELIVERABLE: Step 3 Intake now captures deterministic structural cues using explicit bands, and Step 5 displays those cues as self-reported context, with no change to Safety Lights maths.
