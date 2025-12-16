@@ -1,0 +1,81 @@
+TASK: Improve persona output polish by (A) removing advisory wording and (B) consolidating low-signal portfolio trait chips so the persona card remains clear and executive-grade.
+
+A) Mandatory wording fix (Why this fits you)
+
+In the “Why this fits you” bullets, replace any phrasing that sounds like advice (e.g. “allowing time to ride out volatility”) with neutral, factual wording derived from captured inputs.
+
+For the horizon bullet specifically, use:
+
+“Your stated investment horizon is 10+ years.”
+
+B) Trait chip consolidation logic (UI only, no maths changes)
+
+Do not change any underlying trait calculations or scoring thresholds. This change is only about what is displayed as chips on the persona card.
+
+Implement a “trait visibility” rule layer that decides which traits to show as chips:
+
+Always show these core chips if present:
+
+Liquidity Resilience (any strength)
+
+Concentration (any strength)
+
+Crypto Allocation (any strength)
+
+Private Business Exposure (any strength)
+
+DB Pension Context (any strength)
+
+Cross-border Complexity (any strength)
+
+Conditionally show these chips only if strength is Moderate or Strong:
+
+Employer Stock
+
+Illiquids Exposure
+
+Add a maximum chip limit for readability:
+
+Show up to 6 chips total, prioritised in this order:
+
+Concentration
+
+Liquidity Resilience
+
+Private Business Exposure
+
+Crypto Allocation
+
+DB Pension Context
+
+Cross-border Complexity
+
+Employer Stock
+
+Illiquids Exposure
+
+If any chips are hidden because of the max limit or conditional rules, show a small “+ N more” indicator (non-clickable is fine for demo), or a subtle line under the chips:
+
+“Additional context captured (not shown).”
+
+C) Validation using current test case
+
+Using the existing demo inputs (18-month runway, 15.6% largest holding, illiquids 4.7%, crypto 5–10%, employer stock <5%, DB pension 25–50%, private business 10–25%, cross-border true), confirm:
+
+Liquidity Resilience is displayed
+
+Concentration is displayed
+
+Crypto Allocation is displayed
+
+Private Business Exposure is displayed
+
+DB Pension Context is displayed
+
+Cross-border Complexity is displayed
+
+Employer Stock (Light) is hidden
+
+Illiquids Exposure (Light) is hidden
+
+DELIVERABLE: Persona card reads as professional and concise while retaining full underlying data for downstream planning.

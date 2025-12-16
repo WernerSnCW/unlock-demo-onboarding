@@ -6,6 +6,74 @@ interface PersonaCardProps {
   persona: PersonaResult;
 }
 
+// Trait visibility rules per spec
+const ALWAYS_SHOW_TRAITS = new Set([
+  'Liquidity Resilience',
+  'Concentration',
+  'Crypto Allocation',
+  'Private Business Exposure',
+  'DB Pension Context',
+  'Cross-border Complexity',
+]);
+
+const CONDITIONAL_TRAITS = new Set([
+  'Employer Stock',
+  'Illiquids Exposure',
+]);
+
+// Priority order for chip display (max 6)
+const TRAIT_PRIORITY: string[] = [
+  'Concentration',
+  'Liquidity Resilience',
+  'Private Business Exposure',
+  'Crypto Allocation',
+  'DB Pension Context',
+  'Cross-border Complexity',
+  'Employer Stock',
+  'Illiquids Exposure',
+];
+
+const MAX_VISIBLE_CHIPS = 6;
+
+function filterAndSortTraits(traits: PortfolioTrait[]): { visible: PortfolioTrait[], hiddenCount: number } {
+  // Track traits hidden by conditional rules
+  let conditionallyHiddenCount = 0;
+  
+  // Filter based on visibility rules (create a new array to avoid mutation)
+  const filteredTraits = [...traits].filter(trait => {
+    if (ALWAYS_SHOW_TRAITS.has(trait.name)) {
+      return true;
+    }
+    if (CONDITIONAL_TRAITS.has(trait.name)) {
+      // Only show if Moderate or Strong
+      const shouldShow = trait.intensity === 'Moderate' || trait.intensity === 'Strong';
+      if (!shouldShow) {
+        conditionallyHiddenCount++;
+      }
+      return shouldShow;
+    }
+    // Show other traits by default
+    return true;
+  });
+
+  // Sort by priority (already working on a copy)
+  filteredTraits.sort((a, b) => {
+    const aIdx = TRAIT_PRIORITY.indexOf(a.name);
+    const bIdx = TRAIT_PRIORITY.indexOf(b.name);
+    const aPriority = aIdx === -1 ? TRAIT_PRIORITY.length : aIdx;
+    const bPriority = bIdx === -1 ? TRAIT_PRIORITY.length : bIdx;
+    return aPriority - bPriority;
+  });
+
+  // Limit to max chips
+  const visible = filteredTraits.slice(0, MAX_VISIBLE_CHIPS);
+  // Total hidden = traits dropped by max limit + traits dropped by conditional rules
+  const hiddenByMaxLimit = filteredTraits.length - visible.length;
+  const hiddenCount = hiddenByMaxLimit + conditionallyHiddenCount;
+
+  return { visible, hiddenCount };
+}
+
 const intensityColors: Record<TraitIntensity, string> = {
   Light: 'bg-slate-400 dark:bg-slate-500',
   Moderate: 'bg-amber-500',
@@ -72,35 +140,43 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
         )}
 
         {/* Portfolio Traits Influencing Your Plan */}
-        {(persona.portfolio_traits?.length ?? 0) > 0 && (
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[var(--primary)]" />
-              Portfolio Traits
-            </h4>
-            <div className="flex flex-wrap gap-2" data-testid="portfolio-traits-list">
-              {persona.portfolio_traits?.map((trait, i) => (
-                <TooltipProvider key={i}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div 
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium cursor-help ${intensityBgColors[trait.intensity]}`}
-                        data-testid={`portfolio-trait-${i}`}
-                      >
-                        <span className={`w-2 h-2 rounded-full ${intensityColors[trait.intensity]}`} />
-                        <span>{trait.name}</span>
-                        <span className="opacity-70">({trait.intensity})</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs">{trait.detail}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
+        {(persona.portfolio_traits?.length ?? 0) > 0 && (() => {
+          const { visible, hiddenCount } = filterAndSortTraits(persona.portfolio_traits || []);
+          return (
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-[var(--primary)]" />
+                Portfolio Traits
+              </h4>
+              <div className="flex flex-wrap gap-2" data-testid="portfolio-traits-list">
+                {visible.map((trait, i) => (
+                  <TooltipProvider key={i}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium cursor-help ${intensityBgColors[trait.intensity]}`}
+                          data-testid={`portfolio-trait-${i}`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${intensityColors[trait.intensity]}`} />
+                          <span>{trait.name}</span>
+                          <span className="opacity-70">({trait.intensity})</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{trait.detail}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
+              {hiddenCount > 0 && (
+                <p className="text-xs text-[var(--muted-foreground)] italic">
+                  Additional context captured (not shown).
+                </p>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Risks to Watch - using new data-triggered risks */}
         {(persona.risks_to_watch?.length ?? 0) > 0 && (

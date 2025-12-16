@@ -622,22 +622,22 @@ function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPerson
   switch (persona.code) {
     case 'SELF_DIRECTED_GROWTH':
       if (isSelfDirected(profile)) {
-        bullets.push('You manage your investments without a financial adviser.');
+        bullets.push('You indicated you manage your investments without a financial adviser.');
       }
       if (isLongHorizon(profile)) {
-        bullets.push('Your investment horizon is 10+ years, allowing time to ride out volatility.');
+        bullets.push('Your stated investment horizon is 10+ years.');
       }
       if (isAccumulating(profile)) {
-        bullets.push('You are in the wealth accumulation phase of your journey.');
+        bullets.push('Your portfolio stage is accumulating (building wealth).');
       }
       break;
 
     case 'CORE_GROWTH':
       if (isLongHorizon(profile)) {
-        bullets.push('Your long time horizon supports a growth-focused strategy.');
+        bullets.push('Your stated investment horizon is 10+ years.');
       }
       if (isAccumulating(profile)) {
-        bullets.push('You are focused on building wealth over time.');
+        bullets.push('Your portfolio stage is accumulating (building wealth).');
       }
       if (profile.asset_class_breakdown.equity_pct > 50) {
         bullets.push(`Equities make up ${formatPct(normalizeToFraction(profile.asset_class_breakdown.equity_pct))} of your portfolio.`);
@@ -654,14 +654,14 @@ function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPerson
           'GT_50': 'over 50%',
           'NOT_SURE': 'a significant portion',
         };
-        bullets.push(`Your private business represents ${bandLabel[band || 'NOT_SURE']} of your wealth.`);
+        bullets.push(`You indicated your private business represents ${bandLabel[band || 'NOT_SURE']} of your wealth.`);
       }
-      bullets.push('Concentrated business ownership creates unique planning needs.');
+      bullets.push('You own a private business.');
       break;
 
     case 'PROPERTY_LED':
       const propPct = normalizeToFraction(profile.asset_class_breakdown.property_pct);
-      bullets.push(`Property makes up ${formatPct(propPct)} of your portfolio.`);
+      bullets.push(`Property makes up ${formatPct(propPct)} of your stated portfolio allocation.`);
       if (profile.personaCues.investing_focus?.includes('PROPERTY_BTL')) {
         bullets.push('You identified property/BTL as a primary investment focus.');
       }
@@ -669,26 +669,33 @@ function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPerson
 
     case 'INCOME_STABILITY':
       if (isDrawdownPhase(profile)) {
-        bullets.push(`You are in the ${profile.portfolio_stage === 'PRIMARILY_DRAWDOWN' ? 'drawdown' : 'early drawdown'} phase.`);
+        bullets.push(`Your portfolio stage is ${profile.portfolio_stage === 'PRIMARILY_DRAWDOWN' ? 'primarily drawdown' : 'starting drawdown'}.`);
       }
       if (isIncomeGoal(profile)) {
-        bullets.push('Generating income is one of your primary investment goals.');
+        bullets.push('Your stated primary goal includes income or drawdown.');
       }
       break;
 
     case 'CAPITAL_PRESERVATION':
       if (profile.total_portfolio_value_gbp >= 1000000) {
-        bullets.push(`Your portfolio of ${formatGbp(profile.total_portfolio_value_gbp)} benefits from preservation-focused planning.`);
+        bullets.push(`Your stated portfolio value is ${formatGbp(profile.total_portfolio_value_gbp)}.`);
       }
       if (profile.age_band === '55_64' || profile.age_band === '65_plus') {
-        bullets.push('Your life stage suggests wealth protection is a priority.');
+        const ageLabels: Record<string, string> = { '55_64': '55–64', '65_plus': '65+' };
+        bullets.push(`Your age band is ${ageLabels[profile.age_band]}.`);
       }
       break;
 
     case 'BALANCED_ALLOCATOR':
-      bullets.push('Your risk profile and goals suggest a balanced approach.');
-      if (profile.risk_comfort === 'moderate') {
-        bullets.push('You indicated a moderate comfort level with investment risk.');
+      if (profile.risk_comfort) {
+        const riskLabel = profile.risk_comfort.charAt(0).toUpperCase() + profile.risk_comfort.slice(1).toLowerCase();
+        bullets.push(`Your stated risk comfort level is ${riskLabel}.`);
+      }
+      if (profile.primary_goal) {
+        // Sentence case the goal for professional appearance
+        const goalClean = profile.primary_goal.toLowerCase().replace(/_/g, ' ');
+        const goalLabel = goalClean.charAt(0).toUpperCase() + goalClean.slice(1);
+        bullets.push(`Your stated primary goal is "${goalLabel}".`);
       }
       break;
   }
