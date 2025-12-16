@@ -21,7 +21,8 @@ import {
   Lock,
   Info,
   Sparkles,
-  Brain
+  Brain,
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -87,6 +88,7 @@ export default function Beliefs() {
   const { beliefs, analysis, setBeliefResponse, computeBeliefsScores, completeBeliefsStep } = useOnboardingV2Store();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [transparencyOpen, setTransparencyOpen] = useState(false);
+  const [methodologyOpen, setMethodologyOpen] = useState(false);
 
   const safetyLights = analysis.result?.safety_lights;
 
@@ -445,6 +447,141 @@ export default function Beliefs() {
                     </div>
                   </div>
                 </div>
+                </div>
+              </CollapsibleContent>
+            </div>
+          </div>
+        </Collapsible>
+
+        {/* Methodology Section - How we calculate belief tilts */}
+        <Collapsible open={methodologyOpen} onOpenChange={setMethodologyOpen}>
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
+              <div className="absolute -top-5 left-6 z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <HelpCircle className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              
+              <CollapsibleTrigger asChild>
+                <button className="w-full flex items-center justify-between mb-4 cursor-pointer group/trigger">
+                  <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
+                    How Unlock calculates belief tilts
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)] transition-colors">
+                    <span>{methodologyOpen ? 'Hide' : 'Learn more'}</span>
+                    {methodologyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </button>
+              </CollapsibleTrigger>
+              
+              <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                Understand the scoring methodology behind your tilt profile.
+              </p>
+
+              <CollapsibleContent>
+                <div className="space-y-6 pt-4 border-t border-[var(--border)] text-sm text-[var(--foreground)]">
+                  
+                  {/* What Step 6 Does */}
+                  <div>
+                    <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">What this step captures</h4>
+                    <p className="text-[var(--muted-foreground)] leading-relaxed">
+                      Step 6 records your investment preferences across eight dimensions. These preferences inform how Unlock proposes a target portfolio but do not make any changes to your holdings. Your responses are stored as preference signals that guide portfolio construction within your established guardrails.
+                    </p>
+                  </div>
+
+                  {/* Score Mapping */}
+                  <div>
+                    <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Answer to score mapping</h4>
+                    <p className="text-[var(--muted-foreground)] mb-3 leading-relaxed">
+                      Each response on the 5-point scale maps to a normalised score between −1 and +1:
+                    </p>
+                    <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-slate-50 dark:bg-slate-700/50">
+                            <th className="text-left py-3 px-4 font-semibold">Response</th>
+                            <th className="text-center py-3 px-4 font-semibold">Raw Value</th>
+                            <th className="text-center py-3 px-4 font-semibold">Normalised Score</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="bg-white dark:bg-slate-800">
+                            <td className="py-2 px-4">Strongly disagree</td>
+                            <td className="py-2 px-4 text-center font-mono">1</td>
+                            <td className="py-2 px-4 text-center font-mono text-rose-600">−1.00</td>
+                          </tr>
+                          <tr className="bg-slate-50/50 dark:bg-slate-700/30">
+                            <td className="py-2 px-4">Disagree</td>
+                            <td className="py-2 px-4 text-center font-mono">2</td>
+                            <td className="py-2 px-4 text-center font-mono text-rose-500">−0.50</td>
+                          </tr>
+                          <tr className="bg-white dark:bg-slate-800">
+                            <td className="py-2 px-4">Neutral</td>
+                            <td className="py-2 px-4 text-center font-mono">3</td>
+                            <td className="py-2 px-4 text-center font-mono text-slate-500">0.00</td>
+                          </tr>
+                          <tr className="bg-slate-50/50 dark:bg-slate-700/30">
+                            <td className="py-2 px-4">Agree</td>
+                            <td className="py-2 px-4 text-center font-mono">4</td>
+                            <td className="py-2 px-4 text-center font-mono text-emerald-500">+0.50</td>
+                          </tr>
+                          <tr className="bg-white dark:bg-slate-800">
+                            <td className="py-2 px-4">Strongly agree</td>
+                            <td className="py-2 px-4 text-center font-mono">5</td>
+                            <td className="py-2 px-4 text-center font-mono text-emerald-600">+1.00</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-2 italic">
+                      Formula: normalised = (raw − 3) ÷ 2
+                    </p>
+                  </div>
+
+                  {/* Strength Labels */}
+                  <div>
+                    <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Strength label thresholds</h4>
+                    <p className="text-[var(--muted-foreground)] mb-3 leading-relaxed">
+                      The absolute value of each axis score determines its intensity label:
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-center">
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| = 0</div>
+                        <div className="font-semibold text-slate-500">Neutral</div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-center">
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0 &lt; |score| ≤ 0.5</div>
+                        <div className="font-semibold text-blue-600 dark:text-blue-400">Light</div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-center">
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0.5 &lt; |score| ≤ 0.75</div>
+                        <div className="font-semibold text-amber-600 dark:text-amber-400">Moderate</div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-center">
+                        <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| &gt; 0.75</div>
+                        <div className="font-semibold text-emerald-600 dark:text-emerald-400">Strong</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Volatility Aversion Inversion */}
+                  <div>
+                    <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Volatility aversion inversion</h4>
+                    <p className="text-[var(--muted-foreground)] leading-relaxed">
+                      The volatility question asks about comfort with fluctuations. A high comfort response (Strongly agree = +1) indicates low aversion to volatility. Unlock inverts this score so that the Volatility Aversion axis reflects aversion rather than comfort: <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">aversion = −comfort</span>. This means "Strongly agree" on comfort maps to a score of −1.00 on the aversion axis.
+                    </p>
+                  </div>
+
+                  {/* Safety Lights Guardrails */}
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-[var(--border)]">
+                    <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Safety Lights guardrails</h4>
+                    <p className="text-[var(--muted-foreground)] leading-relaxed">
+                      Tilts are applied only when Safety Lights permit. If any Safety Light shows <span className="text-rose-600 font-semibold">RED</span>, belief tilts are recorded but locked — they remain captured for reference but are not applied to the target portfolio until the underlying concern is addressed. When all lights are <span className="text-emerald-600 font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, tilts inform portfolio construction within the established guardrails.
+                    </p>
+                  </div>
+
                 </div>
               </CollapsibleContent>
             </div>
