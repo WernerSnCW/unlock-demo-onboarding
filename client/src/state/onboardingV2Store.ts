@@ -189,6 +189,70 @@ export interface AnalysisResult {
 
 export type AnalysisStatus = 'idle' | 'loading' | 'ready' | 'error';
 
+// ============================================
+// Step 6: Beliefs Data Contract
+// ============================================
+
+export type BeliefQuestionId = 
+  | 'Q_VOLATILITY_COMFORT'
+  | 'Q_QUALITY'
+  | 'Q_VALUE'
+  | 'Q_TECH'
+  | 'Q_UK_BIAS'
+  | 'Q_ESG'
+  | 'Q_INFLATION'
+  | 'Q_SMALL_CAP';
+
+export type AxisCode = 
+  | 'QUALITY_TILT'
+  | 'VALUE_TILT'
+  | 'TECH_TILT'
+  | 'UK_BIAS'
+  | 'ESG_TILT'
+  | 'INFLATION_HEDGE_TILT'
+  | 'SMALL_CAP_TILT'
+  | 'VOLATILITY_AVERSION';
+
+export type TiltDirection = 'TOWARDS' | 'AWAY' | 'NEUTRAL';
+export type TiltIntensity = 'NEUTRAL' | 'LIGHT' | 'MODERATE' | 'STRONG';
+export type TiltsGateReason = 
+  | 'NO_RED_FLAGS'
+  | 'RED_LIQUIDITY'
+  | 'RED_CONCENTRATION'
+  | 'RED_ILLIQUIDS'
+  | 'MULTIPLE_RED_FLAGS';
+
+export interface BeliefResponse {
+  answer: 1 | 2 | 3 | 4 | 5;
+  normalised: number; // -1 to +1
+  label: string;
+}
+
+export interface AxisIntensity {
+  direction: TiltDirection;
+  intensity: TiltIntensity;
+}
+
+export interface TiltProfileEntry {
+  axis_code: AxisCode;
+  direction: TiltDirection;
+  intensity: TiltIntensity;
+  score: number;
+  description: string;
+}
+
+export interface BeliefsState {
+  version: string;
+  completed: boolean;
+  completed_at: string | null;
+  responses: Partial<Record<BeliefQuestionId, BeliefResponse>>;
+  axis_scores: Partial<Record<AxisCode, number>>;
+  axis_intensities: Partial<Record<AxisCode, AxisIntensity>>;
+  tilt_profile: TiltProfileEntry[];
+  tilts_allowed: boolean;
+  tilts_gate_reason: TiltsGateReason;
+}
+
 export interface AnalysisState {
   status: AnalysisStatus;
   result: AnalysisResult | null;
@@ -200,6 +264,7 @@ interface OnboardingV2State {
   holdings: Holding[];
   summary: PortfolioSummary;
   analysis: AnalysisState;
+  beliefs: BeliefsState;
   
   updateIntake: (partial: Partial<IntakeData>) => void;
   updatePersonaCues: (partial: Partial<PersonaCues>) => void;
@@ -213,6 +278,12 @@ interface OnboardingV2State {
   setAnalysisResult: (result: AnalysisResult) => void;
   setAnalysisError: (error: string) => void;
   resetAnalysis: () => void;
+  
+  // Beliefs actions
+  setBeliefResponse: (questionId: BeliefQuestionId, answer: 1 | 2 | 3 | 4 | 5) => void;
+  computeBeliefsScores: () => void;
+  completeBeliefsStep: () => void;
+  resetBeliefs: () => void;
   
   resetOnboarding: () => void;
 }
@@ -283,6 +354,60 @@ const initialAnalysis: AnalysisState = {
   result: null,
   error: null,
 };
+
+const initialBeliefs: BeliefsState = {
+  version: '1.0',
+  completed: false,
+  completed_at: null,
+  responses: {},
+  axis_scores: {},
+  axis_intensities: {},
+  tilt_profile: [],
+  tilts_allowed: true,
+  tilts_gate_reason: 'NO_RED_FLAGS',
+};
+
+// Belief question answer labels
+const ANSWER_LABELS: Record<1 | 2 | 3 | 4 | 5, string> = {
+  1: 'Strongly disagree',
+  2: 'Disagree',
+  3: 'Neutral',
+  4: 'Agree',
+  5: 'Strongly agree',
+};
+
+// Axis descriptions
+const AXIS_DESCRIPTIONS: Record<AxisCode, string> = {
+  QUALITY_TILT: 'Shifts exposure towards financially strong, profitable companies.',
+  VALUE_TILT: 'Shifts exposure towards cheaper, out-of-favour companies.',
+  TECH_TILT: 'Shifts exposure towards technology relative to a neutral baseline.',
+  UK_BIAS: 'Shifts exposure towards UK-listed assets relative to global neutral.',
+  ESG_TILT: 'Incorporates sustainability criteria into investment selection.',
+  INFLATION_HEDGE_TILT: 'Shifts exposure towards inflation-hedging assets.',
+  SMALL_CAP_TILT: 'Shifts exposure towards smaller companies for growth potential.',
+  VOLATILITY_AVERSION: 'Favors smoother risk profiles over higher volatility.',
+};
+
+// Compute normalised score from answer (1-5) -> (-1 to +1)
+function normaliseAnswer(answer: 1 | 2 | 3 | 4 | 5): number {
+  return (answer - 3) / 2;
+}
+
+// Compute direction from score
+function computeDirection(score: number): TiltDirection {
+  if (score >= 0.20) return 'TOWARDS';
+  if (score <= -0.20) return 'AWAY';
+  return 'NEUTRAL';
+}
+
+// Compute intensity from absolute score
+function computeIntensity(score: number): TiltIntensity {
+  const abs = Math.abs(score);
+  if (abs >= 0.80) return 'STRONG';
+  if (abs >= 0.50) return 'MODERATE';
+  if (abs >= 0.20) return 'LIGHT';
+  return 'NEUTRAL';
+}
 
 function computeHoldingWithGains(holding: Holding): Holding {
   if (holding.value_gbp > 0 && holding.cost_basis_gbp != null && holding.cost_basis_gbp > 0) {
@@ -422,6 +547,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       holdings: [createEmptyHolding()],
       summary: initialSummary,
       analysis: initialAnalysis,
+      beliefs: initialBeliefs,
 
       updateIntake: (partial) => {
         set((state) => ({
@@ -498,6 +624,30 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             error: null,
           },
         });
+        // Immediately compute beliefs gate status from new safety lights
+        const safetyLights = result?.safety_lights;
+        if (safetyLights) {
+          let tiltsAllowed = true;
+          let gateReason: TiltsGateReason = 'NO_RED_FLAGS';
+          const redFlags: string[] = [];
+          if (safetyLights.liquidity === 'RED') redFlags.push('RED_LIQUIDITY');
+          if (safetyLights.concentration === 'RED') redFlags.push('RED_CONCENTRATION');
+          if (safetyLights.illiquids === 'RED') redFlags.push('RED_ILLIQUIDS');
+          if (redFlags.length >= 2) {
+            tiltsAllowed = false;
+            gateReason = 'MULTIPLE_RED_FLAGS';
+          } else if (redFlags.length === 1) {
+            tiltsAllowed = false;
+            gateReason = redFlags[0] as TiltsGateReason;
+          }
+          set((state) => ({
+            beliefs: {
+              ...state.beliefs,
+              tilts_allowed: tiltsAllowed,
+              tilts_gate_reason: gateReason,
+            },
+          }));
+        }
       },
 
       setAnalysisError: (error) => {
@@ -514,12 +664,114 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         set({ analysis: initialAnalysis });
       },
 
+      // Beliefs actions
+      setBeliefResponse: (questionId, answer) => {
+        const normalised = normaliseAnswer(answer);
+        const label = ANSWER_LABELS[answer];
+        set((state) => ({
+          beliefs: {
+            ...state.beliefs,
+            responses: {
+              ...state.beliefs.responses,
+              [questionId]: { answer, normalised, label },
+            },
+          },
+        }));
+      },
+
+      computeBeliefsScores: () => {
+        const state = get();
+        const responses = state.beliefs.responses;
+        const safetyLights = state.analysis.result?.safety_lights;
+
+        // Compute tilts_allowed and gate_reason from safety lights
+        let tiltsAllowed = true;
+        let gateReason: TiltsGateReason = 'NO_RED_FLAGS';
+        if (safetyLights) {
+          const redFlags: string[] = [];
+          if (safetyLights.liquidity === 'RED') redFlags.push('RED_LIQUIDITY');
+          if (safetyLights.concentration === 'RED') redFlags.push('RED_CONCENTRATION');
+          if (safetyLights.illiquids === 'RED') redFlags.push('RED_ILLIQUIDS');
+          if (redFlags.length >= 2) {
+            tiltsAllowed = false;
+            gateReason = 'MULTIPLE_RED_FLAGS';
+          } else if (redFlags.length === 1) {
+            tiltsAllowed = false;
+            gateReason = redFlags[0] as TiltsGateReason;
+          }
+        }
+
+        // Compute axis scores
+        const axisScores: Partial<Record<AxisCode, number>> = {};
+        const getResponse = (qId: BeliefQuestionId) => responses[qId]?.normalised ?? 0;
+
+        axisScores.QUALITY_TILT = getResponse('Q_QUALITY');
+        axisScores.VALUE_TILT = getResponse('Q_VALUE');
+        axisScores.TECH_TILT = getResponse('Q_TECH');
+        axisScores.UK_BIAS = getResponse('Q_UK_BIAS');
+        axisScores.ESG_TILT = getResponse('Q_ESG');
+        axisScores.INFLATION_HEDGE_TILT = getResponse('Q_INFLATION');
+        axisScores.SMALL_CAP_TILT = getResponse('Q_SMALL_CAP');
+        axisScores.VOLATILITY_AVERSION = -getResponse('Q_VOLATILITY_COMFORT'); // Inverse
+
+        // Compute axis intensities
+        const axisIntensities: Partial<Record<AxisCode, AxisIntensity>> = {};
+        const allAxes: AxisCode[] = [
+          'QUALITY_TILT', 'VALUE_TILT', 'TECH_TILT', 'UK_BIAS',
+          'ESG_TILT', 'INFLATION_HEDGE_TILT', 'SMALL_CAP_TILT', 'VOLATILITY_AVERSION'
+        ];
+        for (const axis of allAxes) {
+          const score = axisScores[axis] ?? 0;
+          axisIntensities[axis] = {
+            direction: computeDirection(score),
+            intensity: computeIntensity(score),
+          };
+        }
+
+        // Build tilt profile
+        const tiltProfile: TiltProfileEntry[] = allAxes.map((axis) => ({
+          axis_code: axis,
+          direction: axisIntensities[axis]!.direction,
+          intensity: axisIntensities[axis]!.intensity,
+          score: axisScores[axis] ?? 0,
+          description: AXIS_DESCRIPTIONS[axis],
+        }));
+
+        set((state) => ({
+          beliefs: {
+            ...state.beliefs,
+            axis_scores: axisScores,
+            axis_intensities: axisIntensities,
+            tilt_profile: tiltProfile,
+            tilts_allowed: tiltsAllowed,
+            tilts_gate_reason: gateReason,
+          },
+        }));
+      },
+
+      completeBeliefsStep: () => {
+        const state = get();
+        state.computeBeliefsScores();
+        set((state) => ({
+          beliefs: {
+            ...state.beliefs,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          },
+        }));
+      },
+
+      resetBeliefs: () => {
+        set({ beliefs: initialBeliefs });
+      },
+
       resetOnboarding: () => {
         set({
           intake: initialIntake,
           holdings: [createEmptyHolding()],
           summary: initialSummary,
           analysis: initialAnalysis,
+          beliefs: initialBeliefs,
         });
       },
     }),

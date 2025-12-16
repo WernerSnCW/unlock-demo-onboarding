@@ -1,0 +1,196 @@
+TASK: Implement onboarding Step 6 “Beliefs” (v1.0) as a functional, investor-grade step between Step 5 (Analysis) and Step 7 (Target). This step captures belief preferences, computes deterministic axis scores, produces a tilt preview, and gates whether tilts can be applied based on Safety Lights (tilts locked if any red).
+
+A) Route + navigation
+
+Add Step 6 “Beliefs” into the onboarding-v2 stepper between Analysis (Step 5) and Target (Step 7).
+
+Ensure Back/Next navigation works and preserves state. User must not lose answers when navigating back and forward.
+
+B) Data contract (store in onboarding session/state)
+
+Create/extend a beliefs object in onboarding state with:
+
+version: "1.0"
+
+completed: boolean
+
+completed_at: ISO timestamp | null
+
+responses: { [question_id]: { answer: 1..5, normalised: -1..+1, label: string } }
+
+axis_scores: { [axis_code]: number(-1..+1) }
+
+axis_intensities: { [axis_code]: { direction: "TOWARDS"|"AWAY"|"NEUTRAL", intensity: "NEUTRAL"|"LIGHT"|"MODERATE"|"STRONG" } }
+
+tilt_profile: Array<{ axis_code, direction, intensity, score, description }>
+
+tilts_allowed: boolean
+
+tilts_gate_reason: "NO_RED_FLAGS"|"RED_LIQUIDITY"|"RED_CONCENTRATION"|"RED_ILLIQUIDS"|"MULTIPLE_RED_FLAGS"
+
+C) Inputs from Step 5 (Safety Lights gate)
+
+Read Safety Light statuses from Step 5 results:
+
+liquidity, concentration, illiquids each has status GREEN/AMBER/RED.
+
+Derive:
+
+tilts_allowed = false if any status is RED, else true.
+
+tilts_gate_reason as:
+
+MULTIPLE_RED_FLAGS if 2+ red lights
+
+otherwise RED_LIQUIDITY / RED_CONCENTRATION / RED_ILLIQUIDS for the single red
+
+otherwise NO_RED_FLAGS
+
+D) Questionnaire (8 questions, 5-point Likert, required)
+
+Implement 8 required questions with IDs and exact text:
+
+Q_VOLATILITY_COMFORT: “I’m comfortable with my portfolio fluctuating significantly in the short term if long-term returns are higher.”
+
+Q_QUALITY: “I prefer financially strong, profitable companies even if they are more expensive.”
+
+Q_VALUE: “I prefer cheaper companies that may be out of favour if the long-term case is sound.”
+
+Q_TECH: “I believe technology will outperform the broader market over the next decade.”
+
+Q_UK_BIAS: “I want a deliberate tilt towards UK-listed assets.”
+
+Q_ESG: “Sustainability should be a deciding factor in what I invest in.”
+
+Q_INFLATION: “Inflation is one of my biggest concerns for my investments.”
+
+Q_SMALL_CAP: “I’m comfortable allocating to smaller companies in pursuit of higher growth.”
+
+Use a consistent 1–5 scale with labels:
+1 Strongly disagree, 2 Disagree, 3 Neutral, 4 Agree, 5 Strongly agree.
+
+Validation:
+
+All 8 must be answered before Continue is enabled.
+
+No default pre-selection.
+
+Inline error on unanswered questions when user tries to continue.
+
+E) Scoring maths (deterministic)
+
+For each answer a (1..5) compute normalised:
+
+n = (a - 3) / 2 (so 1→-1, 2→-0.5, 3→0, 4→0.5, 5→1).
+
+Compute axis scores (clamped [-1, +1]) for 8 axes:
+
+QUALITY_TILT = n(Q_QUALITY)
+
+VALUE_TILT = n(Q_VALUE)
+
+TECH_TILT = n(Q_TECH)
+
+UK_BIAS = n(Q_UK_BIAS)
+
+ESG_TILT = n(Q_ESG)
+
+INFLATION_HEDGE_TILT = n(Q_INFLATION)
+
+SMALL_CAP_TILT = n(Q_SMALL_CAP)
+
+VOLATILITY_AVERSION = -n(Q_VOLATILITY_COMFORT) (inverse)
+
+For each axis score, compute:
+
+direction:
+
+TOWARDS if score ≥ +0.20
+
+AWAY if score ≤ -0.20
+
+NEUTRAL otherwise
+
+intensity using absolute score thresholds:
+
+NEUTRAL: 0.00–0.19
+
+LIGHT: 0.20–0.49
+
+MODERATE: 0.50–0.79
+
+STRONG: 0.80–1.00
+
+Build tilt_profile list (one item per axis) containing:
+
+axis_code, direction, intensity, score, and a neutral description.
+Provide axis descriptions (static mapping) such as:
+
+TECH_TILT: “Shifts exposure towards technology relative to a neutral baseline.”
+
+UK_BIAS: “Shifts exposure towards UK-listed assets relative to global neutral.”
+
+VOLATILITY_AVERSION: “Favors smoother risk profiles over higher volatility.”
+(and similar short descriptions for the other axes).
+
+F) UI requirements (executive-grade)
+
+Page header:
+
+Title: “Beliefs”
+
+Subtitle: “These preferences influence how Unlock proposes a target portfolio — within your Safety Lights guardrails.”
+
+Gate banner at top:
+
+If tilts_allowed = false: red-style banner: “Belief tilts captured, but currently locked until red Safety Lights are addressed.”
+
+If tilts_allowed = true and any amber exists: amber-style banner: “Tilts are available, but amber flags suggest caution.”
+
+If all green: green-style banner: “Tilts are available and can be applied in the next step.”
+
+Tilt preview section:
+
+Show 8 axis cards (or a clean list) with axis label + “Lean towards/away/neutral” + intensity.
+
+If tilts are locked, display a small state label: “Captured (not applied yet)”.
+
+Transparency section (collapsed by default):
+
+Show each question with selected response label and normalised value.
+
+Show axis score table: axis, score, direction, intensity.
+
+Show tilts gate status + reason.
+
+CTA:
+
+Back → returns to Analysis
+
+Continue → goes to Target only when all questions answered
+
+G) Persistence + completion flags
+
+When user completes and continues:
+
+set beliefs.completed = true
+
+set beliefs.completed_at = now()
+
+persist all beliefs fields
+
+H) Tests / regression checklist
+
+Add lightweight tests or a documented manual checklist ensuring:
+
+Normalisation correct for answers 1..5
+
+VOLATILITY_AVERSION inversion correct
+
+Intensity thresholds correct at boundaries (0.19/0.20, 0.49/0.50, 0.79/0.80)
+
+Gate logic correct for each red light and multiple red lights
+
+Back/forward retains responses
+
+DELIVERABLE: Step 6 is fully functional, computes deterministic belief tilts, shows a professional tilt preview and transparency panel, and persists outputs for Step 7 consumption, with tilt application gated by Safety Lights.
