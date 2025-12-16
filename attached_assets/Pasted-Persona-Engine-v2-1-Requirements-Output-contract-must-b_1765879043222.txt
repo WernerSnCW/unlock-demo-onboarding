@@ -1,0 +1,480 @@
+Persona Engine v2.1 — Requirements
+Output contract (must be produced every time)
+
+The persona engine must output:
+
+primary_persona (exactly one)
+
+why_fits_bullets (3–5 bullets, all factual and traceable to inputs)
+
+portfolio_traits (0..N trait chips; each has a strength band)
+
+risks_to_watch (0..3; must be data-backed)
+
+profile_indicators (4 bar indicators, labelled as relative)
+
+Non-negotiable rules
+
+Never use the word “meaningful”.
+
+Primary persona selection must be rule-based, not a weighted sum.
+
+Trait strengths must be based on explicit bands / thresholds.
+
+“Risks to watch” must be triggered only by observed conditions (not inferred psychology).
+
+Inputs available (use only these for now)
+From Step 3 (Intake)
+
+age_band
+
+portfolio_stage (ACCUMULATING / STARTING_DRAWDOWN / PRIMARILY_DRAWDOWN)
+
+primary_goal
+
+time_horizon (band)
+
+risk_comfort (band)
+
+adviser_usage (self-directed / mixed / advised / professional)
+
+investing_focus[] (multi-select)
+
+is_cross_border (boolean)
+
+has_db_pension + db_income_coverage_band
+
+has_private_business + private_business_wealth_band
+
+has_employer_stock + employer_stock_alloc_band
+
+has_crypto + crypto_alloc_band
+
+annual_essential_spend_gbp
+
+liquid_cash_gbp
+
+From Step 5 (Analysis / Holdings-derived)
+
+cash_runway_months
+
+largest_holding_pct
+
+illiquid_pct
+
+safety_lights statuses (Liquidity / Concentration / Illiquids)
+
+allocation breakdowns (equity/bond/cash/property/alternatives) if available
+
+wrapper breakdowns if available
+
+1) Primary persona set (7 personas)
+
+Allowed values (exact strings):
+
+SELF_DIRECTED_GROWTH_INVESTOR
+
+CORE_GROWTH_INVESTOR
+
+BALANCED_ALLOCATOR
+
+INCOME_AND_STABILITY_INVESTOR
+
+CAPITAL_PRESERVATION_INVESTOR
+
+FOUNDER_OR_ENTREPRENEUR
+
+PROPERTY_LED_INVESTOR
+(+ optional later: GLOBAL_CROSS_BORDER_INVESTOR if you want it as primary; for now treat as trait unless extreme)
+
+2) Primary persona selection — rule-based (ordered precedence)
+
+This is the critical fix. Choose the first matching rule, stop.
+
+Rule P0 — Founder / Entrepreneur (highest precedence)
+
+Assign FOUNDER_OR_ENTREPRENEUR if:
+
+has_private_business == true AND
+
+private_business_wealth_band is one of: 25_50, GT_50
+(or equivalent codes)
+
+Rationale: Private business concentration dominates planning complexity.
+
+Rule P1 — Property-led
+
+Assign PROPERTY_LED_INVESTOR if either:
+
+Holdings property allocation (from Step 5) ≥ 30%
+OR
+
+intake indicates property focus AND the holding/illiquid exposure supports it:
+
+investing_focus contains property/BTL AND
+
+(illiquid_pct ≥ 10% OR property allocation ≥ 20%)
+
+Rationale: Property-led investors plan around property constraints.
+
+Rule P2 — Income & stability
+
+Assign INCOME_AND_STABILITY_INVESTOR if:
+
+portfolio_stage is PRIMARILY_DRAWDOWN
+OR
+
+primary_goal is Income/Drawdown AND time horizon is short/medium (e.g. ≤10y)
+OR
+
+risk_comfort is Low AND goal is not pure growth
+
+Rule P3 — Capital preservation
+
+Assign CAPITAL_PRESERVATION_INVESTOR if:
+
+risk_comfort is Low AND
+
+cash_runway_months is high (≥ 12) or cash allocation is high (≥ 20%)
+(i.e. they prioritise resilience), AND
+
+portfolio_stage not explicitly growth/accumulating
+
+Rule P4 — Self-directed growth
+
+Assign SELF_DIRECTED_GROWTH_INVESTOR if:
+
+adviser_usage == "I make my own decisions" AND
+
+portfolio_stage == "Mostly building up (accumulating)" AND
+
+time horizon is long (10+ years) AND
+
+risk_comfort is Medium or High
+
+Rule P5 — Core growth investor
+
+Assign CORE_GROWTH_INVESTOR if:
+
+portfolio_stage is accumulating AND
+
+time horizon is long AND
+
+adviser usage is not strongly self-directed (e.g. mixed/advised)
+
+Rule P6 — Balanced allocator (default fallback)
+
+Assign BALANCED_ALLOCATOR if none of the above match.
+
+3) Portfolio traits — independent chips (0..N)
+
+Traits are not mutually exclusive. Each trait must have:
+
+trait_code
+
+label
+
+strength (Light / Moderate / Strong)
+
+evidence (1 factual line used in “why fits” or tooltip)
+
+Trait T1 — Liquidity Resilience
+
+Use cash_runway_months:
+
+Strong: ≥ 12 months
+
+Moderate: 6–11.99 months
+
+Light: 3–5.99 months
+
+(If <3 months, trait still shown but also triggers a risk)
+
+Your example: 18 months → Strong.
+
+Trait T2 — Concentration
+
+Use largest_holding_pct and policy thresholds (from Step 5):
+
+Strong: ≥ red threshold (e.g. >20%)
+
+Moderate: ≥ amber threshold (e.g. >15%) and < red
+
+Light: 10–amber threshold
+
+else: omit chip
+
+Your example: 15.6% → Moderate.
+
+Trait T3 — Illiquids
+
+Use illiquid_pct:
+
+Strong: ≥ 15%
+
+Moderate: 7–14.99%
+
+Light: 3–6.99%
+
+else: omit chip
+
+Your example: 4.7% → Light (optional to show).
+
+Trait T4 — Crypto Allocation
+
+Use intake band (crypto_alloc_band):
+
+Strong: ≥ 25%
+
+Moderate: 10–25% OR band == 10_25
+
+Light: 5–10% OR band == 5_10
+
+else: omit
+
+Your example: 5–10% → Light (not Moderate).
+
+This is another fix: 5–10% should not be labelled “Moderate”.
+
+Trait T5 — Alternatives Exposure (aggregate)
+
+Compute a simple aggregate score from:
+
+crypto band (convert to midpoint %)
+
+illiquid/property holdings % if known
+
+private business wealth band (convert to midpoint % of net worth; treat as context, not portfolio)
+For now, to keep it implementable:
+
+If private_business_wealth_band is present, add it as a separate “Private Business Exposure” trait instead of mixing into portfolio %.
+
+Alternatives Exposure strength (portfolio-based only):
+
+Strong: ≥ 20% of portfolio
+
+Moderate: 10–19.99%
+
+Light: 5–9.99%
+
+else: omit
+
+If you don’t have enough reliable data, omit this trait rather than guessing.
+
+Trait T6 — Employer Stock Exposure
+
+Use intake band:
+
+Strong: ≥ 30%
+
+Moderate: 15–30%
+
+Light: 5–15% or <5% (still light)
+
+else omit
+
+(<5% can be “Light” but consider omitting if truly tiny; your call.)
+
+Trait T7 — DB Pension Context
+
+If has_db_pension == true, show chip:
+
+Strong: covers >75%
+
+Moderate: 50–75
+
+Light: 25–50 or <25
+
+If Not sure: label as “DB Pension (Declared)”
+
+Trait T8 — Cross-border Complexity
+
+If is_cross_border == true:
+
+Strength: Light by default
+
+Moderate if also multiple wrappers or non-GBP currency holdings (if captured later)
+
+4) “Why this fits you” bullets — factual generation rules
+
+Generate 3–5 bullets from a template library, pulling from actual inputs.
+
+Examples:
+
+If adviser_usage == self_directed:
+
+“You manage investments primarily through your own decisions.”
+
+If portfolio_stage == accumulating:
+
+“You’re currently building wealth rather than drawing down.”
+
+If time horizon long:
+
+“Your stated time horizon is 10+ years.”
+
+If liquidity resilience strong:
+
+“Cash runway is approximately 18 months based on stated essential spending and accessible cash.”
+
+If concentration moderate/strong:
+
+“Largest single holding is 15.6% of the portfolio (amber concentration threshold >15%).”
+
+If crypto band present:
+
+“Crypto allocation is approximately 5–10%.”
+
+Hard rule: bullets must reference either:
+
+a banded answer (Step 3) or
+
+a computed metric (Step 5)
+
+No speculative behaviour.
+
+5) “Risks to watch” — only data-triggered
+
+Only include a risk if its trigger is true.
+
+Risk R1 — Concentration risk
+
+Trigger: largest_holding_pct ≥ amber threshold
+Text: “Concentration risk: one holding exceeds diversification guardrails.”
+
+Risk R2 — Liquidity shortfall
+
+Trigger: liquidity Safety Light is Amber or Red
+Text: “Liquidity risk: cash runway is below recommended buffer.”
+
+Risk R3 — High illiquids
+
+Trigger: illiquid_pct ≥ amber threshold
+Text: “Illiquidity risk: a portion of assets may be harder to sell quickly.”
+
+Risk R4 — Employer stock coupling
+
+Trigger: employer stock band ≥ 15–30 or above
+Text: “Employer stock risk: portfolio outcomes may be linked to employment income.”
+
+Risk R5 — Crypto volatility
+
+Trigger: crypto band ≥ 10–25 or above
+Text: “Crypto volatility: high price swings can materially affect portfolio value.”
+
+Do not show “over-trading” without a trading frequency input.
+
+6) Profile indicators (bars) — computed and labelled carefully
+
+Bars are relative indicators (0–100). They must be derived deterministically.
+
+Indicator I1 — Risk Orientation
+
+Compute from:
+
+risk_comfort (Low=30, Med=55, High=75)
+
+time horizon (short reduces, long increases)
+
+portfolio_stage (drawdown reduces)
+Clamp 0–100.
+
+Indicator I2 — Liquidity Resilience
+
+Map cash_runway_months:
+
+0 months → 0
+
+6 months → 50
+
+12 months → 75
+
+18+ months → 90
+Clamp 0–100.
+
+Indicator I3 — Alternatives Exposure
+
+Use portfolio-based alternatives estimate if available; otherwise use:
+
+crypto band midpoint as proxy (low confidence)
+If you use proxy, label tooltip “based on declared crypto allocation”.
+
+Indicator I4 — Property Tilt
+
+Use property allocation from holdings; if not available, use investing_focus property as low-confidence signal.
+
+Always show the disclaimer you already added.
+
+7) Expected output for your current test case (truth check)
+
+Given your shown inputs:
+
+cash_runway_months = 18 → Liquidity Resilience = Strong (chip) and high indicator
+
+largest_holding_pct = 15.6% → Concentration = Moderate (chip)
+
+illiquid_pct = 4.7% → Illiquids = Light (optional)
+
+crypto band = 5–10% → Crypto Allocation = Light (chip)
+
+private business band = 10–25% → show “Private Business Exposure (Light/Moderate)” chip (context)
+
+Primary persona:
+
+Self-directed + accumulating + long horizon + high risk comfort → SELF_DIRECTED_GROWTH_INVESTOR
+
+So Replit should ensure the engine produces exactly that.
+
+Replit instruction (copy/paste)
+
+Paste this into Replit:
+
+TASK: Fix persona calculation to match Persona Engine v2.1 (rule-based persona selection + independent traits). Current issue: trait strengths and liquidity resilience are inconsistent with Step 5 metrics and Step 3 banded inputs.
+
+A) Implement rule-based primary persona selection
+
+Replace any weighted-sum selection logic for primary_persona with an ordered rule engine:
+
+Apply rules P0..P6 exactly as defined in the Persona Engine v2.1 spec.
+
+Select the first matching persona and stop.
+
+B) Recompute portfolio trait chips independently
+
+Implement trait derivation T1..T8 with explicit thresholds and band mapping:
+
+Liquidity Resilience must be based on cash_runway_months from Step 5.
+
+Crypto Allocation strength must map 5–10% to Light (not Moderate).
+
+Concentration strength must map based on largest_holding_pct vs amber/red thresholds.
+
+Ensure trait chips do not influence primary persona selection.
+
+C) Fix “Why this fits you” and “Risks to watch”
+
+Generate 3–5 “Why this fits you” bullets strictly from factual inputs (Step 3 bands and Step 5 computed metrics). No speculative statements.
+
+Risks to watch must be included only when their triggers are met (R1–R5). Remove any “over-trading” type risks unless an explicit trading-frequency input exists.
+
+D) Profile indicators (bars)
+
+Recalculate indicators I1–I4 deterministically and ensure they align with the trait chip labels (e.g. Liquidity Resilience label must match the liquidity bar).
+
+Keep disclaimer: “Indicators reflect relative positioning, not precise measurements.”
+
+E) Validation against known test case
+
+Using the existing demo inputs (cash runway 18 months, largest holding 15.6%, illiquids 4.7%, crypto 5–10%, self-directed, accumulating, 10+ year horizon, high risk comfort), confirm output equals:
+
+primary_persona: SELF_DIRECTED_GROWTH_INVESTOR
+
+Liquidity Resilience: Strong
+
+Concentration: Moderate
+
+Crypto Allocation: Light
+
+Risks include concentration only (not over-trading)
+
+DELIVERABLE: Persona output is fully consistent with Step 3 and Step 5 data and is defensible under investor scrutiny.
