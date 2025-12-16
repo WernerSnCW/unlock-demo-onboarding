@@ -8,7 +8,7 @@ import {
   IllustrativeScenario,
 } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { 
   ShieldAlert, 
   ShieldCheck,
@@ -25,6 +25,7 @@ import {
   Scale,
   ChevronRight,
   HelpCircle,
+  Bug,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,6 +35,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const TOTAL_BELIEF_AXES = 8;
 
@@ -53,6 +60,12 @@ const SCENARIO_LABELS: Record<ScenarioType, { label: string; description: string
     description: 'Minimal deviation. No tilts applied.',
     icon: Layers,
   },
+};
+
+const DIRECTION_ARROWS: Record<string, string> = {
+  INCREASE: '↑',
+  DECREASE: '↓',
+  NEUTRAL: '↔',
 };
 
 const DIRECTION_ICONS: Record<string, typeof TrendingUp> = {
@@ -75,20 +88,34 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
 };
 
 function AllocationBandRow({ band }: { band: AllocationBand }) {
-  const DirIcon = DIRECTION_ICONS[band.direction];
+  const dirArrow = DIRECTION_ARROWS[band.direction];
   const dirColor = DIRECTION_COLORS[band.direction];
   
   return (
     <div className="flex items-center justify-between py-3 px-4 border-b border-[var(--border)] last:border-b-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-      <div className="flex-1">
+      <div className="flex-1 flex items-center gap-2">
         <span className="font-medium text-[var(--foreground)]">{band.sleeve}</span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className={`text-lg font-bold ${dirColor} cursor-help`} data-testid={`direction-${band.sleeve.toLowerCase()}`}>
+                {dirArrow}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">Directional pressure from preferences within constraints</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        {band.clamped && (
+          <Lock className="w-3 h-3 text-[#FE9239]" />
+        )}
       </div>
       <div className="flex items-center gap-4">
         <div className="text-right">
           <span className="text-sm text-[var(--muted-foreground)]">Current</span>
           <span className="ml-2 font-mono font-semibold text-[var(--foreground)]">{band.current_pct.toFixed(1)}%</span>
         </div>
-        <DirIcon className={`w-4 h-4 ${dirColor}`} />
         <div className="text-right min-w-[100px]">
           <span className="text-sm text-[var(--muted-foreground)]">Illustrative</span>
           <span className="ml-2 font-mono font-semibold text-[var(--primary)]">
@@ -135,6 +162,124 @@ function ConstraintRow({ constraint }: { constraint: BindingConstraint }) {
         </div>
         <p className="text-sm text-[var(--muted-foreground)] mt-1">{constraint.description}</p>
       </div>
+    </div>
+  );
+}
+
+function DebugBandRow({ band }: { band: AllocationBand }) {
+  return (
+    <tr className="border-b border-slate-200 dark:border-slate-700 text-xs">
+      <td className="px-2 py-1 font-medium">{band.sleeve}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.current_pct.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.cap}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.rawPressure.toFixed(3)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.scaledPressure.toFixed(3)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.skew.toFixed(2)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.unclampedMin.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.unclampedMax.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.illustrative_low_pct.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.illustrative_high_pct.toFixed(1)}</td>
+      <td className="px-2 py-1 text-center">
+        {band.debug.bindingConstraints.length > 0 
+          ? band.debug.bindingConstraints.join(', ') 
+          : '-'}
+      </td>
+    </tr>
+  );
+}
+
+function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Get the pressureScale from the first band's debug info (all bands in a scenario share the same scale)
+  const getPressureScale = (scenario: IllustrativeScenario) => {
+    if (scenario.asset_class_bands.length > 0) {
+      return scenario.asset_class_bands[0].debug.pressureScale;
+    }
+    return 0;
+  };
+  
+  return (
+    <div className="mt-8 border border-dashed border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+        data-testid="debug-panel-toggle"
+      >
+        <Bug className="w-4 h-4" />
+        <span>Debug (internal)</span>
+        <ChevronRight className={`w-4 h-4 ml-auto transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="p-4 border-t border-dashed border-slate-300 dark:border-slate-600 overflow-x-auto">
+          <div className="space-y-6">
+            {scenarios.map((scenario) => (
+              <div key={scenario.scenario_type} className="space-y-2">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  {scenario.scenario_label}
+                  <span className="text-slate-400 font-normal">
+                    (pressureScale = {getPressureScale(scenario)})
+                  </span>
+                </h4>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs border-collapse min-w-[800px]">
+                    <thead>
+                      <tr className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <th className="px-2 py-1 text-left">Sleeve</th>
+                        <th className="px-2 py-1 text-right">Current</th>
+                        <th className="px-2 py-1 text-right">Cap</th>
+                        <th className="px-2 py-1 text-right">Raw P</th>
+                        <th className="px-2 py-1 text-right">Scaled P</th>
+                        <th className="px-2 py-1 text-right">Skew</th>
+                        <th className="px-2 py-1 text-right">Uncl Min</th>
+                        <th className="px-2 py-1 text-right">Uncl Max</th>
+                        <th className="px-2 py-1 text-right">Min</th>
+                        <th className="px-2 py-1 text-right">Max</th>
+                        <th className="px-2 py-1 text-center">Constraints</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {scenario.asset_class_bands.map((band) => (
+                        <DebugBandRow key={band.sleeve} band={band} />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {scenario.region_bands.length > 0 && (
+                  <div className="overflow-x-auto mt-2">
+                    <p className="text-xs text-slate-500 mb-1">Regions:</p>
+                    <table className="w-full text-xs border-collapse min-w-[800px]">
+                      <thead>
+                        <tr className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                          <th className="px-2 py-1 text-left">Sleeve</th>
+                          <th className="px-2 py-1 text-right">Current</th>
+                          <th className="px-2 py-1 text-right">Cap</th>
+                          <th className="px-2 py-1 text-right">Raw P</th>
+                          <th className="px-2 py-1 text-right">Scaled P</th>
+                          <th className="px-2 py-1 text-right">Skew</th>
+                          <th className="px-2 py-1 text-right">Uncl Min</th>
+                          <th className="px-2 py-1 text-right">Uncl Max</th>
+                          <th className="px-2 py-1 text-right">Min</th>
+                          <th className="px-2 py-1 text-right">Max</th>
+                          <th className="px-2 py-1 text-center">Constraints</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {scenario.region_bands.map((band) => (
+                          <DebugBandRow key={band.sleeve} band={band} />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -403,6 +548,9 @@ export default function Target() {
                   </TabsContent>
                 ))}
               </Tabs>
+              
+              {/* Debug Panel - Hidden by default */}
+              <DebugPanel scenarios={scenario.scenarios} />
             </div>
           </div>
         )}

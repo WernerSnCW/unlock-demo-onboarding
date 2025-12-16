@@ -267,6 +267,18 @@ export type ScenarioType = 'GUARDRAIL_FIRST' | 'PREFERENCE_LEANING' | 'NEUTRAL_B
 export type DirectionalDelta = 'INCREASE' | 'DECREASE' | 'NEUTRAL';
 export type TiltApplicationStatus = 'APPLIED' | 'PARTIALLY_APPLIED' | 'CONSTRAINED' | 'NOT_APPLIED';
 
+export interface AllocationBandDebug {
+  cap: number;                   // Movement cap used for this scenario
+  pressureScale: number;         // Pressure scale factor (0, 0.25, or 1.0)
+  rawPressure: number;           // Raw pressure from beliefs [-1, +1]
+  scaledPressure: number;        // After applying pressureScale
+  skewStrength: number;          // cap * 0.6
+  skew: number;                  // scaledPressure * skewStrength
+  unclampedMin: number;          // Before safety clamps
+  unclampedMax: number;          // Before safety clamps
+  bindingConstraints: string[];  // Which constraints were binding
+}
+
 export interface AllocationBand {
   sleeve: string;
   current_pct: number;
@@ -274,8 +286,9 @@ export interface AllocationBand {
   illustrative_high_pct: number;
   direction: DirectionalDelta;
   midpoint_pct: number;
-  pressure: number; // Directional pressure from beliefs [-1, +1]
+  pressure: number; // Scaled pressure used for display
   clamped: boolean; // True if range was constrained by Safety Light budgets
+  debug: AllocationBandDebug; // Detailed debug info for verification
 }
 
 // Sleeve pressure scores derived from belief axes
@@ -877,18 +890,19 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         const tiltsAllowed = beliefs.tilts_allowed;
         
         // ============================================
-        // 1) SCENARIO MOVEMENT CAPS
+        // 1) SCENARIO MOVEMENT CAPS (per spec)
         // ============================================
         const MOVEMENT_CAPS: Record<ScenarioType, number> = {
           NEUTRAL_BASELINE: 2,      // ±2 percentage points
-          GUARDRAIL_FIRST: 3.5,     // ±3-4 percentage points
-          PREFERENCE_LEANING: 10,   // ±8-12 percentage points
+          GUARDRAIL_FIRST: 3,       // ±3 percentage points
+          PREFERENCE_LEANING: 10,   // ±10 percentage points
         };
         
-        const SKEW_STRENGTH: Record<ScenarioType, number> = {
-          NEUTRAL_BASELINE: 0,      // No skew
-          GUARDRAIL_FIRST: 0.3,     // Small skew
-          PREFERENCE_LEANING: 0.7,  // Larger skew
+        // Pressure scaling per scenario (per spec 2.3)
+        const PRESSURE_SCALE: Record<ScenarioType, number> = {
+          NEUTRAL_BASELINE: 0,      // No pressure applied
+          GUARDRAIL_FIRST: 0.25,    // 25% of pressure
+          PREFERENCE_LEANING: 1.0,  // 100% of pressure
         };
         
         // ============================================
@@ -915,46 +929,60 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         const currentWrapper = computeCurrentAllocation('wrapper');
         
         // ============================================
-        // 3) COMPUTE DIRECTIONAL PRESSURE FROM BELIEFS
+        // 3) COMPUTE RAW DIRECTIONAL PRESSURE FROM BELIEFS (per spec 2.2)
         // ============================================
         const axisScores = beliefs.axis_scores;
         
-        // Normalize to [-1, +1] range (axis_scores are already in [-1, +1] from step 6)
+        // Clamp to [-1, +1]
         const clampPressure = (val: number) => Math.max(-1, Math.min(1, val));
         
-        // Quality, Value, Tech, SmallCap all push towards equity
+        // Extract axis scores
         const qualityScore = axisScores.QUALITY_TILT ?? 0;
         const valueScore = axisScores.VALUE_TILT ?? 0;
         const techScore = axisScores.TECH_TILT ?? 0;
         const smallCapScore = axisScores.SMALL_CAP_TILT ?? 0;
         const esgScore = axisScores.ESG_TILT ?? 0;
         const inflationScore = axisScores.INFLATION_HEDGE_TILT ?? 0;
-        const volatilityAversion = axisScores.VOLATILITY_AVERSION ?? 0; // Higher = more averse to volatility
+        const volatilityAversion = axisScores.VOLATILITY_AVERSION ?? 0;
         const ukBias = axisScores.UK_BIAS ?? 0;
         
-        // Equity pressure: positive scores from quality/value/tech/small cap increase it
-        // Volatility aversion ALWAYS reduces equity pressure (positive vol aversion = less equity)
-        const equityBaseScore = (qualityScore + valueScore + techScore + smallCapScore) / 4;
-        const equityPressure = clampPressure(equityBaseScore - volatilityAversion * 0.5);
+        // Safety Light constraint flags
+        const liquidityIsConstrained = safetyLights.liquidity === 'RED' || safetyLights.liquidity === 'AMBER';
+        const concentrationIsConstrained = safetyLights.concentration === 'RED' || safetyLights.concentration === 'AMBER';
+        const illiquidsIsConstrained = safetyLights.illiquids === 'RED' || safetyLights.illiquids === 'AMBER';
         
-        // Bond pressure: 
-        // - Inversely related to equity pressure (less equity = more bonds)
-        // - Positive volatility aversion increases bond pressure
-        // - Negative volatility aversion (vol-seeking) decreases bond pressure
-        const bondPressure = clampPressure(-equityPressure * 0.4 + volatilityAversion * 0.35);
+        // Equity pressure: smallCap(+), tech(+), value(+small), quality(+small), volatilityAversion(−)
+        const equityPressure = clampPressure(
+          smallCapScore * 0.3 + techScore * 0.3 + valueScore * 0.15 + qualityScore * 0.15 - volatilityAversion * 0.4
+        );
         
-        // Cash pressure:
-        // - Positive volatility aversion increases cash pressure (safety seeking)
-        // - Negative volatility aversion decreases cash pressure (risk seeking)
-        const cashPressure = clampPressure(volatilityAversion * 0.3 - equityBaseScore * 0.15);
+        // Bond pressure: volatilityAversion(+), inflationHedge influence
+        const bondPressure = clampPressure(
+          volatilityAversion * 0.4 + inflationScore * 0.2
+        );
         
-        // Property/Alternatives pressure: inflation hedge increases it
-        const propertyPressure = clampPressure(inflationScore * 0.6);
-        const alternativesPressure = clampPressure(inflationScore * 0.4 + esgScore * 0.2);
+        // Cash pressure: volatilityAversion(+), plus liquidity guardrail needs
+        let cashPressure = clampPressure(volatilityAversion * 0.3);
+        // Boost cash pressure if liquidity is amber (runway protection)
+        if (liquidityIsConstrained) {
+          cashPressure = clampPressure(cashPressure + 0.3);
+        }
         
-        // Regional pressure
+        // Property pressure: inflation hedge(+), reduced to 0 if illiquids is amber/red
+        let propertyPressure = clampPressure(inflationScore * 0.5);
+        if (illiquidsIsConstrained) {
+          propertyPressure = 0; // Cannot increase property exposure
+        }
+        
+        // Alternatives pressure: esg(+), inflation(+), reduced if illiquids constrained
+        let alternativesPressure = clampPressure(inflationScore * 0.3 + esgScore * 0.2);
+        if (illiquidsIsConstrained) {
+          alternativesPressure = Math.min(0, alternativesPressure); // Can only decrease
+        }
+        
+        // Regional pressures: UK bias axis only
         const ukPressure = clampPressure(ukBias);
-        const globalPressure = clampPressure(-ukBias * 0.5);
+        const globalPressure = clampPressure(-ukBias); // Inverse for coherence
         
         const sleevePressures: SleevePressures = {
           equity: equityPressure,
@@ -980,104 +1008,88 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         };
         
         // ============================================
-        // 4) SAFETY LIGHT BUDGET CONSTRAINTS
-        // ============================================
-        const liquidityIsConstrained = safetyLights.liquidity === 'RED' || safetyLights.liquidity === 'AMBER';
-        const concentrationIsConstrained = safetyLights.concentration === 'RED' || safetyLights.concentration === 'AMBER';
-        const illiquidsIsConstrained = safetyLights.illiquids === 'RED' || safetyLights.illiquids === 'AMBER';
-        
-        // ============================================
-        // 5) CREATE ALLOCATION BANDS WITH FEASIBILITY + SKEW
+        // 4) CREATE ALLOCATION BANDS (per spec 2.4, 2.5, 2.6)
         // ============================================
         const createBands = (
           current: Record<string, number>,
-          scenarioType: ScenarioType,
-          isRegional: boolean = false
+          scenarioType: ScenarioType
         ): AllocationBand[] => {
           const cap = MOVEMENT_CAPS[scenarioType];
-          const skewStrength = SKEW_STRENGTH[scenarioType];
+          const pressureScale = PRESSURE_SCALE[scenarioType];
+          // skewStrength = cap * 0.6 (per spec 2.4)
+          const skewStrength = cap * 0.6;
           
           return Object.entries(current).map(([sleeve, currentPct]) => {
-            // Get pressure for this sleeve
+            // Get raw pressure for this sleeve
             const pressureKey = getSleeveKey(sleeve);
-            const pressure = pressureKey ? sleevePressures[pressureKey] : 0;
+            const rawPressure = pressureKey ? sleevePressures[pressureKey] : 0;
+            
+            // Apply pressure scaling (per spec 2.3)
+            const scaledPressure = rawPressure * pressureScale;
+            
+            // Convert pressure into skew (per spec 2.4)
+            const skew = scaledPressure * skewStrength;
             
             // ============================================
-            // ASYMMETRIC RANGE GENERATION
-            // Compute directional deltas based on pressure
-            // Positive pressure = expand upward, contract downward
-            // Negative pressure = expand downward, contract upward
+            // BUILD ASYMMETRIC RANGE (per spec 2.5)
+            // min = current - cap + min(0, skew)
+            // max = current + cap + max(0, skew)
             // ============================================
+            const unclampedMin = currentPct - cap + Math.min(0, skew);
+            const unclampedMax = currentPct + cap + Math.max(0, skew);
             
-            // Base asymmetric deltas: pressure shifts the range direction
-            // When pressure > 0: upside delta is larger, downside delta is smaller
-            // When pressure < 0: downside delta is larger, upside delta is smaller
-            const asymmetryFactor = pressure * skewStrength;
-            
-            // Upside delta: base cap + asymmetry contribution (positive pressure increases upside)
-            let upsideDelta = cap * (1 + asymmetryFactor * 0.6);
-            // Downside delta: base cap - asymmetry contribution (positive pressure decreases downside)
-            let downsideDelta = cap * (1 - asymmetryFactor * 0.6);
-            
-            // Ensure deltas stay within reasonable bounds
-            upsideDelta = Math.max(0.5, Math.min(cap * 1.8, upsideDelta));
-            downsideDelta = Math.max(0.5, Math.min(cap * 1.8, downsideDelta));
-            
-            // Initial range: asymmetric around current
-            let lowPct = currentPct - downsideDelta;
-            let highPct = currentPct + upsideDelta;
-            
-            // Track if we clamped this band
-            let clamped = false;
+            let lowPct = unclampedMin;
+            let highPct = unclampedMax;
+            const bindingConstraints: string[] = [];
             
             // ============================================
-            // APPLY SAFETY LIGHT BUDGET CLAMPS
+            // APPLY HARD CLAMPS/BUDGETS AFTER RANGE CREATION (per spec 2.6)
             // ============================================
             const lowerSleeve = sleeve.toLowerCase();
             
-            // Liquidity constraint: don't allow cash to fall below current if liquidity is amber/red
+            // Concentration constraint: do not allow equity max to increase beyond current + conservative amount
+            if (concentrationIsConstrained && (lowerSleeve.includes('equity') || lowerSleeve.includes('stock'))) {
+              const maxAllowedIncrease = 2; // Conservative +0 to +2
+              if (highPct > currentPct + maxAllowedIncrease) {
+                highPct = currentPct + maxAllowedIncrease;
+                bindingConstraints.push('concentration');
+              }
+            }
+            
+            // Liquidity constraint: do not allow cash min to fall below current
             if (liquidityIsConstrained && (lowerSleeve.includes('cash') || lowerSleeve.includes('money market'))) {
               if (lowPct < currentPct) {
                 lowPct = currentPct;
-                clamped = true;
+                bindingConstraints.push('liquidity');
               }
             }
             
-            // Illiquids constraint: don't allow illiquid sleeves to increase beyond current
+            // Illiquids constraint: do not allow property/illiquid max to exceed current
             if (illiquidsIsConstrained && (lowerSleeve.includes('property') || lowerSleeve.includes('alternative') || lowerSleeve.includes('private'))) {
               if (highPct > currentPct) {
                 highPct = currentPct;
-                clamped = true;
+                bindingConstraints.push('illiquids');
               }
             }
             
-            // Concentration constraint: cap equity increase to avoid worsening concentration
-            if (concentrationIsConstrained && (lowerSleeve.includes('equity') || lowerSleeve.includes('stock'))) {
-              const maxEquityIncrease = cap * 0.5; // Only allow half the normal increase
-              if (highPct > currentPct + maxEquityIncrease) {
-                highPct = currentPct + maxEquityIncrease;
-                clamped = true;
-              }
-            }
-            
-            // Clamp to valid percentage range [0, 100]
+            // Global percentage clamps [0, 100]
             lowPct = Math.max(0, lowPct);
             highPct = Math.min(100, highPct);
             
             // Ensure low <= high
             if (lowPct > highPct) {
               lowPct = highPct;
-              clamped = true;
             }
             
-            // Compute midpoint after clamping (preserves asymmetry)
+            const clamped = bindingConstraints.length > 0;
+            
+            // Compute midpoint
             const midpoint = (lowPct + highPct) / 2;
             
-            // Determine direction based on midpoint vs current
-            // Tighter threshold for detecting direction
+            // Determine direction based on scaled pressure sign (per spec 3.1)
             let direction: DirectionalDelta = 'NEUTRAL';
-            if (midpoint > currentPct + 0.3) direction = 'INCREASE';
-            else if (midpoint < currentPct - 0.3) direction = 'DECREASE';
+            if (scaledPressure > 0.05) direction = 'INCREASE';
+            else if (scaledPressure < -0.05) direction = 'DECREASE';
             
             return {
               sleeve,
@@ -1086,8 +1098,19 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
               illustrative_high_pct: Math.round(highPct * 10) / 10,
               direction,
               midpoint_pct: Math.round(midpoint * 10) / 10,
-              pressure: Math.round(pressure * 100) / 100,
+              pressure: Math.round(scaledPressure * 1000) / 1000, // Display scaled pressure
               clamped,
+              debug: {
+                cap,
+                pressureScale,
+                rawPressure: Math.round(rawPressure * 1000) / 1000,
+                scaledPressure: Math.round(scaledPressure * 1000) / 1000,
+                skewStrength: Math.round(skewStrength * 100) / 100,
+                skew: Math.round(skew * 100) / 100,
+                unclampedMin: Math.round(unclampedMin * 10) / 10,
+                unclampedMax: Math.round(unclampedMax * 10) / 10,
+                bindingConstraints,
+              },
             };
           }).sort((a, b) => b.current_pct - a.current_pct);
         };
@@ -1178,7 +1201,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             scenario_label: 'Guardrail-first',
             scenario_description: 'Prioritises bringing Safety Lights to green. Belief axes partially reflected within tight constraints.',
             asset_class_bands: createBands(currentAssetClass, 'GUARDRAIL_FIRST'),
-            region_bands: createBands(currentRegion, 'GUARDRAIL_FIRST', true),
+            region_bands: createBands(currentRegion, 'GUARDRAIL_FIRST'),
             wrapper_bands: createBands(currentWrapper, 'GUARDRAIL_FIRST'),
             applied_tilts: computeAppliedTilts('GUARDRAIL_FIRST'),
             binding_constraints: computeBindingConstraints(),
@@ -1190,7 +1213,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             scenario_label: 'Preference-leaning',
             scenario_description: 'Reflects belief axes as far as guardrail budgets allow. Wider ranges with directional skew.',
             asset_class_bands: createBands(currentAssetClass, 'PREFERENCE_LEANING'),
-            region_bands: createBands(currentRegion, 'PREFERENCE_LEANING', true),
+            region_bands: createBands(currentRegion, 'PREFERENCE_LEANING'),
             wrapper_bands: createBands(currentWrapper, 'PREFERENCE_LEANING'),
             applied_tilts: computeAppliedTilts('PREFERENCE_LEANING'),
             binding_constraints: computeBindingConstraints(),
@@ -1202,7 +1225,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             scenario_label: 'Neutral baseline',
             scenario_description: 'Minimal deviation from current allocation. No belief axes incorporated.',
             asset_class_bands: createBands(currentAssetClass, 'NEUTRAL_BASELINE'),
-            region_bands: createBands(currentRegion, 'NEUTRAL_BASELINE', true),
+            region_bands: createBands(currentRegion, 'NEUTRAL_BASELINE'),
             wrapper_bands: createBands(currentWrapper, 'NEUTRAL_BASELINE'),
             applied_tilts: computeAppliedTilts('NEUTRAL_BASELINE'),
             binding_constraints: computeBindingConstraints(),
