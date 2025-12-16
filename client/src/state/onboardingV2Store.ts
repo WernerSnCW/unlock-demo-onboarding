@@ -274,6 +274,19 @@ export interface AllocationBand {
   illustrative_high_pct: number;
   direction: DirectionalDelta;
   midpoint_pct: number;
+  pressure: number; // Directional pressure from beliefs [-1, +1]
+  clamped: boolean; // True if range was constrained by Safety Light budgets
+}
+
+// Sleeve pressure scores derived from belief axes
+export interface SleevePressures {
+  equity: number;
+  bond: number;
+  cash: number;
+  property: number;
+  alternatives: number;
+  uk: number;
+  global: number;
 }
 
 export interface AppliedTiltEntry {
@@ -311,6 +324,7 @@ export interface ScenarioState {
   scenarios: IllustrativeScenario[];
   guardrails_binding: boolean;
   tilts_locked_banner: boolean;
+  sleeve_pressures: SleevePressures | null; // Persisted for UI display
 }
 
 interface OnboardingV2State {
@@ -436,6 +450,7 @@ const initialScenario: ScenarioState = {
   scenarios: [],
   guardrails_binding: false,
   tilts_locked_banner: false,
+  sleeve_pressures: null,
 };
 
 // Axis labels for display
@@ -861,11 +876,27 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         const safetyLights = analysis.safety_lights;
         const tiltsAllowed = beliefs.tilts_allowed;
         
-        // Compute current allocations from holdings
+        // ============================================
+        // 1) SCENARIO MOVEMENT CAPS
+        // ============================================
+        const MOVEMENT_CAPS: Record<ScenarioType, number> = {
+          NEUTRAL_BASELINE: 2,      // ±2 percentage points
+          GUARDRAIL_FIRST: 3.5,     // ±3-4 percentage points
+          PREFERENCE_LEANING: 10,   // ±8-12 percentage points
+        };
+        
+        const SKEW_STRENGTH: Record<ScenarioType, number> = {
+          NEUTRAL_BASELINE: 0,      // No skew
+          GUARDRAIL_FIRST: 0.3,     // Small skew
+          PREFERENCE_LEANING: 0.7,  // Larger skew
+        };
+        
+        // ============================================
+        // 2) COMPUTE CURRENT ALLOCATIONS
+        // ============================================
         const validHoldings = holdings.filter(h => h.value_gbp > 0);
         const totalValue = validHoldings.reduce((sum, h) => sum + h.value_gbp, 0);
         
-        // Helper to compute current allocation percentages
         const computeCurrentAllocation = (groupByKey: keyof Holding): Record<string, number> => {
           const groups: Record<string, number> = {};
           validHoldings.forEach(h => {
@@ -883,40 +914,170 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         const currentRegion = computeCurrentAllocation('region');
         const currentWrapper = computeCurrentAllocation('wrapper');
         
-        // Helper to create allocation bands with directional deltas
+        // ============================================
+        // 3) COMPUTE DIRECTIONAL PRESSURE FROM BELIEFS
+        // ============================================
+        const axisScores = beliefs.axis_scores;
+        
+        // Normalize to [-1, +1] range (axis_scores are already in [-1, +1] from step 6)
+        const clampPressure = (val: number) => Math.max(-1, Math.min(1, val));
+        
+        // Quality, Value, Tech, SmallCap all push towards equity
+        const qualityScore = axisScores.QUALITY_TILT ?? 0;
+        const valueScore = axisScores.VALUE_TILT ?? 0;
+        const techScore = axisScores.TECH_TILT ?? 0;
+        const smallCapScore = axisScores.SMALL_CAP_TILT ?? 0;
+        const esgScore = axisScores.ESG_TILT ?? 0;
+        const inflationScore = axisScores.INFLATION_HEDGE_TILT ?? 0;
+        const volatilityAversion = axisScores.VOLATILITY_AVERSION ?? 0; // Higher = more averse to volatility
+        const ukBias = axisScores.UK_BIAS ?? 0;
+        
+        // Equity pressure: positive scores from quality/value/tech/small cap increase it
+        // Volatility aversion ALWAYS reduces equity pressure (positive vol aversion = less equity)
+        const equityBaseScore = (qualityScore + valueScore + techScore + smallCapScore) / 4;
+        const equityPressure = clampPressure(equityBaseScore - volatilityAversion * 0.5);
+        
+        // Bond pressure: 
+        // - Inversely related to equity pressure (less equity = more bonds)
+        // - Positive volatility aversion increases bond pressure
+        // - Negative volatility aversion (vol-seeking) decreases bond pressure
+        const bondPressure = clampPressure(-equityPressure * 0.4 + volatilityAversion * 0.35);
+        
+        // Cash pressure:
+        // - Positive volatility aversion increases cash pressure (safety seeking)
+        // - Negative volatility aversion decreases cash pressure (risk seeking)
+        const cashPressure = clampPressure(volatilityAversion * 0.3 - equityBaseScore * 0.15);
+        
+        // Property/Alternatives pressure: inflation hedge increases it
+        const propertyPressure = clampPressure(inflationScore * 0.6);
+        const alternativesPressure = clampPressure(inflationScore * 0.4 + esgScore * 0.2);
+        
+        // Regional pressure
+        const ukPressure = clampPressure(ukBias);
+        const globalPressure = clampPressure(-ukBias * 0.5);
+        
+        const sleevePressures: SleevePressures = {
+          equity: equityPressure,
+          bond: bondPressure,
+          cash: cashPressure,
+          property: propertyPressure,
+          alternatives: alternativesPressure,
+          uk: ukPressure,
+          global: globalPressure,
+        };
+        
+        // Map sleeve names to pressure keys
+        const getSleeveKey = (sleeve: string): keyof SleevePressures | null => {
+          const lowerSleeve = sleeve.toLowerCase();
+          if (lowerSleeve.includes('equity') || lowerSleeve.includes('stock')) return 'equity';
+          if (lowerSleeve.includes('bond') || lowerSleeve.includes('fixed')) return 'bond';
+          if (lowerSleeve.includes('cash') || lowerSleeve.includes('money market')) return 'cash';
+          if (lowerSleeve.includes('property') || lowerSleeve.includes('real estate')) return 'property';
+          if (lowerSleeve.includes('alternative') || lowerSleeve.includes('commodity') || lowerSleeve.includes('hedge')) return 'alternatives';
+          if (lowerSleeve.includes('uk') || lowerSleeve.includes('united kingdom')) return 'uk';
+          if (lowerSleeve.includes('global') || lowerSleeve.includes('international') || lowerSleeve.includes('us') || lowerSleeve.includes('emerging')) return 'global';
+          return null;
+        };
+        
+        // ============================================
+        // 4) SAFETY LIGHT BUDGET CONSTRAINTS
+        // ============================================
+        const liquidityIsConstrained = safetyLights.liquidity === 'RED' || safetyLights.liquidity === 'AMBER';
+        const concentrationIsConstrained = safetyLights.concentration === 'RED' || safetyLights.concentration === 'AMBER';
+        const illiquidsIsConstrained = safetyLights.illiquids === 'RED' || safetyLights.illiquids === 'AMBER';
+        
+        // ============================================
+        // 5) CREATE ALLOCATION BANDS WITH FEASIBILITY + SKEW
+        // ============================================
         const createBands = (
           current: Record<string, number>,
-          scenarioType: ScenarioType
+          scenarioType: ScenarioType,
+          isRegional: boolean = false
         ): AllocationBand[] => {
+          const cap = MOVEMENT_CAPS[scenarioType];
+          const skewStrength = SKEW_STRENGTH[scenarioType];
+          
           return Object.entries(current).map(([sleeve, currentPct]) => {
-            // Compute illustrative range based on scenario type
-            let bandWidth = 5; // Default band width
-            let shift = 0;
+            // Get pressure for this sleeve
+            const pressureKey = getSleeveKey(sleeve);
+            const pressure = pressureKey ? sleevePressures[pressureKey] : 0;
             
-            if (scenarioType === 'GUARDRAIL_FIRST') {
-              // Minimal changes, prioritize bringing lights to green
-              bandWidth = 3;
-            } else if (scenarioType === 'PREFERENCE_LEANING') {
-              // Apply tilts as far as budgets allow
-              bandWidth = 7;
-              // Apply slight shifts based on belief tilts
-              if (sleeve.toLowerCase().includes('equity') || sleeve.toLowerCase().includes('stock')) {
-                const techTilt = beliefs.axis_scores.TECH_TILT ?? 0;
-                const smallCapTilt = beliefs.axis_scores.SMALL_CAP_TILT ?? 0;
-                shift = (techTilt + smallCapTilt) * 2;
+            // ============================================
+            // ASYMMETRIC RANGE GENERATION
+            // Compute directional deltas based on pressure
+            // Positive pressure = expand upward, contract downward
+            // Negative pressure = expand downward, contract upward
+            // ============================================
+            
+            // Base asymmetric deltas: pressure shifts the range direction
+            // When pressure > 0: upside delta is larger, downside delta is smaller
+            // When pressure < 0: downside delta is larger, upside delta is smaller
+            const asymmetryFactor = pressure * skewStrength;
+            
+            // Upside delta: base cap + asymmetry contribution (positive pressure increases upside)
+            let upsideDelta = cap * (1 + asymmetryFactor * 0.6);
+            // Downside delta: base cap - asymmetry contribution (positive pressure decreases downside)
+            let downsideDelta = cap * (1 - asymmetryFactor * 0.6);
+            
+            // Ensure deltas stay within reasonable bounds
+            upsideDelta = Math.max(0.5, Math.min(cap * 1.8, upsideDelta));
+            downsideDelta = Math.max(0.5, Math.min(cap * 1.8, downsideDelta));
+            
+            // Initial range: asymmetric around current
+            let lowPct = currentPct - downsideDelta;
+            let highPct = currentPct + upsideDelta;
+            
+            // Track if we clamped this band
+            let clamped = false;
+            
+            // ============================================
+            // APPLY SAFETY LIGHT BUDGET CLAMPS
+            // ============================================
+            const lowerSleeve = sleeve.toLowerCase();
+            
+            // Liquidity constraint: don't allow cash to fall below current if liquidity is amber/red
+            if (liquidityIsConstrained && (lowerSleeve.includes('cash') || lowerSleeve.includes('money market'))) {
+              if (lowPct < currentPct) {
+                lowPct = currentPct;
+                clamped = true;
               }
-            } else {
-              // Neutral baseline - minimal deviation
-              bandWidth = 2;
             }
             
-            const lowPct = Math.max(0, currentPct - bandWidth + shift);
-            const highPct = Math.min(100, currentPct + bandWidth + shift);
+            // Illiquids constraint: don't allow illiquid sleeves to increase beyond current
+            if (illiquidsIsConstrained && (lowerSleeve.includes('property') || lowerSleeve.includes('alternative') || lowerSleeve.includes('private'))) {
+              if (highPct > currentPct) {
+                highPct = currentPct;
+                clamped = true;
+              }
+            }
+            
+            // Concentration constraint: cap equity increase to avoid worsening concentration
+            if (concentrationIsConstrained && (lowerSleeve.includes('equity') || lowerSleeve.includes('stock'))) {
+              const maxEquityIncrease = cap * 0.5; // Only allow half the normal increase
+              if (highPct > currentPct + maxEquityIncrease) {
+                highPct = currentPct + maxEquityIncrease;
+                clamped = true;
+              }
+            }
+            
+            // Clamp to valid percentage range [0, 100]
+            lowPct = Math.max(0, lowPct);
+            highPct = Math.min(100, highPct);
+            
+            // Ensure low <= high
+            if (lowPct > highPct) {
+              lowPct = highPct;
+              clamped = true;
+            }
+            
+            // Compute midpoint after clamping (preserves asymmetry)
             const midpoint = (lowPct + highPct) / 2;
             
+            // Determine direction based on midpoint vs current
+            // Tighter threshold for detecting direction
             let direction: DirectionalDelta = 'NEUTRAL';
-            if (midpoint > currentPct + 1) direction = 'INCREASE';
-            else if (midpoint < currentPct - 1) direction = 'DECREASE';
+            if (midpoint > currentPct + 0.3) direction = 'INCREASE';
+            else if (midpoint < currentPct - 0.3) direction = 'DECREASE';
             
             return {
               sleeve,
@@ -925,11 +1086,15 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
               illustrative_high_pct: Math.round(highPct * 10) / 10,
               direction,
               midpoint_pct: Math.round(midpoint * 10) / 10,
+              pressure: Math.round(pressure * 100) / 100,
+              clamped,
             };
           }).sort((a, b) => b.current_pct - a.current_pct);
         };
         
-        // Compute applied tilts status
+        // ============================================
+        // 6) COMPUTE APPLIED TILTS STATUS
+        // ============================================
         const computeAppliedTilts = (scenarioType: ScenarioType): AppliedTiltEntry[] => {
           return beliefs.tilt_profile.map(tilt => {
             let status: TiltApplicationStatus = 'NOT_APPLIED';
@@ -937,24 +1102,24 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             
             if (!tiltsAllowed) {
               status = 'CONSTRAINED';
-              constraintReason = 'Safety Lights guardrails prevent tilt application.';
+              constraintReason = 'Safety Lights guardrails prevent preference reflection.';
             } else if (scenarioType === 'NEUTRAL_BASELINE') {
               status = 'NOT_APPLIED';
-              constraintReason = 'Neutral baseline scenario does not apply tilts.';
+              constraintReason = 'Neutral baseline does not incorporate belief axes.';
             } else if (tilt.intensity === 'NEUTRAL') {
-              status = 'NEUTRAL' as TiltApplicationStatus;
+              status = 'NOT_APPLIED';
               constraintReason = null;
             } else if (scenarioType === 'GUARDRAIL_FIRST') {
-              // Guardrail-first: only apply if no risk of worsening lights
+              // Guardrail-first: partially applied with constraints
               if (safetyLights.concentration === 'RED' || safetyLights.illiquids === 'RED') {
                 status = 'CONSTRAINED';
                 constraintReason = 'Constrained to avoid worsening Safety Lights.';
               } else {
                 status = 'PARTIALLY_APPLIED';
-                constraintReason = 'Applied within guardrail constraints.';
+                constraintReason = 'Reflected within guardrail constraints.';
               }
             } else {
-              // Preference-leaning: apply as much as possible
+              // Preference-leaning: fully applied
               status = 'APPLIED';
               constraintReason = null;
             }
@@ -962,54 +1127,58 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             return {
               axis_code: tilt.axis_code,
               axis_label: AXIS_LABELS[tilt.axis_code],
-              status: status === 'NEUTRAL' as TiltApplicationStatus ? 'NOT_APPLIED' : status,
+              status,
               constraint_reason: constraintReason,
             };
           });
         };
         
-        // Compute binding constraints
+        // ============================================
+        // 7) COMPUTE BINDING CONSTRAINTS
+        // ============================================
         const computeBindingConstraints = (): BindingConstraint[] => {
           const constraints: BindingConstraint[] = [];
           
-          if (safetyLights.liquidity === 'RED' || safetyLights.liquidity === 'AMBER') {
+          if (liquidityIsConstrained) {
             constraints.push({
               constraint_type: 'LIQUIDITY',
-              description: 'Cash runway constraint limits changes that would reduce liquidity.',
+              description: 'Cash runway constraint prevents reducing liquidity allocation.',
               current_value: safetyLights.metrics.cash_runway_months,
-              threshold: 3, // months
+              threshold: 3,
             });
           }
           
-          if (safetyLights.concentration === 'RED' || safetyLights.concentration === 'AMBER') {
+          if (concentrationIsConstrained) {
             constraints.push({
               constraint_type: 'CONCENTRATION',
-              description: 'Concentration constraint prevents increasing single-line exposure.',
+              description: 'Concentration constraint limits equity allocation increases.',
               current_value: safetyLights.metrics.largest_line_pct,
-              threshold: 15, // percent
+              threshold: 15,
             });
           }
           
-          if (safetyLights.illiquids === 'RED' || safetyLights.illiquids === 'AMBER') {
+          if (illiquidsIsConstrained) {
             constraints.push({
               constraint_type: 'ILLIQUIDS',
-              description: 'Illiquidity constraint prevents increasing illiquid allocation.',
+              description: 'Illiquidity constraint prevents increasing illiquid allocations.',
               current_value: safetyLights.metrics.illiquid_pct,
-              threshold: 20, // percent
+              threshold: 20,
             });
           }
           
           return constraints;
         };
         
-        // Build all three scenarios
+        // ============================================
+        // 8) BUILD ALL THREE SCENARIOS
+        // ============================================
         const scenarios: IllustrativeScenario[] = [
           {
             scenario_type: 'GUARDRAIL_FIRST',
             scenario_label: 'Guardrail-first',
-            scenario_description: 'Prioritises bringing Safety Lights to green. Minimal deviation from current allocation.',
+            scenario_description: 'Prioritises bringing Safety Lights to green. Belief axes partially reflected within tight constraints.',
             asset_class_bands: createBands(currentAssetClass, 'GUARDRAIL_FIRST'),
-            region_bands: createBands(currentRegion, 'GUARDRAIL_FIRST'),
+            region_bands: createBands(currentRegion, 'GUARDRAIL_FIRST', true),
             wrapper_bands: createBands(currentWrapper, 'GUARDRAIL_FIRST'),
             applied_tilts: computeAppliedTilts('GUARDRAIL_FIRST'),
             binding_constraints: computeBindingConstraints(),
@@ -1019,9 +1188,9 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           {
             scenario_type: 'PREFERENCE_LEANING',
             scenario_label: 'Preference-leaning',
-            scenario_description: 'Applies belief tilts as far as guardrail budgets allow.',
+            scenario_description: 'Reflects belief axes as far as guardrail budgets allow. Wider ranges with directional skew.',
             asset_class_bands: createBands(currentAssetClass, 'PREFERENCE_LEANING'),
-            region_bands: createBands(currentRegion, 'PREFERENCE_LEANING'),
+            region_bands: createBands(currentRegion, 'PREFERENCE_LEANING', true),
             wrapper_bands: createBands(currentWrapper, 'PREFERENCE_LEANING'),
             applied_tilts: computeAppliedTilts('PREFERENCE_LEANING'),
             binding_constraints: computeBindingConstraints(),
@@ -1031,9 +1200,9 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           {
             scenario_type: 'NEUTRAL_BASELINE',
             scenario_label: 'Neutral baseline',
-            scenario_description: 'Minimal deviation from current allocation. No tilts applied.',
+            scenario_description: 'Minimal deviation from current allocation. No belief axes incorporated.',
             asset_class_bands: createBands(currentAssetClass, 'NEUTRAL_BASELINE'),
-            region_bands: createBands(currentRegion, 'NEUTRAL_BASELINE'),
+            region_bands: createBands(currentRegion, 'NEUTRAL_BASELINE', true),
             wrapper_bands: createBands(currentWrapper, 'NEUTRAL_BASELINE'),
             applied_tilts: computeAppliedTilts('NEUTRAL_BASELINE'),
             binding_constraints: computeBindingConstraints(),
@@ -1051,6 +1220,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             scenarios,
             guardrails_binding: !tiltsAllowed || computeBindingConstraints().length > 0,
             tilts_locked_banner: !tiltsAllowed,
+            sleeve_pressures: sleevePressures,
           },
         });
       },

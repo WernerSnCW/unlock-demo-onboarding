@@ -1,0 +1,62 @@
+TASK: Tighten Step 7 range generation so illustrative ranges are derived from guardrail feasibility and belief-driven directional skew, rather than symmetric “current ± wiggle”.
+
+1) Implement scenario movement caps
+
+Neutral baseline: very tight movement per sleeve (e.g., ±2 percentage points).
+
+Guardrail-first: tight movement (e.g., ±3–4 points).
+
+Preference-leaning: wider movement (e.g., ±8–12 points).
+These caps are modelling stabilisers to prevent unrealistic ranges.
+
+2) Generate a baseline feasible envelope per sleeve
+
+For each allocation sleeve (asset class, region, wrapper):
+
+Start with [current − cap, current + cap].
+
+Clamp the band using hard Safety Light budgets:
+
+If liquidity is amber/red: do not allow cash to fall below the level that preserves the current cash runway threshold.
+
+If illiquids is amber/red: do not allow illiquid sleeve (property/alternatives) to increase beyond current.
+
+If concentration is amber/red: cap changes that would increase concentration risk (conservatively cap equity increase and any single-line proxy increases).
+
+3) Compute directional “pressure” scores from belief axes
+
+Convert Step 6 axis_scores into sleeve pressure scores in [-1, +1] for: equity, bond, cash, property/illiquids.
+
+Ensure volatility aversion reduces equity pressure and increases bond/cash pressure.
+
+Ensure small cap / tech / value / quality increase equity pressure.
+
+Ensure UK bias affects regional pressure only.
+
+4) Skew the midpoint using pressure (scenario-dependent)
+
+Instead of centring ranges on current, compute:
+
+mid = current + pressure * skewStrength
+
+Use skewStrength values by scenario:
+
+Neutral baseline: 0
+
+Guardrail-first: small skew
+
+Preference-leaning: larger skew
+
+Recompute range around skewed mid: [mid − cap, mid + cap], then clamp again with budgets.
+
+5) Output behaviour requirements
+
+Ranges should be asymmetric when beliefs apply (especially in Preference-leaning).
+
+Neutral baseline should remain tight around current.
+
+No range should permit worsening any Safety Light metric relative to current.
+
+Persist the computed pressure values so the UI can later show “directional pressure” if needed.
+
+DELIVERABLE: Step 7 ranges reflect (1) feasibility under guardrails and (2) directional belief pressure; they no longer look like “current always sits neatly inside a centred band.”
