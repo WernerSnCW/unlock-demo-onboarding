@@ -1,0 +1,86 @@
+TASK: Refactor persona logic and UI to replace single, over-assertive personas with a Primary Persona + Portfolio Traits model.
+
+Part A — Persona model changes
+
+Replace the current single persona label with:
+
+primary_persona (string)
+
+portfolio_traits (array of trait objects)
+
+Define allowed primary personas as:
+
+Core Growth Investor
+
+Self-Directed Growth Investor
+
+Balanced Allocator
+
+Income & Stability Investor
+
+Capital Preservation Investor
+
+Founder / Entrepreneur
+
+Property-Led Investor
+
+Ensure exactly one primary persona is assigned.
+
+Part B — Persona assignment logic
+
+Assign primary persona using deterministic rules based on existing Step 3–5 inputs:
+
+Long horizon + accumulation + self-directed → Self-Directed Growth Investor
+
+Significant private business band → Founder / Entrepreneur
+
+Property band dominant → Property-Led Investor
+
+Drawdown usage + income goal → Income & Stability Investor
+
+Do NOT assign a crypto- or alternatives-led primary persona unless crypto/allocation bands exceed defined dominance thresholds.
+
+Part C — Portfolio traits logic
+
+Derive portfolio traits from:
+
+Intake bands (crypto, property, business, employer stock)
+
+Holdings metrics (liquidity, concentration, illiquids)
+
+Traits must be descriptive and banded (Light / Moderate / High), never absolute.
+
+Part D — UI changes
+
+Update the persona section UI to show:
+
+Primary Persona (headline)
+
+“Why this fits you” (3–4 factual bullets)
+
+“Portfolio traits influencing your plan” (derived traits)
+
+Remove all uses of the word “meaningful” from persona copy.
+
+Update trait bar labels to:
+
+Risk Orientation
+
+Liquidity Resilience
+
+Alternatives Exposure
+
+Property Tilt
+
+Add a disclaimer under the bars:
+“Indicators reflect relative positioning, not precise measurements.”
+
+Part E — Validation
+
+Confirm the example investor now resolves to:
+
+Primary Persona: Self-Directed Growth Investor
+
+Traits: Alternatives Exposure (Moderate), Crypto Allocation (5–10%), Liquidity Resilience (Strong), Moderate Concentration
+
+DELIVERABLE: Persona output is precise, defensible, and consistent with Intake and Analysis inputs.

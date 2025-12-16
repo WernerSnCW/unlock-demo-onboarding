@@ -1,15 +1,15 @@
-import { PersonaResult } from '@/state/onboardingV2Store';
-import { User, Target, AlertTriangle, Activity } from 'lucide-react';
+import { PersonaResult, PortfolioTrait, TraitIntensity } from '@/state/onboardingV2Store';
+import { User, Target, AlertTriangle, Layers } from 'lucide-react';
 
 interface PersonaCardProps {
   persona: PersonaResult;
 }
 
 const traitLabels: Record<string, string> = {
-  risk: 'Risk Appetite',
-  property_bias: 'Property Focus',
-  alts_bias: 'Alternatives',
-  liquidity_comfort: 'Liquidity',
+  risk: 'Risk Orientation',
+  property_bias: 'Property Tilt',
+  alts_bias: 'Alternatives Exposure',
+  liquidity_comfort: 'Liquidity Resilience',
   tax_complexity: 'Tax Complexity',
   cross_border_complexity: 'Cross-Border',
 };
@@ -23,8 +23,20 @@ const traitColors: Record<string, string> = {
   cross_border_complexity: 'bg-cyan-500',
 };
 
+const intensityColors: Record<TraitIntensity, string> = {
+  Light: 'bg-slate-400 dark:bg-slate-500',
+  Moderate: 'bg-amber-500',
+  High: 'bg-rose-500',
+};
+
+const intensityBgColors: Record<TraitIntensity, string> = {
+  Light: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
+  Moderate: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+  High: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
+};
+
 export default function PersonaCard({ persona }: PersonaCardProps) {
-  const displayTraits = ['risk', 'property_bias', 'alts_bias', 'liquidity_comfort'];
+  const displayTraits = ['risk', 'liquidity_comfort', 'alts_bias', 'property_bias'];
 
   return (
     <div 
@@ -71,28 +83,30 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
           </div>
         )}
 
-        {/* What This Means For Your Plan */}
-        {(persona.plan_focus_bullets?.length ?? 0) > 0 && (
+        {/* Portfolio Traits Influencing Your Plan */}
+        {(persona.portfolio_traits?.length ?? 0) > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-[var(--primary)]" />
-              What This Means For Your Plan
+              <Layers className="w-4 h-4 text-[var(--primary)]" />
+              Portfolio Traits Influencing Your Plan
             </h4>
-            <ul className="space-y-2" data-testid="plan-focus-list">
-              {persona.plan_focus_bullets?.map((bullet, i) => (
-                <li 
+            <div className="flex flex-wrap gap-2" data-testid="portfolio-traits-list">
+              {persona.portfolio_traits?.map((trait, i) => (
+                <div 
                   key={i} 
-                  className="flex items-start gap-2 text-sm text-[var(--foreground)]"
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${intensityBgColors[trait.intensity]}`}
+                  data-testid={`portfolio-trait-${i}`}
                 >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[var(--primary)] flex-shrink-0" />
-                  {bullet}
-                </li>
+                  <span className={`w-2 h-2 rounded-full ${intensityColors[trait.intensity]}`} />
+                  <span>{trait.name}</span>
+                  <span className="opacity-70">({trait.intensity})</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
-        {/* Risks to Watch (optional) */}
+        {/* Risks to Watch */}
         {(persona.risks_bullets?.length ?? 0) > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
@@ -113,11 +127,11 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
           </div>
         )}
 
-        {/* Trait Bar */}
+        {/* Trait Bars */}
         {persona.traits && (
           <div className="pt-4 border-t border-[var(--border)]">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-              Your Profile Traits
+              Your Profile Indicators
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="traits-grid">
               {displayTraits.map((trait) => {
@@ -129,7 +143,6 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
                   <div key={trait} className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
-                      <span className="text-xs font-bold text-[var(--foreground)]">{Math.round(value * 100)}%</span>
                     </div>
                     <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                       <div 
@@ -141,8 +154,19 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
                 );
               })}
             </div>
+            <p className="text-xs text-[var(--muted-foreground)] mt-3 italic">
+              Indicators reflect relative positioning, not precise measurements.
+            </p>
           </div>
         )}
+
+        {/* Advisory disclaimer */}
+        <div className="pt-4 border-t border-[var(--border)]">
+          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            Personas are directional profiles based on your responses, not regulated financial advice. 
+            Your actual situation may require professional guidance tailored to your circumstances.
+          </p>
+        </div>
       </div>
     </div>
   );
