@@ -1,0 +1,108 @@
+Problem to fix
+Step 7 illustrative ranges are currently centred on the current allocation for all scenarios. This makes Guardrail-first, Preference-leaning, and Neutral baseline look almost identical.
+
+Required fix: Scenario logic must shift the centre of the illustrative range based on belief pressure. Widening alone is not sufficient.
+
+1️⃣ Introduce a “pressure-adjusted centre”
+
+For each allocation row (asset class, region):
+
+Compute a net pressure score in [-1, +1] from Step 6 beliefs (as already done).
+
+Compute a scenario strength multiplier:
+
+Neutral baseline: 0
+
+Guardrail-first: 0.25
+
+Preference-leaning: 0.6
+
+Then compute:
+
+centre = current + (pressure * scenario_strength * max_shift)
+
+
+Where:
+
+max_shift =
+
+0 for Neutral
+
+4 percentage points for Guardrail-first
+
+10 percentage points for Preference-leaning
+
+This means:
+
+Neutral centre = current
+
+Guardrail-first centre moves slightly
+
+Preference-leaning centre moves visibly
+
+2️⃣ Build the range around the shifted centre
+
+Once centre is computed:
+
+min = centre - half_width
+max = centre + half_width
+
+
+Where:
+
+half_width =
+
+2 for Neutral
+
+3 for Guardrail-first
+
+6 for Preference-leaning
+
+This guarantees:
+
+Preference-leaning ranges are both wider AND shifted
+
+Guardrail-first ranges are tight but directional
+
+3️⃣ Apply constraints AFTER shifting the centre
+
+Only after computing the raw range:
+
+Clamp min/max based on:
+
+Concentration (do not allow equity centre to move up if concentration is amber/red)
+
+Liquidity (do not allow cash centre to move down if liquidity amber/red)
+
+Illiquids (do not allow property centre to move up if illiquids amber/red)
+
+If clamping occurs:
+
+Preserve the direction of the centre shift where possible
+
+Record which constraint blocked movement
+
+4️⃣ Make the difference obvious in the UI
+
+Add one line of text per scenario (above allocations):
+
+Neutral baseline:
+“Centred on your current allocation. No directional preferences applied.”
+
+Guardrail-first:
+“Slight directional pressure applied, prioritising stability.”
+
+Preference-leaning:
+“Directional pressure applied within constraints, illustrating how preferences could shape allocation.”
+
+5️⃣ Acceptance test (non-negotiable)
+
+Using the current sample data:
+
+Neutral equity range must be symmetric around ~42.8
+
+Guardrail-first equity centre must move slightly upward (≈44)
+
+Preference-leaning equity centre must move clearly upward (≈47–48), unless blocked by concentration
+
+If the midpoints of the three ranges are within ~1pp of each other, the task is NOT complete.

@@ -268,14 +268,15 @@ export type DirectionalDelta = 'INCREASE' | 'DECREASE' | 'NEUTRAL';
 export type TiltApplicationStatus = 'APPLIED' | 'PARTIALLY_APPLIED' | 'CONSTRAINED' | 'NOT_APPLIED';
 
 export interface AllocationBandDebug {
-  cap: number;                   // Movement cap used for this scenario
-  pressureScale: number;         // Pressure scale factor (0, 0.25, or 1.0)
+  scenarioStrength: number;      // Scenario strength multiplier (0, 0.25, or 0.6)
+  maxShift: number;              // Maximum shift in pp for this scenario
+  halfWidth: number;             // Half-width for symmetric range
   rawPressure: number;           // Raw pressure from beliefs [-1, +1]
-  scaledPressure: number;        // After applying pressureScale
-  skewStrength: number;          // cap * 0.6
-  skew: number;                  // scaledPressure * skewStrength
-  unclampedMin: number;          // Before safety clamps
-  unclampedMax: number;          // Before safety clamps
+  centreShift: number;           // pressure * scenarioStrength * maxShift
+  unclampedCentre: number;       // current + centreShift (before clamps)
+  clampedCentre: number;         // centre after constraint clamping
+  unclampedMin: number;          // centre - halfWidth (before clamps)
+  unclampedMax: number;          // centre + halfWidth (before clamps)
   bindingConstraints: string[];  // Which constraints were binding
 }
 
@@ -890,19 +891,27 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         const tiltsAllowed = beliefs.tilts_allowed;
         
         // ============================================
-        // 1) SCENARIO MOVEMENT CAPS (per spec)
+        // 1) SCENARIO PARAMETERS (per new spec)
         // ============================================
-        const MOVEMENT_CAPS: Record<ScenarioType, number> = {
-          NEUTRAL_BASELINE: 2,      // ±2 percentage points
-          GUARDRAIL_FIRST: 3,       // ±3 percentage points
-          PREFERENCE_LEANING: 10,   // ±10 percentage points
+        // Scenario strength multiplier for centre shift
+        const SCENARIO_STRENGTH: Record<ScenarioType, number> = {
+          NEUTRAL_BASELINE: 0,      // No centre shift
+          GUARDRAIL_FIRST: 0.25,    // 25% of max shift
+          PREFERENCE_LEANING: 0.6,  // 60% of max shift
         };
         
-        // Pressure scaling per scenario (per spec 2.3)
-        const PRESSURE_SCALE: Record<ScenarioType, number> = {
-          NEUTRAL_BASELINE: 0,      // No pressure applied
-          GUARDRAIL_FIRST: 0.25,    // 25% of pressure
-          PREFERENCE_LEANING: 1.0,  // 100% of pressure
+        // Maximum shift in percentage points
+        const MAX_SHIFT: Record<ScenarioType, number> = {
+          NEUTRAL_BASELINE: 0,      // No shift
+          GUARDRAIL_FIRST: 4,       // Up to 4pp shift
+          PREFERENCE_LEANING: 10,   // Up to 10pp shift
+        };
+        
+        // Half-width for symmetric range around centre
+        const HALF_WIDTH: Record<ScenarioType, number> = {
+          NEUTRAL_BASELINE: 2,      // ±2pp range
+          GUARDRAIL_FIRST: 3,       // ±3pp range  
+          PREFERENCE_LEANING: 6,    // ±6pp range
         };
         
         // ============================================
@@ -1008,69 +1017,75 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         };
         
         // ============================================
-        // 4) CREATE ALLOCATION BANDS (per spec 2.4, 2.5, 2.6)
+        // 4) CREATE ALLOCATION BANDS (centre-shifting model)
+        // Formula: centre = current + (pressure * scenario_strength * max_shift)
+        //          min = centre - half_width
+        //          max = centre + half_width
         // ============================================
         const createBands = (
           current: Record<string, number>,
           scenarioType: ScenarioType
         ): AllocationBand[] => {
-          const cap = MOVEMENT_CAPS[scenarioType];
-          const pressureScale = PRESSURE_SCALE[scenarioType];
-          // skewStrength = cap * 0.6 (per spec 2.4)
-          const skewStrength = cap * 0.6;
+          const scenarioStrength = SCENARIO_STRENGTH[scenarioType];
+          const maxShift = MAX_SHIFT[scenarioType];
+          const halfWidth = HALF_WIDTH[scenarioType];
           
           return Object.entries(current).map(([sleeve, currentPct]) => {
-            // Get raw pressure for this sleeve
+            // Get raw pressure for this sleeve [-1, +1]
             const pressureKey = getSleeveKey(sleeve);
             const rawPressure = pressureKey ? sleevePressures[pressureKey] : 0;
             
-            // Apply pressure scaling (per spec 2.3)
-            const scaledPressure = rawPressure * pressureScale;
-            
-            // Convert pressure into skew (per spec 2.4)
-            const skew = scaledPressure * skewStrength;
-            
             // ============================================
-            // BUILD ASYMMETRIC RANGE (per spec 2.5)
-            // min = current - cap + min(0, skew)
-            // max = current + cap + max(0, skew)
+            // 1) COMPUTE CENTRE SHIFT
+            // centre = current + (pressure * scenario_strength * max_shift)
             // ============================================
-            const unclampedMin = currentPct - cap + Math.min(0, skew);
-            const unclampedMax = currentPct + cap + Math.max(0, skew);
+            const centreShift = rawPressure * scenarioStrength * maxShift;
+            let unclampedCentre = currentPct + centreShift;
+            let clampedCentre = unclampedCentre;
             
-            let lowPct = unclampedMin;
-            let highPct = unclampedMax;
             const bindingConstraints: string[] = [];
-            
-            // ============================================
-            // APPLY HARD CLAMPS/BUDGETS AFTER RANGE CREATION (per spec 2.6)
-            // ============================================
             const lowerSleeve = sleeve.toLowerCase();
             
-            // Concentration constraint: do not allow equity max to increase beyond current + conservative amount
+            // ============================================
+            // 2) APPLY CENTRE CONSTRAINTS (before building range)
+            // Concentration: do not allow equity centre to move UP
+            // Liquidity: do not allow cash centre to move DOWN
+            // Illiquids: do not allow property centre to move UP
+            // ============================================
             if (concentrationIsConstrained && (lowerSleeve.includes('equity') || lowerSleeve.includes('stock'))) {
-              const maxAllowedIncrease = 2; // Conservative +0 to +2
-              if (highPct > currentPct + maxAllowedIncrease) {
-                highPct = currentPct + maxAllowedIncrease;
+              // Do not allow equity centre to move up
+              if (clampedCentre > currentPct) {
+                clampedCentre = currentPct;
                 bindingConstraints.push('concentration');
               }
             }
             
-            // Liquidity constraint: do not allow cash min to fall below current
             if (liquidityIsConstrained && (lowerSleeve.includes('cash') || lowerSleeve.includes('money market'))) {
-              if (lowPct < currentPct) {
-                lowPct = currentPct;
+              // Do not allow cash centre to move down
+              if (clampedCentre < currentPct) {
+                clampedCentre = currentPct;
                 bindingConstraints.push('liquidity');
               }
             }
             
-            // Illiquids constraint: do not allow property/illiquid max to exceed current
             if (illiquidsIsConstrained && (lowerSleeve.includes('property') || lowerSleeve.includes('alternative') || lowerSleeve.includes('private'))) {
-              if (highPct > currentPct) {
-                highPct = currentPct;
+              // Do not allow property/alternatives centre to move up
+              if (clampedCentre > currentPct) {
+                clampedCentre = currentPct;
                 bindingConstraints.push('illiquids');
               }
             }
+            
+            // ============================================
+            // 3) BUILD SYMMETRIC RANGE AROUND (CLAMPED) CENTRE
+            // min = centre - half_width
+            // max = centre + half_width
+            // ============================================
+            const unclampedMin = unclampedCentre - halfWidth;
+            const unclampedMax = unclampedCentre + halfWidth;
+            
+            let lowPct = clampedCentre - halfWidth;
+            let highPct = clampedCentre + halfWidth;
             
             // Global percentage clamps [0, 100]
             lowPct = Math.max(0, lowPct);
@@ -1083,13 +1098,13 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             
             const clamped = bindingConstraints.length > 0;
             
-            // Compute midpoint
+            // Compute midpoint (should equal clampedCentre unless edge-clamped)
             const midpoint = (lowPct + highPct) / 2;
             
-            // Determine direction based on scaled pressure sign (per spec 3.1)
+            // Determine direction based on raw pressure sign
             let direction: DirectionalDelta = 'NEUTRAL';
-            if (scaledPressure > 0.05) direction = 'INCREASE';
-            else if (scaledPressure < -0.05) direction = 'DECREASE';
+            if (rawPressure > 0.05) direction = 'INCREASE';
+            else if (rawPressure < -0.05) direction = 'DECREASE';
             
             return {
               sleeve,
@@ -1098,15 +1113,16 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
               illustrative_high_pct: Math.round(highPct * 10) / 10,
               direction,
               midpoint_pct: Math.round(midpoint * 10) / 10,
-              pressure: Math.round(scaledPressure * 1000) / 1000, // Display scaled pressure
+              pressure: Math.round(rawPressure * 1000) / 1000, // Display raw pressure
               clamped,
               debug: {
-                cap,
-                pressureScale,
+                scenarioStrength,
+                maxShift,
+                halfWidth,
                 rawPressure: Math.round(rawPressure * 1000) / 1000,
-                scaledPressure: Math.round(scaledPressure * 1000) / 1000,
-                skewStrength: Math.round(skewStrength * 100) / 100,
-                skew: Math.round(skew * 100) / 100,
+                centreShift: Math.round(centreShift * 100) / 100,
+                unclampedCentre: Math.round(unclampedCentre * 10) / 10,
+                clampedCentre: Math.round(clampedCentre * 10) / 10,
                 unclampedMin: Math.round(unclampedMin * 10) / 10,
                 unclampedMax: Math.round(unclampedMax * 10) / 10,
                 bindingConstraints,
@@ -1199,7 +1215,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           {
             scenario_type: 'GUARDRAIL_FIRST',
             scenario_label: 'Guardrail-first',
-            scenario_description: 'Prioritises bringing Safety Lights to green. Belief axes partially reflected within tight constraints.',
+            scenario_description: 'Slight directional pressure reflected, prioritising stability.',
             asset_class_bands: createBands(currentAssetClass, 'GUARDRAIL_FIRST'),
             region_bands: createBands(currentRegion, 'GUARDRAIL_FIRST'),
             wrapper_bands: createBands(currentWrapper, 'GUARDRAIL_FIRST'),
@@ -1211,7 +1227,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           {
             scenario_type: 'PREFERENCE_LEANING',
             scenario_label: 'Preference-leaning',
-            scenario_description: 'Reflects belief axes as far as guardrail budgets allow. Wider ranges with directional skew.',
+            scenario_description: 'Directional pressure reflected within constraints, illustrating how preferences could shape allocation.',
             asset_class_bands: createBands(currentAssetClass, 'PREFERENCE_LEANING'),
             region_bands: createBands(currentRegion, 'PREFERENCE_LEANING'),
             wrapper_bands: createBands(currentWrapper, 'PREFERENCE_LEANING'),
@@ -1223,7 +1239,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           {
             scenario_type: 'NEUTRAL_BASELINE',
             scenario_label: 'Neutral baseline',
-            scenario_description: 'Minimal deviation from current allocation. No belief axes incorporated.',
+            scenario_description: 'Centred on your current allocation. No directional preferences reflected.',
             asset_class_bands: createBands(currentAssetClass, 'NEUTRAL_BASELINE'),
             region_bands: createBands(currentRegion, 'NEUTRAL_BASELINE'),
             wrapper_bands: createBands(currentWrapper, 'NEUTRAL_BASELINE'),

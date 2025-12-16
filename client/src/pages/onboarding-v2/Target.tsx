@@ -171,12 +171,11 @@ function DebugBandRow({ band }: { band: AllocationBand }) {
     <tr className="border-b border-slate-200 dark:border-slate-700 text-xs">
       <td className="px-2 py-1 font-medium">{band.sleeve}</td>
       <td className="px-2 py-1 font-mono text-right">{band.current_pct.toFixed(1)}</td>
-      <td className="px-2 py-1 font-mono text-right">{band.debug.cap}</td>
       <td className="px-2 py-1 font-mono text-right">{band.debug.rawPressure.toFixed(3)}</td>
-      <td className="px-2 py-1 font-mono text-right">{band.debug.scaledPressure.toFixed(3)}</td>
-      <td className="px-2 py-1 font-mono text-right">{band.debug.skew.toFixed(2)}</td>
-      <td className="px-2 py-1 font-mono text-right">{band.debug.unclampedMin.toFixed(1)}</td>
-      <td className="px-2 py-1 font-mono text-right">{band.debug.unclampedMax.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.centreShift.toFixed(2)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.unclampedCentre.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.debug.clampedCentre.toFixed(1)}</td>
+      <td className="px-2 py-1 font-mono text-right">{band.midpoint_pct.toFixed(1)}</td>
       <td className="px-2 py-1 font-mono text-right">{band.illustrative_low_pct.toFixed(1)}</td>
       <td className="px-2 py-1 font-mono text-right">{band.illustrative_high_pct.toFixed(1)}</td>
       <td className="px-2 py-1 text-center">
@@ -191,12 +190,13 @@ function DebugBandRow({ band }: { band: AllocationBand }) {
 function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Get the pressureScale from the first band's debug info (all bands in a scenario share the same scale)
-  const getPressureScale = (scenario: IllustrativeScenario) => {
+  // Get the scenario parameters from the first band's debug info
+  const getScenarioParams = (scenario: IllustrativeScenario) => {
     if (scenario.asset_class_bands.length > 0) {
-      return scenario.asset_class_bands[0].debug.pressureScale;
+      const d = scenario.asset_class_bands[0].debug;
+      return `strength=${d.scenarioStrength}, maxShift=${d.maxShift}, halfWidth=${d.halfWidth}`;
     }
-    return 0;
+    return '';
   };
   
   return (
@@ -219,7 +219,7 @@ function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
                 <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   {scenario.scenario_label}
                   <span className="text-slate-400 font-normal">
-                    (pressureScale = {getPressureScale(scenario)})
+                    ({getScenarioParams(scenario)})
                   </span>
                 </h4>
                 
@@ -229,12 +229,11 @@ function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
                       <tr className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                         <th className="px-2 py-1 text-left">Sleeve</th>
                         <th className="px-2 py-1 text-right">Current</th>
-                        <th className="px-2 py-1 text-right">Cap</th>
-                        <th className="px-2 py-1 text-right">Raw P</th>
-                        <th className="px-2 py-1 text-right">Scaled P</th>
-                        <th className="px-2 py-1 text-right">Skew</th>
-                        <th className="px-2 py-1 text-right">Uncl Min</th>
-                        <th className="px-2 py-1 text-right">Uncl Max</th>
+                        <th className="px-2 py-1 text-right">Pressure</th>
+                        <th className="px-2 py-1 text-right">Shift</th>
+                        <th className="px-2 py-1 text-right">Uncl Ctr</th>
+                        <th className="px-2 py-1 text-right">Clamp Ctr</th>
+                        <th className="px-2 py-1 text-right">Midpoint</th>
                         <th className="px-2 py-1 text-right">Min</th>
                         <th className="px-2 py-1 text-right">Max</th>
                         <th className="px-2 py-1 text-center">Constraints</th>
@@ -256,12 +255,11 @@ function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
                         <tr className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                           <th className="px-2 py-1 text-left">Sleeve</th>
                           <th className="px-2 py-1 text-right">Current</th>
-                          <th className="px-2 py-1 text-right">Cap</th>
-                          <th className="px-2 py-1 text-right">Raw P</th>
-                          <th className="px-2 py-1 text-right">Scaled P</th>
-                          <th className="px-2 py-1 text-right">Skew</th>
-                          <th className="px-2 py-1 text-right">Uncl Min</th>
-                          <th className="px-2 py-1 text-right">Uncl Max</th>
+                          <th className="px-2 py-1 text-right">Pressure</th>
+                          <th className="px-2 py-1 text-right">Shift</th>
+                          <th className="px-2 py-1 text-right">Uncl Ctr</th>
+                          <th className="px-2 py-1 text-right">Clamp Ctr</th>
+                          <th className="px-2 py-1 text-right">Midpoint</th>
                           <th className="px-2 py-1 text-right">Min</th>
                           <th className="px-2 py-1 text-right">Max</th>
                           <th className="px-2 py-1 text-center">Constraints</th>
