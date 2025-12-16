@@ -150,12 +150,23 @@ export interface PersonaTraits {
   cross_border_complexity: number;
 }
 
-export type TraitIntensity = 'Light' | 'Moderate' | 'High';
+export type TraitIntensity = 'Light' | 'Moderate' | 'Strong';
 
 export interface PortfolioTrait {
   name: string;
   intensity: TraitIntensity;
   detail: string;
+}
+
+export interface RiskToWatch {
+  code: string;
+  text: string;
+}
+
+export interface ProfileIndicator {
+  name: string;
+  value: number;
+  tooltip: string;
 }
 
 export interface PersonaResult {
@@ -167,6 +178,8 @@ export interface PersonaResult {
   traits: PersonaTraits;
   why_fits_bullets: string[];
   portfolio_traits: PortfolioTrait[];
+  risks_to_watch: RiskToWatch[];
+  profile_indicators: ProfileIndicator[];
 }
 
 export interface AnalysisResult {

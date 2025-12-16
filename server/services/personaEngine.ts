@@ -63,8 +63,8 @@ export interface InvestorProfile {
   illiquids_status: SafetyStatus;
 }
 
-// Trait intensity bands
-export type TraitIntensity = 'Light' | 'Moderate' | 'High';
+// Trait intensity bands (Light = low presence, Moderate = medium, Strong = high presence)
+export type TraitIntensity = 'Light' | 'Moderate' | 'Strong';
 
 export interface PortfolioTrait {
   name: string;
@@ -81,6 +81,17 @@ export interface PersonaTraits {
   cross_border_complexity: number;
 }
 
+export interface RiskToWatch {
+  code: string;
+  text: string;
+}
+
+export interface ProfileIndicator {
+  name: string;
+  value: number; // 0-100
+  tooltip: string;
+}
+
 export interface PersonaResult {
   code: string;
   label: string;
@@ -90,6 +101,8 @@ export interface PersonaResult {
   traits: PersonaTraits;
   why_fits_bullets: string[];
   portfolio_traits: PortfolioTrait[];
+  risks_to_watch: RiskToWatch[];
+  profile_indicators: ProfileIndicator[];
 }
 
 // ============================================
@@ -303,25 +316,31 @@ function assignPrimaryPersona(profile: InvestorProfile): PrimaryPersonaCode {
     return 'PROPERTY_LED';
   }
 
-  // Rule 3: Drawdown + income goal
-  if (isDrawdownPhase(profile) && isIncomeGoal(profile)) {
+  // Rule P2: Income & stability (per spec - multiple triggers)
+  const isPrimarilyDrawdown = profile.portfolio_stage === 'PRIMARILY_DRAWDOWN';
+  const isIncomeWithShortHorizon = isIncomeGoal(profile) && !isLongHorizon(profile);
+  const isLowRiskNonGrowth = (profile.risk_comfort?.toLowerCase() === 'low') && !profile.primary_goal?.toLowerCase().includes('growth');
+  if (isPrimarilyDrawdown || isIncomeWithShortHorizon || isLowRiskNonGrowth) {
     return 'INCOME_STABILITY';
   }
 
-  // Rule 4: Long horizon + accumulating + self-directed
-  if (isLongHorizon(profile) && isAccumulating(profile) && isSelfDirected(profile)) {
-    return 'SELF_DIRECTED_GROWTH';
-  }
-
-  // Rule 5: High wealth + older age → capital preservation
-  const isHighWealth = profile.total_portfolio_value_gbp >= 1000000;
-  const isOlder = profile.age_band === '55_64' || profile.age_band === '65_plus';
-  if (isHighWealth && isOlder && !isAccumulating(profile)) {
+  // Rule P3: Capital preservation (per spec)
+  const riskLow = profile.risk_comfort?.toLowerCase() === 'low';
+  const cashHigh = (profile.cash_runway_months >= 12) || (normalizeToFraction(profile.asset_class_breakdown.cash_pct) >= 0.20);
+  if (riskLow && cashHigh && !isAccumulating(profile)) {
     return 'CAPITAL_PRESERVATION';
   }
 
-  // Rule 6: Long horizon + accumulating (but not self-directed)
-  if (isLongHorizon(profile) && isAccumulating(profile)) {
+  // Rule P4: Self-directed growth (per spec)
+  const riskMedOrHigh = profile.risk_comfort?.toLowerCase() === 'moderate' || 
+                        profile.risk_comfort?.toLowerCase() === 'medium' || 
+                        profile.risk_comfort?.toLowerCase() === 'high';
+  if (isSelfDirected(profile) && isAccumulating(profile) && isLongHorizon(profile) && riskMedOrHigh) {
+    return 'SELF_DIRECTED_GROWTH';
+  }
+
+  // Rule P5: Core growth (per spec)
+  if (isAccumulating(profile) && isLongHorizon(profile) && !isSelfDirected(profile)) {
     return 'CORE_GROWTH';
   }
 
@@ -343,29 +362,38 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
   const traits: PortfolioTrait[] = [];
   const formatPct = (n: number) => `${(n * 100).toFixed(0)}%`;
 
-  // Crypto allocation trait
+  // Crypto allocation trait (per spec T4: omit if <5%, 5-10% = Light, 10-25% = Moderate, >25% = Strong)
   const cryptoAlloc = getCryptoAllocPct(profile);
-  if (cryptoAlloc > 0) {
-    const band = profile.personaCues.crypto_alloc_band;
+  const cryptoBand = profile.personaCues.crypto_alloc_band;
+  // Only show crypto trait if band is 5% or higher (not LT_5)
+  const showCrypto = profile.personaCues.has_crypto && cryptoBand && cryptoBand !== 'LT_5';
+  if (showCrypto) {
     const bandLabel: Record<string, string> = {
-      'LT_5': '<5%',
       '5_10': '5–10%',
       '10_25': '10–25%',
       'GT_25': '>25%',
       'NOT_SURE': 'undisclosed %',
     };
-    const intensity: TraitIntensity = cryptoAlloc < 0.05 ? 'Light' : cryptoAlloc < 0.15 ? 'Moderate' : 'High';
+    // Thresholds: 5-10% = Light, 10-25% = Moderate, >25% = Strong
+    let intensity: TraitIntensity;
+    if (cryptoBand === 'GT_25') {
+      intensity = 'Strong';
+    } else if (cryptoBand === '10_25') {
+      intensity = 'Moderate';
+    } else {
+      intensity = 'Light';
+    }
     traits.push({
       name: 'Crypto Allocation',
       intensity,
-      detail: `${bandLabel[band || 'NOT_SURE']} of portfolio`,
+      detail: `${bandLabel[cryptoBand || 'NOT_SURE']} of portfolio`,
     });
   }
 
-  // Alternatives exposure
+  // Alternatives exposure (per spec T5: 5-10% = Light, 10-20% = Moderate, >20% = Strong)
   const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
-  if (altsPct > 0.02) {
-    const intensity: TraitIntensity = altsPct < 0.10 ? 'Light' : altsPct < 0.20 ? 'Moderate' : 'High';
+  if (altsPct >= 0.05) {
+    const intensity: TraitIntensity = altsPct < 0.10 ? 'Light' : altsPct < 0.20 ? 'Moderate' : 'Strong';
     traits.push({
       name: 'Alternatives Exposure',
       intensity,
@@ -373,23 +401,23 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
     });
   }
 
-  // Liquidity resilience (from cash runway)
-  // Intensity reflects severity: High = concern, Light = comfortable
+  // Liquidity resilience (per spec T1: Strong = >=12mo, Moderate = 6-12mo, Light = 3-6mo)
   const runwayMonths = profile.cash_runway_months;
-  if (runwayMonths !== undefined) {
+  if (runwayMonths !== undefined && runwayMonths >= 0) {
     let intensity: TraitIntensity;
     let detail: string;
-    if (runwayMonths === -1 || runwayMonths >= 12) {
-      // Strong liquidity = Light concern
-      intensity = 'Light';
-      detail = runwayMonths === -1 ? 'Strong cash buffer' : `${runwayMonths.toFixed(0)}+ months runway`;
+    if (runwayMonths >= 12) {
+      intensity = 'Strong';
+      detail = `${runwayMonths.toFixed(0)}+ months runway`;
     } else if (runwayMonths >= 6) {
-      // Moderate liquidity = Moderate concern
       intensity = 'Moderate';
       detail = `${runwayMonths.toFixed(0)} months runway`;
+    } else if (runwayMonths >= 3) {
+      intensity = 'Light';
+      detail = `${runwayMonths.toFixed(0)} months runway`;
     } else {
-      // Low liquidity = High concern
-      intensity = 'High';
+      // <3 months still shown but triggers risk
+      intensity = 'Light';
       detail = runwayMonths > 0 ? `Only ${runwayMonths.toFixed(0)} months runway` : 'Minimal cash buffer';
     }
     traits.push({
@@ -399,10 +427,10 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
     });
   }
 
-  // Concentration
+  // Concentration (per spec T2: Strong = >=20%, Moderate = 15-20%, Light = 10-15%)
   const largestPct = profile.largest_line_pct;
-  if (largestPct > 0.10) {
-    const intensity: TraitIntensity = largestPct < 0.15 ? 'Light' : largestPct < 0.25 ? 'Moderate' : 'High';
+  if (largestPct >= 0.10) {
+    const intensity: TraitIntensity = largestPct >= 0.20 ? 'Strong' : largestPct >= 0.15 ? 'Moderate' : 'Light';
     traits.push({
       name: 'Concentration',
       intensity,
@@ -412,8 +440,8 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
 
   // Property tilt
   const propertyPct = normalizeToFraction(profile.asset_class_breakdown.property_pct);
-  if (propertyPct > 0.05) {
-    const intensity: TraitIntensity = propertyPct < 0.15 ? 'Light' : propertyPct < 0.30 ? 'Moderate' : 'High';
+  if (propertyPct >= 0.05) {
+    const intensity: TraitIntensity = propertyPct >= 0.30 ? 'Strong' : propertyPct >= 0.15 ? 'Moderate' : 'Light';
     traits.push({
       name: 'Property Tilt',
       intensity,
@@ -421,7 +449,7 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
     });
   }
 
-  // Employer stock concentration
+  // Employer stock concentration (per spec T6: Strong = >=30%, Moderate = 15-30%, Light = 5-15%)
   if (profile.personaCues.has_employer_stock) {
     const band = profile.personaCues.employer_stock_alloc_band;
     const bandLabel: Record<string, string> = {
@@ -432,8 +460,8 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
       'NOT_SURE': 'undisclosed %',
     };
     const intensity: TraitIntensity = 
-      band === 'GT_30' ? 'High' : 
-      band === '15_30' || band === '5_15' ? 'Moderate' : 'Light';
+      band === 'GT_30' ? 'Strong' : 
+      band === '15_30' ? 'Moderate' : 'Light';
     traits.push({
       name: 'Employer Stock',
       intensity,
@@ -441,14 +469,73 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
     });
   }
 
-  // Illiquids exposure
+  // Illiquids exposure (per spec T3: Strong = >=15%, Moderate = 7-15%, Light = 3-7%)
   const illiquidPct = profile.illiquid_pct;
-  if (illiquidPct > 0.05) {
-    const intensity: TraitIntensity = illiquidPct < 0.10 ? 'Light' : illiquidPct < 0.20 ? 'Moderate' : 'High';
+  if (illiquidPct >= 0.03) {
+    const intensity: TraitIntensity = illiquidPct >= 0.15 ? 'Strong' : illiquidPct >= 0.07 ? 'Moderate' : 'Light';
     traits.push({
       name: 'Illiquids Exposure',
       intensity,
       detail: `${formatPct(illiquidPct)} in illiquid assets`,
+    });
+  }
+
+  // DB Pension Context (per spec T7)
+  if (profile.personaCues.has_defined_benefit_pension) {
+    const band = profile.personaCues.db_income_coverage_band;
+    const bandLabel: Record<string, string> = {
+      'LT_25': '<25%',
+      '25_50': '25–50%',
+      '50_75': '50–75%',
+      'GT_75': '>75%',
+      'NOT_SURE': 'declared',
+    };
+    let intensity: TraitIntensity;
+    if (band === 'GT_75') {
+      intensity = 'Strong';
+    } else if (band === '50_75') {
+      intensity = 'Moderate';
+    } else {
+      intensity = 'Light';
+    }
+    traits.push({
+      name: 'DB Pension Context',
+      intensity,
+      detail: band === 'NOT_SURE' ? 'DB pension declared' : `Covers ${bandLabel[band || 'NOT_SURE']} of essential spending`,
+    });
+  }
+
+  // Cross-border Complexity (per spec T8)
+  if (profile.personaCues.is_cross_border) {
+    traits.push({
+      name: 'Cross-border Complexity',
+      intensity: 'Light',
+      detail: 'International tax/residency considerations',
+    });
+  }
+
+  // Private Business Exposure (separate from alternatives per spec T5 note)
+  if (profile.personaCues.owns_business) {
+    const band = profile.personaCues.private_business_wealth_band;
+    const bandLabel: Record<string, string> = {
+      'LT_10': '<10%',
+      '10_25': '10–25%',
+      '25_50': '25–50%',
+      'GT_50': '>50%',
+      'NOT_SURE': 'undisclosed %',
+    };
+    let intensity: TraitIntensity;
+    if (band === 'GT_50' || band === '25_50') {
+      intensity = 'Strong';
+    } else if (band === '10_25') {
+      intensity = 'Moderate';
+    } else {
+      intensity = 'Light';
+    }
+    traits.push({
+      name: 'Private Business Exposure',
+      intensity,
+      detail: `${bandLabel[band || 'NOT_SURE']} of net worth`,
     });
   }
 
@@ -621,7 +708,135 @@ function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPerson
     bullets.push(`Your age band (${ageLabels[profile.age_band]}) influences your planning focus.`);
   }
 
-  return bullets.slice(0, 4);
+  return bullets.slice(0, 5);
+}
+
+// ============================================
+// Data-Triggered Risks to Watch (R1-R5)
+// ============================================
+
+function generateRisksToWatch(profile: InvestorProfile): RiskToWatch[] {
+  const risks: RiskToWatch[] = [];
+  
+  // R1 — Concentration risk (largest holding >= amber threshold ~15%)
+  if (profile.largest_line_pct >= 0.15 || profile.concentration_status === 'AMBER' || profile.concentration_status === 'RED') {
+    risks.push({
+      code: 'CONCENTRATION',
+      text: 'Concentration risk: one holding exceeds diversification guardrails.',
+    });
+  }
+  
+  // R2 — Liquidity shortfall (liquidity Safety Light is Amber or Red, or <3 months runway)
+  if (profile.liquidity_status === 'AMBER' || profile.liquidity_status === 'RED' || profile.cash_runway_months < 3) {
+    risks.push({
+      code: 'LIQUIDITY',
+      text: 'Liquidity risk: cash runway is below recommended buffer.',
+    });
+  }
+  
+  // R3 — High illiquids (illiquid_pct >= amber threshold ~7%)
+  if (profile.illiquid_pct >= 0.07 || profile.illiquids_status === 'AMBER' || profile.illiquids_status === 'RED') {
+    risks.push({
+      code: 'ILLIQUIDS',
+      text: 'Illiquidity risk: a portion of assets may be harder to sell quickly.',
+    });
+  }
+  
+  // R4 — Employer stock coupling (employer stock band >= 15-30 or above)
+  const empStockBand = profile.personaCues.employer_stock_alloc_band;
+  if (profile.personaCues.has_employer_stock && (empStockBand === '15_30' || empStockBand === 'GT_30')) {
+    risks.push({
+      code: 'EMPLOYER_STOCK',
+      text: 'Employer stock risk: portfolio outcomes may be linked to employment income.',
+    });
+  }
+  
+  // R5 — Crypto volatility (crypto band >= 10-25 or above)
+  const cryptoBand = profile.personaCues.crypto_alloc_band;
+  if (profile.personaCues.has_crypto && (cryptoBand === '10_25' || cryptoBand === 'GT_25')) {
+    risks.push({
+      code: 'CRYPTO_VOLATILITY',
+      text: 'Crypto volatility: high price swings can materially affect portfolio value.',
+    });
+  }
+  
+  return risks.slice(0, 3); // Max 3 risks per spec
+}
+
+// ============================================
+// Profile Indicators (I1-I4)
+// ============================================
+
+function generateProfileIndicators(profile: InvestorProfile): ProfileIndicator[] {
+  const indicators: ProfileIndicator[] = [];
+  
+  // I1 — Risk Orientation (0-100)
+  const riskComfortMap: Record<string, number> = {
+    'very_low': 20,
+    'low': 30,
+    'moderate': 55,
+    'high': 75,
+    'very_high': 90,
+  };
+  let riskScore = riskComfortMap[profile.risk_comfort?.toLowerCase() || ''] ?? 50;
+  // Time horizon adjustments
+  if (isLongHorizon(profile)) riskScore = Math.min(100, riskScore + 10);
+  if (!isLongHorizon(profile) && profile.time_horizon) riskScore = Math.max(0, riskScore - 10);
+  // Portfolio stage adjustments
+  if (isDrawdownPhase(profile)) riskScore = Math.max(0, riskScore - 15);
+  
+  indicators.push({
+    name: 'Risk Orientation',
+    value: Math.round(Math.max(0, Math.min(100, riskScore))),
+    tooltip: 'Based on stated risk comfort, time horizon, and life stage',
+  });
+  
+  // I2 — Liquidity Resilience (0-100)
+  // Map: 0mo → 0, 6mo → 50, 12mo → 75, 18+mo → 90
+  let liquidityScore: number;
+  const runwayMonths = profile.cash_runway_months;
+  if (runwayMonths <= 0) {
+    liquidityScore = 0;
+  } else if (runwayMonths <= 6) {
+    liquidityScore = (runwayMonths / 6) * 50;
+  } else if (runwayMonths <= 12) {
+    liquidityScore = 50 + ((runwayMonths - 6) / 6) * 25;
+  } else {
+    liquidityScore = Math.min(100, 75 + ((runwayMonths - 12) / 6) * 15);
+  }
+  
+  indicators.push({
+    name: 'Liquidity Resilience',
+    value: Math.round(Math.max(0, Math.min(100, liquidityScore))),
+    tooltip: `Based on ${runwayMonths.toFixed(0)} months cash runway`,
+  });
+  
+  // I3 — Alternatives Exposure (0-100)
+  const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
+  const cryptoPct = getCryptoAllocPct(profile);
+  let altsScore = (altsPct + cryptoPct) * 200; // 50% total → 100
+  
+  indicators.push({
+    name: 'Alternatives Exposure',
+    value: Math.round(Math.max(0, Math.min(100, altsScore))),
+    tooltip: cryptoPct > 0 ? 'Based on portfolio alternatives and declared crypto allocation' : 'Based on portfolio alternatives allocation',
+  });
+  
+  // I4 — Property Tilt (0-100)
+  const propertyPct = normalizeToFraction(profile.asset_class_breakdown.property_pct);
+  let propertyScore = propertyPct * 200; // 50% property → 100
+  // Boost if property is in investing focus
+  if (profile.personaCues.investing_focus?.includes('PROPERTY_BTL')) {
+    propertyScore = Math.min(100, propertyScore + 20);
+  }
+  
+  indicators.push({
+    name: 'Property Tilt',
+    value: Math.round(Math.max(0, Math.min(100, propertyScore))),
+    tooltip: propertyPct > 0 ? `Based on ${(propertyPct * 100).toFixed(0)}% property allocation` : 'Based on stated investment focus',
+  });
+  
+  return indicators;
 }
 
 // ============================================
@@ -634,6 +849,8 @@ export function computePersona(profile: InvestorProfile): PersonaResult {
   const traits = computeTraits(profile);
   const portfolioTraits = derivePortfolioTraits(profile);
   const whyFitsBullets = generateWhyFitsBullets(profile, persona);
+  const risksToWatch = generateRisksToWatch(profile);
+  const profileIndicators = generateProfileIndicators(profile);
 
   return {
     code: persona.code,
@@ -644,6 +861,8 @@ export function computePersona(profile: InvestorProfile): PersonaResult {
     traits,
     why_fits_bullets: whyFitsBullets,
     portfolio_traits: portfolioTraits,
+    risks_to_watch: risksToWatch,
+    profile_indicators: profileIndicators,
   };
 }
 

@@ -1,43 +1,31 @@
-import { PersonaResult, PortfolioTrait, TraitIntensity } from '@/state/onboardingV2Store';
-import { User, Target, AlertTriangle, Layers } from 'lucide-react';
+import { PersonaResult, PortfolioTrait, TraitIntensity, RiskToWatch, ProfileIndicator } from '@/state/onboardingV2Store';
+import { User, Target, AlertTriangle, Layers, BarChart3 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PersonaCardProps {
   persona: PersonaResult;
 }
 
-const traitLabels: Record<string, string> = {
-  risk: 'Risk Orientation',
-  property_bias: 'Property Tilt',
-  alts_bias: 'Alternatives Exposure',
-  liquidity_comfort: 'Liquidity Resilience',
-  tax_complexity: 'Tax Complexity',
-  cross_border_complexity: 'Cross-Border',
-};
-
-const traitColors: Record<string, string> = {
-  risk: 'bg-rose-500',
-  property_bias: 'bg-amber-500',
-  alts_bias: 'bg-purple-500',
-  liquidity_comfort: 'bg-emerald-500',
-  tax_complexity: 'bg-blue-500',
-  cross_border_complexity: 'bg-cyan-500',
-};
-
 const intensityColors: Record<TraitIntensity, string> = {
   Light: 'bg-slate-400 dark:bg-slate-500',
   Moderate: 'bg-amber-500',
-  High: 'bg-rose-500',
+  Strong: 'bg-emerald-500',
 };
 
 const intensityBgColors: Record<TraitIntensity, string> = {
   Light: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
   Moderate: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-  High: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
+  Strong: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+};
+
+const indicatorColors: Record<string, string> = {
+  'Risk Orientation': 'bg-rose-500',
+  'Liquidity Resilience': 'bg-emerald-500',
+  'Alternatives Exposure': 'bg-purple-500',
+  'Property Tilt': 'bg-amber-500',
 };
 
 export default function PersonaCard({ persona }: PersonaCardProps) {
-  const displayTraits = ['risk', 'liquidity_comfort', 'alts_bias', 'property_bias'];
-
   return (
     <div 
       className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-gray-900 shadow-sm overflow-hidden"
@@ -88,69 +76,87 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
           <div className="space-y-3">
             <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
               <Layers className="w-4 h-4 text-[var(--primary)]" />
-              Portfolio Traits Influencing Your Plan
+              Portfolio Traits
             </h4>
             <div className="flex flex-wrap gap-2" data-testid="portfolio-traits-list">
               {persona.portfolio_traits?.map((trait, i) => (
-                <div 
-                  key={i} 
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${intensityBgColors[trait.intensity]}`}
-                  data-testid={`portfolio-trait-${i}`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${intensityColors[trait.intensity]}`} />
-                  <span>{trait.name}</span>
-                  <span className="opacity-70">({trait.intensity})</span>
-                </div>
+                <TooltipProvider key={i}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium cursor-help ${intensityBgColors[trait.intensity]}`}
+                        data-testid={`portfolio-trait-${i}`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${intensityColors[trait.intensity]}`} />
+                        <span>{trait.name}</span>
+                        <span className="opacity-70">({trait.intensity})</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">{trait.detail}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               ))}
             </div>
           </div>
         )}
 
-        {/* Risks to Watch */}
-        {(persona.risks_bullets?.length ?? 0) > 0 && (
+        {/* Risks to Watch - using new data-triggered risks */}
+        {(persona.risks_to_watch?.length ?? 0) > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
               Risks to Watch
             </h4>
             <ul className="space-y-2" data-testid="risks-list">
-              {persona.risks_bullets?.map((bullet, i) => (
+              {persona.risks_to_watch?.map((risk, i) => (
                 <li 
                   key={i} 
                   className="flex items-start gap-2 text-sm text-[var(--muted-foreground)]"
                 >
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
-                  {bullet}
+                  {risk.text}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Trait Bars */}
-        {persona.traits && (
+        {/* Profile Indicators (I1-I4) */}
+        {(persona.profile_indicators?.length ?? 0) > 0 && (
           <div className="pt-4 border-t border-[var(--border)]">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+              <BarChart3 className="w-3.5 h-3.5" />
               Your Profile Indicators
             </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="traits-grid">
-              {displayTraits.map((trait) => {
-                const value = persona.traits?.[trait as keyof typeof persona.traits] ?? 0;
-                const label = traitLabels[trait] || trait;
-                const color = traitColors[trait] || 'bg-slate-500';
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="indicators-grid">
+              {persona.profile_indicators?.map((indicator, i) => {
+                const color = indicatorColors[indicator.name] || 'bg-slate-500';
                 
                 return (
-                  <div key={trait} className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full ${color} transition-all duration-500`}
-                        style={{ width: `${Math.min(100, value * 100)}%` }}
-                      />
-                    </div>
-                  </div>
+                  <TooltipProvider key={i}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="space-y-1.5 cursor-help">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-[var(--muted-foreground)] truncate">
+                              {indicator.name}
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${color} transition-all duration-500`}
+                              style={{ width: `${indicator.value}%` }}
+                            />
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{indicator.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 );
               })}
             </div>
