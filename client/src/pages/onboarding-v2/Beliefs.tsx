@@ -63,16 +63,16 @@ const AXIS_LABELS: Record<AxisCode, string> = {
 };
 
 const DIRECTION_CONFIG: Record<TiltDirection, { label: string; icon: typeof TrendingUp; color: string; bgGradient: string }> = {
-  TOWARDS: { label: 'Lean towards', icon: TrendingUp, color: 'text-emerald-600 dark:text-emerald-400', bgGradient: 'from-emerald-500 to-emerald-600' },
-  AWAY: { label: 'Lean away', icon: TrendingDown, color: 'text-rose-600 dark:text-rose-400', bgGradient: 'from-rose-500 to-rose-600' },
-  NEUTRAL: { label: 'Neutral', icon: Minus, color: 'text-slate-500 dark:text-slate-400', bgGradient: 'from-slate-400 to-slate-500' },
+  TOWARDS: { label: 'Lean towards', icon: TrendingUp, color: 'text-[#10A957] dark:text-[#62C4C3]', bgGradient: 'from-[#10A957] to-[#13683B]' },
+  AWAY: { label: 'Lean away', icon: TrendingDown, color: 'text-[#FE9239] dark:text-[#F59E0B]', bgGradient: 'from-[#FE9239] to-[#EA580C]' },
+  NEUTRAL: { label: 'Neutral', icon: Minus, color: 'text-[#64748B] dark:text-[#9CA3AF]', bgGradient: 'from-[#64748B] to-[#475569]' },
 };
 
 const INTENSITY_CONFIG: Record<TiltIntensity, { color: string; bgColor: string; borderColor: string }> = {
-  NEUTRAL: { color: 'text-slate-500 dark:text-slate-400', bgColor: 'bg-slate-100 dark:bg-slate-800', borderColor: 'border-slate-200 dark:border-slate-700' },
-  LIGHT: { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-900/30', borderColor: 'border-blue-200 dark:border-blue-800' },
-  MODERATE: { color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-50 dark:bg-amber-900/30', borderColor: 'border-amber-200 dark:border-amber-800' },
-  STRONG: { color: 'text-emerald-600 dark:text-emerald-400', bgColor: 'bg-emerald-50 dark:bg-emerald-900/30', borderColor: 'border-emerald-200 dark:border-emerald-800' },
+  NEUTRAL: { color: 'text-[#64748B] dark:text-[#9CA3AF]', bgColor: 'bg-slate-100 dark:bg-slate-800', borderColor: 'border-slate-200 dark:border-slate-700' },
+  LIGHT: { color: 'text-[#13683B] dark:text-[#5193B3]', bgColor: 'bg-[#10A957]/10 dark:bg-[#62C4C3]/10', borderColor: 'border-[#10A957]/30 dark:border-[#62C4C3]/30' },
+  MODERATE: { color: 'text-[#10A957] dark:text-[#62C4C3]', bgColor: 'bg-[#10A957]/20 dark:bg-[#62C4C3]/20', borderColor: 'border-[#10A957]/40 dark:border-[#62C4C3]/40' },
+  STRONG: { color: 'text-[#10A957] dark:text-[#62C4C3]', bgColor: 'bg-[#10A957]/30 dark:bg-[#62C4C3]/30', borderColor: 'border-[#10A957]/50 dark:border-[#62C4C3]/50' },
 };
 
 const GATE_REASON_MESSAGES: Record<TiltsGateReason, string> = {
@@ -281,10 +281,10 @@ export default function Beliefs() {
 
         {/* Tilt Preview Section - Always shows all 8 axes */}
         <div className="group relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
             <div className="absolute -top-5 left-6 z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10A957] to-[#13683B] flex items-center justify-center shadow-lg shadow-[#10A957]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
             </div>
