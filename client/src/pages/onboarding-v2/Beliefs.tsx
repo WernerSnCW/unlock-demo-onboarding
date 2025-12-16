@@ -168,10 +168,10 @@ export default function Beliefs() {
                 </div>
               </div>
               <h4 className="text-base font-bold text-amber-600 dark:text-amber-400 mb-1">
-                Tilts Available with Caution
+                Tilts Available
               </h4>
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                Tilts are available, but amber flags suggest reviewing your portfolio first.
+                Tilts are available. Amber Safety Lights mean the target step will keep tighter guardrails.
               </p>
             </div>
           </div>
@@ -277,93 +277,92 @@ export default function Beliefs() {
           </div>
         </div>
 
-        {/* Tilt Preview Section */}
-        {responseCount > 0 && (
-          <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
-              <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 mb-4">
-                <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
-                  Tilt Preview
-                </h3>
-                {!beliefs.tilts_allowed && (
-                  <span className="flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-1 rounded-full">
-                    <Lock className="w-3 h-3" />
-                    Locked
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-[var(--muted-foreground)] mb-6">
-                Based on your responses, here's how your portfolio tilts would be configured.
-              </p>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                {beliefs.tilt_profile.map((tilt) => {
-                  const dirConfig = DIRECTION_CONFIG[tilt.direction];
-                  const intensityConfig = INTENSITY_CONFIG[tilt.intensity];
-                  const DirIcon = dirConfig.icon;
-
-                  return (
-                    <div 
-                      key={tilt.axis_code}
-                      className={`group/card relative p-4 rounded-xl border transition-all duration-300 ${intensityConfig.borderColor} ${intensityConfig.bgColor} ${!beliefs.tilts_allowed ? 'opacity-60' : 'hover:shadow-md hover:scale-[1.02]'}`}
-                      data-testid={`tilt-preview-${tilt.axis_code}`}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-[var(--foreground)]">
-                          {AXIS_LABELS[tilt.axis_code]}
-                        </h4>
-                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${dirConfig.bgGradient} flex items-center justify-center shadow-sm`}>
-                          <DirIcon className="w-4 h-4 text-white" />
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-xs font-medium ${dirConfig.color}`}>
-                          {dirConfig.label}
-                        </span>
-                        {tilt.intensity !== 'NEUTRAL' && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${intensityConfig.bgColor} ${intensityConfig.color} border ${intensityConfig.borderColor}`}>
-                            {tilt.intensity}
-                          </span>
-                        )}
-                      </div>
-                      {!beliefs.tilts_allowed && (
-                        <p className="text-xs text-rose-500 dark:text-rose-400 mt-3 flex items-center gap-1">
-                          <Lock className="w-3 h-3" />
-                          Captured (not applied yet)
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+        {/* Tilt Preview Section - Always shows all 8 axes */}
+        <div className="group relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
+            <div className="absolute -top-5 left-6 z-10">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <Sparkles className="w-6 h-6 text-white" />
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Transparency Section */}
-        {responseCount > 0 && (
-          <Collapsible open={transparencyOpen} onOpenChange={setTransparencyOpen}>
-            <CollapsibleTrigger asChild>
-              <button className="group/trigger flex items-center gap-3 text-sm w-full justify-between p-4 rounded-xl border border-[var(--border)] bg-white dark:bg-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover/trigger:bg-[var(--primary)]/10 transition-colors">
-                    <Info className="w-4 h-4 text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)]" />
+            <div className="flex items-center gap-3 mb-4">
+              <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
+                Tilt preview
+              </h3>
+              {!beliefs.tilts_allowed && (
+                <span className="flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-1 rounded-full">
+                  <Lock className="w-3 h-3" />
+                  Locked
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-[var(--muted-foreground)] mb-6">
+              {responseCount === 0 
+                ? "Answer the questions above to see how your tilts would be configured."
+                : "Based on your responses, here's how your portfolio tilts would be configured."}
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {beliefs.tilt_profile.map((tilt) => {
+                const dirConfig = DIRECTION_CONFIG[tilt.direction];
+                const intensityConfig = INTENSITY_CONFIG[tilt.intensity];
+                const DirIcon = dirConfig.icon;
+
+                return (
+                  <div 
+                    key={tilt.axis_code}
+                    className={`group/card relative p-4 rounded-xl border transition-all duration-300 ${intensityConfig.borderColor} ${intensityConfig.bgColor} ${!beliefs.tilts_allowed ? 'opacity-60' : 'hover:shadow-md hover:scale-[1.02]'}`}
+                    data-testid={`tilt-preview-${tilt.axis_code}`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-[var(--foreground)]">
+                        {AXIS_LABELS[tilt.axis_code]}
+                      </h4>
+                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${dirConfig.bgGradient} flex items-center justify-center shadow-sm`}>
+                        <DirIcon className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-xs font-medium ${dirConfig.color}`}>
+                        {dirConfig.label}
+                      </span>
+                      {tilt.intensity !== 'NEUTRAL' && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${intensityConfig.bgColor} ${intensityConfig.color} border ${intensityConfig.borderColor}`}>
+                          {tilt.intensity}
+                        </span>
+                      )}
+                    </div>
+                    {!beliefs.tilts_allowed && (
+                      <p className="text-xs text-rose-500 dark:text-rose-400 mt-3 flex items-center gap-1">
+                        <Lock className="w-3 h-3" />
+                        Captured (not applied yet)
+                      </p>
+                    )}
                   </div>
-                  <span className="font-medium text-[var(--foreground)]">View calculation details</span>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Transparency Section - Always visible, collapsed by default */}
+        <Collapsible open={transparencyOpen} onOpenChange={setTransparencyOpen}>
+          <CollapsibleTrigger asChild>
+            <button className="group/trigger flex items-center gap-3 text-sm w-full justify-between p-4 rounded-xl border border-[var(--border)] bg-white dark:bg-slate-800/80 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover/trigger:bg-[var(--primary)]/10 transition-colors">
+                  <Info className="w-4 h-4 text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)]" />
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-                  {transparencyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </div>
-              </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-4">
+                <span className="font-medium text-[var(--foreground)]">Transparency</span>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                {transparencyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4">
               <div className="space-y-6 p-6 rounded-2xl border border-[var(--border)] bg-white dark:bg-slate-800/80 shadow-lg">
                 {/* Question Responses */}
                 <div>
@@ -435,9 +434,8 @@ export default function Beliefs() {
                   </div>
                 </div>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
-        )}
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Validation Error Summary */}
         {attemptedSubmit && unansweredQuestions.length > 0 && (
@@ -471,10 +469,15 @@ export default function Beliefs() {
           </Button>
           <Button
             onClick={handleContinue}
-            className="px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 shadow-lg shadow-[var(--primary)]/25 transition-all duration-300"
+            disabled={!allAnswered}
+            className={`px-8 py-2.5 transition-all duration-300 ${
+              allAnswered 
+                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 shadow-lg shadow-[var(--primary)]/25' 
+                : 'bg-slate-300 dark:bg-slate-600 cursor-not-allowed opacity-60'
+            }`}
             data-testid="beliefs-continue-button"
           >
-            Continue
+            Continue {!allAnswered && `(${responseCount}/8)`}
           </Button>
         </div>
       </div>
