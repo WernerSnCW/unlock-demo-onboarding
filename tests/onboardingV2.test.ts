@@ -649,7 +649,7 @@ describe('Persona Engine - ALTERNATIVES_FOCUSED Fixture', () => {
    * 
    * Expected persona code: ALTERNATIVES_FOCUSED
    * 
-   * Trigger rule: alts_pct >= 0.30 OR (alts_pct >= 0.20 AND crypto_alloc >= 0.25)
+   * Trigger rule: crypto_alloc_band === 'GT_25' (>25% crypto from questionnaire)
    */
   const ALTERNATIVES_FOCUSED_FIXTURE = {
     profile: {

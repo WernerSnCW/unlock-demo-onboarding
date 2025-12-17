@@ -289,18 +289,14 @@ function getCryptoAllocPct(profile: InvestorProfile): number {
  * Alternatives Dominance Check
  * 
  * TRIGGER RULE (auditable):
- * ALTERNATIVES_FOCUSED triggers when EITHER:
- *   - alts_pct >= 0.30 (strong alternatives exposure alone), OR
- *   - alts_pct >= 0.20 AND crypto_alloc >= 0.25 (combined alternatives + strong crypto)
+ * ALTERNATIVES_FOCUSED triggers when crypto_alloc_band === 'GT_25' (user selected >25% crypto).
  * 
- * This ensures genuine alternatives-led portfolios are recognized.
+ * This aligns with the questionnaire band options to ensure the persona is reachable and deterministic.
  */
 function hasAlternativesDominance(profile: InvestorProfile): boolean {
-  const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
-  const cryptoAlloc = getCryptoAllocPct(profile);
-  
-  // Rule: alts >= 30% OR (alts >= 20% AND crypto >= 25%)
-  return altsPct >= 0.30 || (altsPct >= 0.20 && cryptoAlloc >= 0.25);
+  // Rule: crypto band is GT_25 (>25%) from questionnaire
+  return profile.personaCues.has_crypto === true && 
+         profile.personaCues.crypto_alloc_band === 'GT_25';
 }
 
 function isLongHorizon(profile: InvestorProfile): boolean {
@@ -349,7 +345,7 @@ function assignPrimaryPersona(profile: InvestorProfile): PrimaryPersonaCode {
     return 'PROPERTY_LED';
   }
 
-  // Rule 3: Alternatives dominance (alts >= 30% OR alts >= 20% + crypto >= 25%)
+  // Rule 3: Alternatives dominance (crypto band GT_25 from questionnaire)
   if (hasAlternativesDominance(profile)) {
     return 'ALTERNATIVES_FOCUSED';
   }
@@ -706,21 +702,13 @@ function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPerson
       break;
 
     case 'ALTERNATIVES_FOCUSED':
-      const altsPctVal = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
-      const cryptoPctVal = getCryptoAllocPct(profile);
-      if (altsPctVal >= 0.20) {
-        bullets.push(`Alternatives make up ${formatPct(altsPctVal)} of your stated portfolio allocation.`);
+      // Trigger is based on crypto_alloc_band === GT_25 (>25% from questionnaire)
+      if (profile.personaCues.has_crypto && profile.personaCues.crypto_alloc_band === 'GT_25') {
+        bullets.push('You indicated your crypto allocation is greater than 25% of your portfolio.');
       }
-      if (profile.personaCues.has_crypto && cryptoPctVal >= 0.10) {
-        const cryptoBandLabel: Record<string, string> = {
-          'LT_5': '<5%',
-          '5_10': '5–10%',
-          '10_25': '10–25%',
-          'GT_25': '>25%',
-          'NOT_SURE': 'a portion',
-        };
-        const band = profile.personaCues.crypto_alloc_band || 'NOT_SURE';
-        bullets.push(`Your crypto allocation (${cryptoBandLabel[band]}) is a notable component.`);
+      const altsPctVal = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
+      if (altsPctVal >= 0.15) {
+        bullets.push(`Alternatives make up ${formatPct(altsPctVal)} of your stated portfolio allocation.`);
       }
       if (profile.personaCues.investing_focus?.includes('CRYPTO')) {
         bullets.push('You identified crypto/alternatives as a primary investment focus.');
