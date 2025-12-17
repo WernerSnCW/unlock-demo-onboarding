@@ -1,0 +1,46 @@
+Step 7 Audit — Illustrative Portfolio Direction (Scenarios)
+Please audit the current Step 7 implementation against the agreed ground truth. No code in the reply.
+
+1) Location + flow
+- Where is Step 7 logic implemented? (file paths + function names)
+- What triggers scenario generation (when does it run)?
+- What data is passed into Step 7 from Step 5/6 (current allocation, safety lights, beliefs)?
+
+2) Guardrails dominance + locking
+- Confirm: if ANY Safety Light is RED, are preference signals (beliefs) fully locked (recorded but NOT applied)?
+- Where is this enforced (Step 6 only, Step 7 only, or both)?
+- If locked, what does Step 7 output show (e.g., applied_tilts status = LOCKED)? Be specific.
+
+3) The 3 scenarios (must exist and match intent)
+For each scenario, confirm it exists and describe behaviour in plain language:
+A) Guardrail-first (minimal deviation, prioritise moving lights toward green)
+B) Preference-leaning (apply signals as far as constraints allow; show partial/blocked)
+C) Neutral baseline (minimal deviation; no signals applied)
+
+4) Range generation (big audit item)
+- For each metric/range shown in Step 7, list:
+  a) what the current value is
+  b) how min/max bounds are calculated
+  c) whether the current value is always included in the range (and why)
+- Identify why ranges might look uninformative (“always includes current” issue).
+- Confirm whether a “minimum meaningful delta” exists; if not, state.
+
+5) Applied vs blocked explanation
+- Does the Step 7 UI explicitly show which signals were:
+  APPLIED / CONSTRAINED / BLOCKED (or LOCKED)?
+- Where is that logic computed and where is it rendered?
+- Is the reason shown (e.g., “blocked due to RED concentration”, “constrained by liquidity guardrail”)?
+
+6) Language / compliance framing
+- Confirm Step 7 includes the required disclaimers:
+  “Illustrative”, “Not financial advice”, “Does not instruct buying/selling”, “Does not replace suitability assessment”.
+- Where are these phrases defined (component/file)?
+
+7) Quick pass/fail verdict + smallest next patch
+- Give a verdict: PASS/FAIL for each of these:
+  a) guardrails dominate beliefs
+  b) belief locking works
+  c) scenarios match definitions
+  d) ranges are meaningful
+  e) applied vs blocked is clear
+- Then recommend the single smallest, testable improvement we should implement first to address the biggest FAIL (no refactor).
