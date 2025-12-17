@@ -1490,3 +1490,119 @@ describe('Step 7 Scenario Range - Minimum Width', () => {
     });
   });
 });
+
+/**
+ * Step 7 Applied Tilts - LOCKED Status Tests
+ * 
+ * When tilts_allowed=false (due to RED Safety Lights), all applied tilts
+ * should have status LOCKED (not CONSTRAINED).
+ */
+describe('Step 7 Applied Tilts - LOCKED Status', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+  
+  it('should set status LOCKED for all tilts when tilts_allowed=false (RED Safety Lights)', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+    
+    store.setHoldings([
+      { id: '1', name: 'Equity Fund', ticker: 'EQ1', value_gbp: 100000, asset_class: 'Equity', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+    ]);
+    
+    store.updateIntake({
+      age_band: '35_44',
+      portfolio_stage: 'ACCUMULATING',
+      monthly_spending_gbp: 5000,
+    });
+    
+    store.setAnalysisResult({
+      safety_lights: {
+        liquidity: 'RED',
+        concentration: 'GREEN',
+        illiquids: 'GREEN',
+        overall_status: 'NEEDS_ATTENTION',
+        metrics: {
+          cash_runway_months: 0,
+          largest_line_pct: 1.0,
+          illiquid_pct: 0,
+        },
+      },
+    });
+    
+    store.setBeliefResponse('Q1_QUALITY', 5);
+    store.setBeliefResponse('Q2_VALUE', 3);
+    store.setBeliefResponse('Q3_TECH', 4);
+    store.setBeliefResponse('Q4_SMALL_CAP', 3);
+    store.setBeliefResponse('Q5_ESG', 3);
+    store.setBeliefResponse('Q6_INFLATION', 3);
+    store.setBeliefResponse('Q7_VOLATILITY', 3);
+    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.computeBeliefsScores();
+    store.computeScenarios();
+    
+    const state = useOnboardingV2Store.getState();
+    
+    expect(state.beliefs.tilts_allowed).toBe(false);
+    
+    const guardrailFirst = state.scenario.scenarios.find(s => s.scenario_type === 'GUARDRAIL_FIRST');
+    expect(guardrailFirst).toBeDefined();
+    
+    guardrailFirst!.applied_tilts.forEach(tilt => {
+      expect(tilt.status).toBe('LOCKED');
+      expect(tilt.constraint_reason).toBe('Locked due to Safety Lights (RED).');
+    });
+    
+    expect(guardrailFirst!.tilts_constrained_count).toBeGreaterThan(0);
+  });
+  
+  it('should NOT use LOCKED status when tilts_allowed=true (all GREEN lights)', async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+    
+    store.setHoldings([
+      { id: '1', name: 'Equity Fund', ticker: 'EQ1', value_gbp: 50000, asset_class: 'Equity', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+      { id: '2', name: 'Cash', ticker: 'CASH', value_gbp: 50000, asset_class: 'Cash', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+    ]);
+    
+    store.updateIntake({
+      age_band: '35_44',
+      portfolio_stage: 'ACCUMULATING',
+      monthly_spending_gbp: 2000,
+    });
+    
+    store.setAnalysisResult({
+      safety_lights: {
+        liquidity: 'GREEN',
+        concentration: 'GREEN',
+        illiquids: 'GREEN',
+        overall_status: 'ALL_CLEAR',
+        metrics: {
+          cash_runway_months: 25,
+          largest_line_pct: 0.5,
+          illiquid_pct: 0,
+        },
+      },
+    });
+    
+    store.setBeliefResponse('Q1_QUALITY', 5);
+    store.setBeliefResponse('Q2_VALUE', 3);
+    store.setBeliefResponse('Q3_TECH', 4);
+    store.setBeliefResponse('Q4_SMALL_CAP', 3);
+    store.setBeliefResponse('Q5_ESG', 3);
+    store.setBeliefResponse('Q6_INFLATION', 3);
+    store.setBeliefResponse('Q7_VOLATILITY', 3);
+    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.computeBeliefsScores();
+    store.computeScenarios();
+    
+    const state = useOnboardingV2Store.getState();
+    
+    expect(state.beliefs.tilts_allowed).toBe(true);
+    
+    state.scenario.scenarios.forEach(scenario => {
+      const lockedTilts = scenario.applied_tilts.filter(t => t.status === 'LOCKED');
+      expect(lockedTilts.length).toBe(0);
+    });
+  });
+});

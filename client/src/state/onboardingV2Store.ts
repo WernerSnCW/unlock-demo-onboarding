@@ -277,7 +277,7 @@ export interface AnalysisState {
 
 export type ScenarioType = 'GUARDRAIL_FIRST' | 'PREFERENCE_LEANING' | 'NEUTRAL_BASELINE';
 export type DirectionalDelta = 'INCREASE' | 'DECREASE' | 'NEUTRAL';
-export type TiltApplicationStatus = 'APPLIED' | 'PARTIALLY_APPLIED' | 'CONSTRAINED' | 'NOT_APPLIED';
+export type TiltApplicationStatus = 'APPLIED' | 'PARTIALLY_APPLIED' | 'CONSTRAINED' | 'LOCKED' | 'NOT_APPLIED';
 
 export interface AllocationBandDebug {
   scenarioStrength: number;      // Scenario strength multiplier (0, 0.25, or 0.6)
@@ -1288,8 +1288,8 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             let constraintReason: string | null = null;
             
             if (!tiltsAllowed) {
-              status = 'CONSTRAINED';
-              constraintReason = 'Safety Lights guardrails prevent preference reflection.';
+              status = 'LOCKED';
+              constraintReason = 'Locked due to Safety Lights (RED).';
             } else if (scenarioType === 'NEUTRAL_BASELINE') {
               status = 'NOT_APPLIED';
               constraintReason = 'Neutral baseline does not incorporate belief axes.';
@@ -1370,7 +1370,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             applied_tilts: computeAppliedTilts('GUARDRAIL_FIRST'),
             binding_constraints: computeBindingConstraints(),
             tilts_applied_count: computeAppliedTilts('GUARDRAIL_FIRST').filter(t => t.status === 'APPLIED' || t.status === 'PARTIALLY_APPLIED').length,
-            tilts_constrained_count: computeAppliedTilts('GUARDRAIL_FIRST').filter(t => t.status === 'CONSTRAINED').length,
+            tilts_constrained_count: computeAppliedTilts('GUARDRAIL_FIRST').filter(t => t.status === 'CONSTRAINED' || t.status === 'LOCKED').length,
           },
           {
             scenario_type: 'PREFERENCE_LEANING',
@@ -1382,7 +1382,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             applied_tilts: computeAppliedTilts('PREFERENCE_LEANING'),
             binding_constraints: computeBindingConstraints(),
             tilts_applied_count: computeAppliedTilts('PREFERENCE_LEANING').filter(t => t.status === 'APPLIED' || t.status === 'PARTIALLY_APPLIED').length,
-            tilts_constrained_count: computeAppliedTilts('PREFERENCE_LEANING').filter(t => t.status === 'CONSTRAINED').length,
+            tilts_constrained_count: computeAppliedTilts('PREFERENCE_LEANING').filter(t => t.status === 'CONSTRAINED' || t.status === 'LOCKED').length,
           },
           {
             scenario_type: 'NEUTRAL_BASELINE',

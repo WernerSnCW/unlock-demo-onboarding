@@ -84,6 +84,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
   APPLIED: { label: 'Reflected', color: 'text-[#10A957]', bgColor: 'bg-[#10A957]/10', icon: Check },
   PARTIALLY_APPLIED: { label: 'Partially reflected', color: 'text-[#13683B]', bgColor: 'bg-[#13683B]/10', icon: Check },
   CONSTRAINED: { label: 'Constrained', color: 'text-[#FE9239]', bgColor: 'bg-[#FE9239]/10', icon: Lock },
+  LOCKED: { label: 'Locked', color: 'text-[#DC2626]', bgColor: 'bg-[#DC2626]/10', icon: Lock },
   NOT_APPLIED: { label: 'Not reflected', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
 };
 
