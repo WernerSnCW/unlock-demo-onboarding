@@ -1,0 +1,102 @@
+TASK: Persona Engine Enhancement — Batch P2.1 (Add trait scoring + explainability using CURRENT field keys; DO NOT change persona selection yet)
+NO CODE OUTPUT IN CHAT RESPONSE.
+
+Goal:
+Make the persona engine “CRAFT-grade” by adding:
+1) Trait scores (0.0–1.0) computed from existing Step 3 + Step 4 data
+2) Consistent, input-grounded “why_fits_bullets” derived from the strongest signals
+IMPORTANT: Persona selection (the persona code chosen) must remain EXACTLY unchanged in this batch.
+
+Use ONLY these existing data fields (do not invent new questions):
+Step 3 / Intake:
+- personaCues.age_band
+- personaCues.portfolio_stage
+- personaCues.adviser_usage
+- intake.time_horizon_years
+- intake.risk_comfort
+- intake.primary_goal
+- intake.annual_essential_spend_gbp
+- intake.liquid_cash_gbp
+- personaCues.investing_focus[]
+- personaCues.has_defined_benefit_pension
+- personaCues.db_income_coverage_band
+- personaCues.owns_business
+- personaCues.private_business_wealth_band
+- personaCues.has_employer_stock
+- personaCues.employer_stock_alloc_band
+- personaCues.has_crypto
+- personaCues.crypto_alloc_band
+- personaCues.is_cross_border
+
+Step 4 / Holdings Summary:
+- summary.total_investable_value
+- summary.largest_line_pct
+- summary.illiquid_pct
+- computed cash runway months (already used in Safety Lights)
+- asset_class_breakdown.equity_pct
+- asset_class_breakdown.bond_pct (available, currently unused)
+- asset_class_breakdown.property_pct
+- asset_class_breakdown.cash_pct
+- asset_class_breakdown.alts_pct
+- asset_class_breakdown.crypto_pct
+- breakdowns.by_wrapper (raw)
+- holding.region (raw per holding)
+
+Traits to compute (0.0–1.0 scale, deterministic):
+T1 risk_appetite
+  Inputs: intake.risk_comfort + intake.time_horizon_years + asset_class_breakdown.equity_pct + asset_class_breakdown.alts_pct
+T2 alternatives_bias
+  Inputs: personaCues.crypto_alloc_band + asset_class_breakdown.alts_pct + personaCues.investing_focus includes CRYPTO + personaCues.has_crypto
+T3 property_bias
+  Inputs: asset_class_breakdown.property_pct + personaCues.investing_focus includes PROPERTY_BTL
+T4 liquidity_comfort
+  Inputs: cash runway months + asset_class_breakdown.cash_pct + summary.illiquid_pct
+T5 income_orientation
+  Inputs: personaCues.portfolio_stage (drawdown flags) + intake.primary_goal (income) + intake.risk_comfort
+T6 complexity_proxy
+  Inputs: personaCues.has_defined_benefit_pension + personaCues.owns_business + personaCues.private_business_wealth_band + personaCues.has_employer_stock + personaCues.is_cross_border + summary.total_investable_value
+  (Wrapper and region diversity are optional in this batch; if you include them, derive them only from breakdowns.by_wrapper and holding.region.)
+
+Implementation steps:
+1) SERVER: In server/services/personaEngine.ts (or the current persona module):
+   - Add a single function computeTraitScores(inputs) -> { risk_appetite, alternatives_bias, property_bias, liquidity_comfort, income_orientation, complexity_proxy }
+   - Clamp every trait to 0..1.
+   - Use existing band midpoints where bands exist (e.g., crypto_alloc_band midpoints already in code).
+   - Do not change any existing persona selection logic in this batch.
+
+2) SERVER: Add explainability builder buildWhyFitsBullets(inputs, traitScores) -> string[2..3]
+   - Select 2–3 strongest / most relevant signals (e.g., drawdown stage, self-directed, long horizon, crypto band GT_25, high cash runway).
+   - Bullets must be descriptive only (no “should”, no buy/sell).
+   - Bullets must directly match actual inputs (e.g., only mention “>25% crypto” if personaCues.crypto_alloc_band == GT_25).
+
+3) OUTPUT SHAPE:
+   - Ensure PersonaResult includes:
+     - traits: the 6 trait scores above
+     - why_fits_bullets: 2–3 bullets from buildWhyFitsBullets
+   - Ensure existing persona code selection output remains unchanged for the same inputs.
+
+4) CLIENT:
+   - Update the Step 5 persona card to display why_fits_bullets from the server output.
+   - If the client currently computes any of these traits itself for display, remove/disable duplicate client-side calculations and use the server-provided values so UI cannot drift from backend.
+
+5) QA / Fixtures (minimum for this batch):
+   Add fixtures for validation (does NOT need full automation yet, but must be repeatable):
+   Fixture A: SELF_DIRECTED_GROWTH profile (personaCues.adviser_usage=SELF_DIRECTED, portfolio_stage=ACCUMULATING, time_horizon long, risk moderate/high)
+   Fixture B: CAPITAL_PRESERVATION profile (risk low, not accumulating, high cash runway and/or high cash_pct)
+   Fixture C: ALTERNATIVES_FOCUSED profile (personaCues.crypto_alloc_band=GT_25)
+   For each fixture, verify:
+   - persona code is unchanged vs pre-batch behaviour
+   - traits are present (not null/undefined)
+   - why_fits_bullets has 2–3 items and references the correct inputs
+
+Acceptance criteria:
+A) Persona code MUST NOT change for any fixture vs previous build.
+B) Trait scores are stable across refreshes and consistent with inputs.
+C) why_fits_bullets are accurate and non-prescriptive.
+D) UI shows server-provided traits/bullets (no duplicate logic).
+
+Deliverable response (no code):
+- List files changed (filenames only).
+- Confirm persona selection unchanged.
+- Confirm traits + why bullets populated in PersonaResult.
+- Confirm fixtures added and describe each fixture briefly.
