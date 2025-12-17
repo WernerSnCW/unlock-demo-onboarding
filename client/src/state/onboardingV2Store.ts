@@ -190,6 +190,8 @@ export interface PersonaResult {
   portfolio_traits: PortfolioTrait[];
   risks_to_watch: RiskToWatch[];
   profile_indicators: ProfileIndicator[];
+  match_score: number;
+  match_confidence: number;
 }
 
 export interface AnalysisResult {

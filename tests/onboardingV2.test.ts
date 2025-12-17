@@ -991,4 +991,337 @@ describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
     expect(result.why_fits_bullets.length).toBeGreaterThanOrEqual(2);
     expect(result.why_fits_bullets.length).toBeLessThanOrEqual(3);
   });
+
+  it('should include match_score and match_confidence for CAPITAL_PRESERVATION persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(CAPITAL_PRESERVATION_FIXTURE.profile);
+    
+    expect(result.match_score).toBeDefined();
+    expect(result.match_score).toBeGreaterThanOrEqual(0);
+    expect(result.match_score).toBeLessThanOrEqual(1);
+    expect(result.match_confidence).toBeDefined();
+    expect(result.match_confidence).toBeGreaterThanOrEqual(0);
+    expect(result.match_confidence).toBeLessThanOrEqual(1);
+  });
+});
+
+/**
+ * CORE_GROWTH Persona Test Fixture
+ * 
+ * CORE_GROWTH triggers via soft override when:
+ * - Portfolio stage is ACCUMULATING
+ * - Primary goal includes "growth"
+ * - Adviser usage is FULL_SERVICE_ADVISER
+ * - Complexity proxy is moderate (0.15-0.50)
+ * - Risk appetite is moderate (0.25-0.55)
+ * 
+ * This fixture tests the advised accumulator profile with growth focus.
+ */
+describe('Persona Engine - CORE_GROWTH Fixture', () => {
+  // CORE_GROWTH triggers via soft override for advised accumulators with growth focus
+  // Requires: ACCUMULATING + growth goal + FULL_SERVICE_ADVISER + moderate complexity/risk
+  const CORE_GROWTH_FIXTURE = {
+    profile: {
+      age_band: '35_44' as const,
+      portfolio_stage: 'ACCUMULATING' as const,
+      primary_goal: 'growth',
+      time_horizon: '5_9',
+      risk_comfort: 'moderate',
+      total_portfolio_value_gbp: 350000,
+      cash_runway_months: 4,
+      largest_line_pct: 0.10,
+      illiquid_pct: 0.10,
+      asset_class_breakdown: {
+        equity_pct: 0.35,
+        bond_pct: 0.40,
+        property_pct: 0.05,
+        cash_pct: 0.10,
+        alts_pct: 0.10,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'GREEN' as const,
+      concentration_status: 'GREEN' as const,
+      illiquids_status: 'GREEN' as const,
+      personaCues: {
+        age_band: '35_44' as const,
+        portfolio_stage: 'ACCUMULATING' as const,
+        investing_focus: ['FUNDS_ETFS' as const],
+        has_defined_benefit_pension: true,
+        db_income_coverage_band: '25_50' as const,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'FULL_SERVICE_ADVISER' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'CORE_GROWTH',
+    expected_label: 'Core Growth Investor',
+  };
+
+  it('should assign CORE_GROWTH persona for advised accumulator with growth focus', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(CORE_GROWTH_FIXTURE.profile);
+    
+    expect(result.code).toBe(CORE_GROWTH_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(CORE_GROWTH_FIXTURE.expected_label);
+    expect(result.match_score).toBeGreaterThanOrEqual(0);
+    expect(result.match_confidence).toBeGreaterThanOrEqual(0);
+  });
+});
+
+/**
+ * BALANCED_ALLOCATOR Persona Test Fixture
+ * 
+ * BALANCED_ALLOCATOR triggers via soft override when:
+ * - Primary goal includes "balance"
+ * - Risk appetite is moderate (0.25-0.50)
+ * - Liquidity comfort is not too high (<=0.50)
+ * - Income orientation is low (<=0.35)
+ * - Not in drawdown phase
+ * 
+ * This fixture tests a balanced profile with moderate traits.
+ */
+describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
+  // BALANCED_ALLOCATOR triggers via soft override for balanced goal with moderate risk
+  // Requires: balance goal + moderate risk + low-moderate liquidity + low income orientation
+  const BALANCED_ALLOCATOR_FIXTURE = {
+    profile: {
+      age_band: '45_54' as const,
+      portfolio_stage: 'ACCUMULATING' as const,
+      primary_goal: 'balance',
+      time_horizon: '5_9',
+      risk_comfort: 'moderate',
+      total_portfolio_value_gbp: 350000,
+      cash_runway_months: 3,
+      largest_line_pct: 0.08,
+      illiquid_pct: 0.12,
+      asset_class_breakdown: {
+        equity_pct: 0.30,
+        bond_pct: 0.40,
+        property_pct: 0.05,
+        cash_pct: 0.08,
+        alts_pct: 0.17,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'GREEN' as const,
+      concentration_status: 'GREEN' as const,
+      illiquids_status: 'GREEN' as const,
+      personaCues: {
+        age_band: '45_54' as const,
+        portfolio_stage: 'ACCUMULATING' as const,
+        investing_focus: ['FUNDS_ETFS' as const],
+        has_defined_benefit_pension: true,
+        db_income_coverage_band: '25_50' as const,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'SOMETIMES_ADVISED' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'BALANCED_ALLOCATOR',
+    expected_label: 'Balanced Allocator',
+  };
+
+  it('should assign BALANCED_ALLOCATOR persona for balanced goal with moderate risk', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(BALANCED_ALLOCATOR_FIXTURE.profile);
+    
+    expect(result.code).toBe(BALANCED_ALLOCATOR_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(BALANCED_ALLOCATOR_FIXTURE.expected_label);
+    expect(result.match_score).toBeGreaterThanOrEqual(0);
+    expect(result.match_confidence).toBeGreaterThanOrEqual(0);
+  });
+});
+
+/**
+ * INCOME_STABILITY Persona Test Fixture
+ * 
+ * QA fixture for weighted matching when profile is income/drawdown focused.
+ */
+describe('Persona Engine - INCOME_STABILITY Fixture', () => {
+  const INCOME_STABILITY_FIXTURE = {
+    profile: {
+      age_band: '65_plus' as const,
+      portfolio_stage: 'PRIMARILY_DRAWDOWN' as const,
+      primary_goal: 'income',
+      time_horizon: '5_10',
+      risk_comfort: 'low',
+      total_portfolio_value_gbp: 900000,
+      cash_runway_months: 24,
+      largest_line_pct: 0.05,
+      illiquid_pct: 0.02,
+      asset_class_breakdown: {
+        equity_pct: 0.25,
+        bond_pct: 0.40,
+        property_pct: 0.05,
+        cash_pct: 0.30,
+        alts_pct: 0.00,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'GREEN' as const,
+      concentration_status: 'GREEN' as const,
+      illiquids_status: 'GREEN' as const,
+      personaCues: {
+        age_band: '65_plus' as const,
+        portfolio_stage: 'PRIMARILY_DRAWDOWN' as const,
+        investing_focus: ['FUNDS_ETFS' as const],
+        has_defined_benefit_pension: true,
+        db_income_coverage_band: '50_75' as const,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'FULL_SERVICE_ADVISER' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'INCOME_STABILITY',
+    expected_label: 'Income & Stability Investor',
+  };
+
+  it('should assign INCOME_STABILITY persona for drawdown-focused profile', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(INCOME_STABILITY_FIXTURE.profile);
+    
+    expect(result.code).toBe(INCOME_STABILITY_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(INCOME_STABILITY_FIXTURE.expected_label);
+    expect(result.match_score).toBeGreaterThanOrEqual(0);
+    expect(result.match_confidence).toBeGreaterThanOrEqual(0);
+  });
+});
+
+/**
+ * FOUNDER_ENTREPRENEUR Persona Test Fixture (HARD OVERRIDE)
+ * 
+ * QA fixture for hard override when business wealth dominance >= 25%.
+ */
+describe('Persona Engine - FOUNDER_ENTREPRENEUR Fixture', () => {
+  const FOUNDER_ENTREPRENEUR_FIXTURE = {
+    profile: {
+      age_band: '45_54' as const,
+      portfolio_stage: 'ACCUMULATING' as const,
+      primary_goal: 'growth',
+      time_horizon: '10_plus',
+      risk_comfort: 'high',
+      total_portfolio_value_gbp: 2000000,
+      cash_runway_months: 6,
+      largest_line_pct: 0.35,
+      illiquid_pct: 0.40,
+      asset_class_breakdown: {
+        equity_pct: 0.30,
+        bond_pct: 0.05,
+        property_pct: 0.10,
+        cash_pct: 0.10,
+        alts_pct: 0.05,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'AMBER' as const,
+      concentration_status: 'AMBER' as const,
+      illiquids_status: 'AMBER' as const,
+      personaCues: {
+        age_band: '45_54' as const,
+        portfolio_stage: 'ACCUMULATING' as const,
+        investing_focus: ['PRIVATE_BUSINESS' as const],
+        has_defined_benefit_pension: false,
+        db_income_coverage_band: null,
+        owns_business: true,
+        private_business_wealth_band: '25_50' as const,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'SOMETIMES_ADVISED' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'FOUNDER_ENTREPRENEUR',
+    expected_label: 'Founder / Entrepreneur',
+  };
+
+  it('should assign FOUNDER_ENTREPRENEUR persona via hard override for business dominance', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(FOUNDER_ENTREPRENEUR_FIXTURE.profile);
+    
+    expect(result.code).toBe(FOUNDER_ENTREPRENEUR_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(FOUNDER_ENTREPRENEUR_FIXTURE.expected_label);
+    // Hard override should have match_score and confidence of 1.0
+    expect(result.match_score).toBe(1.0);
+    expect(result.match_confidence).toBe(1.0);
+  });
+});
+
+/**
+ * PROPERTY_LED Persona Test Fixture (HARD OVERRIDE)
+ * 
+ * QA fixture for hard override when property_pct >= 30%.
+ */
+describe('Persona Engine - PROPERTY_LED Fixture', () => {
+  const PROPERTY_LED_FIXTURE = {
+    profile: {
+      age_band: '55_64' as const,
+      portfolio_stage: 'STARTING_DRAWDOWN' as const,
+      primary_goal: 'income',
+      time_horizon: '5_10',
+      risk_comfort: 'moderate',
+      total_portfolio_value_gbp: 1500000,
+      cash_runway_months: 12,
+      largest_line_pct: 0.25,
+      illiquid_pct: 0.35,
+      asset_class_breakdown: {
+        equity_pct: 0.25,
+        bond_pct: 0.10,
+        property_pct: 0.35,
+        cash_pct: 0.15,
+        alts_pct: 0.15,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'GREEN' as const,
+      concentration_status: 'AMBER' as const,
+      illiquids_status: 'AMBER' as const,
+      personaCues: {
+        age_band: '55_64' as const,
+        portfolio_stage: 'STARTING_DRAWDOWN' as const,
+        investing_focus: ['PROPERTY_BTL' as const],
+        has_defined_benefit_pension: false,
+        db_income_coverage_band: null,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'SOMETIMES_ADVISED' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'PROPERTY_LED',
+    expected_label: 'Property-Led Investor',
+  };
+
+  it('should assign PROPERTY_LED persona via hard override for property dominance', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(PROPERTY_LED_FIXTURE.profile);
+    
+    expect(result.code).toBe(PROPERTY_LED_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(PROPERTY_LED_FIXTURE.expected_label);
+    // Hard override should have match_score and confidence of 1.0
+    expect(result.match_score).toBe(1.0);
+    expect(result.match_confidence).toBe(1.0);
+  });
 });

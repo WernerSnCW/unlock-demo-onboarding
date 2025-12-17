@@ -1,0 +1,117 @@
+TASK: Persona Engine Enhancement — Batch P2.2 (Switch persona selection to weighted matching using existing traits)
+NO CODE OUTPUT IN CHAT RESPONSE.
+
+Context:
+Batch P2.1 introduced trait scoring and why_fits_bullets while keeping persona selection unchanged. All fixtures now pass. Next, we improve matching so more questionnaire inputs influence persona outcome, without expanding the persona set.
+
+Goal:
+Replace the current rule/priority-based persona selection with weighted matching based on the existing trait scores:
+- risk_appetite
+- alternatives_bias
+- property_bias
+- liquidity_comfort
+- income_orientation
+- complexity_proxy
+Persona choice should be determined by highest match score, with explainability and stability.
+
+Personas in scope (must remain the same set):
+CORE_GROWTH
+SELF_DIRECTED_GROWTH
+BALANCED_ALLOCATOR
+INCOME_STABILITY
+CAPITAL_PRESERVATION
+FOUNDER_ENTREPRENEUR
+PROPERTY_LED
+ALTERNATIVES_FOCUSED
+
+Non-negotiable constraints:
+- Do NOT add new questionnaire inputs.
+- Do NOT change Safety Lights or tilts gating.
+- Keep selection deterministic (same inputs -> same output).
+- Keep user-facing language neutral and non-advice.
+- Keep “why_fits_bullets” accurate (must reflect real inputs).
+- Maintain a single source of truth (server defines traits and persona labels/bullets).
+
+Implementation plan (do in this order):
+
+1) Keep structural hard overrides (to preserve obvious cases and avoid “surprising” matches):
+   A) If private business wealth dominance >= 25% (personaCues.private_business_wealth_band is 25_50 or GT_50 OR existing dominance calc), assign FOUNDER_ENTREPRENEUR.
+   B) Else if property_pct >= 0.30 (asset_class_breakdown.property_pct), assign PROPERTY_LED.
+   C) Else if personaCues.crypto_alloc_band == GT_25, assign ALTERNATIVES_FOCUSED.
+   NOTE: These overrides must be exactly as current triggers (no new thresholds).
+
+2) For all other cases, use weighted matching:
+   - Compute traitScores using the existing P2.1 function.
+   - Define a single “persona weight table” where each persona has weights across the 6 traits.
+   - Match score = sum(traitScore[t] * weight[t]) for the 6 traits.
+   - Weights must sum to 1.0 per persona.
+   - Pick the persona with the highest match score.
+   - Also compute match_confidence = (topScore - secondScore), clamped to 0..1, to show how decisive the match is.
+
+3) Weight table (use exactly these initial weights; do not improvise):
+   (Trait order: risk_appetite, alternatives_bias, property_bias, liquidity_comfort, income_orientation, complexity_proxy)
+
+   CORE_GROWTH:
+     0.35, 0.05, 0.05, 0.15, 0.10, 0.30
+     Rationale: growth leaning but often advised/structured; complexity matters.
+
+   SELF_DIRECTED_GROWTH:
+     0.50, 0.10, 0.05, 0.10, 0.05, 0.20
+     Rationale: risk/horizon dominate; some complexity; small alts influence but not defining.
+
+   BALANCED_ALLOCATOR:
+     0.20, 0.05, 0.05, 0.25, 0.20, 0.25
+     Rationale: “middle” profile; liquidity + stability + some complexity.
+
+   INCOME_STABILITY:
+     0.05, 0.00, 0.05, 0.30, 0.50, 0.10
+     Rationale: income/drawdown orientation dominates; liquidity important.
+
+   CAPITAL_PRESERVATION:
+     0.05, 0.00, 0.00, 0.55, 0.30, 0.10
+     Rationale: high liquidity comfort + low risk / preservation intent; stable by design.
+
+   FOUNDER_ENTREPRENEUR:
+     0.15, 0.10, 0.05, 0.05, 0.05, 0.60
+     Rationale: complexity proxy dominates (business/wealth structure).
+
+   PROPERTY_LED:
+     0.10, 0.00, 0.70, 0.05, 0.05, 0.10
+     Rationale: property bias dominates.
+
+   ALTERNATIVES_FOCUSED:
+     0.25, 0.55, 0.00, 0.05, 0.05, 0.10
+     Rationale: alternatives bias dominates; risk appetite secondary.
+
+   NOTE: Even though we have hard overrides for FOUNDER/PROPERTY/ALTS, keep weights defined anyway (future-proofing and internal reporting).
+
+4) Update PersonaResult output:
+   - Add match_score (0..1 normalised if needed) and match_confidence (0..1).
+   - Ensure persona label and one-liner remain as currently defined.
+   - Ensure why_fits_bullets includes at least one bullet referencing the top trait(s) that drove the match (e.g., income_orientation, liquidity_comfort, risk_appetite).
+   - Ensure why_fits_bullets stays strictly descriptive.
+
+5) QA / Regression:
+   - Update fixtures so expected persona outcomes reflect the new selection method.
+   - Minimum fixtures required: one fixture per persona (8 fixtures total).
+   - Each fixture must be designed to be “unambiguous” under weighted matching (avoid overlaps).
+   - For each fixture assert:
+     a) expected persona code
+     b) traitScores exist and are stable
+     c) match_score and match_confidence exist
+     d) why_fits_bullets are present and consistent with the fixture inputs
+
+Acceptance criteria:
+A) Founder and Property-led outcomes remain exactly as before for their dominance cases (hard override unchanged).
+B) Alternatives Focused triggers when crypto_alloc_band == GT_25 (hard override unchanged).
+C) For non-override cases, persona is selected by highest weighted match score.
+D) No persona output uses prescriptive language.
+E) Step 5 persona title + bullets are consistent with inputs.
+F) All tests pass and fixtures cover all personas.
+
+Deliverable response (no code):
+- List files changed (filenames only).
+- Confirm hard overrides implemented exactly as specified.
+- Confirm weight table applied exactly as provided above.
+- Confirm fixtures updated/added (list personas covered).
+- Confirm tests pass.

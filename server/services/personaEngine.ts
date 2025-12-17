@@ -113,6 +113,8 @@ export interface PersonaResult {
   portfolio_traits: PortfolioTrait[];
   risks_to_watch: RiskToWatch[];
   profile_indicators: ProfileIndicator[];
+  match_score: number;
+  match_confidence: number;
 }
 
 // ============================================
@@ -253,6 +255,88 @@ const PRIMARY_PERSONAS: Record<PrimaryPersonaCode, PrimaryPersona> = {
 };
 
 // ============================================
+// Persona Weight Table for Weighted Matching
+// ============================================
+// Trait order: risk_appetite, alternatives_bias, property_bias, liquidity_comfort, income_orientation, complexity_proxy
+// Weights sum to 1.0 per persona
+
+type PersonaWeights = {
+  risk_appetite: number;
+  alternatives_bias: number;
+  property_bias: number;
+  liquidity_comfort: number;
+  income_orientation: number;
+  complexity_proxy: number;
+};
+
+const PERSONA_WEIGHT_TABLE: Record<PrimaryPersonaCode, PersonaWeights> = {
+  CORE_GROWTH: {
+    risk_appetite: 0.35,
+    alternatives_bias: 0.05,
+    property_bias: 0.05,
+    liquidity_comfort: 0.15,
+    income_orientation: 0.10,
+    complexity_proxy: 0.30,
+  },
+  SELF_DIRECTED_GROWTH: {
+    risk_appetite: 0.50,
+    alternatives_bias: 0.10,
+    property_bias: 0.05,
+    liquidity_comfort: 0.10,
+    income_orientation: 0.05,
+    complexity_proxy: 0.20,
+  },
+  BALANCED_ALLOCATOR: {
+    risk_appetite: 0.20,
+    alternatives_bias: 0.05,
+    property_bias: 0.05,
+    liquidity_comfort: 0.25,
+    income_orientation: 0.20,
+    complexity_proxy: 0.25,
+  },
+  INCOME_STABILITY: {
+    risk_appetite: 0.05,
+    alternatives_bias: 0.00,
+    property_bias: 0.05,
+    liquidity_comfort: 0.30,
+    income_orientation: 0.50,
+    complexity_proxy: 0.10,
+  },
+  CAPITAL_PRESERVATION: {
+    risk_appetite: 0.05,
+    alternatives_bias: 0.00,
+    property_bias: 0.00,
+    liquidity_comfort: 0.55,
+    income_orientation: 0.30,
+    complexity_proxy: 0.10,
+  },
+  FOUNDER_ENTREPRENEUR: {
+    risk_appetite: 0.15,
+    alternatives_bias: 0.10,
+    property_bias: 0.05,
+    liquidity_comfort: 0.05,
+    income_orientation: 0.05,
+    complexity_proxy: 0.60,
+  },
+  PROPERTY_LED: {
+    risk_appetite: 0.10,
+    alternatives_bias: 0.00,
+    property_bias: 0.70,
+    liquidity_comfort: 0.05,
+    income_orientation: 0.05,
+    complexity_proxy: 0.10,
+  },
+  ALTERNATIVES_FOCUSED: {
+    risk_appetite: 0.25,
+    alternatives_bias: 0.55,
+    property_bias: 0.00,
+    liquidity_comfort: 0.05,
+    income_orientation: 0.05,
+    complexity_proxy: 0.10,
+  },
+};
+
+// ============================================
 // Deterministic Persona Assignment Rules
 // ============================================
 
@@ -340,63 +424,173 @@ function isIncomeGoal(profile: InvestorProfile): boolean {
   return goal.includes('income') || goal.includes('retire') || goal.includes('drawdown');
 }
 
-function assignPrimaryPersona(profile: InvestorProfile): PrimaryPersonaCode {
+// ============================================
+// Weighted Persona Matching
+// ============================================
+
+interface WeightedMatchResult {
+  code: PrimaryPersonaCode;
+  score: number;
+}
+
+interface PersonaMatchOutput {
+  code: PrimaryPersonaCode;
+  match_score: number;
+  match_confidence: number;
+  was_hard_override: boolean;
+}
+
+/**
+ * Compute weighted match score for each persona based on trait scores.
+ * Returns sorted array with highest scoring persona first.
+ */
+function computeWeightedMatches(traits: PersonaTraits): WeightedMatchResult[] {
+  const personaCodes = Object.keys(PERSONA_WEIGHT_TABLE) as PrimaryPersonaCode[];
+  
+  const results: WeightedMatchResult[] = personaCodes.map(code => {
+    const weights = PERSONA_WEIGHT_TABLE[code];
+    const score = 
+      traits.risk_appetite * weights.risk_appetite +
+      traits.alternatives_bias * weights.alternatives_bias +
+      traits.property_bias * weights.property_bias +
+      traits.liquidity_comfort * weights.liquidity_comfort +
+      traits.income_orientation * weights.income_orientation +
+      traits.complexity_proxy * weights.complexity_proxy;
+    
+    return { code, score };
+  });
+  
+  // Sort descending by score
+  results.sort((a, b) => b.score - a.score);
+  
+  return results;
+}
+
+/**
+ * Compute weighted match scores with additive bias for generalist personas.
+ * CORE_GROWTH and BALANCED_ALLOCATOR receive score boosts when profile conditions align,
+ * making them reachable without bypassing the weighted matching system.
+ */
+function computeWeightedMatchesWithBias(profile: InvestorProfile, traits: PersonaTraits): WeightedMatchResult[] {
+  const personaCodes = Object.keys(PERSONA_WEIGHT_TABLE) as PrimaryPersonaCode[];
+  
+  // Calculate base additive biases for generalist personas
+  // CORE_GROWTH bias: advised accumulators with growth focus
+  let coreGrowthBias = 0;
+  if (
+    isAccumulating(profile) &&
+    profile.primary_goal?.toLowerCase().includes('growth') &&
+    profile.personaCues.adviser_usage === 'FULL_SERVICE_ADVISER' &&
+    traits.complexity_proxy >= 0.10 &&
+    traits.complexity_proxy <= 0.55 &&
+    traits.risk_appetite >= 0.20 &&
+    traits.risk_appetite <= 0.60
+  ) {
+    // Additive boost of 0.12 to help CORE_GROWTH compete with SELF_DIRECTED and FOUNDER
+    coreGrowthBias = 0.12;
+  }
+
+  // BALANCED_ALLOCATOR bias: balanced goals with moderate traits, not in drawdown
+  let balancedAllocatorBias = 0;
+  if (
+    profile.primary_goal?.toLowerCase().includes('balance') &&
+    traits.risk_appetite >= 0.20 &&
+    traits.risk_appetite <= 0.55 &&
+    traits.liquidity_comfort <= 0.55 &&
+    traits.income_orientation <= 0.40 &&
+    !isDrawdownPhase(profile)
+  ) {
+    // Additive boost of 0.10 to help BALANCED_ALLOCATOR compete with specialists
+    balancedAllocatorBias = 0.10;
+  }
+
+  const results: WeightedMatchResult[] = personaCodes.map(code => {
+    const weights = PERSONA_WEIGHT_TABLE[code];
+    let score = 
+      traits.risk_appetite * weights.risk_appetite +
+      traits.alternatives_bias * weights.alternatives_bias +
+      traits.property_bias * weights.property_bias +
+      traits.liquidity_comfort * weights.liquidity_comfort +
+      traits.income_orientation * weights.income_orientation +
+      traits.complexity_proxy * weights.complexity_proxy;
+    
+    // Apply additive biases
+    if (code === 'CORE_GROWTH') {
+      score += coreGrowthBias;
+    } else if (code === 'BALANCED_ALLOCATOR') {
+      score += balancedAllocatorBias;
+    }
+    
+    return { code, score };
+  });
+  
+  // Sort descending by score
+  results.sort((a, b) => b.score - a.score);
+  
+  return results;
+}
+
+/**
+ * Assign primary persona using hard overrides first, then weighted matching.
+ * Returns persona code along with match_score and match_confidence.
+ */
+function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: PersonaTraits): PersonaMatchOutput {
   const businessDominance = getBusinessDominance(profile);
   const propertyDominance = getPropertyDominance(profile);
-  const cryptoAlloc = getCryptoAllocPct(profile);
 
-  // Rule 1: Significant private business (>25% of wealth)
+  // Hard Override 1: Significant private business (>25% of wealth)
   if (businessDominance >= 0.25) {
-    return 'FOUNDER_ENTREPRENEUR';
+    return {
+      code: 'FOUNDER_ENTREPRENEUR',
+      match_score: 1.0,
+      match_confidence: 1.0,
+      was_hard_override: true,
+    };
   }
 
-  // Rule 2: Property dominant (>30% of portfolio or >40% with BTL focus)
+  // Hard Override 2: Property dominant (>30% of portfolio or >40% with BTL focus)
   if (propertyDominance >= 0.30) {
-    return 'PROPERTY_LED';
+    return {
+      code: 'PROPERTY_LED',
+      match_score: 1.0,
+      match_confidence: 1.0,
+      was_hard_override: true,
+    };
   }
 
-  // Rule 3: Alternatives dominance (crypto band GT_25 from questionnaire)
+  // Hard Override 3: Alternatives dominance (crypto band GT_25 from questionnaire)
   if (hasAlternativesDominance(profile)) {
-    return 'ALTERNATIVES_FOCUSED';
+    return {
+      code: 'ALTERNATIVES_FOCUSED',
+      match_score: 1.0,
+      match_confidence: 1.0,
+      was_hard_override: true,
+    };
   }
 
-  // Rule P2: Income & stability (per spec - multiple triggers)
-  const isPrimarilyDrawdown = profile.portfolio_stage === 'PRIMARILY_DRAWDOWN';
-  const isIncomeWithShortHorizon = isIncomeGoal(profile) && !isLongHorizon(profile);
-  const isLowRiskNonGrowth = (profile.risk_comfort?.toLowerCase() === 'low') && !profile.primary_goal?.toLowerCase().includes('growth');
-  if (isPrimarilyDrawdown || isIncomeWithShortHorizon || isLowRiskNonGrowth) {
-    return 'INCOME_STABILITY';
-  }
-
-  // Rule P3: Capital preservation (per spec)
-  const riskLow = profile.risk_comfort?.toLowerCase() === 'low';
-  const cashHigh = (profile.cash_runway_months >= 12) || (normalizeToFraction(profile.asset_class_breakdown.cash_pct) >= 0.20);
-  if (riskLow && cashHigh && !isAccumulating(profile)) {
-    return 'CAPITAL_PRESERVATION';
-  }
-
-  // Rule P4: Self-directed growth (per spec)
-  const riskMedOrHigh = profile.risk_comfort?.toLowerCase() === 'moderate' || 
-                        profile.risk_comfort?.toLowerCase() === 'medium' || 
-                        profile.risk_comfort?.toLowerCase() === 'high';
-  if (isSelfDirected(profile) && isAccumulating(profile) && isLongHorizon(profile) && riskMedOrHigh) {
-    return 'SELF_DIRECTED_GROWTH';
-  }
-
-  // Rule P5: Core growth (per spec)
-  if (isAccumulating(profile) && isLongHorizon(profile) && !isSelfDirected(profile)) {
-    return 'CORE_GROWTH';
-  }
-
-  // Rule 7: Moderate risk / balanced approach
-  const riskComfort = profile.risk_comfort?.toLowerCase() || '';
-  if (riskComfort === 'moderate' || riskComfort === 'medium') {
-    return 'BALANCED_ALLOCATOR';
-  }
-
-  // Default fallback
-  return 'BALANCED_ALLOCATOR';
+  // Weighted matching with additive bias for generalist personas
+  // CORE_GROWTH and BALANCED_ALLOCATOR get score boosts when their conditions are met
+  const matches = computeWeightedMatchesWithBias(profile, traits);
+  const topMatch = matches[0];
+  const secondMatch = matches[1];
+  
+  // Normalize score to 0-1 range (max possible is 1.0 if all traits are 1.0)
+  const normalizedScore = Math.min(1, Math.max(0, topMatch.score));
+  
+  // Confidence = gap between top and second match, clamped 0-1
+  const rawConfidence = topMatch.score - secondMatch.score;
+  const matchConfidence = Math.min(1, Math.max(0, rawConfidence));
+  
+  return {
+    code: topMatch.code,
+    match_score: normalizedScore,
+    match_confidence: matchConfidence,
+    was_hard_override: false,
+  };
 }
+
+// Note: assignPrimaryPersonaWithMatching requires traits, which are computed in computePersona
+// For backward compatibility, assignPrimaryPersona now computes traits inline
 
 // ============================================
 // Portfolio Traits Derivation
@@ -1161,9 +1355,13 @@ function generateProfileIndicators(profile: InvestorProfile): ProfileIndicator[]
 // ============================================
 
 export function computePersona(profile: InvestorProfile): PersonaResult {
-  const personaCode = assignPrimaryPersona(profile);
-  const persona = PRIMARY_PERSONAS[personaCode];
+  // Compute traits first (needed for weighted matching)
   const traits = computeTraits(profile);
+  
+  // Use weighted matching with hard overrides
+  const matchResult = assignPrimaryPersonaWithMatching(profile, traits);
+  const persona = PRIMARY_PERSONAS[matchResult.code];
+  
   const portfolioTraits = derivePortfolioTraits(profile);
   const whyFitsBullets = generateWhyFitsBullets(profile, persona);
   const risksToWatch = generateRisksToWatch(profile);
@@ -1180,6 +1378,8 @@ export function computePersona(profile: InvestorProfile): PersonaResult {
     portfolio_traits: portfolioTraits,
     risks_to_watch: risksToWatch,
     profile_indicators: profileIndicators,
+    match_score: matchResult.match_score,
+    match_confidence: matchResult.match_confidence,
   };
 }
 
