@@ -438,15 +438,27 @@ export default function Target() {
                 <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
                   <li className="flex items-start gap-2">
                     <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
-                    <span>This page provides an illustrative portfolio scenario based on the information provided.</span>
+                    <span>This page shows three illustrative portfolio direction scenarios based on the information provided.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
-                    <span>It reflects the constraints and preferences captured in onboarding.</span>
+                    <span>"Current" is your portfolio today (based on the holdings you entered).</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
-                    <span>It does not account for the full suitability assessment required for regulated advice, and it does not instruct you to buy or sell any asset.</span>
+                    <span>"Illustrative" ranges show plausible direction of travel within constraints — they are not targets.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                    <span>Ranges may be narrow when a Safety Light is RED, because guardrails take precedence over preferences.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                    <span>Use the scenarios to understand which preferences are being applied, constrained, or locked — and why.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                    <span>Next, Step 8 summarises the key constraints and shows a simple, non-prescriptive action plan to improve flexibility (without instructing you to buy or sell any asset).</span>
                   </li>
                 </ul>
               </div>
