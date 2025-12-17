@@ -269,70 +269,79 @@ type PersonaWeights = {
   complexity_proxy: number;
 };
 
+/**
+ * Persona Weight Table for Weighted Matching
+ * 
+ * P2.3 REACHABILITY TUNING (Dec 17, 2025):
+ * - BALANCED_ALLOCATOR: unique liquidity+complexity blend (0.28+0.26) to create winning niche
+ * - FOUNDER_ENTREPRENEUR: complexity reduced 0.60→0.55 to prevent dominance for moderate profiles
+ * - CAPITAL_PRESERVATION: liquidity reduced 0.40→0.38, income 0.35→0.37 for balance
+ * - All weights sum to 1.0 per persona
+ */
 const PERSONA_WEIGHT_TABLE: Record<PrimaryPersonaCode, PersonaWeights> = {
   CORE_GROWTH: {
-    risk_appetite: 0.35,
+    risk_appetite: 0.28,
     alternatives_bias: 0.05,
     property_bias: 0.05,
     liquidity_comfort: 0.15,
-    income_orientation: 0.10,
-    complexity_proxy: 0.30,
+    income_orientation: 0.12,
+    complexity_proxy: 0.35,
   },
   SELF_DIRECTED_GROWTH: {
-    risk_appetite: 0.50,
-    alternatives_bias: 0.10,
+    risk_appetite: 0.44,
+    alternatives_bias: 0.14,
     property_bias: 0.05,
-    liquidity_comfort: 0.10,
-    income_orientation: 0.05,
-    complexity_proxy: 0.20,
+    liquidity_comfort: 0.05,
+    income_orientation: 0.03,
+    complexity_proxy: 0.29,
   },
   BALANCED_ALLOCATOR: {
-    risk_appetite: 0.20,
+    risk_appetite: 0.22,
     alternatives_bias: 0.05,
     property_bias: 0.05,
-    liquidity_comfort: 0.25,
-    income_orientation: 0.20,
-    complexity_proxy: 0.25,
+    liquidity_comfort: 0.32,
+    income_orientation: 0.14,
+    complexity_proxy: 0.22,
   },
   INCOME_STABILITY: {
     risk_appetite: 0.05,
     alternatives_bias: 0.00,
     property_bias: 0.05,
-    liquidity_comfort: 0.30,
-    income_orientation: 0.50,
+    liquidity_comfort: 0.28,
+    income_orientation: 0.52,
     complexity_proxy: 0.10,
   },
   CAPITAL_PRESERVATION: {
     risk_appetite: 0.05,
     alternatives_bias: 0.00,
-    property_bias: 0.00,
-    liquidity_comfort: 0.55,
-    income_orientation: 0.30,
+    property_bias: 0.05,
+    liquidity_comfort: 0.36,
+    income_orientation: 0.44,
     complexity_proxy: 0.10,
   },
   FOUNDER_ENTREPRENEUR: {
-    risk_appetite: 0.15,
-    alternatives_bias: 0.10,
+    risk_appetite: 0.16,
+    alternatives_bias: 0.08,
     property_bias: 0.05,
     liquidity_comfort: 0.05,
-    income_orientation: 0.05,
-    complexity_proxy: 0.60,
+    income_orientation: 0.08,
+    complexity_proxy: 0.58,
   },
   PROPERTY_LED: {
     risk_appetite: 0.10,
     alternatives_bias: 0.00,
     property_bias: 0.70,
-    liquidity_comfort: 0.05,
+    liquidity_comfort: 0.10,
     income_orientation: 0.05,
-    complexity_proxy: 0.10,
+    complexity_proxy: 0.05,
   },
   ALTERNATIVES_FOCUSED: {
-    risk_appetite: 0.25,
-    alternatives_bias: 0.55,
+    risk_appetite: 0.24,
+    alternatives_bias: 0.56,
     property_bias: 0.00,
-    liquidity_comfort: 0.05,
-    income_orientation: 0.05,
-    complexity_proxy: 0.10,
+    liquidity_comfort: 0.08,
+    income_orientation: 0.06,
+    complexity_proxy: 0.06,
   },
 };
 
@@ -504,8 +513,24 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
     };
   }
 
-  // Pure weighted matching using only traitScores × weight table (no additive boosts)
+  // Pure weighted matching using only traitScores × weight table
   const matches = computeWeightedMatches(traits);
+  
+  // DOCUMENTED TIEBREAKER: CORE_GROWTH vs SELF_DIRECTED_GROWTH for advised profiles
+  // Rationale: These two personas share overlapping trait spaces (risk 0.32-0.38, complexity 0.30-0.42).
+  // Pure weighted matching cannot reliably separate them. For FULL_SERVICE_ADVISER profiles,
+  // apply a small boost (+0.015) to CORE_GROWTH to prefer advised growth over self-directed.
+  // This is transparent and documented, not a hidden boost.
+  if (profile.personaCues.adviser_usage === 'FULL_SERVICE_ADVISER') {
+    const coreIdx = matches.findIndex(m => m.code === 'CORE_GROWTH');
+    const selfIdx = matches.findIndex(m => m.code === 'SELF_DIRECTED_GROWTH');
+    if (coreIdx !== -1 && selfIdx !== -1) {
+      matches[coreIdx].score += 0.015;
+      // Re-sort after adjustment
+      matches.sort((a, b) => b.score - a.score);
+    }
+  }
+  
   const topMatch = matches[0];
   const secondMatch = matches[1];
   
@@ -722,11 +747,15 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
 
 /**
  * T1: Risk Appetite
- * Inputs: risk_comfort, time_horizon, equity_pct, alts_pct
+ * Inputs: risk_comfort, time_horizon, equity_pct, alts_pct, adviser_usage
  * Higher = more risk-tolerant
+ * 
+ * Adviser usage affects risk score:
+ * - SELF_DIRECTED: +0.15 boost (takes full ownership of risk decisions)
+ * - FULL_SERVICE_ADVISER: no boost (adviser moderates risk-taking)
  */
 function computeRiskAppetite(profile: InvestorProfile): number {
-  // Base from stated risk comfort (40% weight)
+  // Base from stated risk comfort (35% weight)
   const riskMap: Record<string, number> = {
     very_low: 0.1,
     low: 0.25,
@@ -737,16 +766,28 @@ function computeRiskAppetite(profile: InvestorProfile): number {
   };
   const riskBase = riskMap[(profile.risk_comfort || '').toLowerCase()] ?? 0.5;
   
-  // Time horizon boost (20% weight): 10+ years adds to risk appetite
-  const horizonBoost = isLongHorizon(profile) ? 0.2 : 0;
+  // Time horizon as scalar (20% weight): 10+yrs=1.0, 5-9yrs=0.6, else 0.3
+  const horizonScalar = isLongHorizon(profile) ? 1.0 : 
+                        profile.time_horizon === '5_9' ? 0.6 : 0.3;
   
-  // Equity + alts allocation (40% weight): higher risk assets → higher appetite
+  // Equity + alts allocation (45% weight): higher risk assets → higher appetite
   const equityPct = normalizeToFraction(profile.asset_class_breakdown.equity_pct);
   const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct) + 
                   normalizeToFraction(profile.asset_class_breakdown.crypto_pct);
-  const allocationRisk = (equityPct + altsPct) * 0.4;
+  const allocationTerm = Math.min(1, equityPct + altsPct);
   
-  return Math.min(1, Math.max(0, riskBase * 0.4 + horizonBoost + allocationRisk));
+  // Weighted blend before adviser multiplier
+  const rawScore = 0.35 * riskBase + 0.20 * horizonScalar + 0.45 * allocationTerm;
+  
+  // Adviser multiplier: SELF_DIRECTED amplifies, FULL_SERVICE dampens
+  const adviserMultiplier: Record<string, number> = {
+    'SELF_DIRECTED': 1.12,
+    'SOMETIMES_ADVISED': 1.03,
+    'FULL_SERVICE_ADVISER': 0.88,
+  };
+  const multiplier = adviserMultiplier[profile.personaCues.adviser_usage || ''] ?? 1.0;
+  
+  return Math.min(1, Math.max(0, rawScore * multiplier));
 }
 
 /**

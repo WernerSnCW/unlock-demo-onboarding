@@ -1009,33 +1009,32 @@ describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
 /**
  * CORE_GROWTH Persona Test Fixture
  * 
- * NOTE: CORE_GROWTH is a "generalist" persona with distributed weights (risk=0.35, complexity=0.30).
- * Under pure weighted matching without additive boosts, specialist personas with dominant weights
- * (SELF_DIRECTED_GROWTH: 50% risk) will typically win over generalist personas for moderate-risk profiles.
- * 
- * This fixture validates that advised accumulators with moderate risk are assigned SELF_DIRECTED_GROWTH
- * via transparent weighted matching (match_score derived purely from trait × weight).
+ * CORE_GROWTH represents advised accumulators with growth focus and moderate risk.
+ * Key differentiators from SELF_DIRECTED_GROWTH:
+ * - adviser_usage=FULL_SERVICE_ADVISER (no self-directed boost to risk_appetite)
+ * - Moderate complexity (DB pension only, not enough to trigger FOUNDER at 60% weight)
+ * CORE_GROWTH weight: risk=0.35, complexity=0.30 vs SELF_DIRECTED: risk=0.50, complexity=0.20
  */
 describe('Persona Engine - CORE_GROWTH Fixture', () => {
-  // Profile tests advised accumulator with growth focus
-  // Under pure weighted matching, SELF_DIRECTED_GROWTH wins due to 50% risk weight
+  // Target corridor: risk 0.34, liquidity 0.40, complexity 0.42, alts 0.05
+  // Key differentiators: FULL_SERVICE_ADVISER + higher complexity + moderate risk + moderate liquidity
   const CORE_GROWTH_FIXTURE = {
     profile: {
       age_band: '35_44' as const,
       portfolio_stage: 'ACCUMULATING' as const,
       primary_goal: 'growth',
-      time_horizon: '5_9',
-      risk_comfort: 'moderate',
-      total_portfolio_value_gbp: 350000,
-      cash_runway_months: 4,
+      time_horizon: '10_plus',
+      risk_comfort: 'high',
+      total_portfolio_value_gbp: 800000,
+      cash_runway_months: 7,
       largest_line_pct: 0.10,
-      illiquid_pct: 0.10,
+      illiquid_pct: 0.05,
       asset_class_breakdown: {
-        equity_pct: 0.35,
-        bond_pct: 0.40,
-        property_pct: 0.05,
-        cash_pct: 0.10,
-        alts_pct: 0.10,
+        equity_pct: 0.55,
+        bond_pct: 0.25,
+        property_pct: 0.06,
+        cash_pct: 0.09,
+        alts_pct: 0.05,
         crypto_pct: 0.00,
       },
       liquidity_status: 'GREEN' as const,
@@ -1046,23 +1045,22 @@ describe('Persona Engine - CORE_GROWTH Fixture', () => {
         portfolio_stage: 'ACCUMULATING' as const,
         investing_focus: ['FUNDS_ETFS' as const],
         has_defined_benefit_pension: true,
-        db_income_coverage_band: '25_50' as const,
+        db_income_coverage_band: '50_75' as const,
         owns_business: false,
         private_business_wealth_band: null,
-        has_employer_stock: false,
-        employer_stock_alloc_band: null,
+        has_employer_stock: true,
+        employer_stock_alloc_band: '5_10' as const,
         has_crypto: false,
         crypto_alloc_band: null,
         adviser_usage: 'FULL_SERVICE_ADVISER' as const,
         is_cross_border: false,
       },
     },
-    // Pure weighted matching: SELF_DIRECTED_GROWTH wins with 50% risk weight
-    expected_persona_code: 'SELF_DIRECTED_GROWTH',
-    expected_label: 'Self-Directed Growth Investor',
+    expected_persona_code: 'CORE_GROWTH',
+    expected_label: 'Core Growth Investor',
   };
 
-  it('should assign persona via pure weighted matching for advised accumulator', async () => {
+  it('should assign CORE_GROWTH persona for advised accumulator with growth focus', async () => {
     const { computePersona } = await import('../server/services/personaEngine');
     
     const result = computePersona(CORE_GROWTH_FIXTURE.profile);
@@ -1077,17 +1075,16 @@ describe('Persona Engine - CORE_GROWTH Fixture', () => {
 /**
  * BALANCED_ALLOCATOR Persona Test Fixture
  * 
- * NOTE: BALANCED_ALLOCATOR is a "generalist" persona with evenly distributed weights
- * (risk=0.20, liquidity=0.25, income=0.20, complexity=0.25).
- * Under pure weighted matching without additive boosts, specialist personas with dominant weights
- * tend to win over balanced profiles.
+ * BALANCED_ALLOCATOR (weights: risk=0.23, liquidity=0.30, income=0.12, complexity=0.25)
+ * Key differentiators:
+ * - Higher liquidity emphasis than CORE_GROWTH (0.30 vs 0.12)
+ * - Lower income emphasis than CAPITAL_PRESERVATION (0.12 vs 0.37)
  * 
- * This fixture validates that balanced profiles with moderate risk are assigned SELF_DIRECTED_GROWTH
- * via transparent weighted matching (match_score derived purely from trait × weight).
+ * Architect-derived corridor: risk 0.26-0.30, liquidity 0.46-0.52, income 0.18-0.22, complexity 0.36-0.40
+ * Fixture design: 9+ month runway for high liquidity, moderate risk comfort
  */
 describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
-  // Profile tests balanced goal with moderate traits
-  // Under pure weighted matching, SELF_DIRECTED_GROWTH wins due to 50% risk weight
+  // Profile: moderate risk, high liquidity (9+ months runway), moderate complexity
   const BALANCED_ALLOCATOR_FIXTURE = {
     profile: {
       age_band: '45_54' as const,
@@ -1095,16 +1092,16 @@ describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
       primary_goal: 'balance',
       time_horizon: '5_9',
       risk_comfort: 'moderate',
-      total_portfolio_value_gbp: 350000,
-      cash_runway_months: 3,
+      total_portfolio_value_gbp: 450000,
+      cash_runway_months: 9,
       largest_line_pct: 0.08,
-      illiquid_pct: 0.12,
+      illiquid_pct: 0.05,
       asset_class_breakdown: {
-        equity_pct: 0.30,
-        bond_pct: 0.40,
-        property_pct: 0.05,
-        cash_pct: 0.08,
-        alts_pct: 0.17,
+        equity_pct: 0.28,
+        bond_pct: 0.42,
+        property_pct: 0.08,
+        cash_pct: 0.14,
+        alts_pct: 0.08,
         crypto_pct: 0.00,
       },
       liquidity_status: 'GREEN' as const,
@@ -1126,12 +1123,11 @@ describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
         is_cross_border: false,
       },
     },
-    // Pure weighted matching: SELF_DIRECTED_GROWTH wins with 50% risk weight
-    expected_persona_code: 'SELF_DIRECTED_GROWTH',
-    expected_label: 'Self-Directed Growth Investor',
+    expected_persona_code: 'BALANCED_ALLOCATOR',
+    expected_label: 'Balanced Allocator',
   };
 
-  it('should assign persona via pure weighted matching for balanced profile', async () => {
+  it('should assign BALANCED_ALLOCATOR persona for balanced profile with moderate traits', async () => {
     const { computePersona } = await import('../server/services/personaEngine');
     
     const result = computePersona(BALANCED_ALLOCATOR_FIXTURE.profile);

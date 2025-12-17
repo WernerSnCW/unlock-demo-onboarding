@@ -1,0 +1,50 @@
+TASK: P2.3 Persona Reachability Fix — Make CORE_GROWTH and BALANCED_ALLOCATOR reachable under transparent weighted matching (NO boosts)
+NO CODE OUTPUT IN CHAT RESPONSE.
+
+Problem:
+After removing additive boosts, CORE_GROWTH and BALANCED_ALLOCATOR fixtures now resolve to SELF_DIRECTED_GROWTH. This indicates persona collapse and reduces credibility.
+
+Goal:
+Without reintroducing any boost logic, adjust (A) trait scoring and/or (B) the weight table minimally so that:
+- CORE_GROWTH can win for advised accumulating growth investors with moderate risk.
+- BALANCED_ALLOCATOR can win for moderate risk, balanced profiles.
+- SELF_DIRECTED_GROWTH remains the winner for self-directed, accumulating, long-horizon, higher risk profiles.
+
+Constraints:
+- Do NOT add new questionnaire inputs.
+- Do NOT add or remove personas.
+- Do NOT add boosts or hidden adjustments.
+- Keep hard overrides unchanged.
+- Keep scoring fully transparent: match_score = sum(trait[t] * weight[t]).
+
+Implementation steps:
+1) Diagnose why CORE_GROWTH and BALANCED_ALLOCATOR are losing:
+   - For the current CORE_GROWTH and BALANCED_ALLOCATOR fixtures, print/log the trait scores and per-persona match scores (in test output or debug logs) to identify which trait is driving SELF_DIRECTED_GROWTH to dominate.
+
+2) Make minimal, explicit adjustments (choose the smallest change that works):
+   Option A (preferred): Improve trait scoring sensitivity to adviser_usage and “moderate” risk:
+   - Ensure risk_appetite is lower for FULL_SERVICE_ADVISER and for risk='moderate' than for SELF_DIRECTED and risk='high'.
+   - Ensure income_orientation remains low for non-drawdown growth profiles.
+   - Ensure liquidity_comfort contributes meaningfully for balanced profiles.
+
+   Option B: Small weight tuning (only if needed after Option A):
+   - Adjust weights slightly so CORE_GROWTH and BALANCED_ALLOCATOR can win in their intended profiles, while keeping weights summing to 1.0 per persona.
+   - Keep changes minimal and document them in a short note.
+
+3) Update fixtures properly (do NOT change expectations to “whatever the engine returns”):
+   - Revise CORE_GROWTH fixture inputs so it represents advised accumulating growth with moderate risk (e.g., adviser_usage=FULL_SERVICE_ADVISER, accumulating, growth, moderate risk).
+   - Revise BALANCED_ALLOCATOR fixture inputs so it represents a clear “balanced” case (moderate risk, not drawdown, not income goal, reasonable liquidity).
+   - Expected outcomes:
+     CORE_GROWTH fixture -> CORE_GROWTH
+     BALANCED_ALLOCATOR fixture -> BALANCED_ALLOCATOR
+   - Ensure SELF_DIRECTED_GROWTH fixture remains SELF_DIRECTED_GROWTH (self-directed + accumulating + long horizon + higher risk).
+
+Acceptance criteria:
+A) No boosts exist anywhere.
+B) All three personas (CORE_GROWTH, BALANCED_ALLOCATOR, SELF_DIRECTED_GROWTH) are reachable via realistic, distinct fixtures.
+C) All tests pass.
+
+Deliverable response (no code):
+- Explain briefly what was adjusted (trait scoring vs weights) and why.
+- Confirm which fixtures were updated and their expected personas.
+- Confirm tests pass.
