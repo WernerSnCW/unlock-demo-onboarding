@@ -1,0 +1,39 @@
+Step 6 Beliefs Audit — please verify against code (no code in reply)
+
+I need you to confirm whether Step 6 beliefs implementation exactly matches the agreed spec. Please check the codebase and answer each item explicitly (Yes/No + where in code, with file path + function name + key lines).
+
+A) Normalisation
+1) Are 1–5 answers normalised exactly as: normalised = (raw - 3) / 2 ?
+2) Are the exact mappings used:
+   1→-1.00, 2→-0.50, 3→0.00, 4→+0.50, 5→+1.00 ?
+3) Is any other dampening/smoothing/capping applied anywhere after normalisation?
+
+B) Axis mapping
+4) Confirm each question maps 1:1 to a single axis (no blending):
+   Q1→Volatility comfort (then converted to Volatility Aversion)
+   Q2→Quality Tilt
+   Q3→Value Tilt
+   Q4→Technology Tilt
+   Q5→UK Bias
+   Q6→ESG/Sustainability Tilt
+   Q7→Inflation Hedge Tilt
+   Q8→Small Cap Tilt
+5) Confirm ONLY Volatility Aversion is inverted (score = -1 * volatility_comfort_score). Confirm no other axes are inverted.
+
+C) Direction + intensity thresholds
+6) Direction thresholds: > +0.20 TOWARDS, < -0.20 AWAY, else NEUTRAL — confirm exact values used.
+7) Intensity thresholds: |score| <0.20 Neutral; 0.20–0.49 Light; 0.50–0.79 Moderate; >=0.80 Strong — confirm exact values used.
+
+D) Locking / gating behaviour
+8) When ANY Safety Light is RED, are belief tilts recorded but locked (not applied downstream)?
+9) Where is this check implemented (Step 6 only, Step 7 only, or both)?
+10) Confirm Step 7 receives either (a) no tilts, or (b) tilts with applied=false, when locked. Be specific about the data passed.
+
+E) Transparency fidelity
+11) Confirm the axis scores shown in the Transparency table are the exact values passed downstream (no separate scoring logic in UI).
+12) Confirm rounding rules: what precision is stored vs displayed?
+
+Deliverable:
+- A short numbered list answering 1–12 (Yes/No).
+- For each “Yes/No”, include file path + function name and approximate line numbers.
+- If any item is “No”, propose the smallest fix needed (no refactor).
