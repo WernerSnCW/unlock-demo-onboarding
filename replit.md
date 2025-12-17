@@ -62,13 +62,12 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 - Integrated persona computation into Analysis page with asset class breakdown derived from holdings
 - All persona cues are optional - validation doesn't block navigation
 
-**Weighted Persona Matching Complete (Dec 17, 2025):** Enhanced persona engine with transparent weighted matching system:
+**Weighted Persona Matching Complete (Dec 17, 2025):** Enhanced persona engine with fully transparent weighted matching system:
 - Implemented PERSONA_WEIGHT_TABLE with 8 personas and trait weights summing to 1.0 per persona
-- Created computeWeightedMatchesWithBias() function applying additive boosts to generalist personas (CORE_GROWTH +0.12, BALANCED_ALLOCATOR +0.10)
-- Hard overrides (FOUNDER_ENTREPRENEUR, PROPERTY_LED, ALTERNATIVES_FOCUSED) trigger first for obvious dominance cases (>25% business, >30% property, GT_25 crypto)
-- Added match_score and match_confidence metrics reflecting real weighted calculations
-- Bias conditions: CORE_GROWTH requires accumulating + growth goal + FULL_SERVICE_ADVISER; BALANCED_ALLOCATOR requires balance goal + moderate traits
-- All 42 persona tests passing with transparent scoring and full persona coverage
+- Pure weighted matching: match_score = sum(trait[t] × weight[t]), match_confidence = (topScore - secondScore)
+- No hidden boosts: persona scoring is fully transparent and explainable
+- Hard overrides (FOUNDER_ENTREPRENEUR, PROPERTY_LED, ALTERNATIVES_FOCUSED) trigger first for obvious dominance cases (>25% business, >30% property, GT_25 crypto band from questionnaire)
+- All 42 persona tests passing with transparent scoring
 
 # User Preferences
 
