@@ -568,9 +568,8 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
     };
   }
 
-  // Weighted matching with additive bias for generalist personas
-  // CORE_GROWTH and BALANCED_ALLOCATOR get score boosts when their conditions are met
-  const matches = computeWeightedMatchesWithBias(profile, traits);
+  // Pure weighted matching using only traitScores × weight table (no additive boosts)
+  const matches = computeWeightedMatches(traits);
   const topMatch = matches[0];
   const secondMatch = matches[1];
   
