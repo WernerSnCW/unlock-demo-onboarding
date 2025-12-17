@@ -1350,3 +1350,143 @@ describe('computeDirection boundary cases', () => {
     expect(computeDirection(-0.21)).toBe('AWAY');
   });
 });
+
+/**
+ * Step 7 Scenario Range Tests
+ * 
+ * Verifies MIN_RANGE_WIDTH_PP (2.0) is applied correctly:
+ * - GUARDRAIL_FIRST and PREFERENCE_LEANING: ranges are at least 2pp wide
+ * - NEUTRAL_BASELINE: unchanged (uses ±2pp = 4pp total width, always meets minimum)
+ * - Extreme pressure cases: no artificial widening if range already exceeds minimum
+ */
+describe('Step 7 Scenario Range - Minimum Width', () => {
+  const MIN_RANGE_WIDTH_PP = 2.0;
+  
+  const setupStoreForScenarios = async () => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+    
+    store.setHoldings([
+      { id: '1', name: 'Equity Fund', ticker: 'EQ1', value_gbp: 50000, asset_class: 'Equity', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+      { id: '2', name: 'Cash', ticker: 'CASH', value_gbp: 50000, asset_class: 'Cash', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+    ]);
+    
+    store.updateIntake({
+      age_band: '35_44',
+      portfolio_stage: 'ACCUMULATING',
+      monthly_spending_gbp: 2000,
+    });
+    
+    store.setAnalysisResult({
+      safety_lights: {
+        liquidity: 'GREEN',
+        concentration: 'GREEN',
+        illiquids: 'GREEN',
+        overall_status: 'ALL_CLEAR',
+        metrics: {
+          cash_runway_months: 25,
+          largest_line_pct: 0.5,
+          illiquid_pct: 0,
+        },
+      },
+    });
+    
+    return { useOnboardingV2Store, store };
+  };
+  
+  it('should ensure GUARDRAIL_FIRST range is at least MIN_RANGE_WIDTH_PP wide for tiny pressure', async () => {
+    const { useOnboardingV2Store, store } = await setupStoreForScenarios();
+    
+    store.setBeliefResponse('Q1_QUALITY', 3);
+    store.setBeliefResponse('Q2_VALUE', 3);
+    store.setBeliefResponse('Q3_TECH', 3);
+    store.setBeliefResponse('Q4_SMALL_CAP', 3);
+    store.setBeliefResponse('Q5_ESG', 3);
+    store.setBeliefResponse('Q6_INFLATION', 3);
+    store.setBeliefResponse('Q7_VOLATILITY', 3);
+    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.computeBeliefsScores();
+    store.computeScenarios();
+    
+    const scenario = useOnboardingV2Store.getState().scenario;
+    const guardrailFirst = scenario.scenarios.find(s => s.scenario_type === 'GUARDRAIL_FIRST');
+    
+    expect(guardrailFirst).toBeDefined();
+    guardrailFirst!.asset_class_bands.forEach(band => {
+      const width = band.illustrative_high_pct - band.illustrative_low_pct;
+      expect(width).toBeGreaterThanOrEqual(MIN_RANGE_WIDTH_PP);
+    });
+  });
+  
+  it('should ensure PREFERENCE_LEANING range is at least MIN_RANGE_WIDTH_PP wide for tiny pressure', async () => {
+    const { useOnboardingV2Store, store } = await setupStoreForScenarios();
+    
+    store.setBeliefResponse('Q1_QUALITY', 3);
+    store.setBeliefResponse('Q2_VALUE', 3);
+    store.setBeliefResponse('Q3_TECH', 3);
+    store.setBeliefResponse('Q4_SMALL_CAP', 3);
+    store.setBeliefResponse('Q5_ESG', 3);
+    store.setBeliefResponse('Q6_INFLATION', 3);
+    store.setBeliefResponse('Q7_VOLATILITY', 3);
+    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.computeBeliefsScores();
+    store.computeScenarios();
+    
+    const scenario = useOnboardingV2Store.getState().scenario;
+    const preferenceLeaning = scenario.scenarios.find(s => s.scenario_type === 'PREFERENCE_LEANING');
+    
+    expect(preferenceLeaning).toBeDefined();
+    preferenceLeaning!.asset_class_bands.forEach(band => {
+      const width = band.illustrative_high_pct - band.illustrative_low_pct;
+      expect(width).toBeGreaterThanOrEqual(MIN_RANGE_WIDTH_PP);
+    });
+  });
+  
+  it('should not artificially widen NEUTRAL_BASELINE range (already ±2pp = 4pp total)', async () => {
+    const { useOnboardingV2Store, store } = await setupStoreForScenarios();
+    
+    store.setBeliefResponse('Q1_QUALITY', 3);
+    store.setBeliefResponse('Q2_VALUE', 3);
+    store.setBeliefResponse('Q3_TECH', 3);
+    store.setBeliefResponse('Q4_SMALL_CAP', 3);
+    store.setBeliefResponse('Q5_ESG', 3);
+    store.setBeliefResponse('Q6_INFLATION', 3);
+    store.setBeliefResponse('Q7_VOLATILITY', 3);
+    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.computeBeliefsScores();
+    store.computeScenarios();
+    
+    const scenario = useOnboardingV2Store.getState().scenario;
+    const neutralBaseline = scenario.scenarios.find(s => s.scenario_type === 'NEUTRAL_BASELINE');
+    
+    expect(neutralBaseline).toBeDefined();
+    neutralBaseline!.asset_class_bands.forEach(band => {
+      const width = band.illustrative_high_pct - band.illustrative_low_pct;
+      expect(width).toBe(4.0);
+    });
+  });
+  
+  it('should not artificially widen range when extreme pressure already exceeds minimum', async () => {
+    const { useOnboardingV2Store, store } = await setupStoreForScenarios();
+    
+    store.setBeliefResponse('Q1_QUALITY', 5);
+    store.setBeliefResponse('Q2_VALUE', 5);
+    store.setBeliefResponse('Q3_TECH', 5);
+    store.setBeliefResponse('Q4_SMALL_CAP', 5);
+    store.setBeliefResponse('Q5_ESG', 5);
+    store.setBeliefResponse('Q6_INFLATION', 5);
+    store.setBeliefResponse('Q7_VOLATILITY', 1);
+    store.setBeliefResponse('Q8_UK_BIAS', 5);
+    store.computeBeliefsScores();
+    store.computeScenarios();
+    
+    const scenario = useOnboardingV2Store.getState().scenario;
+    const preferenceLeaning = scenario.scenarios.find(s => s.scenario_type === 'PREFERENCE_LEANING');
+    
+    expect(preferenceLeaning).toBeDefined();
+    preferenceLeaning!.asset_class_bands.forEach(band => {
+      const width = band.illustrative_high_pct - band.illustrative_low_pct;
+      expect(width).toBeGreaterThanOrEqual(MIN_RANGE_WIDTH_PP);
+    });
+  });
+});

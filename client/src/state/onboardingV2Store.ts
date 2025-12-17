@@ -1045,6 +1045,10 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           PREFERENCE_LEANING: 6,    // ±6pp range
         };
         
+        // Minimum meaningful range width (pp) - ensures ranges are visually meaningful
+        // Applied only to GUARDRAIL_FIRST and PREFERENCE_LEANING (not NEUTRAL_BASELINE)
+        const MIN_RANGE_WIDTH_PP = 2.0;
+        
         // ============================================
         // 2) COMPUTE CURRENT ALLOCATIONS
         // ============================================
@@ -1217,6 +1221,19 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             
             let lowPct = clampedCentre - halfWidth;
             let highPct = clampedCentre + halfWidth;
+            
+            // ============================================
+            // 3b) APPLY MINIMUM RANGE WIDTH (non-neutral scenarios only)
+            // Ensures ranges are visually meaningful even for tiny pressures
+            // ============================================
+            if (scenarioType !== 'NEUTRAL_BASELINE') {
+              const currentWidth = highPct - lowPct;
+              if (currentWidth < MIN_RANGE_WIDTH_PP) {
+                const expansionNeeded = (MIN_RANGE_WIDTH_PP - currentWidth) / 2;
+                lowPct = lowPct - expansionNeeded;
+                highPct = highPct + expansionNeeded;
+              }
+            }
             
             // Global percentage clamps [0, 100]
             lowPct = Math.max(0, lowPct);
