@@ -54,13 +54,21 @@ This project is "Unlock Free Version" - a business due diligence platform protot
 - All analysis includes professional disclaimers emphasizing informational purpose only
 
 **Investor Persona Feature Complete (Dec 12, 2025):** Successfully implemented end-to-end investor personas for Onboarding v2:
-- Created persona engine module (`server/services/personaEngine.ts`) with 8 persona families: YOUNG_ACCUMULATOR, MID_CAREER_BALANCED, PROPERTY_LED, ESG_CONSCIOUS, CRYPTO_ALTS_ADVENTURER, NEAR_RETIREMENT_CAUTIOUS, RETIREMENT_DRAWDOWN, WEALTH_PRESERVATION
-- Implemented trait-based scoring system using 9 weighted traits (risk, property_bias, alts_bias, liquidity_comfort, tax_complexity, cross_border_complexity, drawdown_focus, wealth_level, concentration)
+- Created persona engine module (`server/services/personaEngine.ts`) with 8 persona families: CORE_GROWTH, BALANCED_ALLOCATOR, SELF_DIRECTED_GROWTH, FOUNDER_ENTREPRENEUR, PROPERTY_LED, ALTERNATIVES_FOCUSED, INCOME_STABILITY, CAPITAL_PRESERVATION
+- Implemented trait-based scoring system using 6 weighted traits (risk_appetite, alternatives_bias, property_bias, liquidity_comfort, income_orientation, complexity_proxy)
 - Extended analysis service to accept personaCues, asset_class_breakdown, and extended intake data
 - Built PersonaCard component with Fortune 500 professional styling displaying: label, one-liner, "Why This Fits You" bullets, "What This Means For Your Plan" bullets, "Risks to Watch" bullets, and horizontal trait bars
 - Added PersonaCues interface to onboarding store with optional fields (age_band, portfolio_stage, investing_focus, has_defined_benefit_pension, owns_business, etc.)
 - Integrated persona computation into Analysis page with asset class breakdown derived from holdings
 - All persona cues are optional - validation doesn't block navigation
+
+**Weighted Persona Matching Complete (Dec 17, 2025):** Enhanced persona engine with transparent weighted matching system:
+- Implemented PERSONA_WEIGHT_TABLE with 8 personas and trait weights summing to 1.0 per persona
+- Created computeWeightedMatchesWithBias() function applying additive boosts to generalist personas (CORE_GROWTH +0.12, BALANCED_ALLOCATOR +0.10)
+- Hard overrides (FOUNDER_ENTREPRENEUR, PROPERTY_LED, ALTERNATIVES_FOCUSED) trigger first for obvious dominance cases (>25% business, >30% property, GT_25 crypto)
+- Added match_score and match_confidence metrics reflecting real weighted calculations
+- Bias conditions: CORE_GROWTH requires accumulating + growth goal + FULL_SERVICE_ADVISER; BALANCED_ALLOCATOR requires balance goal + moderate traits
+- All 42 persona tests passing with transparent scoring and full persona coverage
 
 # User Preferences
 
