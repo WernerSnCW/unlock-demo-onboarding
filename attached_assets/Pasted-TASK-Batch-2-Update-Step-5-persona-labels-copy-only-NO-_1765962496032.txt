@@ -1,0 +1,46 @@
+TASK: Batch 2 — Update Step 5 persona labels (copy-only, NO logic changes, NO code output)
+
+Goal:
+Update persona labels in Step 5 to the Consumer Duty–safe names. This is a copy/label change only.
+
+Exact label changes required:
+1) Replace the persona label text:
+   "Crypto & Alternatives Adventurer"
+   → "Alternatives Focused"
+
+2) Replace the persona label text:
+   "Legacy & HNW Architect"
+   → "Legacy & HNW Planner"
+
+Scope rules:
+- Do NOT change persona scoring, matching, weights, thresholds, or any calculations.
+- Do NOT change persona codes (identifiers) unless the app currently uses labels as keys (only change keys if strictly necessary and keep behaviour identical).
+- Do NOT change any other persona names.
+- Do NOT add new personas.
+- Do NOT change Step 6/7 logic.
+
+Implementation steps:
+1) Search the entire project for the exact text: "Crypto & Alternatives Adventurer"
+   - Update every user-facing instance to "Alternatives Focused"
+   - This includes UI labels, persona cards, fixtures shown in the UI, and any copy presented to users.
+
+2) Search the entire project for the exact text: "Legacy & HNW Architect"
+   - Update every user-facing instance to "Legacy & HNW Planner"
+
+3) If there is a central persona catalogue/list (e.g., a persona definitions file or constants file):
+   - Update the display label there as the source of truth.
+   - Ensure the UI reads from the same source (avoid duplicate labels in multiple components).
+
+4) Restart the app and verify the persona card renders as before (same persona selection), but with the updated labels.
+
+Acceptance tests (UI):
+A) Find or create a portfolio/profile that previously displayed "Crypto & Alternatives Adventurer".
+   - Expected: it now displays "Alternatives Focused" (and nothing else changes).
+
+B) Find or create a portfolio/profile that previously displayed "Legacy & HNW Architect".
+   - Expected: it now displays "Legacy & HNW Planner" (and nothing else changes).
+
+Deliverable:
+- Confirm which files were updated (filenames only).
+- Confirm both phrases no longer exist anywhere in the repo search.
+- Do NOT output code in your response.
