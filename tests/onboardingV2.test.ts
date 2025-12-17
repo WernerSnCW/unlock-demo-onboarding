@@ -726,4 +726,267 @@ describe('Persona Engine - ALTERNATIVES_FOCUSED Fixture', () => {
     expect(result.code).not.toBe('ALTERNATIVES_FOCUSED');
     expect(result.code).toBe('SELF_DIRECTED_GROWTH');
   });
+
+  it('should include valid T1-T6 traits for ALTERNATIVES_FOCUSED persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(ALTERNATIVES_FOCUSED_FIXTURE.profile);
+    
+    // Verify all 6 traits are present and in valid range
+    expect(result.traits).toBeDefined();
+    expect(result.traits.risk_appetite).toBeGreaterThanOrEqual(0);
+    expect(result.traits.risk_appetite).toBeLessThanOrEqual(1);
+    expect(result.traits.alternatives_bias).toBeGreaterThanOrEqual(0);
+    expect(result.traits.alternatives_bias).toBeLessThanOrEqual(1);
+    expect(result.traits.property_bias).toBeGreaterThanOrEqual(0);
+    expect(result.traits.property_bias).toBeLessThanOrEqual(1);
+    expect(result.traits.liquidity_comfort).toBeGreaterThanOrEqual(0);
+    expect(result.traits.liquidity_comfort).toBeLessThanOrEqual(1);
+    expect(result.traits.income_orientation).toBeGreaterThanOrEqual(0);
+    expect(result.traits.income_orientation).toBeLessThanOrEqual(1);
+    expect(result.traits.complexity_proxy).toBeGreaterThanOrEqual(0);
+    expect(result.traits.complexity_proxy).toBeLessThanOrEqual(1);
+    
+    // ALTERNATIVES_FOCUSED should have high alternatives_bias
+    expect(result.traits.alternatives_bias).toBeGreaterThan(0.5);
+  });
+
+  it('should include 2-3 why_fits_bullets for ALTERNATIVES_FOCUSED persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(ALTERNATIVES_FOCUSED_FIXTURE.profile);
+    
+    expect(result.why_fits_bullets).toBeDefined();
+    expect(result.why_fits_bullets.length).toBeGreaterThanOrEqual(2);
+    expect(result.why_fits_bullets.length).toBeLessThanOrEqual(3);
+    
+    // Should reference crypto allocation since that's the trigger
+    const hasCryptoRef = result.why_fits_bullets.some(b => 
+      b.toLowerCase().includes('crypto') || b.toLowerCase().includes('25%')
+    );
+    expect(hasCryptoRef).toBe(true);
+  });
+});
+
+/**
+ * SELF_DIRECTED_GROWTH Persona Test Fixture
+ * 
+ * QA fixture for regression testing the SELF_DIRECTED_GROWTH persona assignment.
+ * Validates trait scoring and why_fits_bullets generation.
+ */
+describe('Persona Engine - SELF_DIRECTED_GROWTH Fixture', () => {
+  /**
+   * Test Fixture: Self-Directed Growth Profile
+   * 
+   * Inputs:
+   * - portfolio_stage: ACCUMULATING
+   * - adviser_usage: SELF_DIRECTED
+   * - time_horizon: 10+ years (long)
+   * - risk_comfort: moderate/high
+   * - equity allocation: 70%
+   * 
+   * Expected persona code: SELF_DIRECTED_GROWTH
+   * 
+   * Trigger rule: self-directed + accumulating + long horizon + moderate/high risk
+   */
+  const SELF_DIRECTED_GROWTH_FIXTURE = {
+    profile: {
+      age_band: '35_44' as const,
+      portfolio_stage: 'ACCUMULATING' as const,
+      primary_goal: 'growth',
+      time_horizon: '10_plus',
+      risk_comfort: 'high',
+      total_portfolio_value_gbp: 250000,
+      cash_runway_months: 8,
+      largest_line_pct: 0.12,
+      illiquid_pct: 0.05,
+      asset_class_breakdown: {
+        equity_pct: 0.70,
+        bond_pct: 0.10,
+        property_pct: 0.05,
+        cash_pct: 0.10,
+        alts_pct: 0.05,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'GREEN' as const,
+      concentration_status: 'GREEN' as const,
+      illiquids_status: 'GREEN' as const,
+      personaCues: {
+        age_band: '35_44' as const,
+        portfolio_stage: 'ACCUMULATING' as const,
+        investing_focus: ['FUNDS_ETFS' as const, 'INDIVIDUAL_SHARES' as const],
+        has_defined_benefit_pension: false,
+        db_income_coverage_band: null,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'SELF_DIRECTED' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'SELF_DIRECTED_GROWTH',
+    expected_label: 'Self-Directed Growth Investor',
+  };
+
+  it('should assign SELF_DIRECTED_GROWTH persona for self-directed accumulator', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(SELF_DIRECTED_GROWTH_FIXTURE.profile);
+    
+    expect(result.code).toBe(SELF_DIRECTED_GROWTH_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(SELF_DIRECTED_GROWTH_FIXTURE.expected_label);
+  });
+
+  it('should include valid T1-T6 traits for SELF_DIRECTED_GROWTH persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(SELF_DIRECTED_GROWTH_FIXTURE.profile);
+    
+    // Verify all 6 traits are present and in valid range
+    expect(result.traits).toBeDefined();
+    expect(result.traits.risk_appetite).toBeGreaterThanOrEqual(0);
+    expect(result.traits.risk_appetite).toBeLessThanOrEqual(1);
+    expect(result.traits.alternatives_bias).toBeGreaterThanOrEqual(0);
+    expect(result.traits.alternatives_bias).toBeLessThanOrEqual(1);
+    expect(result.traits.property_bias).toBeGreaterThanOrEqual(0);
+    expect(result.traits.property_bias).toBeLessThanOrEqual(1);
+    expect(result.traits.liquidity_comfort).toBeGreaterThanOrEqual(0);
+    expect(result.traits.liquidity_comfort).toBeLessThanOrEqual(1);
+    expect(result.traits.income_orientation).toBeGreaterThanOrEqual(0);
+    expect(result.traits.income_orientation).toBeLessThanOrEqual(1);
+    expect(result.traits.complexity_proxy).toBeGreaterThanOrEqual(0);
+    expect(result.traits.complexity_proxy).toBeLessThanOrEqual(1);
+    
+    // SELF_DIRECTED_GROWTH should have high risk_appetite (long horizon, high equity)
+    expect(result.traits.risk_appetite).toBeGreaterThan(0.4);
+    // Should have low income_orientation (accumulating)
+    expect(result.traits.income_orientation).toBeLessThan(0.3);
+  });
+
+  it('should include 2-3 why_fits_bullets for SELF_DIRECTED_GROWTH persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(SELF_DIRECTED_GROWTH_FIXTURE.profile);
+    
+    expect(result.why_fits_bullets).toBeDefined();
+    expect(result.why_fits_bullets.length).toBeGreaterThanOrEqual(2);
+    expect(result.why_fits_bullets.length).toBeLessThanOrEqual(3);
+    
+    // Should reference self-directed since that's a key trigger
+    const hasSelfDirectedRef = result.why_fits_bullets.some(b => 
+      b.toLowerCase().includes('self') || b.toLowerCase().includes('adviser') || b.toLowerCase().includes('without')
+    );
+    expect(hasSelfDirectedRef).toBe(true);
+  });
+});
+
+/**
+ * CAPITAL_PRESERVATION Persona Test Fixture
+ * 
+ * QA fixture for regression testing the CAPITAL_PRESERVATION persona assignment.
+ * Validates trait scoring and why_fits_bullets generation.
+ */
+describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
+  /**
+   * Test Fixture: Capital Preservation Profile
+   * 
+   * Inputs:
+   * - portfolio_stage: STARTING_DRAWDOWN
+   * - risk_comfort: low
+   * - cash_runway_months: 18+ (high)
+   * - cash_pct: 25%
+   * 
+   * Expected persona code: CAPITAL_PRESERVATION
+   * 
+   * Trigger rule: low risk + high cash + not accumulating
+   */
+  const CAPITAL_PRESERVATION_FIXTURE = {
+    profile: {
+      age_band: '55_64' as const,
+      portfolio_stage: 'STARTING_DRAWDOWN' as const,
+      primary_goal: 'preservation',
+      time_horizon: '5_10',
+      risk_comfort: 'low',
+      total_portfolio_value_gbp: 1200000,
+      cash_runway_months: 18,
+      largest_line_pct: 0.08,
+      illiquid_pct: 0.02,
+      asset_class_breakdown: {
+        equity_pct: 0.30,
+        bond_pct: 0.35,
+        property_pct: 0.10,
+        cash_pct: 0.25,
+        alts_pct: 0.00,
+        crypto_pct: 0.00,
+      },
+      liquidity_status: 'GREEN' as const,
+      concentration_status: 'GREEN' as const,
+      illiquids_status: 'GREEN' as const,
+      personaCues: {
+        age_band: '55_64' as const,
+        portfolio_stage: 'STARTING_DRAWDOWN' as const,
+        investing_focus: ['FUNDS_ETFS' as const],
+        has_defined_benefit_pension: true,
+        db_income_coverage_band: '50_75' as const,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        adviser_usage: 'SOMETIMES_ADVISED' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'CAPITAL_PRESERVATION',
+    expected_label: 'Capital Preservation Focus',
+  };
+
+  it('should assign CAPITAL_PRESERVATION persona for low-risk, high-cash profile', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(CAPITAL_PRESERVATION_FIXTURE.profile);
+    
+    expect(result.code).toBe(CAPITAL_PRESERVATION_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(CAPITAL_PRESERVATION_FIXTURE.expected_label);
+  });
+
+  it('should include valid T1-T6 traits for CAPITAL_PRESERVATION persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(CAPITAL_PRESERVATION_FIXTURE.profile);
+    
+    // Verify all 6 traits are present and in valid range
+    expect(result.traits).toBeDefined();
+    expect(result.traits.risk_appetite).toBeGreaterThanOrEqual(0);
+    expect(result.traits.risk_appetite).toBeLessThanOrEqual(1);
+    expect(result.traits.alternatives_bias).toBeGreaterThanOrEqual(0);
+    expect(result.traits.alternatives_bias).toBeLessThanOrEqual(1);
+    expect(result.traits.property_bias).toBeGreaterThanOrEqual(0);
+    expect(result.traits.property_bias).toBeLessThanOrEqual(1);
+    expect(result.traits.liquidity_comfort).toBeGreaterThanOrEqual(0);
+    expect(result.traits.liquidity_comfort).toBeLessThanOrEqual(1);
+    expect(result.traits.income_orientation).toBeGreaterThanOrEqual(0);
+    expect(result.traits.income_orientation).toBeLessThanOrEqual(1);
+    expect(result.traits.complexity_proxy).toBeGreaterThanOrEqual(0);
+    expect(result.traits.complexity_proxy).toBeLessThanOrEqual(1);
+    
+    // CAPITAL_PRESERVATION should have low risk_appetite
+    expect(result.traits.risk_appetite).toBeLessThan(0.5);
+    // Should have high liquidity_comfort (18 months runway, 25% cash)
+    expect(result.traits.liquidity_comfort).toBeGreaterThan(0.5);
+  });
+
+  it('should include 2-3 why_fits_bullets for CAPITAL_PRESERVATION persona', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(CAPITAL_PRESERVATION_FIXTURE.profile);
+    
+    expect(result.why_fits_bullets).toBeDefined();
+    expect(result.why_fits_bullets.length).toBeGreaterThanOrEqual(2);
+    expect(result.why_fits_bullets.length).toBeLessThanOrEqual(3);
+  });
 });

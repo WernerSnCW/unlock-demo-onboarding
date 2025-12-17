@@ -141,13 +141,23 @@ export interface SafetyLightsResult {
   };
 }
 
+/**
+ * T1-T6 Trait Scores (0.0-1.0 scale)
+ * All traits are deterministic and derived from Step 3 + Step 4 inputs.
+ */
 export interface PersonaTraits {
-  risk: number;
+  // T1: Risk appetite - from risk_comfort, time_horizon, equity_pct, alts_pct
+  risk_appetite: number;
+  // T2: Alternatives bias - from crypto_alloc_band, alts_pct, crypto_pct, investing_focus CRYPTO
+  alternatives_bias: number;
+  // T3: Property bias - from property_pct, investing_focus PROPERTY_BTL
   property_bias: number;
-  alts_bias: number;
+  // T4: Liquidity comfort - from cash_runway_months, cash_pct, illiquid_pct
   liquidity_comfort: number;
-  tax_complexity: number;
-  cross_border_complexity: number;
+  // T5: Income orientation - from portfolio_stage (drawdown), primary_goal (income), risk_comfort
+  income_orientation: number;
+  // T6: Complexity proxy - DB pension, business, employer stock, cross-border, portfolio value
+  complexity_proxy: number;
 }
 
 export type TraitIntensity = 'Light' | 'Moderate' | 'Strong';

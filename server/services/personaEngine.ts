@@ -72,13 +72,23 @@ export interface PortfolioTrait {
   detail: string;
 }
 
+/**
+ * T1-T6 Trait Scores (0.0-1.0 scale)
+ * All traits are deterministic and derived from Step 3 + Step 4 inputs.
+ */
 export interface PersonaTraits {
-  risk: number;
+  // T1: Risk appetite - from risk_comfort, time_horizon, equity_pct, alts_pct
+  risk_appetite: number;
+  // T2: Alternatives bias - from crypto_alloc_band, alts_pct, crypto_pct, investing_focus CRYPTO
+  alternatives_bias: number;
+  // T3: Property bias - from property_pct, investing_focus PROPERTY_BTL
   property_bias: number;
-  alts_bias: number;
+  // T4: Liquidity comfort - from cash_runway_months, cash_pct, illiquid_pct
   liquidity_comfort: number;
-  tax_complexity: number;
-  cross_border_complexity: number;
+  // T5: Income orientation - from portfolio_stage (drawdown), primary_goal (income), risk_comfort
+  income_orientation: number;
+  // T6: Complexity proxy - DB pension, business, employer stock, cross-border, portfolio value
+  complexity_proxy: number;
 }
 
 export interface RiskToWatch {
@@ -577,182 +587,423 @@ function derivePortfolioTraits(profile: InvestorProfile): PortfolioTrait[] {
 }
 
 // ============================================
-// Numeric Trait Computation (for bars)
+// T1-T6 Trait Score Computation (0.0-1.0 scale)
+// All computations are deterministic and use existing field keys.
 // ============================================
 
-function computeRiskScore(profile: InvestorProfile): number {
+/**
+ * T1: Risk Appetite
+ * Inputs: risk_comfort, time_horizon, equity_pct, alts_pct
+ * Higher = more risk-tolerant
+ */
+function computeRiskAppetite(profile: InvestorProfile): number {
+  // Base from stated risk comfort (40% weight)
   const riskMap: Record<string, number> = {
     very_low: 0.1,
-    low: 0.3,
+    low: 0.25,
     moderate: 0.5,
-    high: 0.7,
+    medium: 0.5,
+    high: 0.75,
     very_high: 0.9,
   };
-  return riskMap[profile.risk_comfort] ?? 0.5;
+  const riskBase = riskMap[(profile.risk_comfort || '').toLowerCase()] ?? 0.5;
+  
+  // Time horizon boost (20% weight): 10+ years adds to risk appetite
+  const horizonBoost = isLongHorizon(profile) ? 0.2 : 0;
+  
+  // Equity + alts allocation (40% weight): higher risk assets → higher appetite
+  const equityPct = normalizeToFraction(profile.asset_class_breakdown.equity_pct);
+  const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct) + 
+                  normalizeToFraction(profile.asset_class_breakdown.crypto_pct);
+  const allocationRisk = (equityPct + altsPct) * 0.4;
+  
+  return Math.min(1, Math.max(0, riskBase * 0.4 + horizonBoost + allocationRisk));
 }
 
+/**
+ * T2: Alternatives Bias
+ * Inputs: crypto_alloc_band, alts_pct, crypto_pct, investing_focus includes CRYPTO
+ * Higher = stronger alternatives tilt
+ */
+function computeAlternativesBias(profile: InvestorProfile): number {
+  const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
+  const cryptoPct = normalizeToFraction(profile.asset_class_breakdown.crypto_pct);
+  let score = altsPct + cryptoPct;
+  
+  // Boost from crypto allocation band (questionnaire input)
+  if (profile.personaCues.has_crypto) {
+    score = Math.min(1, score + getCryptoAllocPct(profile));
+  }
+  
+  // Boost from investing focus
+  if (profile.personaCues.investing_focus?.includes('CRYPTO')) {
+    score = Math.min(1, score + 0.15);
+  }
+  
+  return Math.min(1, Math.max(0, score));
+}
+
+/**
+ * T3: Property Bias
+ * Inputs: property_pct, investing_focus includes PROPERTY_BTL
+ * Higher = stronger property tilt
+ */
 function computePropertyBias(profile: InvestorProfile): number {
   let score = normalizeToFraction(profile.asset_class_breakdown.property_pct);
   if (profile.personaCues.investing_focus?.includes('PROPERTY_BTL')) {
     score = Math.min(1, score + 0.3);
   }
-  return score;
+  return Math.min(1, Math.max(0, score));
 }
 
-function computeAltsBias(profile: InvestorProfile): number {
-  const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct) + 
-                  normalizeToFraction(profile.asset_class_breakdown.crypto_pct);
-  let score = altsPct;
-  if (profile.personaCues.investing_focus?.includes('CRYPTO')) {
-    score = Math.min(1, score + 0.15);
-  }
-  if (profile.personaCues.has_crypto) {
-    score = Math.min(1, score + getCryptoAllocPct(profile));
-  }
-  return Math.min(1, score);
-}
-
+/**
+ * T4: Liquidity Comfort
+ * Inputs: cash_runway_months, cash_pct, illiquid_pct
+ * Higher = more comfortable liquidity position
+ */
 function computeLiquidityComfort(profile: InvestorProfile): number {
-  const runwayScore = profile.cash_runway_months === -1 ? 1 : Math.min(1, profile.cash_runway_months / 24);
+  // Cash runway component (50% weight): 12+ months → full score
+  const runwayMonths = profile.cash_runway_months;
+  const runwayScore = runwayMonths === -1 ? 1 : Math.min(1, runwayMonths / 12);
+  
+  // Cash allocation component (25% weight)
+  const cashPct = normalizeToFraction(profile.asset_class_breakdown.cash_pct);
+  const cashScore = Math.min(1, cashPct * 5); // 20%+ cash → full score
+  
+  // Illiquidity penalty (25% weight): high illiquid % reduces comfort
   const illiquidPenalty = profile.illiquid_pct * 0.5;
-  return Math.max(0, runwayScore - illiquidPenalty);
+  
+  return Math.min(1, Math.max(0, runwayScore * 0.5 + cashScore * 0.25 - illiquidPenalty * 0.25));
 }
 
-function computeTaxComplexity(profile: InvestorProfile): number {
+/**
+ * T5: Income Orientation
+ * Inputs: portfolio_stage (drawdown flags), primary_goal (income), risk_comfort
+ * Higher = more income/drawdown focused
+ */
+function computeIncomeOrientation(profile: InvestorProfile): number {
   let score = 0;
-  if (profile.total_portfolio_value_gbp > 500000) score += 0.2;
-  if (profile.total_portfolio_value_gbp > 1000000) score += 0.2;
-  if (profile.total_portfolio_value_gbp > 2000000) score += 0.2;
-  if (profile.personaCues.owns_business) score += 0.2;
-  if (profile.personaCues.has_employer_stock) score += 0.15;
-  if (profile.personaCues.has_crypto) score += 0.15;
-  return Math.min(1, score);
+  
+  // Portfolio stage (40% weight)
+  if (profile.portfolio_stage === 'PRIMARILY_DRAWDOWN') {
+    score += 0.4;
+  } else if (profile.portfolio_stage === 'STARTING_DRAWDOWN') {
+    score += 0.25;
+  }
+  
+  // Primary goal (35% weight)
+  const goal = (profile.primary_goal || '').toLowerCase();
+  if (goal.includes('income') || goal.includes('drawdown') || goal.includes('retire')) {
+    score += 0.35;
+  }
+  
+  // Low risk comfort → income orientation (25% weight)
+  const riskComfort = (profile.risk_comfort || '').toLowerCase();
+  if (riskComfort === 'low' || riskComfort === 'very_low') {
+    score += 0.25;
+  } else if (riskComfort === 'moderate' || riskComfort === 'medium') {
+    score += 0.1;
+  }
+  
+  return Math.min(1, Math.max(0, score));
 }
 
-function computeCrossBorderComplexity(profile: InvestorProfile): number {
-  return profile.personaCues.is_cross_border ? 1.0 : 0;
+/**
+ * T6: Complexity Proxy
+ * Inputs: has_defined_benefit_pension, owns_business, private_business_wealth_band,
+ *         has_employer_stock, is_cross_border, total_portfolio_value_gbp
+ * Higher = more complex financial situation
+ */
+function computeComplexityProxy(profile: InvestorProfile): number {
+  let score = 0;
+  
+  // Portfolio value tiers (30% weight)
+  const value = profile.total_portfolio_value_gbp;
+  if (value > 2000000) {
+    score += 0.3;
+  } else if (value > 1000000) {
+    score += 0.2;
+  } else if (value > 500000) {
+    score += 0.1;
+  }
+  
+  // Defined benefit pension (15% weight)
+  if (profile.personaCues.has_defined_benefit_pension) {
+    score += 0.15;
+  }
+  
+  // Business ownership (20% weight) - scaled by band
+  if (profile.personaCues.owns_business) {
+    const band = profile.personaCues.private_business_wealth_band;
+    const bandScore: Record<string, number> = {
+      'LT_10': 0.1,
+      '10_25': 0.15,
+      '25_50': 0.2,
+      'GT_50': 0.2,
+      'NOT_SURE': 0.15,
+    };
+    score += bandScore[band || 'NOT_SURE'] || 0.1;
+  }
+  
+  // Employer stock (15% weight)
+  if (profile.personaCues.has_employer_stock) {
+    score += 0.15;
+  }
+  
+  // Cross-border (20% weight)
+  if (profile.personaCues.is_cross_border) {
+    score += 0.2;
+  }
+  
+  return Math.min(1, Math.max(0, score));
 }
 
-export function computeTraits(profile: InvestorProfile): PersonaTraits {
+/**
+ * Compute all T1-T6 trait scores for a profile.
+ * Returns deterministic scores in 0.0-1.0 range.
+ */
+export function computeTraitScores(profile: InvestorProfile): PersonaTraits {
   return {
-    risk: computeRiskScore(profile),
+    risk_appetite: computeRiskAppetite(profile),
+    alternatives_bias: computeAlternativesBias(profile),
     property_bias: computePropertyBias(profile),
-    alts_bias: computeAltsBias(profile),
     liquidity_comfort: computeLiquidityComfort(profile),
-    tax_complexity: computeTaxComplexity(profile),
-    cross_border_complexity: computeCrossBorderComplexity(profile),
+    income_orientation: computeIncomeOrientation(profile),
+    complexity_proxy: computeComplexityProxy(profile),
   };
 }
 
+// Legacy alias for backwards compatibility
+export const computeTraits = computeTraitScores;
+
 // ============================================
 // "Why Fits You" Bullets Generation
+// Enhanced: selects 2-3 bullets based on strongest trait signals
 // ============================================
 
-function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPersona): string[] {
-  const bullets: string[] = [];
+interface SignalCandidate {
+  priority: number; // higher = stronger signal
+  bullet: string;
+  source: string; // for debugging
+}
+
+/**
+ * Build input-grounded "why fits" bullets based on strongest signals.
+ * Uses trait scores to prioritize which inputs to surface.
+ * Returns 2-3 descriptive bullets (non-prescriptive).
+ */
+export function buildWhyFitsBullets(profile: InvestorProfile, traitScores: PersonaTraits): string[] {
+  const candidates: SignalCandidate[] = [];
   const formatPct = (n: number) => `${(n * 100).toFixed(0)}%`;
   const formatGbp = (n: number) => n >= 1000000 ? `£${(n / 1000000).toFixed(1)}m` : `£${(n / 1000).toFixed(0)}k`;
-
-  switch (persona.code) {
-    case 'SELF_DIRECTED_GROWTH':
-      if (isSelfDirected(profile)) {
-        bullets.push('You indicated you manage your investments without a financial adviser.');
-      }
-      if (isLongHorizon(profile)) {
-        bullets.push('Your stated investment horizon is 10+ years.');
-      }
-      if (isAccumulating(profile)) {
-        bullets.push('Your portfolio stage is accumulating (building wealth).');
-      }
-      break;
-
-    case 'CORE_GROWTH':
-      if (isLongHorizon(profile)) {
-        bullets.push('Your stated investment horizon is 10+ years.');
-      }
-      if (isAccumulating(profile)) {
-        bullets.push('Your portfolio stage is accumulating (building wealth).');
-      }
-      if (profile.asset_class_breakdown.equity_pct > 50) {
-        bullets.push(`Equities make up ${formatPct(normalizeToFraction(profile.asset_class_breakdown.equity_pct))} of your portfolio.`);
-      }
-      break;
-
-    case 'FOUNDER_ENTREPRENEUR':
-      if (profile.personaCues.owns_business) {
-        const band = profile.personaCues.private_business_wealth_band;
-        const bandLabel: Record<string, string> = {
-          'LT_10': 'under 10%',
-          '10_25': '10–25%',
-          '25_50': '25–50%',
-          'GT_50': 'over 50%',
-          'NOT_SURE': 'a significant portion',
-        };
-        bullets.push(`You indicated your private business represents ${bandLabel[band || 'NOT_SURE']} of your wealth.`);
-      }
-      bullets.push('You own a private business.');
-      break;
-
-    case 'PROPERTY_LED':
-      const propPct = normalizeToFraction(profile.asset_class_breakdown.property_pct);
-      bullets.push(`Property makes up ${formatPct(propPct)} of your stated portfolio allocation.`);
-      if (profile.personaCues.investing_focus?.includes('PROPERTY_BTL')) {
-        bullets.push('You identified property/BTL as a primary investment focus.');
-      }
-      break;
-
-    case 'ALTERNATIVES_FOCUSED':
-      // Trigger is based on crypto_alloc_band === GT_25 (>25% from questionnaire)
-      if (profile.personaCues.has_crypto && profile.personaCues.crypto_alloc_band === 'GT_25') {
-        bullets.push('You indicated your crypto allocation is greater than 25% of your portfolio.');
-      }
-      const altsPctVal = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
-      if (altsPctVal >= 0.15) {
-        bullets.push(`Alternatives make up ${formatPct(altsPctVal)} of your stated portfolio allocation.`);
-      }
-      if (profile.personaCues.investing_focus?.includes('CRYPTO')) {
-        bullets.push('You identified crypto/alternatives as a primary investment focus.');
-      }
-      break;
-
-    case 'INCOME_STABILITY':
-      if (isDrawdownPhase(profile)) {
-        bullets.push(`Your portfolio stage is ${profile.portfolio_stage === 'PRIMARILY_DRAWDOWN' ? 'primarily drawdown' : 'starting drawdown'}.`);
-      }
-      if (isIncomeGoal(profile)) {
-        bullets.push('Your stated primary goal includes income or drawdown.');
-      }
-      break;
-
-    case 'CAPITAL_PRESERVATION':
-      if (profile.total_portfolio_value_gbp >= 1000000) {
-        bullets.push(`Your stated portfolio value is ${formatGbp(profile.total_portfolio_value_gbp)}.`);
-      }
-      if (profile.age_band === '55_64' || profile.age_band === '65_plus') {
-        const ageLabels: Record<string, string> = { '55_64': '55–64', '65_plus': '65+' };
-        bullets.push(`Your age band is ${ageLabels[profile.age_band]}.`);
-      }
-      break;
-
-    case 'BALANCED_ALLOCATOR':
-      if (profile.risk_comfort) {
-        const riskLabel = profile.risk_comfort.charAt(0).toUpperCase() + profile.risk_comfort.slice(1).toLowerCase();
-        bullets.push(`Your stated risk comfort level is ${riskLabel}.`);
-      }
-      if (profile.primary_goal) {
-        // Sentence case the goal for professional appearance
-        const goalClean = profile.primary_goal.toLowerCase().replace(/_/g, ' ');
-        const goalLabel = goalClean.charAt(0).toUpperCase() + goalClean.slice(1);
-        bullets.push(`Your stated primary goal is "${goalLabel}".`);
-      }
-      break;
+  
+  // Signal candidates based on actual inputs (only add if input exists)
+  
+  // From adviser_usage
+  if (profile.personaCues.adviser_usage === 'SELF_DIRECTED') {
+    candidates.push({
+      priority: 0.8,
+      bullet: 'You indicated you manage your investments without a financial adviser.',
+      source: 'adviser_usage',
+    });
+  } else if (profile.personaCues.adviser_usage === 'FULL_SERVICE_ADVISER') {
+    candidates.push({
+      priority: 0.6,
+      bullet: 'You indicated you work with a full-service financial adviser.',
+      source: 'adviser_usage',
+    });
   }
-
-  // Add fallbacks if we don't have enough bullets
-  if (bullets.length < 2) {
-    bullets.push(`Your portfolio value is ${formatGbp(profile.total_portfolio_value_gbp)}.`);
+  
+  // From time_horizon
+  if (isLongHorizon(profile)) {
+    candidates.push({
+      priority: 0.75 + traitScores.risk_appetite * 0.1,
+      bullet: 'Your stated investment horizon is 10+ years.',
+      source: 'time_horizon',
+    });
+  } else if (profile.time_horizon) {
+    const horizonClean = profile.time_horizon.replace(/_/g, ' ').replace('plus', '+');
+    candidates.push({
+      priority: 0.5,
+      bullet: `Your stated investment horizon is ${horizonClean}.`,
+      source: 'time_horizon',
+    });
   }
-  if (bullets.length < 3 && profile.age_band) {
+  
+  // From portfolio_stage
+  if (profile.portfolio_stage === 'ACCUMULATING') {
+    candidates.push({
+      priority: 0.7,
+      bullet: 'Your portfolio stage is accumulating (building wealth).',
+      source: 'portfolio_stage',
+    });
+  } else if (profile.portfolio_stage === 'PRIMARILY_DRAWDOWN') {
+    candidates.push({
+      priority: 0.85 + traitScores.income_orientation * 0.1,
+      bullet: 'Your portfolio stage is primarily drawdown.',
+      source: 'portfolio_stage',
+    });
+  } else if (profile.portfolio_stage === 'STARTING_DRAWDOWN') {
+    candidates.push({
+      priority: 0.75 + traitScores.income_orientation * 0.1,
+      bullet: 'Your portfolio stage is starting drawdown.',
+      source: 'portfolio_stage',
+    });
+  }
+  
+  // From risk_comfort
+  if (profile.risk_comfort) {
+    const riskLabel = profile.risk_comfort.charAt(0).toUpperCase() + profile.risk_comfort.slice(1).toLowerCase();
+    candidates.push({
+      priority: 0.65,
+      bullet: `Your stated risk comfort level is ${riskLabel}.`,
+      source: 'risk_comfort',
+    });
+  }
+  
+  // From primary_goal
+  if (profile.primary_goal) {
+    const goalClean = profile.primary_goal.toLowerCase().replace(/_/g, ' ');
+    const goalLabel = goalClean.charAt(0).toUpperCase() + goalClean.slice(1);
+    const isIncomeRelated = goalClean.includes('income') || goalClean.includes('drawdown');
+    candidates.push({
+      priority: isIncomeRelated ? 0.75 : 0.6,
+      bullet: `Your stated primary goal is "${goalLabel}".`,
+      source: 'primary_goal',
+    });
+  }
+  
+  // From crypto_alloc_band (questionnaire input)
+  if (profile.personaCues.has_crypto && profile.personaCues.crypto_alloc_band === 'GT_25') {
+    candidates.push({
+      priority: 0.9 + traitScores.alternatives_bias * 0.1,
+      bullet: 'You indicated your crypto allocation is greater than 25% of your portfolio.',
+      source: 'crypto_alloc_band',
+    });
+  } else if (profile.personaCues.has_crypto && profile.personaCues.crypto_alloc_band === '10_25') {
+    candidates.push({
+      priority: 0.6 + traitScores.alternatives_bias * 0.1,
+      bullet: 'You indicated your crypto allocation is 10–25% of your portfolio.',
+      source: 'crypto_alloc_band',
+    });
+  }
+  
+  // From investing_focus (CRYPTO)
+  if (profile.personaCues.investing_focus?.includes('CRYPTO')) {
+    candidates.push({
+      priority: 0.7 + traitScores.alternatives_bias * 0.1,
+      bullet: 'You identified crypto/alternatives as a primary investment focus.',
+      source: 'investing_focus_crypto',
+    });
+  }
+  
+  // From investing_focus (PROPERTY_BTL)
+  if (profile.personaCues.investing_focus?.includes('PROPERTY_BTL')) {
+    candidates.push({
+      priority: 0.75 + traitScores.property_bias * 0.1,
+      bullet: 'You identified property/BTL as a primary investment focus.',
+      source: 'investing_focus_property',
+    });
+  }
+  
+  // From property allocation
+  const propPct = normalizeToFraction(profile.asset_class_breakdown.property_pct);
+  if (propPct >= 0.20) {
+    candidates.push({
+      priority: 0.7 + traitScores.property_bias * 0.1,
+      bullet: `Property makes up ${formatPct(propPct)} of your stated portfolio allocation.`,
+      source: 'property_pct',
+    });
+  }
+  
+  // From alternatives allocation
+  const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct);
+  if (altsPct >= 0.15) {
+    candidates.push({
+      priority: 0.6 + traitScores.alternatives_bias * 0.1,
+      bullet: `Alternatives make up ${formatPct(altsPct)} of your stated portfolio allocation.`,
+      source: 'alts_pct',
+    });
+  }
+  
+  // From equity allocation
+  const equityPct = normalizeToFraction(profile.asset_class_breakdown.equity_pct);
+  if (equityPct >= 0.50) {
+    candidates.push({
+      priority: 0.55 + traitScores.risk_appetite * 0.1,
+      bullet: `Equities make up ${formatPct(equityPct)} of your portfolio.`,
+      source: 'equity_pct',
+    });
+  }
+  
+  // From cash_runway_months (high runway is notable)
+  if (profile.cash_runway_months >= 12) {
+    candidates.push({
+      priority: 0.7 + traitScores.liquidity_comfort * 0.1,
+      bullet: `Your cash runway is ${profile.cash_runway_months.toFixed(0)} months.`,
+      source: 'cash_runway',
+    });
+  }
+  
+  // From owns_business
+  if (profile.personaCues.owns_business) {
+    const band = profile.personaCues.private_business_wealth_band;
+    const bandLabel: Record<string, string> = {
+      'LT_10': 'under 10%',
+      '10_25': '10–25%',
+      '25_50': '25–50%',
+      'GT_50': 'over 50%',
+      'NOT_SURE': 'a significant portion',
+    };
+    candidates.push({
+      priority: 0.85 + traitScores.complexity_proxy * 0.1,
+      bullet: `You indicated your private business represents ${bandLabel[band || 'NOT_SURE']} of your wealth.`,
+      source: 'owns_business',
+    });
+  }
+  
+  // From has_defined_benefit_pension
+  if (profile.personaCues.has_defined_benefit_pension) {
+    const band = profile.personaCues.db_income_coverage_band;
+    const bandLabel: Record<string, string> = {
+      'LT_25': 'under 25%',
+      '25_50': '25–50%',
+      '50_75': '50–75%',
+      'GT_75': 'over 75%',
+      'NOT_SURE': 'an undisclosed portion',
+    };
+    candidates.push({
+      priority: 0.7 + traitScores.income_orientation * 0.1,
+      bullet: `You have a defined benefit pension covering ${bandLabel[band || 'NOT_SURE']} of retirement income.`,
+      source: 'db_pension',
+    });
+  }
+  
+  // From is_cross_border
+  if (profile.personaCues.is_cross_border) {
+    candidates.push({
+      priority: 0.75 + traitScores.complexity_proxy * 0.1,
+      bullet: 'You indicated cross-border or international tax considerations.',
+      source: 'cross_border',
+    });
+  }
+  
+  // From portfolio value (only for higher values)
+  if (profile.total_portfolio_value_gbp >= 1000000) {
+    candidates.push({
+      priority: 0.6,
+      bullet: `Your stated portfolio value is ${formatGbp(profile.total_portfolio_value_gbp)}.`,
+      source: 'portfolio_value',
+    });
+  }
+  
+  // Sort by priority (highest first) and take top 3
+  candidates.sort((a, b) => b.priority - a.priority);
+  
+  // Ensure we have at least 2 bullets with fallbacks
+  const selected = candidates.slice(0, 3).map(c => c.bullet);
+  
+  if (selected.length < 2 && profile.age_band) {
     const ageLabels: Record<string, string> = {
       '25_34': '25–34',
       '35_44': '35–44',
@@ -760,10 +1011,21 @@ function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPerson
       '55_64': '55–64',
       '65_plus': '65+',
     };
-    bullets.push(`Your age band (${ageLabels[profile.age_band]}) influences your planning focus.`);
+    selected.push(`Your age band (${ageLabels[profile.age_band]}) influences your planning focus.`);
   }
+  
+  if (selected.length < 2) {
+    selected.push(`Your portfolio value is ${formatGbp(profile.total_portfolio_value_gbp)}.`);
+  }
+  
+  return selected.slice(0, 3);
+}
 
-  return bullets.slice(0, 5);
+// Legacy function for backwards compatibility (still used in computePersona)
+function generateWhyFitsBullets(profile: InvestorProfile, persona: PrimaryPersona): string[] {
+  // Use the new trait-aware bullet builder
+  const traits = computeTraitScores(profile);
+  return buildWhyFitsBullets(profile, traits);
 }
 
 // ============================================
