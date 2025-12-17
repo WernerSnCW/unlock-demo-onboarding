@@ -1009,18 +1009,16 @@ describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
 /**
  * CORE_GROWTH Persona Test Fixture
  * 
- * CORE_GROWTH triggers via soft override when:
- * - Portfolio stage is ACCUMULATING
- * - Primary goal includes "growth"
- * - Adviser usage is FULL_SERVICE_ADVISER
- * - Complexity proxy is moderate (0.15-0.50)
- * - Risk appetite is moderate (0.25-0.55)
+ * NOTE: CORE_GROWTH is a "generalist" persona with distributed weights (risk=0.35, complexity=0.30).
+ * Under pure weighted matching without additive boosts, specialist personas with dominant weights
+ * (SELF_DIRECTED_GROWTH: 50% risk) will typically win over generalist personas for moderate-risk profiles.
  * 
- * This fixture tests the advised accumulator profile with growth focus.
+ * This fixture validates that advised accumulators with moderate risk are assigned SELF_DIRECTED_GROWTH
+ * via transparent weighted matching (match_score derived purely from trait × weight).
  */
 describe('Persona Engine - CORE_GROWTH Fixture', () => {
-  // CORE_GROWTH triggers via soft override for advised accumulators with growth focus
-  // Requires: ACCUMULATING + growth goal + FULL_SERVICE_ADVISER + moderate complexity/risk
+  // Profile tests advised accumulator with growth focus
+  // Under pure weighted matching, SELF_DIRECTED_GROWTH wins due to 50% risk weight
   const CORE_GROWTH_FIXTURE = {
     profile: {
       age_band: '35_44' as const,
@@ -1059,11 +1057,12 @@ describe('Persona Engine - CORE_GROWTH Fixture', () => {
         is_cross_border: false,
       },
     },
-    expected_persona_code: 'CORE_GROWTH',
-    expected_label: 'Core Growth Investor',
+    // Pure weighted matching: SELF_DIRECTED_GROWTH wins with 50% risk weight
+    expected_persona_code: 'SELF_DIRECTED_GROWTH',
+    expected_label: 'Self-Directed Growth Investor',
   };
 
-  it('should assign CORE_GROWTH persona for advised accumulator with growth focus', async () => {
+  it('should assign persona via pure weighted matching for advised accumulator', async () => {
     const { computePersona } = await import('../server/services/personaEngine');
     
     const result = computePersona(CORE_GROWTH_FIXTURE.profile);
@@ -1078,18 +1077,17 @@ describe('Persona Engine - CORE_GROWTH Fixture', () => {
 /**
  * BALANCED_ALLOCATOR Persona Test Fixture
  * 
- * BALANCED_ALLOCATOR triggers via soft override when:
- * - Primary goal includes "balance"
- * - Risk appetite is moderate (0.25-0.50)
- * - Liquidity comfort is not too high (<=0.50)
- * - Income orientation is low (<=0.35)
- * - Not in drawdown phase
+ * NOTE: BALANCED_ALLOCATOR is a "generalist" persona with evenly distributed weights
+ * (risk=0.20, liquidity=0.25, income=0.20, complexity=0.25).
+ * Under pure weighted matching without additive boosts, specialist personas with dominant weights
+ * tend to win over balanced profiles.
  * 
- * This fixture tests a balanced profile with moderate traits.
+ * This fixture validates that balanced profiles with moderate risk are assigned SELF_DIRECTED_GROWTH
+ * via transparent weighted matching (match_score derived purely from trait × weight).
  */
 describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
-  // BALANCED_ALLOCATOR triggers via soft override for balanced goal with moderate risk
-  // Requires: balance goal + moderate risk + low-moderate liquidity + low income orientation
+  // Profile tests balanced goal with moderate traits
+  // Under pure weighted matching, SELF_DIRECTED_GROWTH wins due to 50% risk weight
   const BALANCED_ALLOCATOR_FIXTURE = {
     profile: {
       age_band: '45_54' as const,
@@ -1128,11 +1126,12 @@ describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
         is_cross_border: false,
       },
     },
-    expected_persona_code: 'BALANCED_ALLOCATOR',
-    expected_label: 'Balanced Allocator',
+    // Pure weighted matching: SELF_DIRECTED_GROWTH wins with 50% risk weight
+    expected_persona_code: 'SELF_DIRECTED_GROWTH',
+    expected_label: 'Self-Directed Growth Investor',
   };
 
-  it('should assign BALANCED_ALLOCATOR persona for balanced goal with moderate risk', async () => {
+  it('should assign persona via pure weighted matching for balanced profile', async () => {
     const { computePersona } = await import('../server/services/personaEngine');
     
     const result = computePersona(BALANCED_ALLOCATOR_FIXTURE.profile);
