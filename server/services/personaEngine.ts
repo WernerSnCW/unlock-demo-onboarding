@@ -514,21 +514,12 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
   }
 
   // Pure weighted matching using only traitScores × weight table
-  const matches = computeWeightedMatches(traits);
+  let matches = computeWeightedMatches(traits);
   
-  // DOCUMENTED TIEBREAKER: CORE_GROWTH vs SELF_DIRECTED_GROWTH for advised profiles
-  // Rationale: These two personas share overlapping trait spaces (risk 0.32-0.38, complexity 0.30-0.42).
-  // Pure weighted matching cannot reliably separate them. For FULL_SERVICE_ADVISER profiles,
-  // apply a small boost (+0.015) to CORE_GROWTH to prefer advised growth over self-directed.
-  // This is transparent and documented, not a hidden boost.
+  // Exclude SELF_DIRECTED_GROWTH for fully-advised profiles
+  // Rationale: FULL_SERVICE_ADVISER users are by definition not self-directed
   if (profile.personaCues.adviser_usage === 'FULL_SERVICE_ADVISER') {
-    const coreIdx = matches.findIndex(m => m.code === 'CORE_GROWTH');
-    const selfIdx = matches.findIndex(m => m.code === 'SELF_DIRECTED_GROWTH');
-    if (coreIdx !== -1 && selfIdx !== -1) {
-      matches[coreIdx].score += 0.015;
-      // Re-sort after adjustment
-      matches.sort((a, b) => b.score - a.score);
-    }
+    matches = matches.filter(m => m.code !== 'SELF_DIRECTED_GROWTH');
   }
   
   const topMatch = matches[0];
