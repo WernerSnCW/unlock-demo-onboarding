@@ -518,11 +518,11 @@ export default function Analysis() {
             </div>
             <div>
               <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${tilts_allowed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}`}>
-                {tilts_allowed ? 'Belief Tilts Enabled' : 'Belief Tilts Locked'}
+                {tilts_allowed ? 'Preference Signals Enabled' : 'Preference Signals Locked'}
               </h4>
               <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                 {tilts_allowed
-                  ? 'No red flags detected. You can customise your portfolio with belief-based tilts and optimisation within our guardrails.'
+                  ? 'No red flags detected. Your preference signals can inform the illustrative scenarios in Step 7, within our guardrails.'
                   : 'One or more Safety Lights are Red. Unlock will not recommend moves that increase overall risk until these red flags are addressed. Focus on improving your liquidity, reducing concentration, or lowering illiquid exposure first.'}
               </p>
             </div>

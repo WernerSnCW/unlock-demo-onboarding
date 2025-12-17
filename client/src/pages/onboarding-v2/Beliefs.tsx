@@ -153,7 +153,7 @@ export default function Beliefs() {
                 Tilts Currently Locked
               </h4>
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                Belief tilts captured, but locked until red Safety Lights are addressed.
+                Preference signals captured, but locked until red Safety Lights are addressed.
               </p>
               <p className="text-xs text-rose-600 dark:text-rose-400 mt-2">
                 {GATE_REASON_MESSAGES[beliefs.tilts_gate_reason]}
@@ -174,7 +174,7 @@ export default function Beliefs() {
                 Tilts Available
               </h4>
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                Tilts are available. Amber Safety Lights mean the target step will keep tighter guardrails.
+                Signals are available. Amber Safety Lights mean the target step will keep tighter guardrails.
               </p>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function Beliefs() {
                 Tilts Ready to Apply
               </h4>
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                All Safety Lights are green. Your tilts can be applied in the next step.
+                All Safety Lights are green. Your preference signals can be applied in the next step.
               </p>
             </div>
           </div>
@@ -468,7 +468,7 @@ export default function Beliefs() {
               <CollapsibleTrigger asChild>
                 <button className="w-full flex items-center justify-between mb-4 cursor-pointer group/trigger">
                   <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
-                    How Unlock calculates belief tilts
+                    How Unlock converts answers into preference signals
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)] transition-colors">
                     <span>{methodologyOpen ? 'Hide' : 'Learn more'}</span>
@@ -478,7 +478,7 @@ export default function Beliefs() {
               </CollapsibleTrigger>
               
               <p className="text-sm text-[var(--muted-foreground)] mb-4">
-                Understand the scoring methodology behind your tilt profile.
+                These scores capture preference direction and strength (−1 to +1). They do not predict returns and do not change holdings.
               </p>
 
               <CollapsibleContent>
@@ -488,7 +488,7 @@ export default function Beliefs() {
                   <div>
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">What this step captures</h4>
                     <p className="text-[var(--muted-foreground)] leading-relaxed">
-                      Step 6 records your investment preferences across eight dimensions. These preferences inform how Unlock proposes a target portfolio but do not make any changes to your holdings. Your responses are stored as preference signals that inform portfolio construction within your established guardrails.
+                      Step 6 captures your preferences across eight dimensions. Unlock stores these as standardised signals (−1 to +1) that inform the <em>illustrative</em> scenarios in Step 7, within Safety Light guardrails. This step does not change your holdings and is not financial advice.
                     </p>
                   </div>
 
@@ -545,7 +545,7 @@ export default function Beliefs() {
                   <div>
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Strength label thresholds</h4>
                     <p className="text-[var(--muted-foreground)] mb-3 leading-relaxed">
-                      The absolute value of each axis score determines its intensity label:
+                      Intensity labels are based on the absolute score |score|:
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-center">
@@ -571,7 +571,7 @@ export default function Beliefs() {
                   <div>
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Volatility aversion inversion</h4>
                     <p className="text-[var(--muted-foreground)] leading-relaxed">
-                      The volatility question asks about comfort with fluctuations. A high comfort response (Strongly agree = +1) indicates low aversion to volatility. Unlock inverts this score so that the Volatility Aversion axis reflects aversion rather than comfort: <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">aversion = −comfort</span>. This means "Strongly agree" on comfort maps to a score of −1.00 on the aversion axis.
+                      The volatility question measures comfort with short-term swings. To express <em>aversion</em> (the opposite of comfort), Unlock inverts that score: <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">Volatility Aversion = −(Volatility Comfort)</span>.
                     </p>
                   </div>
 
@@ -579,7 +579,14 @@ export default function Beliefs() {
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-[var(--border)]">
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Safety Lights guardrails</h4>
                     <p className="text-[var(--muted-foreground)] leading-relaxed">
-                      Safety Lights guardrails take precedence over belief tilts. Tilts are applied only when Safety Lights permit. If any Safety Light shows <span className="text-rose-600 font-semibold">RED</span>, belief tilts are recorded but locked — they remain captured for reference but are not applied to the target portfolio until the underlying constraint is addressed. When all lights are <span className="text-emerald-600 font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, tilts inform portfolio construction within the established guardrails.
+                      Safety Lights take precedence. If any Safety Light is <span className="text-rose-600 font-semibold">RED</span>, signals are recorded but not applied in Step 7. When Safety Lights are <span className="text-emerald-600 font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, signals may be applied within guardrail constraints.
+                    </p>
+                  </div>
+
+                  {/* What Happens Next */}
+                  <div className="pt-2 border-t border-[var(--border)]">
+                    <p className="text-[var(--muted-foreground)] leading-relaxed italic">
+                      <strong>Next:</strong> Step 7 shows three illustrative scenarios and explicitly marks which signals were applied, constrained, or blocked by guardrails.
                     </p>
                   </div>
 

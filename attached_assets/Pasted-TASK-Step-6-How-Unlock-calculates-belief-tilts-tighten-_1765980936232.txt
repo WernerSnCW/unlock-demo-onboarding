@@ -1,0 +1,52 @@
+TASK: Step 6 “How Unlock calculates belief tilts” — tighten explainability framing (no logic changes, copy + small structure only)
+NO CODE OUTPUT IN CHAT RESPONSE.
+
+Goal:
+Make the existing Step 6 explanation section more investor-grade and clearly non-advice, while keeping the maths exactly as-is. This is a copy/UX refinement only.
+
+Where:
+Find the Step 6 explanation accordion/card titled “How Unlock calculates belief tilts” (the one showing mapping table, thresholds, inversion, guardrails). Update only text + small layout (headings/order). Do not touch scoring logic.
+
+Changes to make:
+
+1) Rename “belief tilts” wording to reduce advice implication:
+- Title: change to “How Unlock converts answers into preference signals”
+- Replace occurrences of “tilts” with “preference signals” where it reads like allocation instruction.
+- Keep “tilt profile” only where it is already used elsewhere in UI to avoid inconsistency.
+
+2) Add a one-line framing statement at the top (directly under subtitle):
+Add: “These scores capture preference direction and strength (−1 to +1). They do not predict returns and do not change holdings.”
+
+3) Update “WHAT THIS STEP CAPTURES” paragraph to be more explicit and defensible:
+Replace the current paragraph with:
+“Step 6 captures your preferences across eight dimensions. Unlock stores these as standardised signals (−1 to +1) that inform the *illustrative* scenarios in Step 7, within Safety Light guardrails. This step does not change your holdings and is not financial advice.”
+
+4) Add a short “What happens next” line at the end of the section:
+Add: “Next: Step 7 shows three illustrative scenarios and explicitly marks which signals were applied, constrained, or blocked by guardrails.”
+
+5) Strength thresholds: make it clearer and remove borderline ambiguity
+- Keep the existing threshold values.
+- Change the label to: “Intensity labels are based on the absolute score |score|:”
+- Ensure the wording matches the implemented boundary rules (Neutral if |score| < 0.20; Light 0.20–0.49; Moderate 0.50–0.79; Strong ≥0.80)
+
+6) Volatility inversion explanation: make it shorter and unambiguous
+Replace the volatility paragraph with:
+“The volatility question measures comfort with short-term swings. To express *aversion* (the opposite of comfort), Unlock inverts that score: Volatility Aversion = −(Volatility Comfort).”
+
+7) Safety Lights guardrails block: tighten and make non-prescriptive
+Replace with:
+“Safety Lights take precedence. If any Safety Light is RED, signals are recorded but not applied in Step 7. When Safety Lights are GREEN or AMBER, signals may be applied within guardrail constraints.”
+
+Constraints:
+- No changes to scoring thresholds or calculations.
+- No changes to gating logic.
+- No new UI components; just update copy and heading order.
+- Keep UK English spelling.
+
+Verification:
+- Confirm the explanation panel still renders correctly.
+- Confirm no other screens break due to wording changes (search for “belief tilts” and ensure consistent key phrases).
+
+Deliverable response (no code):
+- List files edited.
+- Paste the final updated copy blocks (title + each section body) so I can review wording.
