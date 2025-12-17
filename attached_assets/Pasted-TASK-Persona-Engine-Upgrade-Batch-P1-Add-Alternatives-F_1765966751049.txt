@@ -1,0 +1,56 @@
+TASK: Persona Engine Upgrade — Batch P1 (Add "Alternatives Focused" persona as a PRIMARY outcome)
+NO CODE OUTPUT IN CHAT RESPONSE.
+
+Goal:
+Our current persona engine cannot output an alternatives/crypto-led persona, even when crypto/allocation is dominant. Add a new PRIMARY persona outcome named:
+- Code: ALTERNATIVES_FOCUSED
+- Display label (user-facing): "Alternatives Focused"
+This must be a neutral, Consumer Duty–safe label (no “enthusiast”, “adventurer”, etc.).
+
+Non-negotiable constraints:
+- Do NOT change any existing persona logic or thresholds except what is needed to insert this new persona.
+- Do NOT rename existing persona codes.
+- Do NOT change Safety Lights logic or tilts gating.
+- Keep this deterministic and explainable.
+- Update UI labels via a single source of truth (avoid duplicating persona names across multiple files).
+
+Implementation steps (high level):
+1) SERVER: Update the persona engine (server/services/personaEngine.ts)
+   - Add ALTERNATIVES_FOCUSED as an additional primary persona option.
+   - Add it to the persona assignment priority order near the top (after Founder/Entrepreneur, and before Self-Directed Growth), so that genuine alternatives dominance wins.
+   - Trigger condition must reflect “alternatives dominance”, using existing portfolio measures/traits already computed:
+     - Use alternatives exposure / crypto allocation thresholds you already have (e.g., strong alternatives >20% or strong crypto >25%).
+     - Choose a clear and defensible rule such as:
+       - alternatives_pct >= 0.30 OR (alternatives_pct >= 0.20 AND crypto_pct >= 0.25)
+     - IMPORTANT: pick ONE rule and document it in comments or a short note in the file so it’s auditable.
+
+2) CLIENT: Update persona display labels (client/src/data/personas.ts and any persona title rendering)
+   - Ensure the UI can display "Alternatives Focused" as a persona title when the server returns ALTERNATIVES_FOCUSED.
+   - Do NOT use “The Crypto Enthusiast” anywhere user-facing after this change.
+   - If there is currently a UI persona catalogue that is not connected to server persona codes, connect the display name mapping so ALTERNATIVES_FOCUSED has a clear title.
+
+3) EXPLAINABILITY COPY (user-facing, non-advice)
+   For ALTERNATIVES_FOCUSED persona card, add:
+   - one-liner: neutral description (e.g., “Meaningful allocation to alternatives alongside traditional assets.”)
+   - 2–3 “why this fits” bullets tied to inputs (e.g., “A significant portion of the portfolio is in alternatives/crypto.”)
+   - 0–2 “risks” bullets (e.g., “Alternatives can be volatile and harder to sell quickly.”)
+   Keep language descriptive, not prescriptive.
+
+4) QA FIXTURE (must add at least one)
+   Add one simple persona test fixture (can be JSON in a fixtures file or a simple documented object used in dev testing):
+   - Inputs: accumulating, self-directed, long horizon, high risk, and alternatives/crypto dominance (e.g., 35%+ alternatives)
+   - Expected persona code: ALTERNATIVES_FOCUSED
+   Ensure this fixture can be used for repeat regression checks.
+
+Acceptance tests (must pass):
+A) With alternatives/crypto dominance (e.g., >30% alternatives and/or >25% crypto), the persona MUST be "Alternatives Focused" (code ALTERNATIVES_FOCUSED).
+B) With normal growth profile but low alternatives exposure, persona remains SELF_DIRECTED_GROWTH / CORE_GROWTH as before (no regressions).
+C) No user-facing text uses “The Crypto Enthusiast”.
+D) Persona output is still purely descriptive; no buy/sell language.
+E) Existing personas still trigger exactly as before for their prior conditions.
+
+Deliverable response format:
+- List files changed (filenames only).
+- Confirm trigger rule chosen for ALTERNATIVES_FOCUSED.
+- Confirm the fixture added and what it contains (briefly).
+- Do NOT paste code in the response.
