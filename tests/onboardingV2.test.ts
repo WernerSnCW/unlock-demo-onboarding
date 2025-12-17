@@ -1320,3 +1320,33 @@ describe('Persona Engine - PROPERTY_LED Fixture', () => {
     expect(result.match_confidence).toBe(1.0);
   });
 });
+
+/**
+ * Direction Boundary Tests
+ * 
+ * Verifies computeDirection() uses exclusive thresholds per spec:
+ * - Exactly ±0.20 → NEUTRAL
+ * - > +0.20 → TOWARDS
+ * - < -0.20 → AWAY
+ */
+describe('computeDirection boundary cases', () => {
+  it('should return NEUTRAL at exactly +0.20 boundary', async () => {
+    const { computeDirection } = await import('../client/src/state/onboardingV2Store');
+    expect(computeDirection(0.20)).toBe('NEUTRAL');
+  });
+
+  it('should return NEUTRAL at exactly -0.20 boundary', async () => {
+    const { computeDirection } = await import('../client/src/state/onboardingV2Store');
+    expect(computeDirection(-0.20)).toBe('NEUTRAL');
+  });
+
+  it('should return TOWARDS just above +0.20', async () => {
+    const { computeDirection } = await import('../client/src/state/onboardingV2Store');
+    expect(computeDirection(0.21)).toBe('TOWARDS');
+  });
+
+  it('should return AWAY just below -0.20', async () => {
+    const { computeDirection } = await import('../client/src/state/onboardingV2Store');
+    expect(computeDirection(-0.21)).toBe('AWAY');
+  });
+});

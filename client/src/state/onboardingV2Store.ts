@@ -523,10 +523,10 @@ function normaliseAnswer(answer: 1 | 2 | 3 | 4 | 5): number {
 }
 
 // Compute direction from score (per spec: score > 0.20 → TOWARDS, score < -0.20 → AWAY)
-// Using >= and <= for consistency with intensity thresholds
-function computeDirection(score: number): TiltDirection {
-  if (score >= 0.20) return 'TOWARDS';
-  if (score <= -0.20) return 'AWAY';
+// Boundaries (exactly ±0.20) are classified as NEUTRAL per spec
+export function computeDirection(score: number): TiltDirection {
+  if (score > 0.20) return 'TOWARDS';
+  if (score < -0.20) return 'AWAY';
   return 'NEUTRAL';
 }
 
