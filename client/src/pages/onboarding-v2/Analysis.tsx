@@ -321,6 +321,7 @@ export default function Analysis() {
           <div
             className={`relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-10 ${overallStatusConfig.borderColor}`}
             data-testid="overall-status-banner"
+            aria-label={`Overall status: ${overall_status_label}. ${overall_status_message}`}
           >
             <div className="absolute -top-5 left-6 z-10">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
@@ -365,6 +366,7 @@ export default function Analysis() {
                 <div
                   className="relative h-full flex flex-col bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10"
                   data-testid={`safety-light-${light.key}`}
+                  aria-label={`${light.label} status: ${light.status}. ${light.description}`}
                 >
                   <div className="absolute -top-4 left-4 z-10">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
@@ -377,7 +379,7 @@ export default function Analysis() {
                   </div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-bold text-[var(--foreground)] tracking-tight">{light.label}</span>
-                    <StatusIcon className={`w-6 h-6 ${config.color}`} />
+                    <StatusIcon className={`w-6 h-6 ${config.color}`} aria-hidden="true" />
                   </div>
                   <p className="text-sm text-[var(--foreground)] mb-3 leading-relaxed flex-1">{light.description}</p>
                   <p className="text-xs text-[var(--muted-foreground)] font-medium mt-auto">{light.detail}</p>
