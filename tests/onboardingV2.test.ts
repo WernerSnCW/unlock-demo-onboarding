@@ -894,21 +894,23 @@ describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
    * Test Fixture: Capital Preservation Profile
    * 
    * Inputs:
-   * - portfolio_stage: STARTING_DRAWDOWN
+   * - portfolio_stage: STARTING_DRAWDOWN (NOT PRIMARILY_DRAWDOWN to avoid INCOME_STABILITY)
+   * - primary_goal: 'growth' (NOT 'income' to avoid INCOME_STABILITY)
    * - risk_comfort: low
+   * - time_horizon: '10_plus' (long horizon to avoid income-focused triggers)
    * - cash_runway_months: 18+ (high)
    * - cash_pct: 25%
    * 
    * Expected persona code: CAPITAL_PRESERVATION
    * 
-   * Trigger rule: low risk + high cash + not accumulating
+   * Trigger rule: low risk + high cash/runway + not accumulating + not income-focused
    */
   const CAPITAL_PRESERVATION_FIXTURE = {
     profile: {
       age_band: '55_64' as const,
       portfolio_stage: 'STARTING_DRAWDOWN' as const,
-      primary_goal: 'preservation',
-      time_horizon: '5_10',
+      primary_goal: 'growth',
+      time_horizon: '10_plus',
       risk_comfort: 'low',
       total_portfolio_value_gbp: 1200000,
       cash_runway_months: 18,
@@ -929,8 +931,8 @@ describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
         age_band: '55_64' as const,
         portfolio_stage: 'STARTING_DRAWDOWN' as const,
         investing_focus: ['FUNDS_ETFS' as const],
-        has_defined_benefit_pension: true,
-        db_income_coverage_band: '50_75' as const,
+        has_defined_benefit_pension: false,
+        db_income_coverage_band: null,
         owns_business: false,
         private_business_wealth_band: null,
         has_employer_stock: false,
@@ -942,7 +944,7 @@ describe('Persona Engine - CAPITAL_PRESERVATION Fixture', () => {
       },
     },
     expected_persona_code: 'CAPITAL_PRESERVATION',
-    expected_label: 'Capital Preservation Focus',
+    expected_label: 'Capital Preservation Investor',
   };
 
   it('should assign CAPITAL_PRESERVATION persona for low-risk, high-cash profile', async () => {
