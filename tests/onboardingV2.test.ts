@@ -1550,7 +1550,7 @@ describe('Step 7 Applied Tilts - LOCKED Status', () => {
     
     guardrailFirst!.applied_tilts.forEach(tilt => {
       expect(tilt.status).toBe('LOCKED');
-      expect(tilt.constraint_reason).toBe('Locked due to Safety Lights (RED).');
+      expect(tilt.constraint_reason).toBe('Considered within guardrails due to Safety Lights.');
     });
     
     expect(guardrailFirst!.tilts_constrained_count).toBeGreaterThan(0);

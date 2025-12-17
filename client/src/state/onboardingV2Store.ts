@@ -1289,7 +1289,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             
             if (!tiltsAllowed) {
               status = 'LOCKED';
-              constraintReason = 'Locked due to Safety Lights (RED).';
+              constraintReason = 'Considered within guardrails due to Safety Lights.';
             } else if (scenarioType === 'NEUTRAL_BASELINE') {
               status = 'NOT_APPLIED';
               constraintReason = 'Neutral baseline does not incorporate belief axes.';

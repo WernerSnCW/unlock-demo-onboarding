@@ -84,7 +84,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
   APPLIED: { label: 'Reflected', color: 'text-[#10A957]', bgColor: 'bg-[#10A957]/10', icon: Check },
   PARTIALLY_APPLIED: { label: 'Partially reflected', color: 'text-[#13683B]', bgColor: 'bg-[#13683B]/10', icon: Check },
   CONSTRAINED: { label: 'Constrained', color: 'text-[#FE9239]', bgColor: 'bg-[#FE9239]/10', icon: Lock },
-  LOCKED: { label: 'Locked', color: 'text-[#DC2626]', bgColor: 'bg-[#DC2626]/10', icon: Lock },
+  LOCKED: { label: 'Constrained by guardrails', color: 'text-[#DC2626]', bgColor: 'bg-[#DC2626]/10', icon: Lock },
   NOT_APPLIED: { label: 'Not reflected', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
 };
 
@@ -492,9 +492,9 @@ export default function Target() {
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#FE9239]">Belief axes captured but not reflected</h4>
+                  <h4 className="font-bold text-[#FE9239]">Belief axes captured but constrained</h4>
                   <p className="text-sm text-[var(--muted-foreground)]">
-                    Safety Lights guardrails prevent preference reflection in this scenario. Address the underlying constraints to enable reflection.
+                    Safety Lights guardrails constrain how preferences can be considered. Address the underlying constraints to enable full consideration.
                   </p>
                 </div>
               </div>
