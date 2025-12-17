@@ -516,4 +516,34 @@ describe('Overall Status Code and Labels', () => {
     expect(result.overall_status_code).toBe('ACTION_REQUIRED');
     expect(result.tilts_allowed).toBe(false);
   });
+
+  it('should return GREEN for Concentration and Illiquids when holdings are zero', () => {
+    const intake: Intake = {
+      cash: 50000,
+      spend: 30000,
+      largest_line_pct: 0,
+      illiquid_pct: 0,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.concentration).toBe('GREEN');
+    expect(result.illiquids).toBe('GREEN');
+    expect(result.metrics.largest_line_pct).toBe(0);
+    expect(result.metrics.illiquid_pct).toBe(0);
+  });
+
+  it('should return cash_runway_months=-1 and Liquidity GREEN when essential spend is zero', () => {
+    const intake: Intake = {
+      cash: 50000,
+      spend: 0,
+      largest_line_pct: 0.10,
+      illiquid_pct: 0.05,
+    };
+
+    const result = computeSafetyLights(intake);
+
+    expect(result.liquidity).toBe('GREEN');
+    expect(result.metrics.cash_runway_months).toBe(-1);
+  });
 });
