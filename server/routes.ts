@@ -58,9 +58,9 @@ const openai = {
 const PERSONA_ID_TO_NAME: Record<string, string> = {
   "P001": "The Retirement Planner",
   "P002": "The Property Lover", 
-  "P003": "The Crypto Enthusiast",
+  "P003": "Alternatives Focused",
   "P004": "The Old Fashioned Saver",
-  "P005": "The Legacy Builder",
+  "P005": "Legacy & HNW Planner",
   "P006": "The Tech Worker",
   "P007": "The Dividend Seeker",
   "P008": "The Young Professional",
@@ -81,9 +81,9 @@ const PERSONA_ID_TO_NAME: Record<string, string> = {
 const PERSONA_TRAITS: Record<string, any> = {
   "The Retirement Planner": { liquidityMonths: 9, concentrationTolerance: "med", notes: "Pension-focused diversified", propertyBias: 0.30, techBias: 0.30, altBias: 0.25 },
   "The Property Lover": { liquidityMonths: 6, concentrationTolerance: "high", notes: "78% property tilt", propertyBias: 0.85, techBias: 0.10, altBias: 0.15 },
-  "The Crypto Enthusiast": { liquidityMonths: 2, concentrationTolerance: "high", notes: "51% crypto; tech heavy", propertyBias: 0.05, techBias: 0.70, altBias: 0.45 },
+  "Alternatives Focused": { liquidityMonths: 2, concentrationTolerance: "high", notes: "51% crypto; tech heavy", propertyBias: 0.05, techBias: 0.70, altBias: 0.45 },
   "The Old Fashioned Saver": { liquidityMonths: 10, concentrationTolerance: "low", notes: "Cash/Bonds/Dividend focus", propertyBias: 0.20, techBias: 0.10, altBias: 0.10 },
-  "The Legacy Builder": { liquidityMonths: 9, concentrationTolerance: "med", notes: "Alt investments & estate planning", propertyBias: 0.50, techBias: 0.30, altBias: 0.40 },
+  "Legacy & HNW Planner": { liquidityMonths: 9, concentrationTolerance: "med", notes: "Alt investments & estate planning", propertyBias: 0.50, techBias: 0.30, altBias: 0.40 },
   "The Tech Worker": { liquidityMonths: 4, concentrationTolerance: "med", notes: "Company stock concentration", propertyBias: 0.15, techBias: 0.80, altBias: 0.25 },
   "The Dividend Seeker": { liquidityMonths: 6, concentrationTolerance: "med", notes: "UK dividend tilt; REITs", propertyBias: 0.35, techBias: 0.15, altBias: 0.15 },
   "The Young Professional": { liquidityMonths: 3, concentrationTolerance: "med", notes: "Indexing + small spec", propertyBias: 0.15, techBias: 0.55, altBias: 0.10 },

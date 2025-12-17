@@ -1,0 +1,51 @@
+TASK: Batch 2 (Revised) — Update persona DISPLAY NAMES to Consumer Duty–safe wording (copy-only)
+
+Context:
+The spec requires persona labels to avoid language that could be interpreted as endorsing speculative behaviour. The exact spec strings ("Crypto & Alternatives Adventurer", "Legacy & HNW Architect") are not present in code, but the app currently shows user-facing labels like "The Crypto Enthusiast" and "The Legacy Builder".
+
+Goal:
+Update the user-facing persona display names so that the equivalent personas are presented with the safer labels:
+- "Alternatives Focused"
+- "Legacy & HNW Planner"
+
+IMPORTANT CONSTRAINTS:
+- This is DISPLAY TEXT only. Do not change any persona scoring, classification logic, matching, weights, thresholds, or which persona gets selected.
+- Do not rename internal persona IDs/codes used for logic (keep them stable).
+- Only update what the user sees in the UI (labels, headings, cards, persona lists).
+
+Implementation steps:
+1) Identify where persona names are displayed in the UI.
+   - Start with client/src/data/personas.ts (it contains names like "The Crypto Enthusiast", "The Legacy Builder", etc.).
+   - Also check any persona card component(s) that might override or format the label.
+
+2) Map the existing UI personas to the safer labels:
+   A) The persona currently shown to users as "The Crypto Enthusiast"
+      → change the displayed label to: "Alternatives Focused"
+      Rationale: avoid framing as enthusiasm for crypto; treat it as a neutral allocation focus.
+
+   B) The persona currently shown to users as "The Legacy Builder"
+      → change the displayed label to: "Legacy & HNW Planner"
+      Rationale: keep the meaning but use a neutral “planner” framing.
+
+3) Ensure these label changes apply everywhere those personas appear:
+   - Persona card title in Step 5
+   - Any persona selection / summary screens
+   - Any chips, tooltips, or supporting text that repeats the old name
+
+4) After changes, run a repo search to confirm these old labels are not shown to users anymore:
+   - "The Crypto Enthusiast"
+   - "The Legacy Builder"
+   (If they remain intentionally anywhere, confirm it is NOT user-facing.)
+
+5) Restart the app and verify behaviour is unchanged (same persona selection), only the labels changed.
+
+Acceptance tests (UI screenshots):
+- Trigger the persona that used to show "The Crypto Enthusiast":
+  Expected: it now displays "Alternatives Focused" (and nothing else changes).
+- Trigger the persona that used to show "The Legacy Builder":
+  Expected: it now displays "Legacy & HNW Planner" (and nothing else changes).
+
+Deliverable:
+- List the files edited (filenames only).
+- Confirm “display labels only” change (no logic changes).
+- Do NOT output code in the response.

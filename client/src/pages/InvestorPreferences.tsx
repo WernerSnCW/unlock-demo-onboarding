@@ -278,7 +278,7 @@ const investorPersonas = [
   },
   {
     id: 'legacy_builder',
-    name: 'The Legacy Builder (Advisor-Reliant)',
+    name: 'Legacy & HNW Planner (Advisor-Reliant)',
     description: 'Conservative wealth preservation focused on long-term legacy with strong ESG considerations',
     criteria: {
       investorObjective: ['wealth_preservation'],

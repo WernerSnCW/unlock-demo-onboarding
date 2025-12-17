@@ -72,7 +72,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   },
   "P003": {
     code: "P003",
-    name: "The Crypto Enthusiast",
+    name: "Alternatives Focused",
     description: "Young, tech-savvy investor pursuing high growth through significant cryptocurrency allocation while managing extreme volatility and concentration risk.",
     portfolioValue: 780_000,
     wealthTier: "Mass-Affluent",
@@ -120,7 +120,7 @@ export const INVESTMENT_PERSONAS: Record<string, PersonaDef> = {
   },
   "P005": {
     code: "P005",
-    name: "The Legacy Builder",
+    name: "Legacy & HNW Planner",
     description: "Wealthy individual building intergenerational wealth through diversified portfolios, estate planning, and alternative investments while minimizing inheritance tax.",
     portfolioValue: 2_400_000,
     wealthTier: "HNW",
