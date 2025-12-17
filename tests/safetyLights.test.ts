@@ -59,8 +59,8 @@ describe('Policy Loader', () => {
   it('should have correct collectibles defaults', () => {
     const policy = getPolicy();
     
-    expect(policy.collectibles.max_weight_pct).toBe(0.10);
-    expect(policy.collectibles.amber_fraction).toBe(0.70);
+    expect(policy.collectibles.max_weight_pct).toBe(0.25);
+    expect(policy.collectibles.amber_fraction).toBe(0.60);
   });
 
   it('should have correct factors defaults', () => {
@@ -220,7 +220,7 @@ describe('Safety Lights', () => {
         cash: 50000,
         spend: 40000,
         largest_line_pct: 0.10,
-        illiquid_pct: 0.15,
+        illiquid_pct: 0.30,
       };
       
       const result = computeSafetyLights(intake);
@@ -233,7 +233,7 @@ describe('Safety Lights', () => {
         cash: 50000,
         spend: 40000,
         largest_line_pct: 0.10,
-        illiquid_pct: 0.08,
+        illiquid_pct: 0.20,
       };
       
       const result = computeSafetyLights(intake);
@@ -299,8 +299,8 @@ describe('Safety Lights', () => {
       expect(result.details.liquidity_thresholds.amber_below).toBe(9);
       expect(result.details.concentration_thresholds.amber_above).toBeCloseTo(0.15, 5);
       expect(result.details.concentration_thresholds.red_above).toBeCloseTo(0.20, 5);
-      expect(result.details.illiquids_thresholds.amber_above).toBeCloseTo(0.07, 5);
-      expect(result.details.illiquids_thresholds.red_above).toBeCloseTo(0.10, 5);
+      expect(result.details.illiquids_thresholds.amber_above).toBeCloseTo(0.15, 5);
+      expect(result.details.illiquids_thresholds.red_above).toBeCloseTo(0.25, 5);
     });
 
     it('should adjust threshold values when policy is overridden', () => {
