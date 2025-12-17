@@ -28,13 +28,13 @@ projection:
 # COLLECTIBLES - Illiquid assets and collectibles limits
 # =============================================================================
 collectibles:
-  # Maximum percentage of portfolio in illiquid assets/collectibles (0.10 = 10%)
+  # Maximum percentage of portfolio in illiquid assets/collectibles (0.25 = 25%)
   # Above this = RED illiquids status
-  max_weight_pct: 0.10
+  max_weight_pct: 0.25
   
   # Fraction of max_weight_pct that defines AMBER threshold
-  # GREEN: 0% to 7%, AMBER: 7% to 10%, RED: above 10%
-  amber_fraction: 0.70
+  # GREEN: 0% to 15%, AMBER: 15% to 25%, RED: above 25%
+  amber_fraction: 0.60
 
 # =============================================================================
 # FACTORS - Beliefs to tilts calculation parameters (for future implementation)
