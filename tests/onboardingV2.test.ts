@@ -628,3 +628,102 @@ describe('Portfolio Breakdowns', () => {
     expect(wrapperTotal).toBeCloseTo(100, 1);
   });
 });
+
+/**
+ * ALTERNATIVES_FOCUSED Persona Test Fixture
+ * 
+ * QA fixture for regression testing the ALTERNATIVES_FOCUSED persona assignment.
+ * This fixture documents the expected behavior for alternatives-dominant portfolios.
+ */
+describe('Persona Engine - ALTERNATIVES_FOCUSED Fixture', () => {
+  /**
+   * Test Fixture: Alternatives-Dominant Profile
+   * 
+   * Inputs:
+   * - portfolio_stage: ACCUMULATING
+   * - adviser_usage: SELF_DIRECTED  
+   * - time_horizon: 10+ years (long)
+   * - risk_comfort: high
+   * - alts_pct: 35% (alternatives dominance)
+   * - crypto_alloc_band: GT_25 (>25% crypto)
+   * 
+   * Expected persona code: ALTERNATIVES_FOCUSED
+   * 
+   * Trigger rule: alts_pct >= 0.30 OR (alts_pct >= 0.20 AND crypto_alloc >= 0.25)
+   */
+  const ALTERNATIVES_FOCUSED_FIXTURE = {
+    profile: {
+      age_band: '25_34' as const,
+      portfolio_stage: 'ACCUMULATING' as const,
+      primary_goal: 'growth',
+      time_horizon: '10_plus',
+      risk_comfort: 'high',
+      total_portfolio_value_gbp: 200000,
+      cash_runway_months: 4,
+      largest_line_pct: 0.25,
+      illiquid_pct: 0.10,
+      asset_class_breakdown: {
+        equity_pct: 0.40,
+        bond_pct: 0.05,
+        property_pct: 0.10,
+        cash_pct: 0.10,
+        alts_pct: 0.35,
+        crypto_pct: 0.30,
+      },
+      liquidity_status: 'AMBER' as const,
+      concentration_status: 'AMBER' as const,
+      illiquids_status: 'GREEN' as const,
+      personaCues: {
+        age_band: '25_34' as const,
+        portfolio_stage: 'ACCUMULATING' as const,
+        investing_focus: ['CRYPTO' as const],
+        has_defined_benefit_pension: false,
+        db_income_coverage_band: null,
+        owns_business: false,
+        private_business_wealth_band: null,
+        has_employer_stock: false,
+        employer_stock_alloc_band: null,
+        has_crypto: true,
+        crypto_alloc_band: 'GT_25' as const,
+        adviser_usage: 'SELF_DIRECTED' as const,
+        is_cross_border: false,
+      },
+    },
+    expected_persona_code: 'ALTERNATIVES_FOCUSED',
+    expected_label: 'Alternatives Focused',
+  };
+
+  it('should assign ALTERNATIVES_FOCUSED persona for alternatives-dominant profile', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const result = computePersona(ALTERNATIVES_FOCUSED_FIXTURE.profile);
+    
+    expect(result.code).toBe(ALTERNATIVES_FOCUSED_FIXTURE.expected_persona_code);
+    expect(result.label).toBe(ALTERNATIVES_FOCUSED_FIXTURE.expected_label);
+  });
+
+  it('should NOT assign ALTERNATIVES_FOCUSED when alternatives exposure is low', async () => {
+    const { computePersona } = await import('../server/services/personaEngine');
+    
+    const lowAltsProfile = {
+      ...ALTERNATIVES_FOCUSED_FIXTURE.profile,
+      asset_class_breakdown: {
+        ...ALTERNATIVES_FOCUSED_FIXTURE.profile.asset_class_breakdown,
+        alts_pct: 0.10,
+        crypto_pct: 0.05,
+        equity_pct: 0.65,
+      },
+      personaCues: {
+        ...ALTERNATIVES_FOCUSED_FIXTURE.profile.personaCues,
+        has_crypto: false,
+        crypto_alloc_band: null,
+        investing_focus: [],
+      },
+    };
+    
+    const result = computePersona(lowAltsProfile);
+    
+    expect(result.code).not.toBe('ALTERNATIVES_FOCUSED');
+    expect(result.code).toBe('SELF_DIRECTED_GROWTH');
+  });
+});

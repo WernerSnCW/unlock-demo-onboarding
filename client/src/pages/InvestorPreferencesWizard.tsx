@@ -4664,7 +4664,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               1: 'P001', // Moderate Conservative -> The Retirement Planner  
               2: 'P009', // Balanced -> The Global Nomad
               3: 'P008', // Growth -> The Young Professional
-              4: 'P003'  // Aggressive -> The Crypto Enthusiast
+              4: 'P003'  // Aggressive -> Alternatives Focused
             };
             
             personaId = riskToPersona[riskQuestion.optionIndex] || 'P009';
@@ -6107,7 +6107,7 @@ function ActionPlanComponent({ userId }: { userId: string }) {
                   1: 'P001', // Moderate Conservative -> The Retirement Planner  
                   2: 'P009', // Balanced -> The Global Nomad
                   3: 'P008', // Growth -> The Young Professional
-                  4: 'P003'  // Aggressive -> The Crypto Enthusiast
+                  4: 'P003'  // Aggressive -> Alternatives Focused
                 };
                 personaId = riskToPersona[riskQuestion.optionIndex] || 'P009';
               }
