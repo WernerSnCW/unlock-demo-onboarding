@@ -410,7 +410,7 @@ export default function Target() {
 
   const handleContinue = () => {
     completeScenarioStep();
-    navigate('/onboarding-v2/transition');
+    navigate('/onboarding-v2/next-steps');
   };
 
   const handleBack = () => {

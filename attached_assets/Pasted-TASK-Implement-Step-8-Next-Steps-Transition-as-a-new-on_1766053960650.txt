@@ -1,0 +1,121 @@
+TASK: Implement Step 8 (Next Steps / Transition) as a new onboarding-v2 page.
+IMPORTANT: Do not change Step 5–7 maths or logic. This step is interpretation + presentation only.
+DO NOT paste code into chat. Implement directly in the repo.
+
+GOAL (Investor Outcome):
+Step 8 should “close the loop” after Step 7 by clearly stating:
+- what the investor’s situation means right now (GREEN/AMBER/RED),
+- what to focus on first (guardrails),
+- what is optional (preference refinements),
+- what happens next (wrappers + report),
+while remaining non-prescriptive and not financial advice.
+
+SCOPE (Minimal, Testable):
+1) Create a new page component for Step 8.
+2) Add it into the onboarding route after Step 7 and before Step 9.
+3) Add a single “completion” handler that advances the flow.
+4) Page content must be driven entirely from existing computed data already in the onboarding store:
+   - analysis.result.safety_lights (overall + each light + key metrics)
+   - beliefs (tilts_allowed + axis scores/tilt_profile)
+   - scenarios (applied tilts statuses: APPLIED/PARTIALLY_APPLIED/CONSTRAINED/LOCKED)
+No new calculations beyond simple “if status is RED show X text”.
+
+FILES TO ADD/EDIT
+
+A) Add new page file:
+- Create: client/src/pages/onboarding-v2/NextSteps.tsx
+
+B) Update routing:
+- Find onboarding-v2 router config (likely client/src/App.tsx or client/src/routes/* or onboarding-v2 flow file).
+- Add a new route for Step 8 (e.g., /onboarding-v2/next-steps).
+- Ensure navigation order is:
+  Step 7 Target.tsx -> Step 8 NextSteps.tsx -> Step 9 Wrappers -> Step 10 Report
+(Use existing patterns for step components.)
+
+C) Update store:
+- In client/src/state/onboardingV2Store.ts:
+  - Add a new step entry for STEP_8 (or similar) so progress tracking is correct.
+  - Add an action/method like completeNextStepsStep() that marks the step complete and navigates forward (use same pattern as completeBeliefsStep()).
+  - Do NOT modify computeScenarios(), computeBeliefsScores(), or computeSafetyLights().
+
+PAGE REQUIREMENTS (CONTENT + STRUCTURE)
+
+1) Page Title (top):
+“Next steps”
+
+2) Intro box (small, like your existing “What this page shows” style):
+Bullets (exact text):
+- This page summarises what matters most right now, based on your Safety Lights and preference signals.
+- It does not instruct you to buy or sell any asset, and it is not financial advice.
+- It shows what is blocking flexibility (if anything) and what you can review next.
+
+3) Section: “Your current position” (one clear headline + 1 sentence)
+Derive from safety_lights.overall_status (GREEN/AMBER/RED) and use investor-grade wording:
+- GREEN:
+  Headline: “You’re within guardrails”
+  Sentence: “Your portfolio is within Unlock’s guardrails for liquidity, concentration, and illiquid exposure. Preference signals are enabled.”
+- AMBER:
+  Headline: “Caution flags present”
+  Sentence: “Some guardrails are close to limits. Preference signals may be applied, but changes should stay modest until the amber flags improve.”
+- RED:
+  Headline: “Action required before preferences can be applied”
+  Sentence: “One or more red flags are present. Preference signals are recorded but locked until these constraints are addressed.”
+
+4) Section: “What matters most now” (up to 3 items, ordered)
+Use Safety Lights to generate an ordered list:
+- If any light is RED: list RED lights first
+- Then AMBER
+- Then (optionally) GREEN as “currently healthy”
+Each item should show:
+- the light name (Liquidity / Concentration / Illiquids)
+- current metric shown already in Step 5 (cash runway months, largest holding %, illiquid %)
+- a plain-English “Why it matters” line (no technical jargon)
+Example language:
+- Concentration: “High single-holding exposure can dominate outcomes and reduce diversification.”
+- Liquidity: “Liquidity provides resilience for unexpected spending needs.”
+- Illiquids: “Illiquid assets may be harder to sell quickly during stress.”
+
+Do not introduce new threshold numbers here; if you reference thresholds, reuse the same amber/red values already displayed in Step 5.
+
+5) Section: “Preference signals status” (short, visual list)
+Show 8 signals with their final status for Step 7 in the strongest scenario (Preference-leaning):
+- For each axis, show:
+  - Axis label (Quality Tilt, Value Tilt, etc.)
+  - Intensity + direction (already available from tilt_profile)
+  - Status badge:
+    - APPLIED / PARTIALLY_APPLIED / CONSTRAINED / LOCKED
+  - If CONSTRAINED/LOCKED, show the reason text that already exists (constraint_reason)
+
+If scenarios data is missing for any reason, fall back to:
+- “Signals captured. Scenario application details will appear once Step 7 has been generated.”
+(robustness requirement)
+
+6) Section: “What happens next”
+Text (exact):
+“Next, we’ll show an illustrative view of wrappers and transition considerations, and then generate your snapshot report.”
+
+7) CTA Buttons (bottom)
+- Primary: “Continue”
+  - calls completeNextStepsStep() and navigates to Step 9
+- Secondary (optional): “Back to scenarios”
+  - navigates back to Step 7
+
+8) Quality / CRAFT checks (must satisfy)
+- CLARITY: one-sentence conclusion at top, plain English
+- ROBUSTNESS: safe fallbacks if scenarios not present
+- ACCURACY: no new maths or thresholds, reuse existing displayed values
+- FAIRNESS: guardrails-first ordering, no language pushing riskier actions
+- TRANSPARENCY: show applied vs constrained vs locked with reasons
+
+TESTING (Fast, Manual)
+After implementation, verify three flows:
+A) GREEN overall -> shows “within guardrails”, signals enabled, statuses present
+B) RED overall -> shows “action required”, signals locked (LOCKED status visible)
+C) If you skip/interrupt Step 7 generation (simulate missing scenarios), page still renders with fallback text and no crash.
+
+DELIVERABLE
+After implementing, report back:
+- Which files were created/edited
+- The route path for Step 8
+- A screenshot of Step 8 in GREEN case and RED case
+- Confirmation that no Step 5–7 computations were modified

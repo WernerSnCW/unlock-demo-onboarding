@@ -386,6 +386,9 @@ interface OnboardingV2State {
   completeScenarioStep: () => void;
   resetScenario: () => void;
   
+  // Next steps action
+  completeNextStepsStep: () => void;
+  
   resetOnboarding: () => void;
 }
 
@@ -1430,6 +1433,11 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
 
       resetScenario: () => {
         set({ scenario: initialScenario });
+      },
+
+      completeNextStepsStep: () => {
+        // Step 8 is a presentation-only step; no state changes needed
+        // Navigation is handled by the component
       },
 
       resetOnboarding: () => {
