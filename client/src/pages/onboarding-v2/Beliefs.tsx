@@ -5,8 +5,7 @@ import {
   AxisCode,
   TiltDirection,
   TiltIntensity,
-  TiltsGateReason,
-  runBeliefScoringTest
+  TiltsGateReason
 } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { useState, useEffect, useMemo } from 'react';
@@ -640,24 +639,6 @@ export default function Beliefs() {
           </Button>
         </div>
 
-        {/* Debug Test Harness (dev only) */}
-        <div className="mt-8 p-4 border border-dashed border-slate-300 dark:border-slate-600 rounded-lg">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 dark:text-slate-400">Debug: Belief Scoring Test</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const result = runBeliefScoringTest();
-                alert(`Test ${result.passed ? 'PASSED ✓' : 'FAILED ✗'}\n\nCheck browser console for details.`);
-              }}
-              className="text-xs"
-              data-testid="run-belief-test-button"
-            >
-              Run Test
-            </Button>
-          </div>
-        </div>
       </div>
     </OnboardingLayout>
   );
