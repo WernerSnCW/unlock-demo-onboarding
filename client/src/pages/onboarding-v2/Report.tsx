@@ -37,7 +37,7 @@ import {
   type InterpretationContext,
 } from '@/lib/scenarioInterpretation';
 import { useToast } from '@/hooks/use-toast';
-import unlockLogo from '@/assets/unlock-logo.svg';
+import Logo from '@/components/Logo';
 
 const SAFETY_STATUS_CONFIG: Record<SafetyStatus, { icon: typeof ShieldCheck; color: string; bg: string; label: string }> = {
   GREEN: { icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'Green' },
@@ -303,12 +303,7 @@ export default function Report() {
           
           <div className="flex justify-between items-start mb-6 print:mb-4">
             <div className="flex items-start gap-4">
-              <img 
-                src={unlockLogo} 
-                alt="Unlock" 
-                className="h-12 w-auto"
-                data-testid="report-logo"
-              />
+              <Logo size="lg" />
               <div>
                 <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2" data-testid="report-title">
                   Snapshot Report (Illustrative)
