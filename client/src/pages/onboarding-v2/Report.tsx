@@ -1,13 +1,10 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { 
   FileText, 
   Download, 
-  Share2, 
   Home,
-  Copy,
-  Check,
   ShieldCheck,
   ShieldAlert,
   XCircle,
@@ -72,7 +69,6 @@ function formatPercent(value: number): string {
 export default function Report() {
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
-  const [linkCopied, setLinkCopied] = useState(false);
   
   const { holdings, analysis, beliefs, scenario, intake } = useOnboardingV2Store();
   
@@ -181,18 +177,6 @@ export default function Report() {
   const reportId = useMemo(() => {
     return `RPT-${Date.now().toString(36).toUpperCase()}`;
   }, []);
-
-  const handleCopyLink = async () => {
-    const url = `${window.location.origin}/onboarding-v2/report`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      toast({ title: 'Link copied', description: 'Report link copied to clipboard' });
-      setTimeout(() => setLinkCopied(false), 2000);
-    } catch {
-      toast({ title: 'Copy failed', description: 'Could not copy link', variant: 'destructive' });
-    }
-  };
 
   const handleDownloadPDF = () => {
     window.print();
@@ -338,16 +322,6 @@ export default function Report() {
               >
                 <FileJson className="w-4 h-4" />
                 JSON
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyLink}
-                className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
-                data-testid="button-share-link"
-              >
-                {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {linkCopied ? 'Copied' : 'Share'}
               </Button>
             </div>
           </div>
@@ -753,15 +727,6 @@ export default function Report() {
             >
               <FileJson className="w-4 h-4" />
               Download JSON
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCopyLink}
-              className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
-              data-testid="button-share-bottom"
-            >
-              <Share2 className="w-4 h-4" />
-              Copy Share Link
             </Button>
           </div>
 
