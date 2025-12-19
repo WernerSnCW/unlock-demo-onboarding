@@ -1,0 +1,49 @@
+The Snapshot Report is analytically correct but lacks plain-English interpretation.
+Add a Narrative Interpretation layer so a non-investor can understand what the report is telling them.
+
+Do NOT add recommendations, advice, or action instructions.
+
+A) Add a new section at the VERY TOP of /report (immediately under the header)
+Title: “What this report is telling you”
+
+Insert the following copy verbatim (dynamic terms in { } may be substituted):
+
+“This report summarises how your current portfolio behaves when tested against basic safety checks, your stated preferences, and a small set of illustrative scenarios.
+
+In your case, the portfolio does not trigger any immediate structural risks. This means there is no forced need to change your allocation based on liquidity, concentration, or illiquidity concerns.
+
+Your preferences are recognised by the model, but because the portfolio already sits comfortably within the defined constraints, those preferences do not materially change the overall shape of the portfolio in the scenarios shown.”
+
+If any Safety Light is AMBER or RED, adjust the second paragraph dynamically:
+- AMBER: “There are some emerging structural considerations, which may limit how freely preferences can apply.”
+- RED: “One or more structural risks are present, which currently dominate how the portfolio behaves.”
+
+B) Add a short reassurance section directly after
+Title: “What this report is not doing”
+
+Insert verbatim copy:
+“This report does not tell you to buy or sell anything.
+It does not claim your portfolio is optimal or complete.
+It simply shows how much room there is — or is not — to move within the current constraints.”
+
+C) Replace the “Questions to Consider” section with two parts
+
+1) New section title: “How to use this report”
+Insert copy:
+“Investors typically use a snapshot like this to:
+• understand whether any structural risks are forcing action
+• see whether preferences meaningfully change outcomes
+• identify which constraints matter more than specific assets
+• support clearer discussions with partners or advisers”
+
+2) Then keep the existing questions, but move them under:
+Title: “Questions you may want to reflect on”
+Do not change the questions themselves.
+
+D) Tests / checks
+- The report must now contain at least one full paragraph of plain-English interpretation.
+- No banned verbs appear (should, must, buy, sell, optimise, improve, save).
+- The narrative dynamically reflects GREEN vs AMBER vs RED safety states.
+- The report remains printable and included in PDF export.
+
+Implement now.

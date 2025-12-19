@@ -70,6 +70,11 @@ export default function Report() {
   const safetyLights = analysis.result?.safety_lights;
   const metrics = safetyLights?.metrics;
   const hasRedLight = hasAnyRedLight(safetyLights);
+  const hasAmberLight = safetyLights ? (
+    safetyLights.liquidity === 'AMBER' || 
+    safetyLights.concentration === 'AMBER' || 
+    safetyLights.illiquids === 'AMBER'
+  ) : false;
   const tiltsAllowed = beliefs.tilts_allowed && !hasRedLight;
   
   const { data: policy } = useQuery<PolicyData>({
@@ -338,6 +343,41 @@ export default function Report() {
             </p>
           </div>
 
+          <section className="mb-8 print:mb-6" data-testid="section-narrative">
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">
+              What this report is telling you
+            </h2>
+            <div className="space-y-4 text-[var(--foreground)] text-sm leading-relaxed">
+              <p>
+                This report summarises how your current portfolio behaves when tested against basic safety checks, your stated preferences, and a small set of illustrative scenarios.
+              </p>
+              <p>
+                {hasRedLight 
+                  ? 'One or more structural risks are present, which currently dominate how the portfolio behaves.'
+                  : hasAmberLight
+                    ? 'There are some emerging structural considerations, which may limit how freely preferences can apply.'
+                    : 'In your case, the portfolio does not trigger any immediate structural risks. This means there is no forced need to change your allocation based on liquidity, concentration, or illiquidity concerns.'
+                }
+              </p>
+              {!hasRedLight && !hasAmberLight && (
+                <p>
+                  Your preferences are recognised by the model, but because the portfolio already sits comfortably within the defined constraints, those preferences do not materially change the overall shape of the portfolio in the scenarios shown.
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section className="mb-8 print:mb-6" data-testid="section-not-doing">
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">
+              What this report is not doing
+            </h2>
+            <div className="space-y-2 text-[var(--foreground)] text-sm leading-relaxed">
+              <p>This report does not tell you to buy or sell anything.</p>
+              <p>It does not claim your portfolio is optimal or complete.</p>
+              <p>It simply shows how much room there is — or is not — to move within the current constraints.</p>
+            </div>
+          </section>
+
           <section className="mb-8 print:mb-6 print:break-after-page" data-testid="section-executive">
             <h2 className="text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-[var(--primary)]" />
@@ -573,9 +613,36 @@ export default function Report() {
             )}
           </section>
 
+          <section className="mb-8 print:mb-6" data-testid="section-how-to-use">
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">
+              How to use this report
+            </h2>
+            <p className="text-sm text-[var(--foreground)] mb-3">
+              Investors typically use a snapshot like this to:
+            </p>
+            <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--primary)]">•</span>
+                understand whether any structural risks are forcing action
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--primary)]">•</span>
+                see whether preferences meaningfully change outcomes
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--primary)]">•</span>
+                identify which constraints matter more than specific assets
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--primary)]">•</span>
+                support clearer discussions with partners or advisers
+              </li>
+            </ul>
+          </section>
+
           <section className="mb-8 print:mb-6" data-testid="section-questions">
             <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">
-              Questions to Consider
+              Questions you may want to reflect on
             </h2>
             <ul className="space-y-3">
               {questionsToConsider.map((q, i) => (
