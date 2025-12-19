@@ -56,7 +56,11 @@ import {
   hasAnyRedLightFromResult,
   computeMovementLimitedCallout,
   checkRangesIdenticalAcrossScenarios,
+  computeExamplePortfolioSet,
+  generateExampleDiffersSummary,
   type DeltaResult,
+  type ExampleType,
+  type ExamplePortfolioSet,
 } from '@/lib/step7Helpers';
 
 const TOTAL_BELIEF_AXES = 8;
@@ -81,12 +85,16 @@ function RangeBarChart({
   showMidpoint = true,
   overlays = [],
   showOverlayMode = false,
+  exampleValuesBySleeveMap,
+  showExample = false,
 }: { 
   title: string; 
   rows: RangeBarRow[]; 
   showMidpoint?: boolean;
   overlays?: ScenarioRangeOverlay[];
   showOverlayMode?: boolean;
+  exampleValuesBySleeveMap?: Map<string, number>;
+  showExample?: boolean;
 }) {
   const allIdentical = showOverlayMode && overlays.length > 1 && overlays.every((overlay, i, arr) => {
     if (i === 0) return true;
@@ -194,12 +202,28 @@ function RangeBarChart({
                   }}
                   title={`Current: ${row.currentPct.toFixed(1)}%`}
                 />
+                
+                {showExample && exampleValuesBySleeveMap?.has(row.label) && (
+                  <div
+                    className="absolute w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-[#5193B3]"
+                    style={{
+                      left: `${exampleValuesBySleeveMap.get(row.label)}%`,
+                      top: '-2px',
+                      transform: 'translateX(-50%)',
+                    }}
+                    title={`Example: ${exampleValuesBySleeveMap.get(row.label)?.toFixed(1)}%`}
+                    data-testid={`example-marker-${row.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  />
+                )}
               </div>
               
               <div className="flex justify-between text-[10px] text-[var(--muted-foreground)]">
                 <span>Range: {row.minPct.toFixed(0)}–{row.maxPct.toFixed(0)}%</span>
-                {showMidpoint && !showOverlayMode && (
+                {showMidpoint && !showOverlayMode && !showExample && (
                   <span className="text-[var(--primary)] font-medium">Mid: {midpoint.toFixed(1)}%</span>
+                )}
+                {showExample && exampleValuesBySleeveMap?.has(row.label) && (
+                  <span className="text-[#5193B3] font-medium">Example: {exampleValuesBySleeveMap.get(row.label)?.toFixed(1)}%</span>
                 )}
               </div>
             </div>
@@ -224,6 +248,117 @@ function RangeBarChart({
           </div>
         </div>
       )}
+      
+      {showExample && (
+        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-[var(--border)]">
+          <div className="flex items-center gap-2 text-xs">
+            <div className="w-2.5 h-2.5 bg-slate-700 dark:bg-white rounded-full border border-slate-400" />
+            <span className="text-[var(--muted-foreground)]">Current</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-[#5193B3]" />
+            <span className="text-[var(--muted-foreground)]">Example</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ExamplePortfolioPanel({ 
+  exampleSet,
+  selectedType,
+  onTypeChange,
+  safetyLightsUnchanged = true,
+}: {
+  exampleSet: ExamplePortfolioSet;
+  selectedType: ExampleType;
+  onTypeChange: (type: ExampleType) => void;
+  safetyLightsUnchanged?: boolean;
+}) {
+  const example = exampleSet[selectedType.toLowerCase() as 'low' | 'mid' | 'high'];
+  const differsSummary = generateExampleDiffersSummary(example.top_movers);
+  
+  return (
+    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4" data-testid="example-portfolio-panel">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
+          <Layers className="w-4 h-4 text-[#5193B3]" />
+          Example portfolios within this scenario (illustrative)
+        </h4>
+        <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5" data-testid="example-type-selector">
+          {(['LOW', 'MID', 'HIGH'] as ExampleType[]).map((type) => (
+            <button
+              key={type}
+              onClick={() => onTypeChange(type)}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                selectedType === type
+                  ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-sm'
+                  : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
+              data-testid={`example-type-${type.toLowerCase()}`}
+            >
+              {type === 'LOW' ? 'Low' : type === 'MID' ? 'Mid' : 'High'}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <p className="text-xs text-[var(--muted-foreground)] mb-4 italic">
+        These are illustrative portfolio states chosen from within the scenario ranges to help interpret what the ranges imply. They are not targets and not advice.
+      </p>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+        {example.allocations.map((alloc) => (
+          <div key={alloc.sleeve} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+            <div className="text-xs text-[var(--muted-foreground)]">{alloc.sleeve}</div>
+            <div className="text-lg font-semibold text-[var(--foreground)]">{alloc.example_pct.toFixed(1)}%</div>
+            <div className={`text-xs ${
+              alloc.delta_pp > 0.5 ? 'text-[#10A957]' : 
+              alloc.delta_pp < -0.5 ? 'text-[#FE9239]' : 
+              'text-[var(--muted-foreground)]'
+            }`}>
+              {alloc.delta_pp >= 0 ? '+' : '−'}{Math.abs(alloc.delta_pp).toFixed(1)}pp vs current
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="flex flex-col sm:flex-row gap-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+        <div className="flex-1">
+          <div className="text-xs text-[var(--muted-foreground)]">Total movement vs current</div>
+          <div className="text-base font-semibold text-[var(--foreground)]" data-testid="example-total-movement">
+            {example.total_movement_pp.toFixed(1)}pp
+          </div>
+        </div>
+        <div className="flex-1">
+          <div className="text-xs text-[var(--muted-foreground)]">What differs in this example</div>
+          <div className="text-sm text-[var(--foreground)]" data-testid="example-differs-summary">
+            {differsSummary}
+          </div>
+        </div>
+      </div>
+      
+      {example.normalised && (
+        <p className="text-xs text-[var(--muted-foreground)] mt-3 italic">
+          Minor rounding normalisation applied.
+        </p>
+      )}
+      
+      <div className="mt-4 pt-4 border-t border-[var(--border)]">
+        <div className="text-xs text-[var(--muted-foreground)] mb-2">Safety Lights under this example</div>
+        <div className="flex flex-wrap gap-2">
+          {['Liquidity', 'Concentration', 'Illiquids'].map((axis) => (
+            <div 
+              key={axis}
+              className="px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+              data-testid={`example-safety-light-${axis.toLowerCase()}`}
+            >
+              {axis}: {safetyLightsUnchanged ? 'Unchanged (requires holdings-level data)' : 'See scenario'}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -514,11 +649,26 @@ function ScenarioContent({
   allScenarios?: IllustrativeScenario[];
   rangesIdentical?: boolean;
 }) {
+  const [selectedExampleType, setSelectedExampleType] = useState<ExampleType>('MID');
+  
   const axesReflectedCount = scenario.scenario_type === 'NEUTRAL_BASELINE' 
     ? 0 
     : scenario.tilts_applied_count;
     
   const hasAnyRed = hasAnyRedLightFromResult(safetyLights);
+  
+  const exampleSet = useMemo(() => 
+    computeExamplePortfolioSet(scenario.asset_class_bands),
+    [scenario.asset_class_bands]
+  );
+  
+  const selectedExample = exampleSet[selectedExampleType.toLowerCase() as 'low' | 'mid' | 'high'];
+  
+  const exampleValuesBySleeveMap = useMemo(() => {
+    const map = new Map<string, number>();
+    selectedExample.allocations.forEach(a => map.set(a.sleeve, a.example_pct));
+    return map;
+  }, [selectedExample]);
   
   const assetTotalMovement = useMemo(() => 
     computeTotalMovement(scenario.asset_class_bands), 
@@ -691,6 +841,14 @@ function ScenarioContent({
         </div>
       )}
 
+      {/* Example Portfolio Panel */}
+      <ExamplePortfolioPanel
+        exampleSet={exampleSet}
+        selectedType={selectedExampleType}
+        onTypeChange={setSelectedExampleType}
+        safetyLightsUnchanged={true}
+      />
+
       {/* Range Bar Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <RangeBarChart 
@@ -699,6 +857,8 @@ function ScenarioContent({
           showMidpoint={true}
           overlays={assetOverlays}
           showOverlayMode={compareMode}
+          exampleValuesBySleeveMap={exampleValuesBySleeveMap}
+          showExample={!compareMode}
         />
         {regionRangeRows.length > 0 && (
           <RangeBarChart 

@@ -319,6 +319,120 @@ export function checkRangesIdenticalAcrossScenarios(
   return true;
 }
 
+// Example Portfolio Types
+export type ExampleType = 'LOW' | 'MID' | 'HIGH';
+
+export interface ExampleAllocation {
+  sleeve: string;
+  current_pct: number;
+  example_pct: number;
+  delta_pp: number;
+}
+
+export interface ExamplePortfolio {
+  type: ExampleType;
+  allocations: ExampleAllocation[];
+  total_pct: number;
+  normalised: boolean;
+  total_movement_pp: number;
+  top_movers: { sleeve: string; delta_pp: number; direction: string }[];
+}
+
+export interface ExamplePortfolioSet {
+  low: ExamplePortfolio;
+  mid: ExamplePortfolio;
+  high: ExamplePortfolio;
+}
+
+function selectExampleValue(band: AllocationBand, type: ExampleType): number {
+  switch (type) {
+    case 'LOW':
+      return band.illustrative_low_pct;
+    case 'MID':
+      return (band.illustrative_low_pct + band.illustrative_high_pct) / 2;
+    case 'HIGH':
+      return band.illustrative_high_pct;
+  }
+}
+
+function normaliseAllocations(allocations: ExampleAllocation[]): { allocations: ExampleAllocation[]; normalised: boolean } {
+  const total = allocations.reduce((sum, a) => sum + a.example_pct, 0);
+  
+  if (Math.abs(total - 100) < 0.01) {
+    return { allocations, normalised: false };
+  }
+  
+  const factor = 100 / total;
+  const normalised = allocations.map(a => ({
+    ...a,
+    example_pct: a.example_pct * factor,
+    delta_pp: (a.example_pct * factor) - a.current_pct,
+  }));
+  
+  return { allocations: normalised, normalised: true };
+}
+
+function computeTopMovers(allocations: ExampleAllocation[]): { sleeve: string; delta_pp: number; direction: string }[] {
+  const movers = allocations
+    .filter(a => Math.abs(a.delta_pp) >= 0.5)
+    .sort((a, b) => Math.abs(b.delta_pp) - Math.abs(a.delta_pp))
+    .slice(0, 2)
+    .map(a => ({
+      sleeve: a.sleeve,
+      delta_pp: a.delta_pp,
+      direction: a.delta_pp > 0 ? 'higher' : 'lower',
+    }));
+  
+  return movers;
+}
+
+export function computeExamplePortfolio(bands: AllocationBand[], type: ExampleType): ExamplePortfolio {
+  const rawAllocations: ExampleAllocation[] = bands.map(band => {
+    const example_pct = selectExampleValue(band, type);
+    return {
+      sleeve: band.sleeve,
+      current_pct: band.current_pct,
+      example_pct,
+      delta_pp: example_pct - band.current_pct,
+    };
+  });
+  
+  const { allocations, normalised } = normaliseAllocations(rawAllocations);
+  const total_pct = allocations.reduce((sum, a) => sum + a.example_pct, 0);
+  const total_movement_pp = allocations.reduce((sum, a) => sum + Math.abs(a.delta_pp), 0);
+  const top_movers = computeTopMovers(allocations);
+  
+  return {
+    type,
+    allocations,
+    total_pct,
+    normalised,
+    total_movement_pp,
+    top_movers,
+  };
+}
+
+export function computeExamplePortfolioSet(bands: AllocationBand[]): ExamplePortfolioSet {
+  return {
+    low: computeExamplePortfolio(bands, 'LOW'),
+    mid: computeExamplePortfolio(bands, 'MID'),
+    high: computeExamplePortfolio(bands, 'HIGH'),
+  };
+}
+
+export function generateExampleDiffersSummary(topMovers: { sleeve: string; delta_pp: number; direction: string }[]): string {
+  if (topMovers.length === 0) {
+    return 'No material difference from current allocation.';
+  }
+  
+  const parts = topMovers.map(m => {
+    const sign = m.delta_pp > 0 ? '+' : '−';
+    return `${m.sleeve} ${m.direction} (${sign}${Math.abs(m.delta_pp).toFixed(1)}pp)`;
+  });
+  
+  return parts.join('; ');
+}
+
 export const BANNED_WORDS_STEP7 = [
   'buy',
   'sell',

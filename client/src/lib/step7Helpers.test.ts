@@ -10,6 +10,9 @@ import {
   containsBannedWordStep7,
   computeMovementLimitedCallout,
   checkRangesIdenticalAcrossScenarios,
+  computeExamplePortfolio,
+  computeExamplePortfolioSet,
+  generateExampleDiffersSummary,
   BANNED_WORDS_STEP7,
 } from './step7Helpers';
 import type { AllocationBand, AppliedTiltEntry, SafetyLightsResult } from '@/state/onboardingV2Store';
@@ -417,6 +420,127 @@ describe('checkRangesIdenticalAcrossScenarios', () => {
       { asset_class_bands: [mockBand], region_bands: [] },
     ];
     expect(checkRangesIdenticalAcrossScenarios(scenarios)).toBe(false);
+  });
+});
+
+describe('computeExamplePortfolio', () => {
+  const mockBands = [
+    { sleeve: 'Equities', current_pct: 60, illustrative_low_pct: 55, illustrative_high_pct: 65 },
+    { sleeve: 'Bonds', current_pct: 30, illustrative_low_pct: 25, illustrative_high_pct: 35 },
+    { sleeve: 'Cash', current_pct: 10, illustrative_low_pct: 5, illustrative_high_pct: 15 },
+  ];
+
+  it('should compute LOW example using min values', () => {
+    const result = computeExamplePortfolio(mockBands, 'LOW');
+    expect(result.type).toBe('LOW');
+    expect(result.allocations[0].example_pct).toBeCloseTo(55 * (100 / 85), 1);
+    expect(result.allocations[1].example_pct).toBeCloseTo(25 * (100 / 85), 1);
+    expect(result.allocations[2].example_pct).toBeCloseTo(5 * (100 / 85), 1);
+  });
+
+  it('should compute MID example using midpoint values', () => {
+    const result = computeExamplePortfolio(mockBands, 'MID');
+    expect(result.type).toBe('MID');
+    expect(result.allocations[0].example_pct).toBe(60);
+    expect(result.allocations[1].example_pct).toBe(30);
+    expect(result.allocations[2].example_pct).toBe(10);
+  });
+
+  it('should compute HIGH example using max values', () => {
+    const result = computeExamplePortfolio(mockBands, 'HIGH');
+    expect(result.type).toBe('HIGH');
+    expect(result.allocations[0].example_pct).toBeCloseTo(65 * (100 / 115), 1);
+    expect(result.allocations[1].example_pct).toBeCloseTo(35 * (100 / 115), 1);
+    expect(result.allocations[2].example_pct).toBeCloseTo(15 * (100 / 115), 1);
+  });
+
+  it('should normalise allocations to sum to 100', () => {
+    const result = computeExamplePortfolio(mockBands, 'LOW');
+    expect(result.total_pct).toBeCloseTo(100, 1);
+    expect(result.normalised).toBe(true);
+  });
+
+  it('should not normalise when already summing to 100', () => {
+    const result = computeExamplePortfolio(mockBands, 'MID');
+    expect(result.total_pct).toBeCloseTo(100, 1);
+    expect(result.normalised).toBe(false);
+  });
+
+  it('should compute total_movement_pp correctly', () => {
+    const result = computeExamplePortfolio(mockBands, 'MID');
+    expect(result.total_movement_pp).toBe(0);
+  });
+
+  it('should compute top movers with threshold 0.5pp', () => {
+    const bandsWithMovement = [
+      { sleeve: 'Equities', current_pct: 50, illustrative_low_pct: 55, illustrative_high_pct: 65 },
+      { sleeve: 'Bonds', current_pct: 40, illustrative_low_pct: 25, illustrative_high_pct: 35 },
+      { sleeve: 'Cash', current_pct: 10, illustrative_low_pct: 5, illustrative_high_pct: 15 },
+    ];
+    const result = computeExamplePortfolio(bandsWithMovement, 'MID');
+    expect(result.top_movers.length).toBeLessThanOrEqual(2);
+    result.top_movers.forEach(m => {
+      expect(Math.abs(m.delta_pp)).toBeGreaterThanOrEqual(0.5);
+    });
+  });
+
+  it('should compute example portfolio set with all three types', () => {
+    const result = computeExamplePortfolioSet(mockBands);
+    expect(result.low.type).toBe('LOW');
+    expect(result.mid.type).toBe('MID');
+    expect(result.high.type).toBe('HIGH');
+  });
+
+  it('should generate differs summary correctly', () => {
+    const topMovers = [
+      { sleeve: 'Equities', delta_pp: 5, direction: 'higher' },
+      { sleeve: 'Bonds', delta_pp: -3, direction: 'lower' },
+    ];
+    const result = generateExampleDiffersSummary(topMovers);
+    expect(result).toContain('Equities higher (+5.0pp)');
+    expect(result).toContain('Bonds lower');
+  });
+
+  it('should return fallback when no top movers', () => {
+    const result = generateExampleDiffersSummary([]);
+    expect(result).toBe('No material difference from current allocation.');
+  });
+
+  it('should not contain banned words in differs summary', () => {
+    const topMovers = [
+      { sleeve: 'Equities', delta_pp: 5, direction: 'higher' },
+    ];
+    const result = generateExampleDiffersSummary(topMovers);
+    expect(containsBannedWordStep7(result)).toBeNull();
+  });
+
+  it('should produce consistent allocations regardless of band order', () => {
+    const bandsOriginal = [
+      { sleeve: 'Equities', current_pct: 60, illustrative_low_pct: 55, illustrative_high_pct: 65 },
+      { sleeve: 'Bonds', current_pct: 30, illustrative_low_pct: 25, illustrative_high_pct: 35 },
+      { sleeve: 'Cash', current_pct: 10, illustrative_low_pct: 5, illustrative_high_pct: 15 },
+    ];
+    const bandsShuffled = [
+      { sleeve: 'Cash', current_pct: 10, illustrative_low_pct: 5, illustrative_high_pct: 15 },
+      { sleeve: 'Equities', current_pct: 60, illustrative_low_pct: 55, illustrative_high_pct: 65 },
+      { sleeve: 'Bonds', current_pct: 30, illustrative_low_pct: 25, illustrative_high_pct: 35 },
+    ];
+    
+    const resultOriginal = computeExamplePortfolio(bandsOriginal, 'MID');
+    const resultShuffled = computeExamplePortfolio(bandsShuffled, 'MID');
+    
+    const buildMap = (result: any) => {
+      const map = new Map();
+      result.allocations.forEach((a: any) => map.set(a.sleeve, a.example_pct));
+      return map;
+    };
+    
+    const mapOriginal = buildMap(resultOriginal);
+    const mapShuffled = buildMap(resultShuffled);
+    
+    expect(mapOriginal.get('Equities')).toBe(mapShuffled.get('Equities'));
+    expect(mapOriginal.get('Bonds')).toBe(mapShuffled.get('Bonds'));
+    expect(mapOriginal.get('Cash')).toBe(mapShuffled.get('Cash'));
   });
 });
 

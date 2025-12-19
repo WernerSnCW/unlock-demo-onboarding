@@ -1,0 +1,60 @@
+Step 7 needs real added value beyond re-plotting the same range numbers.
+Implement “Example portfolios within scenario” derived from the existing ranges,
+and compute secondary insights from those example states. Keep it non-prescriptive.
+
+Non-negotiables:
+- No buy/sell, no “should/must”, no execution steps.
+- Label everything as illustrative examples derived from scenario ranges.
+- No performance/return projections, no probabilities.
+- Deterministic only.
+
+A) Build deterministic example portfolios per scenario
+For each scenario, for each allocation row (asset class + region where applicable), you already have:
+- currentPct
+- minPct
+- maxPct
+
+Compute three example allocations:
+1) LOW = use minPct for each row
+2) MID = use midpointPct = (minPct + maxPct) / 2 for each row
+3) HIGH = use maxPct for each row
+
+Normalise if needed:
+- If categories do not sum to 100 due to rounding, renormalise to 100 deterministically
+  and note “minor rounding normalisation applied”.
+
+B) Add UI: “Example portfolios within this scenario (illustrative)”
+Under each scenario tab, add a panel with segmented control: Low / Mid / High (default Mid).
+Show:
+- Table (or mini chart) of the example allocation values
+- “Total movement vs current” for the selected example:
+  sum_abs_pp = Σ |examplePct - currentPct|
+- A short data-driven “What differs in this example” line:
+  list top 2 categories by |examplePct - currentPct| (threshold 0.5pp)
+
+C) Compute “Safety Lights under this example” (only if feasible with existing data)
+If your Safety Lights require holdings-level concentration/illiquid metrics, you may NOT be able to recompute from allocation-only.
+Rules:
+- If you can recompute any lights from available data, do so and display.
+- If not, display each light as:
+  “Unchanged (requires holdings-level data)”
+Do not fabricate.
+
+D) Make graphs actually useful (keep range bars but add example markers)
+Update the existing RangeBarChart:
+- Add an additional marker showing the selected example value (Low/Mid/High).
+Label it “Example”.
+This turns the graph into an interactive modelling visual.
+
+E) Explain purpose (one sentence)
+Under the Example panel title, add:
+“These are illustrative portfolio states chosen from within the scenario ranges to help interpret what the ranges imply. They are not targets and not advice.”
+
+F) Tests
+- Example LOW/MID/HIGH values are computed correctly from min/mid/max.
+- Normalisation preserves proportions and sums to 100 within tolerance.
+- sum_abs_pp correctly computed.
+- No banned verbs appear in generated copy.
+- If Safety Lights cannot be recomputed, UI shows “Unchanged (requires holdings-level data)”.
+
+Implement now.
