@@ -457,3 +457,84 @@ export function containsBannedWordStep7(text: string): string | null {
   }
   return null;
 }
+
+export type DisplayMode = 'percent' | 'monetary';
+
+export interface MonetaryConfig {
+  totalPortfolioValue: number;
+  roundingThreshold: number;
+}
+
+function getRoundingUnit(totalValue: number): number {
+  return totalValue >= 1_000_000 ? 1000 : 100;
+}
+
+function roundToUnit(value: number, unit: number): number {
+  return Math.round(value / unit) * unit;
+}
+
+export function pctToMonetaryRaw(pct: number, totalValue: number): number {
+  return (totalValue * pct) / 100;
+}
+
+export function pctToMonetary(pct: number, totalValue: number): number {
+  const raw = pctToMonetaryRaw(pct, totalValue);
+  const unit = getRoundingUnit(totalValue);
+  return roundToUnit(raw, unit);
+}
+
+function formatAbsoluteValue(absValue: number): string {
+  if (absValue >= 1_000_000) {
+    const millions = absValue / 1_000_000;
+    return `£${millions.toFixed(1)}m`;
+  } else if (absValue >= 1000) {
+    const thousands = absValue / 1000;
+    return `£${Math.round(thousands)}k`;
+  } else {
+    return `£${Math.round(absValue)}`;
+  }
+}
+
+export function formatMonetary(value: number, totalValue: number): string {
+  if (totalValue <= 0) return '—';
+  const absValue = Math.abs(value);
+  const sign = value < 0 ? '-' : value > 0 ? '+' : '';
+  return `~${sign}${formatAbsoluteValue(absValue)}`;
+}
+
+export function formatMonetaryNoSign(value: number, totalValue: number): string {
+  if (totalValue <= 0) return '—';
+  const absValue = Math.abs(value);
+  return `~${formatAbsoluteValue(absValue)}`;
+}
+
+export function formatMonetaryRange(minPct: number, maxPct: number, totalValue: number): string {
+  if (totalValue <= 0) return '—';
+  const minValue = pctToMonetary(minPct, totalValue);
+  const maxValue = pctToMonetary(maxPct, totalValue);
+  return `~${formatAbsoluteValue(minValue)} – ${formatAbsoluteValue(maxValue)}`;
+}
+
+export function computeMonetaryDelta(currentPct: number, examplePct: number, totalValue: number): number {
+  const deltaPct = examplePct - currentPct;
+  return pctToMonetaryRaw(deltaPct, totalValue);
+}
+
+export function computeTotalMonetaryMovement(allocations: ExampleAllocation[], totalValue: number): number {
+  const sumAbsDeltas = allocations.reduce((sum, a) => {
+    const deltaPct = Math.abs(a.example_pct - a.current_pct);
+    return sum + pctToMonetaryRaw(deltaPct, totalValue);
+  }, 0);
+  return sumAbsDeltas / 2;
+}
+
+export function formatTotalMonetaryMovement(allocations: ExampleAllocation[], totalValue: number): string {
+  if (totalValue <= 0) return '—';
+  const movement = computeTotalMonetaryMovement(allocations, totalValue);
+  return formatMonetaryNoSign(movement, totalValue);
+}
+
+export const MONETARY_DISCLAIMER = 
+  "Monetary figures shown here are illustrative translations of allocation percentages, " +
+  "based on the portfolio value you provided. They do not represent returns, " +
+  "performance, or instructions to trade.";

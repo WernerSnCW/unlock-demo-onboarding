@@ -58,9 +58,17 @@ import {
   checkRangesIdenticalAcrossScenarios,
   computeExamplePortfolioSet,
   generateExampleDiffersSummary,
+  pctToMonetary,
+  formatMonetary,
+  formatMonetaryNoSign,
+  formatMonetaryRange,
+  computeMonetaryDelta,
+  formatTotalMonetaryMovement,
+  MONETARY_DISCLAIMER,
   type DeltaResult,
   type ExampleType,
   type ExamplePortfolioSet,
+  type DisplayMode,
 } from '@/lib/step7Helpers';
 
 const TOTAL_BELIEF_AXES = 8;
@@ -87,6 +95,8 @@ function RangeBarChart({
   showOverlayMode = false,
   exampleValuesBySleeveMap,
   showExample = false,
+  displayMode = 'percent',
+  totalValue = 0,
 }: { 
   title: string; 
   rows: RangeBarRow[]; 
@@ -95,7 +105,10 @@ function RangeBarChart({
   showOverlayMode?: boolean;
   exampleValuesBySleeveMap?: Map<string, number>;
   showExample?: boolean;
+  displayMode?: DisplayMode;
+  totalValue?: number;
 }) {
+  const showMonetary = displayMode === 'monetary' && totalValue > 0;
   const allIdentical = showOverlayMode && overlays.length > 1 && overlays.every((overlay, i, arr) => {
     if (i === 0) return true;
     return overlay.rows.every((row, j) => 
@@ -218,12 +231,27 @@ function RangeBarChart({
               </div>
               
               <div className="flex justify-between text-[10px] text-[var(--muted-foreground)]">
-                <span>Range: {row.minPct.toFixed(0)}–{row.maxPct.toFixed(0)}%</span>
+                <span>
+                  {showMonetary 
+                    ? `Illustrative ${formatMonetaryRange(row.minPct, row.maxPct, totalValue)}`
+                    : `Range: ${row.minPct.toFixed(0)}–${row.maxPct.toFixed(0)}%`
+                  }
+                </span>
                 {showMidpoint && !showOverlayMode && !showExample && (
-                  <span className="text-[var(--primary)] font-medium">Mid: {midpoint.toFixed(1)}%</span>
+                  <span className="text-[var(--primary)] font-medium">
+                    {showMonetary
+                      ? `Mid: ${formatMonetaryNoSign(pctToMonetary(midpoint, totalValue), totalValue)}`
+                      : `Mid: ${midpoint.toFixed(1)}%`
+                    }
+                  </span>
                 )}
                 {showExample && exampleValuesBySleeveMap?.has(row.label) && (
-                  <span className="text-[#5193B3] font-medium">Example: {exampleValuesBySleeveMap.get(row.label)?.toFixed(1)}%</span>
+                  <span className="text-[#5193B3] font-medium">
+                    {showMonetary
+                      ? `Example: ${formatMonetaryNoSign(pctToMonetary(exampleValuesBySleeveMap.get(row.label) || 0, totalValue), totalValue)}`
+                      : `Example: ${exampleValuesBySleeveMap.get(row.label)?.toFixed(1)}%`
+                    }
+                  </span>
                 )}
               </div>
             </div>
@@ -270,14 +298,19 @@ function ExamplePortfolioPanel({
   selectedType,
   onTypeChange,
   safetyLightsUnchanged = true,
+  displayMode = 'percent',
+  totalValue = 0,
 }: {
   exampleSet: ExamplePortfolioSet;
   selectedType: ExampleType;
   onTypeChange: (type: ExampleType) => void;
   safetyLightsUnchanged?: boolean;
+  displayMode?: DisplayMode;
+  totalValue?: number;
 }) {
   const example = exampleSet[selectedType.toLowerCase() as 'low' | 'mid' | 'high'];
   const differsSummary = generateExampleDiffersSummary(example.top_movers);
+  const showMonetary = displayMode === 'monetary' && totalValue > 0;
   
   return (
     <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4" data-testid="example-portfolio-panel">
@@ -309,26 +342,39 @@ function ExamplePortfolioPanel({
       </p>
       
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-        {example.allocations.map((alloc) => (
-          <div key={alloc.sleeve} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
-            <div className="text-xs text-[var(--muted-foreground)]">{alloc.sleeve}</div>
-            <div className="text-lg font-semibold text-[var(--foreground)]">{alloc.example_pct.toFixed(1)}%</div>
-            <div className={`text-xs ${
-              alloc.delta_pp > 0.5 ? 'text-[#10A957]' : 
-              alloc.delta_pp < -0.5 ? 'text-[#FE9239]' : 
-              'text-[var(--muted-foreground)]'
-            }`}>
-              {alloc.delta_pp >= 0 ? '+' : '−'}{Math.abs(alloc.delta_pp).toFixed(1)}pp vs current
+        {example.allocations.map((alloc) => {
+          const monetaryValue = pctToMonetary(alloc.example_pct, totalValue);
+          const monetaryDelta = computeMonetaryDelta(alloc.current_pct, alloc.example_pct, totalValue);
+          
+          return (
+            <div key={alloc.sleeve} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+              <div className="text-xs text-[var(--muted-foreground)]">{alloc.sleeve}</div>
+              <div className="text-lg font-semibold text-[var(--foreground)]">
+                {showMonetary ? formatMonetaryNoSign(monetaryValue, totalValue) : `${alloc.example_pct.toFixed(1)}%`}
+              </div>
+              <div className={`text-xs ${
+                alloc.delta_pp > 0.5 ? 'text-[#10A957]' : 
+                alloc.delta_pp < -0.5 ? 'text-[#FE9239]' : 
+                'text-[var(--muted-foreground)]'
+              }`}>
+                {showMonetary 
+                  ? `${formatMonetary(monetaryDelta, totalValue)} vs current`
+                  : `${alloc.delta_pp >= 0 ? '+' : '−'}${Math.abs(alloc.delta_pp).toFixed(1)}pp vs current`
+                }
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       
       <div className="flex flex-col sm:flex-row gap-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
         <div className="flex-1">
           <div className="text-xs text-[var(--muted-foreground)]">Total movement vs current</div>
           <div className="text-base font-semibold text-[var(--foreground)]" data-testid="example-total-movement">
-            {example.total_movement_pp.toFixed(1)}pp
+            {showMonetary 
+              ? `${formatTotalMonetaryMovement(example.allocations, totalValue)} reallocated across asset classes`
+              : `${example.total_movement_pp.toFixed(1)}pp`
+            }
           </div>
         </div>
         <div className="flex-1">
@@ -642,14 +688,19 @@ function ScenarioContent({
   compareMode = false,
   allScenarios = [],
   rangesIdentical = false,
+  displayMode = 'percent',
+  totalValue = 0,
 }: { 
   scenario: IllustrativeScenario; 
   safetyLights?: any;
   compareMode?: boolean;
   allScenarios?: IllustrativeScenario[];
   rangesIdentical?: boolean;
+  displayMode?: DisplayMode;
+  totalValue?: number;
 }) {
   const [selectedExampleType, setSelectedExampleType] = useState<ExampleType>('MID');
+  const showMonetary = displayMode === 'monetary' && totalValue > 0;
   
   const axesReflectedCount = scenario.scenario_type === 'NEUTRAL_BASELINE' 
     ? 0 
@@ -841,12 +892,23 @@ function ScenarioContent({
         </div>
       )}
 
+      {/* Monetary Disclaimer */}
+      {showMonetary && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4" data-testid="monetary-disclaimer">
+          <p className="text-xs text-amber-800 dark:text-amber-200 italic">
+            {MONETARY_DISCLAIMER}
+          </p>
+        </div>
+      )}
+
       {/* Example Portfolio Panel */}
       <ExamplePortfolioPanel
         exampleSet={exampleSet}
         selectedType={selectedExampleType}
         onTypeChange={setSelectedExampleType}
         safetyLightsUnchanged={true}
+        displayMode={displayMode}
+        totalValue={totalValue}
       />
 
       {/* Range Bar Charts */}
@@ -859,6 +921,8 @@ function ScenarioContent({
           showOverlayMode={compareMode}
           exampleValuesBySleeveMap={exampleValuesBySleeveMap}
           showExample={!compareMode}
+          displayMode={displayMode}
+          totalValue={totalValue}
         />
         {regionRangeRows.length > 0 && (
           <RangeBarChart 
@@ -867,6 +931,8 @@ function ScenarioContent({
             showMidpoint={true}
             overlays={regionOverlays}
             showOverlayMode={compareMode}
+            displayMode={displayMode}
+            totalValue={totalValue}
           />
         )}
       </div>
@@ -991,14 +1057,18 @@ function ScenarioContent({
 export default function Target() {
   const [, navigate] = useLocation();
   const [compareMode, setCompareMode] = useState(false);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('percent');
   const { 
     scenario, 
     beliefs, 
     analysis,
+    summary,
     computeScenarios, 
     setActiveScenario,
     completeScenarioStep,
   } = useOnboardingV2Store();
+  
+  const totalValue = summary.total_investable_value;
 
   const tiltsAllowed = beliefs.tilts_allowed;
 
@@ -1142,17 +1212,44 @@ export default function Target() {
                     Unlock models three illustrative scenarios. Each reflects your stated preferences within different constraint frameworks.
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="compare-mode"
-                      checked={compareMode}
-                      onCheckedChange={setCompareMode}
-                      data-testid="compare-scenarios-toggle"
-                    />
-                    <Label htmlFor="compare-mode" className="text-sm text-[var(--muted-foreground)] cursor-pointer">
-                      Compare scenarios
-                    </Label>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-4">
+                    <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5" data-testid="display-mode-toggle">
+                      <button
+                        onClick={() => setDisplayMode('percent')}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                          displayMode === 'percent'
+                            ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-sm'
+                            : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                        }`}
+                        data-testid="display-mode-percent"
+                      >
+                        View as %
+                      </button>
+                      <button
+                        onClick={() => setDisplayMode('monetary')}
+                        disabled={totalValue <= 0}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                          displayMode === 'monetary'
+                            ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-sm'
+                            : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                        } ${totalValue <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        data-testid="display-mode-monetary"
+                      >
+                        View as £
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="compare-mode"
+                        checked={compareMode}
+                        onCheckedChange={setCompareMode}
+                        data-testid="compare-scenarios-toggle"
+                      />
+                      <Label htmlFor="compare-mode" className="text-sm text-[var(--muted-foreground)] cursor-pointer">
+                        Compare scenarios
+                      </Label>
+                    </div>
                   </div>
                   {rangesIdentical && (
                     <span className="text-xs text-[var(--muted-foreground)] italic" data-testid="convergence-microcopy">
@@ -1193,6 +1290,8 @@ export default function Target() {
                       compareMode={compareMode}
                       allScenarios={scenario.scenarios}
                       rangesIdentical={rangesIdentical}
+                      displayMode={displayMode}
+                      totalValue={totalValue}
                     />
                   </TabsContent>
                 ))}

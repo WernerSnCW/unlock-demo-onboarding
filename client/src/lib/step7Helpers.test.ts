@@ -14,6 +14,15 @@ import {
   computeExamplePortfolioSet,
   generateExampleDiffersSummary,
   BANNED_WORDS_STEP7,
+  pctToMonetary,
+  pctToMonetaryRaw,
+  formatMonetary,
+  formatMonetaryNoSign,
+  formatMonetaryRange,
+  computeMonetaryDelta,
+  computeTotalMonetaryMovement,
+  formatTotalMonetaryMovement,
+  MONETARY_DISCLAIMER,
 } from './step7Helpers';
 import type { AllocationBand, AppliedTiltEntry, SafetyLightsResult } from '@/state/onboardingV2Store';
 
@@ -558,5 +567,127 @@ describe('updated fallback copy', () => {
   it('convergence microcopy should not contain banned words', () => {
     const microcopy = 'Under current constraints, all three scenarios converge on similar ranges.';
     expect(containsBannedWordStep7(microcopy)).toBeNull();
+  });
+});
+
+describe('monetary translation', () => {
+  it('should convert percentage to monetary value with correct rounding for sub-1m portfolio', () => {
+    const result = pctToMonetary(42.8, 500000);
+    expect(result).toBe(214000);
+  });
+
+  it('should convert percentage to monetary value with £1000 rounding for 1m+ portfolio', () => {
+    const result = pctToMonetary(42.8, 1500000);
+    expect(result).toBe(642000);
+  });
+
+  it('should format monetary values with ~ prefix', () => {
+    const result = formatMonetaryNoSign(214000, 500000);
+    expect(result).toMatch(/^~£/);
+    expect(result).toBe('~£214k');
+  });
+
+  it('should format monetary values in millions', () => {
+    const result = formatMonetaryNoSign(1500000, 5000000);
+    expect(result).toBe('~£1.5m');
+  });
+
+  it('should format monetary range correctly', () => {
+    const result = formatMonetaryRange(39, 53, 500000);
+    expect(result).toMatch(/^~£/);
+    expect(result).toContain('–');
+  });
+
+  it('should compute monetary delta correctly (raw, not rounded)', () => {
+    const delta = computeMonetaryDelta(42.8, 45.8, 500000);
+    expect(delta).toBe(15000);
+  });
+
+  it('should format positive delta with + sign', () => {
+    const result = formatMonetary(15000, 500000);
+    expect(result).toBe('~+£15k');
+  });
+
+  it('should format negative delta with - sign', () => {
+    const result = formatMonetary(-15000, 500000);
+    expect(result).toBe('~-£15k');
+  });
+
+  it('should compute total monetary movement correctly', () => {
+    const allocations = [
+      { sleeve: 'Equities', current_pct: 60, example_pct: 55, delta_pp: -5 },
+      { sleeve: 'Bonds', current_pct: 30, example_pct: 35, delta_pp: 5 },
+      { sleeve: 'Cash', current_pct: 10, example_pct: 10, delta_pp: 0 },
+    ];
+    const result = computeTotalMonetaryMovement(allocations, 500000);
+    expect(result).toBe(25000);
+  });
+
+  it('should not change underlying percentage calculations when toggling display mode', () => {
+    const bands = [
+      { sleeve: 'Equities', current_pct: 60, illustrative_low_pct: 55, illustrative_high_pct: 65 },
+      { sleeve: 'Bonds', current_pct: 30, illustrative_low_pct: 25, illustrative_high_pct: 35 },
+      { sleeve: 'Cash', current_pct: 10, illustrative_low_pct: 5, illustrative_high_pct: 15 },
+    ];
+    
+    const examplePct = computeExamplePortfolio(bands, 'MID');
+    
+    const pctValues = examplePct.allocations.map(a => a.example_pct);
+    expect(pctValues[0]).toBe(60);
+    expect(pctValues[1]).toBe(30);
+    expect(pctValues[2]).toBe(10);
+    
+    const monetaryValues = pctValues.map(pct => pctToMonetary(pct, 500000));
+    expect(monetaryValues[0]).toBe(300000);
+    expect(monetaryValues[1]).toBe(150000);
+    expect(monetaryValues[2]).toBe(50000);
+  });
+
+  it('should include ~ approximation symbol on all monetary values', () => {
+    expect(formatMonetary(15000, 500000)).toMatch(/^~/);
+    expect(formatMonetaryNoSign(15000, 500000)).toMatch(/^~/);
+    expect(formatMonetaryRange(39, 53, 500000)).toMatch(/^~/);
+  });
+
+  it('monetary disclaimer should not contain banned words', () => {
+    expect(containsBannedWordStep7(MONETARY_DISCLAIMER)).toBeNull();
+  });
+
+  it('should return dash when totalValue is zero', () => {
+    expect(formatMonetary(15000, 0)).toBe('—');
+    expect(formatMonetaryNoSign(15000, 0)).toBe('—');
+    expect(formatMonetaryRange(39, 53, 0)).toBe('—');
+    expect(formatTotalMonetaryMovement([], 0)).toBe('—');
+  });
+
+  it('should preserve ordering when comparing percent vs monetary deltas', () => {
+    const allocations = [
+      { sleeve: 'Equities', current_pct: 60, example_pct: 55, delta_pp: -5 },
+      { sleeve: 'Bonds', current_pct: 30, example_pct: 35, delta_pp: 5 },
+      { sleeve: 'Cash', current_pct: 10, example_pct: 12, delta_pp: 2 },
+    ];
+    
+    const pctSorted = [...allocations].sort((a, b) => Math.abs(b.delta_pp) - Math.abs(a.delta_pp));
+    expect(pctSorted[0].sleeve).toBe('Equities');
+    expect(pctSorted[1].sleeve).toBe('Bonds');
+    
+    const monetaryDeltas = allocations.map(a => ({
+      sleeve: a.sleeve,
+      delta: Math.abs(computeMonetaryDelta(a.current_pct, a.example_pct, 500000)),
+    }));
+    const moneySorted = [...monetaryDeltas].sort((a, b) => b.delta - a.delta);
+    expect(moneySorted[0].sleeve).toBe('Equities');
+    expect(moneySorted[1].sleeve).toBe('Bonds');
+  });
+
+  it('raw monetary calculation should preserve delta proportions', () => {
+    const deltaPct1 = 5;
+    const deltaPct2 = 2;
+    const totalValue = 500000;
+    
+    const raw1 = pctToMonetaryRaw(deltaPct1, totalValue);
+    const raw2 = pctToMonetaryRaw(deltaPct2, totalValue);
+    
+    expect(raw1 / raw2).toBe(deltaPct1 / deltaPct2);
   });
 });

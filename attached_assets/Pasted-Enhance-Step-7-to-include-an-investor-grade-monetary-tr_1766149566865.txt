@@ -1,0 +1,60 @@
+Enhance Step 7 to include an investor-grade monetary translation layer,
+without replacing percentage-based modelling or introducing advice.
+
+Non-negotiables:
+- Percentages remain the primary source of truth.
+- Monetary values are explicitly labelled as illustrative translations.
+- No performance, return, gain/loss, or forecast language.
+- No buy/sell or execution language.
+
+A) Add a global display toggle on Step 7
+Add a toggle near the scenario tabs:
+- “View as %” (default)
+- “View as £”
+
+When toggled:
+- Allocation tables, example portfolios, and deltas switch display mode.
+- Underlying calculations remain percentage-based.
+
+B) Monetary translation logic
+Inputs:
+- totalPortfolioValue (from onboarding state)
+- allocationPct (current / min / max / example)
+
+Compute:
+- value = round(totalPortfolioValue × allocationPct / 100)
+- rangeValue = [minValue, maxValue]
+- deltaValue = exampleValue − currentValue
+
+Rounding:
+- Round to nearest £100 (or £1,000 if portfolio > £1m)
+- Display with “~” prefix (approximate)
+
+C) Update allocation tables (Asset + Regional)
+When in £ mode:
+- Replace “Current 42.8%” with “Current ~£214,000”
+- Replace “Illustrative 39–53%” with “Illustrative ~£195k – £265k”
+- Replace “Δ vs current +3.0pp” with “Δ vs current ~+£15k”
+
+Keep percentage values internally; only the display changes.
+
+D) Update “Example portfolios within this scenario”
+For Low / Mid / High examples:
+- Show both % and £ side by side OR £ only (depending on toggle)
+- Add a line:
+  “Total movement vs current: ~£X reallocated across asset classes”
+  (derived from sum of absolute £ deltas ÷ 2 to avoid double counting)
+
+E) Add a clear explanatory note (exact copy)
+Place once per Step 7 page:
+“Monetary figures shown here are illustrative translations of allocation percentages,
+based on the portfolio value you provided. They do not represent returns,
+performance, or instructions to trade.”
+
+F) Tests
+- Monetary values correctly derive from percentages.
+- Toggling %/£ does not alter underlying scenario maths.
+- No generated copy contains: gain, loss, return, profit, save, earn, buy, sell.
+- Approximation symbol “~” appears on all £ values.
+
+Implement now.
