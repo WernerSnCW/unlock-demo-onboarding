@@ -192,3 +192,45 @@
 .splash-glow {
   animation: glow 4s ease-in-out infinite;
 }
+
+/* Print styles for Report page */
+@media print {
+  .print\\:hidden {
+    display: none !important;
+  }
+  
+  .print\\:border-0 {
+    border: none !important;
+  }
+  
+  .print\\:p-0 {
+    padding: 0 !important;
+  }
+  
+  .print\\:mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .print\\:mb-6 {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .print\\:break-after-page {
+    page-break-after: always;
+  }
+  
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Prevent table rows splitting */
+  tr {
+    page-break-inside: avoid;
+  }
+  
+  /* Add page footer */
+  @page {
+    margin: 1cm;
+  }
+}

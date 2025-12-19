@@ -1,0 +1,156 @@
+We must keep the onboarding flow at EXACTLY 10 steps (no Step 11), AND implement the final Snapshot Report as an OUTPUT screen (not a step) generated from Steps 1–10.
+
+Deliverables:
+1) Fix step numbering so the flow is 10 steps everywhere.
+2) Implement /report as the consolidated “Unlock Snapshot Report (Illustrative)” view with PDF + JSON downloads and a share link.
+3) Ensure Step 10 (“Wrappers & placement”) is the last step; from Step 10 the CTA goes to /report without incrementing the step count.
+
+========================
+A) ENFORCE 10-STEP FLOW
+========================
+1) Audit and remove any references to “Step 11”, “11 steps”, “Step X of 11”, etc.
+2) Ensure the onboarding progress UI uses totalSteps = 10 globally (single source of truth constant).
+3) Confirm labels:
+   - Step 9: “Transition considerations (illustrative)”
+   - Step 10: “Wrappers & placement (illustrative)” (existing screen)
+4) Navigation:
+   - Step 9 -> Next goes to Step 10
+   - Step 10 primary CTA becomes “View report” (or “Generate report” if first-time)
+   - Clicking it routes to /report
+   - /report is NOT shown in the stepper/progress and does NOT change the onboarding step index.
+
+Add a small one-line note under the Step 10 CTA:
+“The report consolidates Steps 1–10 into a single shareable snapshot. It is not an extra step.”
+
+========================
+B) IMPLEMENT /report (OUTPUT, NOT A STEP)
+========================
+Create a new route /report (or use existing) that renders a comprehensive, investor-readable snapshot pack.
+This must be deterministic-first, non-advisory, and based only on stored onboarding state.
+
+NON-NEGOTIABLES:
+- No buy/sell language. No “should/must”. No recommendations.
+- No forecasts, expected returns, probabilities, or performance claims.
+- “Illustrative” labelling wherever scenarios/ranges/translated £ values appear.
+- Guardrails dominate preferences. If any Safety Light is RED: tilts/preferences must be shown as locked everywhere.
+- UK English, plain investor-grade language.
+
+REPORT SECTIONS (on-screen and printable):
+1) Header
+   - Title: “Unlock Snapshot Report (Illustrative)”
+   - Generated timestamp
+   - Portfolio total value (if known) + currency
+   - Short disclaimer line:
+     “This report is illustrative and not financial advice. It summarises the information you provided and the constraints applied.”
+
+2) Executive Snapshot (1 screen)
+   - Safety Lights pills: Liquidity / Concentration / Illiquids (Green/Amber/Red)
+   - Primary constraint (deterministic):
+       If any RED: “Red guardrail(s) present — constraints dominate”
+       Else if any AMBER: show dominant amber driver (Liquidity/Concentration/Illiquids)
+       Else: “No guardrail-driven urgency”
+   - Preference status: Allowed vs Locked
+   - Scenario note:
+       If scenarios converge/are identical under constraints: explicitly state
+       “Under current constraints, scenarios converge on similar ranges.”
+
+3) Current Portfolio Snapshot (deterministic)
+   - Asset Class Allocation (current % and ~£ if total value exists)
+   - Regional Allocation (current % and ~£ if total value exists)
+   - If total value missing: show % only with note:
+     “£ values unavailable (portfolio total not provided).”
+
+4) Guardrails Detail (Step 5)
+   For each guardrail:
+   - Status (Green/Amber/Red)
+   - Current metric (correct formatting, % where appropriate)
+   - Thresholds (from policy defaults)
+   - One factual “Why it matters” sentence (no advice)
+   If any RED: show lock banner text:
+   “Tilts are locked while a red item exists. Fix the red cards in Analysis to enable beliefs.”
+
+5) Preferences Summary (Step 6)
+   - Table: axis name, direction (towards/away/neutral), intensity, status (active/locked)
+   - One paragraph:
+     “Preferences are signals used to shape illustrative scenario ranges within constraints. They are not targets.”
+
+6) Illustrative Scenarios Summary (Step 7)
+   For each scenario (Guardrail-first / Preference-leaning / Neutral baseline):
+   - Asset Class ranges (min–max) + midpoint marker and total movement (pp and ~£ if possible)
+   - “What differs / what remains similar” (data-driven; no advice verbs)
+   - Include the “Why movement is limited” callout if total movement < 1pp or scenarios converge.
+
+7) Wrappers & Placement (Step 10)
+   - Wrapper table (including “Other (no default priority)” where applicable)
+   - Policy wrapper priority note (policy default used for illustration; not personalised advice)
+   - Bed & ISA badge only if eligible (no hardcoding)
+
+8) Transition Considerations (Step 9)
+   - Structural constraints summary:
+     safety driver, pacing limits (only show numeric if present in policy), preference lock/allowed
+
+9) Questions to Consider (questions only, not actions)
+   Provide 5–7 neutral prompts, e.g.:
+   - “Are the guardrail thresholds aligned with your comfort around liquidity and concentration?”
+   - “Which preferences matter most to you when constraints tighten?”
+   - “Do wrappers match how accessible you want capital to be?”
+   - “If constraints force convergence, which constraint would you revisit first?”
+   (Questions only. No action verbs.)
+
+10) Scope & Method (short)
+   - “How scenarios are produced” (3–6 bullets)
+   - “What is not modelled” (fees, tax outcomes, returns, execution timing, product selection)
+   - “Inputs used” (holdings, wrappers, beliefs, policy defaults)
+
+========================
+C) DOWNLOADS + SHARE (IN /report)
+========================
+Add top-right actions and repeat at bottom:
+- Button: “Download PDF”
+- Button: “Download JSON”
+- Share link block with copy-to-clipboard:
+  - Use a persisted report_id (generate once and store); do not treat it as a step.
+  - Share URL format can be /report/<report_id> if supported, otherwise show a stable “copy link”.
+
+PDF:
+- Printable layout matching sections.
+- Footer: page number + timestamp.
+- No external services required.
+
+JSON:
+Export a structured object:
+{ report_meta, inputs_summary, safety_lights, preferences, scenarios, wrappers, transition, disclosures }
+Include policy version/hash if available.
+
+Analytics:
+Fire events:
+- report_download_pdf
+- report_download_json
+- report_share_copy
+
+========================
+D) PRINT CSS
+========================
+- Hide stepper/nav on print
+- Add page breaks between major sections
+- Prevent table rows splitting awkwardly
+
+========================
+E) EDGE CASES
+========================
+- Missing total portfolio value: show % only; suppress £ values and show the note.
+- Missing wrappers: show “Wrappers not provided” section but keep report valid.
+- Any RED safety light: mark preferences locked and ensure scenario narrative cannot imply preferences applied.
+
+========================
+F) TESTS (MANDATORY)
+========================
+1) Progress UI shows exactly 10 steps; no “Step 11” strings anywhere.
+2) Navigating to /report does not increment onboarding step count.
+3) If any RED safety light: report shows lock banner and preferences are locked.
+4) Policy numeric pacing is displayed only if present in policy.
+5) Report contains no banned verbs: should, must, buy, sell, optimise, improve, save.
+6) PDF + JSON download functions return content and do not crash with missing optional inputs.
+7) Share link copies successfully.
+
+Implement all of the above now.

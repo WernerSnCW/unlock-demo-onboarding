@@ -343,23 +343,28 @@ export default function PlanWrappers() {
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            className="px-6 py-2.5 border-2 border-[var(--border)] bg-white dark:bg-slate-800 text-[var(--foreground)] hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-[var(--primary)] transition-all duration-300"
-            data-testid="button-back"
-          >
-            Back
-          </Button>
-          <Button
-            onClick={handleNext}
-            className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2"
-            data-testid="button-next"
-          >
-            Continue to Report
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+        <div className="flex flex-col gap-3 pt-6 border-t border-[var(--border)]">
+          <div className="flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="px-6 py-2.5 border-2 border-[var(--border)] bg-white dark:bg-slate-800 text-[var(--foreground)] hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-[var(--primary)] transition-all duration-300"
+              data-testid="button-back"
+            >
+              Back
+            </Button>
+            <Button
+              onClick={handleNext}
+              className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2"
+              data-testid="button-view-report"
+            >
+              View Report
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+          <p className="text-xs text-center text-[var(--muted-foreground)] italic">
+            The report consolidates Steps 1–10 into a single shareable snapshot. It is not an extra step.
+          </p>
         </div>
       </div>
     </OnboardingLayout>

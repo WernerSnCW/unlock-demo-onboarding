@@ -17,8 +17,9 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   { id: 'next-steps', label: 'Next Steps', path: '/onboarding-v2/next-steps' },
   { id: 'plan-transition', label: 'Transition', path: '/onboarding-v2/plan/transition' },
   { id: 'plan-wrappers', label: 'Wrappers', path: '/onboarding-v2/plan/wrappers' },
-  { id: 'report', label: 'Report', path: '/onboarding-v2/report' },
 ];
+
+export const TOTAL_STEPS = ONBOARDING_STEPS.length;
 
 interface StepIndicatorProps {
   currentStepId: string;
