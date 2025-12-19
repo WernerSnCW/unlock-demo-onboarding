@@ -14,6 +14,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   { id: 'analysis', label: 'Analysis', path: '/onboarding-v2/analysis' },
   { id: 'beliefs', label: 'Beliefs', path: '/onboarding-v2/beliefs' },
   { id: 'target', label: 'Scenario', path: '/onboarding-v2/target' },
+  { id: 'next-steps', label: 'Next Steps', path: '/onboarding-v2/next-steps' },
   { id: 'plan-transition', label: 'Transition', path: '/onboarding-v2/plan/transition' },
   { id: 'plan-wrappers', label: 'Wrappers', path: '/onboarding-v2/plan/wrappers' },
   { id: 'report', label: 'Report', path: '/onboarding-v2/report' },
