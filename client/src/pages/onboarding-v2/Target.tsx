@@ -54,6 +54,8 @@ import {
   computeSafetyLightsForScenario,
   generateChangeBullets,
   hasAnyRedLightFromResult,
+  computeMovementLimitedCallout,
+  checkRangesIdenticalAcrossScenarios,
   type DeltaResult,
 } from '@/lib/step7Helpers';
 
@@ -329,21 +331,36 @@ function AllocationBandRow({ band, showDelta = false }: { band: AllocationBand; 
   );
 }
 
-function AppliedTiltRow({ tilt }: { tilt: AppliedTiltEntry }) {
+function AppliedTiltRow({ tilt, hasAnyRed }: { tilt: AppliedTiltEntry; hasAnyRed: boolean }) {
   const statusConfig = STATUS_CONFIG[tilt.status] || STATUS_CONFIG.NOT_APPLIED;
   const StatusIcon = statusConfig.icon;
+  
+  const getPrimaryConstraint = (): string | null => {
+    if (tilt.status === 'APPLIED') return null;
+    if (tilt.status === 'LOCKED' && hasAnyRed) return 'Tilts locked while a red item exists';
+    if (tilt.constraint_reason) return tilt.constraint_reason;
+    if (tilt.status === 'CONSTRAINED') return 'Guardrail binding';
+    if (tilt.status === 'PARTIALLY_APPLIED') return 'Partially constrained';
+    return null;
+  };
+  
+  const primaryConstraint = getPrimaryConstraint();
   
   return (
     <div className="flex items-center justify-between py-3 px-4 border-b border-[var(--border)] last:border-b-0">
       <div className="flex-1">
         <span className="font-medium text-[var(--foreground)]">{tilt.axis_label}</span>
-        {tilt.constraint_reason && (
-          <p className="text-xs text-[var(--muted-foreground)] mt-1">{tilt.constraint_reason}</p>
-        )}
       </div>
-      <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${statusConfig.bgColor}`}>
-        <StatusIcon className={`w-3 h-3 ${statusConfig.color}`} />
-        <span className={`text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>
+      <div className="flex items-center gap-3">
+        {primaryConstraint && (
+          <span className="text-xs text-[var(--muted-foreground)] max-w-[180px] text-right">
+            {primaryConstraint}
+          </span>
+        )}
+        <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${statusConfig.bgColor}`}>
+          <StatusIcon className={`w-3 h-3 ${statusConfig.color}`} />
+          <span className={`text-xs font-medium ${statusConfig.color}`}>{statusConfig.label}</span>
+        </div>
       </div>
     </div>
   );
@@ -489,11 +506,13 @@ function ScenarioContent({
   safetyLights,
   compareMode = false,
   allScenarios = [],
+  rangesIdentical = false,
 }: { 
   scenario: IllustrativeScenario; 
   safetyLights?: any;
   compareMode?: boolean;
   allScenarios?: IllustrativeScenario[];
+  rangesIdentical?: boolean;
 }) {
   const axesReflectedCount = scenario.scenario_type === 'NEUTRAL_BASELINE' 
     ? 0 
@@ -524,6 +543,16 @@ function ScenarioContent({
   const { changes, staysSame } = useMemo(() => 
     generateChangeBullets(scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts),
     [scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts]
+  );
+  
+  const movementCallout = useMemo(() => 
+    computeMovementLimitedCallout(
+      assetTotalMovement.total_movement_pp,
+      hasAnyRed,
+      scenario.binding_constraints,
+      rangesIdentical
+    ),
+    [assetTotalMovement.total_movement_pp, hasAnyRed, scenario.binding_constraints, rangesIdentical]
   );
 
   const assetRangeRows: RangeBarRow[] = useMemo(() => 
@@ -605,6 +634,22 @@ function ScenarioContent({
         </p>
       </div>
 
+      {/* Why movement is limited callout */}
+      {movementCallout.show && (
+        <div 
+          className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4"
+          data-testid="movement-limited-callout"
+        >
+          <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-2">
+            <Info className="w-4 h-4" />
+            {movementCallout.title}
+          </h4>
+          <p className="text-sm text-amber-700 dark:text-amber-400">
+            {movementCallout.body}
+          </p>
+        </div>
+      )}
+
       {/* Asset Class Bands */}
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -683,7 +728,9 @@ function ScenarioContent({
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-[var(--muted-foreground)] italic">No significant movement in this scenario</p>
+            <p className="text-sm text-[var(--muted-foreground)] italic" data-testid="what-differs-fallback">
+              Preferences are directionally present, but their impact is constrained by current guardrails, resulting in minimal allocation movement.
+            </p>
           )}
         </div>
         <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
@@ -701,7 +748,9 @@ function ScenarioContent({
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-[var(--muted-foreground)] italic">All categories show some movement</p>
+            <p className="text-sm text-[var(--muted-foreground)] italic" data-testid="what-remains-fallback">
+              Most exposures remain near current levels.
+            </p>
           )}
         </div>
       </div>
@@ -733,38 +782,7 @@ function ScenarioContent({
         </div>
       </div>
 
-      {/* Guardrail Impact on this scenario */}
-      {guardrailImpacts.length > 0 && (
-        <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
-          <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-[#FE9239]" />
-            Guardrail impact on this scenario
-          </h4>
-          <div className="space-y-2">
-            {guardrailImpacts.map((impact, i) => {
-              const statusColors: Record<string, string> = {
-                LOCKED: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-                CONSTRAINED: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-                PARTIALLY_APPLIED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-                NOT_APPLIED: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
-              };
-              return (
-                <div key={i} className="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium text-sm text-[var(--foreground)]">{impact.axis_label}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[impact.status] || statusColors.NOT_APPLIED}`}>
-                      {impact.status_label}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[var(--muted-foreground)]">{impact.primary_reason}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Applied Tilts Panel */}
+      {/* Applied Tilts Panel (Belief Axes Reflected) */}
       <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
         <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
           <TargetIcon className="w-5 h-5 text-[var(--primary)]" />
@@ -779,7 +797,7 @@ function ScenarioContent({
         </p>
         <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
           {scenario.applied_tilts.map((tilt) => (
-            <AppliedTiltRow key={tilt.axis_code} tilt={tilt} />
+            <AppliedTiltRow key={tilt.axis_code} tilt={tilt} hasAnyRed={hasAnyRed} />
           ))}
         </div>
       </div>
@@ -834,6 +852,11 @@ export default function Target() {
   const activeScenario = useMemo(() => {
     return scenario.scenarios.find(s => s.scenario_type === scenario.active_scenario) || scenario.scenarios[0];
   }, [scenario.scenarios, scenario.active_scenario]);
+
+  const rangesIdentical = useMemo(() => 
+    checkRangesIdenticalAcrossScenarios(scenario.scenarios),
+    [scenario.scenarios]
+  );
 
   const handleContinue = () => {
     completeScenarioStep();
@@ -959,16 +982,23 @@ export default function Target() {
                     Unlock models three illustrative scenarios. Each reflects your stated preferences within different constraint frameworks.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="compare-mode"
-                    checked={compareMode}
-                    onCheckedChange={setCompareMode}
-                    data-testid="compare-scenarios-toggle"
-                  />
-                  <Label htmlFor="compare-mode" className="text-sm text-[var(--muted-foreground)] cursor-pointer">
-                    Compare scenarios
-                  </Label>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="compare-mode"
+                      checked={compareMode}
+                      onCheckedChange={setCompareMode}
+                      data-testid="compare-scenarios-toggle"
+                    />
+                    <Label htmlFor="compare-mode" className="text-sm text-[var(--muted-foreground)] cursor-pointer">
+                      Compare scenarios
+                    </Label>
+                  </div>
+                  {rangesIdentical && (
+                    <span className="text-xs text-[var(--muted-foreground)] italic" data-testid="convergence-microcopy">
+                      Under current constraints, all three scenarios converge on similar ranges.
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -1002,6 +1032,7 @@ export default function Target() {
                       safetyLights={analysis.result?.safety_lights}
                       compareMode={compareMode}
                       allScenarios={scenario.scenarios}
+                      rangesIdentical={rangesIdentical}
                     />
                   </TabsContent>
                 ))}

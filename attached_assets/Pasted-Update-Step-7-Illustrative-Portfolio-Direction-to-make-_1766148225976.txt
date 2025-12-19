@@ -1,0 +1,66 @@
+Update Step 7 “Illustrative Portfolio Direction” to make the “minimal movement” outcome feel intentional and investor-grade, and reduce duplication.
+
+Non-negotiables:
+- UK English.
+- No advice verbs (should/must/buy/sell/optimise/improve/save/increase/decrease).
+- Keep everything descriptive, deterministic, and grounded in existing outputs (current %, ranges, safety lights, constraint flags).
+- Do not introduce forecasts or performance.
+
+A) Add an explicit “Why movement is limited” callout (MOST IMPORTANT)
+1) Compute per scenario:
+   - total_movement_pp (already implemented)
+   - dominant_binding_guardrail (derive from existing constraint objects; if none, use “current constraints”)
+     Priority order for dominant guardrail label:
+       RED safety light → “red guardrails”
+       else if any binding constraint exists → first binding constraint name (e.g., “concentration limits”)
+       else → “current constraints”
+
+2) Display a callout card immediately under “Impact vs current (illustrative)” (above the tables/charts),
+   ONLY when total_movement_pp < 1.0pp OR when all three scenarios have identical ranges.
+   Title (exact):
+   “Why movement is limited (illustrative)”
+   Body (exact, choose one branch):
+   - If any Safety Light is RED:
+     “Preferences are recorded but locked while a red guardrail exists. Under current constraints, the model shows minimal deviation from the current position.”
+   - Else if dominant_binding_guardrail is available:
+     “Your stated preferences are present, but current guardrails — particularly {dominant_binding_guardrail} — materially restrict how far allocations can move. As a result, the model shows minimal deviation from the current position under this scenario.”
+   - Else:
+     “Under current constraints, the model shows minimal deviation from the current position. This indicates the scenarios converge on similar ranges given the inputs provided.”
+
+B) Strengthen the “What differs / What remains similar” summaries (remove weak fallback copy)
+Replace the current “What differs (illustrative)” empty-state text:
+- From: “No significant movement in this scenario”
+- To (exact, shown when no deltas exceed threshold OR total_movement_pp < 1.0pp):
+  “Preferences are directionally present, but their impact is constrained by current guardrails, resulting in minimal allocation movement.”
+
+Keep “What remains similar” but ensure it is computed, not generic. If computed list is empty, show:
+  “Most exposures remain near current levels.”
+
+C) Reduce duplication by collapsing one repeated constraints section
+Right now Step 7 repeats constraint logic across:
+- “Guardrail impact on this scenario”
+- “Belief Axes Reflected”
+- “Trade-offs and Constraints”
+
+Change:
+1) Keep “Belief Axes Reflected” as the primary axis-by-axis view.
+2) Keep “Trade-offs and Constraints” as the high-level binding guardrail panel.
+3) Remove the separate “Guardrail impact on this scenario” table OR collapse it into “Belief Axes Reflected”:
+   - If removing: ensure any “applied within guardrail constraints” messaging still exists in the Belief Axes list as a short per-axis note.
+   - If collapsing: add a rightmost “Primary constraint” column in “Belief Axes Reflected” for non-fully-reflected axes (e.g., “Concentration guardrail binding”, “Tilts locked while a red item exists”).
+
+D) Make scenario convergence explicit near the Compare toggle
+Add one neutral line of microcopy next to/under the “Compare scenarios” toggle:
+- If ranges identical across all three scenarios:
+  “Under current constraints, all three scenarios converge on similar ranges.”
+- Else:
+  No additional line.
+
+E) Tests (must add/update)
+1) When total_movement_pp < 1.0pp, the “Why movement is limited (illustrative)” callout renders.
+2) When any Safety Light is RED, callout uses the “Preferences are recorded but locked…” branch.
+3) When ranges are identical across scenarios, the convergence microcopy appears.
+4) Ensure the updated fallback copy for “What differs” appears when no deltas exceed threshold.
+5) Ban-words test: ensure callout and summaries do not include should/must/buy/sell/optimise/improve/save/increase/decrease.
+
+Implement these changes now in the Step 7 page and the helper(s) that build scenario summaries.

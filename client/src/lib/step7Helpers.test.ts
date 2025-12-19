@@ -8,6 +8,8 @@ import {
   generateChangeBullets,
   hasAnyRedLightFromResult,
   containsBannedWordStep7,
+  computeMovementLimitedCallout,
+  checkRangesIdenticalAcrossScenarios,
   BANNED_WORDS_STEP7,
 } from './step7Helpers';
 import type { AllocationBand, AppliedTiltEntry, SafetyLightsResult } from '@/state/onboardingV2Store';
@@ -332,5 +334,105 @@ describe('delta computation accuracy', () => {
     };
     const result = computeDelta(band);
     expect(result.delta_display).toMatch(/^[+−]\d+\.\d{1}pp$/);
+  });
+});
+
+describe('computeMovementLimitedCallout', () => {
+  it('should show callout when total_movement_pp < 1.0', () => {
+    const result = computeMovementLimitedCallout(0.5, false, [], false);
+    expect(result.show).toBe(true);
+    expect(result.title).toBe('Why movement is limited (illustrative)');
+  });
+
+  it('should show callout when ranges are identical', () => {
+    const result = computeMovementLimitedCallout(5.0, false, [], true);
+    expect(result.show).toBe(true);
+  });
+
+  it('should not show callout when movement is high and ranges differ', () => {
+    const result = computeMovementLimitedCallout(5.0, false, [], false);
+    expect(result.show).toBe(false);
+  });
+
+  it('should use red guardrail copy when hasAnyRedLight is true', () => {
+    const result = computeMovementLimitedCallout(0.5, true, [], false);
+    expect(result.show).toBe(true);
+    expect(result.body).toContain('Preferences are recorded but locked while a red guardrail exists');
+    expect(result.dominant_guardrail).toBe('red guardrails');
+  });
+
+  it('should use binding constraint name when available', () => {
+    const constraints = [{ constraint_type: 'concentration limits' }];
+    const result = computeMovementLimitedCallout(0.5, false, constraints, false);
+    expect(result.body).toContain('concentration limits');
+    expect(result.dominant_guardrail).toBe('concentration limits');
+  });
+
+  it('should use low-movement fallback copy when no constraints and ranges differ', () => {
+    const result = computeMovementLimitedCallout(0.5, false, [], false);
+    expect(result.body).toContain('Under current constraints');
+    expect(result.body).toContain('minimal deviation');
+    expect(result.body).not.toContain('converge');
+  });
+
+  it('should use convergence copy when ranges are identical', () => {
+    const result = computeMovementLimitedCallout(5.0, false, [], true);
+    expect(result.body).toContain('all three scenarios converge');
+  });
+
+  it('should not contain banned words in callout body', () => {
+    const scenarios = [
+      computeMovementLimitedCallout(0.5, true, [], false),
+      computeMovementLimitedCallout(0.5, false, [{ constraint_type: 'test' }], false),
+      computeMovementLimitedCallout(0.5, false, [], false),
+      computeMovementLimitedCallout(5.0, false, [], true),
+    ];
+    for (const result of scenarios) {
+      const banned = containsBannedWordStep7(result.body);
+      expect(banned).toBeNull();
+    }
+  });
+});
+
+describe('checkRangesIdenticalAcrossScenarios', () => {
+  it('should return true when all scenarios have identical ranges', () => {
+    const scenarios = [
+      { asset_class_bands: [{ ...mockBand, illustrative_low_pct: 45, illustrative_high_pct: 55 }], region_bands: [] },
+      { asset_class_bands: [{ ...mockBand, illustrative_low_pct: 45, illustrative_high_pct: 55 }], region_bands: [] },
+      { asset_class_bands: [{ ...mockBand, illustrative_low_pct: 45, illustrative_high_pct: 55 }], region_bands: [] },
+    ];
+    expect(checkRangesIdenticalAcrossScenarios(scenarios)).toBe(true);
+  });
+
+  it('should return false when scenarios have different ranges', () => {
+    const scenarios = [
+      { asset_class_bands: [{ ...mockBand, illustrative_low_pct: 45, illustrative_high_pct: 55 }], region_bands: [] },
+      { asset_class_bands: [{ ...mockBand, illustrative_low_pct: 40, illustrative_high_pct: 60 }], region_bands: [] },
+    ];
+    expect(checkRangesIdenticalAcrossScenarios(scenarios)).toBe(false);
+  });
+
+  it('should return false for single scenario', () => {
+    const scenarios = [
+      { asset_class_bands: [mockBand], region_bands: [] },
+    ];
+    expect(checkRangesIdenticalAcrossScenarios(scenarios)).toBe(false);
+  });
+});
+
+describe('updated fallback copy', () => {
+  it('what differs fallback should not contain banned words', () => {
+    const fallbackText = 'Preferences are directionally present, but their impact is constrained by current guardrails, resulting in minimal allocation movement.';
+    expect(containsBannedWordStep7(fallbackText)).toBeNull();
+  });
+
+  it('what remains similar fallback should not contain banned words', () => {
+    const fallbackText = 'Most exposures remain near current levels.';
+    expect(containsBannedWordStep7(fallbackText)).toBeNull();
+  });
+
+  it('convergence microcopy should not contain banned words', () => {
+    const microcopy = 'Under current constraints, all three scenarios converge on similar ranges.';
+    expect(containsBannedWordStep7(microcopy)).toBeNull();
   });
 });
