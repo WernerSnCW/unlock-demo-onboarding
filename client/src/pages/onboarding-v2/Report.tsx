@@ -687,7 +687,7 @@ export default function Report() {
             <Button
               variant="outline"
               onClick={handleDownloadPDF}
-              className="gap-2"
+              className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
               data-testid="button-download-pdf-bottom"
             >
               <Download className="w-4 h-4" />
@@ -696,7 +696,7 @@ export default function Report() {
             <Button
               variant="outline"
               onClick={handleDownloadJSON}
-              className="gap-2"
+              className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
               data-testid="button-download-json-bottom"
             >
               <FileJson className="w-4 h-4" />
@@ -705,7 +705,7 @@ export default function Report() {
             <Button
               variant="outline"
               onClick={handleCopyLink}
-              className="gap-2"
+              className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
               data-testid="button-share-bottom"
             >
               <Share2 className="w-4 h-4" />
