@@ -161,6 +161,22 @@ export default function PlanWrappers() {
           </div>
         )}
 
+        {/* What This Shows Explainer */}
+        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5">
+          <h3 className="font-semibold text-[var(--foreground)] mb-3">What this shows</h3>
+          <div className="space-y-3 text-sm text-[var(--muted-foreground)] leading-relaxed">
+            <p>
+              This view summarises how your current portfolio is held across different account types ('wrappers').
+            </p>
+            <p>
+              Wrappers affect tax treatment, access, and how easily assets can be moved — even when the underlying investments are similar.
+            </p>
+            <p>
+              This section does not suggest changes. It provides context for understanding which parts of your portfolio are more flexible or more constrained.
+            </p>
+          </div>
+        </div>
+
         {/* Wrapper Placement Table */}
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-sm overflow-hidden">
           <div className="p-5 border-b border-[var(--border)]">
@@ -276,6 +292,19 @@ export default function PlanWrappers() {
               <p>No wrapper data available</p>
             </div>
           )}
+        </div>
+
+        {/* Why This Matters Explainer */}
+        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5">
+          <h3 className="font-semibold text-[var(--foreground)] mb-3">Why this matters</h3>
+          <div className="space-y-3 text-sm text-[var(--muted-foreground)] leading-relaxed">
+            <p>
+              When considering future changes, different wrappers can introduce practical constraints around timing and access.
+            </p>
+            <p>
+              As a result, portfolio adjustments may occur gradually or unevenly across accounts, even if overall allocation remains similar.
+            </p>
+          </div>
         </div>
 
         {/* Bed & ISA Badge (Conditional) */}
