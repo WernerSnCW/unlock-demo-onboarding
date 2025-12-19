@@ -36,6 +36,7 @@ import {
   type InterpretationContext,
 } from '@/lib/scenarioInterpretation';
 import { useToast } from '@/hooks/use-toast';
+import unlockLogo from '@/assets/unlock-logo.svg';
 
 const SAFETY_STATUS_CONFIG: Record<SafetyStatus, { icon: typeof ShieldCheck; color: string; bg: string; label: string }> = {
   GREEN: { icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'Green' },
@@ -300,18 +301,26 @@ export default function Report() {
         <div ref={printRef} className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8 print:border-0 print:p-0">
           
           <div className="flex justify-between items-start mb-6 print:mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2" data-testid="report-title">
-                Unlock Snapshot Report (Illustrative)
-              </h1>
-              <p className="text-sm text-[var(--muted-foreground)]">
-                Generated: {generatedAt}
-              </p>
-              {hasTotalValue && (
+            <div className="flex items-start gap-4">
+              <img 
+                src={unlockLogo} 
+                alt="Unlock" 
+                className="h-12 w-auto"
+                data-testid="report-logo"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2" data-testid="report-title">
+                  Snapshot Report (Illustrative)
+                </h1>
                 <p className="text-sm text-[var(--muted-foreground)]">
-                  Portfolio total: {formatCurrency(totalValue)} (GBP)
+                  Generated: {generatedAt}
                 </p>
-              )}
+                {hasTotalValue && (
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Portfolio total: {formatCurrency(totalValue)} (GBP)
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex gap-2 print:hidden">
               <Button
