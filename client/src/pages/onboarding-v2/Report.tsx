@@ -326,8 +326,8 @@ export default function Report() {
             </div>
           </div>
 
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-8 print:mb-6">
-            <p className="text-sm text-amber-800 dark:text-amber-200">
+          <div className="border-l-4 border-[var(--primary)] bg-slate-50 dark:bg-slate-800/50 px-5 py-4 mb-8 print:mb-6">
+            <p className="text-sm text-[var(--muted-foreground)] italic leading-relaxed">
               This report is illustrative and not financial advice. It summarises the information you provided and the constraints applied.
             </p>
           </div>
