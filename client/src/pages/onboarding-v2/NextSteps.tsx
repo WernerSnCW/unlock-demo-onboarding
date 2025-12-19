@@ -29,6 +29,8 @@ import {
   RefreshCw,
   Eye,
   Loader2,
+  ClipboardList,
+  Circle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
@@ -255,6 +257,85 @@ export default function NextSteps() {
 
   const appliedTilts = getPreferenceLeaningTilts();
   const hasScenarioData = scenario.computed && scenario.scenarios.length > 0;
+
+  // Generate deterministic review checklist bullets based on Safety Lights and preference signal status
+  // Guarantees 3-6 bullets in all scenarios
+  const getReviewChecklist = (): string[] => {
+    const bullets: string[] = [];
+    
+    // Safety Light based bullets
+    if (safetyLights) {
+      // RED lights - most urgent
+      if (safetyLights.liquidity === 'RED') {
+        bullets.push('Review whether current cash reserves meet your near-term spending needs.');
+      }
+      if (safetyLights.concentration === 'RED') {
+        bullets.push('Consider whether the concentration in your largest holding reflects your intended exposure.');
+      }
+      if (safetyLights.illiquids === 'RED') {
+        bullets.push('Review whether the proportion of assets that cannot be sold quickly aligns with your liquidity needs.');
+      }
+      
+      // AMBER lights - moderate concern
+      if (safetyLights.liquidity === 'AMBER') {
+        bullets.push('Cash runway is approaching minimum thresholds—confirm this meets your comfort level.');
+      }
+      if (safetyLights.concentration === 'AMBER') {
+        bullets.push('Your largest position is moderately concentrated—decide if this is intentional.');
+      }
+      if (safetyLights.illiquids === 'AMBER') {
+        bullets.push('Illiquid holdings are elevated—confirm you have sufficient liquid reserves for unexpected needs.');
+      }
+      
+      // GREEN overall - confirmation
+      if (overallStatus === 'GREEN' && bullets.length === 0) {
+        bullets.push('All guardrails are within defined limits—no immediate structural concerns flagged.');
+      }
+    }
+    
+    // Preference signal based bullets
+    const lockedCount = appliedTilts.filter(t => t.status === 'LOCKED').length;
+    const constrainedCount = appliedTilts.filter(t => t.status === 'CONSTRAINED').length;
+    const appliedCount = appliedTilts.filter(t => t.status === 'APPLIED' || t.status === 'PARTIALLY_APPLIED').length;
+    const notAppliedCount = appliedTilts.filter(t => t.status === 'NOT_APPLIED').length;
+    
+    if (lockedCount > 0) {
+      bullets.push(`${lockedCount} preference signal${lockedCount > 1 ? 's are' : ' is'} locked pending resolution of red-flagged constraints.`);
+    }
+    
+    if (constrainedCount > 0 && lockedCount === 0) {
+      bullets.push(`${constrainedCount} preference signal${constrainedCount > 1 ? 's are' : ' is'} constrained by amber guardrails—full application requires addressing these first.`);
+    }
+    
+    if (appliedCount > 0 && lockedCount === 0) {
+      bullets.push(`${appliedCount} preference signal${appliedCount > 1 ? 's have' : ' has'} been reflected in the illustrative scenarios.`);
+    }
+    
+    if (notAppliedCount === ALL_AXES.length && overallStatus === 'GREEN') {
+      bullets.push('No directional preferences were indicated—scenarios show neutral baseline positioning.');
+    }
+    
+    // Fallback bullets to ensure minimum of 3 (deterministic review prompts for all states)
+    const fallbackBullets = [
+      'Review the illustrative scenarios to understand how different approaches may affect your portfolio.',
+      'Consider whether your stated preferences still reflect your current priorities.',
+      'The next step covers wrapper and transition considerations before generating your snapshot report.',
+      'Confirm your time horizon and liquidity needs remain as initially indicated.',
+      'Review whether any life circumstances have changed that might affect your investment approach.',
+    ];
+    
+    // Add fallback bullets until we have at least 3
+    let fallbackIndex = 0;
+    while (bullets.length < 3 && fallbackIndex < fallbackBullets.length) {
+      bullets.push(fallbackBullets[fallbackIndex]);
+      fallbackIndex++;
+    }
+    
+    // Cap at 6 bullets, prioritise by adding order (RED first, then AMBER, then status-based)
+    return bullets.slice(0, 6);
+  };
+
+  const reviewChecklist = getReviewChecklist();
 
   const buildTranslationPayload = (): TranslationPayload => {
     const tiltsAllowed = beliefs.tilts_allowed;
@@ -486,6 +567,64 @@ export default function NextSteps() {
           <p className="text-[var(--muted-foreground)]">
             Next, we'll show an illustrative view of wrappers and transition considerations, and then generate your snapshot report.
           </p>
+        </div>
+
+        {/* Next Review Checklist */}
+        <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-sm" data-testid="review-checklist">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-lg flex-shrink-0">
+              <ClipboardList className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-[var(--foreground)]">Next review checklist</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">Items to consider based on your current position.</p>
+            </div>
+          </div>
+
+          {/* Checklist Bullets */}
+          <ul className="space-y-3 mb-6" data-testid="checklist-bullets">
+            {reviewChecklist.map((bullet, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <Circle className="w-2 h-2 mt-2 text-[var(--primary)] fill-current flex-shrink-0" />
+                <span className="text-sm text-[var(--foreground)]">{bullet}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Status Legend */}
+          <div className="pt-4 border-t border-[var(--border)]">
+            <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Signal status legend</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#10A957]/10 text-[#10A957] font-medium">
+                  <Check className="w-3 h-3" />
+                  Applied
+                </span>
+                <span className="text-[var(--muted-foreground)]">Preference reflected in scenarios</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] font-medium">
+                  <Minus className="w-3 h-3" />
+                  Not applied
+                </span>
+                <span className="text-[var(--muted-foreground)]">No direction indicated</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FE9239]/10 text-[#FE9239] font-medium">
+                  <Lock className="w-3 h-3" />
+                  Constrained
+                </span>
+                <span className="text-[var(--muted-foreground)]">Limited by amber guardrails</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#DC2626]/10 text-[#DC2626] font-medium">
+                  <Lock className="w-3 h-3" />
+                  Locked
+                </span>
+                <span className="text-[var(--muted-foreground)]">Blocked by red guardrails</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* AI Translation Layer */}
