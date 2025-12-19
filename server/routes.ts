@@ -2703,7 +2703,7 @@ Return as JSON with this exact structure:
 ABSOLUTELY FORBIDDEN WORDS (using ANY of these will cause immediate rejection):
 ${FORBIDDEN_WORDS.join(', ')}
 
-CRITICAL: Do NOT use "strong", "weak", "positive", "negative", "good", "bad", "significant", or any intensity/judgement words.
+CRITICAL: Do NOT use "strong", "weak", "positive", "negative", "good", "bad", "significant", "marked", "pronounced", "notable", or any intensity/judgement words.
 
 STRICT RULES:
 1. You may ONLY paraphrase the data provided. Do not add new facts, numbers, or thresholds.
