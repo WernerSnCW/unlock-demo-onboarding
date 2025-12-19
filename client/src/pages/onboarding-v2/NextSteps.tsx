@@ -108,9 +108,19 @@ interface TranslationPayload {
 }
 
 const FORBIDDEN_WORDS = [
+  // Financial advice verbs
   'should', 'recommend', 'buy', 'sell', 'allocate', 'rebalance', 
-  'increase', 'decrease', 'switch', 'guarantee', 'will', 'expect', 
-  'predict', 'outperform', 'return', 'alpha'
+  'increase', 'decrease', 'switch', 'guarantee', 'expect', 
+  'predict', 'outperform', 'alpha',
+  // Judgement adjectives
+  'positive', 'negative', 'favourable', 'favorable', 'unfavourable', 'unfavorable',
+  'strong', 'weak', 'good', 'bad', 'excellent', 'poor', 'great', 'terrible',
+  'optimistic', 'pessimistic', 'bullish', 'bearish', 'aggressive', 'conservative',
+  // Strength/intensity modifiers that imply judgement
+  'significant', 'substantial', 'considerable', 'notable', 'marked', 'pronounced',
+  'slight', 'minor', 'marginal', 'modest',
+  // Direction judgements
+  'inclination', 'tendency', 'leaning'
 ];
 
 const COMPLIANCE_LINE = 'Illustrative only. Not financial advice.';
@@ -206,12 +216,12 @@ export default function NextSteps() {
       {
         key: 'concentration',
         status: safetyLights.concentration,
-        metric: `${safetyLights.metrics.largest_line_pct.toFixed(1)}% largest holding`,
+        metric: `${(safetyLights.metrics.largest_line_pct * 100).toFixed(1)}% largest holding`,
       },
       {
         key: 'illiquids',
         status: safetyLights.illiquids,
-        metric: `${safetyLights.metrics.illiquid_pct.toFixed(1)}% illiquid`,
+        metric: `${(safetyLights.metrics.illiquid_pct * 100).toFixed(1)}% illiquid`,
       },
     ];
 

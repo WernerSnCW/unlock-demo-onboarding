@@ -2619,9 +2619,24 @@ Return as JSON with this exact structure:
   // =============================================================================
   
   const FORBIDDEN_WORDS = [
+    // Financial advice verbs
     'should', 'recommend', 'buy', 'sell', 'allocate', 'rebalance', 
-    'increase', 'decrease', 'switch', 'guarantee', 'will', 'expect', 
-    'predict', 'outperform', 'return', 'alpha'
+    'increase', 'decrease', 'switch', 'guarantee', 'expect', 
+    'predict', 'outperform', 'alpha',
+    // Judgement adjectives
+    'positive', 'negative', 'favourable', 'favorable', 'unfavourable', 'unfavorable',
+    'strong', 'weak', 'good', 'bad', 'excellent', 'poor', 'great', 'terrible',
+    'optimistic', 'pessimistic', 'bullish', 'bearish', 'aggressive', 'conservative',
+    // Strength/intensity modifiers that imply judgement
+    'significant', 'substantial', 'considerable', 'notable', 'marked', 'pronounced',
+    'slight', 'minor', 'marginal', 'modest',
+    // Direction judgements
+    'inclination', 'tendency', 'leaning'
+  ];
+  
+  const CANONICAL_AXIS_LABELS = [
+    'Volatility Comfort', 'Quality Tilt', 'Value Tilt', 'Tech Tilt',
+    'UK Bias', 'ESG Tilt', 'Inflation Protection', 'Small Cap Tilt'
   ];
   
   const COMPLIANCE_LINE = 'Illustrative only. Not financial advice.';
@@ -2688,11 +2703,13 @@ Return as JSON with this exact structure:
 STRICT RULES - VIOLATION MEANS FAILURE:
 1. You may ONLY paraphrase the data provided. Do not add new facts, numbers, or thresholds.
 2. NEVER use these words: ${FORBIDDEN_WORDS.join(', ')}
-3. Use ONLY neutral verbs: indicates, shows, suggests, reflects, highlights, reveals, demonstrates
+3. Use ONLY neutral verbs: indicates, shows, reflects, highlights, reveals, demonstrates, notes
 4. Output must be 90-130 words maximum.
 5. You MUST end with this exact compliance line: "${COMPLIANCE_LINE}"
 6. Do not mention specific securities, tickers, or asset names.
-7. This is strictly informational - describe what the data shows, not what to do about it.`;
+7. This is strictly informational - describe what the data shows, not what to do about it.
+8. When mentioning preference signals, use ONLY these exact canonical labels: ${CANONICAL_AXIS_LABELS.join(', ')}. Do not invent variations.
+9. Describe directions as "towards" or "away from" without implying judgement about which is better.`;
 
       const userPrompt = `Summarise this investment position data in plain English:
 
