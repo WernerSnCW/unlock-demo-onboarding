@@ -1,0 +1,189 @@
+eplit instruction (paste into Replit AI)
+
+You are working in the Unlock onboarding web app. Implement Step 9: Wrappers & Transition Considerations as two screens:
+
+/plan/transition = “Transition considerations” (illustrative sequencing + pacing summary + CSV export)
+
+/plan/wrappers = “Wrappers & placement” (ISA/SIPP/GIA illustration + Bed & ISA badge when rules trigger)
+
+This step must be deterministic, non-advisory, illustrative, and must not introduce new facts. It must respect the doctrine: guardrails dominate preferences; any “red” safety breach means tilts/active preferences are locked (and Step 9 must not contradict that).
+
+0) Constraints (non-negotiable)
+
+No buy/sell language and no recommendation verbs (“should”, “must”, “buy”, “sell”, “switch”). Use “illustrative”, “could”, “one possible sequencing”, “considerations”, “example pacing”.
+
+Never worsen a breach: if an exposure is already constrained/breached, Step 9 must not present any sequence that increases it.
+
+Step 9 is a planning view, not a target engine. It can only summarise and present sequencing derived from outputs already computed (Safety Lights, tilt gating status, target gaps, etc.).
+
+Use policy defaults for wrapper priority and any thresholds (load from policy_defaults.yaml / policy loader). Do not hardcode.
+
+A11y: keyboard navigable, ARIA labels on charts/tables, WCAG AA patterns. 
+
+06_UI_SPEC
+
+1) Data contract: what Step 9 consumes
+
+Use the existing persisted onboarding state (whatever you already store from steps 5–8). Step 9 needs:
+
+safetyLights (liquidity/concentration/illiquids + statuses)
+
+tilts_allowed boolean (or equivalent) from Step 6/7 gating
+
+currentHoldings summary by wrapper (ISA/SIPP/GIA) if present
+
+target and gaps if Step 7/8 already computed them (even if illustrative ranges)
+
+policy loaded object (including wrapper priority order and Bed & ISA triggers)
+
+If a piece is missing (e.g., no wrappers captured), show a neutral “Missing inputs” banner and keep the screen functional.
+
+2) /plan/wrappers — Wrapper placement table (Step 9 main deliverable)
+
+Create a new screen with:
+
+2.1 Header copy (plain English)
+
+Title: Wrappers & placement (illustrative)
+Subtitle: “This is an illustrative placement view based on the wrappers you told us about. It is not advice.”
+
+2.2 Placement table (deterministic)
+
+A table with rows for each wrapper type present (ISA, SIPP, GIA). Columns:
+
+Wrapper
+
+Current amount (if known)
+
+Illustrative role (short label: “Tax-sheltered”, “Pension”, “Taxable” — keep neutral)
+
+Placement priority (derived from policy order; e.g., ISA → SIPP → GIA)
+
+Notes (1–2 bullets; purely descriptive)
+
+Do not invent numbers. If missing, display “—”.
+
+2.3 Bed & ISA badge (conditional)
+
+Add a small badge near the table: “Proposed Bed & ISA (illustrative)” only when criteria are satisfied (use policy rules and existing computed values). If criteria not met or inputs missing, badge must not show.
+
+Under the badge, show why it appears as 2–3 plain bullet points referencing only the inputs/policy triggers (e.g., “ISA headroom detected”, “Taxable holdings present”). Do not talk about “tax savings” as a promise.
+
+2.4 Guardrail lock banner
+
+If any Safety Light is RED, show the lock banner copy exactly (or extremely close) to the UI spec:
+“Tilts are locked while a red item exists. Fix the red cards in Analysis to enable beliefs.”
+Even though this is Step 9, we must remain consistent with the system state. 
+
+06_UI_SPEC
+
+2.5 Navigation
+
+Buttons: Back (to Step 8) and Next (to Step 10 /report or whatever is next in your flow).
+
+3) /plan/transition — Transition considerations + illustrative pacing
+
+Create a new screen with:
+
+3.1 Header copy
+
+Title: Transition considerations (illustrative)
+Subtitle: “A non-prescriptive sequencing view. Figures elsewhere remain the source of truth.”
+
+3.2 “What drives pacing here” cards (deterministic)
+
+Three small cards:
+
+Safety status summary (Green/Amber/Red and the dominant driver: Liquidity/Concentration/Illiquids)
+
+Tilt status (Allowed / Locked) based on tilts_allowed
+
+Policy pacing constraints summary (no numbers unless policy exposes them and you can cite them as “policy cap”; otherwise describe qualitatively)
+
+3.3 Illustrative timeline list (not advice)
+
+A simple ordered list with 3–6 steps max. Each step should be generated from state:
+
+If liquidity is Amber/Red: prioritise “stability first” wording (not “increase cash”; say “reduce pressure on liquidity constraints”).
+
+If concentration is Amber/Red: prioritise “reduce concentration exposure over time within policy pacing”.
+
+If illiquids Amber/Red: prioritise “avoid increasing illiquid exposure; consider sequencing that improves flexibility”.
+
+Each list item must:
+
+avoid action verbs (“sell/buy”)
+
+refer to “sequencing” and “constraints”
+
+never contradict “no worsen a breach”
+
+3.4 CSV export
+
+Add a button: “Download illustrative plan (CSV)”.
+Export must include:
+
+timestamp
+
+policy version (if available)
+
+a small set of rows representing the timeline list items (step number, label, notes)
+Do not include personal data beyond what’s already visible in the UI.
+
+Also fire analytics event plan_download_csv on click. 
+
+06_UI_SPEC
+
+4) Implementation tasks (code changes)
+
+Add routes /plan/wrappers and /plan/transition to router.
+
+Create two components/pages:
+
+PlanWrappersPage
+
+PlanTransitionPage
+
+Add a small selector/helper module:
+
+deriveWrapperPriority(policy) (returns ordered list)
+
+bedAndIsaEligible(state, policy) (returns boolean + reasons)
+
+buildTransitionTimeline(state, policy) (returns ordered list of steps)
+
+Ensure all helper outputs are deterministic and pure (no randomisation; no time dependence except in CSV timestamp).
+
+Add basic unit tests for:
+
+Bed & ISA badge shows only when eligible
+
+Red safety light forces lock banner presence
+
+Timeline never includes “buy/sell” words
+
+Timeline respects “no worsen” by never proposing increases to breached exposures (you can implement this as: if breach present for an axis, timeline only contains constraint-reducing language for that axis, never “increase” language)
+
+Also add at least one golden-case style fixture if your repo already has a golden testing pattern.
+
+5) UX details
+
+Keep copy short, plain English, non-technical.
+
+Inline “info” tooltip explaining wrappers: 1 sentence per wrapper.
+
+Ensure table and buttons are usable on mobile.
+
+ARIA labels on table and badge.
+
+6) Done-when checks
+
+Both routes render without errors even when wrapper inputs are missing.
+
+Bed & ISA badge is conditional and explained; never appears incorrectly.
+
+CSV download works and contains timestamp + policy version.
+
+No prohibited recommendation verbs appear anywhere in Step 9.
+
+Red safety light state is reflected consistently (lock banner shown).
