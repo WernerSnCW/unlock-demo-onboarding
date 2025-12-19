@@ -117,17 +117,17 @@ function RangeBarChart({
   });
 
   return (
-    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
-      <h4 className="font-semibold text-[var(--foreground)] mb-4 text-sm">{title}</h4>
+    <div className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/50 dark:from-slate-800/90 dark:via-slate-800/70 dark:to-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-lg ring-1 ring-slate-900/5 dark:ring-white/5 p-5">
+      <h4 className="font-semibold text-[var(--foreground)] mb-4 text-sm tracking-tight">{title}</h4>
       
       {allIdentical && (
-        <p className="text-xs text-[var(--muted-foreground)] italic mb-4 bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+        <p className="text-xs text-[var(--muted-foreground)] italic mb-4 bg-slate-100/80 dark:bg-slate-700/50 p-2.5 rounded-lg border border-slate-200/50 dark:border-slate-600/30">
           Ranges are identical across scenarios under current constraints.
         </p>
       )}
 
       {/* 0-100% scale reference */}
-      <div className="flex justify-between text-[10px] text-[var(--muted-foreground)] mb-2 px-1">
+      <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mb-3 px-1 font-medium tracking-wide uppercase">
         <span>0%</span>
         <span>25%</span>
         <span>50%</span>
@@ -135,7 +135,7 @@ function RangeBarChart({
         <span>100%</span>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-5">
         {rows.map((row, idx) => {
           const midpoint = (row.minPct + row.maxPct) / 2;
           const ariaLabel = `${row.label}: current ${row.currentPct.toFixed(1)}%, illustrative range ${row.minPct.toFixed(0)}–${row.maxPct.toFixed(0)}%`;
@@ -150,7 +150,7 @@ function RangeBarChart({
               </div>
               
               <div 
-                className="relative h-6 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                className="relative h-7 bg-gradient-to-r from-slate-200/80 via-slate-100 to-slate-200/80 dark:from-slate-700 dark:via-slate-600/50 dark:to-slate-700 rounded-full overflow-hidden shadow-inner ring-1 ring-slate-900/5 dark:ring-white/5"
                 role="img"
                 aria-label={ariaLabel}
                 data-testid={`range-bar-${row.label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -190,7 +190,7 @@ function RangeBarChart({
                 ) : (
                   <>
                     <div
-                      className="absolute h-full bg-[var(--primary)]/30 rounded-full"
+                      className="absolute inset-y-1 bg-gradient-to-r from-[#5193B3]/50 via-[#62C4C3]/40 to-[#5193B3]/50 rounded-full shadow-[0_0_8px_rgba(81,147,179,0.3)]"
                       style={{
                         left: `${row.minPct}%`,
                         width: `${row.maxPct - row.minPct}%`,
@@ -198,7 +198,7 @@ function RangeBarChart({
                     />
                     {showMidpoint && (
                       <div
-                        className="absolute w-0.5 h-full bg-[var(--primary)]"
+                        className="absolute w-0.5 h-full bg-[var(--primary)] shadow-[0_0_4px_rgba(81,147,179,0.5)]"
                         style={{ left: `${midpoint}%` }}
                         title={`Midpoint: ${midpoint.toFixed(1)}%`}
                       />
@@ -207,7 +207,7 @@ function RangeBarChart({
                 )}
                 
                 <div
-                  className="absolute w-2.5 h-2.5 bg-slate-700 dark:bg-white rounded-full border-2 border-white dark:border-slate-800 shadow-md"
+                  className="absolute w-3 h-3 bg-slate-800 dark:bg-white rounded-full border-2 border-white dark:border-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.25),0_0_0_2px_rgba(255,255,255,0.8)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.5),0_0_0_2px_rgba(30,41,59,0.8)]"
                   style={{
                     left: `${row.currentPct}%`,
                     top: '50%',
@@ -313,21 +313,23 @@ function ExamplePortfolioPanel({
   const showMonetary = displayMode === 'monetary' && totalValue > 0;
   
   return (
-    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4" data-testid="example-portfolio-panel">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2">
-          <Layers className="w-4 h-4 text-[#5193B3]" />
+    <div className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/50 dark:from-slate-800/90 dark:via-slate-800/70 dark:to-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-lg ring-1 ring-slate-900/5 dark:ring-white/5 p-5" data-testid="example-portfolio-panel">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-[#5193B3]/10 dark:bg-[#5193B3]/20">
+            <Layers className="w-4 h-4 text-[#5193B3]" />
+          </div>
           Example portfolios within this scenario (illustrative)
         </h4>
-        <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5" data-testid="example-type-selector">
+        <div className="flex gap-0.5 bg-slate-200/80 dark:bg-slate-700 rounded-lg p-0.5 shadow-inner" data-testid="example-type-selector">
           {(['LOW', 'MID', 'HIGH'] as ExampleType[]).map((type) => (
             <button
               key={type}
               onClick={() => onTypeChange(type)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+              className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 ${
                 selectedType === type
-                  ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-sm'
-                  : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                  ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-md ring-1 ring-slate-900/5'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-[var(--foreground)] hover:bg-white/50 dark:hover:bg-slate-600/50'
               }`}
               data-testid={`example-type-${type.toLowerCase()}`}
             >
@@ -337,25 +339,25 @@ function ExamplePortfolioPanel({
         </div>
       </div>
       
-      <p className="text-xs text-[var(--muted-foreground)] mb-4 italic">
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 italic leading-relaxed">
         These are illustrative portfolio states chosen from within the scenario ranges to help interpret what the ranges imply. They are not targets and not advice.
       </p>
       
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
         {example.allocations.map((alloc) => {
           const monetaryValue = pctToMonetary(alloc.example_pct, totalValue);
           const monetaryDelta = computeMonetaryDelta(alloc.current_pct, alloc.example_pct, totalValue);
           
           return (
-            <div key={alloc.sleeve} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
-              <div className="text-xs text-[var(--muted-foreground)]">{alloc.sleeve}</div>
-              <div className="text-lg font-semibold text-[var(--foreground)]">
+            <div key={alloc.sleeve} className="bg-gradient-to-br from-white via-slate-50 to-slate-100/80 dark:from-slate-700/80 dark:via-slate-700/60 dark:to-slate-800/80 rounded-xl p-4 border border-slate-200/60 dark:border-slate-600/40 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium mb-1">{alloc.sleeve}</div>
+              <div className="text-xl font-bold text-[var(--foreground)] tracking-tight">
                 {showMonetary ? formatMonetaryNoSign(monetaryValue, totalValue) : `${alloc.example_pct.toFixed(1)}%`}
               </div>
-              <div className={`text-xs ${
+              <div className={`text-xs font-medium mt-1 ${
                 alloc.delta_pp > 0.5 ? 'text-[#10A957]' : 
                 alloc.delta_pp < -0.5 ? 'text-[#FE9239]' : 
-                'text-[var(--muted-foreground)]'
+                'text-slate-400'
               }`}>
                 {showMonetary 
                   ? `${formatMonetary(monetaryDelta, totalValue)} vs current`
@@ -367,10 +369,10 @@ function ExamplePortfolioPanel({
         })}
       </div>
       
-      <div className="flex flex-col sm:flex-row gap-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gradient-to-r from-slate-100/80 via-slate-50 to-slate-100/80 dark:from-slate-700/60 dark:via-slate-700/40 dark:to-slate-700/60 rounded-xl border border-slate-200/50 dark:border-slate-600/30">
         <div className="flex-1">
-          <div className="text-xs text-[var(--muted-foreground)]">Total movement vs current</div>
-          <div className="text-base font-semibold text-[var(--foreground)]" data-testid="example-total-movement">
+          <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium mb-1">Total movement vs current</div>
+          <div className="text-base font-bold text-[var(--foreground)]" data-testid="example-total-movement">
             {showMonetary 
               ? `${formatTotalMonetaryMovement(example.allocations, totalValue)} reallocated across asset classes`
               : `${example.total_movement_pp.toFixed(1)}pp`
@@ -378,26 +380,26 @@ function ExamplePortfolioPanel({
           </div>
         </div>
         <div className="flex-1">
-          <div className="text-xs text-[var(--muted-foreground)]">What differs in this example</div>
-          <div className="text-sm text-[var(--foreground)]" data-testid="example-differs-summary">
+          <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium mb-1">What differs in this example</div>
+          <div className="text-sm text-[var(--foreground)] leading-relaxed" data-testid="example-differs-summary">
             {differsSummary}
           </div>
         </div>
       </div>
       
       {example.normalised && (
-        <p className="text-xs text-[var(--muted-foreground)] mt-3 italic">
+        <p className="text-xs text-slate-400 mt-4 italic">
           Minor rounding normalisation applied.
         </p>
       )}
       
-      <div className="mt-4 pt-4 border-t border-[var(--border)]">
-        <div className="text-xs text-[var(--muted-foreground)] mb-2">Safety Lights under this example</div>
+      <div className="mt-5 pt-5 border-t border-slate-200/60 dark:border-slate-700/60">
+        <div className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium mb-3">Safety Lights under this example</div>
         <div className="flex flex-wrap gap-2">
           {['Liquidity', 'Concentration', 'Illiquids'].map((axis) => (
             <div 
               key={axis}
-              className="px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+              className="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700/80 dark:text-slate-400 border border-slate-200/50 dark:border-slate-600/30"
               data-testid={`example-safety-light-${axis.toLowerCase()}`}
             >
               {axis}: {safetyLightsUnchanged ? 'Unchanged (requires holdings-level data)' : 'See scenario'}
