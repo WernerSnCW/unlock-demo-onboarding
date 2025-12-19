@@ -1212,42 +1212,49 @@ export default function Target() {
                     Unlock models three illustrative scenarios. Each reflects your stated preferences within different constraint frameworks.
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-4">
-                    <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5" data-testid="display-mode-toggle">
+                <div className="flex flex-col items-end gap-3">
+                  <div className="flex items-center gap-6">
+                    <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1" data-testid="display-mode-toggle">
                       <button
                         onClick={() => setDisplayMode('percent')}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                           displayMode === 'percent'
                             ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-sm'
                             : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
                         }`}
                         data-testid="display-mode-percent"
                       >
-                        View as %
+                        %
                       </button>
                       <button
                         onClick={() => setDisplayMode('monetary')}
                         disabled={totalValue <= 0}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                           displayMode === 'monetary'
                             ? 'bg-white dark:bg-slate-600 text-[var(--foreground)] shadow-sm'
                             : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
                         } ${totalValue <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         data-testid="display-mode-monetary"
+                        title={totalValue <= 0 ? 'Enter holdings to view monetary values' : ''}
                       >
-                        View as £
+                        £
                       </button>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div 
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                        compareMode 
+                          ? 'bg-[var(--primary)]/10 border-[var(--primary)]/30' 
+                          : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'
+                      }`}
+                    >
                       <Switch
                         id="compare-mode"
                         checked={compareMode}
                         onCheckedChange={setCompareMode}
                         data-testid="compare-scenarios-toggle"
                       />
-                      <Label htmlFor="compare-mode" className="text-sm text-[var(--muted-foreground)] cursor-pointer">
-                        Compare scenarios
+                      <Label htmlFor="compare-mode" className="text-sm text-[var(--foreground)] cursor-pointer whitespace-nowrap">
+                        Compare
                       </Label>
                     </div>
                   </div>
