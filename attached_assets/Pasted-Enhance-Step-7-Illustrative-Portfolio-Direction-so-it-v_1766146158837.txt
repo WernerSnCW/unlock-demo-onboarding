@@ -1,0 +1,176 @@
+Enhance Step 7 “Illustrative Portfolio Direction” so it visibly demonstrates modelling depth,
+while remaining strictly non-prescriptive, non-advisory, and deterministic.
+
+This step must feel like real modelling to an investor, WITHOUT:
+- Buy/sell instructions
+- Performance or return projections
+- Product or security recommendations
+- “Optimisation”, “efficiency”, or “expected outcome” language
+
+This enhancement consists of THREE layers:
+(1) Quantified impact vs current
+(2) Constraint diagnostics (why movement is limited)
+(3) Visual modelling via range-based graphs
+
+––––––––––––––––––––
+GLOBAL NON-NEGOTIABLES
+––––––––––––––––––––
+- Use UK English.
+- Use “illustrative”, “directional”, “within constraints”.
+- NEVER use: should, must, buy, sell, optimise, improve, save, increase, decrease.
+- No forecasts, probabilities, expected returns, or timelines.
+- All numbers must come from existing scenario outputs (current %, min %, max %).
+- If there is no numerical difference, EXPLAIN WHY rather than hiding it.
+
+––––––––––––––––––––
+1) IMPACT VS CURRENT (NUMERIC MODELLING)
+––––––––––––––––––––
+
+For EACH of the 3 scenarios (Guardrail-first, Preference-leaning, Neutral):
+
+Add a section:
+Title: “Impact vs current (illustrative)”
+Subtitle: “Shows modelled directional differences from your current allocation. Not advice.”
+
+For Asset Allocation and Regional Allocation:
+
+For each row:
+- Current %
+- Illustrative range (min–max) [already exists]
+- Compute midpoint = (min + max) / 2
+- Compute delta_pp = midpoint − current
+- Display: “Δ vs current: +1.6pp” (1 decimal)
+
+Compute:
+- total_movement_pp = SUM of ABS(delta_pp) across rows
+
+Display per section:
+“Total allocation movement: X.Xpp”
+
+RULES:
+- If current value missing → show “—”
+- If total_movement_pp < 1.0pp:
+  Replace generic copy with:
+  “Preferences are largely constrained by current guardrails, resulting in minimal deviation from the current allocation.”
+
+––––––––––––––––––––
+2) WHAT DIFFERS / WHAT REMAINS SIMILAR (DIAGNOSTIC)
+––––––––––––––––––––
+
+Generate these dynamically per scenario:
+
+“What differs (illustrative)”:
+- Take top 2–3 rows by absolute delta_pp (>0.5pp only)
+- Generate neutral text like:
+  “Equity range shifts modestly higher within constraints”
+
+If no deltas exceed threshold:
+- Show:
+  “No material directional change under current constraints”
+
+“What remains similar”:
+- Identify rows where |delta_pp| < 0.5pp
+- Summarise:
+  “Equity, bonds, and regional exposure remain near current levels”
+
+No hardcoded text allowed.
+
+––––––––––––––––––––
+3) SAFETY LIGHTS UNDER THIS SCENARIO
+––––––––––––––––––––
+
+Add a compact panel:
+“Safety Lights under this scenario”
+
+For Liquidity / Concentration / Illiquids:
+- If scenario logic can recompute → show Green/Amber/Red
+- If not recomputed → show “Unchanged (model does not vary this)”
+
+Do NOT fabricate values.
+
+––––––––––––––––––––
+4) GUARDRAIL IMPACT DIAGNOSTICS (WHY MOVEMENT IS LIMITED)
+––––––––––––––––––––
+
+Enhance “Guardrail impact on this scenario”:
+
+For EACH belief axis:
+- Status: Applied / Partially applied / Not reflected / Locked
+- Add “Primary constraint” text when not fully applied:
+  Examples:
+  - “Concentration guardrail binding”
+  - “Liquidity constraint dominates”
+  - “Tilts locked while a red item exists”
+
+If any Safety Light is RED:
+- ALL preference axes must show:
+  Status: Locked
+  Reason: “Tilts locked while a red item exists”
+
+––––––––––––––––––––
+5) VISUAL MODELLING — RANGE GRAPHS
+––––––––––––––––––––
+
+Add graphs that visualise existing data ONLY.
+
+Create a reusable component: RangeBarChart
+
+Inputs:
+- title
+- rows: [{ label, currentPct, minPct, maxPct }]
+- showMidpoint (default true)
+
+Render per row:
+- Horizontal bar from minPct → maxPct
+- Marker for currentPct
+- Optional midpoint marker
+- Percent scale only (0–100)
+
+Accessibility:
+- aria-label per row:
+  “Equity: current 42.8%, illustrative range 40–46%”
+
+Placement:
+- Under “Impact vs current (illustrative)”
+- One chart for Asset Allocation
+- One chart for Regional Allocation
+
+––––––––––––––––––––
+6) SCENARIO COMPARISON MODE (OPTIONAL TOGGLE)
+––––––––––––––––––––
+
+Add a toggle: “Compare scenarios”
+
+When ON:
+- Overlay Guardrail-first, Preference-leaning, Neutral ranges
+- Current remains a single reference marker
+- On mobile: stack ranges vertically per scenario
+
+If all scenarios identical:
+Show neutral note:
+“Ranges are identical across scenarios under current constraints.”
+
+––––––––––––––––––––
+7) TESTS (MANDATORY)
+––––––––––––––––––––
+
+Add tests to ensure:
+- delta_pp is computed as midpoint − current
+- total_movement_pp is sum of absolute deltas
+- When total_movement_pp < 1pp, diagnostic copy appears
+- Locked logic activates when any Safety Light is RED
+- No generated text contains banned verbs:
+  should, must, buy, sell, optimise, improve, save, increase, decrease
+- Graph aria-labels include current + min/max
+
+––––––––––––––––––––
+8) INTENT CHECK
+––––––––––––––––––––
+
+This step must answer, visually and numerically:
+“How different could this portfolio look under constraints — and why?”
+
+It must NOT answer:
+“What should the investor do?”
+
+Proceed to implement Step 7 enhancements now.

@@ -45,6 +45,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   computeDelta,
   computeTotalMovement,
@@ -56,6 +58,179 @@ import {
 } from '@/lib/step7Helpers';
 
 const TOTAL_BELIEF_AXES = 8;
+
+interface RangeBarRow {
+  label: string;
+  currentPct: number;
+  minPct: number;
+  maxPct: number;
+}
+
+interface ScenarioRangeOverlay {
+  scenarioType: ScenarioType;
+  label: string;
+  color: string;
+  rows: RangeBarRow[];
+}
+
+function RangeBarChart({ 
+  title, 
+  rows, 
+  showMidpoint = true,
+  overlays = [],
+  showOverlayMode = false,
+}: { 
+  title: string; 
+  rows: RangeBarRow[]; 
+  showMidpoint?: boolean;
+  overlays?: ScenarioRangeOverlay[];
+  showOverlayMode?: boolean;
+}) {
+  const allIdentical = showOverlayMode && overlays.length > 1 && overlays.every((overlay, i, arr) => {
+    if (i === 0) return true;
+    return overlay.rows.every((row, j) => 
+      row.minPct === arr[0].rows[j]?.minPct && row.maxPct === arr[0].rows[j]?.maxPct
+    );
+  });
+
+  return (
+    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
+      <h4 className="font-semibold text-[var(--foreground)] mb-4 text-sm">{title}</h4>
+      
+      {allIdentical && (
+        <p className="text-xs text-[var(--muted-foreground)] italic mb-4 bg-slate-50 dark:bg-slate-700/50 p-2 rounded">
+          Ranges are identical across scenarios under current constraints.
+        </p>
+      )}
+
+      {/* 0-100% scale reference */}
+      <div className="flex justify-between text-[10px] text-[var(--muted-foreground)] mb-2 px-1">
+        <span>0%</span>
+        <span>25%</span>
+        <span>50%</span>
+        <span>75%</span>
+        <span>100%</span>
+      </div>
+      
+      <div className="space-y-4">
+        {rows.map((row, idx) => {
+          const midpoint = (row.minPct + row.maxPct) / 2;
+          const ariaLabel = `${row.label}: current ${row.currentPct.toFixed(1)}%, illustrative range ${row.minPct.toFixed(0)}–${row.maxPct.toFixed(0)}%`;
+          
+          return (
+            <div key={row.label} className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="font-medium text-[var(--foreground)]">{row.label}</span>
+                <span className="text-[var(--muted-foreground)]">
+                  Current: {row.currentPct.toFixed(1)}%
+                </span>
+              </div>
+              
+              <div 
+                className="relative h-6 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                role="img"
+                aria-label={ariaLabel}
+                data-testid={`range-bar-${row.label.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {showOverlayMode && overlays.length > 0 ? (
+                  overlays.map((overlay, oi) => {
+                    const overlayRow = overlay.rows[idx];
+                    if (!overlayRow) return null;
+                    const left = overlayRow.minPct;
+                    const width = overlayRow.maxPct - overlayRow.minPct;
+                    const overlayMid = (overlayRow.minPct + overlayRow.maxPct) / 2;
+                    return (
+                      <div key={overlay.scenarioType} className="absolute inset-0">
+                        <div
+                          className="absolute h-full rounded-full opacity-40"
+                          style={{
+                            left: `${left}%`,
+                            width: `${width}%`,
+                            backgroundColor: overlay.color,
+                            top: `${oi * 2}px`,
+                            height: `${24 - overlays.length * 2}px`,
+                          }}
+                        />
+                        {showMidpoint && (
+                          <div
+                            className="absolute w-0.5 h-full"
+                            style={{
+                              left: `${overlayMid}%`,
+                              backgroundColor: overlay.color,
+                              opacity: 0.8,
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <>
+                    <div
+                      className="absolute h-full bg-[var(--primary)]/30 rounded-full"
+                      style={{
+                        left: `${row.minPct}%`,
+                        width: `${row.maxPct - row.minPct}%`,
+                      }}
+                    />
+                    {showMidpoint && (
+                      <div
+                        className="absolute w-0.5 h-full bg-[var(--primary)]"
+                        style={{ left: `${midpoint}%` }}
+                        title={`Midpoint: ${midpoint.toFixed(1)}%`}
+                      />
+                    )}
+                  </>
+                )}
+                
+                <div
+                  className="absolute w-2.5 h-2.5 bg-slate-700 dark:bg-white rounded-full border-2 border-white dark:border-slate-800 shadow-md"
+                  style={{
+                    left: `${row.currentPct}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                  title={`Current: ${row.currentPct.toFixed(1)}%`}
+                />
+              </div>
+              
+              <div className="flex justify-between text-[10px] text-[var(--muted-foreground)]">
+                <span>Range: {row.minPct.toFixed(0)}–{row.maxPct.toFixed(0)}%</span>
+                {showMidpoint && !showOverlayMode && (
+                  <span className="text-[var(--primary)] font-medium">Mid: {midpoint.toFixed(1)}%</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      {showOverlayMode && overlays.length > 0 && (
+        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-[var(--border)]">
+          {overlays.map(overlay => (
+            <div key={overlay.scenarioType} className="flex items-center gap-2 text-xs">
+              <div 
+                className="w-3 h-3 rounded-full" 
+                style={{ backgroundColor: overlay.color }}
+              />
+              <span className="text-[var(--muted-foreground)]">{overlay.label}</span>
+            </div>
+          ))}
+          <div className="flex items-center gap-2 text-xs">
+            <div className="w-2.5 h-2.5 bg-slate-700 dark:bg-white rounded-full border border-slate-400" />
+            <span className="text-[var(--muted-foreground)]">Current</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const SCENARIO_COLORS: Record<ScenarioType, string> = {
+  GUARDRAIL_FIRST: '#10A957',
+  PREFERENCE_LEANING: '#5193B3',
+  NEUTRAL_BASELINE: '#FE9239',
+};
 
 const SCENARIO_LABELS: Record<ScenarioType, { label: string; description: string; icon: typeof ShieldCheck }> = {
   GUARDRAIL_FIRST: {
@@ -309,7 +484,17 @@ function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
   );
 }
 
-function ScenarioContent({ scenario, safetyLights }: { scenario: IllustrativeScenario; safetyLights?: any }) {
+function ScenarioContent({ 
+  scenario, 
+  safetyLights,
+  compareMode = false,
+  allScenarios = [],
+}: { 
+  scenario: IllustrativeScenario; 
+  safetyLights?: any;
+  compareMode?: boolean;
+  allScenarios?: IllustrativeScenario[];
+}) {
   const axesReflectedCount = scenario.scenario_type === 'NEUTRAL_BASELINE' 
     ? 0 
     : scenario.tilts_applied_count;
@@ -340,6 +525,56 @@ function ScenarioContent({ scenario, safetyLights }: { scenario: IllustrativeSce
     generateChangeBullets(scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts),
     [scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts]
   );
+
+  const assetRangeRows: RangeBarRow[] = useMemo(() => 
+    scenario.asset_class_bands.map(band => ({
+      label: band.sleeve,
+      currentPct: band.current_pct,
+      minPct: band.illustrative_low_pct,
+      maxPct: band.illustrative_high_pct,
+    })),
+    [scenario.asset_class_bands]
+  );
+
+  const regionRangeRows: RangeBarRow[] = useMemo(() => 
+    scenario.region_bands.map(band => ({
+      label: band.sleeve,
+      currentPct: band.current_pct,
+      minPct: band.illustrative_low_pct,
+      maxPct: band.illustrative_high_pct,
+    })),
+    [scenario.region_bands]
+  );
+
+  const assetOverlays: ScenarioRangeOverlay[] = useMemo(() => {
+    if (!compareMode || allScenarios.length === 0) return [];
+    return allScenarios.map(s => ({
+      scenarioType: s.scenario_type,
+      label: SCENARIO_LABELS[s.scenario_type]?.label || s.scenario_type,
+      color: SCENARIO_COLORS[s.scenario_type] || '#5193B3',
+      rows: s.asset_class_bands.map(band => ({
+        label: band.sleeve,
+        currentPct: band.current_pct,
+        minPct: band.illustrative_low_pct,
+        maxPct: band.illustrative_high_pct,
+      })),
+    }));
+  }, [compareMode, allScenarios]);
+
+  const regionOverlays: ScenarioRangeOverlay[] = useMemo(() => {
+    if (!compareMode || allScenarios.length === 0) return [];
+    return allScenarios.map(s => ({
+      scenarioType: s.scenario_type,
+      label: SCENARIO_LABELS[s.scenario_type]?.label || s.scenario_type,
+      color: SCENARIO_COLORS[s.scenario_type] || '#5193B3',
+      rows: s.region_bands.map(band => ({
+        label: band.sleeve,
+        currentPct: band.current_pct,
+        minPct: band.illustrative_low_pct,
+        maxPct: band.illustrative_high_pct,
+      })),
+    }));
+  }, [compareMode, allScenarios]);
 
   return (
     <div className="space-y-6">
@@ -410,6 +645,26 @@ function ScenarioContent({ scenario, safetyLights }: { scenario: IllustrativeSce
           </div>
         </div>
       )}
+
+      {/* Range Bar Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RangeBarChart 
+          title="Asset Class Ranges (Illustrative)"
+          rows={assetRangeRows}
+          showMidpoint={true}
+          overlays={assetOverlays}
+          showOverlayMode={compareMode}
+        />
+        {regionRangeRows.length > 0 && (
+          <RangeBarChart 
+            title="Regional Ranges (Illustrative)"
+            rows={regionRangeRows}
+            showMidpoint={true}
+            overlays={regionOverlays}
+            showOverlayMode={compareMode}
+          />
+        )}
+      </div>
 
       {/* What Changes / What Stays the Same */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -557,6 +812,7 @@ function ScenarioContent({ scenario, safetyLights }: { scenario: IllustrativeSce
 
 export default function Target() {
   const [, navigate] = useLocation();
+  const [compareMode, setCompareMode] = useState(false);
   const { 
     scenario, 
     beliefs, 
@@ -696,10 +952,25 @@ export default function Target() {
                 </div>
               </div>
 
-              <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">Illustrative Scenarios</h2>
-              <p className="text-sm text-[var(--muted-foreground)] mb-6">
-                Unlock models three illustrative scenarios. Each reflects your stated preferences within different constraint frameworks.
-              </p>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">Illustrative Scenarios</h2>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    Unlock models three illustrative scenarios. Each reflects your stated preferences within different constraint frameworks.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="compare-mode"
+                    checked={compareMode}
+                    onCheckedChange={setCompareMode}
+                    data-testid="compare-scenarios-toggle"
+                  />
+                  <Label htmlFor="compare-mode" className="text-sm text-[var(--muted-foreground)] cursor-pointer">
+                    Compare scenarios
+                  </Label>
+                </div>
+              </div>
 
               <Tabs 
                 value={scenario.active_scenario} 
@@ -726,7 +997,12 @@ export default function Target() {
 
                 {scenario.scenarios.map((s) => (
                   <TabsContent key={s.scenario_type} value={s.scenario_type}>
-                    <ScenarioContent scenario={s} safetyLights={analysis.result?.safety_lights} />
+                    <ScenarioContent 
+                      scenario={s} 
+                      safetyLights={analysis.result?.safety_lights}
+                      compareMode={compareMode}
+                      allScenarios={scenario.scenarios}
+                    />
                   </TabsContent>
                 ))}
               </Tabs>

@@ -279,6 +279,35 @@ describe('generateChangeBullets', () => {
   });
 });
 
+describe('range bar aria-labels', () => {
+  it('should format aria-label with current and min/max range', () => {
+    const row = {
+      label: 'Equity',
+      currentPct: 42.8,
+      minPct: 40,
+      maxPct: 46,
+    };
+    const ariaLabel = `${row.label}: current ${row.currentPct.toFixed(1)}%, illustrative range ${row.minPct.toFixed(0)}–${row.maxPct.toFixed(0)}%`;
+    expect(ariaLabel).toBe('Equity: current 42.8%, illustrative range 40–46%');
+  });
+
+  it('should include all required elements in aria-label', () => {
+    const row = {
+      label: 'Bonds',
+      currentPct: 30.5,
+      minPct: 28,
+      maxPct: 34,
+    };
+    const ariaLabel = `${row.label}: current ${row.currentPct.toFixed(1)}%, illustrative range ${row.minPct.toFixed(0)}–${row.maxPct.toFixed(0)}%`;
+    
+    expect(ariaLabel).toContain('current');
+    expect(ariaLabel).toContain(row.currentPct.toFixed(1));
+    expect(ariaLabel).toContain('illustrative range');
+    expect(ariaLabel).toContain(row.minPct.toFixed(0));
+    expect(ariaLabel).toContain(row.maxPct.toFixed(0));
+  });
+});
+
 describe('delta computation accuracy', () => {
   it('should compute delta as midpoint(range) - current', () => {
     const band: AllocationBand = {
