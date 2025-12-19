@@ -303,7 +303,7 @@ export default function Report() {
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadPDF}
-                className="gap-2"
+                className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
                 data-testid="button-download-pdf"
               >
                 <Printer className="w-4 h-4" />
@@ -313,7 +313,7 @@ export default function Report() {
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadJSON}
-                className="gap-2"
+                className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
                 data-testid="button-download-json"
               >
                 <FileJson className="w-4 h-4" />
@@ -323,7 +323,7 @@ export default function Report() {
                 variant="outline"
                 size="sm"
                 onClick={handleCopyLink}
-                className="gap-2"
+                className="gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
                 data-testid="button-share-link"
               >
                 {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
