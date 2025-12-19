@@ -632,6 +632,21 @@ export default function Report() {
               Wrappers & Placement
             </h2>
             
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold text-[var(--foreground)] mb-2">How this fits with the scenarios above</h3>
+              <div className="space-y-2 text-sm text-[var(--muted-foreground)] leading-relaxed">
+                <p>
+                  The scenarios above illustrate how the overall allocation could vary within constraints.
+                </p>
+                <p>
+                  This section shows how your current portfolio is held across different account types ('wrappers'), which affects access, tax treatment, and pacing.
+                </p>
+                <p>
+                  As a result, even where scenarios indicate flexibility at a portfolio level, changes may occur unevenly or gradually across different accounts.
+                </p>
+              </div>
+            </div>
+            
             {wrapperBreakdown.length > 0 ? (
               <div className="space-y-2">
                 {wrapperBreakdown.map(item => (
