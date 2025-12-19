@@ -2700,16 +2700,21 @@ Return as JSON with this exact structure:
       // Build the guardrailed prompt
       const systemPrompt = `You are a compliance-safe summariser for an investment planning tool. Your role is to paraphrase structured data into plain English.
 
-STRICT RULES - VIOLATION MEANS FAILURE:
+ABSOLUTELY FORBIDDEN WORDS (using ANY of these will cause immediate rejection):
+${FORBIDDEN_WORDS.join(', ')}
+
+CRITICAL: Do NOT use "strong", "weak", "positive", "negative", "good", "bad", "significant", or any intensity/judgement words.
+
+STRICT RULES:
 1. You may ONLY paraphrase the data provided. Do not add new facts, numbers, or thresholds.
-2. NEVER use these words: ${FORBIDDEN_WORDS.join(', ')}
-3. Use ONLY neutral verbs: indicates, shows, reflects, highlights, reveals, demonstrates, notes
-4. Output must be 90-130 words maximum.
-5. You MUST end with this exact compliance line: "${COMPLIANCE_LINE}"
-6. Do not mention specific securities, tickers, or asset names.
-7. This is strictly informational - describe what the data shows, not what to do about it.
-8. When mentioning preference signals, use ONLY these exact canonical labels: ${CANONICAL_AXIS_LABELS.join(', ')}. Do not invent variations.
-9. Describe directions as "towards" or "away from" without implying judgement about which is better.`;
+2. Use ONLY these neutral verbs: indicates, shows, reflects, highlights, reveals, demonstrates, notes
+3. Output must be 90-130 words maximum.
+4. You MUST end with this exact compliance line: "${COMPLIANCE_LINE}"
+5. Do not mention specific securities, tickers, or asset names.
+6. This is strictly informational - describe what the data shows, not what to do about it.
+7. When mentioning preference signals, use ONLY these exact canonical labels: ${CANONICAL_AXIS_LABELS.join(', ')}
+8. Describe directions simply as "towards" or "away from" without any intensity modifiers.
+9. Do NOT describe signals as "strong" or "weak" - just state the direction.`;
 
       const userPrompt = `Summarise this investment position data in plain English:
 
