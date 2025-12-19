@@ -169,103 +169,84 @@ export function buildTransitionTimeline(
   tiltsAllowed: boolean,
   _policy: PolicyData
 ): TimelineStep[] {
-  const steps: TimelineStep[] = [];
-  let stepNum = 1;
-
+  // Always produce exactly 5 deterministic steps
+  
   if (!safetyLights) {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Complete portfolio analysis',
-      notes: 'Transition considerations require completed Safety Lights assessment.',
-    });
-    return steps;
+    return [
+      { step_number: 1, label: 'Complete portfolio analysis', notes: 'Transition considerations require completed Safety Lights assessment.' },
+      { step_number: 2, label: 'Review wrapper placement assumptions', notes: 'Wrapper placement review pending analysis completion.' },
+      { step_number: 3, label: 'Review pacing constraints', notes: 'Pacing limits applied from policy defaults.' },
+      { step_number: 4, label: 'Review preference status', notes: 'Preference signals pending analysis completion.' },
+      { step_number: 5, label: 'Proceed to report', notes: 'Review the complete summary and illustrative plan in the final report.' },
+    ];
   }
 
-  if (safetyLights.liquidity === 'RED') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Address liquidity constraint first',
-      notes: 'One possible sequencing could prioritise reducing pressure on cash reserves before other transitions.',
-    });
-  } else if (safetyLights.liquidity === 'AMBER') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Monitor cash runway',
-      notes: 'Consider reviewing liquidity position as part of any transition sequencing.',
-    });
-  }
-
-  if (safetyLights.concentration === 'RED') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Review concentration exposure',
-      notes: 'An illustrative approach could phase reductions in concentrated positions over policy-defined periods.',
-    });
-  } else if (safetyLights.concentration === 'AMBER') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Consider diversification pacing',
-      notes: 'Moderately concentrated positions could be addressed gradually within policy constraints.',
-    });
-  }
-
-  if (safetyLights.illiquids === 'RED') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Avoid increasing illiquid exposure',
-      notes: 'Transition sequencing might prioritise maintaining or improving flexibility before new illiquid commitments.',
-    });
-  } else if (safetyLights.illiquids === 'AMBER') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Balance illiquid allocation',
-      notes: 'Consider whether current illiquid holdings align with liquidity needs before further commitments.',
-    });
-  }
-
-  if (!tiltsAllowed && steps.length > 0) {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Preference signals pending',
-      notes: 'Once red constraints are addressed, preference signals can inform subsequent illustrative transitions.',
-    });
-  }
-
-  if (tiltsAllowed && safetyLights.overall_status !== 'RED') {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Consider wrapper optimisation',
-      notes: 'With guardrails satisfied, wrapper placement could be reviewed for tax efficiency.',
-    });
-  }
-
-  if (steps.length === 0) {
-    steps.push({
-      step_number: stepNum++,
+  // Step 1: Safety driver summary
+  const hasRed = safetyLights.liquidity === 'RED' || safetyLights.concentration === 'RED' || safetyLights.illiquids === 'RED';
+  const hasAmber = safetyLights.liquidity === 'AMBER' || safetyLights.concentration === 'AMBER' || safetyLights.illiquids === 'AMBER';
+  
+  let step1: TimelineStep;
+  if (hasRed) {
+    const redAxes: string[] = [];
+    if (safetyLights.liquidity === 'RED') redAxes.push('liquidity');
+    if (safetyLights.concentration === 'RED') redAxes.push('concentration');
+    if (safetyLights.illiquids === 'RED') redAxes.push('illiquids');
+    step1 = {
+      step_number: 1,
+      label: `Address ${redAxes.join(' and ')} constraint${redAxes.length > 1 ? 's' : ''} first`,
+      notes: 'One possible sequencing could prioritise these guardrails before other transitions.',
+    };
+  } else if (hasAmber) {
+    const amberAxes: string[] = [];
+    if (safetyLights.liquidity === 'AMBER') amberAxes.push('liquidity');
+    if (safetyLights.concentration === 'AMBER') amberAxes.push('concentration');
+    if (safetyLights.illiquids === 'AMBER') amberAxes.push('illiquids');
+    step1 = {
+      step_number: 1,
+      label: `Monitor ${amberAxes.join(' and ')} position${amberAxes.length > 1 ? 's' : ''}`,
+      notes: 'Consider reviewing these positions as part of any transition sequencing.',
+    };
+  } else {
+    step1 = {
+      step_number: 1,
       label: 'No immediate structural concerns',
-      notes: 'All guardrails are within limits. Illustrative transitions could focus on wrapper efficiency.',
-    });
-    steps.push({
-      step_number: stepNum++,
-      label: 'Review preference alignment',
-      notes: 'Consider whether current holdings reflect stated preferences.',
-    });
-    steps.push({
-      step_number: stepNum++,
-      label: 'Monitor periodically',
-      notes: 'Revisit this assessment as circumstances or markets change.',
-    });
+      notes: 'All guardrails are within limits. Wrapper placement could be the focus.',
+    };
   }
 
-  while (steps.length < 3) {
-    steps.push({
-      step_number: stepNum++,
-      label: 'Continue to next planning step',
-      notes: 'Proceed to wrapper and placement review for further considerations.',
-    });
-  }
+  // Step 2: Wrapper placement review
+  const step2: TimelineStep = {
+    step_number: 2,
+    label: 'Review wrapper placement assumptions',
+    notes: tiltsAllowed 
+      ? 'With guardrails satisfied, wrapper placement could be reviewed for tax treatment considerations.'
+      : 'Wrapper placement review available once red constraints are addressed.',
+  };
 
-  return steps.slice(0, 6);
+  // Step 3: Pacing / constraints reminder
+  const step3: TimelineStep = {
+    step_number: 3,
+    label: 'Review pacing constraints',
+    notes: 'Any transitions would be paced within policy disposal limits.',
+  };
+
+  // Step 4: Preference status
+  const step4: TimelineStep = {
+    step_number: 4,
+    label: 'Review preference status',
+    notes: tiltsAllowed 
+      ? 'Preference signals are enabled and can inform illustrative transitions.'
+      : 'Preference signals are pending until red constraints are resolved.',
+  };
+
+  // Step 5: Always end with report
+  const step5: TimelineStep = {
+    step_number: 5,
+    label: 'Proceed to report',
+    notes: 'Review the complete summary and illustrative plan in the final report.',
+  };
+
+  return [step1, step2, step3, step4, step5];
 }
 
 export function generateTransitionCSV(

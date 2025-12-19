@@ -164,7 +164,7 @@ export default function PlanWrappers() {
         {/* Wrapper Placement Table */}
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-sm overflow-hidden">
           <div className="p-5 border-b border-[var(--border)]">
-            <h2 className="font-bold text-[var(--foreground)]">Current wrapper allocation</h2>
+            <h2 className="font-bold text-[var(--foreground)]">Account / wrapper types captured</h2>
             <p className="text-sm text-[var(--muted-foreground)] mt-1">
               Based on the holdings you provided, grouped by wrapper type.
             </p>
@@ -243,9 +243,15 @@ export default function PlanWrappers() {
                           </span>
                         </td>
                         <td className="px-5 py-4 text-center">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold">
-                            {wrapper.priority_order}
-                          </span>
+                          {wrapper.priority_order === 999 ? (
+                            <span className="text-xs text-[var(--muted-foreground)]">
+                              Other (no default priority)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold">
+                              {wrapper.priority_order}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -330,7 +336,7 @@ export default function PlanWrappers() {
               <p className="font-medium text-[var(--foreground)] mb-1">Policy wrapper priority</p>
               <p>
                 The illustrative placement priority is: {policy.wrappers.priority_order.join(' → ')}.
-                This reflects general tax efficiency principles and is not personalised advice.
+                Policy default ordering used for this illustrative view. This is not personalised advice.
               </p>
             </div>
           </div>

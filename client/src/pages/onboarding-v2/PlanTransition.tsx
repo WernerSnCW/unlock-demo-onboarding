@@ -239,9 +239,9 @@ export default function PlanTransition() {
               </div>
             </div>
             <p className="text-sm text-[var(--muted-foreground)]">
-              {policy 
+              {policy?.cgt?.min_reduce_plan_years 
                 ? `Transitions paced over min. ${policy.cgt.min_reduce_plan_years} years within policy disposal limits.`
-                : 'Policy pacing limits apply to any transition sequencing.'
+                : 'Pacing limits applied from policy defaults.'
               }
             </p>
           </div>
@@ -261,16 +261,24 @@ export default function PlanTransition() {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadCSV}
-              className="flex items-center gap-2"
-              data-testid="button-download-csv"
-            >
-              <Download className="w-4 h-4" />
-              {csvDownloaded ? 'Downloaded' : 'Export CSV'}
-            </Button>
+            <div className="flex items-center gap-2">
+              {timeline.length === 0 && (
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  Complete analysis to enable export
+                </span>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadCSV}
+                disabled={timeline.length === 0}
+                className="flex items-center gap-2"
+                data-testid="button-download-csv"
+              >
+                <Download className="w-4 h-4" />
+                {csvDownloaded ? 'Downloaded' : 'Export CSV'}
+              </Button>
+            </div>
           </div>
 
           <ol 
