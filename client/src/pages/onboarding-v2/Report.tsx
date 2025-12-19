@@ -13,6 +13,7 @@ import {
   XCircle,
   Lock,
   ChevronRight,
+  ChevronLeft,
   Printer,
   FileJson,
 } from 'lucide-react';
@@ -754,8 +755,18 @@ export default function Report() {
             </Button>
           </div>
 
-          <div className="mt-6 print:hidden">
-            <Link href="/">
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 print:hidden">
+            <Link href="/onboarding-v2/plan/wrappers" className="flex-1">
+              <Button 
+                variant="outline"
+                className="w-full gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white" 
+                data-testid="button-back-onboarding"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back to Onboarding
+              </Button>
+            </Link>
+            <Link href="/" className="flex-1">
               <Button 
                 className="w-full gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium" 
                 data-testid="button-go-home"
