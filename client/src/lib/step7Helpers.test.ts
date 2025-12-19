@@ -1,0 +1,307 @@
+import { describe, it, expect } from 'vitest';
+import {
+  computeDelta,
+  computeDeltas,
+  computeTotalMovement,
+  computeGuardrailImpacts,
+  computeSafetyLightsForScenario,
+  generateChangeBullets,
+  hasAnyRedLightFromResult,
+  containsBannedWordStep7,
+  BANNED_WORDS_STEP7,
+} from './step7Helpers';
+import type { AllocationBand, AppliedTiltEntry, SafetyLightsResult } from '@/state/onboardingV2Store';
+
+const mockBand: AllocationBand = {
+  sleeve: 'Equity',
+  current_pct: 50,
+  illustrative_low_pct: 45,
+  illustrative_high_pct: 55,
+  direction: 'NEUTRAL',
+  clamped: false,
+  midpoint_pct: 50,
+  debug: {
+    rawPressure: 0,
+    centreShift: 0,
+    unclampedCentre: 50,
+    clampedCentre: 50,
+    maxShift: 5,
+    halfWidth: 5,
+    scenarioStrength: 1,
+    bindingConstraints: [],
+  },
+};
+
+const mockBandWithIncrease: AllocationBand = {
+  ...mockBand,
+  sleeve: 'Fixed Income',
+  current_pct: 30,
+  illustrative_low_pct: 33,
+  illustrative_high_pct: 37,
+  direction: 'INCREASE',
+  midpoint_pct: 35,
+};
+
+const mockBandWithDecrease: AllocationBand = {
+  ...mockBand,
+  sleeve: 'Alternatives',
+  current_pct: 20,
+  illustrative_low_pct: 14,
+  illustrative_high_pct: 18,
+  direction: 'DECREASE',
+  midpoint_pct: 16,
+};
+
+describe('computeDelta', () => {
+  it('should compute delta correctly from midpoint - current', () => {
+    const result = computeDelta(mockBandWithIncrease);
+    expect(result.delta_pp).toBeCloseTo(5);
+    expect(result.delta_display).toBe('+5.0pp');
+  });
+
+  it('should show negative delta with minus sign', () => {
+    const result = computeDelta(mockBandWithDecrease);
+    expect(result.delta_pp).toBeCloseTo(-4);
+    expect(result.delta_display).toBe('−4.0pp');
+  });
+
+  it('should handle zero delta', () => {
+    const result = computeDelta(mockBand);
+    expect(result.delta_pp).toBeCloseTo(0);
+    expect(result.delta_display).toBe('+0.0pp');
+  });
+});
+
+describe('computeDeltas', () => {
+  it('should compute deltas for all bands', () => {
+    const bands = [mockBand, mockBandWithIncrease, mockBandWithDecrease];
+    const results = computeDeltas(bands);
+    expect(results).toHaveLength(3);
+    expect(results[0].delta_pp).toBeCloseTo(0);
+    expect(results[1].delta_pp).toBeCloseTo(5);
+    expect(results[2].delta_pp).toBeCloseTo(-4);
+  });
+});
+
+describe('computeTotalMovement', () => {
+  it('should sum absolute deltas correctly', () => {
+    const bands = [mockBand, mockBandWithIncrease, mockBandWithDecrease];
+    const result = computeTotalMovement(bands);
+    expect(result.total_movement_pp).toBeCloseTo(9);
+    expect(result.display).toBe('9.0pp');
+  });
+
+  it('should return 0 for empty bands', () => {
+    const result = computeTotalMovement([]);
+    expect(result.total_movement_pp).toBe(0);
+    expect(result.display).toBe('0.0pp');
+  });
+});
+
+describe('containsBannedWordStep7', () => {
+  it('should detect banned words', () => {
+    expect(containsBannedWordStep7('You should do this')).toBe('should');
+    expect(containsBannedWordStep7('You must act now')).toBe('must');
+    expect(containsBannedWordStep7('Buy more stocks')).toBe('buy');
+    expect(containsBannedWordStep7('Sell your holdings')).toBe('sell');
+    expect(containsBannedWordStep7('This will optimise your portfolio')).toBe('optimise');
+    expect(containsBannedWordStep7('This will improve returns')).toBe('improve');
+  });
+
+  it('should not flag neutral wording', () => {
+    expect(containsBannedWordStep7('shifts higher')).toBeNull();
+    expect(containsBannedWordStep7('moves lower')).toBeNull();
+    expect(containsBannedWordStep7('differs from current')).toBeNull();
+    expect(containsBannedWordStep7('remains similar')).toBeNull();
+  });
+
+  it('should check all banned words in list', () => {
+    for (const word of BANNED_WORDS_STEP7) {
+      expect(containsBannedWordStep7(`This is ${word} text`)).toBe(word);
+    }
+  });
+});
+
+describe('computeGuardrailImpacts', () => {
+  const mockAppliedTilts: AppliedTiltEntry[] = [
+    { axis_code: 'growth', axis_label: 'Growth', status: 'APPLIED', constraint_reason: null },
+    { axis_code: 'quality', axis_label: 'Quality', status: 'CONSTRAINED', constraint_reason: 'Concentration guardrail binding' },
+    { axis_code: 'value', axis_label: 'Value', status: 'LOCKED', constraint_reason: null },
+  ];
+
+  it('should only include non-fully-applied tilts', () => {
+    const result = computeGuardrailImpacts(mockAppliedTilts, false);
+    expect(result).toHaveLength(2);
+    expect(result.map(r => r.axis_label)).toEqual(['Quality', 'Value']);
+  });
+
+  it('should show "Tilts locked while a red item exists" only for LOCKED status tilts', () => {
+    const result = computeGuardrailImpacts(mockAppliedTilts, true);
+    const lockedTilt = result.find(r => r.status === 'LOCKED');
+    const constrainedTilt = result.find(r => r.status === 'CONSTRAINED');
+    
+    expect(lockedTilt?.primary_reason).toBe('Tilts locked while a red item exists');
+    expect(constrainedTilt?.primary_reason).toBe('Concentration guardrail binding');
+  });
+
+  it('should not apply red-light reason to non-LOCKED tilts even when red light exists', () => {
+    const mixedTilts: AppliedTiltEntry[] = [
+      { axis_code: 'growth', axis_label: 'Growth', status: 'PARTIALLY_APPLIED', constraint_reason: null },
+      { axis_code: 'value', axis_label: 'Value', status: 'LOCKED', constraint_reason: null },
+    ];
+    const result = computeGuardrailImpacts(mixedTilts, true);
+    
+    const partialTilt = result.find(r => r.status === 'PARTIALLY_APPLIED');
+    const lockedTilt = result.find(r => r.status === 'LOCKED');
+    
+    expect(partialTilt?.primary_reason).toBe('Partially constrained by guardrails');
+    expect(lockedTilt?.primary_reason).toBe('Tilts locked while a red item exists');
+  });
+
+  it('should not show red-light reason for LOCKED tilts when no red light exists', () => {
+    const lockedTilts: AppliedTiltEntry[] = [
+      { axis_code: 'value', axis_label: 'Value', status: 'LOCKED', constraint_reason: 'Custom lock reason' },
+    ];
+    const result = computeGuardrailImpacts(lockedTilts, false);
+    
+    expect(result[0].primary_reason).toBe('Custom lock reason');
+    expect(result[0].primary_reason).not.toContain('red item');
+  });
+
+  it('should use constraint_reason when available', () => {
+    const result = computeGuardrailImpacts(mockAppliedTilts, false);
+    const qualityImpact = result.find(r => r.axis_label === 'Quality');
+    expect(qualityImpact?.primary_reason).toBe('Concentration guardrail binding');
+  });
+});
+
+describe('hasAnyRedLightFromResult', () => {
+  it('should return true when any light is RED', () => {
+    const redResult: SafetyLightsResult = {
+      liquidity: 'RED',
+      concentration: 'GREEN',
+      illiquids: 'GREEN',
+      overall_status: 'RED',
+      overall_status_code: 'ACTION_REQUIRED',
+      overall_status_label: 'Action Required',
+      overall_status_message: 'Test',
+      tilts_allowed: false,
+      metrics: { cash_runway_months: 0, largest_line_pct: 10, illiquid_pct: 10 },
+      recommendations: [],
+    };
+    expect(hasAnyRedLightFromResult(redResult)).toBe(true);
+  });
+
+  it('should return false when no lights are RED', () => {
+    const greenResult: SafetyLightsResult = {
+      liquidity: 'GREEN',
+      concentration: 'AMBER',
+      illiquids: 'GREEN',
+      overall_status: 'AMBER',
+      overall_status_code: 'CAUTION',
+      overall_status_label: 'Caution',
+      overall_status_message: 'Test',
+      tilts_allowed: true,
+      metrics: { cash_runway_months: 6, largest_line_pct: 20, illiquid_pct: 10 },
+      recommendations: [],
+    };
+    expect(hasAnyRedLightFromResult(greenResult)).toBe(false);
+  });
+
+  it('should return false for null/undefined', () => {
+    expect(hasAnyRedLightFromResult(null)).toBe(false);
+    expect(hasAnyRedLightFromResult(undefined)).toBe(false);
+  });
+});
+
+describe('computeSafetyLightsForScenario', () => {
+  it('should return UNCHANGED status when safety lights are null', () => {
+    const result = computeSafetyLightsForScenario(null);
+    expect(result.every(r => r.status === 'UNCHANGED')).toBe(true);
+  });
+
+  it('should return correct statuses from safety lights', () => {
+    const safetyLights: SafetyLightsResult = {
+      liquidity: 'GREEN',
+      concentration: 'AMBER',
+      illiquids: 'RED',
+      overall_status: 'RED',
+      overall_status_code: 'ACTION_REQUIRED',
+      overall_status_label: 'Action Required',
+      overall_status_message: 'Test',
+      tilts_allowed: false,
+      metrics: { cash_runway_months: 6, largest_line_pct: 30, illiquid_pct: 40 },
+      recommendations: [],
+    };
+    const result = computeSafetyLightsForScenario(safetyLights);
+    expect(result[0].status).toBe('GREEN');
+    expect(result[1].status).toBe('AMBER');
+    expect(result[2].status).toBe('RED');
+  });
+});
+
+describe('generateChangeBullets', () => {
+  const bands = [mockBand, mockBandWithIncrease, mockBandWithDecrease];
+  const appliedTilts: AppliedTiltEntry[] = [
+    { axis_code: 'growth', axis_label: 'Growth', status: 'CONSTRAINED', constraint_reason: null },
+  ];
+
+  it('should generate change bullets for top movers', () => {
+    const { changes, staysSame } = generateChangeBullets(bands, [], appliedTilts);
+    expect(changes.length).toBeGreaterThan(0);
+    expect(changes.every(c => c.type === 'changes')).toBe(true);
+  });
+
+  it('should generate stays_same bullets', () => {
+    const { staysSame } = generateChangeBullets(bands, [], appliedTilts);
+    expect(staysSame.length).toBeGreaterThan(0);
+  });
+
+  it('should not contain banned words in generated bullets', () => {
+    const { changes, staysSame } = generateChangeBullets(bands, [], appliedTilts);
+    const allBullets = [...changes, ...staysSame];
+    
+    for (const bullet of allBullets) {
+      const banned = containsBannedWordStep7(bullet.text);
+      expect(banned).toBeNull();
+    }
+  });
+
+  it('should use neutral wording like "shifts", "moves", "differs", "remains"', () => {
+    const { changes, staysSame } = generateChangeBullets(bands, [], appliedTilts);
+    const allText = [...changes, ...staysSame].map(b => b.text).join(' ');
+    
+    const hasNeutralWording = 
+      allText.includes('shifts') || 
+      allText.includes('remain') || 
+      allText.includes('constrained');
+    expect(hasNeutralWording).toBe(true);
+  });
+});
+
+describe('delta computation accuracy', () => {
+  it('should compute delta as midpoint(range) - current', () => {
+    const band: AllocationBand = {
+      ...mockBand,
+      current_pct: 40,
+      illustrative_low_pct: 42,
+      illustrative_high_pct: 48,
+    };
+    const result = computeDelta(band);
+    const expectedMidpoint = (42 + 48) / 2;
+    const expectedDelta = expectedMidpoint - 40;
+    expect(result.delta_pp).toBeCloseTo(expectedDelta);
+    expect(result.midpoint_pct).toBeCloseTo(expectedMidpoint);
+  });
+
+  it('should format delta with sign and 1 decimal', () => {
+    const band: AllocationBand = {
+      ...mockBand,
+      current_pct: 30,
+      illustrative_low_pct: 31,
+      illustrative_high_pct: 34,
+    };
+    const result = computeDelta(band);
+    expect(result.delta_display).toMatch(/^[+−]\d+\.\d{1}pp$/);
+  });
+});

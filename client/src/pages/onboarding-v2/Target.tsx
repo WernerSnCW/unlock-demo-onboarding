@@ -20,12 +20,16 @@ import {
   X,
   Info,
   ArrowRight,
+  ArrowUpRight,
+  ArrowDownRight,
   Layers,
   Target as TargetIcon,
   Scale,
   ChevronRight,
   HelpCircle,
   Bug,
+  Activity,
+  Circle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,6 +45,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  computeDelta,
+  computeTotalMovement,
+  computeGuardrailImpacts,
+  computeSafetyLightsForScenario,
+  generateChangeBullets,
+  hasAnyRedLightFromResult,
+  type DeltaResult,
+} from '@/lib/step7Helpers';
 
 const TOTAL_BELIEF_AXES = 8;
 
@@ -88,9 +101,14 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
   NOT_APPLIED: { label: 'Not reflected', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
 };
 
-function AllocationBandRow({ band }: { band: AllocationBand }) {
+function AllocationBandRow({ band, showDelta = false }: { band: AllocationBand; showDelta?: boolean }) {
   const dirArrow = DIRECTION_ARROWS[band.direction];
   const dirColor = DIRECTION_COLORS[band.direction];
+  
+  const delta = useMemo(() => computeDelta(band), [band]);
+  const deltaColor = delta.delta_pp > 0.5 ? 'text-[#10A957]' : 
+                     delta.delta_pp < -0.5 ? 'text-[#FE9239]' : 
+                     'text-[var(--muted-foreground)]';
   
   return (
     <div className="flex items-center justify-between py-3 px-4 border-b border-[var(--border)] last:border-b-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
@@ -123,6 +141,14 @@ function AllocationBandRow({ band }: { band: AllocationBand }) {
             {band.illustrative_low_pct.toFixed(0)}–{band.illustrative_high_pct.toFixed(0)}%
           </span>
         </div>
+        {showDelta && (
+          <div className="text-right min-w-[70px]">
+            <span className="text-sm text-[var(--muted-foreground)]">Δ vs current</span>
+            <span className={`ml-2 font-mono font-semibold ${deltaColor}`} data-testid={`delta-${band.sleeve.toLowerCase()}`}>
+              {delta.delta_display}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -283,10 +309,37 @@ function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
   );
 }
 
-function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
+function ScenarioContent({ scenario, safetyLights }: { scenario: IllustrativeScenario; safetyLights?: any }) {
   const axesReflectedCount = scenario.scenario_type === 'NEUTRAL_BASELINE' 
     ? 0 
     : scenario.tilts_applied_count;
+    
+  const hasAnyRed = hasAnyRedLightFromResult(safetyLights);
+  
+  const assetTotalMovement = useMemo(() => 
+    computeTotalMovement(scenario.asset_class_bands), 
+    [scenario.asset_class_bands]
+  );
+  
+  const regionTotalMovement = useMemo(() => 
+    computeTotalMovement(scenario.region_bands), 
+    [scenario.region_bands]
+  );
+  
+  const guardrailImpacts = useMemo(() => 
+    computeGuardrailImpacts(scenario.applied_tilts, hasAnyRed),
+    [scenario.applied_tilts, hasAnyRed]
+  );
+  
+  const safetyLightStatuses = useMemo(() => 
+    computeSafetyLightsForScenario(safetyLights),
+    [safetyLights]
+  );
+  
+  const { changes, staysSame } = useMemo(() => 
+    generateChangeBullets(scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts),
+    [scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts]
+  );
 
   return (
     <div className="space-y-6">
@@ -306,21 +359,36 @@ function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
         </div>
       </div>
 
+      {/* Impact vs Current Section Header */}
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-[var(--border)]">
+        <h3 className="text-base font-bold text-[var(--foreground)] flex items-center gap-2">
+          <Activity className="w-4 h-4 text-[var(--primary)]" />
+          Impact vs current (illustrative)
+        </h3>
+        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+          Shows modelled directional differences from your current allocation. Not advice.
+        </p>
+      </div>
+
       {/* Asset Class Bands */}
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
-          <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[var(--primary)]" />
-            Asset Class Allocation
-          </h3>
-          {/* Ranges meaning micro-disclosure */}
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[var(--primary)]" />
+              Asset Class Allocation
+            </h3>
+            <div className="text-sm text-[var(--muted-foreground)]">
+              Total movement: <span className="font-mono font-semibold text-[var(--primary)]" data-testid="total-movement-asset">{assetTotalMovement.display}</span>
+            </div>
+          </div>
           <p className="text-xs text-[var(--muted-foreground)] mb-4">
             Ranges illustrate feasible directions under the scenario constraints. They do not represent target allocations.
           </p>
           <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
             {scenario.asset_class_bands.map((band) => (
-              <AllocationBandRow key={band.sleeve} band={band} />
+              <AllocationBandRow key={band.sleeve} band={band} showDelta={true} />
             ))}
           </div>
         </div>
@@ -329,11 +397,114 @@ function ScenarioContent({ scenario }: { scenario: IllustrativeScenario }) {
       {/* Region Bands */}
       {scenario.region_bands.length > 0 && (
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
-          <h3 className="text-lg font-bold text-[var(--foreground)] mb-4">Regional Allocation</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-[var(--foreground)]">Regional Allocation</h3>
+            <div className="text-sm text-[var(--muted-foreground)]">
+              Total movement: <span className="font-mono font-semibold text-[var(--primary)]" data-testid="total-movement-region">{regionTotalMovement.display}</span>
+            </div>
+          </div>
           <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
             {scenario.region_bands.map((band) => (
-              <AllocationBandRow key={band.sleeve} band={band} />
+              <AllocationBandRow key={band.sleeve} band={band} showDelta={true} />
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* What Changes / What Stays the Same */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
+          <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+            <ArrowUpRight className="w-4 h-4 text-[#10A957]" />
+            What differs (illustrative)
+          </h4>
+          {changes.length > 0 ? (
+            <ul className="space-y-2">
+              {changes.map((bullet, i) => (
+                <li key={i} className="text-sm text-[var(--muted-foreground)] flex items-start gap-2">
+                  <Circle className="w-2 h-2 text-[#10A957] flex-shrink-0 mt-1.5 fill-current" />
+                  {bullet.text}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-[var(--muted-foreground)] italic">No significant movement in this scenario</p>
+          )}
+        </div>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
+          <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+            <Minus className="w-4 h-4 text-[var(--muted-foreground)]" />
+            What remains similar
+          </h4>
+          {staysSame.length > 0 ? (
+            <ul className="space-y-2">
+              {staysSame.map((bullet, i) => (
+                <li key={i} className="text-sm text-[var(--muted-foreground)] flex items-start gap-2">
+                  <Circle className="w-2 h-2 text-slate-400 flex-shrink-0 mt-1.5 fill-current" />
+                  {bullet.text}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-[var(--muted-foreground)] italic">All categories show some movement</p>
+          )}
+        </div>
+      </div>
+
+      {/* Safety Lights under this scenario */}
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
+        <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[var(--primary)]" />
+          Safety Lights under this scenario
+        </h4>
+        <div className="flex flex-wrap gap-3">
+          {safetyLightStatuses.map((light) => {
+            const statusColors: Record<string, string> = {
+              GREEN: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+              AMBER: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+              RED: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+              UNCHANGED: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+            };
+            return (
+              <div 
+                key={light.axis} 
+                className={`px-3 py-1.5 rounded-full text-xs font-medium ${statusColors[light.status]}`}
+                data-testid={`safety-light-${light.axis.toLowerCase()}`}
+              >
+                {light.axis}: {light.display_label}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Guardrail Impact on this scenario */}
+      {guardrailImpacts.length > 0 && (
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
+          <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-[#FE9239]" />
+            Guardrail impact on this scenario
+          </h4>
+          <div className="space-y-2">
+            {guardrailImpacts.map((impact, i) => {
+              const statusColors: Record<string, string> = {
+                LOCKED: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+                CONSTRAINED: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                PARTIALLY_APPLIED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                NOT_APPLIED: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+              };
+              return (
+                <div key={i} className="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium text-sm text-[var(--foreground)]">{impact.axis_label}</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[impact.status] || statusColors.NOT_APPLIED}`}>
+                      {impact.status_label}
+                    </span>
+                  </div>
+                  <span className="text-xs text-[var(--muted-foreground)]">{impact.primary_reason}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -555,7 +726,7 @@ export default function Target() {
 
                 {scenario.scenarios.map((s) => (
                   <TabsContent key={s.scenario_type} value={s.scenario_type}>
-                    <ScenarioContent scenario={s} />
+                    <ScenarioContent scenario={s} safetyLights={analysis.result?.safety_lights} />
                   </TabsContent>
                 ))}
               </Tabs>

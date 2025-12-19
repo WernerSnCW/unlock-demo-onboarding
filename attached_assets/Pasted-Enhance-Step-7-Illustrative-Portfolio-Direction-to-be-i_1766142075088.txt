@@ -1,0 +1,59 @@
+Enhance Step 7 “Illustrative Portfolio Direction” to be investor-grade without becoming prescriptive.
+
+Non-negotiables:
+- No buy/sell instructions, no “should/must”, no “optimise”.
+- No performance projections, no expected returns, no probabilities.
+- Outputs remain illustrative, constrained by Safety Lights + policy defaults.
+- Must remain deterministic from existing state and computed scenario outputs.
+
+Implement these UI + computation enhancements for EACH of the 3 scenarios:
+
+1) Add a new section directly under the scenario tabs:
+   Title: “Impact vs current (illustrative)”
+   Subtitle: “Shows modelled directional differences from your current allocation. Not advice.”
+
+2) Compute and display deltas vs current for:
+   - Asset Allocation rows
+   - Regional Allocation rows
+
+For each row:
+- Show Current %
+- Show Illustrative range (already exists)
+- Add “Δ vs current” based on:
+    delta_midpoint_pp = midpoint(range) - current
+  Display with sign and 1 decimal, e.g. “+1.6pp”, “−2.3pp”.
+If a current value is missing, show “—”.
+
+3) Add a “Total movement” metric (per scenario):
+   total_movement_pp = SUM over categories of ABS(delta_midpoint_pp)
+Display as: “Total allocation movement: 6.4pp”
+This is descriptive only (do not call it risk/reward).
+
+4) Add a new section under “Trade-offs and Constraints”:
+   Title: “Guardrail impact on this scenario”
+   For each belief axis that is NOT fully applied (Partially / Not / Constrained / Locked):
+   - Show axis name
+   - Show status badge
+   - Show “Primary reason” derived from the binding guardrail(s), e.g. “Concentration guardrail binding”.
+If locked due to any RED safety light: reason must be “Tilts locked while a red item exists”.
+
+5) Add a compact “Safety Lights under this scenario” panel (if computable):
+   Show Liquidity / Concentration / Illiquids with status pills.
+Rules:
+- If your model does not change an axis (e.g., liquidity), show “Unchanged (model does not vary this)”.
+- Do not fabricate values.
+
+6) Add a deterministic bullet pair per scenario:
+   “What changes (illustrative)” = up to 3 bullets generated from largest absolute deltas (e.g., top 3 movements).
+   “What stays the same” = up to 3 bullets based on guardrail dominance and unchanged sections.
+Bullets must be descriptive only (no instructions).
+
+7) Add tests:
+- Deltas are correctly computed from midpoint(range) - current.
+- Total movement is sum of absolute deltas.
+- No generated copy contains banned verbs: buy, sell, should, must, optimise, improve, increase, decrease, save.
+  (Use neutral wording like “shifts”, “moves”, “differs”, “remains”.)
+- If any Safety Light is RED, scenario shows LOCKED status and “Tilts locked…” reason.
+- “3 scenarios” are unaffected; only enriched presentation.
+
+Proceed to implement on the Step 7 page and supporting helper functions.
