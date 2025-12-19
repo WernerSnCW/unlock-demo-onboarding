@@ -2612,6 +2612,142 @@ Return as JSON with this exact structure:
     }
   });
 
+  // =============================================================================
+  // AI Translation Layer for Next Steps Summary
+  // Generates plain-English summary of onboarding status without financial advice
+  // Implements strict forbidden word validation for compliance
+  // =============================================================================
+  
+  const FORBIDDEN_WORDS = [
+    'should', 'recommend', 'buy', 'sell', 'allocate', 'rebalance', 
+    'increase', 'decrease', 'switch', 'guarantee', 'will', 'expect', 
+    'predict', 'outperform', 'return', 'alpha'
+  ];
+  
+  const COMPLIANCE_LINE = 'Illustrative only. Not financial advice.';
+  
+  function validateAIOutput(text: string): { valid: boolean; reason?: string } {
+    const lowerText = text.toLowerCase();
+    
+    // Check for forbidden words
+    for (const word of FORBIDDEN_WORDS) {
+      const regex = new RegExp(`\\b${word}\\b`, 'i');
+      if (regex.test(lowerText)) {
+        return { valid: false, reason: `Contains forbidden word: "${word}"` };
+      }
+    }
+    
+    // Check compliance line appears exactly once and at the end (trimmed)
+    const trimmedText = text.trim();
+    if (!trimmedText.endsWith(COMPLIANCE_LINE)) {
+      return { valid: false, reason: 'Compliance line must appear at the end of the output' };
+    }
+    
+    // Ensure compliance line appears exactly once
+    const occurrences = (text.match(new RegExp(COMPLIANCE_LINE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    if (occurrences !== 1) {
+      return { valid: false, reason: 'Compliance line must appear exactly once' };
+    }
+    
+    return { valid: true };
+  }
+  
+  app.post("/api/translate/next-steps", async (req, res) => {
+    try {
+      const { payload } = req.body;
+      
+      if (!payload || typeof payload !== 'object') {
+        return res.status(400).json({ 
+          error: "Invalid request", 
+          message: "payload object is required" 
+        });
+      }
+      
+      // Schema validation
+      const { overall_status, top_constraints, preference_signals_state, signals_summary, next_step_text } = payload;
+      
+      if (typeof overall_status !== 'string' || !['GREEN', 'AMBER', 'RED'].includes(overall_status)) {
+        return res.status(400).json({ error: "Invalid overall_status" });
+      }
+      if (!Array.isArray(top_constraints)) {
+        return res.status(400).json({ error: "top_constraints must be an array" });
+      }
+      if (typeof preference_signals_state !== 'string' || !['enabled', 'locked'].includes(preference_signals_state)) {
+        return res.status(400).json({ error: "Invalid preference_signals_state" });
+      }
+      if (!Array.isArray(signals_summary)) {
+        return res.status(400).json({ error: "signals_summary must be an array" });
+      }
+      if (typeof next_step_text !== 'string') {
+        return res.status(400).json({ error: "next_step_text must be a string" });
+      }
+      
+      // Build the guardrailed prompt
+      const systemPrompt = `You are a compliance-safe summariser for an investment planning tool. Your role is to paraphrase structured data into plain English.
+
+STRICT RULES - VIOLATION MEANS FAILURE:
+1. You may ONLY paraphrase the data provided. Do not add new facts, numbers, or thresholds.
+2. NEVER use these words: ${FORBIDDEN_WORDS.join(', ')}
+3. Use ONLY neutral verbs: indicates, shows, suggests, reflects, highlights, reveals, demonstrates
+4. Output must be 90-130 words maximum.
+5. You MUST end with this exact compliance line: "${COMPLIANCE_LINE}"
+6. Do not mention specific securities, tickers, or asset names.
+7. This is strictly informational - describe what the data shows, not what to do about it.`;
+
+      const userPrompt = `Summarise this investment position data in plain English:
+
+OVERALL STATUS: ${overall_status}
+
+TOP CONSTRAINTS:
+${top_constraints?.map((c: any) => `- ${c.name}: ${c.status} (${c.metric_label}: ${c.metric_value_text})`).join('\n') || 'None identified'}
+
+PREFERENCE SIGNALS: ${preference_signals_state}
+${signals_summary?.map((s: any) => `- ${s.axis}: ${s.direction} (${s.intensity}) - Status: ${s.status}${s.reason_if_any ? ` - ${s.reason_if_any}` : ''}`).join('\n') || 'No signals captured'}
+
+NEXT STEP: ${next_step_text}
+
+Write a 90-130 word summary that paraphrases this information. End with: "${COMPLIANCE_LINE}"`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        max_tokens: 250,
+        temperature: 0.3
+      });
+
+      const aiOutput = completion.choices[0]?.message?.content || "";
+      
+      // Validate the output server-side
+      const validation = validateAIOutput(aiOutput);
+      
+      if (!validation.valid) {
+        console.log(`AI output validation failed: ${validation.reason}`);
+        return res.json({ 
+          success: false,
+          validated: false,
+          reason: validation.reason,
+          fallback: "We couldn't generate a compliant summary. Please use the summary above."
+        });
+      }
+      
+      res.json({ 
+        success: true,
+        validated: true,
+        text: aiOutput
+      });
+      
+    } catch (error) {
+      console.error("AI translation error:", error);
+      res.status(500).json({ 
+        error: "Failed to generate summary",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Get current policy configuration (for debugging/testing)
   app.get("/api/onboarding-v2/policy", async (_req, res) => {
     try {

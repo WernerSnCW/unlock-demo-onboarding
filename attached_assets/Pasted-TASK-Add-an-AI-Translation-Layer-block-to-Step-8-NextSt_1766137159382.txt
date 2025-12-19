@@ -1,0 +1,75 @@
+TASK: Add an “AI Translation Layer” block to Step 8 (NextSteps) AFTER deterministic outputs.
+GOAL: Provide a short, plain-English explanation without drifting into advice or predictions.
+
+NON-NEGOTIABLE RULES
+1) The deterministic summary remains the source of truth. AI may only rephrase it.
+2) AI output must never include:
+   - “should”, “recommend”, “buy”, “sell”, “allocate”, “rebalance”, “increase”, “decrease”, “switch”
+   - “guarantee”, “will”, “expect”, “predict”, “outperform”, “return”, “alpha”
+   - any security/holding names or tickers
+3) AI output must always include (verbatim) a compliance line:
+   “Illustrative only. Not financial advice.”
+4) AI output is strictly informational and must not introduce new facts, thresholds, or numbers.
+5) If the model violates rules, do NOT display the output. Show a safe fallback message instead.
+
+IMPLEMENTATION APPROACH (Safe + Simple)
+A) UI Placement
+- In client/src/pages/onboarding-v2/NextSteps.tsx, add a new card section at the bottom:
+  Title: “Plain-English summary (AI-assisted)”
+  Subtitle: “A short translation of the summary above. Illustrative only.”
+
+- Add a button: “Generate summary”
+- Add a secondary link/button: “Regenerate”
+- Add a small “Show prompt inputs” toggle for transparency (shows the structured inputs we pass to the generator).
+
+B) Input to AI (Deterministic Payload)
+Construct a compact payload from existing store data (no new logic):
+- overall_status (GREEN/AMBER/RED)
+- top_constraints: list of {name, status, metric_label, metric_value_text} (already displayed above)
+- preference_signals_state: “enabled” or “locked”
+- signals_summary: list of {axis, direction, intensity, status(APPLIED/PARTIALLY/CONSTRAINED/LOCKED), reason_if_any}
+- next_step_text: the deterministic “what happens next” sentence
+
+IMPORTANT: Do not pass raw holdings, tickers, or any asset names. Keep it general.
+
+C) Prompt Design (Guardrailed)
+Create a single prompt that:
+- Instructs the model to ONLY paraphrase the payload content.
+- Requires 90–130 words max.
+- Bans the forbidden words list explicitly.
+- Requires the final compliance line verbatim.
+- Requires neutral verbs like: “indicates”, “shows”, “suggests”, “reflects”, “highlights”.
+
+D) Output Validation (Must-have)
+Before rendering AI text:
+1) Convert output to lowercase and check it does NOT contain any forbidden words.
+2) Check it DOES contain the exact compliance line: “Illustrative only. Not financial advice.”
+3) If checks fail:
+   - Do not render the AI output.
+   - Render fallback text:
+     “We couldn’t generate a compliant summary. Please use the summary above.”
+
+E) Wiring (Where to run the AI)
+Use the existing backend pattern for any AI calls in this repo (if there is one). If none exists:
+- Create a minimal server endpoint: POST /api/translate/next-steps
+- It receives the deterministic payload and returns generated text.
+- The endpoint must apply the same output validation server-side as well (defence in depth).
+- Ensure no logging of payload beyond basic status codes (avoid storing user financial info).
+
+F) UX Details
+- Loading state: “Generating summary…”
+- Error state: “Couldn’t generate summary.”
+- Always show a note under the generated text:
+  “This is a wording aid. The figures and statuses above are the source of truth.”
+
+TESTING (Manual, Fast)
+1) GREEN scenario: generate summary → must be compliant, no forbidden words.
+2) RED scenario: generate summary → must say preferences are locked, still no forbidden words.
+3) Force a violation test by temporarily adding a forbidden word in the mock response → ensure the UI blocks it and shows fallback.
+4) Confirm no asset names appear.
+
+DELIVERABLE
+After implementation, provide:
+- Screenshot of the new block in Step 8
+- Example AI output for a GREEN case and a RED case
+- Confirmation that forbidden-word validation is enforced both client-side and server-side

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { 
   useOnboardingV2Store,
@@ -10,6 +11,7 @@ import { useLocation } from 'wouter';
 import { 
   Info,
   ChevronRight,
+  ChevronDown,
   ArrowRight,
   CheckCircle2,
   AlertTriangle,
@@ -23,8 +25,13 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  Sparkles,
+  RefreshCw,
+  Eye,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { apiRequest } from '@/lib/queryClient';
 
 const ALL_AXES: AxisCode[] = [
   'QUALITY_TILT', 'VALUE_TILT', 'TECH_TILT', 'UK_BIAS',
@@ -92,9 +99,56 @@ interface LightItem {
   metric: string;
 }
 
+interface TranslationPayload {
+  overall_status: string;
+  top_constraints: { name: string; status: string; metric_label: string; metric_value_text: string }[];
+  preference_signals_state: string;
+  signals_summary: { axis: string; direction: string; intensity: string; status: string; reason_if_any: string | null }[];
+  next_step_text: string;
+}
+
+const FORBIDDEN_WORDS = [
+  'should', 'recommend', 'buy', 'sell', 'allocate', 'rebalance', 
+  'increase', 'decrease', 'switch', 'guarantee', 'will', 'expect', 
+  'predict', 'outperform', 'return', 'alpha'
+];
+
+const COMPLIANCE_LINE = 'Illustrative only. Not financial advice.';
+
+function validateAIOutputClient(text: string): { valid: boolean; reason?: string } {
+  const lowerText = text.toLowerCase();
+  
+  for (const word of FORBIDDEN_WORDS) {
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    if (regex.test(lowerText)) {
+      return { valid: false, reason: `Contains forbidden word: "${word}"` };
+    }
+  }
+  
+  // Check compliance line appears at the end
+  const trimmedText = text.trim();
+  if (!trimmedText.endsWith(COMPLIANCE_LINE)) {
+    return { valid: false, reason: 'Compliance line must appear at the end' };
+  }
+  
+  // Ensure compliance line appears exactly once
+  const escapedLine = COMPLIANCE_LINE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const occurrences = (text.match(new RegExp(escapedLine, 'g')) || []).length;
+  if (occurrences !== 1) {
+    return { valid: false, reason: 'Compliance line must appear exactly once' };
+  }
+  
+  return { valid: true };
+}
+
 export default function NextSteps() {
   const { analysis, beliefs, scenario, completeNextStepsStep } = useOnboardingV2Store();
   const [, navigate] = useLocation();
+
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [showPromptInputs, setShowPromptInputs] = useState(false);
 
   const safetyLights = analysis.result?.safety_lights;
   const overallStatus = safetyLights?.overall_status ?? 'GREEN';
@@ -191,6 +245,85 @@ export default function NextSteps() {
 
   const appliedTilts = getPreferenceLeaningTilts();
   const hasScenarioData = scenario.computed && scenario.scenarios.length > 0;
+
+  const buildTranslationPayload = (): TranslationPayload => {
+    const tiltsAllowed = beliefs.tilts_allowed;
+    
+    const topConstraints = orderedLights.map(light => ({
+      name: LIGHT_CONFIG[light.key].label,
+      status: light.status,
+      metric_label: light.key === 'liquidity' ? 'Cash runway' : light.key === 'concentration' ? 'Largest holding' : 'Illiquid %',
+      metric_value_text: light.metric,
+    }));
+    
+    const signalsSummary = appliedTilts.map(tilt => {
+      const tiltEntry = beliefs.tilt_profile.find(t => t.axis_code === tilt.axis_code);
+      return {
+        axis: AXIS_LABELS[tilt.axis_code] || tilt.axis_label,
+        direction: tiltEntry?.direction ?? 'NEUTRAL',
+        intensity: tiltEntry?.intensity ?? 'WEAK',
+        status: tilt.status,
+        reason_if_any: tilt.constraint_reason ?? null,
+      };
+    });
+    
+    return {
+      overall_status: overallStatus,
+      top_constraints: topConstraints,
+      preference_signals_state: tiltsAllowed ? 'enabled' : 'locked',
+      signals_summary: signalsSummary,
+      next_step_text: "Next, we'll show an illustrative view of wrappers and transition considerations, and then generate your snapshot report.",
+    };
+  };
+
+  const handleGenerateSummary = async () => {
+    setAiLoading(true);
+    setAiError(null);
+    setAiSummary(null);
+    
+    try {
+      const payload = buildTranslationPayload();
+      const response = await apiRequest('POST', '/api/translate/next-steps', { payload });
+      
+      if (!response.ok) {
+        setAiError("Couldn't generate summary.");
+        return;
+      }
+      
+      const data = await response.json() as {
+        success?: boolean;
+        validated?: boolean;
+        text?: string;
+        fallback?: string;
+        error?: string;
+      };
+      
+      if (!data.success || !data.validated) {
+        setAiError(data.fallback || "We couldn't generate a compliant summary. Please use the summary above.");
+        return;
+      }
+      
+      if (!data.text) {
+        setAiError("We couldn't generate a compliant summary. Please use the summary above.");
+        return;
+      }
+      
+      // Client-side validation (defence in depth)
+      const clientValidation = validateAIOutputClient(data.text);
+      if (!clientValidation.valid) {
+        setAiError("We couldn't generate a compliant summary. Please use the summary above.");
+        return;
+      }
+      
+      setAiSummary(data.text);
+    } catch (err) {
+      setAiError("Couldn't generate summary.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const translationPayload = buildTranslationPayload();
 
   return (
     <OnboardingLayout
@@ -343,6 +476,90 @@ export default function NextSteps() {
           <p className="text-[var(--muted-foreground)]">
             Next, we'll show an illustrative view of wrappers and transition considerations, and then generate your snapshot report.
           </p>
+        </div>
+
+        {/* AI Translation Layer */}
+        <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-sm" data-testid="ai-translation-layer">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-[var(--foreground)]">Plain-English summary (AI-assisted)</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">A short translation of the summary above. Illustrative only.</p>
+            </div>
+          </div>
+
+          {/* Generate / Regenerate Buttons */}
+          <div className="flex items-center gap-3 mb-4">
+            <Button
+              onClick={handleGenerateSummary}
+              disabled={aiLoading}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white"
+              data-testid="generate-summary-button"
+            >
+              {aiLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating summary…
+                </>
+              ) : aiSummary ? (
+                <>
+                  <RefreshCw className="w-4 h-4" />
+                  Regenerate
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate summary
+                </>
+              )}
+            </Button>
+            
+            <button
+              onClick={() => setShowPromptInputs(!showPromptInputs)}
+              className="flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+              data-testid="show-prompt-inputs-toggle"
+            >
+              <Eye className="w-4 h-4" />
+              Show prompt inputs
+              <ChevronDown className={`w-4 h-4 transition-transform ${showPromptInputs ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+
+          {/* Prompt Inputs (Collapsible) */}
+          {showPromptInputs && (
+            <div className="mb-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-[var(--border)]" data-testid="prompt-inputs-panel">
+              <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Structured inputs sent to AI:</h4>
+              <pre className="text-xs text-[var(--foreground)] whitespace-pre-wrap font-mono bg-slate-100 dark:bg-slate-800 p-3 rounded overflow-x-auto">
+                {JSON.stringify(translationPayload, null, 2)}
+              </pre>
+            </div>
+          )}
+
+          {/* AI Output or Error */}
+          {aiError && (
+            <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700" data-testid="ai-error">
+              <p className="text-sm text-rose-700 dark:text-rose-300">{aiError}</p>
+            </div>
+          )}
+
+          {aiSummary && !aiError && (
+            <div className="space-y-3" data-testid="ai-summary-output">
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700">
+                <p className="text-sm text-[var(--foreground)] leading-relaxed">{aiSummary}</p>
+              </div>
+              <p className="text-xs text-[var(--muted-foreground)] italic">
+                This is a wording aid. The figures and statuses above are the source of truth.
+              </p>
+            </div>
+          )}
+
+          {!aiSummary && !aiError && !aiLoading && (
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Click "Generate summary" to create a plain-English explanation of your current position.
+            </p>
+          )}
         </div>
 
         {/* Navigation Buttons */}
