@@ -28,33 +28,33 @@ export default function StepIndicator({ currentStepId }: StepIndicatorProps) {
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === currentStepId);
 
   return (
-    <div className="w-full py-4 px-4 bg-[var(--card)] border-b border-[var(--border)]">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2">
+    <div className="w-full py-3 px-2 bg-[var(--card)] border-b border-[var(--border)]">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center justify-between">
           {ONBOARDING_STEPS.map((step, index) => {
             const isCompleted = index < currentIndex;
             const isCurrent = step.id === currentStepId;
             
             return (
-              <div key={step.id} className="flex items-center flex-shrink-0">
+              <div key={step.id} className="flex items-center flex-1 last:flex-none">
                 <div className="flex flex-col items-center">
                   <div
                     className={`
-                      w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all
+                      w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all
                       ${isCompleted 
                         ? 'bg-[var(--success)] text-white' 
                         : isCurrent 
-                          ? 'bg-[var(--primary)] text-white ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--card)]' 
+                          ? 'bg-[var(--primary)] text-white ring-2 ring-[var(--primary)] ring-offset-1 ring-offset-[var(--card)]' 
                           : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
                       }
                     `}
                     data-testid={`step-indicator-${step.id}`}
                   >
-                    {isCompleted ? <Check className="w-4 h-4" /> : index + 1}
+                    {isCompleted ? <Check className="w-3 h-3" /> : index + 1}
                   </div>
                   <span 
                     className={`
-                      mt-1 text-xs font-medium whitespace-nowrap
+                      mt-1 text-[10px] font-medium whitespace-nowrap
                       ${isCurrent ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}
                     `}
                   >
@@ -64,7 +64,7 @@ export default function StepIndicator({ currentStepId }: StepIndicatorProps) {
                 {index < ONBOARDING_STEPS.length - 1 && (
                   <div 
                     className={`
-                      w-8 h-0.5 mx-1 mt-[-16px]
+                      flex-1 h-0.5 mx-1 mt-[-12px] min-w-2
                       ${isCompleted ? 'bg-[var(--success)]' : 'bg-[var(--border)]'}
                     `}
                   />
