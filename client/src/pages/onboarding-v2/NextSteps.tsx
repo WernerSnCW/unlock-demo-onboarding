@@ -421,6 +421,7 @@ export default function NextSteps() {
       stepId="next-steps"
       title="Next steps"
       description="Review your current position and what matters most"
+      hideNav={true}
     >
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Intro Box */}
