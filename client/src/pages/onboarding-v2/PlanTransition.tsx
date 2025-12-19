@@ -327,14 +327,13 @@ export default function PlanTransition() {
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between pt-4">
+        <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
           <Button
             variant="outline"
             onClick={handleBack}
-            className="flex items-center gap-2"
+            className="px-6 py-2.5 border-2 border-[var(--border)] bg-white dark:bg-slate-800 text-[var(--foreground)] hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-[var(--primary)] transition-all duration-300"
             data-testid="button-back"
           >
-            <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
           <Button
