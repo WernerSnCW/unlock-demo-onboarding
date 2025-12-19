@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,10 @@ export default function OnboardingLayout({
   wideLayout = false,
 }: OnboardingLayoutProps) {
   const [, navigate] = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [stepId]);
   
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === stepId);
   const prevStep = currentIndex > 0 ? ONBOARDING_STEPS[currentIndex - 1] : null;

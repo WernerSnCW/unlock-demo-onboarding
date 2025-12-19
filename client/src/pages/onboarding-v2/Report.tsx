@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -69,6 +69,10 @@ function formatPercent(value: number): string {
 export default function Report() {
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   const { holdings, analysis, beliefs, scenario, intake } = useOnboardingV2Store();
   
