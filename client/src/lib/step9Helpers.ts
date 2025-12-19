@@ -167,83 +167,69 @@ export function getDominantConstraint(
 export function buildTransitionTimeline(
   safetyLights: SafetyLights | null | undefined,
   tiltsAllowed: boolean,
-  _policy: PolicyData
+  policy: PolicyData | null
 ): TimelineStep[] {
-  // Always produce exactly 5 deterministic steps
+  // Always produce exactly 5 deterministic, constraints-focused items
+  // These are diagnostic (why it matters), NOT action-oriented
   
   if (!safetyLights) {
     return [
-      { step_number: 1, label: 'Complete portfolio analysis', notes: 'Transition considerations require completed Safety Lights assessment.' },
-      { step_number: 2, label: 'Review wrapper placement assumptions', notes: 'Wrapper placement review pending analysis completion.' },
-      { step_number: 3, label: 'Review pacing constraints', notes: 'Pacing limits applied from policy defaults.' },
-      { step_number: 4, label: 'Review preference status', notes: 'Preference signals pending analysis completion.' },
-      { step_number: 5, label: 'Proceed to report', notes: 'Review the complete summary and illustrative plan in the final report.' },
+      { step_number: 1, label: 'Analysis pending', notes: 'Structural considerations require completed guardrail assessment.' },
+      { step_number: 2, label: 'Wrapper placement and access', notes: 'How assets are distributed across wrappers affects tax treatment and access, which can influence sequencing and timing.' },
+      { step_number: 3, label: 'Pacing limits', notes: 'Policy pacing limits apply. These limits govern how quickly positions could change regardless of preferences.' },
+      { step_number: 4, label: 'Preference status vs constraints', notes: 'Preference signals are recorded but pending analysis completion.' },
+      { step_number: 5, label: 'Snapshot for discussion', notes: 'The report consolidates guardrails, preferences, scenarios, and these constraints into one shareable summary.' },
     ];
   }
 
-  // Step 1: Safety driver summary
   const hasRed = safetyLights.liquidity === 'RED' || safetyLights.concentration === 'RED' || safetyLights.illiquids === 'RED';
   const hasAmber = safetyLights.liquidity === 'AMBER' || safetyLights.concentration === 'AMBER' || safetyLights.illiquids === 'AMBER';
-  
-  let step1: TimelineStep;
-  if (hasRed) {
-    const redAxes: string[] = [];
-    if (safetyLights.liquidity === 'RED') redAxes.push('liquidity');
-    if (safetyLights.concentration === 'RED') redAxes.push('concentration');
-    if (safetyLights.illiquids === 'RED') redAxes.push('illiquids');
-    step1 = {
-      step_number: 1,
-      label: `Address ${redAxes.join(' and ')} constraint${redAxes.length > 1 ? 's' : ''} first`,
-      notes: 'One possible sequencing could prioritise these guardrails before other transitions.',
-    };
-  } else if (hasAmber) {
-    const amberAxes: string[] = [];
-    if (safetyLights.liquidity === 'AMBER') amberAxes.push('liquidity');
-    if (safetyLights.concentration === 'AMBER') amberAxes.push('concentration');
-    if (safetyLights.illiquids === 'AMBER') amberAxes.push('illiquids');
-    step1 = {
-      step_number: 1,
-      label: `Monitor ${amberAxes.join(' and ')} position${amberAxes.length > 1 ? 's' : ''}`,
-      notes: 'Consider reviewing these positions as part of any transition sequencing.',
-    };
-  } else {
-    step1 = {
-      step_number: 1,
-      label: 'No immediate structural concerns',
-      notes: 'All guardrails are within limits. Wrapper placement could be the focus.',
-    };
-  }
+  const isAllGreen = !hasRed && !hasAmber;
 
-  // Step 2: Wrapper placement review
+  // Item 1: Structural pressure status (always present; varies by safety status)
+  const step1: TimelineStep = isAllGreen
+    ? {
+        step_number: 1,
+        label: 'No immediate structural pressure',
+        notes: 'All guardrails are within limits. No structural risks are forcing near-term portfolio change.',
+      }
+    : {
+        step_number: 1,
+        label: 'Structural pressure detected',
+        notes: 'One or more guardrails are outside limits. Any change would need to reduce pressure on the breached area before preferences can meaningfully apply.',
+      };
+
+  // Item 2: Wrapper placement and access (always present)
   const step2: TimelineStep = {
     step_number: 2,
-    label: 'Review wrapper placement assumptions',
-    notes: tiltsAllowed 
-      ? 'With guardrails satisfied, wrapper placement could be reviewed for tax treatment considerations.'
-      : 'Wrapper placement review available once red constraints are addressed.',
+    label: 'Wrapper placement and access',
+    notes: 'How assets are distributed across wrappers affects tax treatment and access, which can influence sequencing and timing.',
   };
 
-  // Step 3: Pacing / constraints reminder
+  // Item 3: Pacing limits (policy dependent; must be traceable)
+  const minYears = policy?.cgt?.min_reduce_plan_years;
   const step3: TimelineStep = {
     step_number: 3,
-    label: 'Review pacing constraints',
-    notes: 'Any transitions would be paced within policy disposal limits.',
+    label: 'Pacing limits',
+    notes: minYears
+      ? `Policy pacing limits apply (policy: ${minYears} years). These limits govern how quickly positions could change regardless of preferences.`
+      : 'Policy pacing limits apply. These limits govern how quickly positions could change regardless of preferences.',
   };
 
-  // Step 4: Preference status
+  // Item 4: Preference status vs constraints (always present; varies by tilts_allowed)
   const step4: TimelineStep = {
     step_number: 4,
-    label: 'Review preference status',
-    notes: tiltsAllowed 
-      ? 'Preference signals are enabled and can inform illustrative transitions.'
-      : 'Preference signals are pending until red constraints are resolved.',
+    label: 'Preference status vs constraints',
+    notes: tiltsAllowed
+      ? 'Preference signals are active, but only influence changes that remain within structural and policy constraints.'
+      : 'Preference signals are recorded but locked while a red item exists. Constraints take priority until the red items are addressed.',
   };
 
-  // Step 5: Always end with report
+  // Item 5: Snapshot for discussion (always present)
   const step5: TimelineStep = {
     step_number: 5,
-    label: 'Proceed to report',
-    notes: 'Review the complete summary and illustrative plan in the final report.',
+    label: 'Snapshot for discussion',
+    notes: 'The report consolidates guardrails, preferences, scenarios, and these constraints into one shareable summary.',
   };
 
   return [step1, step2, step3, step4, step5];

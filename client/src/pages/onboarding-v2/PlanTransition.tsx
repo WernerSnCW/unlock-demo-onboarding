@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { Button } from '@/components/ui/button';
 import { 
-  ArrowLeft, 
   ArrowRight, 
   Lock, 
   Download,
@@ -13,8 +12,6 @@ import {
   XCircle,
   Gauge,
   ToggleRight,
-  FileText,
-  Circle,
   Info,
 } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
@@ -23,7 +20,6 @@ import {
   generateTransitionCSV,
   downloadCSV,
   hasAnyRedLight,
-  getDominantConstraint,
   type PolicyData,
   type TimelineStep,
 } from '@/lib/step9Helpers';
@@ -44,14 +40,11 @@ export default function PlanTransition() {
     queryKey: ['/api/onboarding-v2/policy'],
   });
 
-  const dominantConstraint = useMemo(() => {
-    return getDominantConstraint(safetyLights);
-  }, [safetyLights]);
-
   const timeline = useMemo((): TimelineStep[] => {
-    if (!policy) return [];
-    return buildTransitionTimeline(safetyLights, tiltsAllowed, policy);
+    return buildTransitionTimeline(safetyLights, tiltsAllowed, policy ?? null);
   }, [safetyLights, tiltsAllowed, policy]);
+
+  const canExportCSV = timeline.length > 0 && safetyLights !== null && safetyLights !== undefined;
 
   const handleBack = () => {
     navigate('/onboarding-v2/next-steps');
@@ -62,17 +55,11 @@ export default function PlanTransition() {
   };
 
   const handleDownloadCSV = () => {
+    if (!canExportCSV) return;
     const csv = generateTransitionCSV(timeline, 'v1.0');
-    const filename = `unlock-transition-plan-${new Date().toISOString().split('T')[0]}.csv`;
+    const filename = `unlock-constraints-summary-${new Date().toISOString().split('T')[0]}.csv`;
     downloadCSV(csv, filename);
     setCsvDownloaded(true);
-    
-    if (typeof window !== 'undefined' && (window as any).analytics) {
-      (window as any).analytics.track('plan_download_csv', {
-        timeline_steps: timeline.length,
-        overall_status: overallStatus,
-      });
-    }
   };
 
   const getStatusConfig = (status: SafetyStatus) => {
@@ -106,6 +93,8 @@ export default function PlanTransition() {
 
   const statusConfig = getStatusConfig(overallStatus);
   const StatusIcon = statusConfig.icon;
+  const isAllGreen = overallStatus === 'GREEN';
+  const minYears = policy?.cgt?.min_reduce_plan_years;
 
   if (policyLoading) {
     return (
@@ -126,7 +115,7 @@ export default function PlanTransition() {
     <OnboardingLayout
       stepId="plan-transition"
       title="Transition considerations (illustrative)"
-      description="A non-prescriptive sequencing view. Figures elsewhere remain the source of truth."
+      description="If changes are ever considered, what governs pace, sequencing, and limits?"
       hideNav={true}
     >
       <div className="space-y-6 pt-6">
@@ -147,14 +136,14 @@ export default function PlanTransition() {
                   Preference signals are locked
                 </h3>
                 <p className="text-sm text-rose-700 dark:text-rose-300 mt-1">
-                  Tilts are locked while a red item exists. Address the red cards in Analysis to enable beliefs.
+                  Constraints take priority while a red item exists. Address the red cards in Analysis to unlock preferences.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* What Drives Pacing Here - Three Cards */}
+        {/* Summary Cards - Updated microcopy */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Safety Status Card */}
           <div 
@@ -173,9 +162,9 @@ export default function PlanTransition() {
               </div>
             </div>
             <p className="text-sm text-[var(--muted-foreground)]">
-              {dominantConstraint 
-                ? `Dominant driver: ${dominantConstraint.axis} (${dominantConstraint.status})`
-                : 'All guardrails within limits'
+              {isAllGreen 
+                ? 'No guardrail-driven urgency.'
+                : 'Constraints currently dominate.'
               }
             </p>
           </div>
@@ -216,8 +205,8 @@ export default function PlanTransition() {
             </div>
             <p className="text-sm text-[var(--muted-foreground)]">
               {tiltsAllowed 
-                ? 'Preference signals can inform illustrative scenarios.'
-                : 'Preferences locked until red constraints are addressed.'
+                ? 'Preferences can inform illustrative ranges (within constraints).'
+                : 'Preferences recorded; tilts locked until reds clear.'
               }
             </p>
           </div>
@@ -239,39 +228,36 @@ export default function PlanTransition() {
               </div>
             </div>
             <p className="text-sm text-[var(--muted-foreground)]">
-              {policy?.cgt?.min_reduce_plan_years 
-                ? `Transitions paced over min. ${policy.cgt.min_reduce_plan_years} years within policy disposal limits.`
-                : 'Pacing limits applied from policy defaults.'
+              {minYears
+                ? `Pacing limits apply (policy: ${minYears} years) within disposal limits.`
+                : 'Pacing limits apply within disposal limits.'
               }
             </p>
           </div>
         </div>
 
-        {/* Illustrative Timeline */}
+        {/* Structural Considerations Section */}
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-sm p-6">
-          <div className="flex items-start justify-between mb-5">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-[var(--foreground)]">Illustrative timeline</h2>
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  One possible sequencing based on current inputs (not advice)
-                </p>
-              </div>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="font-bold text-[var(--foreground)] text-lg">
+                Structural considerations affecting change
+              </h2>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                A non-prescriptive view of what governs pace and sequencing (not advice).
+              </p>
             </div>
             <div className="flex items-center gap-2">
-              {timeline.length === 0 && (
+              {!canExportCSV && (
                 <span className="text-xs text-[var(--muted-foreground)]">
-                  Complete analysis to enable export
+                  Export available once inputs are complete.
                 </span>
               )}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadCSV}
-                disabled={timeline.length === 0}
+                disabled={!canExportCSV}
                 className="flex items-center gap-2"
                 data-testid="button-download-csv"
               >
@@ -281,10 +267,19 @@ export default function PlanTransition() {
             </div>
           </div>
 
+          {/* Why this matters explainer */}
+          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 mb-5">
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Scenarios show illustrative directional ranges. This section highlights the structural 
+              and policy constraints that can govern pace and sequencing if changes are ever considered.
+            </p>
+          </div>
+
+          {/* Constraint Items */}
           <ol 
             className="space-y-4" 
             role="list" 
-            aria-label="Transition timeline steps"
+            aria-label="Structural considerations"
             data-testid="timeline-list"
           >
             {timeline.map((step, index) => (
@@ -320,8 +315,8 @@ export default function PlanTransition() {
           <div className="text-sm text-[var(--muted-foreground)]">
             <p className="font-medium text-[var(--foreground)] mb-1">Important note</p>
             <p>
-              This timeline is illustrative only and does not constitute advice. 
-              Actual transitions depend on market conditions, personal circumstances, and professional guidance.
+              This is a constraints lens, not a plan. Actual decisions depend on personal 
+              circumstances, market conditions, and professional guidance.
             </p>
           </div>
         </div>

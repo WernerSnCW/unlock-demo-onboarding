@@ -1,0 +1,98 @@
+We need to improve Step 9a “Transition considerations (illustrative)” so it adds real investor value WITHOUT becoming prescriptive.
+
+Goal:
+Transition is not a “steps to take” list. It is a constraints / friction lens that answers:
+“If I ever change anything, what governs the pace, sequencing, and limits?”
+
+Non-negotiable constraints:
+- No buy/sell language. No “should/must”. Avoid recommendation verbs.
+- No promises (no “savings”, “better”, “optimise”).
+- Deterministic only (derived from existing state + policy). No new facts.
+- Any numeric constraints (e.g., “min 3 years”) must only appear if present in loaded policy. If not present, omit the number and use generic “pacing limits”.
+
+Implement the following changes on /plan/transition:
+
+1) Rename the timeline section (copy-only)
+- Change section title from “Illustrative timeline” to:
+  “Structural considerations affecting change”
+- Change subtitle from “One possible sequencing...” to:
+  “A non-prescriptive view of what governs pace and sequencing (not advice).”
+
+2) Replace the 5 timeline items with investor-grade, constraints-focused copy
+Generate 4–5 items max, but they must be diagnostic (why it matters), not action-oriented.
+Use EXACT copy below as defaults, and then adjust only where state requires:
+
+Item 1 (always present; varies by safety status):
+- Title:
+  If all-green: “No immediate structural pressure”
+  Else: “Structural pressure detected”
+- Body:
+  If all-green: “All guardrails are within limits. No structural risks are forcing near-term portfolio change.”
+  Else: “One or more guardrails are outside limits. Any change would need to reduce pressure on the breached area before preferences can meaningfully apply.”
+
+Item 2 (always present):
+- Title: “Wrapper placement and access”
+- Body: “How assets are distributed across wrappers affects tax treatment and access, which can influence sequencing and timing.”
+
+Item 3 (policy dependent; must be traceable):
+- Title: “Pacing limits”
+- Body:
+  If policy exposes a numeric pacing horizon (e.g., min_years): “Policy pacing limits apply (policy: <value> years). These limits govern how quickly positions could change regardless of preferences.”
+  If no numeric value exists: “Policy pacing limits apply. These limits govern how quickly positions could change regardless of preferences.”
+Important: do NOT show “min. 3 years” unless it is actually present in policy.
+
+Item 4 (always present; varies by tilts_allowed):
+- Title: “Preference status vs constraints”
+- Body:
+  If tilts_allowed: “Preference signals are active, but only influence changes that remain within structural and policy constraints.”
+  If locked: “Preference signals are recorded but locked while a red item exists. Constraints take priority until the red items are addressed.”
+
+Item 5 (always present):
+- Title: “Snapshot for discussion”
+- Body: “The report consolidates guardrails, preferences, scenarios, and these constraints into one shareable summary.”
+
+3) Tighten the top summary cards to align with the new purpose (CRAFT: clearer value)
+Keep the 3 cards but adjust microcopy:
+
+Safety Status card:
+- Keep status as-is.
+- Replace the small line with:
+  All-green: “No guardrail-driven urgency.”
+  Amber/red: “Constraints currently dominate.”
+
+Tilt Status card:
+- Keep Allowed/Locked.
+- Replace the line with:
+  Allowed: “Preferences can inform illustrative ranges (within constraints).”
+  Locked: “Preferences recorded; tilts locked until reds clear.”
+
+Policy Constraints card:
+- Title stays “Policy Constraints”.
+- Subtitle stays “Pacing Limits”.
+- Replace the body:
+  If numeric in policy: “Pacing limits apply (policy: <value> years) within disposal limits.”
+  Else: “Pacing limits apply within disposal limits.”
+Again: no invented numbers.
+
+4) Export CSV button behaviour
+Currently it appears disabled. Make this investor-grade:
+- If there are timeline items: enable Export CSV.
+- If export is disabled due to missing required inputs, show inline reason text next to button: “Export available once inputs are complete.”
+- CSV should export the current timeline items (step_no, title, body), plus timestamp and policy version/id if available.
+
+5) Add a short “Why this matters” explainer (one paragraph, under the timeline title)
+Add a single neutral paragraph under the section header:
+“Scenarios show illustrative directional ranges. This section highlights the structural and policy constraints that can govern pace and sequencing if changes are ever considered.”
+
+6) Tests (must add)
+Add unit tests to ensure we don’t regress into advice or fluff:
+- No timeline item contains banned recommendation verbs: “should”, “must”, “buy”, “sell”, “optimise”, “efficiency”, “save”, “increase”, “reduce”.
+  (Note: “reduce” is banned here because it can sound like instruction. Use “reduce pressure” only in the amber/red branch exactly as written above.)
+- If policy has no min_years (or equivalent), UI does NOT display “3 years” or any “years” number.
+- If tilts_allowed is false OR any safety light is RED, the preference item uses the “recorded but locked” copy.
+- CSV export contains the same timeline items shown in UI.
+
+7) Keep UK English and plain language
+No jargon. No tax advice phrasing. Use “tax treatment” and “access” only (already safe).
+
+Implement now in the existing /plan/transition page and any helper that builds its timeline.
