@@ -28,6 +28,13 @@ import {
 } from '@/state/onboardingV2Store';
 import { hasAnyRedLight, type PolicyData } from '@/lib/step9Helpers';
 import { pctToMonetary } from '@/lib/step7Helpers';
+import { 
+  computeCrossScenarioSignals, 
+  getScenarioInterpretation, 
+  getCrossScenarioSynthesis,
+  SCENARIO_EXPLAINER,
+  type InterpretationContext,
+} from '@/lib/scenarioInterpretation';
 import { useToast } from '@/hooks/use-toast';
 
 const SAFETY_STATUS_CONFIG: Record<SafetyStatus, { icon: typeof ShieldCheck; color: string; bg: string; label: string }> = {
@@ -145,16 +152,19 @@ export default function Report() {
     return 'No guardrail-driven urgency';
   }, [safetyLights]);
 
-  const scenariosConverge = useMemo(() => {
-    if (!scenario.scenarios || scenario.scenarios.length < 2) return false;
-    const first = scenario.scenarios[0];
-    return scenario.scenarios.every((s: IllustrativeScenario) => 
-      s.asset_class_bands.every((band, i: number) => 
-        Math.abs(band.illustrative_low_pct - first.asset_class_bands[i].illustrative_low_pct) < 0.5 &&
-        Math.abs(band.illustrative_high_pct - first.asset_class_bands[i].illustrative_high_pct) < 0.5
-      )
-    );
+  const crossScenarioSignals = useMemo(() => {
+    return computeCrossScenarioSignals(scenario.scenarios);
   }, [scenario.scenarios]);
+
+  const interpretationContext: InterpretationContext = useMemo(() => ({
+    any_red: hasRedLight,
+    any_amber: hasAmberLight,
+    minimal_movement: false, // Computed per-scenario
+    scenarios_converged: crossScenarioSignals.scenarios_converged,
+    materially_wider: crossScenarioSignals.materially_wider,
+  }), [hasRedLight, hasAmberLight, crossScenarioSignals]);
+
+  const scenariosConverge = crossScenarioSignals.scenarios_converged;
 
   const activeScenario = scenario.scenarios.find(
     (s: IllustrativeScenario) => s.scenario_type === scenario.active_scenario
@@ -554,6 +564,13 @@ export default function Report() {
               Illustrative Scenarios Summary
             </h2>
             
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold text-[var(--foreground)] mb-2">{SCENARIO_EXPLAINER.title}</h3>
+              <div className="text-sm text-[var(--muted-foreground)] whitespace-pre-line">
+                {SCENARIO_EXPLAINER.content}
+              </div>
+            </div>
+            
             {scenario.scenarios.length > 0 ? (
               <div className="space-y-6">
                 {scenario.scenarios.map((s: IllustrativeScenario) => (
@@ -577,8 +594,23 @@ export default function Report() {
                         </div>
                       ))}
                     </div>
+                    <div className="mt-4 pt-3 border-t border-[var(--border)]">
+                      <p className="text-sm">
+                        <span className="font-medium text-[var(--foreground)]">Interpretation: </span>
+                        <span className="text-[var(--muted-foreground)] italic">
+                          {getScenarioInterpretation(s, interpretationContext)}
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 ))}
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">What stands out across scenarios</h3>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    {getCrossScenarioSynthesis(interpretationContext)}
+                  </p>
+                </div>
               </div>
             ) : (
               <p className="text-sm text-[var(--muted-foreground)]">Scenarios not computed.</p>

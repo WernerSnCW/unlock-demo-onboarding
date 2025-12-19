@@ -1,0 +1,74 @@
+Implement interpretation help for the “Illustrative Scenarios Summary” section using deterministic rules (NO AI).
+
+Goals:
+- Make the section understandable to non-investors by adding plain-English interpretation.
+- Do not add recommendations or advice.
+- Do not hard-code outcomes; instead, compute signals and select approved copy via thresholds.
+- UK English. No banned verbs: should, must, buy, sell, optimise, improve, save.
+
+A) Add a static explainer at the top of the section
+Title: “How to read these scenarios”
+Copy (verbatim):
+“Each scenario answers a slightly different question:
+• Guardrail-first shows how the portfolio behaves when safety constraints are prioritised and change is kept minimal.
+• Preference-leaning shows how far stated preferences can influence the portfolio without breaching constraints.
+• Neutral baseline shows the portfolio with no preferences applied, serving as a reference point.
+
+The ranges show feasible directions, not targets. Where scenarios look similar, it indicates that constraints — not preferences — are the dominant factor.”
+
+B) Compute deterministic signals (no AI)
+For each scenario:
+- total_movement_pp (already available or compute from midpoint deltas)
+- avg_range_width_pp = mean(maxPct - minPct) across asset classes
+For cross-scenario:
+- convergence_score (0–1) based on average range overlap across asset classes between scenario pairs
+- scenarios_converged = convergence_score >= 0.90
+
+Define thresholds:
+- minimal_movement = total_movement_pp < 2.0
+- materially_wider = avg_range_width_pp(preference_leaning) >= avg_range_width_pp(guardrail_first) + 2.0
+
+Guardrail override flags:
+- any_red = any Safety Light is RED
+- any_amber = any Safety Light is AMBER
+
+C) Add a per-scenario “Interpretation” line (dynamic, deterministic)
+At bottom of each scenario card, add:
+Label: “Interpretation:”
+Text selection:
+1) If any_red:
+   “A red guardrail is present. Preferences are recorded but locked, and this scenario remains constraint-led.”
+Else:
+2) If minimal_movement:
+   “Under current constraints, this scenario allows only limited deviation from the existing allocation.”
+Else:
+   “This scenario allows some re-shaping of the allocation within the current safety limits.”
+
+Preference-leaning additional sentence (append):
+- If any_red: none (already handled)
+- Else if scenarios_converged OR NOT materially_wider:
+  “Preferences are recognised, but constraints materially limit their effect.”
+- Else:
+  “Preferences introduce additional flexibility, bounded by safety constraints.”
+
+Neutral baseline additional sentence (append always unless any_red):
+“This scenario provides a reference view with no preferences applied.”
+
+D) Add a cross-scenario synthesis block after all three cards
+Title: “What stands out across scenarios”
+Text selection:
+- If any_red:
+  “A red guardrail is present. Preferences are locked, so scenarios remain driven by constraints.”
+- Else if scenarios_converged:
+  “Across all three scenarios, ranges remain similar, indicating that constraints dominate outcomes under current inputs.”
+- Else:
+  “Differences between scenarios highlight where preferences can influence outcomes within constraints.”
+
+E) Tests
+- Interpretation changes when total_movement_pp changes.
+- Convergence logic triggers correct synthesis copy.
+- any_red overrides all other interpretation logic.
+- No banned verbs appear anywhere in these blocks.
+- Confirm no AI calls are used to generate interpretation text.
+
+Implement now.
