@@ -553,40 +553,59 @@ export default function Report() {
             {scenario.scenarios.length > 0 ? (
               <div className="space-y-6">
                 {scenario.scenarios.map((s: IllustrativeScenario) => (
-                  <div key={s.scenario_type} className="border border-[var(--border)] rounded-lg p-4">
-                    <h3 className="font-semibold text-[var(--foreground)] mb-3">
-                      {s.scenario_label}
-                    </h3>
-                    <p className="text-sm text-[var(--muted-foreground)] mb-3">{s.scenario_description}</p>
-                    <div className="space-y-2">
-                      {s.asset_class_bands.map(band => (
-                        <div key={band.sleeve} className="flex justify-between items-center text-sm">
-                          <span className="text-[var(--foreground)]">{band.sleeve}</span>
-                          <span className="text-[var(--muted-foreground)]">
-                            {formatPercent(band.illustrative_low_pct)} – {formatPercent(band.illustrative_high_pct)}
-                            {hasTotalValue && (
-                              <span className="ml-2">
-                                (~{formatCurrency(pctToMonetary(band.illustrative_low_pct, totalValue))} – ~{formatCurrency(pctToMonetary(band.illustrative_high_pct, totalValue))})
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      ))}
+                  <div key={s.scenario_type} className="border border-[var(--border)] rounded-lg overflow-hidden shadow-sm">
+                    <div className="bg-slate-100 dark:bg-slate-800 px-5 py-3 border-b border-[var(--border)]">
+                      <h3 className="font-semibold text-[var(--foreground)]">
+                        {s.scenario_label}
+                      </h3>
+                      <p className="text-sm text-[var(--muted-foreground)] mt-1">{s.scenario_description}</p>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[var(--border)]">
-                      <p className="text-sm">
-                        <span className="font-medium text-[var(--foreground)]">Interpretation: </span>
-                        <span className="text-[var(--muted-foreground)] italic">
-                          {getScenarioInterpretation(s, interpretationContext)}
-                        </span>
-                      </p>
+                    <div className="px-5 py-4">
+                      <div className="space-y-3">
+                        {s.asset_class_bands.map(band => {
+                          const lowPct = band.illustrative_low_pct;
+                          const highPct = band.illustrative_high_pct;
+                          return (
+                            <div key={band.sleeve} className="space-y-1">
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-[var(--foreground)] font-medium">{band.sleeve}</span>
+                                <span className="text-[var(--muted-foreground)] tabular-nums">
+                                  {formatPercent(lowPct)} – {formatPercent(highPct)}
+                                  {hasTotalValue && (
+                                    <span className="ml-2 text-xs">
+                                      (~{formatCurrency(pctToMonetary(lowPct, totalValue))} – ~{formatCurrency(pctToMonetary(highPct, totalValue))})
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-[var(--primary)] rounded-full opacity-60"
+                                  style={{ 
+                                    marginLeft: `${lowPct}%`,
+                                    width: `${Math.max(highPct - lowPct, 1)}%`
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="mt-5 pt-4 border-t border-dashed border-[var(--border)]">
+                        <p className="text-sm">
+                          <span className="font-medium text-[var(--primary)]">Interpretation: </span>
+                          <span className="text-[var(--muted-foreground)] italic leading-relaxed">
+                            {getScenarioInterpretation(s, interpretationContext)}
+                          </span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
                 
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">What stands out across scenarios</h3>
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                <div className="border-l-4 border-[var(--primary)] bg-slate-50 dark:bg-slate-800/50 px-5 py-4">
+                  <h3 className="font-semibold text-[var(--foreground)] mb-2">What stands out across scenarios</h3>
+                  <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                     {getCrossScenarioSynthesis(interpretationContext)}
                   </p>
                 </div>
