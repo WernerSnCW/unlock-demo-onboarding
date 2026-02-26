@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -36,17 +37,17 @@ import EndingSplashScreen from "@/pages/EndingSplashScreen";
 import AssetRegister from "@/pages/AssetRegister";
 import TargetsAndBands from "@/pages/TargetsAndBands";
 
-import OnboardingV2Welcome from "@/pages/onboarding-v2/Welcome";
-import OnboardingV2Method from "@/pages/onboarding-v2/Method";
-import OnboardingV2Intake from "@/pages/onboarding-v2/Intake";
-import OnboardingV2Holdings from "@/pages/onboarding-v2/Holdings";
-import OnboardingV2Beliefs from "@/pages/onboarding-v2/Beliefs";
-import OnboardingV2Analysis from "@/pages/onboarding-v2/Analysis";
-import OnboardingV2Target from "@/pages/onboarding-v2/Target";
-import OnboardingV2NextSteps from "@/pages/onboarding-v2/NextSteps";
-import OnboardingV2PlanTransition from "@/pages/onboarding-v2/PlanTransition";
-import OnboardingV2PlanWrappers from "@/pages/onboarding-v2/PlanWrappers";
-import OnboardingV2Report from "@/pages/onboarding-v2/Report";
+const OnboardingV2Welcome = lazy(() => import("@/pages/onboarding-v2/Welcome"));
+const OnboardingV2Method = lazy(() => import("@/pages/onboarding-v2/Method"));
+const OnboardingV2Intake = lazy(() => import("@/pages/onboarding-v2/Intake"));
+const OnboardingV2Holdings = lazy(() => import("@/pages/onboarding-v2/Holdings"));
+const OnboardingV2Beliefs = lazy(() => import("@/pages/onboarding-v2/Beliefs"));
+const OnboardingV2Analysis = lazy(() => import("@/pages/onboarding-v2/Analysis"));
+const OnboardingV2Target = lazy(() => import("@/pages/onboarding-v2/Target"));
+const OnboardingV2NextSteps = lazy(() => import("@/pages/onboarding-v2/NextSteps"));
+const OnboardingV2PlanTransition = lazy(() => import("@/pages/onboarding-v2/PlanTransition"));
+const OnboardingV2PlanWrappers = lazy(() => import("@/pages/onboarding-v2/PlanWrappers"));
+const OnboardingV2Report = lazy(() => import("@/pages/onboarding-v2/Report"));
 
 
 function Router() {
@@ -83,18 +84,18 @@ function Router() {
       <Route path="/splash" component={SplashScreen} />
       <Route path="/ending" component={EndingSplashScreen} />
       
-      {/* Onboarding v2 Routes */}
-      <Route path="/onboarding-v2/welcome" component={OnboardingV2Welcome} />
-      <Route path="/onboarding-v2/method" component={OnboardingV2Method} />
-      <Route path="/onboarding-v2/intake" component={OnboardingV2Intake} />
-      <Route path="/onboarding-v2/holdings" component={OnboardingV2Holdings} />
-      <Route path="/onboarding-v2/beliefs" component={OnboardingV2Beliefs} />
-      <Route path="/onboarding-v2/analysis" component={OnboardingV2Analysis} />
-      <Route path="/onboarding-v2/target" component={OnboardingV2Target} />
-      <Route path="/onboarding-v2/next-steps" component={OnboardingV2NextSteps} />
-      <Route path="/onboarding-v2/plan/transition" component={OnboardingV2PlanTransition} />
-      <Route path="/onboarding-v2/plan/wrappers" component={OnboardingV2PlanWrappers} />
-      <Route path="/onboarding-v2/report" component={OnboardingV2Report} />
+      {/* Onboarding v2 Routes (lazy-loaded) */}
+      <Route path="/onboarding-v2/welcome">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Welcome /></Suspense>}</Route>
+      <Route path="/onboarding-v2/method">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Method /></Suspense>}</Route>
+      <Route path="/onboarding-v2/intake">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Intake /></Suspense>}</Route>
+      <Route path="/onboarding-v2/holdings">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Holdings /></Suspense>}</Route>
+      <Route path="/onboarding-v2/beliefs">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Beliefs /></Suspense>}</Route>
+      <Route path="/onboarding-v2/analysis">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Analysis /></Suspense>}</Route>
+      <Route path="/onboarding-v2/target">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Target /></Suspense>}</Route>
+      <Route path="/onboarding-v2/next-steps">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2NextSteps /></Suspense>}</Route>
+      <Route path="/onboarding-v2/plan/transition">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2PlanTransition /></Suspense>}</Route>
+      <Route path="/onboarding-v2/plan/wrappers">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2PlanWrappers /></Suspense>}</Route>
+      <Route path="/onboarding-v2/report">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Report /></Suspense>}</Route>
       
       <Route component={NotFound} />
     </Switch>
