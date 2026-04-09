@@ -47,7 +47,7 @@
 **Exports — simulationConfig.ts (17 exports):**
 - `CANONICAL_BUCKETS`, `Bucket`, `ScenarioShocks`
 - `SCENARIO_SHOCKS`, `SCENARIO_VOLS`, `SCENARIO_LABELS`, `FACTORS`
-- `defaultCorrelation()`, `CORRELATION`, `BUCKET_ORDER`
+- `defaultCorrelation()`, `CORRELATION`, `CORRELATION_MATRIX` (alias), `BUCKET_ORDER`
 - `SCENARIO_PRIORS`, `blendScenarioTemplates()`
 - `SCENARIOS`, `LEGACY_SCENARIO_IDS`, `ASSET_CLASS_MAPPING`, `IG_CREDIT_SHOCKS`, `CRYPTO_SPLIT_CONFIG`
 

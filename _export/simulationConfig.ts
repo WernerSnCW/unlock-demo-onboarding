@@ -69,6 +69,7 @@ export function defaultCorrelation(): number[][] {
 }
 
 export const CORRELATION: number[][] = defaultCorrelation();
+export const CORRELATION_MATRIX: number[][] = CORRELATION;
 export const BUCKET_ORDER: Bucket[] = [...CANONICAL_BUCKETS];
 
 export const SCENARIO_PRIORS: Record<string, Partial<Record<Bucket, number>>> = {
