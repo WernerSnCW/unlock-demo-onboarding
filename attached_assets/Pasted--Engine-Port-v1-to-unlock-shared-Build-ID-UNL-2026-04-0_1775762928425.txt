@@ -1,0 +1,207 @@
+# Engine Port — v1 to @unlock/shared
+Build ID: UNL-2026-04-09-PORT-001
+Run in: v1 Unlock platform Replit
+Purpose: Extract three proven engines as clean, self-contained
+         TypeScript modules ready to copy into packages/shared/src/engine/
+         in the new Unlock platform
+
+---
+
+## What this does
+
+Read three engine files from this codebase, clean them up for
+standalone use (remove all Express/DB/OpenAI dependencies, fix
+imports to be self-contained), and write the cleaned versions to
+a new directory `_export/` at the root of this project.
+
+Do NOT modify any existing files. Only create new files in `_export/`.
+
+---
+
+## Engine 1 — EIS/SEIS Calculator
+
+Source files to read:
+- `client/src/components/SEISEISCalculation.ts`
+- `client/src/utils/calculators.ts`
+
+Output file: `_export/eisSeisCalculator.ts`
+
+**What to do:**
+1. Read both source files completely
+2. Merge into a single self-contained TypeScript file
+3. Remove any React imports or JSX
+4. Remove any imports from other parts of this codebase
+5. All types must be defined inline or imported only from
+   TypeScript built-ins
+6. Export everything that a consumer would need:
+   - `computeSEISEIS(inputs) → SEISEISResult`
+   - `computeAllowance(inputs)`
+   - `computeLossRelief(inputs)`
+   - All input/output interfaces
+7. Add a file header comment:
+   ```
+   // Ported from Unlock v1 — client/src/components/SEISEISCalculation.ts
+   // + client/src/utils/calculators.ts
+   // Port date: 2026-04-09
+   ```
+
+---
+
+## Engine 2 — Monte Carlo Simulation Engine v2
+
+Source files to read:
+- `server/lib/simulate/engine_v2.ts`
+- `server/config/buckets.ts`
+- `server/config/scenarios.ts`
+- `server/config/scenarioShocks.ts`
+- `server/config/scenarioVols.ts`
+- `server/config/correlations.ts`
+- `server/data/scenarios.ts`
+
+Output files:
+- `_export/simulationEngine.ts` — the engine itself
+- `_export/simulationConfig.ts` — all config data (buckets, scenarios,
+  shocks, vols, correlations)
+
+**What to do:**
+1. Read all source files completely
+2. Separate the pure engine logic from the config data
+3. `simulationEngine.ts`:
+   - Remove all Express, DB, and HTTP dependencies
+   - The engine must be a pure function: takes request object,
+     returns response object
+   - All types defined inline
+   - Imports only from `simulationConfig.ts` (same directory)
+   - Export: `simulate(req: SimV2Request) → SimV2Response`
+   - Export all request/response types
+4. `simulationConfig.ts`:
+   - All bucket definitions, scenario templates, shocks, vols,
+     correlations exported as typed constants
+   - No runtime dependencies — pure data
+   - Export: `CANONICAL_BUCKETS`, `SCENARIOS`, `SCENARIO_SHOCKS`,
+     `SCENARIO_VOLS`, `CORRELATION_MATRIX`, and all related types
+5. Add file header comments with source references
+
+---
+
+## Engine 3 — Safety Lights + Persona Engine
+
+Source files to read:
+- `server/services/analysis.ts`
+- `server/services/personaEngine.ts`
+- `server/config/personaDefaults.ts`
+- `server/config/policy_defaults.yaml`
+
+Output files:
+- `_export/safetyLights.ts` — safety lights computation
+- `_export/personaEngine.ts` — persona matching engine
+- `_export/personaDefaults.ts` — persona default allocations
+- `_export/policyDefaults.ts` — policy parameters as TypeScript
+  constants (convert YAML to TS object)
+
+**What to do:**
+1. Read all source files completely
+2. `safetyLights.ts`:
+   - Extract `computeSafetyLights(intake, policy)` as a pure function
+   - Remove all Express/DB dependencies
+   - Policy object passed as parameter (not loaded from YAML at runtime)
+   - Export: `computeSafetyLights`, `SafetyLightsResult`,
+     `SafetyLightsPolicy`, `IntakeData`
+3. `personaEngine.ts`:
+   - Extract `computePersona(profile) → PersonaResult` as pure function
+   - Remove all Express/DB dependencies
+   - Export: `computePersona`, `PersonaResult`, `InvestorProfile`,
+     `PersonaCues`, all related types
+4. `personaDefaults.ts`:
+   - Pure data file — default allocations per persona across all buckets
+   - Export: `PERSONA_DEFAULTS` typed constant
+5. `policyDefaults.ts`:
+   - Convert `policy_defaults.yaml` to a TypeScript object
+   - Export: `DEFAULT_POLICY` typed constant with all numeric parameters
+   - Include type: `PolicyConfig`
+   - Note: update `cgt_allowance_per_year_gbp` to 3000 (current value)
+6. Add file header comments with source references
+
+---
+
+## Step — Verify output files
+
+After creating all files in `_export/`, run:
+
+```bash
+npx tsc --noEmit --strict --target ES2020 --module ESNext \
+  --moduleResolution bundler --esModuleInterop true \
+  --skipLibCheck true _export/*.ts
+```
+
+If there are TypeScript errors, fix them. The files must typecheck
+cleanly as standalone modules before this task is complete.
+
+Report the result of the typecheck for each output file.
+
+---
+
+## Output structure expected
+
+```
+_export/
+  eisSeisCalculator.ts
+  simulationEngine.ts
+  simulationConfig.ts
+  safetyLights.ts
+  personaEngine.ts
+  personaDefaults.ts
+  policyDefaults.ts
+```
+
+---
+
+## Rules
+
+- Do NOT modify any existing files in this project
+- Only create files in `_export/`
+- Every output file must be self-contained — no imports from
+  this project's src/ directories
+- Output files may import from each other within `_export/`
+  (e.g. simulationEngine.ts may import from simulationConfig.ts)
+- No Express, no Drizzle, no OpenAI, no HTTP in any output file
+- All functions must be pure (input → output, no side effects,
+  no global state mutation)
+- TypeScript strict mode — no `any` types unless absolutely
+  unavoidable, and document why
+
+---
+
+## Final report
+
+After all files are created and typechecked, produce a report:
+
+```
+PORT REPORT — UNL-2026-04-09-PORT-001
+
+Engine 1 — EIS/SEIS Calculator:
+  Output: _export/eisSeisCalculator.ts
+  Lines: [N]
+  Exports: [list]
+  Typecheck: PASS / FAIL [errors if any]
+  Changes from source: [list any logic changes made, or "None"]
+
+Engine 2 — Monte Carlo Simulation:
+  Output: _export/simulationEngine.ts + _export/simulationConfig.ts
+  Lines: [N] + [N]
+  Exports: [list]
+  Typecheck: PASS / FAIL
+  Changes from source: [list]
+
+Engine 3 — Safety Lights + Persona:
+  Output: _export/safetyLights.ts + _export/personaEngine.ts +
+          _export/personaDefaults.ts + _export/policyDefaults.ts
+  Lines: [N each]
+  Exports: [list]
+  Typecheck: PASS / FAIL
+  Changes from source: [list]
+
+READY TO COPY: YES / NO
+```
+
+Do not mark READY TO COPY: YES unless all files typecheck cleanly.
