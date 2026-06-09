@@ -47,8 +47,9 @@ Each feature is tagged with one of these:
 11. [Demo & presentation suite](#11-demo--presentation-suite)
 12. [Legacy onboarding (superseded)](#12-legacy-onboarding-superseded)
 13. [Miscellaneous pages](#13-miscellaneous-pages)
-14. [Backend, data & infrastructure notes](#14-backend-data--infrastructure-notes)
-15. [Source references](#15-source-references)
+14. [Assets & data model](#14-assets--data-model)
+15. [Backend, data & infrastructure notes](#15-backend-data--infrastructure-notes)
+16. [Source references](#16-source-references)
 
 ---
 
@@ -112,17 +113,61 @@ than fetched live. (Live market quotes are used elsewhere — see Portfolio Anal
 ### Asset Register — `/asset-register` 🟡 Mock‑data
 
 **Plain English.** A full asset‑inventory workspace — think of it as the
-"single source of truth" for everything the investor owns.
+"single source of truth" for everything the investor owns: investments, property,
+cash, and the debts (liabilities) held against them. It's the richest single screen in
+the app and is built to feel like a professional wealth‑management register.
 
-**Key features.**
-- Sidebar with valuation snapshots, entity/wrapper filters, and custodian status.
-- A "Holdings Register" table with live pricing, cost basis, and tax status.
-- Tabs for Holdings, Targets & Bands, Transactions, Documents, and Reconciliation.
-- **AI import** to extract holdings from PDFs, a guided "Help/Tour", and add/edit
-  modals for assets and liabilities.
+**The six tabs.**
 
-**Status.** The architecture is complete and the import logic exists, but the page is
-driven largely by hard‑coded values for the product tour rather than a live account.
+1. **Holdings Register** — the complete inventory of assets and liabilities, with live
+   prices, cost basis, and tax treatment (see the column list below).
+2. **Targets & Bands** — set target allocations and acceptable ranges per asset class,
+   with "Drift" and "Breach" indicators when a class moves out of band. (Mirrors the
+   standalone Targets & Bands page below.)
+3. **Transactions** — an audit‑ready ledger of economic events: Buys, Sells,
+   Dividends, Interest, Fees, Taxes, and Transfers.
+4. **Documents** — a document store for statements, contract notes, and valuations,
+   organised into "buckets" (e.g. Statements, Tax Relief).
+5. **Reconciliation** — compares recorded holdings against broker statements to flag
+   discrepancies (e.g. Vanguard, AJ Bell, Trading 212).
+6. **Household** — manages multiple entities (Personal, Spouse, Ltd), tracks tax
+   allowances (ISA, SIPP, JISA), and surfaces wrapper‑optimisation prompts.
+
+**Holdings Register columns.** Asset, Type (ETF/Cash/Property/…), **Source** (Live,
+CSV, OCR/document, or Manual — each shown with its own icon), Identifier (ISIN /
+ticker / property title / wallet address), Custodian, Wrapper (ISA/SIPP/GIA/Personal),
+Units, Cost (basis), Price, Value, Return (e.g. IRR / TWR / APR), Bucket (strategic
+allocation), Tax/Relief (e.g. Accumulating, EIS, SIPP relief), Evidence (e.g. "On
+file", "Valuation due"), and a Complete % bar.
+
+**Add Asset modal** (3 steps): **Identify** — `isin`, `ticker`, `securityName`,
+`wrapper`, `custodian`, `accountLabel`, `distributionType` (Accumulating/Distributing),
+`bucket`; **Amount** — `units`, `price`, `costBasis`, `fees`, `tradeDate`,
+`valuationDate`; **Evidence** — `notes`, `evidenceState`, `evidenceType`,
+`evidenceReference`, `reminder`.
+
+**Add Liability modal**: liability type (mortgage, loan, …), name/lender, linked
+asset, outstanding principal, interest rate, monthly repayment, term‑end/due date, and
+evidence type/reference.
+
+**Sidebar.** Valuation snapshot ("as at" date, EOD pricing, GBP) with last
+reconciliation status; **Entities** filter (Personal/Spouse/Ltd); **Wrappers** filter
+(ISA/SIPP/GIA/Personal); **Custodians / wallets** list (e.g. Vanguard, AJ Bell, HSBC,
+Ledger); an estate **Beneficiary** block (life‑beat check, fallback email, package);
+and **Quick actions** (Add asset, Add liability, Import CSV, AI Import, Upload
+evidence, Density toggle).
+
+**Imports.** **AI Import** accepts "messy" inputs — PDF statements, contract notes, or
+pasted text — and extracts fields (asset name, ISIN, units, price) for review before
+they're committed. **CSV Import** handles bulk holdings via a template. A guided
+**Help/Tour** walks through the valuation snapshot, entities, holdings table, KPIs, and
+tabs.
+
+**Status.** A high‑fidelity interactive prototype: the holdings, transactions, and
+documents are **hard‑coded demo data held in local state** — the page itself does not
+fetch from an API or persist to the database. A "source" legend (live / csv / ocr /
+manual) simulates what real integrations would look like. For asset records that *do*
+persist, see **Account Settings** and the **Assets & data model** section.
 
 ### Targets & Bands — `/targets-bands` 🟡 Mock‑data
 
@@ -411,7 +456,72 @@ companion manual). Treat them as read‑only legacy:
 
 ---
 
-## 14. Backend, data & infrastructure notes
+## 14. Assets & data model
+
+**Plain English.** The Asset Register page above runs on demo data, but the app *does*
+have a real database for assets — it's used by **Account Settings** and **Profile**,
+where what you add genuinely persists. This section summarises how assets are modelled
+(Drizzle ORM tables in `shared/schema.ts`), grouped into three families: investment
+holdings, property, and alternatives. All money fields are GBP numerics.
+
+### Investment holdings
+
+- **`portfolio_accounts`** — a brokerage/cash/private account. Key fields: `userId`,
+  `provider` (e.g. Moneyhub / Plaid / Manual), `accountType` (brokerage/cash/private),
+  `currency` (default GBP), `currentBalanceGbp`, `cashBalanceGbp`.
+- **`portfolio_holdings`** — an individual position within an account. Key fields:
+  `userId`, `accountId`, `assetType` (equity/fund/crypto/private/other), `symbol`,
+  `name`, `quantity`, `costBasisGbp`, `currentPriceGbp`, `currentValueGbp`,
+  `estimated_fx`.
+
+### Property
+
+A property is modelled across six linked tables so the same asset can carry ownership,
+debt, valuations, tenancies, and cashflows:
+
+- **`properties`** — the building: `uprn`, `addressLine1`, `postcode`, `propertyType`
+  (residential/BTL/commercial/industrial/land/mixed), `epcRating` (A–G).
+- **`property_ownerships`** — who owns it and how: `ownershipType` (direct/SPV),
+  `sharePct`, `acquisitionPriceGbp`, `isPrimaryResidence`.
+- **`property_loans`** — mortgages/debt: `lenderName`, `currentBalanceGbp`,
+  `interestRatePct`, `rateType` (fixed/tracker/variable), `fixEndDate`,
+  `paymentAmountGbp`.
+- **`property_valuations`** — point‑in‑time values: `valueGbp`, `valuationDate`,
+  `method` (purchase/avm/ai_valuation/…), `source` (Zoopla/UK_HPI/…), `confidence`
+  (0–1), plus `valuationRangeMinGbp` / `valuationRangeMaxGbp`, `hpiBaseValueGbp`, and
+  `comparableAvgValueGbp` (these feed the Property Valuation tool).
+- **`property_leases`** — tenancies: `tenantLabel`, `rentGbp`, `rentFrequency`
+  (monthly/quarterly/annual), `status` (active/void).
+- **`property_cashflows`** — income/expense ledger: `flowDate`, `kind`
+  (rent/mortgage/maintenance/…), `amountGbp`.
+
+### Alternatives
+
+- **`alternative_investments`** — illiquid/specialist assets. Key fields:
+  `investmentType` (private_equity/venture_capital/collectibles/…), `name`,
+  `investmentAmountGbp`, `currentValueGbp`; **risk/return** — `riskRating`
+  (low→very_high), `targetReturnPct`, `actualReturnPct`; **tax wrappers** —
+  `taxWrapperEligible` (bool), `taxWrapperType` (EIS/SEIS/VCT/none); **liquidity** —
+  `liquidityPeriod` (immediate→illiquid), `maturityDateUk`.
+
+### Insert schemas & types
+
+Every table has a matching `insert…Schema` (a `drizzle-zod` insert schema that omits
+auto‑generated fields such as `id` and timestamps) and exported select types (e.g.
+`PortfolioHolding`, `Property`, `PropertyValuation`, `AlternativeInvestment`). These are
+the shapes the Account Settings forms validate against before saving.
+
+### Asset Register page vs. persisted records
+
+It's worth being explicit: the **Asset Register page** (`/asset-register`) is a demo
+prototype on hard‑coded data and does **not** read or write these tables. The records
+above are created and edited through **Account Settings** (and shown in **Profile**),
+which call `/api/investors`, `/api/properties`, and `/api/alternatives`. So "add an
+asset that actually saves" happens in Account Settings, not the Asset Register page.
+
+---
+
+## 15. Backend, data & infrastructure notes
 
 **Plain English.** Some features are backed by real services and a database; many run
 on curated JSON or browser storage. This section summarises where the "real"
@@ -439,7 +549,7 @@ backend exists.
 
 ---
 
-## 15. Source references
+## 16. Source references
 
 **Pages** — `client/src/pages/`: `Home.tsx`, `AssetRegister.tsx`,
 `TargetsAndBands.tsx`, `PortfolioAnalysis.tsx`, `DemoPortfolioAnalysis.tsx`,
