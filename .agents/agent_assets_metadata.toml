@@ -12,3 +12,9 @@ id = "dF47JOGqHW044PSX1n8gE"
 uri = "file://_export/PORT_REPORT.md"
 type = "text"
 title = "PORT REPORT"
+
+[[outputs]]
+id = "3QELanB71uQKOP8PbBBLf"
+uri = "file://docs/onboarding-v2-manual.md"
+type = "text"
+title = "Onboarding v2 — Feature Manual"
