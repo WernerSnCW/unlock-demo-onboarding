@@ -30,6 +30,7 @@ import { type SimV2Request } from './lib/simulate/engine_v2';
 import { buildActions, type ActionsRequest } from './lib/actions/engine';
 import { analyzeOnboarding, type Intake } from './services/analysis';
 import { getPolicy } from './services/policy';
+import { parseUkOrIsoDate } from './lib/ukDates';
 import {
   COMPLIANCE_LINE,
   FORBIDDEN_WORDS,
@@ -1507,10 +1508,11 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
   app.get('/api/uk-hpi/region/:areaCode/latest', async (req, res) => {
     try {
       const { areaCode } = req.params;
+      // uk_hpi.date is TEXT DD/MM/YYYY — order by the parsed date (D5)
       const latestData = await db.select()
         .from(ukHpi)
         .where(eq(ukHpi.areaCode, areaCode))
-        .orderBy(desc(ukHpi.date))
+        .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
         .limit(1);
       
       if (latestData.length === 0) {
@@ -1532,7 +1534,7 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
       const trendsData = await db.select()
         .from(ukHpi)
         .where(eq(ukHpi.areaCode, areaCode))
-        .orderBy(desc(ukHpi.date))
+        .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
         .limit(parseInt(months as string));
       
       res.json(trendsData.reverse()); // Return chronological order
@@ -1708,7 +1710,7 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
         hpiData = await db.select()
           .from(ukHpi)
           .where(eq(ukHpi.areaCode, ladCode))
-          .orderBy(desc(ukHpi.date))
+          .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
           .limit(1);
           
         if (hpiData.length > 0) {
@@ -1739,7 +1741,7 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
             hpiData = await db.select()
               .from(ukHpi)
               .where(eq(ukHpi.areaCode, tryLadCode))
-              .orderBy(desc(ukHpi.date))
+              .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
               .limit(1);
               
             if (hpiData.length > 0) {
@@ -1762,7 +1764,7 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
               eq(ukHpi.regionName, 'United Kingdom')
             )
           )
-          .orderBy(desc(ukHpi.date))
+          .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
           .limit(1);
         console.log(`England/UK fallback found ${hpiData.length} results`);
       }
@@ -1774,24 +1776,26 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
       const hpi = hpiData[0];
       let hpiBasePrice = parseFloat(hpi.averagePrice || '0');
       
-      // Get property-type-specific HPI price if available
-      if (propertyType) {
-        switch (propertyType.toLowerCase()) {
-          case 'detached':
-            hpiBasePrice = parseFloat(hpi.detachedPrice || hpi.averagePrice || '0');
-            break;
-          case 'semi-detached':
-            hpiBasePrice = parseFloat(hpi.semiDetachedPrice || hpi.averagePrice || '0');
-            break;
-          case 'terraced':
-            hpiBasePrice = parseFloat(hpi.terracedPrice || hpi.averagePrice || '0');
-            break;
-          case 'flat':
-          case 'apartment':
-            hpiBasePrice = parseFloat(hpi.flatPrice || hpi.averagePrice || '0');
-            break;
+      // Get property-type-specific HPI price if available. Used for the
+      // current AND the historical row: an uplift ratio must compare the
+      // same series, otherwise it embeds a type premium as "growth" (D5).
+      const hpiPriceForType = (row: any): number => {
+        if (propertyType) {
+          switch (propertyType.toLowerCase()) {
+            case 'detached':
+              return parseFloat(row.detachedPrice || row.averagePrice || '0');
+            case 'semi-detached':
+              return parseFloat(row.semiDetachedPrice || row.averagePrice || '0');
+            case 'terraced':
+              return parseFloat(row.terracedPrice || row.averagePrice || '0');
+            case 'flat':
+            case 'apartment':
+              return parseFloat(row.flatPrice || row.averagePrice || '0');
+          }
         }
-      }
+        return parseFloat(row.averagePrice || '0');
+      };
+      hpiBasePrice = hpiPriceForType(hpi);
 
       // Step 2: Calculate HPI uplift if purchase data is available
       let hpiAdjustedValue = hpiBasePrice;
@@ -1801,13 +1805,17 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
       if (purchasePrice && purchaseDate) {
         try {
           const purchasePriceNum = parseFloat(purchasePrice.toString());
-          const purchaseDateTime = new Date(purchaseDate);
+          // Tolerates DD/MM/YYYY and ISO — new Date('13/05/2024') is
+          // US-ordered or invalid (D5)
+          const purchaseDateTime = parseUkOrIsoDate(purchaseDate) ?? new Date(NaN);
           
           // Validate date is reasonable (not more than 1 month in the future to account for processing delays)
           const futureThreshold = new Date();
           futureThreshold.setMonth(futureThreshold.getMonth() + 1);
           
-          if (purchaseDateTime > futureThreshold) {
+          if (isNaN(purchaseDateTime.getTime())) {
+            console.log(`Warning: Purchase date ${purchaseDate} could not be parsed, ignoring HPI uplift calculation`);
+          } else if (purchaseDateTime > futureThreshold) {
             console.log(`Warning: Purchase date ${purchaseDate} is too far in the future, ignoring HPI uplift calculation`);
           } else {
             // For recent purchases (less than 2 years), use minimal HPI adjustment
@@ -1829,19 +1837,23 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
               console.log(`Adjusted Value: £${hpiAdjustedValue.toLocaleString()}`);
             } else {
               // For older purchases, use full HPI historical comparison
+              // Compare parsed dates: the previous lte() compared an ISO
+              // string against DD/MM/YYYY text, which never matched sanely.
+              const purchaseIso = purchaseDateTime.toISOString().split('T')[0];
               const historicalHpi = await db.select()
                 .from(ukHpi)
                 .where(
                   and(
                     eq(ukHpi.regionName, hpi.regionName),
-                    lte(ukHpi.date, purchaseDateTime.toISOString().split('T')[0])
+                    sql`to_date(${ukHpi.date}, 'DD/MM/YYYY') <= ${purchaseIso}::date`
                   )
                 )
-                .orderBy(desc(ukHpi.date))
+                .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
                 .limit(1);
 
               if (historicalHpi.length > 0) {
-                const historicalPrice = parseFloat(historicalHpi[0].averagePrice || '0');
+                // Same series as hpiBasePrice — like-for-like ratio (D5)
+                const historicalPrice = hpiPriceForType(historicalHpi[0]);
                 if (historicalPrice > 0 && hpiBasePrice > 0) {
                   hpiUpliftFactor = hpiBasePrice / historicalPrice;
                   hpiAdjustedValue = purchasePriceNum * hpiUpliftFactor;
@@ -2065,7 +2077,7 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
       const trendQuery = await db.select()
         .from(ukHpi)
         .where(eq(ukHpi.regionName, hpi.regionName))
-        .orderBy(desc(ukHpi.date))
+        .orderBy(desc(sql`to_date(${ukHpi.date}, 'DD/MM/YYYY')`))
         .limit(60); // Last 5 years monthly data
       
       const trendData = trendQuery.map(row => ({
@@ -2108,7 +2120,9 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
       }
       if (Math.abs(parseFloat(hpi.yearlyChangePercent || '0')) < 10) chartConfidenceScore += 1;
       if (purchaseDate) chartConfidenceScore += 1;
-      chartConfidenceScore += 1; // geography match simplified
+      // Geography point only when the postcode mapped exactly to this LAD —
+      // it was previously awarded unconditionally (review D13)
+      if (matchedPostcode && ladCode) chartConfidenceScore += 1;
 
       const chartConfidence = chartConfidenceScore <= 1 ? 'Low' : chartConfidenceScore <= 3 ? 'Medium' : 'High';
 
@@ -2129,15 +2143,15 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
           chartConfidenceScore
         },
         comparables: formattedComparables,
-        purchase: purchasePrice && purchaseDate ? {
+        purchase: purchasePrice && purchaseDate && parseUkOrIsoDate(purchaseDate) ? {
           originalPrice: parseFloat(purchasePrice.toString()),
           purchaseDate,
-          purchaseYear: new Date(purchaseDate).getFullYear(),
-          purchaseMonth: new Date(purchaseDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
+          purchaseYear: parseUkOrIsoDate(purchaseDate)!.getFullYear(),
+          purchaseMonth: parseUkOrIsoDate(purchaseDate)!.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
           upliftFactor: hpiUpliftFactor,
           changeSincePurchase: finalEstimate - parseFloat(purchasePrice.toString()),
           changePercent: ((finalEstimate - parseFloat(purchasePrice.toString())) / parseFloat(purchasePrice.toString())) * 100,
-          yearsOwned: Math.round((Date.now() - new Date(purchaseDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25) * 10) / 10
+          yearsOwned: Math.round((Date.now() - parseUkOrIsoDate(purchaseDate)!.getTime()) / (1000 * 60 * 60 * 24 * 365.25) * 10) / 10
         } : null,
         notes: [
           method === 'HPI_ONLY' ? 'Valuation based on regional HPI trends only' : 'Valuation blends local comparable sales with regional HPI data',
