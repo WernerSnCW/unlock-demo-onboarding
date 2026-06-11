@@ -6,7 +6,7 @@ export default function Welcome() {
     <OnboardingLayout
       stepId="welcome"
       title="Welcome to Unlock"
-      description="Begin your personalized investment journey. We'll guide you through a simple process to understand your portfolio and create a tailored strategy."
+      description="Begin your personalised onboarding journey. We'll guide you through a simple process to understand your portfolio and build an illustrative picture of it."
     >
       <div className="space-y-10">
         {/* Feature Cards with enhanced depth */}
@@ -41,7 +41,7 @@ export default function Welcome() {
               <div className="pt-6 text-center">
                 <h3 className="font-semibold text-[var(--foreground)] text-lg mb-2">AI-Powered Insights</h3>
                 <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                  Get personalized recommendations tailored to your unique goals
+                  See personalised analysis and considerations based on your situation
                 </p>
               </div>
             </div>
@@ -57,9 +57,9 @@ export default function Welcome() {
                 </div>
               </div>
               <div className="pt-6 text-center">
-                <h3 className="font-semibold text-[var(--foreground)] text-lg mb-2">Optimized Strategy</h3>
+                <h3 className="font-semibold text-[var(--foreground)] text-lg mb-2">Options to Explore</h3>
                 <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                  Create a plan aligned with your investment beliefs and goals
+                  Explore illustrative options aligned with your beliefs and goals
                 </p>
               </div>
             </div>

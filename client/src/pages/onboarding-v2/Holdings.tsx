@@ -196,7 +196,7 @@ export default function Holdings() {
     <OnboardingLayout
       stepId="holdings"
       title="Your Current Holdings"
-      description="Enter your investment holdings. We'll use this to analyse your portfolio and provide personalised recommendations."
+      description="Enter your investment holdings. We'll use this to analyse your portfolio and show personalised considerations."
       hideNav
       wideLayout
     >
@@ -307,7 +307,7 @@ export default function Holdings() {
                   ? analysis.result.safety_lights.overall_status_code === 'ALL_CLEAR'
                     ? 'All lights green'
                     : analysis.result.safety_lights.overall_status_code === 'CAUTION'
-                    ? 'Review recommended'
+                    ? 'Worth reviewing'
                     : 'Action required'
                   : 'Run analysis to check'}
               </div>

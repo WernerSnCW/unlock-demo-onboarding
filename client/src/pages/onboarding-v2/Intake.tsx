@@ -169,7 +169,7 @@ export default function Intake() {
     <OnboardingLayout
       stepId="intake"
       title="Tell Us About Yourself"
-      description="We need some information to personalize your experience and ensure our recommendations are relevant to your situation."
+      description="We need some information to personalise your experience and ensure what we show you is relevant to your situation."
       hideNav
     >
       <Form {...form}>
@@ -535,7 +535,7 @@ export default function Intake() {
             {showInvestorProfile && (
               <div className="p-6 pt-4 border-t border-[var(--border)] space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
                 <p className="text-sm text-[var(--muted-foreground)] bg-[var(--muted)]/30 p-3 rounded-lg">
-                  These questions help us understand what kind of investor you are so we can tailor your plan. They're optional, but answering them improves the recommendations.
+                  These questions help us understand what kind of investor you are so we can tailor your plan. They're optional, but answering them improves the analysis.
                 </p>
 
                 {/* Age Band */}

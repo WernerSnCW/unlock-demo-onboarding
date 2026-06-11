@@ -138,7 +138,7 @@ const mainTabs = [
   { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
   { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
   { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Comprehensive analysis of your current holdings and performance' },
-  { id: 'strategy', title: 'Portfolio Recommendations', icon: TrendingUp, description: 'AI-powered investment strategy tailored to your preferences' },
+  { id: 'strategy', title: 'Illustrative Targets', icon: TrendingUp, description: 'Rules-based illustrative allocation derived from your preferences' },
   { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Prioritized action steps to optimize your investment portfolio' }
 ];
 
@@ -1258,8 +1258,8 @@ function PersonaQuizContentWizard({
               <p className="text-sm text-[var(--muted-foreground)] text-center flex items-center justify-center gap-2">
                 <Target className="h-4 w-4 text-[var(--accent)]" />
                 {selectedPersona 
-                  ? `You've selected "${selectedPersona.name}" as your investment persona. This will be used to tailor recommendations.`
-                  : 'This classification helps us tailor investment recommendations and educational content specifically for your profile.'
+                  ? `You've selected "${selectedPersona.name}" as your investment persona. This will be used to tailor the illustrations.`
+                  : 'This classification helps us tailor illustrative analysis and educational content specifically for your profile.'
                 }
               </p>
             </div>
@@ -2491,7 +2491,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       
       toast({
         title: "Gap Analysis Complete",
-        description: "Portfolio analysis shows recommendations vs your current allocation.",
+        description: "Portfolio analysis compares the illustrative target with your current allocation.",
       });
     } catch (error) {
       console.error('Gap analysis error:', error);
@@ -3178,7 +3178,7 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
                     </PieChart>
                   </ResponsiveContainer>
                   <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
-                    Interactive breakdown of your recommended asset allocation
+                    Interactive breakdown of the illustrative target allocation
                   </p>
                 </div>
               </div>
@@ -4238,7 +4238,7 @@ function ScenarioImpactAnalysis({
               data-testid="button-continue-to-strategy"
             >
               <TrendingUp className="h-5 w-5" />
-              Continue to Portfolio Recommendations
+              Continue to Illustrative Targets
             </Button>
           </div>
         </CardContent>
@@ -4297,7 +4297,7 @@ function GapAnalysisResults({ gapData }: { gapData: any }) {
             {/* Show clarification text if there are any liquidity-related flags */}
             {gapData.headlineFlags.some((flag: string) => flag.toLowerCase().includes('liquidity')) && (
               <p className="text-amber-700 dark:text-amber-400 text-xs mt-2 italic">
-                Liquidity floor is preview-only here; it's enforced in the recommendation step.
+                Liquidity floor is preview-only here; it's enforced in the target step.
               </p>
             )}
           </div>
@@ -4368,8 +4368,8 @@ function GapAnalysisResults({ gapData }: { gapData: any }) {
                 <PopoverContent className="w-72 text-sm">
                   <div className="space-y-2">
                     <p className="font-medium">Target Liquidity Level</p>
-                    <p>The ideal amount of cash and near-cash assets you should hold based on your risk profile and investment approach for financial flexibility.</p>
-                    <p>Recommended liquid asset allocation determined by investor persona, risk profile, and liquidity floor constraints (typically 10-20% depending on risk tolerance).</p>
+                    <p>An illustrative level of cash and near-cash assets based on your risk profile and investment approach, for financial flexibility.</p>
+                    <p>Illustrative liquid asset level determined by investor persona, risk profile, and liquidity floor constraints (typically 10-20% depending on risk tolerance).</p>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -4377,7 +4377,7 @@ function GapAnalysisResults({ gapData }: { gapData: any }) {
             <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
               {(gapData.totals.cashBillsTarget * 100).toFixed(1)}%
             </p>
-            <p className="text-sm text-purple-600 dark:text-purple-400">Recommended level</p>
+            <p className="text-sm text-purple-600 dark:text-purple-400">Illustrative level</p>
           </div>
         </div>
 
@@ -4687,7 +4687,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       'Analyzing your investment profile...',
       'Processing economic scenarios...',
       'Calculating optimal asset allocation...',
-      'Generating personalized recommendations...'
+      'Generating the illustrative target...'
     ];
 
     for (let i = 0; i < processingMessages.length; i++) {
@@ -4797,7 +4797,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       // Add default narrative if missing (backend doesn't generate it yet)
       if (!result.narrative) {
         result.narrative = {
-          overview: "Portfolio recommendations generated based on your investor profile and market outlook.",
+          overview: "Illustrative target generated from your investor profile.",
           bullets: [],
           topAdds: [],
           topTrims: []
@@ -4977,10 +4977,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <TrendingUp className="w-6 h-6 text-[var(--primary)]" />
-            Portfolio Recommendations
+            Illustrative Targets
           </CardTitle>
           <CardDescription className="text-base">
-            AI-powered portfolio allocation based on your investment profile and market beliefs.
+            A rules-based illustrative allocation derived from your investment profile. Not advice.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -4989,7 +4989,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Portfolio Recommendations</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Illustrative Target</h3>
               <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
                 Get an illustrative portfolio allocation derived from your investor profile and professional house rules. Your economic beliefs are reflected in the Scenario Impact analysis — they are not applied as tilts to this allocation.
               </p>
@@ -5175,7 +5175,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
                   <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6 flex items-center gap-2">
                     <i className="fas fa-pie-chart text-[var(--primary)]"></i>
-                    Recommended Portfolio Allocation
+                    Illustrative Target Allocation
                   </h3>
                   <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
