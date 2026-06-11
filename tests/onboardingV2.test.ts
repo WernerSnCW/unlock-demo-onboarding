@@ -1397,14 +1397,14 @@ describe('Step 7 Scenario Range - Minimum Width', () => {
   it('should ensure GUARDRAIL_FIRST range is at least MIN_RANGE_WIDTH_PP wide for tiny pressure', async () => {
     const { useOnboardingV2Store, store } = await setupStoreForScenarios();
     
-    store.setBeliefResponse('Q1_QUALITY', 3);
-    store.setBeliefResponse('Q2_VALUE', 3);
-    store.setBeliefResponse('Q3_TECH', 3);
-    store.setBeliefResponse('Q4_SMALL_CAP', 3);
-    store.setBeliefResponse('Q5_ESG', 3);
-    store.setBeliefResponse('Q6_INFLATION', 3);
-    store.setBeliefResponse('Q7_VOLATILITY', 3);
-    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.setBeliefResponse('Q_QUALITY', 3);
+    store.setBeliefResponse('Q_VALUE', 3);
+    store.setBeliefResponse('Q_TECH', 3);
+    store.setBeliefResponse('Q_SMALL_CAP', 3);
+    store.setBeliefResponse('Q_ESG', 3);
+    store.setBeliefResponse('Q_INFLATION', 3);
+    store.setBeliefResponse('Q_VOLATILITY_COMFORT', 3);
+    store.setBeliefResponse('Q_UK_BIAS', 3);
     store.computeBeliefsScores();
     store.computeScenarios();
     
@@ -1421,14 +1421,14 @@ describe('Step 7 Scenario Range - Minimum Width', () => {
   it('should ensure PREFERENCE_LEANING range is at least MIN_RANGE_WIDTH_PP wide for tiny pressure', async () => {
     const { useOnboardingV2Store, store } = await setupStoreForScenarios();
     
-    store.setBeliefResponse('Q1_QUALITY', 3);
-    store.setBeliefResponse('Q2_VALUE', 3);
-    store.setBeliefResponse('Q3_TECH', 3);
-    store.setBeliefResponse('Q4_SMALL_CAP', 3);
-    store.setBeliefResponse('Q5_ESG', 3);
-    store.setBeliefResponse('Q6_INFLATION', 3);
-    store.setBeliefResponse('Q7_VOLATILITY', 3);
-    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.setBeliefResponse('Q_QUALITY', 3);
+    store.setBeliefResponse('Q_VALUE', 3);
+    store.setBeliefResponse('Q_TECH', 3);
+    store.setBeliefResponse('Q_SMALL_CAP', 3);
+    store.setBeliefResponse('Q_ESG', 3);
+    store.setBeliefResponse('Q_INFLATION', 3);
+    store.setBeliefResponse('Q_VOLATILITY_COMFORT', 3);
+    store.setBeliefResponse('Q_UK_BIAS', 3);
     store.computeBeliefsScores();
     store.computeScenarios();
     
@@ -1445,14 +1445,14 @@ describe('Step 7 Scenario Range - Minimum Width', () => {
   it('should not artificially widen NEUTRAL_BASELINE range (already ±2pp = 4pp total)', async () => {
     const { useOnboardingV2Store, store } = await setupStoreForScenarios();
     
-    store.setBeliefResponse('Q1_QUALITY', 3);
-    store.setBeliefResponse('Q2_VALUE', 3);
-    store.setBeliefResponse('Q3_TECH', 3);
-    store.setBeliefResponse('Q4_SMALL_CAP', 3);
-    store.setBeliefResponse('Q5_ESG', 3);
-    store.setBeliefResponse('Q6_INFLATION', 3);
-    store.setBeliefResponse('Q7_VOLATILITY', 3);
-    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.setBeliefResponse('Q_QUALITY', 3);
+    store.setBeliefResponse('Q_VALUE', 3);
+    store.setBeliefResponse('Q_TECH', 3);
+    store.setBeliefResponse('Q_SMALL_CAP', 3);
+    store.setBeliefResponse('Q_ESG', 3);
+    store.setBeliefResponse('Q_INFLATION', 3);
+    store.setBeliefResponse('Q_VOLATILITY_COMFORT', 3);
+    store.setBeliefResponse('Q_UK_BIAS', 3);
     store.computeBeliefsScores();
     store.computeScenarios();
     
@@ -1469,14 +1469,14 @@ describe('Step 7 Scenario Range - Minimum Width', () => {
   it('should not artificially widen range when extreme pressure already exceeds minimum', async () => {
     const { useOnboardingV2Store, store } = await setupStoreForScenarios();
     
-    store.setBeliefResponse('Q1_QUALITY', 5);
-    store.setBeliefResponse('Q2_VALUE', 5);
-    store.setBeliefResponse('Q3_TECH', 5);
-    store.setBeliefResponse('Q4_SMALL_CAP', 5);
-    store.setBeliefResponse('Q5_ESG', 5);
-    store.setBeliefResponse('Q6_INFLATION', 5);
-    store.setBeliefResponse('Q7_VOLATILITY', 1);
-    store.setBeliefResponse('Q8_UK_BIAS', 5);
+    store.setBeliefResponse('Q_QUALITY', 5);
+    store.setBeliefResponse('Q_VALUE', 5);
+    store.setBeliefResponse('Q_TECH', 5);
+    store.setBeliefResponse('Q_SMALL_CAP', 5);
+    store.setBeliefResponse('Q_ESG', 5);
+    store.setBeliefResponse('Q_INFLATION', 5);
+    store.setBeliefResponse('Q_VOLATILITY_COMFORT', 1);
+    store.setBeliefResponse('Q_UK_BIAS', 5);
     store.computeBeliefsScores();
     store.computeScenarios();
     
@@ -1530,14 +1530,14 @@ describe('Step 7 Applied Tilts - LOCKED Status', () => {
       },
     });
     
-    store.setBeliefResponse('Q1_QUALITY', 5);
-    store.setBeliefResponse('Q2_VALUE', 3);
-    store.setBeliefResponse('Q3_TECH', 4);
-    store.setBeliefResponse('Q4_SMALL_CAP', 3);
-    store.setBeliefResponse('Q5_ESG', 3);
-    store.setBeliefResponse('Q6_INFLATION', 3);
-    store.setBeliefResponse('Q7_VOLATILITY', 3);
-    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.setBeliefResponse('Q_QUALITY', 5);
+    store.setBeliefResponse('Q_VALUE', 3);
+    store.setBeliefResponse('Q_TECH', 4);
+    store.setBeliefResponse('Q_SMALL_CAP', 3);
+    store.setBeliefResponse('Q_ESG', 3);
+    store.setBeliefResponse('Q_INFLATION', 3);
+    store.setBeliefResponse('Q_VOLATILITY_COMFORT', 3);
+    store.setBeliefResponse('Q_UK_BIAS', 3);
     store.computeBeliefsScores();
     store.computeScenarios();
     
@@ -1585,14 +1585,14 @@ describe('Step 7 Applied Tilts - LOCKED Status', () => {
       },
     });
     
-    store.setBeliefResponse('Q1_QUALITY', 5);
-    store.setBeliefResponse('Q2_VALUE', 3);
-    store.setBeliefResponse('Q3_TECH', 4);
-    store.setBeliefResponse('Q4_SMALL_CAP', 3);
-    store.setBeliefResponse('Q5_ESG', 3);
-    store.setBeliefResponse('Q6_INFLATION', 3);
-    store.setBeliefResponse('Q7_VOLATILITY', 3);
-    store.setBeliefResponse('Q8_UK_BIAS', 3);
+    store.setBeliefResponse('Q_QUALITY', 5);
+    store.setBeliefResponse('Q_VALUE', 3);
+    store.setBeliefResponse('Q_TECH', 4);
+    store.setBeliefResponse('Q_SMALL_CAP', 3);
+    store.setBeliefResponse('Q_ESG', 3);
+    store.setBeliefResponse('Q_INFLATION', 3);
+    store.setBeliefResponse('Q_VOLATILITY_COMFORT', 3);
+    store.setBeliefResponse('Q_UK_BIAS', 3);
     store.computeBeliefsScores();
     store.computeScenarios();
     
@@ -1604,5 +1604,133 @@ describe('Step 7 Applied Tilts - LOCKED Status', () => {
       const lockedTilts = scenario.applied_tilts.filter(t => t.status === 'LOCKED');
       expect(lockedTilts.length).toBe(0);
     });
+  });
+});
+
+/**
+ * D1: Guardrails dominate — RED locks belief tilts out of the band maths.
+ *
+ * Review finding D1 (2026-06-11): belief tilts were applied to the
+ * illustrative scenario ranges regardless of tilts_allowed; the flag only
+ * stamped the LOCKED label. These tests pin the fixed behaviour:
+ *  - any RED Safety Light  => scenario ranges are identical with and
+ *    without belief tilts (tilts recorded, not applied)
+ *  - AMBER/GREEN           => belief tilts shift the ranges
+ */
+describe('D1: RED Safety Light suppresses belief tilts from scenario ranges', () => {
+  type Lights = { liquidity: string; concentration: string; illiquids: string; overall_status: string };
+
+  const setupWithLights = async (lights: Lights) => {
+    const { useOnboardingV2Store } = await import('../client/src/state/onboardingV2Store');
+    const store = useOnboardingV2Store.getState();
+    store.resetOnboarding();
+
+    store.setHoldings([
+      { id: '1', name: 'Equity Fund', ticker: 'EQ1', value_gbp: 50000, asset_class: 'Equity', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+      { id: '2', name: 'Cash', ticker: 'CASH', value_gbp: 30000, asset_class: 'Cash', region: 'UK', wrapper: 'ISA', is_liquid: true, is_illiquid: false },
+      { id: '3', name: 'Property Fund', ticker: 'PROP', value_gbp: 20000, asset_class: 'Property', region: 'UK', wrapper: 'GIA', is_liquid: false, is_illiquid: true },
+    ]);
+
+    store.updateIntake({
+      age_band: '35_44',
+      portfolio_stage: 'ACCUMULATING',
+      monthly_spending_gbp: 2000,
+    });
+
+    store.setAnalysisResult({
+      safety_lights: {
+        ...lights,
+        metrics: {
+          cash_runway_months: lights.liquidity === 'RED' ? 1 : 25,
+          largest_line_pct: lights.concentration === 'RED' ? 0.5 : 0.1,
+          illiquid_pct: lights.illiquids === 'RED' ? 0.4 : 0.05,
+        },
+      } as any,
+    });
+
+    return { useOnboardingV2Store, store };
+  };
+
+  const answerBeliefs = (store: any, answer: number) => {
+    ['Q_QUALITY', 'Q_VALUE', 'Q_TECH', 'Q_SMALL_CAP', 'Q_ESG', 'Q_INFLATION', 'Q_VOLATILITY_COMFORT', 'Q_UK_BIAS']
+      .forEach(q => store.setBeliefResponse(q, answer));
+    store.computeBeliefsScores();
+    store.computeScenarios();
+  };
+
+  // Flatten every band of every scenario into a comparable structure.
+  const snapshotBands = (useStore: any) => {
+    const scenario = useStore.getState().scenario;
+    return scenario.scenarios.map((s: any) => ({
+      type: s.scenario_type,
+      bands: [...s.asset_class_bands, ...s.region_bands, ...s.wrapper_bands].map((b: any) => ({
+        sleeve: b.sleeve,
+        low: b.illustrative_low_pct,
+        high: b.illustrative_high_pct,
+        midpoint: b.midpoint_pct,
+      })),
+    }));
+  };
+
+  const RED_LIGHTS: Lights = { liquidity: 'RED', concentration: 'GREEN', illiquids: 'GREEN', overall_status: 'ACTION_REQUIRED' };
+  const GREEN_LIGHTS: Lights = { liquidity: 'GREEN', concentration: 'GREEN', illiquids: 'GREEN', overall_status: 'ALL_CLEAR' };
+  const AMBER_LIGHTS: Lights = { liquidity: 'GREEN', concentration: 'AMBER', illiquids: 'GREEN', overall_status: 'CAUTION' };
+
+  it('RED: scenario ranges are identical with strong beliefs and with neutral beliefs', async () => {
+    const first = await setupWithLights(RED_LIGHTS);
+    answerBeliefs(first.store, 5);
+    expect(first.useOnboardingV2Store.getState().beliefs.tilts_allowed).toBe(false);
+    const withTilts = snapshotBands(first.useOnboardingV2Store);
+
+    const second = await setupWithLights(RED_LIGHTS);
+    answerBeliefs(second.store, 3);
+    const withoutTilts = snapshotBands(second.useOnboardingV2Store);
+
+    expect(withTilts).toEqual(withoutTilts);
+  });
+
+  it('RED: sleeve pressures carry no belief-derived component', async () => {
+    const { useOnboardingV2Store, store } = await setupWithLights(RED_LIGHTS);
+    answerBeliefs(store, 5);
+    const pressures = useOnboardingV2Store.getState().scenario.sleeve_pressures!;
+    // Only the guardrail-driven cash boost may remain; every belief-derived
+    // pressure must be zero.
+    expect(pressures.equity).toBeCloseTo(0, 10);
+    expect(pressures.bond).toBeCloseTo(0, 10);
+    expect(pressures.property).toBeCloseTo(0, 10);
+    expect(pressures.alternatives).toBeCloseTo(0, 10);
+    expect(pressures.uk).toBeCloseTo(0, 10);
+    expect(pressures.global).toBeCloseTo(0, 10);
+    expect(pressures.cash).toBeCloseTo(0.3, 5); // liquidity guardrail boost, not a belief tilt
+  });
+
+  it('GREEN: strong beliefs shift the preference-leaning ranges', async () => {
+    const first = await setupWithLights(GREEN_LIGHTS);
+    answerBeliefs(first.store, 5);
+    expect(first.useOnboardingV2Store.getState().beliefs.tilts_allowed).toBe(true);
+    const withTilts = snapshotBands(first.useOnboardingV2Store);
+
+    const second = await setupWithLights(GREEN_LIGHTS);
+    answerBeliefs(second.store, 3);
+    const withoutTilts = snapshotBands(second.useOnboardingV2Store);
+
+    const pick = (snap: any[], type: string) => snap.find(s => s.type === type)!.bands;
+    expect(pick(withTilts, 'PREFERENCE_LEANING')).not.toEqual(pick(withoutTilts, 'PREFERENCE_LEANING'));
+    // Neutral baseline never reflects beliefs, with or without tilts.
+    expect(pick(withTilts, 'NEUTRAL_BASELINE')).toEqual(pick(withoutTilts, 'NEUTRAL_BASELINE'));
+  });
+
+  it('AMBER (no RED): tilts remain allowed and shift the ranges', async () => {
+    const first = await setupWithLights(AMBER_LIGHTS);
+    answerBeliefs(first.store, 5);
+    expect(first.useOnboardingV2Store.getState().beliefs.tilts_allowed).toBe(true);
+    const withTilts = snapshotBands(first.useOnboardingV2Store);
+
+    const second = await setupWithLights(AMBER_LIGHTS);
+    answerBeliefs(second.store, 3);
+    const withoutTilts = snapshotBands(second.useOnboardingV2Store);
+
+    const pick = (snap: any[], type: string) => snap.find(s => s.type === type)!.bands;
+    expect(pick(withTilts, 'PREFERENCE_LEANING')).not.toEqual(pick(withoutTilts, 'PREFERENCE_LEANING'));
   });
 });
