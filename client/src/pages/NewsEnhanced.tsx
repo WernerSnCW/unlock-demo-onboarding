@@ -44,27 +44,15 @@ interface UserPreferences {
   investmentInterests: string[];
 }
 
-const defaultQA = [
-  {
-    "q": "How should I think about risk vs return?",
-    "a": "Higher potential returns usually come with higher risk. Match risk to your time horizon and capacity for loss, and avoid concentrating too much in any single asset."
-  },
-  {
-    "q": "What does diversification actually mean?",
-    "a": "Spread investments across asset classes (equities/bonds/cash/alternatives), sectors, and regions. Diversification reduces the impact of any one holding underperforming."
-  },
-  {
-    "q": "Is it better to invest a lump sum or drip-feed?",
-    "a": "Both can work. Lump sums have historically outperformed when markets rise, but pound-cost averaging reduces timing risk and can be easier to stick with psychologically."
-  },
-  {
-    "q": "How often should I rebalance?",
-    "a": "Set a target allocation and review at a fixed cadence (e.g., annually) or when holdings drift by 5–10 percentage points. Rebalance with an eye on fees and taxes."
-  },
-  {
-    "q": "Any UK tax wrappers to consider?",
-    "a": "ISAs shelter income and gains (annual allowance applies). Pensions offer tax relief but restrict access until minimum pension age. Tax rules may change and depend on your circumstances."
-  }
+// Suggested prompts only — every answer comes from the validated /api/chat
+// endpoint. The previous canned answers were rendered with a fake typing
+// delay as if AI-generated, bypassing all server-side compliance controls.
+const suggestedQuestions = [
+  "What is the relationship between risk and return?",
+  "What does diversification actually mean?",
+  "What is pound-cost averaging?",
+  "What is rebalancing?",
+  "What UK tax wrappers exist?"
 ];
 
 export default function NewsEnhanced() {
@@ -88,7 +76,7 @@ export default function NewsEnhanced() {
     regions: ['UK'],
     topics: ['EIS/SEIS', 'Regulatory'],
     tickers: ['VOD.L', 'BARC.L'],
-    includeSources: ['Reuters', 'LSE RNS', 'GOV.UK'],
+    includeSources: ['Unlock Intelligence', 'Reuters', 'LSE RNS', 'GOV.UK'],
     excludeSources: [],
     riskAppetite: ['medium'],
     eisSeisEnabled: true,
@@ -124,7 +112,7 @@ export default function NewsEnhanced() {
     regions: ['UK'],
     topics: ['EIS/SEIS', 'Regulatory'],
     tickers: ['VOD.L', 'BARC.L'],
-    includeSources: ['Reuters', 'LSE RNS', 'GOV.UK'],
+    includeSources: ['Unlock Intelligence', 'Reuters', 'LSE RNS', 'GOV.UK'],
     excludeSources: [],
     riskAppetite: ['medium'],
     eisSeisEnabled: true,
@@ -296,44 +284,19 @@ export default function NewsEnhanced() {
     updatePreferences({ ...preferences, topics: newTopics });
   };
 
-  const handleQuestionSelect = (question: string) => {
-    const qaItem = defaultQA.find(item => item.q === question);
-    if (!qaItem) return;
+  // All answers — typed or chip-selected — go through the validated
+  // /api/chat endpoint. Replies the server could not validate fail closed.
+  const sendChatMessage = async (text: string) => {
+    if (!text.trim() || isTyping) return;
 
-    // Add user question
     const userMessage = {
       id: Date.now(),
-      text: question,
+      text: text.trim(),
       isUser: true,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setChatMessages(prev => [...prev, userMessage]);
-
-    // Add AI response after a short delay
-    setTimeout(() => {
-      const aiMessage = {
-        id: Date.now() + 1,
-        text: qaItem.a,
-        isUser: false,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setChatMessages(prev => [...prev, aiMessage]);
-    }, 800);
-  };
-
-  const handleSendMessage = async () => {
-    if (!chatInput.trim() || isTyping) return;
-
-    const userMessage = {
-      id: Date.now(),
-      text: chatInput.trim(),
-      isUser: true,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setChatMessages(prev => [...prev, userMessage]);
-    setChatInput('');
     setIsTyping(true);
 
     try {
@@ -350,7 +313,7 @@ export default function NewsEnhanced() {
       }
 
       const data = await response.json();
-      
+
       const aiMessage = {
         id: Date.now() + 1,
         text: data.response,
@@ -371,6 +334,17 @@ export default function NewsEnhanced() {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleQuestionSelect = (question: string) => {
+    sendChatMessage(question);
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || isTyping) return;
+    const text = chatInput.trim();
+    setChatInput('');
+    await sendChatMessage(text);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -662,12 +636,12 @@ export default function NewsEnhanced() {
                           <div className="mt-4">
                             <p className="text-xs text-gray-600 mb-3 font-medium">Quick questions:</p>
                             <div className="space-y-2">
-                              {defaultQA.map((qa, index) => {
+                              {suggestedQuestions.map((question, index) => {
                                 const icons = ['💡', '🎯', '⚖️', '🔄', '🏛️'];
                                 return (
                                   <button
                                     key={index}
-                                    onClick={() => handleQuestionSelect(qa.q)}
+                                    onClick={() => handleQuestionSelect(question)}
                                     className="w-full text-left p-3 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] rounded-[var(--radius-md)] shadow-sm hover:shadow-md transform hover:scale-[1.01] transition-all duration-200 group"
                                     style={{ boxShadow: 'var(--shadow-sm)' }}
                                   >
@@ -676,7 +650,7 @@ export default function NewsEnhanced() {
                                         {icons[index]}
                                       </span>
                                       <p className="text-xs font-medium leading-relaxed">
-                                        {qa.q}
+                                        {question}
                                       </p>
                                     </div>
                                   </button>

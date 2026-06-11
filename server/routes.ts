@@ -30,6 +30,13 @@ import { type SimV2Request } from './lib/simulate/engine_v2';
 import { buildActions, type ActionsRequest } from './lib/actions/engine';
 import { analyzeOnboarding, type Intake } from './services/analysis';
 import { getPolicy } from './services/policy';
+import {
+  COMPLIANCE_LINE,
+  FORBIDDEN_WORDS,
+  validateStrictSummary,
+  validateChatReply,
+  validateJsonAdviceFree,
+} from './lib/aiGuardrails';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -1102,7 +1109,7 @@ OUTPUT FORMAT: Return valid JSON with this exact structure:
     "strengths": "What this approach offers",
     "considerations": "What to watch for"
   },
-  "advice": "One optional consideration sentence",
+  "considerations": "One optional consideration sentence",
   "disclaimer": "Illustrative example, not advice"
 }
 
@@ -1121,9 +1128,29 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
         temperature: 0.7
       });
 
-      const interpretation = response.choices[0]?.message?.content || 'Unable to generate interpretation';
+      const raw = response.choices[0]?.message?.content || '';
 
-      res.json({ interpretation });
+      // Fail closed: parse, validate every string field for advice-shaped
+      // language, and set the disclaimer deterministically — never display
+      // whatever the model wrote at temperature 0.7.
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        console.log('Portfolio interpretation rejected: output was not valid JSON');
+        return res.status(422).json({ message: 'Interpretation failed compliance validation', validated: false });
+      }
+
+      const validation = validateJsonAdviceFree(parsed, ['disclaimer']);
+      if (!validation.valid) {
+        console.log(`Portfolio interpretation validation failed: ${validation.reason}`);
+        return res.status(422).json({ message: 'Interpretation failed compliance validation', validated: false });
+      }
+
+      delete parsed.advice; // never forward a model-authored advice field
+      parsed.disclaimer = COMPLIANCE_LINE;
+
+      res.json({ interpretation: JSON.stringify(parsed), validated: true });
     } catch (error) {
       console.error('Portfolio interpretation error:', error);
       res.status(500).json({ 
@@ -2323,9 +2350,15 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
           const oneDayInMs = 24 * 60 * 60 * 1000;
           
           if (analysisAge < oneDayInMs) {
-            console.log('Using cached portfolio analysis');
             const cachedAnalysis = JSON.parse(existingInvestor.portfolioAnalysis);
-            return res.json(cachedAnalysis);
+            // Cached output is re-validated before serving so analyses
+            // persisted before the guardrails landed cannot keep re-serving
+            // non-compliant content for 24h.
+            if (validateJsonAdviceFree(cachedAnalysis).valid) {
+              console.log('Using cached portfolio analysis');
+              return res.json(cachedAnalysis);
+            }
+            console.log('Cached portfolio analysis failed compliance validation — regenerating');
           }
         }
       }
@@ -2369,7 +2402,7 @@ Return as JSON with this exact structure:
     {
       "category": "Asset Class/Sector/Location",
       "percentage": number,
-      "recommendation": "Educational guidance only"
+      "consideration": "Educational context only — describe the exposure, do not advise"
     }
   ],
   "diversificationScore": number_0_to_10,
@@ -2396,15 +2429,23 @@ Return as JSON with this exact structure:
       });
 
       const analysis = JSON.parse(response.choices[0].message.content || '{}');
-      
-      // Save analysis to database
+
+      // Fail closed: unvalidated LLM output must not be returned, persisted,
+      // or cache-served (ADR 2026-06-11). Validation happens BEFORE the DB
+      // write so a non-compliant generation can never become durable content.
+      const validation = validateJsonAdviceFree(analysis);
+      if (!validation.valid) {
+        console.log(`Portfolio analysis validation failed: ${validation.reason}`);
+        return res.status(422).json({ message: 'Portfolio analysis failed compliance validation', validated: false });
+      }
+
       await db.update(investors)
         .set({
           portfolioAnalysis: JSON.stringify(analysis),
           analysisUpdatedAt: new Date()
         })
         .where(eq(investors.userId, userId));
-      
+
       console.log('Portfolio analysis completed successfully and saved to database');
       res.json(analysis);
 
@@ -2524,20 +2565,40 @@ Return as JSON with this exact structure:
         messages: [
           {
             role: "system",
-            content: "You are an investment expert. Provide helpful, educational investment guidance. Keep responses concise and practical. Always end with 'This is not financial advice.' Be friendly but professional."
+            content: `You are an educational assistant for an investment news page. You explain general financial concepts in plain UK English.
+
+STRICT RULES:
+1. Educational information only — never tell the user what to do with their money.
+2. Do NOT use these words or their inflections: should, must, recommend, buy, sell, allocate, rebalance, guarantee, outperform.
+3. Do not predict markets and do not present specific securities as opportunities.
+4. Keep replies under 120 words.
+5. End every reply with exactly: "${COMPLIANCE_LINE}"`
           },
           {
             role: "user",
             content: message
           }
         ],
-        max_tokens: 200,
-        temperature: 0.7
+        max_tokens: 400,
+        temperature: 0.3
       });
 
-      const response = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response at this time.";
-      
-      res.json({ response });
+      const choice = completion.choices[0];
+      const response = choice?.message?.content?.trim() || "";
+
+      // Fail closed: truncated output can lose the compliance line; any
+      // advice-shaped or unterminated reply is rejected, never streamed raw.
+      if (choice?.finish_reason === 'length') {
+        console.log('Chat output rejected: truncated before compliance line');
+        return res.status(422).json({ error: "Could not generate a compliant reply. Please try again.", validated: false });
+      }
+      const validation = validateChatReply(response);
+      if (!validation.valid) {
+        console.log(`Chat output validation failed: ${validation.reason}`);
+        return res.status(422).json({ error: "Could not generate a compliant reply. Please try again.", validated: false });
+      }
+
+      res.json({ response, validated: true });
     } catch (error) {
       console.error("Chat error:", error);
       res.status(500).json({ error: "Failed to process chat message" });
@@ -2618,54 +2679,14 @@ Return as JSON with this exact structure:
   // Implements strict forbidden word validation for compliance
   // =============================================================================
   
-  const FORBIDDEN_WORDS = [
-    // Financial advice verbs
-    'should', 'recommend', 'buy', 'sell', 'allocate', 'rebalance', 
-    'increase', 'decrease', 'switch', 'guarantee', 'expect', 
-    'predict', 'outperform', 'alpha',
-    // Judgement adjectives
-    'positive', 'negative', 'favourable', 'favorable', 'unfavourable', 'unfavorable',
-    'strong', 'weak', 'good', 'bad', 'excellent', 'poor', 'great', 'terrible',
-    'optimistic', 'pessimistic', 'bullish', 'bearish', 'aggressive', 'conservative',
-    // Strength/intensity modifiers that imply judgement
-    'significant', 'substantial', 'considerable', 'notable', 'marked', 'pronounced',
-    'slight', 'minor', 'marginal', 'modest',
-    // Direction judgements
-    'inclination', 'tendency', 'leaning'
-  ];
-  
+  // FORBIDDEN_WORDS, COMPLIANCE_LINE and the strict validator now live in
+  // server/lib/aiGuardrails.ts so every LLM call site shares one source.
+  // Semantics here are unchanged: validateStrictSummary === the previous
+  // inline validateAIOutput.
   const CANONICAL_AXIS_LABELS = [
     'Volatility Comfort', 'Quality Tilt', 'Value Tilt', 'Tech Tilt',
     'UK Bias', 'ESG Tilt', 'Inflation Protection', 'Small Cap Tilt'
   ];
-  
-  const COMPLIANCE_LINE = 'Illustrative only. Not financial advice.';
-  
-  function validateAIOutput(text: string): { valid: boolean; reason?: string } {
-    const lowerText = text.toLowerCase();
-    
-    // Check for forbidden words
-    for (const word of FORBIDDEN_WORDS) {
-      const regex = new RegExp(`\\b${word}\\b`, 'i');
-      if (regex.test(lowerText)) {
-        return { valid: false, reason: `Contains forbidden word: "${word}"` };
-      }
-    }
-    
-    // Check compliance line appears exactly once and at the end (trimmed)
-    const trimmedText = text.trim();
-    if (!trimmedText.endsWith(COMPLIANCE_LINE)) {
-      return { valid: false, reason: 'Compliance line must appear at the end of the output' };
-    }
-    
-    // Ensure compliance line appears exactly once
-    const occurrences = (text.match(new RegExp(COMPLIANCE_LINE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
-    if (occurrences !== 1) {
-      return { valid: false, reason: 'Compliance line must appear exactly once' };
-    }
-    
-    return { valid: true };
-  }
   
   app.post("/api/translate/next-steps", async (req, res) => {
     try {
@@ -2743,7 +2764,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
       const aiOutput = completion.choices[0]?.message?.content || "";
       
       // Validate the output server-side
-      const validation = validateAIOutput(aiOutput);
+      const validation = validateStrictSummary(aiOutput);
       
       if (!validation.valid) {
         console.log(`AI output validation failed: ${validation.reason}`);

@@ -489,12 +489,12 @@ export function PortfolioDisplay({
                         </div>
 
                         {/* Consider */}
-                        {parsed.advice && (
+                        {parsed.considerations && (
                           <div className="p-3 bg-[var(--muted)]/20 rounded-md border-l-3 border-[var(--secondary)]">
                             <div className="flex items-start gap-2">
                               <Brain className="h-4 w-4 text-[var(--secondary)] mt-0.5 flex-shrink-0" />
                               <p className="text-sm text-[var(--foreground)] font-medium">
-                                {parsed.advice}
+                                {parsed.considerations}
                               </p>
                             </div>
                           </div>

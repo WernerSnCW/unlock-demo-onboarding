@@ -9,6 +9,7 @@
     "tags": ["Macro", "UK", "Angels"],
     "sector": "All",
     "riskTag": "n/a",
+    "image": "/placeholder.png",
     "relevance": 0.6
   },
   {
@@ -21,6 +22,7 @@
     "tags": ["Europe", "Venture", "Climate"],
     "sector": "All",
     "riskTag": "n/a",
+    "image": "/placeholder.png",
     "relevance": 0.67
   }
 ]
