@@ -275,7 +275,7 @@ type PersonaWeights = {
  * P2.3 REACHABILITY TUNING (Dec 17, 2025):
  * - BALANCED_ALLOCATOR: unique liquidity+complexity blend (0.28+0.26) to create winning niche
  * - FOUNDER_ENTREPRENEUR: complexity reduced 0.60→0.55 to prevent dominance for moderate profiles
- * - CAPITAL_PRESERVATION: liquidity reduced 0.40→0.38, income 0.35→0.37 for balance
+ * - CAPITAL_PRESERVATION: liquidity_comfort 0.36, income_orientation 0.44 for balance
  * - All weights sum to 1.0 per persona
  */
 const PERSONA_WEIGHT_TABLE: Record<PrimaryPersonaCode, PersonaWeights> = {
