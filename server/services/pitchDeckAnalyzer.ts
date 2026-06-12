@@ -451,16 +451,12 @@ TASKS:
       const extracted = JSON.parse(response.choices[0].message.content || "{}");
       return extracted as ExtractedData;
     } catch (error) {
+      // Fail visibly — an empty extraction silently degrades the whole
+      // analysis into content-free output presented as real.
       console.error("Error extracting sections and KPIs:", error);
-      // Minimal safe fallback
-      return {
-        sections: [],
-        kpis: {
-          currency_primary: "GBP",
-          comparables: [],
-        },
-        inconsistencies: [],
-      } as ExtractedData;
+      throw new Error(
+        `Pitch-deck extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
@@ -584,19 +580,12 @@ OUTPUT SCHEMA:
       const analysis = JSON.parse(response.choices[0].message.content || "{}");
       return analysis as AnalysisResult;
     } catch (error) {
+      // Fail visibly — the previous fallback returned hardcoded 6/6/6 scores
+      // indistinguishable from a real assessment of the uploaded deck.
       console.error("Error generating analysis:", error);
-      // Safe minimal fallback
-      return {
-        executive_summary: {
-          scores: { completeness: 6, clarity: 6, valuation_reality: 6 },
-          strengths: [],
-          weaknesses: [],
-        },
-        valuation_commentary: [],
-        key_questions: { valuation: [], general: [] },
-        sections: [],
-        risks: [],
-      } as AnalysisResult;
+      throw new Error(
+        `Pitch-deck analysis generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
@@ -782,8 +771,8 @@ OUTPUT SCHEMA:
               valuations.ebitda_multiple?.implied_mid ??
               null;
             return (declaredPV != null && basePV != null)
-              ? `Gap vs peers: ${Math.round(((declaredPV - basePV) / basePV) * 100)}%`
-              : "Gap vs peers: not enough data";
+              ? `Gap vs benchmark multiples: ${Math.round(((declaredPV - basePV) / basePV) * 100)}%`
+              : "Gap vs benchmark multiples: not enough data";
           })(),
           methods: {
             preMoney: hasTerms
@@ -811,58 +800,15 @@ OUTPUT SCHEMA:
               multiple: valuations.ebitda_multiple?.multiple_mid || 0,
               impliedValue: valuations.ebitda_multiple?.implied_mid || 0, // PV mid
             },
-            // ROI projection calculation
-            roiProjection: hasTerms ? {
-              equityStake: Math.round((extracted.kpis.equity_offered_pct || 0) * 100),
-              roiMultiple: 10, // Standard VC target
-              irr: 35, // Standard VC target IRR
-              projectedExit: Math.max(
-                (valuations.revenue_multiple?.implied_mid || 0) * 2, // 2x revenue growth assumption
-                50000000 // Minimum exit assumption
-              ),
-              investorReturn: (extracted.kpis.raise_amount || 0) * 10 // 10x return assumption
-            } : undefined,
           },
           // include all computed valuation sources for frontend fallback
           ...valuations,
-          // Add peer analysis
-          peer_analysis: {
-            valuation_gap_pct: valuations.peer_gap_pct || 0,
-            assessment: {
-              reasonableness_score: scores.valuation_reality || 4,
-              justification: `Based on industry comparisons, this valuation appears ${Math.abs(valuations.peer_gap_pct || 0) > 0.3 ? 'aggressive' : 'reasonable'} relative to market standards.`,
-              key_factors: [
-                "Revenue multiple analysis shows market positioning",
-                "Growth projections drive valuation premium/discount",
-                "Market timing and competitive landscape considerations"
-              ],
-              positive_signals: hasTerms ? [
-                "Clear funding structure with defined terms",
-                "Identifiable revenue streams and metrics"
-              ] : []
-            },
-            peer_comparison: {
-              similar_companies: ["Industry Peer A", "Industry Peer B", "Market Comparable C"],
-              typical_multiples: {
-                revenue_multiple_range: [8, 12],
-                ebitda_multiple_range: [10, 16]
-              },
-              market_context: "Valuation reflects current market conditions for similar-stage companies in this sector."
-            },
-            methodology_note: "Peer analysis based on industry standards and comparable transaction data."
-          },
           suggestedQuestions: analysis.key_questions?.valuation || [],
           headlineLabel,
         },
         riskFlags: PitchDeckAnalyzer.generateRiskFlags(extracted, valuations, scores),
       };
 
-      // Hide ROI card if terms are missing
-      if (!hasTerms) {
-        if ((result.valuation as any).methods) {
-          ((result.valuation as any).methods as any).roiProjection = undefined;
-        }
-      }
       return result;
     } catch (error) {
       console.error("Pitch deck analysis failed:", error);

@@ -36,7 +36,7 @@ interface InvestmentAnalysis {
   overexposureWarnings: Array<{
     category: string;
     percentage: number;
-    recommendation: string;
+    consideration: string;
   }>;
   diversificationScore: number;
   keyInsights: string[];
@@ -406,7 +406,7 @@ export function PortfolioSummary({ userId }: PortfolioSummaryProps) {
                         </Badge>
                       </div>
                       <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                        {warning.recommendation}
+                        {warning.consideration}
                       </p>
                       <div className="absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--destructive)' }}></div>
                     </div>

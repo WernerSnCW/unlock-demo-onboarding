@@ -12,6 +12,7 @@ import { apiRequest } from '@/lib/queryClient';
 
 export default function PortfolioAnalysis() {
   const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysis, setAnalysis] = useState<any>(null);
   const [liveData, setLiveData] = useState<any>({});
@@ -304,40 +305,17 @@ export default function PortfolioAnalysis() {
       setAnalysisProgress(100);
       setTimeout(() => {
         setAnalysis(analysisData);
+        setAnalysisError(null);
         setAnalysisLoading(false);
         clearInterval(progressInterval);
       }, 1000);
     } catch (error) {
+      // Fail visibly — never substitute a canned analysis for a real one.
       console.error('Failed to analyze portfolio:', error);
-      // Fallback to mock analysis for demo
-      setAnalysisProgress(100);
-      setTimeout(() => {
-        setAnalysis({
-          totalPortfolioValue: portfolioData.totalValue,
-          assetAllocation: portfolioData.assetAllocation,
-          diversificationScore: 7.2,
-          riskLevel: 'Medium-High',
-          keyInsights: [
-            'Technology sector concentration at 65% creates significant sector risk',
-            'Strong performance in growth stocks but limited defensive positions',
-            'Cryptocurrency exposure adds volatility but also growth potential'
-          ],
-          overexposureWarnings: [
-            {
-              category: 'Technology Sector',
-              percentage: 65.2,
-              recommendation: 'Consider diversifying into other sectors like healthcare, energy, or consumer staples to reduce concentration risk.'
-            }
-          ],
-          generalGuidance: [
-            'Consider adding bonds or dividend-paying stocks for stability',
-            'Property investments provide good diversification',
-            'Review and rebalance quarterly to maintain target allocations'
-          ]
-        });
-        setAnalysisLoading(false);
-        clearInterval(progressInterval);
-      }, 1000);
+      setAnalysis(null);
+      setAnalysisError('Portfolio analysis is unavailable right now. No analysis is shown rather than an approximation.');
+      setAnalysisLoading(false);
+      clearInterval(progressInterval);
     }
   };
 
@@ -874,7 +852,7 @@ export default function PortfolioAnalysis() {
                                 </div>
                               </div>
                               <p className="text-lg leading-relaxed text-[var(--foreground)]">
-                                {warning.recommendation}
+                                {warning.consideration}
                               </p>
                             </div>
                           ))}
@@ -914,6 +892,12 @@ export default function PortfolioAnalysis() {
                         It does not constitute financial advice. Always consult with qualified financial advisors before making investment decisions.
                       </p>
                     </div>
+                  </div>
+                ) : analysisError ? (
+                  <div className="p-8 rounded-2xl text-center bg-[#EF4444]/5 border border-[#EF4444]/20">
+                    <AlertTriangle className="h-10 w-10 mx-auto mb-4 text-[#EF4444]" />
+                    <p className="text-xl font-bold mb-2 text-[var(--foreground)]">Analysis unavailable</p>
+                    <p className="text-lg text-[var(--muted-foreground)]">{analysisError}</p>
                   </div>
                 ) : null}
               </div>

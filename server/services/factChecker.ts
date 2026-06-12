@@ -406,7 +406,26 @@ OUTPUT SCHEMA:
       });
 
       const result = JSON.parse(response.choices[0].message.content);
-      return result;
+
+      // Fail closed: a "Verified" badge is a strong trust signal, so the
+      // model's verdict and confidence are validated before being served.
+      const VALID_VERDICTS = ['Verified', 'Partially verified', 'Contradicted', 'Unverifiable'];
+      if (!VALID_VERDICTS.includes(result?.verdict) || typeof result?.confidence !== 'number' || result.confidence < 0 || result.confidence > 1) {
+        console.log(`Fact-check verdict failed validation (verdict=${result?.verdict}, confidence=${result?.confidence}) — failing closed to Unverifiable`);
+        return {
+          claim_id: claim.id,
+          verdict: 'Unverifiable',
+          confidence: 0.0,
+          rationale: 'The automated verdict failed server-side validation and was discarded.',
+          evidence_used: {
+            companies_house_fields: [],
+            newsapi_urls: []
+          },
+          notes: ['Verdict failed validation']
+        };
+      }
+
+      return { ...result, claim_id: claim.id };
     } catch (error) {
       console.error('Error verifying claim:', error);
       return {
