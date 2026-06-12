@@ -1097,39 +1097,46 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         const liquidityIsConstrained = safetyLights.liquidity === 'RED' || safetyLights.liquidity === 'AMBER';
         const concentrationIsConstrained = safetyLights.concentration === 'RED' || safetyLights.concentration === 'AMBER';
         const illiquidsIsConstrained = safetyLights.illiquids === 'RED' || safetyLights.illiquids === 'AMBER';
-        
+
+        // Guardrails dominate: when any Safety Light is RED, tilts_allowed is
+        // false and belief-derived pressures are suppressed from the band
+        // maths itself — the LOCKED label and the numbers must agree.
+        // Guardrail-driven pressure (e.g. the liquidity cash boost below) is
+        // not a belief tilt and is NOT gated.
+        const tiltGate = tiltsAllowed ? 1 : 0;
+
         // Equity pressure: smallCap(+), tech(+), value(+small), quality(+small), volatilityAversion(−)
         const equityPressure = clampPressure(
           smallCapScore * 0.3 + techScore * 0.3 + valueScore * 0.15 + qualityScore * 0.15 - volatilityAversion * 0.4
-        );
-        
+        ) * tiltGate;
+
         // Bond pressure: volatilityAversion(+), inflationHedge influence
         const bondPressure = clampPressure(
           volatilityAversion * 0.4 + inflationScore * 0.2
-        );
-        
+        ) * tiltGate;
+
         // Cash pressure: volatilityAversion(+), plus liquidity guardrail needs
-        let cashPressure = clampPressure(volatilityAversion * 0.3);
+        let cashPressure = clampPressure(volatilityAversion * 0.3) * tiltGate;
         // Boost cash pressure if liquidity is amber (runway protection)
         if (liquidityIsConstrained) {
           cashPressure = clampPressure(cashPressure + 0.3);
         }
-        
+
         // Property pressure: inflation hedge(+), reduced to 0 if illiquids is amber/red
-        let propertyPressure = clampPressure(inflationScore * 0.5);
+        let propertyPressure = clampPressure(inflationScore * 0.5) * tiltGate;
         if (illiquidsIsConstrained) {
           propertyPressure = 0; // Cannot increase property exposure
         }
-        
+
         // Alternatives pressure: esg(+), inflation(+), reduced if illiquids constrained
-        let alternativesPressure = clampPressure(inflationScore * 0.3 + esgScore * 0.2);
+        let alternativesPressure = clampPressure(inflationScore * 0.3 + esgScore * 0.2) * tiltGate;
         if (illiquidsIsConstrained) {
           alternativesPressure = Math.min(0, alternativesPressure); // Can only decrease
         }
-        
+
         // Regional pressures: UK bias axis only
-        const ukPressure = clampPressure(ukBias);
-        const globalPressure = clampPressure(-ukBias); // Inverse for coherence
+        const ukPressure = clampPressure(ukBias) * tiltGate;
+        const globalPressure = clampPressure(-ukBias) * tiltGate; // Inverse for coherence
         
         const sleevePressures: SleevePressures = {
           equity: equityPressure,

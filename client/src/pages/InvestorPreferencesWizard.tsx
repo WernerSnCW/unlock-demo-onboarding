@@ -138,7 +138,7 @@ const mainTabs = [
   { id: 'profile', title: 'Investment Profile Discovery', icon: User, description: 'Discover your investment personality through assessment' },
   { id: 'beliefs', title: 'Economic Beliefs', icon: Brain, description: 'Share your economic outlook for personalized strategy' },
   { id: 'analysis', title: 'Portfolio Analysis', icon: BarChart3, description: 'Comprehensive analysis of your current holdings and performance' },
-  { id: 'strategy', title: 'Portfolio Recommendations', icon: TrendingUp, description: 'AI-powered investment strategy tailored to your preferences' },
+  { id: 'strategy', title: 'Illustrative Targets', icon: TrendingUp, description: 'Rules-based illustrative allocation derived from your preferences' },
   { id: 'action', title: 'Action Plan', icon: CheckCircle, description: 'Prioritized action steps to optimize your investment portfolio' }
 ];
 
@@ -1258,8 +1258,8 @@ function PersonaQuizContentWizard({
               <p className="text-sm text-[var(--muted-foreground)] text-center flex items-center justify-center gap-2">
                 <Target className="h-4 w-4 text-[var(--accent)]" />
                 {selectedPersona 
-                  ? `You've selected "${selectedPersona.name}" as your investment persona. This will be used to tailor recommendations.`
-                  : 'This classification helps us tailor investment recommendations and educational content specifically for your profile.'
+                  ? `You've selected "${selectedPersona.name}" as your investment persona. This will be used to tailor the illustrations.`
+                  : 'This classification helps us tailor illustrative analysis and educational content specifically for your profile.'
                 }
               </p>
             </div>
@@ -2408,14 +2408,9 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
           console.log('Could not fetch belief responses for gap analysis, using default weights');
         }
 
-        // If no scenario weights, use default equal weighting
-        if (Object.keys(scenarioWeights).length === 0) {
-          scenarioWeights = {
-            "S005": 0.125, "S010": 0.125, "S002": 0.125, "S003": 0.125,
-            "S006": 0.125, "S009": 0.125, "S008": 0.125, "S007": 0.125
-          };
-        }
-
+        // D2: no S-code weights are fabricated or mapped here any more — see
+        // the note in the recommendations generator. Empty weights mean the
+        // target engine returns the persona base mix.
         const targetRequest = {
           personaId: matchedPersona.code,
           scenarioWeights: scenarioWeights,
@@ -2496,7 +2491,7 @@ function ActualPortfolioForm({ investorName, matchedPersona, onTabChange }: { in
       
       toast({
         title: "Gap Analysis Complete",
-        description: "Portfolio analysis shows recommendations vs your current allocation.",
+        description: "Portfolio analysis compares the illustrative target with your current allocation.",
       });
     } catch (error) {
       console.error('Gap analysis error:', error);
@@ -2952,7 +2947,7 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
             </div>
             <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Loading Portfolio Analysis</h3>
             <p className="text-[var(--muted-foreground)]">
-              Generating your personalized portfolio recommendations...
+              Generating your illustrative target allocation...
             </p>
           </CardContent>
         </Card>
@@ -3183,7 +3178,7 @@ function PersonalizedPortfolioAnalysis({ onTabChange }: { onTabChange: (tab: str
                     </PieChart>
                   </ResponsiveContainer>
                   <p className="text-center text-sm text-[var(--muted-foreground)] mt-2">
-                    Interactive breakdown of your recommended asset allocation
+                    Interactive breakdown of the illustrative target allocation
                   </p>
                 </div>
               </div>
@@ -4243,7 +4238,7 @@ function ScenarioImpactAnalysis({
               data-testid="button-continue-to-strategy"
             >
               <TrendingUp className="h-5 w-5" />
-              Continue to Portfolio Recommendations
+              Continue to Illustrative Targets
             </Button>
           </div>
         </CardContent>
@@ -4302,7 +4297,7 @@ function GapAnalysisResults({ gapData }: { gapData: any }) {
             {/* Show clarification text if there are any liquidity-related flags */}
             {gapData.headlineFlags.some((flag: string) => flag.toLowerCase().includes('liquidity')) && (
               <p className="text-amber-700 dark:text-amber-400 text-xs mt-2 italic">
-                Liquidity floor is preview-only here; it's enforced in the recommendation step.
+                Liquidity floor is preview-only here; it's enforced in the target step.
               </p>
             )}
           </div>
@@ -4373,8 +4368,8 @@ function GapAnalysisResults({ gapData }: { gapData: any }) {
                 <PopoverContent className="w-72 text-sm">
                   <div className="space-y-2">
                     <p className="font-medium">Target Liquidity Level</p>
-                    <p>The ideal amount of cash and near-cash assets you should hold based on your risk profile and investment approach for financial flexibility.</p>
-                    <p>Recommended liquid asset allocation determined by investor persona, risk profile, and liquidity floor constraints (typically 10-20% depending on risk tolerance).</p>
+                    <p>An illustrative level of cash and near-cash assets based on your risk profile and investment approach, for financial flexibility.</p>
+                    <p>Illustrative liquid asset level determined by investor persona, risk profile, and liquidity floor constraints (typically 10-20% depending on risk tolerance).</p>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -4382,7 +4377,7 @@ function GapAnalysisResults({ gapData }: { gapData: any }) {
             <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
               {(gapData.totals.cashBillsTarget * 100).toFixed(1)}%
             </p>
-            <p className="text-sm text-purple-600 dark:text-purple-400">Recommended level</p>
+            <p className="text-sm text-purple-600 dark:text-purple-400">Illustrative level</p>
           </div>
         </div>
 
@@ -4692,7 +4687,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       'Analyzing your investment profile...',
       'Processing economic scenarios...',
       'Calculating optimal asset allocation...',
-      'Generating personalized recommendations...'
+      'Generating the illustrative target...'
     ];
 
     for (let i = 0; i < processingMessages.length; i++) {
@@ -4724,41 +4719,22 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         console.log('Could not fetch belief responses, using default weights');
       }
 
-      // If no scenario weights, use default equal weighting
-      if (Object.keys(scenarioWeights).length === 0) {
-        scenarioWeights = {
-          "S005": 0.125, // Quality Growth (reflation)
-          "S010": 0.125, // Commodity Upswing (devaluation)
-          "S002": 0.125, // Policy Support (recession)
-          "S003": 0.125, // Inflation Hedges (property_down)
-          "S006": 0.125, // Tech-led Growth (tech_correction)
-          "S009": 0.125, // Gilt Sell-off (gilt_selloff)
-          "S008": 0.125, // Soft-ish Inflation (energy_spike)
-          "S007": 0.125  // Stagflation Tilt (stagflation)
-        };
-      }
-      
-      // Convert scenario names to S-codes if needed
-      const scenarioNameToCode: Record<string, string> = {
-        "reflation": "S005",     // Quality Growth
-        "devaluation": "S010",   // Commodity Upswing
-        "recession": "S002",     // Policy Support
-        "property_down": "S003", // Inflation Hedges
-        "tech_correction": "S006", // Tech-led Growth
-        "gilt_selloff": "S009",  // Gilt Sell-off
-        "energy_spike": "S008",  // Soft-ish Inflation
-        "stagflation": "S007"    // Stagflation Tilt
-      };
-      
-      // Convert any scenario names to proper S-codes
-      const convertedWeights: Record<string, number> = {};
-      for (const [scenario, weight] of Object.entries(scenarioWeights)) {
-        const scenarioCode = scenarioNameToCode[scenario] || scenario;
-        convertedWeights[scenarioCode] = weight;
-      }
-      scenarioWeights = convertedWeights;
-
-      console.log('Using scenario weights:', scenarioWeights);
+      // D2 (decided 2026-06-11): the fear→S-code mapping that lived here was
+      // sign-inverted — a declared recession fear ("recession") was wired to
+      // S002, an equity-POSITIVE positioning template, and a tech-correction
+      // fear to S006 (+20% tech). The canonical, correct-direction scenario
+      // system is server/data/scenarios.ts (consumed by /api/scenario-impact,
+      // which takes these legacy belief keys directly via LEGACY_SCENARIO_IDS).
+      // The S-coded tilt templates inside /api/target are parity-locked
+      // (shared-engine ADR 2026-06-11) and directionally incompatible, so
+      // belief weights are deliberately NOT mapped to S-codes any more: with
+      // no matching template the engine returns the persona base mix, i.e.
+      // the target is persona-derived without belief tilts. Re-keying the
+      // tilt templates to the canonical scenario set is an open item with
+      // Werner (simulate-v2 / target input sourcing).
+      // The previous fallback here also fabricated equal-weighted beliefs
+      // when the user had given none (review D25) — no weights are invented.
+      console.log('Using scenario weights (canonical legacy keys, no S-code mapping):', scenarioWeights);
 
       // Calculate dynamic tilt strength based on persona characteristics
       const persona = INVESTMENT_PERSONAS[personaId];
@@ -4821,7 +4797,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       // Add default narrative if missing (backend doesn't generate it yet)
       if (!result.narrative) {
         result.narrative = {
-          overview: "Portfolio recommendations generated based on your investor profile and market outlook.",
+          overview: "Illustrative target generated from your investor profile.",
           bullets: [],
           topAdds: [],
           topTrims: []
@@ -4833,8 +4809,8 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
       // Gap Analysis now calls /api/target directly for consistency
       
       toast({
-        title: "Recommendations Generated",
-        description: "Your personalized portfolio recommendations are ready!",
+        title: "Illustrative Target Generated",
+        description: "Your illustrative target allocation is ready.",
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate recommendations';
@@ -4877,47 +4853,17 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         }
       }
       
-      const beliefResponse = await fetch(`/api/investors/${actualUserId}/belief-responses`);
-      let scenarioWeights: Record<string, number> = {};
-      
-      if (beliefResponse.ok) {
-        const beliefData = await beliefResponse.json();
-        if (beliefData.scenarioWeights) {
-          scenarioWeights = beliefData.scenarioWeights;
-        }
-      }
-      
-      // Map belief scenario names to scenario codes
-      const beliefToScenarioMap: Record<string, string> = {
-        'recession': 'S002',
-        'energy_spike': 'S008', 
-        'property_down': 'S003',
-        'reflation': 'S005',
-        'devaluation': 'S010',
-        'tech_correction': 'S006',
-        'gilt_selloff': 'S009',
-        'stagflation': 'S007'
-      };
-      
-      // Ensure scenario weights are properly formatted and not empty
-      const formattedScenarioWeights: Record<string, number> = {};
-      for (const [key, value] of Object.entries(scenarioWeights)) {
-        const scenarioCode = beliefToScenarioMap[key] || key;
-        formattedScenarioWeights[scenarioCode] = Number(value);
-      }
-      
-      // If no scenario weights, use sensible defaults that match our shocks config
-      if (Object.keys(formattedScenarioWeights).length === 0) {
-        formattedScenarioWeights.S002 = 0.35;  // Policy Support
-        formattedScenarioWeights.S008 = 0.34;  // Soft Inflation  
-        formattedScenarioWeights.S003 = 0.31;  // Inflation Hedges
-      }
-      
-      
+      // D2: belief weights are no longer mapped to the sign-inverted S-code
+      // shocks (see the note in the recommendations generator), and the
+      // fabricated default beliefs that ran here when the user gave none
+      // (S002/S008/S003 — review D25) are gone. Until the simulation's
+      // parity-locked scenario templates are re-keyed to the canonical
+      // correct-direction system (open with Werner), this illustration runs
+      // belief-neutral: no scenario shock is applied.
       const simulationRequest = {
         currentMix,
         targetMix: targetData.targetMix,
-        scenarioWeights: formattedScenarioWeights,
+        scenarioWeights: {},
         horizonMonths,
         startValueGBP: 100,
         shockMultiplier: 1.0,
@@ -5031,10 +4977,10 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <TrendingUp className="w-6 h-6 text-[var(--primary)]" />
-            Portfolio Recommendations
+            Illustrative Targets
           </CardTitle>
           <CardDescription className="text-base">
-            AI-powered portfolio allocation based on your investment profile and market beliefs.
+            A rules-based illustrative allocation derived from your investment profile. Not advice.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -5043,9 +4989,9 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
               <div className="w-16 h-16 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-full flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Portfolio Recommendations</h3>
+              <h3 className="text-xl font-semibold mb-4 text-[var(--foreground)]">Generate Illustrative Target</h3>
               <p className="text-[var(--muted-foreground)] mb-6 max-w-2xl mx-auto">
-                Get a sophisticated portfolio allocation that combines your investor profile with your economic beliefs and professional house rules.
+                Get an illustrative portfolio allocation derived from your investor profile and professional house rules. Your economic beliefs are reflected in the Scenario Impact analysis — they are not applied as tilts to this allocation.
               </p>
               <Button 
                 onClick={generateRecommendations}
@@ -5133,7 +5079,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         <div>
                           <span className="font-semibold text-[var(--info)]">📊 Blended Recommendation</span>
                           <p className="text-sm text-[var(--muted-foreground)] mt-1 leading-relaxed">
-                            {targetData.narrative?.overview || "Built from your investor persona and tilted towards the scenarios you consider most likely. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's a belief-aligned starting point, not a guarantee of performance or investment advice."}
+                            {targetData.narrative?.overview || "Built from your investor persona with house rules applied. The mix aims to balance resilience and opportunity across different outcomes while maintaining sensible liquidity and diversification. It's an illustrative starting point, not a guarantee of performance or investment advice."}
                           </p>
                         </div>
                       </div>
@@ -5229,7 +5175,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                 <div className="bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] p-6">
                   <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6 flex items-center gap-2">
                     <i className="fas fa-pie-chart text-[var(--primary)]"></i>
-                    Recommended Portfolio Allocation
+                    Illustrative Target Allocation
                   </h3>
                   <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
@@ -5454,7 +5400,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                   <div className="text-center">
                     <h3 className="text-xl font-semibold mb-2 text-[var(--foreground)]">Portfolio Simulation</h3>
                     <p className="text-sm text-[var(--muted-foreground)]">
-                      If your outlook plays out, how might your portfolios move?
+                      A model illustration of how your current mix and the illustrative target might move. Runs on neutral market assumptions — your scenario beliefs are shown in the Scenario Impact analysis, not applied here.
                     </p>
                   </div>
 
@@ -5511,7 +5457,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         <div className="p-6 bg-[var(--card)] rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-shadow">
                           <div className="flex items-center gap-2 mb-3">
                             <i className="fas fa-bullseye text-[var(--success)] text-lg"></i>
-                            <div className="text-sm font-medium text-[var(--muted-foreground)]">Recommended Portfolio</div>
+                            <div className="text-sm font-medium text-[var(--muted-foreground)]">Illustrative Target</div>
                           </div>
                           <div className="text-3xl font-bold text-[var(--success)] mb-2">
                             {simulationData.portfolioReturnTarget >= 0 ? '+' : ''}{(simulationData.portfolioReturnTarget * 100).toFixed(2)}%
@@ -5528,7 +5474,7 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                             {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100) >= 0 ? '+' : ''}
                             {((simulationData.portfolioReturnTarget - simulationData.portfolioReturnCurrent) * 100).toFixed(2)} pp
                           </div>
-                          <div className="text-xs text-[var(--muted-foreground)]">potential improvement</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">difference over horizon</div>
                         </div>
                       </div>
 
@@ -5540,19 +5486,19 @@ function PortfolioRecommendations({ userId: propUserId }: PortfolioRecommendatio
                         </h4>
                         <div className="text-sm text-[var(--muted-foreground)] space-y-3">
                           <p>
-                            <strong>Monte Carlo Analysis:</strong> We run 5,000+ different market scenarios over your chosen time horizon, 
-                            comparing how your current portfolio allocation would perform against our recommended allocation.
+                            <strong>Monte Carlo Analysis:</strong> We run 5,000+ simulated market paths over your chosen time horizon, 
+                            comparing how your current portfolio allocation might move against the illustrative target allocation. Model illustration only — not a forecast.
                           </p>
                           <p>
                             <strong>Current Mix:</strong> Your actual portfolio holdings (e.g., {Math.round((simulationData.contributionsCurrent?.['GLOBAL_EQUITY'] || 0) * 100)}% Global Equity, {Math.round((simulationData.contributionsCurrent?.['CASH'] || 0) * 100)}% Cash, etc.)
                           </p>
                           <p>
-                            <strong>Recommended Mix:</strong> Our AI-driven allocation based on your investor profile, risk preferences, and economic beliefs 
+                            <strong>Illustrative Target Mix:</strong> A rules-based allocation derived from your investor profile and risk preferences. Not advice. 
                             (e.g., {Math.round((simulationData.contributionsTarget?.['GLOBAL_EQUITY'] || 0) * 100)}% Global Equity, {Math.round((simulationData.contributionsTarget?.['CASH'] || 0) * 100)}% Cash, plus diversification into real assets, etc.)
                           </p>
                           <p>
-                            <strong>Key Insight:</strong> This shows the potential performance difference between maintaining your current strategy 
-                            versus implementing our personalized recommendations over {simulationData.horizonMonths} months.
+                            <strong>What this shows:</strong> The modelled difference between your current mix 
+                            and the illustrative target over {simulationData.horizonMonths} months. Illustrative only. Not financial advice.
                           </p>
                         </div>
                       </div>
