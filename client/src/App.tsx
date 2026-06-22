@@ -30,8 +30,6 @@ import AdviceGap from "@/pages/AdviceGap";
 import InvestorOnboarding from "@/pages/InvestorOnboarding";
 import PortfolioAnalysis from "@/pages/PortfolioAnalysis";
 import DemoPortfolioAnalysis from "@/pages/DemoPortfolioAnalysis";
-import InvestorPreferences from "@/pages/InvestorPreferences";
-import InvestorPreferencesWizard from "@/pages/InvestorPreferencesWizard";
 import SplashScreen from "@/pages/SplashScreen";
 import EndingSplashScreen from "@/pages/EndingSplashScreen";
 import AssetRegister from "@/pages/AssetRegister";
@@ -79,8 +77,6 @@ function Router() {
       <Route path="/investor-onboarding" component={InvestorOnboarding} />
       <Route path="/portfolio-analysis" component={PortfolioAnalysis} />
       <Route path="/demo-portfolio-analysis" component={DemoPortfolioAnalysis} />
-      <Route path="/investor-preferences" component={InvestorPreferences} />
-      <Route path="/investor-preferences-v2" component={InvestorPreferencesWizard} />
       <Route path="/splash" component={SplashScreen} />
       <Route path="/ending" component={EndingSplashScreen} />
       
