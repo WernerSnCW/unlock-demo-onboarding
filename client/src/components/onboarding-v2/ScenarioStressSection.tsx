@@ -17,6 +17,7 @@ export default function ScenarioStressSection() {
         region: h.region,
         value_gbp: h.value_gbp,
       }));
+    if (stressHoldings.length === 0) return [];
     const results = computeScenarioStress(stressHoldings, STRESS_SCENARIOS);
     const ordered = orderBySalience(results, STRESS_SCENARIOS, { axisScores: beliefs.axis_scores });
     const byId = new Map(STRESS_SCENARIOS.map((s) => [s.id, s]));

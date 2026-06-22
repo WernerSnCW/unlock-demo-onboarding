@@ -50,14 +50,18 @@ export function computeScenarioStress(
     const centralImpactPct = total > 0 ? centralImpactGbp / total : 0;
     const { mildMultiplier, severeMultiplier } = scenario.severityRange;
 
-    const topContributors: StressContributor[] = perHolding
-      .filter((c) => c.impactGbp !== 0)
+    const sign = Math.sign(centralImpactGbp);
+    const sameDirection = perHolding.filter(
+      (c) => sign !== 0 && Math.sign(c.impactGbp) === sign,
+    );
+    const grossMove = sameDirection.reduce((sum, c) => sum + c.impactGbp, 0);
+    const topContributors: StressContributor[] = sameDirection
       .sort((a, b) => Math.abs(b.impactGbp) - Math.abs(a.impactGbp))
       .slice(0, 3)
       .map((c) => ({
         label: c.label,
         impactGbp: c.impactGbp,
-        pctOfLoss: centralImpactGbp !== 0 ? c.impactGbp / centralImpactGbp : 0,
+        pctOfLoss: grossMove !== 0 ? c.impactGbp / grossMove : 0,
       }));
 
     return {

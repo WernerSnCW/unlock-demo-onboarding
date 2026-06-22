@@ -77,4 +77,15 @@ describe('computeScenarioStress', () => {
     const [r] = computeScenarioStress([holding({ value_gbp: 0 }), holding({ value_gbp: -5 })], [SCN]);
     expect(r.centralImpactGbp).toBe(0);
   });
+
+  it('excludes protective (opposite-sign) holdings from contributors', () => {
+    const holdings = [
+      holding({ instrument_name: 'eq', asset_class: 'equity', region: 'global', value_gbp: 100000 }), // -0.25 -> -25000
+      holding({ instrument_name: 'bond', asset_class: 'bond', region: 'global', value_gbp: 100000 }), // +0.05 -> +5000 (protective)
+    ];
+    const [r] = computeScenarioStress(holdings, [SCN]);
+    expect(r.centralImpactGbp).toBe(-20000);
+    expect(r.topContributors.map((c) => c.label)).toEqual(['eq']);     // bond excluded
+    expect(r.topContributors[0].pctOfLoss).toBeCloseTo(1, 10);          // 100% of the same-direction move
+  });
 });
