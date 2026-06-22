@@ -309,7 +309,7 @@ export default function AdviceGap() {
                   
                   <div className="mt-6">
                     <Link 
-                      href="/investor-preferences-v2"
+                      href="/onboarding-v2/welcome"
                       className="group inline-flex items-center px-10 py-4 bg-white/10 text-white border-2 border-white/30 rounded-2xl font-bold text-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
                       data-testid="button-go-profiling"
                     >
