@@ -11,7 +11,9 @@ export interface StressHolding {
 export interface StressContributor {
   label: string;
   impactGbp: number;
-  /** signed share of the central impact, 0..1 (0 when central impact is 0) */
+  /** signed share of the gross same-direction move, 0..1 (0 when that move is 0).
+   *  Note: this is the share of contributors moving the SAME way as the net impact,
+   *  not of centralImpactGbp — the two differ when protective (opposite-sign) holdings exist. */
   pctOfLoss: number;
 }
 

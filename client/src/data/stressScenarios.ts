@@ -62,7 +62,7 @@ export const STRESS_SCENARIOS: StressScenario[] = [
     id: 'TECH_CORRECTION',
     name: 'Technology correction',
     blurb: 'A sharp repricing of technology and growth shares, felt most in US-heavy and tech-tilted portfolios.',
-    historicalAnchor: 'Illustrative — calibrated to Nasdaq Composite −33% (2022) and −78% peak-to-trough (2000–02); US/growth-concentrated',
+    historicalAnchor: 'Illustrative — calibrated to Nasdaq Composite −33% (2022); the −78% peak-to-trough (2000–02) was concentrated tech, so the broad US bucket here is less severe; US/growth-tilted',
     shocks: {
       equity: { us: -0.30, global: -0.20, uk: -0.08, europe: -0.14, emerging: -0.24, other: -0.18 },
       alternatives: { global: -0.10 },

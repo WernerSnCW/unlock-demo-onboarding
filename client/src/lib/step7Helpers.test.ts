@@ -480,6 +480,18 @@ describe('computeExamplePortfolio', () => {
     expect(result.total_movement_pp).toBe(0);
   });
 
+  it('reports total_movement_pp as one-way turnover (matches the £ convention)', () => {
+    // Eq -5pp, Bonds +5pp, Cash 0 -> gross 10pp, one-way turnover = 5pp.
+    // 5pp of £500k = £25k, matching computeTotalMonetaryMovement's £25k.
+    const bands = [
+      { sleeve: 'Equities', current_pct: 60, illustrative_low_pct: 50, illustrative_high_pct: 60 }, // mid 55 -> -5
+      { sleeve: 'Bonds', current_pct: 30, illustrative_low_pct: 30, illustrative_high_pct: 40 },     // mid 35 -> +5
+      { sleeve: 'Cash', current_pct: 10, illustrative_low_pct: 5, illustrative_high_pct: 15 },        // mid 10 ->  0
+    ];
+    const result = computeExamplePortfolio(bands, 'MID');
+    expect(result.total_movement_pp).toBeCloseTo(5, 5);
+  });
+
   it('should compute top movers with threshold 0.5pp', () => {
     const bandsWithMovement = [
       { sleeve: 'Equities', current_pct: 50, illustrative_low_pct: 55, illustrative_high_pct: 65 },
