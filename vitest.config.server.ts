@@ -3,13 +3,14 @@ import path from 'path';
 
 export default defineConfig({
   test: {
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'client/src/**/*.test.ts'],
     environment: 'node',
     globals: true,
   },
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, 'shared'),
+      '@': path.resolve(__dirname, 'client', 'src'),
     },
   },
 });
