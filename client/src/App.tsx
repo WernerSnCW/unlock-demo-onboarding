@@ -46,6 +46,7 @@ const OnboardingV2NextSteps = lazy(() => import("@/pages/onboarding-v2/NextSteps
 const OnboardingV2PlanTransition = lazy(() => import("@/pages/onboarding-v2/PlanTransition"));
 const OnboardingV2PlanWrappers = lazy(() => import("@/pages/onboarding-v2/PlanWrappers"));
 const OnboardingV2Report = lazy(() => import("@/pages/onboarding-v2/Report"));
+const OnboardingV2ScenarioPlanner = lazy(() => import("@/pages/onboarding-v2/ScenarioPlanner"));
 
 
 function Router() {
@@ -92,7 +93,8 @@ function Router() {
       <Route path="/onboarding-v2/plan/transition">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2PlanTransition /></Suspense>}</Route>
       <Route path="/onboarding-v2/plan/wrappers">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2PlanWrappers /></Suspense>}</Route>
       <Route path="/onboarding-v2/report">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Report /></Suspense>}</Route>
-      
+      <Route path="/onboarding-v2/scenario-planner">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2ScenarioPlanner /></Suspense>}</Route>
+
       <Route component={NotFound} />
     </Switch>
   );
