@@ -11,6 +11,7 @@ import StageNav from '@/components/onboarding-v2/scenario-planner/StageNav';
 import StageStressTest from '@/components/onboarding-v2/scenario-planner/StageStressTest';
 import StageAcrossHistory from '@/components/onboarding-v2/scenario-planner/StageAcrossHistory';
 import StageTuneIt from '@/components/onboarding-v2/scenario-planner/StageTuneIt';
+import StageCompareMixes from '@/components/onboarding-v2/scenario-planner/StageCompareMixes';
 import RecoveryCounterBeat from '@/components/onboarding-v2/scenario-planner/RecoveryCounterBeat';
 
 const START_VALUE = 500_000; // illustrative basis for £ contributions; % display is primary (P3-3)
@@ -71,6 +72,7 @@ export default function ScenarioPlanner() {
       )}
       {stage === 3 && <StageTuneIt options={monthly} replays={replays} />}
       {/* Stage 4 (delta) is flag-gated dark until §13 compliance sign-off. */}
+      {stage === 4 && DELTA_ENABLED && <StageCompareMixes currentMix={mix} episodes={monthly} />}
 
       <footer className="border-t border-slate-200 pt-3">
         <p className="text-xs text-[var(--muted-foreground)]">{ADVICE_EXIT}</p>
