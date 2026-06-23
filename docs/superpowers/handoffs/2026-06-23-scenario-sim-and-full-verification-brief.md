@@ -8,7 +8,7 @@
 ## TL;DR
 
 1. **"Where's the scenario planner / economic-outcome simulation?"** — It exists, but in a *deliberately deterministic* form, and the *probabilistic Monte-Carlo* version was **deleted on purpose** because it was the flawed part. Decision needed on whether/how to bring back a richer scenario planner. → **Workstream A**.
-2. **"Test all the logic, maths, algorithms, data, presuppositions."** — Justified and overdue. There's a real harness gap (a chunk of v2 logic has tests that `npm test` never runs) plus a set of unexamined assumptions baked into the numbers. → **Workstream B**.
+2. **"Test all the logic, maths, algorithms, data, presuppositions."** — Justified and overdue. **B0 (the harness gap) is already fixed** (`ea75e42`): `npm test` now runs the full **254 tests** (was a misleading 119). Remaining: unit-by-unit hand-verification, data re-check, dead-code cleanup, and challenging 8 baked-in assumptions. → **Workstream B (start at B1)**.
 
 ---
 
@@ -49,8 +49,8 @@ The Onboarding-v2 flow (`client/src/pages/onboarding-v2/`) has three scenario-fl
 
 The user wants everything stress-tested, not just "tests pass." Scope:
 
-### B0. Harness gap (do this FIRST — it's the reason "119 green" is misleading)
-`npm test` → `vitest run --config vitest.config.server.ts`, which includes **only `tests/**/*.test.ts`** (node env). The **co-located `client/src/lib/*.test.ts` files are NOT run by `npm test`:** `step7Helpers.test.ts`, `scenarioInterpretation.test.ts`, `step9Helpers.test.ts`, `reportNarrative.test.ts`, `stepFlow.test.ts`. So a large slice of v2 logic (step-7 scenarios, step-9, report narrative, step flow) has tests that **never run in CI**. Confirm whether a second vitest config runs them; if not, wire them in (or move them to `tests/`) and make the real green count honest. This is the highest-value finding.
+### B0. Harness gap — ✅ DONE (commit `ea75e42`, pushed to PR #4)
+`npm test` only included `tests/**/*.test.ts`, so the co-located `client/src/lib/*.test.ts` files (`step7Helpers`, `scenarioInterpretation`, `step9Helpers`, `reportNarrative`, `stepFlow` = **135 tests**) never ran in CI. Fixed: `vitest.config.server.ts` now includes `client/src/**/*.test.ts` + the `@`→`client/src` alias. **True suite = 254/254 green across 13 files** (was a misleading 119/8). Start the rest of B from here.
 
 ### B1. Unit-by-unit audit (logic + maths + algorithms)
 For each, re-derive the maths by hand on a golden case and adversarially probe edge cases:
