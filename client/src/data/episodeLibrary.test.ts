@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { EPISODES, BUCKETS, bucketFor, type Episode } from './episodeLibrary';
+import type { AxisCode } from '../state/onboardingV2Store';
 
 describe('bucketFor', () => {
   it('maps (asset_class, region) to a bucket, case-insensitive', () => {
@@ -52,5 +53,36 @@ describe('episode library provenance contract', () => {
     for (const ep of EPISODES) {
       expect(ep.beliefSalience.length).toBeGreaterThan(0);
     }
+  });
+
+  it('marks a series that never returns to >= 0 with recoveryIndex === -1 (never recovered in window)', () => {
+    const rateShock = EPISODES.find((e) => e.id === 'RATE_SHOCK_2022')!;
+    const globalEq = rateShock.paths['global-equity']!;
+    // every point from the trough onward stays negative → no recovery in window
+    const fromTrough = globalEq.points.slice(globalEq.troughIndex);
+    expect(Math.max(...fromTrough)).toBeLessThan(0);
+    expect(globalEq.recoveryIndex).toBe(-1);
+  });
+});
+
+describe('§7A belief→episode salience re-tag (no orphan episodes)', () => {
+  const want: Record<string, AxisCode[]> = {
+    GREAT_DEPRESSION_1929: ['VOLATILITY_AVERSION'],
+    CRASH_1987: ['VOLATILITY_AVERSION'],
+    GFC_2008: ['VOLATILITY_AVERSION'],
+    COVID_2020: ['VOLATILITY_AVERSION'],
+    STAGFLATION_1973: ['INFLATION_HEDGE_TILT', 'UK_BIAS'],
+    RATE_SHOCK_2022: ['INFLATION_HEDGE_TILT', 'UK_BIAS'],
+    DOTCOM_2000: ['TECH_TILT', 'VALUE_TILT'],
+  };
+  for (const [id, axes] of Object.entries(want)) {
+    it(`${id} carries the expected belief axes`, () => {
+      const ep = EPISODES.find((e) => e.id === id)!;
+      expect(ep).toBeDefined();
+      for (const a of axes) expect(ep.beliefSalience).toContain(a);
+    });
+  }
+  it('exposes all seven core episodes', () => {
+    expect(EPISODES).toHaveLength(7); // 1920–21 optional, added only after §13 decision
   });
 });
