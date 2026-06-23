@@ -1,4 +1,5 @@
 import type { StressScenario } from '../data/stressScenarios';
+import { rankContributors, type StressContributor } from './portfolioMath';
 
 /** Minimal holdings shape the engine needs - decoupled from the store's Holding. */
 export interface StressHolding {
@@ -8,14 +9,7 @@ export interface StressHolding {
   value_gbp: number;
 }
 
-export interface StressContributor {
-  label: string;
-  impactGbp: number;
-  /** signed share of the gross same-direction move, 0..1 (0 when that move is 0).
-   *  Note: this is the share of contributors moving the SAME way as the net impact,
-   *  not of centralImpactGbp — the two differ when protective (opposite-sign) holdings exist. */
-  pctOfLoss: number;
-}
+export type { StressContributor }; // re-export to keep existing import sites working
 
 export interface ScenarioStressResult {
   scenarioId: string;
@@ -52,19 +46,10 @@ export function computeScenarioStress(
     const centralImpactPct = total > 0 ? centralImpactGbp / total : 0;
     const { mildMultiplier, severeMultiplier } = scenario.severityRange;
 
-    const sign = Math.sign(centralImpactGbp);
-    const sameDirection = perHolding.filter(
-      (c) => sign !== 0 && Math.sign(c.impactGbp) === sign,
+    const topContributors = rankContributors(
+      perHolding.map((c) => ({ label: c.label, impactGbp: c.impactGbp })),
+      3,
     );
-    const grossMove = sameDirection.reduce((sum, c) => sum + c.impactGbp, 0);
-    const topContributors: StressContributor[] = sameDirection
-      .sort((a, b) => Math.abs(b.impactGbp) - Math.abs(a.impactGbp))
-      .slice(0, 3)
-      .map((c) => ({
-        label: c.label,
-        impactGbp: c.impactGbp,
-        pctOfLoss: grossMove !== 0 ? c.impactGbp / grossMove : 0,
-      }));
 
     return {
       scenarioId: scenario.id,
