@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import PortfolioSnapshot from '@/components/onboarding-v2/PortfolioSnapshot';
 import PersonaCard from '@/components/onboarding-v2/PersonaCard';
+import ScenarioStressSection from '@/components/onboarding-v2/ScenarioStressSection';
 import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
 import { useOnboardingV2Store, SafetyStatus, computePortfolioBreakdowns, DBIncomeCoverageBand, PrivateBusinessWealthBand, EmployerStockAllocBand, CryptoAllocBand } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
@@ -486,11 +487,13 @@ export default function Analysis() {
               Investor Persona
             </h3>
             <p className="text-sm text-[var(--muted-foreground)] -mt-1">
-              Based on your answers and current portfolio, Unlock classifies you as:
+              From your answers and current portfolio, here's the investing stance we heard:
             </p>
             <PersonaCard persona={persona} />
           </div>
         )}
+
+        <ScenarioStressSection />
 
         {/* Tilts Banner */}
         <div className="group relative">

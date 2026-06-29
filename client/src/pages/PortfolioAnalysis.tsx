@@ -1037,7 +1037,7 @@ export default function PortfolioAnalysis() {
                 Back to Onboarding
               </Button>
             </Link>
-            <Link href="/investor-preferences-v2">
+            <Link href="/onboarding-v2/welcome">
               <Button className="px-8 py-4 text-lg rounded-2xl" 
                       style={{ 
                         background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',

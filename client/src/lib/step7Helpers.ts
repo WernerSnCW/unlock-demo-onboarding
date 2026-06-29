@@ -399,7 +399,10 @@ export function computeExamplePortfolio(bands: AllocationBand[], type: ExampleTy
   
   const { allocations, normalised } = normaliseAllocations(rawAllocations);
   const total_pct = allocations.reduce((sum, a) => sum + a.example_pct, 0);
-  const total_movement_pp = allocations.reduce((sum, a) => sum + Math.abs(a.delta_pp), 0);
+  // One-way turnover: a rebalance moves £X out and £X in, so the gross sum of
+  // absolute deltas double-counts the move. Halving matches computeTotalMonetaryMovement
+  // so the "Total movement vs current" slot agrees whether shown as pp or £.
+  const total_movement_pp = allocations.reduce((sum, a) => sum + Math.abs(a.delta_pp), 0) / 2;
   const top_movers = computeTopMovers(allocations);
   
   return {
