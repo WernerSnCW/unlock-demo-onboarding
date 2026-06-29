@@ -140,10 +140,23 @@ function validatePolicy(raw: unknown): Policy {
 }
 
 export function loadPolicy(): Policy {
-  const configPath = path.join(__dirname, '../config/policy_defaults.yaml');
-  
-  if (!fs.existsSync(configPath)) {
-    throw new Error(`Policy config file not found: ${configPath}`);
+  // Resolve the policy YAML across both dev (tsx runs from server/services) and
+  // production (server is bundled to dist/index.js). The build copies
+  // server/config -> dist/config, so candidate paths cover both layouts.
+  const candidates = [
+    path.join(__dirname, '../config/policy_defaults.yaml'), // dev: server/config
+    path.join(__dirname, 'config/policy_defaults.yaml'),    // prod: dist/config
+    path.join(process.cwd(), 'server/config/policy_defaults.yaml'),
+    path.join(process.cwd(), 'config/policy_defaults.yaml'),
+    path.join(process.cwd(), 'dist/config/policy_defaults.yaml'),
+  ];
+
+  const configPath = candidates.find((p) => fs.existsSync(p));
+
+  if (!configPath) {
+    throw new Error(
+      `Policy config file not found. Looked in:\n${candidates.join('\n')}`,
+    );
   }
 
   const fileContents = fs.readFileSync(configPath, 'utf8');
