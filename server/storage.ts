@@ -12,14 +12,15 @@ import {
   type PropertyValuation, type InsertPropertyValuation,
   type PropertyLease, type InsertPropertyLease,
   type PropertyCashflow, type InsertPropertyCashflow,
-  users, investors, investorPreferences, taxProfile,
+  type OnboardingSession, type InsertOnboardingSession,
+  users, investors, investorPreferences, taxProfile, onboardingSessions,
   portfolioAccounts, portfolioHoldings, alternativeInvestments,
   properties, propertyOwnerships, propertyLoans, 
   propertyValuations, propertyLeases, propertyCashflows,
   propertyPriceData
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -95,7 +96,19 @@ export interface IStorage {
   // Property Cashflow methods
   getPropertyCashflows(propertyId: string): Promise<PropertyCashflow[]>;
   createPropertyCashflow(cashflow: InsertPropertyCashflow): Promise<PropertyCashflow>;
+
+  // Onboarding session methods (resumable demo sessions)
+  listOnboardingSessions(): Promise<OnboardingSessionSummary[]>;
+  getOnboardingSession(id: string): Promise<OnboardingSession | undefined>;
+  upsertOnboardingSession(session: InsertOnboardingSession): Promise<OnboardingSession>;
+  deleteOnboardingSession(id: string): Promise<boolean>;
 }
+
+// Lightweight row for the resume picker (excludes the heavy `state` blob).
+export type OnboardingSessionSummary = Pick<
+  OnboardingSession,
+  'id' | 'investorName' | 'email' | 'currentStep' | 'status' | 'updatedAt'
+>;
 
 
 export class DatabaseStorage implements IStorage {
@@ -534,6 +547,66 @@ export class DatabaseStorage implements IStorage {
       .values(cashflow)
       .returning();
     return newCashflow;
+  }
+
+  // ---- Onboarding sessions (resumable demo sessions) ----
+
+  async listOnboardingSessions(): Promise<OnboardingSessionSummary[]> {
+    return db
+      .select({
+        id: onboardingSessions.id,
+        investorName: onboardingSessions.investorName,
+        email: onboardingSessions.email,
+        currentStep: onboardingSessions.currentStep,
+        status: onboardingSessions.status,
+        updatedAt: onboardingSessions.updatedAt,
+      })
+      .from(onboardingSessions)
+      .orderBy(desc(onboardingSessions.updatedAt));
+  }
+
+  async getOnboardingSession(id: string): Promise<OnboardingSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(onboardingSessions)
+      .where(eq(onboardingSessions.id, id));
+    return session || undefined;
+  }
+
+  async upsertOnboardingSession(session: InsertOnboardingSession): Promise<OnboardingSession> {
+    // Insert when no id is supplied; otherwise update the existing row in place
+    // so autosave on each step keeps a single row per session.
+    if (session.id) {
+      const [updated] = await db
+        .insert(onboardingSessions)
+        .values(session)
+        .onConflictDoUpdate({
+          target: onboardingSessions.id,
+          set: {
+            investorName: session.investorName,
+            email: session.email,
+            state: session.state,
+            currentStep: session.currentStep,
+            status: session.status,
+            updatedAt: sql`now()`,
+          },
+        })
+        .returning();
+      return updated;
+    }
+    const [created] = await db
+      .insert(onboardingSessions)
+      .values(session)
+      .returning();
+    return created;
+  }
+
+  async deleteOnboardingSession(id: string): Promise<boolean> {
+    const result = await db
+      .delete(onboardingSessions)
+      .where(eq(onboardingSessions.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 

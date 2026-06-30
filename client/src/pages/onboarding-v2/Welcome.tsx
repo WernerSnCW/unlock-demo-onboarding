@@ -1,5 +1,6 @@
+import { Link } from 'wouter';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { Sparkles, Shield, TrendingUp, ArrowRight, Clock } from 'lucide-react';
+import { Sparkles, Shield, TrendingUp, ArrowRight, Clock, History } from 'lucide-react';
 
 export default function Welcome() {
   return (
@@ -72,6 +73,18 @@ export default function Welcome() {
             <Clock className="w-4 h-4" />
             <span>5-10 minutes to complete</span>
           </div>
+        </div>
+
+        {/* Resume a previously saved investor */}
+        <div className="flex items-center justify-center">
+          <Link
+            href="/onboarding-v2/resume"
+            className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+            data-testid="link-resume"
+          >
+            <History className="w-4 h-4" />
+            Resume a saved investor
+          </Link>
         </div>
       </div>
     </OnboardingLayout>

@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db } from "./db";
@@ -20,7 +20,8 @@ import {
   ukHpi,
   postcodeLadMapping,
   investors,
-  investorPreferences
+  investorPreferences,
+  insertOnboardingSessionSchema
 } from "@shared/schema";
 import { marketDataService } from "./services/marketData.js";
 import { computeGap, type GapRequest } from './lib/gap/computeGap';
@@ -2614,6 +2615,76 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
         error: "Failed to fetch policy",
         message: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // =============================================================================
+  // Onboarding v2 — resumable session persistence
+  // Autosaved per step; investors can be resumed by selecting them from a list.
+  // Degrades gracefully when no database is configured (the flow still works via
+  // browser localStorage; only cross-device resume is unavailable).
+  // =============================================================================
+
+  // Returns true when a database is configured; otherwise responds 503 and false.
+  const requireDb = (res: Response): boolean => {
+    if (!process.env.DATABASE_URL) {
+      res.status(503).json({
+        error: "storage_unavailable",
+        message:
+          "No database is configured, so server-side session storage is off. The onboarding flow still works and autosaves to this browser.",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  app.get("/api/onboarding-v2/sessions", async (_req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const sessions = await storage.listOnboardingSessions();
+      res.json(sessions);
+    } catch (error) {
+      console.error("List onboarding sessions error:", error);
+      res.status(500).json({ error: "Failed to list sessions", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.get("/api/onboarding-v2/sessions/:id", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const session = await storage.getOnboardingSession(req.params.id);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      res.json(session);
+    } catch (error) {
+      console.error("Get onboarding session error:", error);
+      res.status(500).json({ error: "Failed to fetch session", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.post("/api/onboarding-v2/sessions", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const parsed = insertOnboardingSessionSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid session payload", details: parsed.error.flatten() });
+      }
+      const saved = await storage.upsertOnboardingSession(parsed.data);
+      res.json(saved);
+    } catch (error) {
+      console.error("Upsert onboarding session error:", error);
+      res.status(500).json({ error: "Failed to save session", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.delete("/api/onboarding-v2/sessions/:id", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const ok = await storage.deleteOnboardingSession(req.params.id);
+      if (!ok) return res.status(404).json({ error: "Session not found" });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Delete onboarding session error:", error);
+      res.status(500).json({ error: "Failed to delete session", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
