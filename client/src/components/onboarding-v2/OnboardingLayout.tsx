@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import StepIndicator, { ONBOARDING_STEPS } from './StepIndicator';
+import { saveCurrentSession } from '@/lib/onboardingSync';
 import Header from '../Header';
 import Footer from '../Footer';
 
@@ -32,7 +33,13 @@ export default function OnboardingLayout({
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [stepId]);
-  
+
+  // Autosave the session on each step (best-effort; no-ops without a DB and
+  // skips steps before there's an identifiable investor or holdings).
+  useEffect(() => {
+    void saveCurrentSession(stepId);
+  }, [stepId]);
+
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === stepId);
   const prevStep = currentIndex > 0 ? ONBOARDING_STEPS[currentIndex - 1] : null;
   const nextStep = currentIndex < ONBOARDING_STEPS.length - 1 ? ONBOARDING_STEPS[currentIndex + 1] : null;

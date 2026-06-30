@@ -244,6 +244,20 @@ export const propertyCashflows = pgTable("property_cashflows", {
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
+// Onboarding v2 sessions — server-side persistence so an interrupted investor
+// session can be resumed later (e.g. selected by name from a list). `state`
+// holds a JSON snapshot of the client onboarding store.
+export const onboardingSessions = pgTable("onboarding_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  investorName: text("investor_name").notNull(), // shown in the resume list
+  email: text("email"),
+  state: text("state").notNull(), // JSON string of the full onboarding store snapshot
+  currentStep: text("current_step"), // last step id/path, for resuming
+  status: text("status").default('in_progress'), // 'in_progress' | 'completed'
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -305,6 +319,14 @@ export const insertPropertyCashflowSchema = createInsertSchema(propertyCashflows
   id: true,
   createdAt: true,
 });
+
+export const insertOnboardingSessionSchema = createInsertSchema(onboardingSessions).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type OnboardingSession = typeof onboardingSessions.$inferSelect;
+export type InsertOnboardingSession = z.infer<typeof insertOnboardingSessionSchema>;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
