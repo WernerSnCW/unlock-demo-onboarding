@@ -10,15 +10,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Unlock DS is dark-by-default (canonical brand look). Honour an explicit
-  // saved preference if the user has toggled before; otherwise default to dark.
+  // Unlock DS is canonical dark. Default to dark on every load (ignore any
+  // previously-saved light preference) so the demo always opens dark; the
+  // in-session toggle still works.
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
+    setTheme('dark');
   }, []);
 
   useEffect(() => {
