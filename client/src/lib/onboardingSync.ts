@@ -96,6 +96,13 @@ export async function loadSession(id: string): Promise<{ ok: boolean; currentSte
     if (!res.ok) return { ok: false };
     const session = await res.json();
     const data = JSON.parse(session.state);
+    // If the snapshot was captured while the Analysis step was still computing,
+    // its status is a stale 'loading'/'error' — the Analysis page only auto-runs
+    // from 'idle', so reset it so resuming re-runs instead of hanging on the
+    // spinner. A completed analysis is left as-is (shows results immediately).
+    if (data?.analysis && (data.analysis.status === 'loading' || data.analysis.status === 'error')) {
+      data.analysis = { ...data.analysis, status: 'idle' };
+    }
     useOnboardingV2Store.setState(data);
     setActiveSessionId(session.id);
     return { ok: true, currentStep: session.currentStep || '/onboarding-v2/welcome' };
