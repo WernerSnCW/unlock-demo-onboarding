@@ -7,10 +7,13 @@ let openaiInstance: OpenAI | null = null;
 
 function getOpenAI(): OpenAI {
   if (!openaiInstance) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable to use fact-checking features.');
+    if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+      throw new Error('OpenAI is not configured. Connect the OpenAI AI integration to use fact-checking features.');
     }
-    openaiInstance = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    openaiInstance = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    });
   }
   return openaiInstance;
 }

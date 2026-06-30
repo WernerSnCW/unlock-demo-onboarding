@@ -46,10 +46,13 @@ let openaiInstance: OpenAI | null = null;
 
 function getOpenAI(): OpenAI {
   if (!openaiInstance) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable to use AI-powered features.');
+    if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+      throw new Error('OpenAI is not configured. Connect the OpenAI AI integration to use AI-powered features.');
     }
-    openaiInstance = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    openaiInstance = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    });
   }
   return openaiInstance;
 }
@@ -2178,7 +2181,10 @@ Persona adjustments: [${rulesApplied?.map?.((r: string) => `"${r}"`).join(', ') 
 
       // Import OpenAI for analysis
       const OpenAI = await import('openai').then(mod => mod.default);
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const openai = new OpenAI({
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      });
 
       // Prepare portfolio data for LLM analysis
       const prompt = `
