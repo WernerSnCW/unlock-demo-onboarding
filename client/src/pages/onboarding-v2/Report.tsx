@@ -1,6 +1,7 @@
 import { useMemo, useRef, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { saveCurrentSession, startNewInvestor } from '@/lib/onboardingSync';
 import { 
   FileText, 
   Download, 
@@ -13,6 +14,7 @@ import {
   ChevronLeft,
   Printer,
   FileJson,
+  UserPlus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
@@ -68,11 +70,23 @@ function formatPercent(value: number): string {
 
 export default function Report() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const printRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Reaching the report is the end of onboarding — mark the session completed
+  // so it registers as Done in the investor switcher / resume list.
+  useEffect(() => {
+    void saveCurrentSession('/onboarding-v2/report', 'completed');
+  }, []);
+
+  const onStartNew = () => {
+    startNewInvestor();
+    navigate('/onboarding-v2/welcome');
+  };
   
   const { holdings, analysis, beliefs, scenario, intake } = useOnboardingV2Store();
   
@@ -764,15 +778,14 @@ export default function Report() {
                 Back to Onboarding
               </Button>
             </Link>
-            <Link href="/" className="flex-1">
-              <Button 
-                className="w-full gap-2 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium" 
-                data-testid="button-go-home"
-              >
-                <Home className="w-4 h-4" />
-                Return to Dashboard
-              </Button>
-            </Link>
+            <Button
+              onClick={onStartNew}
+              className="flex-1 w-full gap-2 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
+              data-testid="button-start-new-onboarding"
+            >
+              <UserPlus className="w-4 h-4" />
+              Start New Onboarding
+            </Button>
           </div>
         </div>
       </main>

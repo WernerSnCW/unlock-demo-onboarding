@@ -2,10 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2 } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
+import { ONBOARDING_STEPS } from './StepIndicator';
 import {
   listSessions, loadSession, startNewInvestor, getActiveSessionId,
   type SessionSummary,
 } from '@/lib/onboardingSync';
+
+// Friendly "where they're up to" label for an in-progress session.
+function stepInfo(path: string | null): string {
+  if (!path) return 'Not started';
+  const idx = ONBOARDING_STEPS.findIndex((s) => s.path === path || s.id === path);
+  if (idx >= 0) return `Step ${idx + 1} of ${ONBOARDING_STEPS.length} · ${ONBOARDING_STEPS[idx].label}`;
+  const tail = path.replace('/onboarding-v2/', '').replace(/\//g, ' ');
+  return tail.charAt(0).toUpperCase() + tail.slice(1);
+}
 
 // Top-right control: shows the investor currently being worked on, and a
 // dropdown to swap between saved investors (completed or in progress).
@@ -136,12 +146,19 @@ export default function InvestorSwitcher() {
                   className="w-full px-4 py-2.5 flex items-center justify-between gap-3 hover:bg-[#ffffff]/[0.05] transition-colors text-left"
                   data-testid={`investor-option-${s.id}`}
                 >
-                  <span className="flex items-center gap-2 min-w-0">
+                  <span className="flex items-start gap-2 min-w-0">
                     {isActive
-                      ? <Check className="h-4 w-4 text-[var(--primary)] shrink-0" />
+                      ? <Check className="h-4 w-4 mt-0.5 text-[var(--primary)] shrink-0" />
                       : <span className="w-4 shrink-0" />}
-                    <span className={`truncate text-sm ${isActive ? 'text-[var(--foreground)] font-medium' : 'text-[var(--card-foreground)]'}`}>
-                      {s.investorName}
+                    <span className="min-w-0">
+                      <span className={`block truncate text-sm ${isActive ? 'text-[var(--foreground)] font-medium' : 'text-[var(--card-foreground)]'}`}>
+                        {s.investorName}
+                      </span>
+                      {!completed && (
+                        <span className="block truncate text-xs text-[var(--muted-foreground)]">
+                          {stepInfo(s.currentStep)}
+                        </span>
+                      )}
                     </span>
                   </span>
                   {busyId === s.id ? (
