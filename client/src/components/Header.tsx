@@ -41,7 +41,7 @@ export default function Header() {
   }, []);
 
   const navigation = [
-    { name: 'Dashboard', href: '/' },
+    { name: 'Dashboard', href: '/dashboard' },
     { name: 'Businesses', href: '/businesses' },
     { name: 'Assets', href: '/asset-register' },
     { name: 'Toolkit', href: '/toolkit' },
