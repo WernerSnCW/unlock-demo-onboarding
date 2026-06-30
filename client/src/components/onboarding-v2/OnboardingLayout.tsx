@@ -28,17 +28,18 @@ export default function OnboardingLayout({
   hideNav = false,
   wideLayout = false,
 }: OnboardingLayoutProps) {
-  const [, navigate] = useLocation();
-  
+  const [location, navigate] = useLocation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [stepId]);
 
   // Autosave the session on each step (best-effort; no-ops without a DB and
-  // skips steps before there's an identifiable investor or holdings).
+  // skips steps before there's an identifiable investor or holdings). Stores the
+  // current route path so resume can navigate straight back to it.
   useEffect(() => {
-    void saveCurrentSession(stepId);
-  }, [stepId]);
+    void saveCurrentSession(location);
+  }, [location]);
 
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === stepId);
   const prevStep = currentIndex > 0 ? ONBOARDING_STEPS[currentIndex - 1] : null;
