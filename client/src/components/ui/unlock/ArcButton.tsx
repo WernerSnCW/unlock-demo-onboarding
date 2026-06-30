@@ -45,6 +45,10 @@ export function ArcButton({
     ...style,
   };
 
+  // The arc-ring sweep must contrast with the button fill: white on the green
+  // primary (green-on-green is invisible), brand green on the transparent outline.
+  const arcStroke = variant === 'primary' ? 'rgba(255,255,255,0.9)' : 'var(--u-green)';
+
   const variants: Record<'primary' | 'outline', React.CSSProperties> = {
     primary: {
       background: 'var(--u-green)',
@@ -85,7 +89,7 @@ export function ArcButton({
           cy="50"
           r="45"
           fill="none"
-          stroke="var(--u-green)"
+          stroke={arcStroke}
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeDasharray="283"
