@@ -47,7 +47,10 @@ function hasMeaningfulData(): { has: boolean; investorName: string; email: strin
   return { has: Boolean(name) || hasHoldings, investorName: name || 'Unnamed investor', email: s.intake?.email || null };
 }
 
-export async function saveCurrentSession(currentStep: string): Promise<SaveResult> {
+export async function saveCurrentSession(
+  currentStep: string,
+  status: 'in_progress' | 'completed' = 'in_progress',
+): Promise<SaveResult> {
   const { has, investorName, email } = hasMeaningfulData();
   if (!has) return { ok: false, reason: 'empty' };
 
@@ -58,7 +61,7 @@ export async function saveCurrentSession(currentStep: string): Promise<SaveResul
     email,
     state: JSON.stringify(snapshot()),
     currentStep,
-    status: 'in_progress',
+    status,
   };
 
   try {
