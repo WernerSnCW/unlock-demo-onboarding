@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { InvestorProvider } from "./contexts/InvestorContext";
+import AccessGate from "@/components/AccessGate";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Businesses from "@/pages/Businesses";
@@ -111,7 +112,9 @@ function App() {
       <ThemeProvider>
         <InvestorProvider>
           <TooltipProvider>
-            <Router />
+            <AccessGate>
+              <Router />
+            </AccessGate>
             <Toaster />
           </TooltipProvider>
         </InvestorProvider>
