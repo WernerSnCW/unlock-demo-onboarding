@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import StepIndicator, { ONBOARDING_STEPS } from './StepIndicator';
 import { saveCurrentSession } from '@/lib/onboardingSync';
+import GridBackground from './GridBackground';
 import Header from '../Header';
 import Footer from '../Footer';
 
@@ -49,7 +50,9 @@ export default function OnboardingLayout({
   const effectiveNextPath = nextPath ?? nextStep?.path;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+    <div className="relative min-h-screen bg-[var(--background)] flex flex-col">
+      <GridBackground />
+      <div className="relative z-10 flex flex-col flex-1">
       <Header />
       <StepIndicator currentStepId={stepId} />
       
@@ -106,8 +109,9 @@ export default function OnboardingLayout({
           )}
         </div>
       </main>
-      
+
       <Footer />
+      </div>
     </div>
   );
 }

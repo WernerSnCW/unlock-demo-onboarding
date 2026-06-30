@@ -2688,6 +2688,23 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     }
   });
 
+  // =============================================================================
+  // Lightweight access gate for the published demo.
+  // Set an ACCESS_CODE env var/secret to require a shared code; leave it unset to
+  // keep the demo open. The code is validated server-side and never shipped in
+  // the client bundle. This deters casual stumblers — it is not hardened auth.
+  // =============================================================================
+  app.get("/api/access/status", (_req, res) => {
+    res.json({ required: Boolean(process.env.ACCESS_CODE) });
+  });
+
+  app.post("/api/access/verify", (req, res) => {
+    const expected = process.env.ACCESS_CODE;
+    if (!expected) return res.json({ ok: true }); // no code configured → open
+    const code = typeof req.body?.code === "string" ? req.body.code.trim() : "";
+    res.json({ ok: code === expected });
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

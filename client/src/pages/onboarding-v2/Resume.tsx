@@ -4,6 +4,7 @@ import { UserPlus, Clock, ArrowRight, Loader2, Database } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
+import GridBackground from '@/components/onboarding-v2/GridBackground';
 import { ONBOARDING_STEPS } from '@/components/onboarding-v2/StepIndicator';
 import { listSessions, loadSession, startNewInvestor, type SessionSummary } from '@/lib/onboardingSync';
 
@@ -55,7 +56,9 @@ export default function Resume() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+    <div className="relative min-h-screen bg-[var(--background)] flex flex-col">
+      <GridBackground />
+      <div className="relative z-10 flex flex-col flex-1">
       <Header />
       <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-10">
         <div className="text-center mb-8">
@@ -136,6 +139,7 @@ export default function Resume() {
         )}
       </main>
       <Footer />
+      </div>
     </div>
   );
 }

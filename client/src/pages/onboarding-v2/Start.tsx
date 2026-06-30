@@ -6,6 +6,7 @@ import {
 import Footer from '@/components/Footer';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import { startNewInvestor } from '@/lib/onboardingSync';
+import GridBackground from '@/components/onboarding-v2/GridBackground';
 import unlockLogo from '@assets/unlock-logo.svg';
 
 interface Feature {
@@ -79,18 +80,7 @@ export default function Start() {
 
   return (
     <div className="relative min-h-screen bg-[var(--background)] overflow-hidden flex flex-col">
-      {/* Faint light-grid background (launch screen only), masked to fade at the edges */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.045) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-          WebkitMaskImage: 'radial-gradient(ellipse 90% 70% at 50% 18%, #000 55%, transparent 100%)',
-          maskImage: 'radial-gradient(ellipse 90% 70% at 50% 18%, #000 55%, transparent 100%)',
-        }}
-        aria-hidden
-      />
+      <GridBackground />
 
       {/* Ambient brand glow */}
       <div className="relative z-10 overflow-hidden">
