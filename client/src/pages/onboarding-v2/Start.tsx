@@ -78,9 +78,22 @@ export default function Start() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+    <div className="relative min-h-screen bg-[var(--background)] overflow-hidden flex flex-col">
+      {/* Faint light-grid background (launch screen only), masked to fade at the edges */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.045) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          WebkitMaskImage: 'radial-gradient(ellipse 90% 70% at 50% 18%, #000 55%, transparent 100%)',
+          maskImage: 'radial-gradient(ellipse 90% 70% at 50% 18%, #000 55%, transparent 100%)',
+        }}
+        aria-hidden
+      />
+
       {/* Ambient brand glow */}
-      <div className="relative overflow-hidden">
+      <div className="relative z-10 overflow-hidden">
         <div
           className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[680px] h-[680px] rounded-full blur-3xl opacity-30"
           style={{ background: 'radial-gradient(circle, rgba(0,187,119,0.25), transparent 70%)' }}
@@ -126,7 +139,7 @@ export default function Start() {
       </div>
 
       {/* Feature grid */}
-      <section className="max-w-6xl mx-auto w-full px-6 pb-16">
+      <section className="relative z-10 max-w-6xl mx-auto w-full px-6 pb-16">
         <div className="u-divider mb-10 max-w-xs mx-auto" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {FEATURES.map((f) => {
@@ -178,7 +191,9 @@ export default function Start() {
         </p>
       </section>
 
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }
