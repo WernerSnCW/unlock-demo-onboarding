@@ -3,27 +3,27 @@ import { PieChart, Lock, TrendingUp, Briefcase, Building2 } from 'lucide-react';
 import { useOnboardingV2Store, computePortfolioBreakdowns, AllocationBreakdown, TopHoldingEntry } from '@/state/onboardingV2Store';
 
 const assetClassColors: Record<string, string> = {
-  Equity: 'bg-blue-500',
-  Bond: 'bg-emerald-500',
-  Property: 'bg-amber-500',
-  Cash: 'bg-slate-400',
-  Alternatives: 'bg-purple-500',
-  Commodities: 'bg-orange-500',
-  Other: 'bg-gray-400',
+  Equity: 'bg-[var(--u-viz-1)]',
+  Bond: 'bg-[var(--u-viz-2)]',
+  Property: 'bg-[var(--u-viz-3)]',
+  Cash: 'bg-[var(--u-viz-5)]',
+  Alternatives: 'bg-[var(--u-viz-4)]',
+  Commodities: 'bg-[var(--u-viz-6)]',
+  Other: 'bg-[var(--u-viz-7)]',
 };
 
 const wrapperColors: Record<string, string> = {
-  ISA: 'bg-blue-500',
-  SIPP: 'bg-emerald-500',
-  GIA: 'bg-amber-500',
-  Cash: 'bg-slate-400',
-  'EIS/SEIS': 'bg-purple-500',
-  VCT: 'bg-pink-500',
-  Other: 'bg-gray-400',
+  ISA: 'bg-[var(--u-viz-1)]',
+  SIPP: 'bg-[var(--u-viz-2)]',
+  GIA: 'bg-[var(--u-viz-3)]',
+  Cash: 'bg-[var(--u-viz-5)]',
+  'EIS/SEIS': 'bg-[var(--u-viz-4)]',
+  VCT: 'bg-[var(--u-viz-6)]',
+  Other: 'bg-[var(--u-viz-7)]',
 };
 
 function getColor(map: Record<string, string>, key: string): string {
-  return map[key] || map['Other'] || 'bg-gray-400';
+  return map[key] || map['Other'] || 'bg-[var(--u-viz-7)]';
 }
 
 function formatGBP(value: number): string {
@@ -91,7 +91,7 @@ function TopHoldingsList({ holdings }: TopHoldingsListProps) {
         {holdings.map((holding, idx) => (
           <div
             key={`${holding.name}-${idx}`}
-            className="flex items-center justify-between p-3 rounded-lg bg-[var(--muted)]/30 border border-[var(--border)] hover:bg-[var(--muted)]/50 transition-colors"
+            className="flex items-center justify-between p-3 rounded-lg bg-[#2b2b2b]/30 border border-[var(--border)] hover:bg-[#2b2b2b]/50 transition-colors"
             data-testid={`top-holding-${idx}`}
           >
             <div className="flex-1 min-w-0">
@@ -130,7 +130,7 @@ export default function PortfolioSnapshot() {
 
   if (breakdowns.total_value <= 0) {
     return (
-      <div className="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted)]/20" data-testid="portfolio-snapshot-empty">
+      <div className="p-5 rounded-xl border border-[var(--border)] bg-[#2b2b2b]/20" data-testid="portfolio-snapshot-empty">
         <div className="flex items-center gap-3 mb-2">
           <PieChart className="w-5 h-5 text-[var(--muted-foreground)]" />
           <h3 className="text-lg font-semibold text-[var(--foreground)]">Current Portfolio Snapshot</h3>
@@ -145,7 +145,7 @@ export default function PortfolioSnapshot() {
   return (
     <div className="p-5 rounded-xl border border-[var(--border)] bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-gray-900 shadow-sm" data-testid="portfolio-snapshot">
       <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 rounded-lg bg-[var(--primary)]/10">
+        <div className="p-2 rounded-lg bg-[#00bb77]/10">
           <PieChart className="w-5 h-5 text-[var(--primary)]" />
         </div>
         <div>
@@ -156,7 +156,7 @@ export default function PortfolioSnapshot() {
         </div>
       </div>
 
-      <div className="mt-4 mb-6 p-3 rounded-lg bg-[var(--primary)]/5 border border-[var(--primary)]/20">
+      <div className="mt-4 mb-6 p-3 rounded-lg bg-[#00bb77]/5 border border-[#00bb77]/20">
         <div className="text-xs text-[var(--muted-foreground)] uppercase tracking-wide mb-1">Total Portfolio Value</div>
         <div className="text-2xl font-bold text-[var(--primary)]">{formatGBP(breakdowns.total_value)}</div>
       </div>

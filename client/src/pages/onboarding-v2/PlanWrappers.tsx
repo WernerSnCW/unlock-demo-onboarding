@@ -227,7 +227,7 @@ export default function PlanWrappers() {
                           <div className="flex items-center gap-3">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center cursor-help">
+                                <div className="w-9 h-9 rounded-lg bg-[#00bb77]/10 flex items-center justify-center cursor-help">
                                   <Icon className="w-4 h-4 text-[var(--primary)]" />
                                 </div>
                               </TooltipTrigger>
@@ -264,7 +264,7 @@ export default function PlanWrappers() {
                               Other (no default priority)
                             </span>
                           ) : (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#00bb77]/10 text-[var(--primary)] text-xs font-bold">
                               {wrapper.priority_order}
                             </span>
                           )}
@@ -310,24 +310,24 @@ export default function PlanWrappers() {
         {/* Bed & ISA Badge (Conditional) */}
         {bedIsaResult.eligible && (
           <div 
-            className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-5"
+            className="bg-[var(--u-green-fill)] rounded-2xl border border-[var(--u-green-line)] p-5"
             data-testid="bed-and-isa-badge"
             role="region"
             aria-label="Bed and ISA consideration"
           >
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <BadgeCheck className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
+                <BadgeCheck className="w-5 h-5 text-[var(--primary-foreground)]" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-emerald-800 dark:text-emerald-200">
+                  <h3 className="font-bold text-[var(--foreground)]">
                     Proposed Bed & ISA (illustrative)
                   </h3>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button className="p-1 rounded-full hover:bg-emerald-200/50 dark:hover:bg-emerald-700/50">
-                        <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <button className="p-1 rounded-full hover:bg-[var(--u-green-fill-strong)]">
+                        <Info className="w-4 h-4 text-[var(--primary)]" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
@@ -338,16 +338,16 @@ export default function PlanWrappers() {
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300 mb-3">
+                <p className="text-sm text-[var(--muted-foreground)] mb-3">
                   Based on your inputs, a Bed & ISA strategy could be worth considering:
                 </p>
                 <ul className="space-y-1">
                   {bedIsaResult.reasons.map((reason, index) => (
                     <li 
                       key={index} 
-                      className="flex items-start gap-2 text-sm text-emerald-700 dark:text-emerald-300"
+                      className="flex items-start gap-2 text-sm text-[var(--muted-foreground)]"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] mt-1.5 flex-shrink-0" />
                       {reason}
                     </li>
                   ))}
@@ -384,7 +384,7 @@ export default function PlanWrappers() {
             </Button>
             <Button
               onClick={handleNext}
-              className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2"
+              className="bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2"
               data-testid="button-view-report"
             >
               View Report

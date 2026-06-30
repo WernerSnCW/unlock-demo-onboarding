@@ -68,9 +68,9 @@ export default function PlanTransition() {
         return {
           icon: ShieldCheck,
           label: 'All Green',
-          color: 'text-emerald-600 dark:text-emerald-400',
-          bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-          border: 'border-emerald-200 dark:border-emerald-800',
+          color: 'text-[var(--success)]',
+          bg: 'bg-[#00bb77]/10',
+          border: 'border-[#00bb77]/30',
         };
       case 'AMBER':
         return {
@@ -172,8 +172,8 @@ export default function PlanTransition() {
           {/* Tilt Status Card */}
           <div 
             className={`rounded-xl border p-4 ${
-              tiltsAllowed 
-                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' 
+              tiltsAllowed
+                ? 'bg-[#00bb77]/10 border-[#00bb77]/30'
                 : 'bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
             }`}
             data-testid="pacing-card-tilts"
@@ -182,21 +182,21 @@ export default function PlanTransition() {
           >
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                tiltsAllowed 
-                  ? 'bg-emerald-100 dark:bg-emerald-900/50' 
+                tiltsAllowed
+                  ? 'bg-[#00bb77]/20'
                   : 'bg-slate-200 dark:bg-slate-700'
               }`}>
                 <ToggleRight className={`w-5 h-5 ${
-                  tiltsAllowed 
-                    ? 'text-emerald-600 dark:text-emerald-400' 
+                  tiltsAllowed
+                    ? 'text-[var(--success)]'
                     : 'text-slate-500 dark:text-slate-400'
                 }`} />
               </div>
               <div>
                 <h3 className="font-semibold text-[var(--foreground)] text-sm">Tilt Status</h3>
                 <p className={`text-xs font-medium ${
-                  tiltsAllowed 
-                    ? 'text-emerald-600 dark:text-emerald-400' 
+                  tiltsAllowed
+                    ? 'text-[var(--success)]'
                     : 'text-slate-500 dark:text-slate-400'
                 }`}>
                   {tiltsAllowed ? 'Allowed' : 'Locked'}
@@ -333,7 +333,7 @@ export default function PlanTransition() {
           </Button>
           <Button
             onClick={handleNext}
-            className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2"
+            className="bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium flex items-center gap-2"
             data-testid="button-next"
           >
             Continue to Wrappers

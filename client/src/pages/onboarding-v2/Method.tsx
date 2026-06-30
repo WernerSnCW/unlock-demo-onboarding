@@ -21,9 +21,9 @@ export default function Method() {
       icon: Upload,
       title: 'Upload File',
       description: 'Upload a CSV or Excel file with your portfolio data',
-      gradient: 'from-[var(--primary)] to-[var(--primary)]/70',
-      glowColor: 'from-[var(--primary)]/20',
-      shadowColor: 'shadow-[var(--primary)]/25',
+      gradient: 'from-[var(--primary)] to-[#00bb77]/70',
+      glowColor: 'from-[#00bb77]/20',
+      shadowColor: 'shadow-[#00bb77]/25',
       comingSoon: true,
     },
     {
@@ -31,9 +31,9 @@ export default function Method() {
       icon: FileSpreadsheet,
       title: 'Manual Entry',
       description: 'Enter your holdings manually step by step',
-      gradient: 'from-[var(--secondary)] to-[var(--secondary)]/70',
-      glowColor: 'from-[var(--secondary)]/20',
-      shadowColor: 'shadow-[var(--secondary)]/25',
+      gradient: 'from-[var(--secondary)] to-[#008655]/70',
+      glowColor: 'from-[#008655]/20',
+      shadowColor: 'shadow-[#008655]/25',
       comingSoon: false,
       recommended: true,
     },
@@ -42,9 +42,9 @@ export default function Method() {
       icon: Link2,
       title: 'Connect Account',
       description: 'Link your investment accounts for automatic sync',
-      gradient: 'from-amber-500 to-amber-600',
-      glowColor: 'from-amber-500/20',
-      shadowColor: 'shadow-amber-500/25',
+      gradient: 'from-[var(--u-green-accent)] to-[var(--u-green-deep)]',
+      glowColor: 'from-[#008a55]/20',
+      shadowColor: 'shadow-[#008a55]/25',
       comingSoon: true,
     },
     {
@@ -52,9 +52,9 @@ export default function Method() {
       icon: Building2,
       title: 'Advisor Import',
       description: 'Import data shared by your financial advisor',
-      gradient: 'from-purple-500 to-purple-600',
-      glowColor: 'from-purple-500/20',
-      shadowColor: 'shadow-purple-500/25',
+      gradient: 'from-[var(--u-green-deep)] to-[var(--secondary)]',
+      glowColor: 'from-[#008655]/20',
+      shadowColor: 'shadow-[#008655]/25',
       comingSoon: true,
     },
   ];
@@ -104,7 +104,7 @@ export default function Method() {
 
                     {/* Badges */}
                     {method.recommended && (
-                      <span className="absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 text-white shadow-sm">
+                      <span className="absolute top-3 right-3 text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 text-white shadow-sm">
                         Recommended
                       </span>
                     )}
@@ -128,7 +128,7 @@ export default function Method() {
 
         {/* Info box with enhanced styling */}
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--secondary)]/5 rounded-xl blur-xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#00bb77]/5 to-[#008655]/5 rounded-xl blur-xl" />
           <div className="relative bg-white/50 dark:bg-slate-800/30 backdrop-blur-sm rounded-xl p-5 border border-[var(--border)]">
             <p className="text-center text-sm text-[var(--foreground)]">
               <strong>For this demo:</strong> Click <span className="text-[var(--primary)] font-semibold">Manual Entry</span> to continue with the onboarding wizard.
@@ -140,7 +140,7 @@ export default function Method() {
         <div className="flex justify-center pt-2">
           <Button
             onClick={() => handleSelectMethod('manual')}
-            className="gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-medium px-8 py-6 text-base"
+            className="gap-2 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-medium px-8 py-6 text-base"
             data-testid="button-continue-manual"
           >
             Continue with Manual Entry

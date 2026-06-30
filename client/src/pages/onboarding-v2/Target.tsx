@@ -190,7 +190,7 @@ function RangeBarChart({
                 ) : (
                   <>
                     <div
-                      className="absolute inset-y-1 bg-gradient-to-r from-[#5193B3]/50 via-[#62C4C3]/40 to-[#5193B3]/50 rounded-full shadow-[0_0_8px_rgba(81,147,179,0.3)]"
+                      className="absolute inset-y-1 bg-gradient-to-r from-[#00bb77]/50 via-[#008a55]/40 to-[#00bb77]/50 rounded-full shadow-[0_0_8px_rgba(0,187,119,0.3)]"
                       style={{
                         left: `${row.minPct}%`,
                         width: `${row.maxPct - row.minPct}%`,
@@ -198,7 +198,7 @@ function RangeBarChart({
                     />
                     {showMidpoint && (
                       <div
-                        className="absolute w-0.5 h-full bg-[var(--primary)] shadow-[0_0_4px_rgba(81,147,179,0.5)]"
+                        className="absolute w-0.5 h-full bg-[var(--primary)] shadow-[0_0_4px_rgba(0,187,119,0.5)]"
                         style={{ left: `${midpoint}%` }}
                         title={`Midpoint: ${midpoint.toFixed(1)}%`}
                       />
@@ -218,7 +218,7 @@ function RangeBarChart({
                 
                 {showExample && exampleValuesBySleeveMap?.has(row.label) && (
                   <div
-                    className="absolute w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-[#5193B3]"
+                    className="absolute w-0 h-0 border-l-[5px] border-r-[5px] border-b-[8px] border-l-transparent border-r-transparent border-b-[var(--u-green)]"
                     style={{
                       left: `${exampleValuesBySleeveMap.get(row.label)}%`,
                       top: '-2px',
@@ -246,7 +246,7 @@ function RangeBarChart({
                   </span>
                 )}
                 {showExample && exampleValuesBySleeveMap?.has(row.label) && (
-                  <span className="text-[#5193B3] font-medium">
+                  <span className="text-[var(--u-green)] font-medium">
                     {showMonetary
                       ? `Example: ${formatMonetaryNoSign(pctToMonetary(exampleValuesBySleeveMap.get(row.label) || 0, totalValue), totalValue)}`
                       : `Example: ${exampleValuesBySleeveMap.get(row.label)?.toFixed(1)}%`
@@ -284,7 +284,7 @@ function RangeBarChart({
             <span className="text-[var(--muted-foreground)]">Current</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-[#5193B3]" />
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-[var(--u-green)]" />
             <span className="text-[var(--muted-foreground)]">Example</span>
           </div>
         </div>
@@ -316,8 +316,8 @@ function ExamplePortfolioPanel({
     <div className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/50 dark:from-slate-800/90 dark:via-slate-800/70 dark:to-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-lg ring-1 ring-slate-900/5 dark:ring-white/5 p-5" data-testid="example-portfolio-panel">
       <div className="flex items-center justify-between mb-4">
         <h4 className="font-semibold text-[var(--foreground)] flex items-center gap-2.5">
-          <div className="p-1.5 rounded-lg bg-[#5193B3]/10 dark:bg-[#5193B3]/20">
-            <Layers className="w-4 h-4 text-[#5193B3]" />
+          <div className="p-1.5 rounded-lg bg-[#00bb77]/10 dark:bg-[#00bb77]/20">
+            <Layers className="w-4 h-4 text-[var(--u-green)]" />
           </div>
           Example portfolios within this scenario (illustrative)
         </h4>
@@ -355,8 +355,8 @@ function ExamplePortfolioPanel({
                 {showMonetary ? formatMonetaryNoSign(monetaryValue, totalValue) : `${alloc.example_pct.toFixed(1)}%`}
               </div>
               <div className={`text-xs font-medium mt-1 ${
-                alloc.delta_pp > 0.5 ? 'text-[#10A957]' : 
-                alloc.delta_pp < -0.5 ? 'text-[#FE9239]' : 
+                alloc.delta_pp > 0.5 ? 'text-[var(--success)]' :
+                alloc.delta_pp < -0.5 ? 'text-[var(--warning)]' :
                 'text-slate-400'
               }`}>
                 {showMonetary 
@@ -412,9 +412,9 @@ function ExamplePortfolioPanel({
 }
 
 const SCENARIO_COLORS: Record<ScenarioType, string> = {
-  GUARDRAIL_FIRST: '#10A957',
-  PREFERENCE_LEANING: '#5193B3',
-  NEUTRAL_BASELINE: '#FE9239',
+  GUARDRAIL_FIRST: 'var(--u-green)',
+  PREFERENCE_LEANING: 'var(--u-green-accent)',
+  NEUTRAL_BASELINE: 'var(--u-viz-5)',
 };
 
 const SCENARIO_LABELS: Record<ScenarioType, { label: string; description: string; icon: typeof ShieldCheck }> = {
@@ -448,16 +448,16 @@ const DIRECTION_ICONS: Record<string, typeof TrendingUp> = {
 };
 
 const DIRECTION_COLORS: Record<string, string> = {
-  INCREASE: 'text-[#10A957]',
-  DECREASE: 'text-[#FE9239]',
+  INCREASE: 'text-[var(--success)]',
+  DECREASE: 'text-[var(--warning)]',
   NEUTRAL: 'text-[#64748B]',
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: typeof Check }> = {
-  APPLIED: { label: 'Reflected', color: 'text-[#10A957]', bgColor: 'bg-[#10A957]/10', icon: Check },
-  PARTIALLY_APPLIED: { label: 'Partially reflected', color: 'text-[#13683B]', bgColor: 'bg-[#13683B]/10', icon: Check },
-  CONSTRAINED: { label: 'Constrained', color: 'text-[#FE9239]', bgColor: 'bg-[#FE9239]/10', icon: Lock },
-  LOCKED: { label: 'Constrained by guardrails', color: 'text-[#DC2626]', bgColor: 'bg-[#DC2626]/10', icon: Lock },
+  APPLIED: { label: 'Reflected', color: 'text-[var(--success)]', bgColor: 'bg-[#00bb77]/10', icon: Check },
+  PARTIALLY_APPLIED: { label: 'Partially reflected', color: 'text-[var(--u-green-deep)]', bgColor: 'bg-[#008655]/10', icon: Check },
+  CONSTRAINED: { label: 'Constrained', color: 'text-[var(--warning)]', bgColor: 'bg-[#f59e0b]/10', icon: Lock },
+  LOCKED: { label: 'Constrained by guardrails', color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10', icon: Lock },
   NOT_APPLIED: { label: 'Not reflected', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
 };
 
@@ -466,8 +466,8 @@ function AllocationBandRow({ band, showDelta = false }: { band: AllocationBand; 
   const dirColor = DIRECTION_COLORS[band.direction];
   
   const delta = useMemo(() => computeDelta(band), [band]);
-  const deltaColor = delta.delta_pp > 0.5 ? 'text-[#10A957]' : 
-                     delta.delta_pp < -0.5 ? 'text-[#FE9239]' : 
+  const deltaColor = delta.delta_pp > 0.5 ? 'text-[var(--success)]' :
+                     delta.delta_pp < -0.5 ? 'text-[var(--warning)]' :
                      'text-[var(--muted-foreground)]';
   
   return (
@@ -487,7 +487,7 @@ function AllocationBandRow({ band, showDelta = false }: { band: AllocationBand; 
           </Tooltip>
         </TooltipProvider>
         {band.clamped && (
-          <Lock className="w-3 h-3 text-[#FE9239]" />
+          <Lock className="w-3 h-3 text-[var(--warning)]" />
         )}
       </div>
       <div className="flex items-center gap-4">
@@ -552,8 +552,8 @@ function AppliedTiltRow({ tilt, hasAnyRed }: { tilt: AppliedTiltEntry; hasAnyRed
 function ConstraintRow({ constraint }: { constraint: BindingConstraint }) {
   return (
     <div className="flex items-start gap-3 py-3 px-4 border-b border-[var(--border)] last:border-b-0">
-      <div className="w-8 h-8 rounded-lg bg-[#FE9239]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Lock className="w-4 h-4 text-[#FE9239]" />
+      <div className="w-8 h-8 rounded-lg bg-[#f59e0b]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <Lock className="w-4 h-4 text-[var(--warning)]" />
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2">
@@ -783,7 +783,7 @@ function ScenarioContent({
     return allScenarios.map(s => ({
       scenarioType: s.scenario_type,
       label: SCENARIO_LABELS[s.scenario_type]?.label || s.scenario_type,
-      color: SCENARIO_COLORS[s.scenario_type] || '#5193B3',
+      color: SCENARIO_COLORS[s.scenario_type] || 'var(--u-green)',
       rows: s.asset_class_bands.map(band => ({
         label: band.sleeve,
         currentPct: band.current_pct,
@@ -798,7 +798,7 @@ function ScenarioContent({
     return allScenarios.map(s => ({
       scenarioType: s.scenario_type,
       label: SCENARIO_LABELS[s.scenario_type]?.label || s.scenario_type,
-      color: SCENARIO_COLORS[s.scenario_type] || '#5193B3',
+      color: SCENARIO_COLORS[s.scenario_type] || 'var(--u-green)',
       rows: s.region_bands.map(band => ({
         label: band.sleeve,
         currentPct: band.current_pct,
@@ -815,12 +815,12 @@ function ScenarioContent({
         <div className="flex items-center gap-6 mt-3">
           <div className="flex items-center gap-2">
             <span className="text-xs text-[var(--muted-foreground)]">Belief axes reflected:</span>
-            <span className="text-sm font-semibold text-[#10A957]">{axesReflectedCount} of {TOTAL_BELIEF_AXES}</span>
+            <span className="text-sm font-semibold text-[var(--success)]">{axesReflectedCount} of {TOTAL_BELIEF_AXES}</span>
           </div>
           {scenario.tilts_constrained_count > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-[var(--muted-foreground)]">Axes constrained:</span>
-              <span className="text-sm font-semibold text-[#FE9239]">{scenario.tilts_constrained_count}</span>
+              <span className="text-sm font-semibold text-[var(--warning)]">{scenario.tilts_constrained_count}</span>
             </div>
           )}
         </div>
@@ -855,7 +855,7 @@ function ScenarioContent({
 
       {/* Asset Class Bands */}
       <div className="group relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
@@ -943,14 +943,14 @@ function ScenarioContent({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-[var(--border)] p-4">
           <h4 className="font-semibold text-[var(--foreground)] mb-3 flex items-center gap-2">
-            <ArrowUpRight className="w-4 h-4 text-[#10A957]" />
+            <ArrowUpRight className="w-4 h-4 text-[var(--success)]" />
             What differs (illustrative)
           </h4>
           {changes.length > 0 ? (
             <ul className="space-y-2">
               {changes.map((bullet, i) => (
                 <li key={i} className="text-sm text-[var(--muted-foreground)] flex items-start gap-2">
-                  <Circle className="w-2 h-2 text-[#10A957] flex-shrink-0 mt-1.5 fill-current" />
+                  <Circle className="w-2 h-2 text-[var(--success)] flex-shrink-0 mt-1.5 fill-current" />
                   {bullet.text}
                 </li>
               ))}
@@ -992,7 +992,7 @@ function ScenarioContent({
         <div className="flex flex-wrap gap-3">
           {safetyLightStatuses.map((light) => {
             const statusColors: Record<string, string> = {
-              GREEN: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+              GREEN: 'bg-[#00bb77]/15 text-[var(--success)] dark:bg-[#00bb77]/20 dark:text-[var(--success)]',
               AMBER: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
               RED: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
               UNCHANGED: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
@@ -1034,7 +1034,7 @@ function ScenarioContent({
       {scenario.binding_constraints.length > 0 && (
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
           <h3 className="text-lg font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-[#FE9239]" />
+            <ShieldAlert className="w-5 h-5 text-[var(--warning)]" />
             Trade-offs and Constraints
           </h3>
           <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl mb-4">
@@ -1179,14 +1179,14 @@ export default function Target() {
         {/* Tilts Locked Banner */}
         {scenario.tilts_locked_banner && (
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FE9239]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 border-[#FE9239]/30 shadow-lg p-5">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#f59e0b]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 border-[#f59e0b]/30 shadow-lg p-5">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FE9239] to-[#EA580C] flex items-center justify-center shadow-lg flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--warning)] to-[var(--warning)] flex items-center justify-center shadow-lg flex-shrink-0">
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#FE9239]">Belief axes captured but constrained</h4>
+                  <h4 className="font-bold text-[var(--warning)]">Belief axes captured but constrained</h4>
                   <p className="text-sm text-[var(--muted-foreground)]">
                     Safety Lights guardrails constrain how preferences can be considered. Address the underlying constraints to enable full consideration.
                   </p>
@@ -1199,10 +1199,10 @@ export default function Target() {
         {/* Scenario Tabs */}
         {scenario.computed && scenario.scenarios.length > 0 && (
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6 pt-12">
               <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10A957] to-[#13683B] flex items-center justify-center shadow-lg shadow-[#10A957]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--u-green)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <TargetIcon className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -1245,7 +1245,7 @@ export default function Target() {
                     <div 
                       className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
                         compareMode 
-                          ? 'bg-[var(--primary)]/10 border-[var(--primary)]/30' 
+                          ? 'bg-[#00bb77]/10 border-[#00bb77]/30' 
                           : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'
                       }`}
                     >
@@ -1333,7 +1333,7 @@ export default function Target() {
           <Button
             onClick={handleContinue}
             disabled={!scenario.computed}
-            className="px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 shadow-lg shadow-[var(--primary)]/25 transition-all duration-300"
+            className="px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 shadow-lg shadow-[#00bb77]/25 transition-all duration-300"
             data-testid="target-continue-button"
           >
             Continue

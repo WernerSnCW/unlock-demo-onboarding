@@ -204,10 +204,10 @@ export default function Holdings() {
         <div className="grid lg:grid-cols-4 gap-6 mb-6 pt-6">
           {/* Total Value Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
               <div className="absolute -top-4 left-4 z-10">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/70 flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <TrendingUp className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -223,10 +223,10 @@ export default function Holdings() {
 
           {/* Largest Holding Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--secondary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008655]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
               <div className="absolute -top-4 left-4 z-10">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[var(--secondary)]/70 flex items-center justify-center shadow-lg shadow-[var(--secondary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[#008655]/70 flex items-center justify-center shadow-lg shadow-[#008655]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <PieChart className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -242,10 +242,10 @@ export default function Holdings() {
 
           {/* Illiquid Assets Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008a55]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
               <div className="absolute -top-4 left-4 z-10">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--u-green-accent)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#008a55]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Lock className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -268,7 +268,7 @@ export default function Holdings() {
                   : analysis.result.safety_lights.overall_status === 'AMBER'
                   ? 'bg-gradient-to-br from-amber-500/20 to-transparent'
                   : 'bg-gradient-to-br from-rose-500/20 to-transparent'
-                : 'bg-gradient-to-br from-purple-500/20 to-transparent'
+                : 'bg-gradient-to-br from-[#00bb77]/20 to-transparent'
             }`} />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-8">
               <div className="absolute -top-4 left-4 z-10">
@@ -279,7 +279,7 @@ export default function Holdings() {
                       : analysis.result.safety_lights.overall_status === 'AMBER'
                       ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/25'
                       : 'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
-                    : 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-500/25'
+                    : 'bg-gradient-to-br from-[var(--primary)] to-[var(--u-green-deep)] shadow-[#00bb77]/25'
                 }`}>
                   <Shield className="w-5 h-5 text-white" />
                 </div>
@@ -340,7 +340,7 @@ export default function Holdings() {
         )}
 
         {globalError && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--destructive)]/10 border border-[var(--destructive)]/30">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-[#ef4444]/10 border border-[#ef4444]/30">
             <AlertCircle className="w-4 h-4 text-[var(--destructive)]" />
             <span className="text-sm text-[var(--destructive)]">{globalError}</span>
           </div>
@@ -486,10 +486,10 @@ export default function Holdings() {
                     </td>
                   </tr>
                   {expandedHoldings.has(holding.id) && (
-                    <tr key={`${holding.id}-details`} className="bg-[var(--muted)]/10">
+                    <tr key={`${holding.id}-details`} className="bg-[#2b2b2b]/10">
                       <td colSpan={9} className="p-4">
                         <div className="space-y-4">
-                          <div className="flex items-start gap-2 p-3 rounded-lg bg-[var(--primary)]/5 border border-[var(--primary)]/20">
+                          <div className="flex items-start gap-2 p-3 rounded-lg bg-[#00bb77]/5 border border-[#00bb77]/20">
                             <Info className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
                             <p className="text-xs text-[var(--muted-foreground)]">
                               These details are used for transition and tax-aware planning in the next step of Unlock. They're optional for now, but capturing them lets us model CGT and wrapper moves more precisely.
@@ -570,12 +570,12 @@ export default function Holdings() {
                             <div className="space-y-1">
                               <label className="text-xs font-medium text-[var(--muted-foreground)]">Unrealised Gain</label>
                               {holding.unrealised_gain_gbp != null ? (
-                                <div className={`h-9 flex items-center px-3 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 text-sm font-medium ${holding.unrealised_gain_gbp >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                                <div className={`h-9 flex items-center px-3 rounded-md border border-[var(--border)] bg-[#2b2b2b]/30 text-sm font-medium ${holding.unrealised_gain_gbp >= 0 ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
                                   {holding.unrealised_gain_gbp >= 0 ? '+' : ''}
                                   {formatCurrency(holding.unrealised_gain_gbp)} ({holding.unrealised_gain_pct?.toFixed(1)}%)
                                 </div>
                               ) : (
-                                <div className="h-9 flex items-center px-3 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 text-xs text-[var(--muted-foreground)]">
+                                <div className="h-9 flex items-center px-3 rounded-md border border-[var(--border)] bg-[#2b2b2b]/30 text-xs text-[var(--muted-foreground)]">
                                   Enter cost basis to see gain
                                 </div>
                               )}
@@ -605,7 +605,7 @@ export default function Holdings() {
         <Button
           variant="outline"
           onClick={handleAddHolding}
-          className="gap-2 text-[var(--primary)] border-[var(--primary)]/50 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 shadow-sm transition-all duration-200"
+          className="gap-2 text-[var(--primary)] border-[#00bb77]/50 hover:border-[var(--primary)] hover:bg-[#00bb77]/5 shadow-sm transition-all duration-200"
           data-testid="button-add-holding"
         >
           <Plus className="w-4 h-4" />
@@ -627,7 +627,7 @@ export default function Holdings() {
           </Button>
           <Button
             onClick={handleNext}
-            className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
+            className="bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             data-testid="button-next"
           >
             Continue to Analysis

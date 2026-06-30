@@ -44,8 +44,8 @@ export default function PathChart({ blend, readPath, stepUnit, troughIndex }: Pa
           <Area dataKey="bandSpan" stackId="band" stroke="none" fill="var(--muted-foreground)" fillOpacity={0.14}
                 isAnimationActive={false} />
           <Line dataKey="central" stroke="var(--muted-foreground)" strokeWidth={2} dot={false} isAnimationActive={false} />
-          <Line dataKey="read" stroke="var(--foreground)" strokeWidth={2.5} dot={false} isAnimationActive={false} />
-          <ReferenceDot x={troughIndex} y={readPath[troughIndex]} r={4} fill="var(--foreground)" stroke="none" />
+          <Line dataKey="read" stroke="var(--u-green)" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+          <ReferenceDot x={troughIndex} y={readPath[troughIndex]} r={4} fill="var(--u-green)" stroke="none" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

@@ -76,21 +76,21 @@ function filterAndSortTraits(traits: PortfolioTrait[]): { visible: PortfolioTrai
 
 const intensityColors: Record<TraitIntensity, string> = {
   Light: 'bg-slate-400 dark:bg-slate-500',
-  Moderate: 'bg-amber-500',
-  Strong: 'bg-emerald-500',
+  Moderate: 'bg-[var(--warning)]',
+  Strong: 'bg-[var(--primary)]',
 };
 
 const intensityBgColors: Record<TraitIntensity, string> = {
   Light: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
-  Moderate: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-  Strong: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+  Moderate: 'bg-[#f59e0b]/10 text-[var(--warning)]',
+  Strong: 'bg-[#00bb77]/10 text-[var(--primary)]',
 };
 
 const indicatorColors: Record<string, string> = {
-  'Risk Orientation': 'bg-rose-500',
-  'Liquidity Resilience': 'bg-emerald-500',
-  'Alternatives Exposure': 'bg-purple-500',
-  'Property Tilt': 'bg-amber-500',
+  'Risk Orientation': 'bg-[var(--u-viz-1)]',
+  'Liquidity Resilience': 'bg-[var(--u-viz-2)]',
+  'Alternatives Exposure': 'bg-[var(--u-viz-4)]',
+  'Property Tilt': 'bg-[var(--u-viz-3)]',
 };
 
 export default function PersonaCard({ persona }: PersonaCardProps) {
@@ -100,10 +100,10 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
       data-testid="persona-card"
     >
       {/* Header with gradient accent */}
-      <div className="relative px-6 py-5 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)]/5 to-transparent border-b border-[var(--border)]">
+      <div className="relative px-6 py-5 bg-gradient-to-r from-[#00bb77]/10 via-[#008655]/5 to-transparent border-b border-[var(--border)]">
         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[var(--primary)] to-[var(--secondary)]" />
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+          <div className="p-3 rounded-xl bg-[#00bb77]/10 text-[var(--primary)]">
             <User className="w-6 h-6" />
           </div>
           <div className="flex-1">

@@ -37,9 +37,9 @@ import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/Logo';
 
 const SAFETY_STATUS_CONFIG: Record<SafetyStatus, { icon: typeof ShieldCheck; color: string; bg: string; label: string }> = {
-  GREEN: { icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'Green' },
-  AMBER: { icon: ShieldAlert, color: 'text-amber-600', bg: 'bg-amber-100 dark:bg-amber-900/30', label: 'Amber' },
-  RED: { icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-100 dark:bg-rose-900/30', label: 'Red' },
+  GREEN: { icon: ShieldCheck, color: 'text-[var(--success)]', bg: 'bg-[#00bb77]/15', label: 'Green' },
+  AMBER: { icon: ShieldAlert, color: 'text-[var(--warning)]', bg: 'bg-[#f59e0b]/15', label: 'Amber' },
+  RED: { icon: XCircle, color: 'text-[var(--destructive)]', bg: 'bg-[#ef4444]/15', label: 'Red' },
 };
 
 function SafetyPill({ status, label }: { status: SafetyStatus; label: string }) {
@@ -402,8 +402,8 @@ export default function Report() {
             </div>
             
             {scenariosConverge && (
-              <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="mt-4 bg-[var(--u-green-fill)] border border-[var(--u-green-line)] rounded-lg p-3">
+                <p className="text-sm text-[var(--foreground)]">
                   Under current constraints, scenarios converge on similar ranges.
                 </p>
               </div>
@@ -523,7 +523,7 @@ export default function Report() {
                       <tr key={tilt.axis_code} className="border-b border-[var(--border)]">
                         <td className="py-2 text-[var(--foreground)]">{tilt.axis_label}</td>
                         <td className="py-2">
-                          <span className={tilt.status === 'APPLIED' ? 'text-emerald-600' : tilt.status === 'LOCKED' ? 'text-rose-600' : 'text-amber-600'}>
+                          <span className={tilt.status === 'APPLIED' ? 'text-[var(--success)]' : tilt.status === 'LOCKED' ? 'text-[var(--destructive)]' : 'text-[var(--warning)]'}>
                             {tilt.status.replace(/_/g, ' ').toLowerCase()}
                           </span>
                         </td>
@@ -766,7 +766,7 @@ export default function Report() {
             </Link>
             <Link href="/" className="flex-1">
               <Button 
-                className="w-full gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium" 
+                className="w-full gap-2 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium" 
                 data-testid="button-go-home"
               >
                 <Home className="w-4 h-4" />
