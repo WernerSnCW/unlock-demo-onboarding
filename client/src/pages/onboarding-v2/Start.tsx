@@ -105,8 +105,8 @@ export default function Start() {
         <section className="relative max-w-3xl mx-auto w-full px-6 pt-16 pb-12 text-center">
           <p className="u-eyebrow mb-4">Decision support for private wealth</p>
           <h1 className="text-5xl sm:text-6xl font-light tracking-tight text-[var(--foreground)] leading-[1.05] mb-6">
-            Institutional-grade clarity,{' '}
-            <span className="u-grad-green">at a subscription price.</span>
+            Your wealth is complex.{' '}
+            <span className="u-grad-green">Your decisions shouldn&rsquo;t be.</span>
           </h1>
           <p className="text-lg sm:text-xl leading-relaxed text-[var(--muted-foreground)] max-w-2xl mx-auto mb-10">
             Unlock is a decision-support platform for HNW investors — the £500k–£25M cohort
