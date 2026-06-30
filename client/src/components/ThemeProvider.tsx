@@ -10,17 +10,14 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
+  // Unlock DS is dark-by-default (canonical brand look). Honour an explicit
+  // saved preference if the user has toggled before; otherwise default to dark.
+  const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    // Check localStorage for saved theme preference
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) {
       setTheme(savedTheme);
-    } else {
-      // Check system preference
-      const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      setTheme(systemPreference);
     }
   }, []);
 

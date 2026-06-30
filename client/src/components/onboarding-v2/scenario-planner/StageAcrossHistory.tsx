@@ -18,7 +18,7 @@ export default function StageAcrossHistory(
         </thead>
         <tbody>
           {rows.map(({ episode, replay }) => (
-            <tr key={episode.id} data-testid={`history-row-${episode.id}`} className="border-t border-slate-200">
+            <tr key={episode.id} data-testid={`history-row-${episode.id}`} className="border-t border-[var(--border)]">
               <td className="py-1">{episode.name} <span className="text-[var(--muted-foreground)]">({episode.yearLabel})</span></td>
               <td>{fmtSignedPct(replay.drawdown)}</td>
               <td>{fmtRecovery(replay.recoverySteps, episode.granularity, episode.inflationEpisode)}</td>

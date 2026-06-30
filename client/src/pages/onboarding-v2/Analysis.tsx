@@ -11,28 +11,28 @@ import { apiRequest } from '@/lib/queryClient';
 
 const statusConfig: Record<SafetyStatus, { color: string; icon: typeof CheckCircle2; bgColor: string; borderColor: string; gradient: string; iconBg: string }> = {
   GREEN: {
-    color: 'text-emerald-600 dark:text-emerald-400',
+    color: 'text-[var(--success)]',
     icon: CheckCircle2,
-    bgColor: 'bg-emerald-500/5',
-    borderColor: 'border-emerald-500/30',
-    gradient: 'bg-gradient-to-br from-emerald-500/10 via-white to-emerald-500/5 dark:from-emerald-500/15 dark:via-gray-900 dark:to-emerald-500/5',
-    iconBg: 'bg-emerald-500/10',
+    bgColor: 'bg-[#00bb77]/5',
+    borderColor: 'border-[#00bb77]/30',
+    gradient: 'bg-gradient-to-br from-[#00bb77]/15 via-[var(--card)] to-[#00bb77]/5',
+    iconBg: 'bg-[#00bb77]/10',
   },
   AMBER: {
-    color: 'text-amber-600 dark:text-amber-400',
+    color: 'text-[var(--warning)]',
     icon: AlertTriangle,
-    bgColor: 'bg-amber-500/5',
-    borderColor: 'border-amber-500/30',
-    gradient: 'bg-gradient-to-br from-amber-500/10 via-white to-amber-500/5 dark:from-amber-500/15 dark:via-gray-900 dark:to-amber-500/5',
-    iconBg: 'bg-amber-500/10',
+    bgColor: 'bg-[#f59e0b]/5',
+    borderColor: 'border-[#f59e0b]/30',
+    gradient: 'bg-gradient-to-br from-[#f59e0b]/15 via-[var(--card)] to-[#f59e0b]/5',
+    iconBg: 'bg-[#f59e0b]/10',
   },
   RED: {
-    color: 'text-rose-600 dark:text-rose-400',
+    color: 'text-[var(--destructive)]',
     icon: XCircle,
-    bgColor: 'bg-rose-500/5',
-    borderColor: 'border-rose-500/30',
-    gradient: 'bg-gradient-to-br from-rose-500/10 via-white to-rose-500/5 dark:from-rose-500/15 dark:via-gray-900 dark:to-rose-500/5',
-    iconBg: 'bg-rose-500/10',
+    bgColor: 'bg-[#ef4444]/5',
+    borderColor: 'border-[#ef4444]/30',
+    gradient: 'bg-gradient-to-br from-[#ef4444]/15 via-[var(--card)] to-[#ef4444]/5',
+    iconBg: 'bg-[#ef4444]/10',
   },
 };
 
@@ -256,7 +256,7 @@ export default function Analysis() {
           <p className="text-[var(--muted-foreground)] mb-6">{analysis.error}</p>
           <Button
             onClick={runAnalysis}
-            className="bg-[var(--primary)] hover:bg-[var(--primary)]/90"
+            className="bg-[var(--primary)] hover:bg-[#00bb77]/90"
             data-testid="button-retry"
           >
             Try Again
@@ -315,9 +315,9 @@ export default function Analysis() {
         {/* Overall Status Banner */}
         <div className="group relative">
           <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-            overall_status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500/30 to-transparent' :
-            overall_status === 'AMBER' ? 'bg-gradient-to-br from-amber-500/30 to-transparent' :
-            'bg-gradient-to-br from-rose-500/30 to-transparent'
+            overall_status === 'GREEN' ? 'bg-gradient-to-br from-[#00bb77]/30 to-transparent' :
+            overall_status === 'AMBER' ? 'bg-gradient-to-br from-[#f59e0b]/30 to-transparent' :
+            'bg-gradient-to-br from-[#ef4444]/30 to-transparent'
           }`} />
           <div
             className={`relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-10 ${overallStatusConfig.borderColor}`}
@@ -326,9 +326,9 @@ export default function Analysis() {
           >
             <div className="absolute -top-5 left-6 z-10">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
-                overall_status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25' :
-                overall_status === 'AMBER' ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/25' :
-                'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+                overall_status === 'GREEN' ? 'bg-gradient-to-br from-[var(--success)] to-[var(--u-green-deep)] shadow-[#00bb77]/25' :
+                overall_status === 'AMBER' ? 'bg-gradient-to-br from-[var(--warning)] to-[var(--warning)] shadow-[#f59e0b]/25' :
+                'bg-gradient-to-br from-[var(--destructive)] to-[var(--destructive)] shadow-[#ef4444]/25'
               }`}>
                 <OverallStatusIcon className="w-6 h-6 text-white" />
               </div>
@@ -345,7 +345,7 @@ export default function Analysis() {
         </div>
 
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-[var(--primary)]/10">
+          <div className="p-2 rounded-lg bg-[#00bb77]/10">
             <Shield className="w-5 h-5 text-[var(--primary)]" />
           </div>
           <h3 className="text-xl font-bold text-[var(--foreground)] tracking-tight">Safety Lights</h3>
@@ -360,9 +360,9 @@ export default function Analysis() {
             return (
               <div key={light.key} className="group relative h-full">
                 <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-                  light.status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500/20 to-transparent' :
-                  light.status === 'AMBER' ? 'bg-gradient-to-br from-amber-500/20 to-transparent' :
-                  'bg-gradient-to-br from-rose-500/20 to-transparent'
+                  light.status === 'GREEN' ? 'bg-gradient-to-br from-[#00bb77]/20 to-transparent' :
+                  light.status === 'AMBER' ? 'bg-gradient-to-br from-[#f59e0b]/20 to-transparent' :
+                  'bg-gradient-to-br from-[#ef4444]/20 to-transparent'
                 }`} />
                 <div
                   className="relative h-full flex flex-col bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10"
@@ -371,9 +371,9 @@ export default function Analysis() {
                 >
                   <div className="absolute -top-4 left-4 z-10">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
-                      light.status === 'GREEN' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25' :
-                      light.status === 'AMBER' ? 'bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-500/25' :
-                      'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+                      light.status === 'GREEN' ? 'bg-gradient-to-br from-[var(--success)] to-[var(--u-green-deep)] shadow-[#00bb77]/25' :
+                      light.status === 'AMBER' ? 'bg-gradient-to-br from-[var(--warning)] to-[var(--warning)] shadow-[#f59e0b]/25' :
+                      'bg-gradient-to-br from-[var(--destructive)] to-[var(--destructive)] shadow-[#ef4444]/25'
                     }`}>
                       <Icon className="w-5 h-5 text-white" />
                     </div>
@@ -392,10 +392,10 @@ export default function Analysis() {
 
         {/* Key Metrics Section */}
         <div className="group relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10" data-testid="key-metrics-section">
             <div className="absolute -top-4 left-4 z-10">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/70 flex items-center justify-center shadow-lg shadow-[#00bb77]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
                 <Target className="w-5 h-5 text-white" />
               </div>
             </div>
@@ -498,19 +498,19 @@ export default function Analysis() {
         {/* Tilts Banner */}
         <div className="group relative">
           <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-            tilts_allowed ? 'bg-gradient-to-br from-emerald-500/20 to-transparent' : 'bg-gradient-to-br from-rose-500/20 to-transparent'
+            tilts_allowed ? 'bg-gradient-to-br from-[#00bb77]/20 to-transparent' : 'bg-gradient-to-br from-[#ef4444]/20 to-transparent'
           }`} />
           <div
             className={`relative bg-white dark:bg-slate-800/80 rounded-2xl border shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10 ${
-              tilts_allowed ? 'border-emerald-500/30' : 'border-rose-500/30'
+              tilts_allowed ? 'border-[#00bb77]/30' : 'border-[#ef4444]/30'
             }`}
             data-testid="tilts-banner"
           >
             <div className="absolute -top-4 left-4 z-10">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
-                tilts_allowed 
-                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/25' 
-                  : 'bg-gradient-to-br from-rose-500 to-rose-600 shadow-rose-500/25'
+                tilts_allowed
+                  ? 'bg-gradient-to-br from-[var(--success)] to-[var(--u-green-deep)] shadow-[#00bb77]/25'
+                  : 'bg-gradient-to-br from-[var(--destructive)] to-[var(--destructive)] shadow-[#ef4444]/25'
               }`}>
                 {tilts_allowed ? (
                   <CheckCircle2 className="w-5 h-5 text-white" />
@@ -520,7 +520,7 @@ export default function Analysis() {
               </div>
             </div>
             <div>
-              <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${tilts_allowed ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}`}>
+              <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${tilts_allowed ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
                 {tilts_allowed ? 'Preference Signals Enabled' : 'Preference Signals Locked'}
               </h4>
               <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
@@ -543,7 +543,7 @@ export default function Analysis() {
           </Button>
           <Button
             onClick={() => navigate('/onboarding-v2/beliefs')}
-            className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
+            className="bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             data-testid="button-next"
           >
             Continue to Beliefs

@@ -74,7 +74,7 @@ export default function ScenarioPlanner() {
       {/* Stage 4 (delta) is flag-gated dark until §13 compliance sign-off. */}
       {stage === 4 && DELTA_ENABLED && <StageCompareMixes currentMix={mix} episodes={monthly} />}
 
-      <footer className="border-t border-slate-200 pt-3">
+      <footer className="border-t border-[var(--border)] pt-3">
         <p className="text-xs text-[var(--muted-foreground)]">{ADVICE_EXIT}</p>
       </footer>
     </div>

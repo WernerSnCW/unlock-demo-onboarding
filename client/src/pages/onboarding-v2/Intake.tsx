@@ -176,11 +176,11 @@ export default function Intake() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl mx-auto pt-4">
           {/* Basic Details Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300">
               {/* Floating icon */}
               <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/70 flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <User className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -281,10 +281,10 @@ export default function Intake() {
 
           {/* Financial Picture Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--secondary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008655]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[var(--secondary)]/70 flex items-center justify-center shadow-lg shadow-[var(--secondary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[#008655]/70 flex items-center justify-center shadow-lg shadow-[#008655]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Wallet className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -419,10 +419,10 @@ export default function Intake() {
 
           {/* Goals & Risk Profile Card */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008a55]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--u-green-accent)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#008a55]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Target className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -508,22 +508,22 @@ export default function Intake() {
 
           {/* Investor Profile Section (Optional) */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008655]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--u-green-deep)] to-[var(--secondary)] flex items-center justify-center shadow-lg shadow-[#008655]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <UserCircle className="w-6 h-6 text-white" />
                 </div>
               </div>
             <button
               type="button"
               onClick={() => setShowInvestorProfile(!showInvestorProfile)}
-              className="w-full flex items-center justify-between px-6 py-4 pt-8 hover:bg-[var(--muted)]/30 transition-colors"
+              className="w-full flex items-center justify-between px-6 py-4 pt-8 hover:bg-[#2b2b2b]/30 transition-colors"
               data-testid="toggle-investor-profile"
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg font-semibold text-[var(--foreground)]">Investor Profile</span>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">Optional</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#00bb77]/10 text-[var(--primary)]">Optional</span>
               </div>
               {showInvestorProfile ? (
                 <ChevronUp className="w-5 h-5 text-[var(--muted-foreground)]" />
@@ -534,7 +534,7 @@ export default function Intake() {
 
             {showInvestorProfile && (
               <div className="p-6 pt-4 border-t border-[var(--border)] space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-                <p className="text-sm text-[var(--muted-foreground)] bg-[var(--muted)]/30 p-3 rounded-lg">
+                <p className="text-sm text-[var(--muted-foreground)] bg-[#2b2b2b]/30 p-3 rounded-lg">
                   These questions help us understand what kind of investor you are so we can tailor your plan. They're optional, but answering them improves the analysis.
                 </p>
 
@@ -581,7 +581,7 @@ export default function Intake() {
                         onClick={() => updatePersonaCues({ portfolio_stage: option.value as PersonaCues['portfolio_stage'] })}
                         className={`px-4 py-3 rounded-lg border text-sm text-left transition-all ${
                           personaCues.portfolio_stage === option.value
-                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]'
+                            ? 'bg-[#00bb77]/10 border-[var(--primary)] text-[var(--foreground)]'
                             : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)]'
                         }`}
                         data-testid={`btn-stage-${option.value}`}
@@ -608,7 +608,7 @@ export default function Intake() {
                         key={option.value}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-all ${
                           personaCues.investing_focus?.includes(option.value as InvestingFocus)
-                            ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
+                            ? 'bg-[#00bb77]/10 border-[var(--primary)]'
                             : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'
                         }`}
                       >
@@ -635,8 +635,8 @@ export default function Intake() {
                     {/* Defined Benefit Pension */}
                     <div className={`p-4 rounded-lg border transition-all ${
                       personaCues.has_defined_benefit_pension
-                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
-                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                        ? 'bg-[#00bb77]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[#00bb77]/50'
                     }`}>
                       <div className="flex items-start gap-3">
                         <Switch
@@ -676,8 +676,8 @@ export default function Intake() {
                     {/* Private Business / PE */}
                     <div className={`p-4 rounded-lg border transition-all ${
                       personaCues.owns_business
-                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
-                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                        ? 'bg-[#00bb77]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[#00bb77]/50'
                     }`}>
                       <div className="flex items-start gap-3">
                         <Switch
@@ -717,8 +717,8 @@ export default function Intake() {
                     {/* Employer Stock / RSUs */}
                     <div className={`p-4 rounded-lg border transition-all ${
                       personaCues.has_employer_stock
-                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
-                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                        ? 'bg-[#00bb77]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[#00bb77]/50'
                     }`}>
                       <div className="flex items-start gap-3">
                         <Switch
@@ -758,8 +758,8 @@ export default function Intake() {
                     {/* Crypto / Digital Assets */}
                     <div className={`p-4 rounded-lg border transition-all ${
                       personaCues.has_crypto
-                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
-                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                        ? 'bg-[#00bb77]/10 border-[var(--primary)]'
+                        : 'bg-[var(--background)] border-[var(--border)] hover:border-[#00bb77]/50'
                     }`}>
                       <div className="flex items-start gap-3">
                         <Switch
@@ -814,7 +814,7 @@ export default function Intake() {
                         onClick={() => updatePersonaCues({ adviser_usage: option.value as PersonaCues['adviser_usage'] })}
                         className={`px-4 py-3 rounded-lg border text-sm text-left transition-all ${
                           personaCues.adviser_usage === option.value
-                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]'
+                            ? 'bg-[#00bb77]/10 border-[var(--primary)] text-[var(--foreground)]'
                             : 'bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)]'
                         }`}
                         data-testid={`btn-adviser-${option.value}`}
@@ -828,8 +828,8 @@ export default function Intake() {
                 {/* Cross-border */}
                 <div className={`flex items-start gap-3 p-4 rounded-lg border transition-all ${
                   personaCues.is_cross_border === true
-                    ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
-                    : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]/50'
+                    ? 'bg-[#00bb77]/10 border-[var(--primary)]'
+                    : 'bg-[var(--background)] border-[var(--border)] hover:border-[#00bb77]/50'
                 }`}>
                   <Switch
                     checked={personaCues.is_cross_border === true}
@@ -865,7 +865,7 @@ export default function Intake() {
             </Button>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
+              className="bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
               data-testid="button-next"
             >
               Continue to Holdings

@@ -52,11 +52,11 @@ const AXIS_LABELS: Record<AxisCode, string> = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: typeof Check }> = {
-  APPLIED: { label: 'Applied', color: 'text-[#10A957]', bgColor: 'bg-[#10A957]/10', icon: Check },
-  PARTIALLY_APPLIED: { label: 'Partially applied', color: 'text-[#13683B]', bgColor: 'bg-[#13683B]/10', icon: Check },
-  CONSTRAINED: { label: 'Constrained', color: 'text-[#FE9239]', bgColor: 'bg-[#FE9239]/10', icon: Lock },
-  LOCKED: { label: 'Locked', color: 'text-[#DC2626]', bgColor: 'bg-[#DC2626]/10', icon: Lock },
-  NOT_APPLIED: { label: 'Not applied', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: Minus },
+  APPLIED: { label: 'Applied', color: 'text-[var(--success)]', bgColor: 'bg-[#00bb77]/10', icon: Check },
+  PARTIALLY_APPLIED: { label: 'Partially applied', color: 'text-[var(--u-green-deep)]', bgColor: 'bg-[#008655]/10', icon: Check },
+  CONSTRAINED: { label: 'Constrained', color: 'text-[var(--warning)]', bgColor: 'bg-[#f59e0b]/10', icon: Lock },
+  LOCKED: { label: 'Locked', color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10', icon: Lock },
+  NOT_APPLIED: { label: 'Not applied', color: 'text-[var(--muted-foreground)]', bgColor: 'bg-[var(--muted)]', icon: Minus },
 };
 
 const DIRECTION_ICONS: Record<string, typeof TrendingUp> = {
@@ -66,9 +66,9 @@ const DIRECTION_ICONS: Record<string, typeof TrendingUp> = {
 };
 
 const DIRECTION_COLORS: Record<string, string> = {
-  TOWARDS: 'text-[#10A957]',
-  AWAY: 'text-[#FE9239]',
-  NEUTRAL: 'text-[#64748B]',
+  TOWARDS: 'text-[var(--primary)]',
+  AWAY: 'text-[var(--u-viz-4)]',
+  NEUTRAL: 'text-[var(--muted-foreground)]',
 };
 
 const LIGHT_CONFIG: Record<string, { icon: typeof Droplets; label: string; whyItMatters: string }> = {
@@ -90,9 +90,9 @@ const LIGHT_CONFIG: Record<string, { icon: typeof Droplets; label: string; whyIt
 };
 
 const STATUS_ICON_CONFIG: Record<SafetyStatus, { icon: typeof CheckCircle2; color: string; bgColor: string }> = {
-  GREEN: { icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bgColor: 'bg-emerald-500/10' },
-  AMBER: { icon: AlertTriangle, color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-500/10' },
-  RED: { icon: XCircle, color: 'text-rose-600 dark:text-rose-400', bgColor: 'bg-rose-500/10' },
+  GREEN: { icon: CheckCircle2, color: 'text-[var(--success)]', bgColor: 'bg-[#00bb77]/10' },
+  AMBER: { icon: AlertTriangle, color: 'text-[var(--warning)]', bgColor: 'bg-[#f59e0b]/10' },
+  RED: { icon: XCircle, color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10' },
 };
 
 interface LightItem {
@@ -181,24 +181,24 @@ export default function NextSteps() {
           headline: "You're within guardrails",
           sentence: "Your portfolio is within Unlock's guardrails for liquidity, concentration, and illiquid exposure. Preference signals are enabled.",
           icon: ShieldCheck,
-          bgColor: 'bg-emerald-500/5 border-emerald-500/30',
-          iconColor: 'text-emerald-600 dark:text-emerald-400',
+          bgColor: 'bg-[#00bb77]/5 border-[#00bb77]/30',
+          iconColor: 'text-[var(--success)]',
         };
       case 'AMBER':
         return {
           headline: "Caution flags present",
           sentence: "Some guardrails are close to limits. Preference signals may be applied, but changes should stay modest until the amber flags improve.",
           icon: ShieldAlert,
-          bgColor: 'bg-amber-500/5 border-amber-500/30',
-          iconColor: 'text-amber-600 dark:text-amber-400',
+          bgColor: 'bg-[#f59e0b]/5 border-[#f59e0b]/30',
+          iconColor: 'text-[var(--warning)]',
         };
       case 'RED':
         return {
           headline: "Action required before preferences can be applied",
           sentence: "One or more red flags are present. Preference signals are recorded but locked until these constraints are addressed.",
           icon: XCircle,
-          bgColor: 'bg-rose-500/5 border-rose-500/30',
-          iconColor: 'text-rose-600 dark:text-rose-400',
+          bgColor: 'bg-[#ef4444]/5 border-[#ef4444]/30',
+          iconColor: 'text-[var(--destructive)]',
         };
     }
   };
@@ -563,7 +563,7 @@ export default function NextSteps() {
         </div>
 
         {/* What Happens Next */}
-        <div className="bg-gradient-to-br from-[var(--primary)]/5 to-[var(--primary)]/10 rounded-2xl p-6 border border-[var(--primary)]/20">
+        <div className="bg-gradient-to-br from-[#00bb77]/5 to-[#00bb77]/10 rounded-2xl p-6 border border-[#00bb77]/20">
           <h2 className="text-lg font-bold text-[var(--foreground)] mb-2">What happens next</h2>
           <p className="text-[var(--muted-foreground)]">
             Next, we'll show an illustrative view of wrappers and transition considerations, and then generate your snapshot report.
@@ -597,28 +597,28 @@ export default function NextSteps() {
             <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-3">Signal status legend</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#10A957]/10 text-[#10A957] font-medium">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#00bb77]/10 text-[var(--success)] font-medium">
                   <Check className="w-3 h-3" />
                   Applied
                 </span>
                 <span className="text-[var(--muted-foreground)]">Preference reflected in scenarios</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#64748B] font-medium">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] font-medium">
                   <Minus className="w-3 h-3" />
                   Not applied
                 </span>
                 <span className="text-[var(--muted-foreground)]">No direction indicated</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FE9239]/10 text-[#FE9239] font-medium">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f59e0b]/10 text-[var(--warning)] font-medium">
                   <Lock className="w-3 h-3" />
                   Constrained
                 </span>
                 <span className="text-[var(--muted-foreground)]">Limited by amber guardrails</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#DC2626]/10 text-[#DC2626] font-medium">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ef4444]/10 text-[var(--destructive)] font-medium">
                   <Lock className="w-3 h-3" />
                   Locked
                 </span>
@@ -631,8 +631,8 @@ export default function NextSteps() {
         {/* AI Translation Layer */}
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-sm" data-testid="ai-translation-layer">
           <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--u-green)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-[var(--primary-foreground)]" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-[var(--foreground)]">Plain-English summary (AI-assisted)</h2>
@@ -645,7 +645,7 @@ export default function NextSteps() {
             <Button
               onClick={handleGenerateSummary}
               disabled={aiLoading}
-              className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white"
+              className="flex items-center gap-2 bg-gradient-to-r from-[var(--u-green)] to-[var(--u-green-deep)] hover:from-[var(--u-green-deep)] hover:to-[var(--u-green-accent)] text-[var(--primary-foreground)]"
               data-testid="generate-summary-button"
             >
               {aiLoading ? (
@@ -696,7 +696,7 @@ export default function NextSteps() {
 
           {aiSummary && !aiError && (
             <div className="space-y-3" data-testid="ai-summary-output">
-              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700">
+              <div className="p-4 rounded-lg bg-[var(--u-green-fill)] border border-[var(--u-green-line)]">
                 <p className="text-sm text-[var(--foreground)] leading-relaxed">{aiSummary}</p>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] italic">
@@ -724,7 +724,7 @@ export default function NextSteps() {
           </Button>
           <Button
             onClick={handleContinue}
-            className="px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 shadow-lg shadow-[var(--primary)]/25 transition-all duration-300"
+            className="px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 shadow-lg shadow-[#00bb77]/25 transition-all duration-300"
             data-testid="nextsteps-continue-button"
           >
             Continue

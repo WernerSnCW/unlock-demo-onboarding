@@ -47,7 +47,7 @@ export default function StageCompareMixes(
           </tr></thead>
           <tbody>
             {rows.map(({ ep, cur, cmp }) => (
-              <tr key={ep.id} className="border-t border-slate-200">
+              <tr key={ep.id} className="border-t border-[var(--border)]">
                 <td className="py-1">{ep.shortLabel}</td>
                 <td>{fmtSignedPct(cur)}</td>
                 <td>{fmtSignedPct(cmp)}</td>

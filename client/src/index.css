@@ -7,115 +7,234 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================ */
+/* Unlock Design System — brand token layer                     */
+/* Mirrored from packages/ui/tokens (colors, typography,        */
+/* spacing, scales, effects). Brand green #00bb77, dark-first.   */
+/* ============================================================ */
+:root {
+  /* ---- Brand green ---- */
+  --u-green: #00bb77;
+  --u-green-deep: #008655;
+  --u-green-accent: #008a55;
+  --u-green-fill: rgba(0,187,119,0.05);
+  --u-green-fill-strong: rgba(0,187,119,0.12);
+  --u-green-line: rgba(0,187,119,0.2);
+  --u-on-green: #0d0d0d;
+
+  /* ---- Near-black surfaces ---- */
+  --u-bg-deepest: #1a1a1a;
+  --u-bg-deep: #1f1f1f;
+  --u-bg: #2b2b2b;
+  --u-surface: #333333;
+
+  /* ---- Borders / text ---- */
+  --u-border: rgba(255,255,255,0.09);
+  --u-border-strong: #444444;
+  --u-hairline: rgba(255,255,255,0.06);
+  --u-text: #ffffff;
+  --u-text-muted: rgba(255,255,255,0.55);
+  --u-text-faint: rgba(255,255,255,0.4);
+
+  /* ---- Semantic + data-viz (green-greyscale ramp) ---- */
+  --u-amber: #f59e0b;
+  --u-red: #ef4444;
+  --u-info: #3b82f6;
+  --u-viz-1: #00bb77; --u-viz-2: #1f8a5b; --u-viz-3: #5a8d76; --u-viz-4: #8a9690;
+  --u-viz-5: #4f5552; --u-viz-6: #6e7a73; --u-viz-7: #356b52; --u-viz-8: #9aa39d;
+
+  /* ---- Fonts (Inter-light headings = live marketing site; Aeonik when binaries land) ---- */
+  --u-font-body: 'Aeonik', 'Inter', system-ui, -apple-system, sans-serif;
+  --u-font-display: 'Noto Serif', Georgia, serif;
+  --u-font-serif: 'Noto Serif', Georgia, serif;
+  --u-font-heading: var(--u-font-body);
+
+  /* ---- Type scale (fluid) ---- */
+  --u-type-hero: clamp(40px, 7.2vw, 76px);
+  --u-type-display: clamp(36px, 6vw, 64px);
+  --u-type-section: clamp(28px, 4.4vw, 50px);
+  --u-type-stat: clamp(38px, 5vw, 52px);
+  --u-type-title: 20px;
+  --u-type-lead: clamp(17px, 2.2vw, 21px);
+  --u-type-label: 12px;
+
+  /* ---- Weights / tracking / leading ---- */
+  --u-weight-light: 300;
+  --u-weight-regular: 400;
+  --u-weight-medium: 500;
+  --u-weight-semibold: 600;
+  --u-weight-button: 400;
+  --u-tracking-button: 0.04em;
+  --u-tracking-caps: 0.25em;
+  --u-tracking-display: -0.015em;
+  --u-leading-display: 1.1;
+  --u-leading-body: 1.6;
+
+  /* ---- Radii / shadows / motion ---- */
+  --u-radius-cta: 0; --u-radius-input: 0; --u-radius-s: 0;
+  --u-radius-m: 8px; --u-radius-l: 12px; --u-radius-pill: 100px;
+  --u-shadow-cta: 0 4px 18px -2px rgba(0,187,119,0.45);
+  --u-shadow-card: 0 12px 32px -8px rgba(0,0,0,0.45);
+  --u-glow-green: 0 0 30px 4px rgba(0,187,119,0.15);
+  --u-ease: cubic-bezier(.16, 1, .3, 1);
+}
+
 /* ============================= */
-/* Light Theme (default)         */
+/* Light Theme (DS .demo-light)  */
 /* ============================= */
 :root {
-  --background: #F9FAFB;
-  --foreground: #1F2937;
+  --background: #ffffff;
+  --foreground: #212022;
 
-  --card: #FFFFFF;
-  --card-foreground: #1F2937;
+  --card: #ffffff;
+  --card-foreground: #212022;
 
-  --primary: #10A957;
-  --primary-foreground: #ffffff;
+  --primary: #00bb77;
+  --primary-foreground: #0d0d0d;
 
-  --secondary: #13683B;
+  --secondary: #008655;
   --secondary-foreground: #ffffff;
 
-  --accent: #64748B;
-  --accent-foreground: #ffffff;
-  --neutral-bg-alt: #f8fafc;
-  --brand-accent-bg: #FE9239;
+  --accent: #00bb77;
+  --accent-foreground: #0d0d0d;
+  --neutral-bg-alt: #f5f6f8;
+  --brand-accent-bg: #00bb77;
 
-  --muted: #F3F4F6;
-  --muted-foreground: #64748B;
+  --muted: #f5f6f8;
+  --muted-foreground: #5b6470;
 
-  --destructive: #FF5E5E;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --success: #10B981;
+  --success: #019e66;
   --success-foreground: #ffffff;
 
-  --warning: #FE9239;
-  --warning-foreground: #1A1A1A;
+  --warning: #f59e0b;
+  --warning-foreground: #1a1a1a;
 
-  --info: #13683B;
+  --info: #3b82f6;
   --info-foreground: #ffffff;
 
-  --border: #E5E7EB;
-  --input: #F9FAFB;
+  --border: #e3e6ea;
+  --input: #ffffff;
   --ring: var(--primary);
 
-  --popover: #FFFFFF;
-  --popover-foreground: #1F2937;
+  --popover: #ffffff;
+  --popover-foreground: #212022;
 
+  /* DS: cards/panels soft radius; CTAs/inputs square (handled via .u-cta) */
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
   --spacing-xs: 12px;
   --spacing-sm: 16px;
   --spacing-md: 24px;
-  
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
 
-  --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-sans: var(--u-font-body);
 }
 
 
 /* ============================= */
-/* Dark Theme                    */
+/* Dark Theme (DS canonical)     */
+/* Near-black greys + brand green */
 /* ============================= */
 .dark {
-  --background: #111827;
-  --foreground: #F9FAFB;
+  --background: #1a1a1a;
+  --foreground: #ffffff;
 
-  --card: #1F2937;
-  --card-foreground: #F9FAFB;
+  --card: #202020;
+  --card-foreground: #ffffff;
 
-  --primary: #62C4C3;
-  --primary-foreground: #111827;
+  --primary: #00bb77;
+  --primary-foreground: #0d0d0d;
 
-  --secondary: #5193B3;
+  --secondary: #008655;
   --secondary-foreground: #ffffff;
 
-  --accent: #94A3B8;
-  --accent-foreground: #1F2937;
-  --neutral-bg-alt: #1e293b;
-  --brand-accent-bg: #62C4C3;
-  --neutral-bg-alt: #1e293b;
-  --brand-accent-bg: #62C4C3;
+  --accent: #00bb77;
+  --accent-foreground: #0d0d0d;
+  --neutral-bg-alt: #2b2b2b;
+  --brand-accent-bg: #00bb77;
 
-  --muted: #374151;
-  --muted-foreground: #9CA3AF;
+  --muted: #2b2b2b;
+  --muted-foreground: #b0b0b0;
 
-  --destructive: #EF4444;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --success: #10B981;
-  --success-foreground: #ffffff;
+  --success: #00bb77;
+  --success-foreground: #0d0d0d;
 
-  --warning: #F59E0B;
-  --warning-foreground: #1A1A1A;
+  --warning: #f59e0b;
+  --warning-foreground: #1a1a1a;
 
-  --info: #3B82F6;
+  --info: #3b82f6;
   --info-foreground: #ffffff;
 
-  --border: #374151;
-  --input: #1F2937;
+  --border: #333333;
+  --input: #1a1a1a;
   --ring: var(--primary);
 
-  --popover: #1F2937;
-  --popover-foreground: #F9FAFB;
-  
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.15);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -2px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 10px 10px -5px rgb(0 0 0 / 0.1);
+  --popover: #1f1f1f;
+  --popover-foreground: #ffffff;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -2px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 10px 10px -5px rgb(0 0 0 / 0.4);
+}
+
+/* ============================= */
+/* DS effect / motion utilities  */
+/* ============================= */
+
+/* CTA convention: square corners, UPPERCASE, normal weight. */
+.u-cta {
+  border-radius: var(--u-radius-cta);
+  text-transform: uppercase;
+  font-weight: var(--u-weight-button);
+  letter-spacing: var(--u-tracking-button);
+}
+
+/* Eyebrow / caps label. */
+.u-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: var(--u-tracking-caps);
+  font-size: var(--u-type-label);
+  font-weight: var(--u-weight-medium);
+  color: var(--u-green);
+}
+
+/* Gradient-green hero text. */
+.u-grad-green {
+  background: linear-gradient(135deg, var(--u-green), rgba(0,187,119,0.55));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Green hairline divider that fades at both ends. */
+.u-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--u-green-line), transparent);
+}
+
+/* Hover-lift for cards. */
+.u-hover-lift { transition: transform .25s var(--u-ease), box-shadow .25s ease, border-color .25s var(--u-ease); }
+.u-hover-lift:hover { transform: translateY(-4px); box-shadow: var(--u-shadow-card); }
+
+/* Ambient green glow. */
+.u-glow { box-shadow: var(--u-glow-green); }
+
+@media (prefers-reduced-motion: reduce) {
+  .u-hover-lift { transition: none; }
+  .u-hover-lift:hover { transform: none; }
 }
 
 /* Scrollbar utilities */

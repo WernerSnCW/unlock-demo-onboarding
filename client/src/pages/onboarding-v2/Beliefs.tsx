@@ -63,16 +63,16 @@ const AXIS_LABELS: Record<AxisCode, string> = {
 };
 
 const DIRECTION_CONFIG: Record<TiltDirection, { label: string; icon: typeof TrendingUp; color: string; bgGradient: string }> = {
-  TOWARDS: { label: 'Lean towards', icon: TrendingUp, color: 'text-[#10A957] dark:text-[#62C4C3]', bgGradient: 'from-[#10A957] to-[#13683B]' },
-  AWAY: { label: 'Lean away', icon: TrendingDown, color: 'text-[#FE9239] dark:text-[#F59E0B]', bgGradient: 'from-[#FE9239] to-[#EA580C]' },
+  TOWARDS: { label: 'Lean towards', icon: TrendingUp, color: 'text-[var(--success)] dark:text-[var(--u-green)]', bgGradient: 'from-[var(--u-green)] to-[var(--u-green-deep)]' },
+  AWAY: { label: 'Lean away', icon: TrendingDown, color: 'text-[var(--warning)] dark:text-[var(--warning)]', bgGradient: 'from-[var(--warning)] to-[var(--warning)]' },
   NEUTRAL: { label: 'Neutral', icon: Minus, color: 'text-[#64748B] dark:text-[#9CA3AF]', bgGradient: 'from-[#64748B] to-[#475569]' },
 };
 
 const INTENSITY_CONFIG: Record<TiltIntensity, { color: string; bgColor: string; borderColor: string }> = {
   NEUTRAL: { color: 'text-[#64748B] dark:text-[#9CA3AF]', bgColor: 'bg-slate-100 dark:bg-slate-800', borderColor: 'border-slate-200 dark:border-slate-700' },
-  LIGHT: { color: 'text-[#13683B] dark:text-[#5193B3]', bgColor: 'bg-[#10A957]/10 dark:bg-[#62C4C3]/10', borderColor: 'border-[#10A957]/30 dark:border-[#62C4C3]/30' },
-  MODERATE: { color: 'text-[#10A957] dark:text-[#62C4C3]', bgColor: 'bg-[#10A957]/20 dark:bg-[#62C4C3]/20', borderColor: 'border-[#10A957]/40 dark:border-[#62C4C3]/40' },
-  STRONG: { color: 'text-[#10A957] dark:text-[#62C4C3]', bgColor: 'bg-[#10A957]/30 dark:bg-[#62C4C3]/30', borderColor: 'border-[#10A957]/50 dark:border-[#62C4C3]/50' },
+  LIGHT: { color: 'text-[var(--u-green-deep)] dark:text-[var(--u-green)]', bgColor: 'bg-[#00bb77]/10 dark:bg-[#00bb77]/10', borderColor: 'border-[#00bb77]/30 dark:border-[#00bb77]/30' },
+  MODERATE: { color: 'text-[var(--success)] dark:text-[var(--u-green)]', bgColor: 'bg-[#00bb77]/20 dark:bg-[#00bb77]/20', borderColor: 'border-[#00bb77]/40 dark:border-[#00bb77]/40' },
+  STRONG: { color: 'text-[var(--success)] dark:text-[var(--u-green)]', bgColor: 'bg-[#00bb77]/30 dark:bg-[#00bb77]/30', borderColor: 'border-[#00bb77]/50 dark:border-[#00bb77]/50' },
 };
 
 const GATE_REASON_MESSAGES: Record<TiltsGateReason, string> = {
@@ -180,14 +180,14 @@ export default function Beliefs() {
         )}
         {allGreen && (
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 border-emerald-500/30 shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border-2 border-[#00bb77]/30 shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10">
               <div className="absolute -top-4 left-5 z-10">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--u-green)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <CheckCircle2 className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h4 className="text-base font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+              <h4 className="text-base font-bold text-[var(--success)] dark:text-[var(--u-green)] mb-1">
                 Tilts Ready to Apply
               </h4>
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
@@ -199,10 +199,10 @@ export default function Beliefs() {
 
         {/* Questionnaire Section */}
         <div className="group relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
             <div className="absolute -top-5 left-6 z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/70 flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                 <Brain className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function Beliefs() {
               <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
                 Investment Beliefs Questionnaire
               </h3>
-              <span className="text-xs font-medium text-[var(--muted-foreground)] bg-[var(--muted)]/50 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium text-[var(--muted-foreground)] bg-[#2b2b2b]/50 px-3 py-1 rounded-full">
                 {responseCount}/8 answered
               </span>
             </div>
@@ -230,17 +230,17 @@ export default function Beliefs() {
                     className={`group/q relative p-5 rounded-xl border transition-all duration-300 ${
                       isUnanswered 
                         ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10' 
-                        : response 
-                          ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-900/10'
-                          : 'border-[var(--border)] bg-slate-50/50 dark:bg-slate-800/30 hover:border-[var(--primary)]/50'
+                        : response
+                          ? 'border-[#00bb77]/30 dark:border-[#00bb77]/40 bg-[#00bb77]/[0.06] dark:bg-[#00bb77]/10'
+                          : 'border-[var(--border)] bg-slate-50/50 dark:bg-slate-800/30 hover:border-[#00bb77]/50'
                     }`}
                     data-testid={`belief-question-${question.id}`}
                   >
                     <div className="flex gap-4 mb-4">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold transition-all duration-300 ${
-                        response 
-                          ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md'
-                          : 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                        response
+                          ? 'bg-gradient-to-br from-[var(--u-green)] to-[var(--u-green-deep)] text-white shadow-md'
+                          : 'bg-[#00bb77]/10 text-[var(--primary)]'
                       }`}>
                         {response ? <CheckCircle2 className="w-4 h-4" /> : index + 1}
                       </div>
@@ -256,7 +256,7 @@ export default function Beliefs() {
                           onClick={() => setBeliefResponse(question.id, option.value)}
                           className={`px-4 py-2.5 text-xs font-medium rounded-lg border-2 transition-all duration-200 ${
                             response?.answer === option.value
-                              ? 'bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/80 text-white border-transparent shadow-lg shadow-[var(--primary)]/25 scale-105'
+                              ? 'bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/80 text-white border-transparent shadow-lg shadow-[#00bb77]/25 scale-105'
                               : 'bg-white dark:bg-slate-800 text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:scale-102'
                           }`}
                           data-testid={`belief-${question.id}-${option.value}`}
@@ -281,10 +281,10 @@ export default function Beliefs() {
 
         {/* Tilt Preview Section - Always shows all 8 axes */}
         <div className="group relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#10A957]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
             <div className="absolute -top-5 left-6 z-10">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10A957] to-[#13683B] flex items-center justify-center shadow-lg shadow-[#10A957]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--u-green)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -437,7 +437,7 @@ export default function Beliefs() {
                   <div className="flex items-center gap-4 text-xs">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-[var(--muted-foreground)]">Tilts Allowed:</span>
-                      <span className={`font-bold ${beliefs.tilts_allowed ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      <span className={`font-bold ${beliefs.tilts_allowed ? 'text-[var(--success)]' : 'text-rose-600'}`}>
                         {beliefs.tilts_allowed ? 'Yes' : 'No'}
                       </span>
                     </div>
@@ -456,10 +456,10 @@ export default function Beliefs() {
         {/* Methodology Section - How we calculate belief tilts */}
         <Collapsible open={methodologyOpen} onOpenChange={setMethodologyOpen}>
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 p-6 pt-12">
               <div className="absolute -top-5 left-6 z-10">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--u-green)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <HelpCircle className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -525,12 +525,12 @@ export default function Beliefs() {
                           <tr className="bg-slate-50/50 dark:bg-slate-700/30">
                             <td className="py-2 px-4">Agree</td>
                             <td className="py-2 px-4 text-center font-mono">4</td>
-                            <td className="py-2 px-4 text-center font-mono text-emerald-500">+0.50</td>
+                            <td className="py-2 px-4 text-center font-mono text-[var(--success)]">+0.50</td>
                           </tr>
                           <tr className="bg-white dark:bg-slate-800">
                             <td className="py-2 px-4">Strongly agree</td>
                             <td className="py-2 px-4 text-center font-mono">5</td>
-                            <td className="py-2 px-4 text-center font-mono text-emerald-600">+1.00</td>
+                            <td className="py-2 px-4 text-center font-mono text-[var(--success)]">+1.00</td>
                           </tr>
                         </tbody>
                       </table>
@@ -551,17 +551,17 @@ export default function Beliefs() {
                         <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| &lt; 0.20</div>
                         <div className="font-semibold text-slate-500">Neutral</div>
                       </div>
-                      <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-center">
+                      <div className="p-3 rounded-lg bg-[#00bb77]/[0.08] dark:bg-[#00bb77]/10 text-center">
                         <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0.20 ≤ |score| &lt; 0.50</div>
-                        <div className="font-semibold text-blue-600 dark:text-blue-400">Light</div>
+                        <div className="font-semibold text-[var(--u-green-deep)] dark:text-[var(--u-green)]">Light</div>
                       </div>
-                      <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-center">
+                      <div className="p-3 rounded-lg bg-[#00bb77]/[0.16] dark:bg-[#00bb77]/20 text-center">
                         <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">0.50 ≤ |score| &lt; 0.80</div>
-                        <div className="font-semibold text-amber-600 dark:text-amber-400">Moderate</div>
+                        <div className="font-semibold text-[var(--u-green-accent)] dark:text-[var(--u-green)]">Moderate</div>
                       </div>
-                      <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-center">
+                      <div className="p-3 rounded-lg bg-[#00bb77]/[0.24] dark:bg-[#00bb77]/30 text-center">
                         <div className="text-xs font-mono text-[var(--muted-foreground)] mb-1">|score| ≥ 0.80</div>
-                        <div className="font-semibold text-emerald-600 dark:text-emerald-400">Strong</div>
+                        <div className="font-semibold text-[var(--success)] dark:text-[var(--u-green)]">Strong</div>
                       </div>
                     </div>
                   </div>
@@ -578,7 +578,7 @@ export default function Beliefs() {
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-[var(--border)]">
                     <h4 className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 text-xs">Safety Lights guardrails</h4>
                     <p className="text-[var(--muted-foreground)] leading-relaxed">
-                      Safety Lights take precedence. If any Safety Light is <span className="text-rose-600 font-semibold">RED</span>, signals are recorded but not applied in Step 7. When Safety Lights are <span className="text-emerald-600 font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, signals may be applied within guardrail constraints.
+                      Safety Lights take precedence. If any Safety Light is <span className="text-rose-600 font-semibold">RED</span>, signals are recorded but not applied in Step 7. When Safety Lights are <span className="text-[var(--success)] font-semibold">GREEN</span> or <span className="text-amber-600 font-semibold">AMBER</span>, signals may be applied within guardrail constraints.
                     </p>
                   </div>
 
@@ -630,7 +630,7 @@ export default function Beliefs() {
             disabled={!allAnswered}
             className={`px-8 py-2.5 transition-all duration-300 ${
               allAnswered 
-                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 shadow-lg shadow-[var(--primary)]/25' 
+                ? 'bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 shadow-lg shadow-[#00bb77]/25' 
                 : 'bg-slate-300 dark:bg-slate-600 cursor-not-allowed opacity-60'
             }`}
             data-testid="beliefs-continue-button"

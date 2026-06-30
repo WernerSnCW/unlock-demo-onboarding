@@ -13,10 +13,10 @@ export default function Welcome() {
         <div className="grid md:grid-cols-3 gap-6 items-stretch">
           {/* Secure & Private Card */}
           <div className="group relative h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#00bb77]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative h-full bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/70 flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/70 flex items-center justify-center shadow-lg shadow-[#00bb77]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Shield className="w-7 h-7 text-white" />
                 </div>
               </div>
@@ -31,10 +31,10 @@ export default function Welcome() {
           
           {/* AI-Powered Card */}
           <div className="group relative h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--secondary)]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008655]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative h-full bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--secondary)] to-[var(--secondary)]/70 flex items-center justify-center shadow-lg shadow-[var(--secondary)]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--secondary)] to-[#008655]/70 flex items-center justify-center shadow-lg shadow-[#008655]/25 -rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <Sparkles className="w-7 h-7 text-white" />
                 </div>
               </div>
@@ -49,10 +49,10 @@ export default function Welcome() {
           
           {/* Optimized Strategy Card */}
           <div className="group relative h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#008a55]/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative h-full bg-white dark:bg-slate-800/80 rounded-2xl p-6 border border-[var(--border)] shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--u-green-accent)] to-[var(--u-green-deep)] flex items-center justify-center shadow-lg shadow-[#008a55]/25 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <TrendingUp className="w-7 h-7 text-white" />
                 </div>
               </div>
@@ -68,7 +68,7 @@ export default function Welcome() {
 
         {/* Time indicator with refined styling */}
         <div className="flex items-center justify-center gap-2 text-sm text-[var(--muted-foreground)]">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--muted)]/50 border border-[var(--border)]">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#2b2b2b]/50 border border-[var(--border)]">
             <Clock className="w-4 h-4" />
             <span>5-10 minutes to complete</span>
           </div>

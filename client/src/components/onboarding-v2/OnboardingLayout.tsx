@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import StepIndicator, { ONBOARDING_STEPS } from './StepIndicator';
 import Header from '../Header';
 import Footer from '../Footer';
@@ -46,17 +46,23 @@ export default function OnboardingLayout({
       <StepIndicator currentStepId={stepId} />
       
       <main className={`flex-1 mx-auto w-full px-4 py-8 ${wideLayout ? 'max-w-6xl' : 'max-w-4xl'}`}>
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-8">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-lg)]">
           <div className="text-center mb-8">
-            <h1 
-              className="text-3xl font-bold text-[var(--foreground)] mb-4"
+            {currentIndex >= 0 && (
+              <p className="u-eyebrow mb-3" data-testid={`eyebrow-${stepId}`}>
+                Step {currentIndex + 1} of {ONBOARDING_STEPS.length}
+              </p>
+            )}
+            <h1
+              className="text-4xl font-light tracking-tight text-[var(--foreground)] mb-4"
               data-testid={`heading-${stepId}`}
             >
               {title}
             </h1>
-            <p className="text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
+            <p className="text-lg leading-relaxed text-[var(--muted-foreground)] max-w-2xl mx-auto">
               {description}
             </p>
+            <div className="u-divider mt-6 max-w-xs mx-auto" />
           </div>
 
           <div className="mb-8">
@@ -66,28 +72,27 @@ export default function OnboardingLayout({
           {!hideNav && (
             <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
               {effectivePrevPath ? (
-                <Button
+                <ArcButton
                   variant="outline"
                   onClick={() => navigate(effectivePrevPath)}
-                  className="gap-2 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
                   data-testid="button-back"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
-                </Button>
+                </ArcButton>
               ) : (
                 <div />
               )}
-              
+
               {effectiveNextPath && (
-                <Button
+                <ArcButton
+                  variant="primary"
                   onClick={() => navigate(effectiveNextPath)}
-                  className="gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:from-[var(--primary)]/90 hover:to-[var(--primary)]/70 text-white shadow-md hover:shadow-lg transition-all duration-200 font-medium"
                   data-testid="button-next"
                 >
                   Next
                   <ArrowRight className="w-4 h-4" />
-                </Button>
+                </ArcButton>
               )}
             </div>
           )}
