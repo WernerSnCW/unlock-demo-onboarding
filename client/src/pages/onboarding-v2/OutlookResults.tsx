@@ -3,19 +3,28 @@ import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { mixFromHoldings, type MixHolding } from '@/lib/portfolioMix';
+import { mixFromHoldings } from '@/lib/portfolioMix';
 import { EPISODES } from '@/data/episodeLibrary';
 import { replayEpisode } from '@/lib/empiricalEngine';
-import { computeAlignment } from '@/lib/beliefImpact/computeAlignment';
+import { computeAlignment, type AlignmentBand } from '@/lib/beliefImpact/computeAlignment';
 import { computeTieredImpact } from '@/lib/beliefImpact/computeTieredImpact';
 import { computeIncomeRunway } from '@/lib/beliefImpact/computeIncomeRunway';
 import { BELIEF_SCENARIO_MAPPING, type BeliefScenarioName } from '@/data/beliefImpactTaxonomy';
 import { fmtSignedPct } from '@/lib/scenarioPlannerView';
 
-const BAND_LABEL: Record<string, string> = {
+const BAND_LABEL: Record<AlignmentBand, string> = {
   BROADLY_ALIGNED: 'Broadly aligned',
   PARTIALLY_ALIGNED: 'Partially aligned',
   MISALIGNED: 'Misaligned',
+};
+
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
 };
 
 export default function OutlookResults() {
@@ -27,7 +36,7 @@ export default function OutlookResults() {
     [holdings],
   );
 
-  const { mix } = useMemo(() => mixFromHoldings(holdingsForCompute as MixHolding[]), [holdingsForCompute]);
+  const { mix } = useMemo(() => mixFromHoldings(holdingsForCompute), [holdingsForCompute]);
 
   const alignment = useMemo(
     () => computeAlignment(mix, outlook.scenario_weights, intake.risk_comfort),
@@ -144,7 +153,7 @@ export default function OutlookResults() {
             </p>
             {tieredImpact.unmodelledBreakdown.map((u) => (
               <p key={u.name} className="text-sm">
-                {u.name.replace(/-/g, ' ')}: £{u.valueGbp.toLocaleString('en-GB')} — no reliable long-run history exists for this asset class.
+                {u.name.replace(/-/g, ' ')}: {formatCurrency(u.valueGbp)} — no reliable long-run history exists for this asset class.
               </p>
             ))}
           </div>
