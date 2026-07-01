@@ -7,7 +7,7 @@
 // • Admin (advisor) mode — Tom/Werner, unlocked by the admin access code. Can
 //   list every investor and open any of them; requests carry the code as an
 //   x-access-code header.
-import { useOnboardingV2Store } from '@/state/onboardingV2Store';
+import { useOnboardingV2Store, type Holding } from '@/state/onboardingV2Store';
 
 const ACTIVE_KEY = 'onboarding-v2-session-id';   // admin/demo: active row id
 const TOKEN_KEY = 'onboarding-v2-investor-token'; // investor: their private token
@@ -69,6 +69,46 @@ function currentName(): string {
 function normalizeAnalysis(data: any): void {
   if (data?.analysis && (data.analysis.status === 'loading' || data.analysis.status === 'error')) {
     data.analysis = { ...data.analysis, status: 'idle' };
+  }
+}
+
+// Map Layer-A register assets back into onboarding holdings (reverse of the
+// server-side projection). Gains/summary are recomputed by the store's
+// setHoldings action once applied.
+function mapAssetsToHoldings(assets: any[]): Holding[] {
+  return assets.map((a) => ({
+    id: String(a.assetId || a.id || 'h' + Math.random().toString(36).slice(2)),
+    instrument_name: a.label || 'Holding',
+    ticker: a.ticker || '',
+    wrapper: a.wrapperType || '',
+    asset_class: a.assetClass || '',
+    region: '',
+    value_gbp: Number(a.currentValue || 0),
+    illiquid: /propert|collect|vct|aim|eis|seis|alt/i.test(String(a.assetClass || '')),
+    currency: 'GBP',
+    instrument_type: 'Fund',
+    isin: a.isin || null,
+    cost_basis_gbp: a.acquisitionCost != null ? Number(a.acquisitionCost) : null,
+    acquisition_date: a.acquisitionDate || null,
+    notes: a.notes || null,
+  }));
+}
+
+// When a loaded session has no holdings but its register does (an imported /
+// pre-loaded investor like Tony), seed the flow's holdings from the register.
+// Mutates `data.holdings` and returns true if it hydrated.
+async function hydrateHoldingsIfEmpty(data: any, assetsUrl: string, withAdminHeader: boolean): Promise<boolean> {
+  const hasHoldings = Array.isArray(data?.holdings) && data.holdings.some((h: any) => Number(h?.value_gbp || 0) > 0);
+  if (hasHoldings) return false;
+  try {
+    const res = await fetch(assetsUrl, withAdminHeader ? { headers: adminHeaders() } : undefined);
+    if (!res.ok) return false;
+    const assets = await res.json();
+    if (!Array.isArray(assets) || assets.length === 0) return false;
+    data.holdings = mapAssetsToHoldings(assets);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -150,9 +190,14 @@ export async function loadSession(id: string): Promise<{ ok: boolean; currentSte
     const session = await res.json();
     const data = JSON.parse(session.state);
     normalizeAnalysis(data);
+    const hydrated = await hydrateHoldingsIfEmpty(data, `/api/onboarding-v2/sessions/${id}/assets`, true);
     useOnboardingV2Store.setState(data);
+    if (hydrated) useOnboardingV2Store.getState().setHoldings(data.holdings); // recompute gains/summary
     setActiveSessionId(session.id);
-    return { ok: true, currentStep: session.currentStep || '/onboarding-v2/welcome' };
+    // Imported investor (assets known, intake missing) → start at Intake to
+    // capture the basics; Holdings will already be pre-filled from the register.
+    const currentStep = hydrated ? '/onboarding-v2/intake' : (session.currentStep || '/onboarding-v2/welcome');
+    return { ok: true, currentStep };
   } catch {
     return { ok: false };
   }
@@ -190,9 +235,12 @@ export async function loadInvestorSession(
     let data: any = {};
     try { data = session.state ? JSON.parse(session.state) : {}; } catch { data = {}; }
     normalizeAnalysis(data);
+    setInvestorToken(token); // set before fetching assets so the token-scoped call is authorised
+    const hydrated = await hydrateHoldingsIfEmpty(data, `/api/onboarding-v2/i/${token}/assets`, false);
     if (data && Object.keys(data).length) useOnboardingV2Store.setState(data);
-    setInvestorToken(token);
-    return { ok: true, currentStep: session.currentStep || '/onboarding-v2/welcome' };
+    if (hydrated) useOnboardingV2Store.getState().setHoldings(data.holdings);
+    const currentStep = hydrated ? '/onboarding-v2/intake' : (session.currentStep || '/onboarding-v2/welcome');
+    return { ok: true, currentStep };
   } catch {
     return { ok: false };
   }
