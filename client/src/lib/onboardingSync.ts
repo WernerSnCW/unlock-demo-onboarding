@@ -12,6 +12,7 @@ import { useOnboardingV2Store, type Holding } from '@/state/onboardingV2Store';
 const ACTIVE_KEY = 'onboarding-v2-session-id';   // admin/demo: active row id
 const TOKEN_KEY = 'onboarding-v2-investor-token'; // investor: their private token
 const ADMIN_KEY = 'onboarding-v2-admin-code';     // advisor: admin code for headers
+const LAST_STEP_KEY = 'onboarding-v2-last-step';  // last onboarding step visited this tab
 
 // The data slices that make up a session (must match the store + persist set).
 const DATA_KEYS = ['intake', 'holdings', 'summary', 'analysis', 'beliefs', 'scenario'] as const;
@@ -43,6 +44,12 @@ export function setInvestorToken(token: string | null): void {
   if (token) sessionStorage.setItem(TOKEN_KEY, token); else sessionStorage.removeItem(TOKEN_KEY);
 }
 export function isInvestorMode(): boolean { return Boolean(getInvestorToken()); }
+
+// The last onboarding step path visited in this tab, so side-trips (e.g. the
+// feedback review) can send the user back to where they were rather than to
+// step 1. Per-tab, like the active session.
+export function getLastStepPath(): string | null { return sessionStorage.getItem(LAST_STEP_KEY); }
+export function setLastStepPath(path: string): void { sessionStorage.setItem(LAST_STEP_KEY, path); }
 export function getAdminCode(): string | null { return sessionStorage.getItem(ADMIN_KEY); }
 export function setAdminCode(code: string | null): void {
   if (code) sessionStorage.setItem(ADMIN_KEY, code); else sessionStorage.removeItem(ADMIN_KEY);

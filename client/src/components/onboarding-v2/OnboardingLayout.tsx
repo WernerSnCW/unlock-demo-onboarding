@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import StepIndicator, { ONBOARDING_STEPS } from './StepIndicator';
-import { saveCurrentSession } from '@/lib/onboardingSync';
+import { saveCurrentSession, setLastStepPath } from '@/lib/onboardingSync';
 import GridBackground from './GridBackground';
 import Header from '../Header';
 import Footer from '../Footer';
@@ -57,6 +57,9 @@ function OnboardingLayoutBody({
   // current route path so resume can navigate straight back to it.
   useEffect(() => {
     void saveCurrentSession(location);
+    // Remember this step so side-trips (e.g. the feedback review) can return
+    // here instead of resetting to step 1.
+    setLastStepPath(location);
   }, [location]);
 
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === stepId);
