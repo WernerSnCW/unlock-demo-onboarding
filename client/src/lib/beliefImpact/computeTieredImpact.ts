@@ -66,7 +66,7 @@ export function computeTieredImpact(
     const weightPct = normalisedMix[bucket] * 100;
     if (weightPct <= 0) continue;
     const tier = BUCKET_TIER[bucket];
-    const citedSources: CitedSource[] = [];
+    const citedSourcesById = new Map<string, CitedSource>();
 
     for (const [scenarioName] of topScenarios) {
       const mapping = BELIEF_SCENARIO_MAPPING[scenarioName];
@@ -81,7 +81,7 @@ export function computeTieredImpact(
           const troughPct = path.points[path.troughIndex];
           if (Math.abs(troughPct) < 0.01) continue; // held steady in this episode — not worth citing as an impact
           const stepsFromTrough = path.recoveryIndex === -1 ? null : path.recoveryIndex - path.troughIndex;
-          citedSources.push({
+          citedSourcesById.set(episode.id, {
             id: episode.id,
             name: episode.name,
             troughPct,
@@ -95,7 +95,7 @@ export function computeTieredImpact(
           const stressScenario = STRESS_SCENARIOS.find((s) => s.id === ssId);
           if (!stressScenario) continue;
           const [assetClass, region] = BUCKET_TO_ASSET_REGION[bucket];
-          citedSources.push({
+          citedSourcesById.set(stressScenario.id, {
             id: stressScenario.id,
             name: stressScenario.name,
             troughPct: shockFor(stressScenario, assetClass, region),
@@ -104,6 +104,10 @@ export function computeTieredImpact(
         }
       }
     }
+    // Multiple top-weighted scenarios can map to the same underlying episode/stress-scenario id
+    // (e.g. Stagflation, Debt Spiral, and Sterling Devaluation all cite STAGFLATION_1973) — dedupe
+    // by id so a single citation isn't repeated verbatim once per scenario that references it.
+    const citedSources = Array.from(citedSourcesById.values());
     rows.push({ bucket, tier, weightPct: Math.round(weightPct * 10) / 10, citedSources });
   }
 

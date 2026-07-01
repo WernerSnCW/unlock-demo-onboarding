@@ -77,4 +77,26 @@ describe('computeTieredImpact', () => {
     const row = result.rows.find((r) => r.bucket === 'cash')!;
     expect(row.citedSources).toHaveLength(0);
   });
+
+  it('deduplicates citedSources by id when multiple top-weighted scenarios cite the same episode (regression: was cited once per scenario, producing exact duplicate rows/keys)', () => {
+    // Stagflation, Debt Spiral, and Sterling Devaluation all map to STAGFLATION_1973 + RATE_SHOCK_2022
+    // in beliefImpactTaxonomy.ts. With all three in the top-3 weighted scenarios, us-equity (which
+    // only has a STAGFLATION_1973 path — RATE_SHOCK_2022's us-equity path is null) must cite
+    // STAGFLATION_1973 exactly once, not three times; govt-bonds (which has both) must cite each once.
+    const mix = { ...emptyMix(), 'us-equity': 0.5, 'govt-bonds': 0.5 };
+    const result = computeTieredImpact(
+      mix,
+      [],
+      { Stagflation: 0.4, 'Debt Spiral': 0.3, 'Sterling Devaluation': 0.2 },
+      500_000,
+    );
+
+    const usEquityRow = result.rows.find((r) => r.bucket === 'us-equity')!;
+    const stagflationCites = usEquityRow.citedSources.filter((s) => s.id === 'STAGFLATION_1973');
+    expect(stagflationCites).toHaveLength(1);
+
+    const govtBondsRow = result.rows.find((r) => r.bucket === 'govt-bonds')!;
+    expect(govtBondsRow.citedSources.filter((s) => s.id === 'STAGFLATION_1973')).toHaveLength(1);
+    expect(govtBondsRow.citedSources.filter((s) => s.id === 'RATE_SHOCK_2022')).toHaveLength(1);
+  });
 });
