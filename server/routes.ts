@@ -1,5 +1,6 @@
-import type { Express, Response } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
+import { randomBytes } from "node:crypto";
 import { storage } from "./storage";
 import { db } from "./db";
 import { and, like, eq, gte, lte, desc, sql, or } from "drizzle-orm";
@@ -2644,8 +2645,22 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     return true;
   };
 
-  app.get("/api/onboarding-v2/sessions", async (_req, res) => {
+  // Admin (advisor) authorisation for endpoints that can see or manage ALL
+  // investors. Validates the shared admin code passed as an `x-access-code`
+  // header against ACCESS_CODE. When ACCESS_CODE is unset (local/dev), admin
+  // endpoints are open. Investors NEVER use these — they are token-scoped below.
+  const requireAdmin = (req: Request, res: Response): boolean => {
+    const expected = process.env.ACCESS_CODE;
+    if (!expected) return true; // no admin code configured → open (dev)
+    if (req.header("x-access-code") === expected) return true;
+    res.status(401).json({ error: "unauthorized", message: "Admin access required." });
+    return false;
+  };
+
+  // ---- Admin (advisor) — full view over every investor ----
+  app.get("/api/onboarding-v2/sessions", async (req, res) => {
     if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
     try {
       const sessions = await storage.listOnboardingSessions();
       res.json(sessions);
@@ -2657,6 +2672,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
 
   app.get("/api/onboarding-v2/sessions/:id", async (req, res) => {
     if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
     try {
       const session = await storage.getOnboardingSession(req.params.id);
       if (!session) return res.status(404).json({ error: "Session not found" });
@@ -2667,8 +2683,34 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     }
   });
 
+  // Admin creates an investor and receives their private access token/link.
+  app.post("/api/onboarding-v2/investors", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const investorName = typeof req.body?.investorName === "string" ? req.body.investorName.trim() : "";
+      if (!investorName) return res.status(400).json({ error: "investorName is required" });
+      const email = typeof req.body?.email === "string" && req.body.email.trim() ? req.body.email.trim() : null;
+      const token = randomBytes(12).toString("base64url");
+      const created = await storage.upsertOnboardingSession({
+        investorName,
+        email,
+        token,
+        state: "{}",
+        currentStep: "/onboarding-v2/welcome",
+        status: "in_progress",
+      });
+      res.json({ id: created.id, token: created.token, investorName: created.investorName });
+    } catch (error) {
+      console.error("Create investor error:", error);
+      res.status(500).json({ error: "Failed to create investor", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Admin autosave / upsert by id (the advisor's own demo walkthrough).
   app.post("/api/onboarding-v2/sessions", async (req, res) => {
     if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
     try {
       const parsed = insertOnboardingSessionSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -2684,6 +2726,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
 
   app.delete("/api/onboarding-v2/sessions/:id", async (req, res) => {
     if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
     try {
       const ok = await storage.deleteOnboardingSession(req.params.id);
       if (!ok) return res.status(404).json({ error: "Session not found" });
@@ -2691,6 +2734,40 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     } catch (error) {
       console.error("Delete onboarding session error:", error);
       res.status(500).json({ error: "Failed to delete session", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // ---- Investor — STRICTLY scoped to their own session via a private token ----
+  // No admin code; the unguessable token is the credential. An investor can only
+  // ever read or write the single session whose token matches — never another's.
+  app.get("/api/onboarding-v2/i/:token", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const session = await storage.getOnboardingSessionByToken(req.params.token);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      res.json(session);
+    } catch (error) {
+      console.error("Get investor session error:", error);
+      res.status(500).json({ error: "Failed to fetch session", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.post("/api/onboarding-v2/i/:token", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const patch: Partial<{ investorName: string; email: string; state: string; currentStep: string; status: string }> = {};
+      if (typeof req.body?.state === "string") patch.state = req.body.state;
+      if (typeof req.body?.currentStep === "string") patch.currentStep = req.body.currentStep;
+      if (typeof req.body?.status === "string") patch.status = req.body.status;
+      if (typeof req.body?.investorName === "string" && req.body.investorName.trim()) {
+        patch.investorName = req.body.investorName.trim();
+      }
+      const updated = await storage.updateOnboardingSessionByToken(req.params.token, patch);
+      if (!updated) return res.status(404).json({ error: "Session not found" });
+      res.json({ ok: true, id: updated.id });
+    } catch (error) {
+      console.error("Save investor session error:", error);
+      res.status(500).json({ error: "Failed to save session", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 

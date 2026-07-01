@@ -102,6 +102,12 @@ export interface IStorage {
   getOnboardingSession(id: string): Promise<OnboardingSession | undefined>;
   upsertOnboardingSession(session: InsertOnboardingSession): Promise<OnboardingSession>;
   deleteOnboardingSession(id: string): Promise<boolean>;
+  // Investor self-service: strictly token-scoped access to a single session.
+  getOnboardingSessionByToken(token: string): Promise<OnboardingSession | undefined>;
+  updateOnboardingSessionByToken(
+    token: string,
+    patch: Partial<Pick<OnboardingSession, 'investorName' | 'email' | 'state' | 'currentStep' | 'status'>>,
+  ): Promise<OnboardingSession | undefined>;
 }
 
 // Lightweight row for the resume picker (excludes the heavy `state` blob).
@@ -607,6 +613,26 @@ export class DatabaseStorage implements IStorage {
       .where(eq(onboardingSessions.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  async getOnboardingSessionByToken(token: string): Promise<OnboardingSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(onboardingSessions)
+      .where(eq(onboardingSessions.token, token));
+    return session || undefined;
+  }
+
+  async updateOnboardingSessionByToken(
+    token: string,
+    patch: Partial<Pick<OnboardingSession, 'investorName' | 'email' | 'state' | 'currentStep' | 'status'>>,
+  ): Promise<OnboardingSession | undefined> {
+    const [updated] = await db
+      .update(onboardingSessions)
+      .set({ ...patch, updatedAt: sql`now()` })
+      .where(eq(onboardingSessions.token, token))
+      .returning();
+    return updated || undefined;
   }
 }
 

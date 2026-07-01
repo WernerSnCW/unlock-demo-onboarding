@@ -249,6 +249,9 @@ export const propertyCashflows = pgTable("property_cashflows", {
 // holds a JSON snapshot of the client onboarding store.
 export const onboardingSessions = pgTable("onboarding_sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Private, unguessable access token — an investor reaches ONLY their own
+  // session via /i/:token. Generated server-side when an advisor creates them.
+  token: text("token").unique(),
   investorName: text("investor_name").notNull(), // shown in the resume list
   email: text("email"),
   state: text("state").notNull(), // JSON string of the full onboarding store snapshot
