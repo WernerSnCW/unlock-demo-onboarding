@@ -1315,10 +1315,14 @@ describe('buildActions (regression fixture, pre- and post-refactor)', () => {
       expect(net).toBeCloseTo(need, 3);
     }
     expect(result.summary.liquidityNowPct).toBe(5);
-    expect(result.summary.liquidityFixPp).toBe(10);
+    expect(result.summary.liquidityFixPp).toBe(5);
   });
 });
 ```
+
+**Correction found when this task was first dispatched (fixture bug, not an `engine.ts` bug):** the fixture above originally asserted `liquidityFixPp` of `10`, but with `currentMix.CASH = 0.05` and no explicit `liquidityFloorPct` (defaults to `0.10`), the correct top-up is `0.10 - 0.05 = 0.05` → `liquidityFixPp = 5`, not `10`. An implementer correctly hand-traced this, found the fixture's expectation didn't match the live, unmodified `engine.ts`'s actual (correct) math, and reported BLOCKED per this task's own explicit instruction ("STOP if the regression test doesn't pass against current code") rather than proceeding on a broken safety net — exactly the right call. The expectation above is now fixed to `5`.
+
+**Second thing found and worth a decision before Step 4:** the reference `stagedRebalance.ts` code in Step 3 below silently changes two `/api/actions`-facing copy strings versus the current `engine.ts`: `"Raise liquidity (short gilts)"` → `"Raise liquidity"`, and `"Defer illiquid changes (property/alternatives/collectibles) to **Stage 2**..."` → `"Defer illiquid changes to **Stage 2**..."`. No existing test asserts on this exact text so `npm test` won't catch it, but it IS a real (if cosmetic) change to live output. Decision: **keep the simplified generic copy** — the taxonomy-specific parenthetical ("short gilts", "property/alternatives/collectibles") is CANONICAL_BUCKETS-specific detail that doesn't belong in a function meant to serve two different taxonomies; the old Target step's UI doesn't appear to string-match on this exact playbook text (it's rendered as free-form markdown bullets), so this is a safe, intentional simplification, not an accidental regression. No code change needed for this — just flagging that it's a deliberate, reviewed decision, not an oversight, in case a future reviewer flags it again.
 
 - [ ] **Step 2: Run the test against the current (pre-refactor) `engine.ts` to confirm it passes**
 
