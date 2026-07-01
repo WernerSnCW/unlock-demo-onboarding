@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play } from 'lucide-react';
+import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { ONBOARDING_STEPS } from './StepIndicator';
 import {
   listSessions, loadSession, startNewInvestor, getActiveSessionId,
-  createInvestor, isInvestorMode,
+  createInvestor, isInvestorMode, logout,
   type SessionSummary,
 } from '@/lib/onboardingSync';
 
@@ -35,6 +35,7 @@ export default function InvestorSwitcher() {
   const [creatingBusy, setCreatingBusy] = useState(false);
   const [createdLink, setCreatedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedRowId, setCopiedRowId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const activeId = getActiveSessionId();
   const investorMode = isInvestorMode();
@@ -101,6 +102,17 @@ export default function InvestorSwitcher() {
     setNewName('');
     setCreatedLink('');
     setCopied(false);
+  };
+
+  // Re-grab an existing investor's private link from their row.
+  const copyRowLink = async (id: string, token: string) => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/i/${token}`);
+      setCopiedRowId(id);
+      setTimeout(() => setCopiedRowId((c) => (c === id ? null : c)), 1800);
+    } catch {
+      /* clipboard blocked */
+    }
   };
 
   // Investors see a read-only label of their own name — never the list/dropdown.
@@ -190,14 +202,16 @@ export default function InvestorSwitcher() {
               const isActive = s.id === activeId;
               const completed = s.status === 'completed';
               return (
-                <button
+                <div
                   key={s.id}
-                  onClick={() => onSelect(s.id)}
-                  disabled={busyId === s.id}
-                  className="w-full px-4 py-2.5 flex items-center justify-between gap-3 hover:bg-[#ffffff]/[0.05] transition-colors text-left"
+                  className="w-full px-4 py-2.5 flex items-center justify-between gap-2 hover:bg-[#ffffff]/[0.05] transition-colors"
                   data-testid={`investor-option-${s.id}`}
                 >
-                  <span className="flex items-start gap-2 min-w-0">
+                  <button
+                    onClick={() => onSelect(s.id)}
+                    disabled={busyId === s.id}
+                    className="flex items-start gap-2 min-w-0 flex-1 text-left"
+                  >
                     {isActive
                       ? <Check className="h-4 w-4 mt-0.5 text-[var(--primary)] shrink-0" />
                       : <span className="w-4 shrink-0" />}
@@ -211,22 +225,34 @@ export default function InvestorSwitcher() {
                         </span>
                       )}
                     </span>
-                  </span>
-                  {busyId === s.id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--muted-foreground)] shrink-0" />
-                  ) : (
-                    <span
-                      className={
-                        completed
-                          ? 'shrink-0 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#00bb77]/12 text-[var(--primary)] border border-[#00bb77]/30'
-                          : 'shrink-0 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#ffffff]/[0.04] text-[var(--muted-foreground)] border border-[var(--border)]'
-                      }
-                    >
-                      {completed ? <Check className="h-3 w-3" /> : <CircleDashed className="h-3 w-3" />}
-                      {completed ? 'Done' : 'In progress'}
-                    </span>
-                  )}
-                </button>
+                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {busyId === s.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--muted-foreground)]" />
+                    ) : (
+                      <span
+                        className={
+                          completed
+                            ? 'inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#00bb77]/12 text-[var(--primary)] border border-[#00bb77]/30'
+                            : 'inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#ffffff]/[0.04] text-[var(--muted-foreground)] border border-[var(--border)]'
+                        }
+                      >
+                        {completed ? <Check className="h-3 w-3" /> : <CircleDashed className="h-3 w-3" />}
+                        {completed ? 'Done' : 'In progress'}
+                      </span>
+                    )}
+                    {s.token && (
+                      <button
+                        onClick={() => copyRowLink(s.id, s.token!)}
+                        title="Copy this investor's private link"
+                        className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[#00bb77]/[0.08] transition-colors"
+                        data-testid={`investor-copylink-${s.id}`}
+                      >
+                        {copiedRowId === s.id ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" /> : <Copy className="h-3.5 w-3.5" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -306,6 +332,18 @@ export default function InvestorSwitcher() {
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Log out — clears the admin session and returns to the code screen */}
+          <div className="border-t border-[var(--border)]">
+            <button
+              onClick={logout}
+              className="w-full px-4 py-3 flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[#ffffff]/[0.04] transition-colors"
+              data-testid="admin-logout"
+            >
+              <LogOut className="h-4 w-4" />
+              Log out
+            </button>
           </div>
         </div>
       )}

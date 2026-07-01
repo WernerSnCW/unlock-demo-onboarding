@@ -18,6 +18,7 @@ const DATA_KEYS = ['intake', 'holdings', 'summary', 'analysis', 'beliefs', 'scen
 
 export interface SessionSummary {
   id: string;
+  token: string | null;
   investorName: string;
   email: string | null;
   currentStep: string | null;
@@ -202,4 +203,14 @@ export function startNewInvestor(): void {
   setActiveSessionId(null);
   const s = useOnboardingV2Store.getState() as any;
   if (typeof s.resetOnboarding === 'function') s.resetOnboarding();
+}
+
+// Full logout: clear admin session, any active investor, and the local session
+// id, then send the browser back to the code screen.
+export function logout(): void {
+  sessionStorage.removeItem('unlock-access');
+  setAdminCode(null);
+  setInvestorToken(null);
+  setActiveSessionId(null);
+  window.location.href = '/';
 }
