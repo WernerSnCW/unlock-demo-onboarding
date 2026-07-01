@@ -43,6 +43,9 @@ const OnboardingV2Holdings = lazy(() => import("@/pages/onboarding-v2/Holdings")
 const OnboardingV2Beliefs = lazy(() => import("@/pages/onboarding-v2/Beliefs"));
 const OnboardingV2Analysis = lazy(() => import("@/pages/onboarding-v2/Analysis"));
 const OnboardingV2Target = lazy(() => import("@/pages/onboarding-v2/Target"));
+const OnboardingV2Outlook = lazy(() => import("@/pages/onboarding-v2/Outlook"));
+const OnboardingV2OutlookResults = lazy(() => import("@/pages/onboarding-v2/OutlookResults"));
+const OnboardingV2OutlookAlternatives = lazy(() => import("@/pages/onboarding-v2/OutlookAlternatives"));
 const OnboardingV2NextSteps = lazy(() => import("@/pages/onboarding-v2/NextSteps"));
 const OnboardingV2PlanTransition = lazy(() => import("@/pages/onboarding-v2/PlanTransition"));
 const OnboardingV2PlanWrappers = lazy(() => import("@/pages/onboarding-v2/PlanWrappers"));
@@ -97,6 +100,9 @@ function Router() {
       <Route path="/onboarding-v2/beliefs">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Beliefs /></Suspense>}</Route>
       <Route path="/onboarding-v2/analysis">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Analysis /></Suspense>}</Route>
       <Route path="/onboarding-v2/target">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Target /></Suspense>}</Route>
+      <Route path="/onboarding-v2/outlook">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2Outlook /></Suspense>}</Route>
+      <Route path="/onboarding-v2/outlook-results">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2OutlookResults /></Suspense>}</Route>
+      <Route path="/onboarding-v2/outlook-alternatives">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2OutlookAlternatives /></Suspense>}</Route>
       <Route path="/onboarding-v2/next-steps">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2NextSteps /></Suspense>}</Route>
       <Route path="/onboarding-v2/plan/transition">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2PlanTransition /></Suspense>}</Route>
       <Route path="/onboarding-v2/plan/wrappers">{() => <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}><OnboardingV2PlanWrappers /></Suspense>}</Route>
