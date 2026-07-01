@@ -14,7 +14,8 @@ import {
   type PropertyCashflow, type InsertPropertyCashflow,
   type OnboardingSession, type InsertOnboardingSession,
   type Asset, type InsertAsset,
-  users, investors, investorPreferences, taxProfile, onboardingSessions, assets,
+  type ScreenFeedback, type InsertScreenFeedback,
+  users, investors, investorPreferences, taxProfile, onboardingSessions, assets, screenFeedback,
   portfolioAccounts, portfolioHoldings, alternativeInvestments,
   properties, propertyOwnerships, propertyLoans, 
   propertyValuations, propertyLeases, propertyCashflows,
@@ -103,6 +104,10 @@ export interface IStorage {
   getOnboardingSession(id: string): Promise<OnboardingSession | undefined>;
   upsertOnboardingSession(session: InsertOnboardingSession): Promise<OnboardingSession>;
   deleteOnboardingSession(id: string): Promise<boolean>;
+  // Mint/attach a private token to an existing session (e.g. to share a demo
+  // walkthrough as a link). Only sets it when the session has none — never
+  // overwrites an existing token. Returns the session.
+  setOnboardingSessionToken(id: string, token: string): Promise<OnboardingSession | undefined>;
   // Investor self-service: strictly token-scoped access to a single session.
   getOnboardingSessionByToken(token: string): Promise<OnboardingSession | undefined>;
   updateOnboardingSessionByToken(
@@ -113,8 +118,27 @@ export interface IStorage {
   // Asset register (Layer A). Owned by a session; the onboarding-sourced rows
   // are re-projected from holdings on each save.
   listAssetsBySession(investorSessionId: string): Promise<Asset[]>;
-  replaceOnboardingAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void>;
+  replaceSessionAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void>;
+
+  // Screen feedback (per-screen, per-investor review notes).
+  createScreenFeedback(row: InsertScreenFeedback): Promise<ScreenFeedback>;
+  listScreenFeedbackBySession(investorSessionId: string): Promise<ScreenFeedback[]>;
+  listSessionFeedbackForAdmin(investorSessionId: string): Promise<ScreenFeedback[]>;
+  deleteScreenFeedback(id: string, investorSessionId: string, opts?: { internal?: boolean }): Promise<boolean>;
+  // Advisor consolidation: every note across all investors, newest first, with
+  // the investor's name joined in for the review view.
+  listAllScreenFeedback(): Promise<ScreenFeedbackWithInvestor[]>;
+  updateScreenFeedback(
+    id: string,
+    patch: Partial<Pick<ScreenFeedback, 'status' | 'adminNote'>>,
+  ): Promise<ScreenFeedback | undefined>;
 }
+
+// A feedback row plus the investor it came from, for the advisor review view.
+export type ScreenFeedbackWithInvestor = ScreenFeedback & {
+  investorName: string;
+  token: string | null;
+};
 
 // Lightweight row for the resume picker (excludes the heavy `state` blob).
 // Includes `token` so the admin view can rebuild an investor's private link;
@@ -624,6 +648,18 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
+  async setOnboardingSessionToken(id: string, token: string): Promise<OnboardingSession | undefined> {
+    // Only set when currently null so an existing link is never rotated.
+    const [updated] = await db
+      .update(onboardingSessions)
+      .set({ token, updatedAt: sql`now()` })
+      .where(and(eq(onboardingSessions.id, id), sql`${onboardingSessions.token} is null`))
+      .returning();
+    if (updated) return updated;
+    // Already had a token (or no such row) — return the current row as-is.
+    return this.getOnboardingSession(id);
+  }
+
   async getOnboardingSessionByToken(token: string): Promise<OnboardingSession | undefined> {
     const [session] = await db
       .select()
@@ -651,16 +687,93 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(assets.investorSessionId, investorSessionId), sql`${assets.deletedAt} is null`));
   }
 
-  // Re-project the onboarding-sourced register rows for a session: clear the
-  // previous onboarding rows and insert the current set. Leaves rows from other
-  // sources (e.g. csv_import) intact.
-  async replaceOnboardingAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void> {
-    await db
-      .delete(assets)
-      .where(and(eq(assets.investorSessionId, investorSessionId), eq(assets.source, 'onboarding')));
-    if (rows.length > 0) {
-      await db.insert(assets).values(rows);
-    }
+  // Sync a session's register to the current holdings: replace ALL of the
+  // session's asset rows with the projected set. Deleting across sources (not
+  // just 'onboarding') prevents duplicates when holdings were hydrated from an
+  // imported register and then re-projected. Never wipes on an empty set — an
+  // empty projection (e.g. a pre-holdings step) leaves the register untouched.
+  async replaceSessionAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void> {
+    if (rows.length === 0) return;
+    await db.delete(assets).where(eq(assets.investorSessionId, investorSessionId));
+    await db.insert(assets).values(rows);
+  }
+
+  // ---- Screen feedback ----
+
+  async createScreenFeedback(row: InsertScreenFeedback): Promise<ScreenFeedback> {
+    const [created] = await db.insert(screenFeedback).values(row).returning();
+    return created;
+  }
+
+  // The INVESTOR's own notes for their session — internal advisor notes are
+  // deliberately excluded so an investor never sees the team's private notes.
+  async listScreenFeedbackBySession(investorSessionId: string): Promise<ScreenFeedback[]> {
+    return db
+      .select()
+      .from(screenFeedback)
+      .where(and(eq(screenFeedback.investorSessionId, investorSessionId), eq(screenFeedback.isInternal, false)))
+      .orderBy(desc(screenFeedback.createdAt));
+  }
+
+  // Advisor view of a single session's notes (both kinds) — used by the drawer
+  // to list the advisor's own internal notes for the session being demoed.
+  async listSessionFeedbackForAdmin(investorSessionId: string): Promise<ScreenFeedback[]> {
+    return db
+      .select()
+      .from(screenFeedback)
+      .where(eq(screenFeedback.investorSessionId, investorSessionId))
+      .orderBy(desc(screenFeedback.createdAt));
+  }
+
+  // Scoped delete: the id must belong to this session. `internal` further
+  // constrains it — the investor path deletes only non-internal notes, the
+  // advisor path only internal ones, so neither can remove the other's.
+  async deleteScreenFeedback(
+    id: string,
+    investorSessionId: string,
+    opts?: { internal?: boolean },
+  ): Promise<boolean> {
+    const conds = [eq(screenFeedback.id, id), eq(screenFeedback.investorSessionId, investorSessionId)];
+    if (opts?.internal !== undefined) conds.push(eq(screenFeedback.isInternal, opts.internal));
+    const result = await db
+      .delete(screenFeedback)
+      .where(and(...conds))
+      .returning();
+    return result.length > 0;
+  }
+
+  async listAllScreenFeedback(): Promise<ScreenFeedbackWithInvestor[]> {
+    return db
+      .select({
+        id: screenFeedback.id,
+        investorSessionId: screenFeedback.investorSessionId,
+        stepId: screenFeedback.stepId,
+        category: screenFeedback.category,
+        rating: screenFeedback.rating,
+        comment: screenFeedback.comment,
+        isInternal: screenFeedback.isInternal,
+        status: screenFeedback.status,
+        adminNote: screenFeedback.adminNote,
+        createdAt: screenFeedback.createdAt,
+        updatedAt: screenFeedback.updatedAt,
+        investorName: onboardingSessions.investorName,
+        token: onboardingSessions.token,
+      })
+      .from(screenFeedback)
+      .innerJoin(onboardingSessions, eq(screenFeedback.investorSessionId, onboardingSessions.id))
+      .orderBy(desc(screenFeedback.createdAt));
+  }
+
+  async updateScreenFeedback(
+    id: string,
+    patch: Partial<Pick<ScreenFeedback, 'status' | 'adminNote'>>,
+  ): Promise<ScreenFeedback | undefined> {
+    const [updated] = await db
+      .update(screenFeedback)
+      .set({ ...patch, updatedAt: sql`now()` })
+      .where(eq(screenFeedback.id, id))
+      .returning();
+    return updated || undefined;
   }
 }
 

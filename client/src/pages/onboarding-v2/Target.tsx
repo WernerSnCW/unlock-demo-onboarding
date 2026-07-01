@@ -1273,7 +1273,7 @@ export default function Target() {
                 onValueChange={(value) => setActiveScenario(value as ScenarioType)}
                 className="w-full"
               >
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsList className="grid w-full grid-cols-3 mb-6" data-help-anchor="target-scenario-tabs">
                   {scenario.scenarios.map((s) => {
                     const config = SCENARIO_LABELS[s.scenario_type];
                     const ScenarioIcon = config.icon;

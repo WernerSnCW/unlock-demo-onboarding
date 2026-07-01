@@ -3,10 +3,13 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import StepIndicator, { ONBOARDING_STEPS } from './StepIndicator';
-import { saveCurrentSession } from '@/lib/onboardingSync';
+import { saveCurrentSession, setLastStepPath } from '@/lib/onboardingSync';
 import GridBackground from './GridBackground';
 import Header from '../Header';
 import Footer from '../Footer';
+import { HelpDrawerProvider, useHelpDrawer } from './help/HelpDrawerProvider';
+import HelpDrawer from './help/HelpDrawer';
+import HelpTrigger from './help/HelpTrigger';
 
 interface OnboardingLayoutProps {
   stepId: string;
@@ -19,7 +22,20 @@ interface OnboardingLayoutProps {
   wideLayout?: boolean;
 }
 
-export default function OnboardingLayout({
+/**
+ * Wraps the layout body in the help-drawer provider so every onboarding screen
+ * gets the "How this screen works" explainer for free (keyed by stepId). The
+ * trigger/drawer only appear when help content exists for the step.
+ */
+export default function OnboardingLayout(props: OnboardingLayoutProps) {
+  return (
+    <HelpDrawerProvider stepId={props.stepId}>
+      <OnboardingLayoutBody {...props} />
+    </HelpDrawerProvider>
+  );
+}
+
+function OnboardingLayoutBody({
   stepId,
   title,
   description,
@@ -30,6 +46,7 @@ export default function OnboardingLayout({
   wideLayout = false,
 }: OnboardingLayoutProps) {
   const [location, navigate] = useLocation();
+  const { open: helpOpen } = useHelpDrawer();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -40,6 +57,9 @@ export default function OnboardingLayout({
   // current route path so resume can navigate straight back to it.
   useEffect(() => {
     void saveCurrentSession(location);
+    // Remember this step so side-trips (e.g. the feedback review) can return
+    // here instead of resetting to step 1.
+    setLastStepPath(location);
   }, [location]);
 
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === stepId);
@@ -52,7 +72,13 @@ export default function OnboardingLayout({
   return (
     <div className="relative min-h-screen bg-[var(--background)] flex flex-col">
       <GridBackground />
-      <div className="relative z-10 flex flex-col flex-1">
+      {/* On large screens, squeeze the content column left of the open drawer
+          so the screen stays fully readable side-by-side with the explainer. */}
+      <div
+        className={`relative z-10 flex flex-col flex-1 transition-[padding] duration-300 ease-out ${
+          helpOpen ? 'lg:pr-[456px]' : ''
+        }`}
+      >
       <Header />
       <StepIndicator currentStepId={stepId} />
       
@@ -112,6 +138,10 @@ export default function OnboardingLayout({
 
       <Footer />
       </div>
+
+      {/* Screen explainer — appears only when help content exists for stepId. */}
+      <HelpTrigger />
+      <HelpDrawer />
     </div>
   );
 }

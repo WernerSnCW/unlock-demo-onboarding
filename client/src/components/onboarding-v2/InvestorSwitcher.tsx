@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut } from 'lucide-react';
+import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut, MessagesSquare, Link2 } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { ONBOARDING_STEPS } from './StepIndicator';
 import {
   listSessions, loadSession, startNewInvestor, getActiveSessionId,
-  createInvestor, isInvestorMode, logout,
+  createInvestor, ensureInvestorLink, isInvestorMode, logout,
   type SessionSummary,
 } from '@/lib/onboardingSync';
 
@@ -36,6 +36,7 @@ export default function InvestorSwitcher() {
   const [createdLink, setCreatedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [copiedRowId, setCopiedRowId] = useState<string | null>(null);
+  const [linkBusyId, setLinkBusyId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const activeId = getActiveSessionId();
   const investorMode = isInvestorMode();
@@ -113,6 +114,17 @@ export default function InvestorSwitcher() {
     } catch {
       /* clipboard blocked */
     }
+  };
+
+  // For a demo session with no link yet: mint a token, copy the link, and mark
+  // the row so it now shows the normal copy button.
+  const generateRowLink = async (id: string) => {
+    setLinkBusyId(id);
+    const r = await ensureInvestorLink(id);
+    setLinkBusyId(null);
+    if (!r.ok || !r.token) return;
+    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, token: r.token! } : s)));
+    await copyRowLink(id, r.token);
   };
 
   // Investors see a read-only label of their own name — never the list/dropdown.
@@ -241,7 +253,7 @@ export default function InvestorSwitcher() {
                         {completed ? 'Done' : 'In progress'}
                       </span>
                     )}
-                    {s.token && (
+                    {s.token ? (
                       <button
                         onClick={() => copyRowLink(s.id, s.token!)}
                         title="Copy this investor's private link"
@@ -249,6 +261,20 @@ export default function InvestorSwitcher() {
                         data-testid={`investor-copylink-${s.id}`}
                       >
                         {copiedRowId === s.id ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" /> : <Copy className="h-3.5 w-3.5" />}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => generateRowLink(s.id)}
+                        disabled={linkBusyId === s.id}
+                        title="Generate a private link to share this session with the investor"
+                        className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[#00bb77]/[0.08] transition-colors"
+                        data-testid={`investor-genlink-${s.id}`}
+                      >
+                        {linkBusyId === s.id
+                          ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          : copiedRowId === s.id
+                            ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
+                            : <Link2 className="h-3.5 w-3.5" />}
                       </button>
                     )}
                   </div>
@@ -332,6 +358,18 @@ export default function InvestorSwitcher() {
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Investor feedback review — consolidated per-screen notes */}
+          <div className="border-t border-[var(--border)]">
+            <button
+              onClick={() => { setOpen(false); navigate('/onboarding-v2/feedback'); }}
+              className="w-full px-4 py-3 flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[#ffffff]/[0.04] transition-colors"
+              data-testid="admin-feedback-review"
+            >
+              <MessagesSquare className="h-4 w-4" />
+              Investor feedback
+            </button>
           </div>
 
           {/* Log out — clears the admin session and returns to the code screen */}

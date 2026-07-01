@@ -24,6 +24,7 @@ import {
   investorPreferences,
   insertOnboardingSessionSchema
 } from "@shared/schema";
+import { z } from "zod";
 import { marketDataService } from "./services/marketData.js";
 import { computeGap, type GapRequest } from './lib/gap/computeGap';
 import { buildWhy, type WhyContext } from './lib/gap/why';
@@ -2704,7 +2705,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
         ticker: h.ticker || null,
         notes: h.notes || null,
       }));
-    await storage.replaceOnboardingAssets(sessionId, rows);
+    await storage.replaceSessionAssets(sessionId, rows);
   };
 
   // ---- Admin (advisor) — full view over every investor ----
@@ -2790,6 +2791,25 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     }
   });
 
+  // Mint (or return) a private link token for an existing session, so an advisor
+  // can share a demo walkthrough with the investor after the fact. Idempotent:
+  // returns the existing token if the session already has one.
+  app.post("/api/onboarding-v2/sessions/:id/token", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const existing = await storage.getOnboardingSession(req.params.id);
+      if (!existing) return res.status(404).json({ error: "Session not found" });
+      if (existing.token) return res.json({ token: existing.token, id: existing.id });
+      const token = randomBytes(12).toString("base64url");
+      const updated = await storage.setOnboardingSessionToken(req.params.id, token);
+      res.json({ token: updated?.token ?? token, id: req.params.id });
+    } catch (error) {
+      console.error("Mint session token error:", error);
+      res.status(500).json({ error: "Failed to create link", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   // ---- Investor — STRICTLY scoped to their own session via a private token ----
   // No admin code; the unguessable token is the credential. An investor can only
   // ever read or write the single session whose token matches — never another's.
@@ -2848,6 +2868,167 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     } catch (error) {
       console.error("List assets (investor) error:", error);
       res.status(500).json({ error: "Failed to list assets", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // =============================================================================
+  // Screen feedback — per-screen, per-investor review notes.
+  // Investor writes/reads are token-scoped (same credential model as sessions);
+  // the advisor consolidation + review lives behind the admin code.
+  // =============================================================================
+  const feedbackInputSchema = z.object({
+    stepId: z.string().min(1).max(64),
+    category: z.enum(["ux", "logic", "wording", "idea", "bug", "general"]),
+    rating: z.number().int().min(1).max(5).nullable().optional(),
+    comment: z.string().trim().min(1, "Comment is required").max(4000),
+  });
+
+  // Investor leaves feedback on a screen (token-scoped to their own session).
+  app.post("/api/onboarding-v2/i/:token/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const session = await storage.getOnboardingSessionByToken(req.params.token);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      const parsed = feedbackInputSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid feedback", details: parsed.error.flatten() });
+      }
+      const created = await storage.createScreenFeedback({
+        investorSessionId: session.id,
+        stepId: parsed.data.stepId,
+        category: parsed.data.category,
+        rating: parsed.data.rating ?? null,
+        comment: parsed.data.comment,
+        isInternal: false,
+        status: "new",
+        adminNote: null,
+      });
+      res.json(created);
+    } catch (error) {
+      console.error("Create feedback error:", error);
+      res.status(500).json({ error: "Failed to save feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Investor lists their own feedback (all screens).
+  app.get("/api/onboarding-v2/i/:token/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const session = await storage.getOnboardingSessionByToken(req.params.token);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      res.json(await storage.listScreenFeedbackBySession(session.id));
+    } catch (error) {
+      console.error("List investor feedback error:", error);
+      res.status(500).json({ error: "Failed to list feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Investor removes one of their own notes (scoped: id must belong to session).
+  app.delete("/api/onboarding-v2/i/:token/feedback/:id", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const session = await storage.getOnboardingSessionByToken(req.params.token);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      // Investors can only remove their OWN (non-internal) notes.
+      const ok = await storage.deleteScreenFeedback(req.params.id, session.id, { internal: false });
+      if (!ok) return res.status(404).json({ error: "Feedback not found" });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Delete feedback error:", error);
+      res.status(500).json({ error: "Failed to delete feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Advisor's own INTERNAL note on a screen, attached to the session they're
+  // demoing/reviewing. Admin-gated; flagged isInternal so the review keeps it
+  // separate from genuine investor feedback.
+  app.post("/api/onboarding-v2/sessions/:id/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const session = await storage.getOnboardingSession(req.params.id);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      const parsed = feedbackInputSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid feedback", details: parsed.error.flatten() });
+      }
+      const created = await storage.createScreenFeedback({
+        investorSessionId: session.id,
+        stepId: parsed.data.stepId,
+        category: parsed.data.category,
+        rating: parsed.data.rating ?? null,
+        comment: parsed.data.comment,
+        isInternal: true,
+        status: "new",
+        adminNote: null,
+      });
+      res.json(created);
+    } catch (error) {
+      console.error("Create internal feedback error:", error);
+      res.status(500).json({ error: "Failed to save note", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Advisor lists a session's notes (used by the drawer to show the advisor
+  // their own internal notes for the session being demoed).
+  app.get("/api/onboarding-v2/sessions/:id/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      res.json(await storage.listSessionFeedbackForAdmin(req.params.id));
+    } catch (error) {
+      console.error("List session feedback error:", error);
+      res.status(500).json({ error: "Failed to list feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Advisor removes one of their own internal notes (scoped: internal only).
+  app.delete("/api/onboarding-v2/sessions/:id/feedback/:fid", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const ok = await storage.deleteScreenFeedback(req.params.fid, req.params.id, { internal: true });
+      if (!ok) return res.status(404).json({ error: "Feedback not found" });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Delete internal feedback error:", error);
+      res.status(500).json({ error: "Failed to delete note", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // ---- Admin consolidation + review ----
+  app.get("/api/onboarding-v2/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      res.json(await storage.listAllScreenFeedback());
+    } catch (error) {
+      console.error("List all feedback error:", error);
+      res.status(500).json({ error: "Failed to list feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.patch("/api/onboarding-v2/feedback/:id", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const patch: { status?: string; adminNote?: string | null } = {};
+      const allowedStatuses = ["new", "reviewed", "actioned", "dismissed"];
+      if (typeof req.body?.status === "string") {
+        if (!allowedStatuses.includes(req.body.status)) {
+          return res.status(400).json({ error: "Invalid status" });
+        }
+        patch.status = req.body.status;
+      }
+      if (req.body?.adminNote === null || typeof req.body?.adminNote === "string") {
+        patch.adminNote = req.body.adminNote;
+      }
+      const updated = await storage.updateScreenFeedback(req.params.id, patch);
+      if (!updated) return res.status(404).json({ error: "Feedback not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Update feedback error:", error);
+      res.status(500).json({ error: "Failed to update feedback", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 

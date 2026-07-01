@@ -339,6 +339,33 @@ export const assets = pgTable("assets", {
   deletedAt: timestamp("deleted_at"), // soft delete
 });
 
+// =============================================================================
+// Screen feedback — per-screen, per-investor review notes.
+// Investors reviewing the demo leave feedback on each onboarding screen (UX,
+// logic, wording, ideas, bugs) from the help drawer. Owned by the token session
+// (session = investor here), so feedback consolidates by investor and by screen
+// for the advisor's review workflow. Vocabularies (category, status) are text
+// validated in code, not pg enums, per the register convention.
+// =============================================================================
+export const screenFeedback = pgTable("screen_feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  investorSessionId: varchar("investor_session_id")
+    .notNull()
+    .references(() => onboardingSessions.id, { onDelete: 'cascade' }),
+  stepId: text("step_id").notNull(),   // 'intake' | 'holdings' | 'analysis' | ...
+  category: text("category").notNull(), // ux | logic | wording | idea | bug | general
+  rating: integer("rating"),            // optional 1-5 "was this screen clear?"
+  comment: text("comment").notNull(),
+  // Advisor's own internal note (e.g. Tom during a demo), kept separate from
+  // genuine investor feedback in the review. False = the investor's own note.
+  isInternal: boolean("is_internal").notNull().default(false),
+  // Advisor review workflow:
+  status: text("status").notNull().default('new'), // new | reviewed | actioned | dismissed
+  adminNote: text("admin_note"),        // the advisor's decision / note on this item
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -413,11 +440,20 @@ export const insertAssetSchema = createInsertSchema(assets).omit({
   deletedAt: true,
 });
 
+export const insertScreenFeedbackSchema = createInsertSchema(screenFeedback).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type OnboardingSession = typeof onboardingSessions.$inferSelect;
 export type InsertOnboardingSession = z.infer<typeof insertOnboardingSessionSchema>;
 
 export type Asset = typeof assets.$inferSelect;
 export type InsertAsset = z.infer<typeof insertAssetSchema>;
+
+export type ScreenFeedback = typeof screenFeedback.$inferSelect;
+export type InsertScreenFeedback = z.infer<typeof insertScreenFeedbackSchema>;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

@@ -7,11 +7,12 @@
 // • Admin (advisor) mode — Tom/Werner, unlocked by the admin access code. Can
 //   list every investor and open any of them; requests carry the code as an
 //   x-access-code header.
-import { useOnboardingV2Store } from '@/state/onboardingV2Store';
+import { useOnboardingV2Store, type Holding } from '@/state/onboardingV2Store';
 
 const ACTIVE_KEY = 'onboarding-v2-session-id';   // admin/demo: active row id
 const TOKEN_KEY = 'onboarding-v2-investor-token'; // investor: their private token
 const ADMIN_KEY = 'onboarding-v2-admin-code';     // advisor: admin code for headers
+const LAST_STEP_KEY = 'onboarding-v2-last-step';  // last onboarding step visited this tab
 
 // The data slices that make up a session (must match the store + persist set).
 const DATA_KEYS = ['intake', 'holdings', 'summary', 'analysis', 'beliefs', 'scenario'] as const;
@@ -31,15 +32,24 @@ export type SaveResult =
   | { ok: false; reason: 'no-db' | 'empty' | 'error' };
 
 // ---- mode / credential helpers ----
-export function getActiveSessionId(): string | null { return localStorage.getItem(ACTIVE_KEY); }
+// Active session id is PER-TAB (sessionStorage), not localStorage: two admin
+// windows must not share one "active investor" or a save in one clobbers the
+// other's row. (Investor token is likewise per-tab.)
+export function getActiveSessionId(): string | null { return sessionStorage.getItem(ACTIVE_KEY); }
 export function setActiveSessionId(id: string | null): void {
-  if (id) localStorage.setItem(ACTIVE_KEY, id); else localStorage.removeItem(ACTIVE_KEY);
+  if (id) sessionStorage.setItem(ACTIVE_KEY, id); else sessionStorage.removeItem(ACTIVE_KEY);
 }
 export function getInvestorToken(): string | null { return sessionStorage.getItem(TOKEN_KEY); }
 export function setInvestorToken(token: string | null): void {
   if (token) sessionStorage.setItem(TOKEN_KEY, token); else sessionStorage.removeItem(TOKEN_KEY);
 }
 export function isInvestorMode(): boolean { return Boolean(getInvestorToken()); }
+
+// The last onboarding step path visited in this tab, so side-trips (e.g. the
+// feedback review) can send the user back to where they were rather than to
+// step 1. Per-tab, like the active session.
+export function getLastStepPath(): string | null { return sessionStorage.getItem(LAST_STEP_KEY); }
+export function setLastStepPath(path: string): void { sessionStorage.setItem(LAST_STEP_KEY, path); }
 export function getAdminCode(): string | null { return sessionStorage.getItem(ADMIN_KEY); }
 export function setAdminCode(code: string | null): void {
   if (code) sessionStorage.setItem(ADMIN_KEY, code); else sessionStorage.removeItem(ADMIN_KEY);
@@ -69,6 +79,46 @@ function currentName(): string {
 function normalizeAnalysis(data: any): void {
   if (data?.analysis && (data.analysis.status === 'loading' || data.analysis.status === 'error')) {
     data.analysis = { ...data.analysis, status: 'idle' };
+  }
+}
+
+// Map Layer-A register assets back into onboarding holdings (reverse of the
+// server-side projection). Gains/summary are recomputed by the store's
+// setHoldings action once applied.
+function mapAssetsToHoldings(assets: any[]): Holding[] {
+  return assets.map((a) => ({
+    id: String(a.assetId || a.id || 'h' + Math.random().toString(36).slice(2)),
+    instrument_name: a.label || 'Holding',
+    ticker: a.ticker || '',
+    wrapper: a.wrapperType || '',
+    asset_class: a.assetClass || '',
+    region: '',
+    value_gbp: Number(a.currentValue || 0),
+    illiquid: /propert|collect|vct|aim|eis|seis|alt/i.test(String(a.assetClass || '')),
+    currency: 'GBP',
+    instrument_type: 'Fund',
+    isin: a.isin || null,
+    cost_basis_gbp: a.acquisitionCost != null ? Number(a.acquisitionCost) : null,
+    acquisition_date: a.acquisitionDate || null,
+    notes: a.notes || null,
+  }));
+}
+
+// When a loaded session has no holdings but its register does (an imported /
+// pre-loaded investor like Tony), seed the flow's holdings from the register.
+// Mutates `data.holdings` and returns true if it hydrated.
+async function hydrateHoldingsIfEmpty(data: any, assetsUrl: string, withAdminHeader: boolean): Promise<boolean> {
+  const hasHoldings = Array.isArray(data?.holdings) && data.holdings.some((h: any) => Number(h?.value_gbp || 0) > 0);
+  if (hasHoldings) return false;
+  try {
+    const res = await fetch(assetsUrl, withAdminHeader ? { headers: adminHeaders() } : undefined);
+    if (!res.ok) return false;
+    const assets = await res.json();
+    if (!Array.isArray(assets) || assets.length === 0) return false;
+    data.holdings = mapAssetsToHoldings(assets);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -150,9 +200,14 @@ export async function loadSession(id: string): Promise<{ ok: boolean; currentSte
     const session = await res.json();
     const data = JSON.parse(session.state);
     normalizeAnalysis(data);
+    const hydrated = await hydrateHoldingsIfEmpty(data, `/api/onboarding-v2/sessions/${id}/assets`, true);
     useOnboardingV2Store.setState(data);
+    if (hydrated) useOnboardingV2Store.getState().setHoldings(data.holdings); // recompute gains/summary
     setActiveSessionId(session.id);
-    return { ok: true, currentStep: session.currentStep || '/onboarding-v2/welcome' };
+    // Imported investor (assets known, intake missing) → start at Intake to
+    // capture the basics; Holdings will already be pre-filled from the register.
+    const currentStep = hydrated ? '/onboarding-v2/intake' : (session.currentStep || '/onboarding-v2/welcome');
+    return { ok: true, currentStep };
   } catch {
     return { ok: false };
   }
@@ -178,6 +233,26 @@ export async function createInvestor(
   }
 }
 
+// Ensure an EXISTING session (e.g. an advisor's demo walkthrough) has a private
+// link token, minting one if needed, so it can be shared with the investor
+// afterwards. Idempotent — returns the existing token if there already is one.
+export async function ensureInvestorLink(
+  id: string,
+): Promise<{ ok: boolean; noDb?: boolean; token?: string }> {
+  try {
+    const res = await fetch(`/api/onboarding-v2/sessions/${id}/token`, {
+      method: 'POST',
+      headers: adminHeaders(),
+    });
+    if (res.status === 503) return { ok: false, noDb: true };
+    if (!res.ok) return { ok: false };
+    const d = await res.json();
+    return { ok: true, token: d.token };
+  } catch {
+    return { ok: false };
+  }
+}
+
 // ---- investor (token-scoped) ----
 export async function loadInvestorSession(
   token: string,
@@ -190,9 +265,12 @@ export async function loadInvestorSession(
     let data: any = {};
     try { data = session.state ? JSON.parse(session.state) : {}; } catch { data = {}; }
     normalizeAnalysis(data);
+    setInvestorToken(token); // set before fetching assets so the token-scoped call is authorised
+    const hydrated = await hydrateHoldingsIfEmpty(data, `/api/onboarding-v2/i/${token}/assets`, false);
     if (data && Object.keys(data).length) useOnboardingV2Store.setState(data);
-    setInvestorToken(token);
-    return { ok: true, currentStep: session.currentStep || '/onboarding-v2/welcome' };
+    if (hydrated) useOnboardingV2Store.getState().setHoldings(data.holdings);
+    const currentStep = hydrated ? '/onboarding-v2/intake' : (session.currentStep || '/onboarding-v2/welcome');
+    return { ok: true, currentStep };
   } catch {
     return { ok: false };
   }
@@ -205,12 +283,19 @@ export function startNewInvestor(): void {
   if (typeof s.resetOnboarding === 'function') s.resetOnboarding();
 }
 
-// Full logout: clear admin session, any active investor, and the local session
-// id, then send the browser back to the code screen.
+// Full logout: clear admin session, any active investor, the local session id,
+// and the locally-persisted working investor, then send the browser back to the
+// code screen. Resetting the store matters: otherwise the switcher keeps showing
+// whoever was last worked on in this browser (from localStorage) even after
+// logging out, since that name is read from the persisted store, not the DB.
 export function logout(): void {
   sessionStorage.removeItem('unlock-access');
   setAdminCode(null);
   setInvestorToken(null);
   setActiveSessionId(null);
+  sessionStorage.removeItem(LAST_STEP_KEY);
+  const s = useOnboardingV2Store.getState() as any;
+  if (typeof s.resetOnboarding === 'function') s.resetOnboarding();
+  try { localStorage.removeItem('onboarding-v2-storage'); } catch { /* storage disabled */ }
   window.location.href = '/';
 }
