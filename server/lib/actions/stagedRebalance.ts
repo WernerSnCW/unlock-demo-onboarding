@@ -9,7 +9,7 @@ export interface StagedRebalanceParams {
   minTradePct: number;
   maxMoves: number;
   illiquidBuckets: string[];
-  frictionRate: Record<string, number>;
+  frictionRate: Partial<Record<string, number>>;
   stageIlliquids: boolean;
 }
 

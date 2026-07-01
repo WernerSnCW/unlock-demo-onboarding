@@ -61,7 +61,7 @@ export function buildActions(req: ActionsRequest): ActionsResponse {
     minTradePct: req.minTradePct ?? 0.005,
     maxMoves: req.maxMoves ?? 8,
     illiquidBuckets: ILLIQUID_BUCKETS,
-    frictionRate: FRICTION_RATE as Record<string, number>,
+    frictionRate: FRICTION_RATE,
     stageIlliquids: req.stageIlliquids ?? true,
   });
 }
