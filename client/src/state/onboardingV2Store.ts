@@ -1512,6 +1512,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           summary: initialSummary,
           analysis: initialAnalysis,
           beliefs: initialBeliefs,
+          outlook: initialOutlook,
           scenario: initialScenario,
         });
       },
