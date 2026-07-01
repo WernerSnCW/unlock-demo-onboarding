@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, numeric, boolean, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, numeric, boolean, timestamp, integer, date, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -261,6 +261,84 @@ export const onboardingSessions = pgTable("onboarding_sessions", {
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
+// =============================================================================
+// Asset register — Layer A (pure, recorded facts) per CTX_asset_register_spec.
+// This is the canonical investor-data spine: every row is a fact an adviser
+// would agree on for a holding on a given day. Planning assumptions (growth,
+// income, disposal-cost estimates = Layer B) and scenario/what-if actions
+// (Layer C) do NOT belong here and are deliberately excluded.
+//
+// Demo scoping vs the production spine:
+// - Owned by the token session (investorSessionId), since a session = an
+//   investor here; the platform will key to an investors table.
+// - Vocabularies (asset_class, wrapper_type, owner...) are text validated in
+//   code, NOT pg enums, so the taxonomy grows by INSERT not ALTER (arch §3.6).
+// - source_deal_id / company_holding_id kept as columns (no FK — those tables
+//   don't exist in the demo); they FK to real tables in the platform.
+// - Cost basis is per-asset here; the platform spine is per-lot (arch §5.3).
+// =============================================================================
+export const assets = pgTable("assets", {
+  // Identity & provenance
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  investorSessionId: varchar("investor_session_id")
+    .notNull()
+    .references(() => onboardingSessions.id, { onDelete: 'cascade' }),
+  assetId: text("asset_id").notNull(), // stable business key, unique per session
+  label: text("label").notNull(),
+  source: text("source").notNull().default('manual'), // manual|onboarding|deal|csv_import|hmrc|market_feed
+  externalRef: text("external_ref"),
+  sourceDealId: integer("source_deal_id"), // FK→deals in platform (no FK in demo)
+  companyHoldingId: integer("company_holding_id"), // FK→company_holdings in platform
+
+  // Classification & ownership
+  wrapperType: text("wrapper_type").notNull().default('gia'), // isa|pension|eis|seis|vct|aim|property|cash|gia
+  assetClass: text("asset_class").notNull(), // normalised to a canonical bucket on write
+  owner: text("owner").notNull().default('person_1'), // person_1|person_2|joint
+
+  // Valuation (recorded)
+  currentValue: numeric("current_value", { precision: 15, scale: 2 }).notNull(),
+  valuationDate: date("valuation_date"),
+  valuationSource: text("valuation_source"), // manual|market_feed|professional|deal
+  units: numeric("units", { precision: 18, scale: 6 }),
+  instrumentId: text("instrument_id"),
+  isin: text("isin"),
+  ticker: text("ticker"),
+
+  // Cost basis (recorded facts)
+  acquisitionCost: numeric("acquisition_cost", { precision: 15, scale: 2 }),
+  acquisitionDate: date("acquisition_date"),
+  originalSubscriptionAmount: numeric("original_subscription_amount", { precision: 15, scale: 2 }),
+  allowableImprovementCosts: numeric("allowable_improvement_costs", { precision: 15, scale: 2 }).notNull().default('0'),
+
+  // Tax status & history (recorded facts)
+  taxReliefClaimed: numeric("tax_relief_claimed", { precision: 15, scale: 2 }).notNull().default('0'),
+  reliefClaimedType: text("relief_claimed_type").notNull().default('none'), // none|eis|seis|vct
+  deferredGainAmount: numeric("deferred_gain_amount", { precision: 15, scale: 2 }),
+  isIhtExempt: boolean("is_iht_exempt").notNull().default(false),
+  bprQualifyingDate: date("bpr_qualifying_date"),
+  bprLastReviewed: date("bpr_last_reviewed"),
+  cgtExemptDate: date("cgt_exempt_date"),
+  qualifiesForBadr: boolean("qualifies_for_badr").notNull().default(false),
+  isMainResidence: boolean("is_main_residence").notNull().default(false),
+
+  // Wrapper facts
+  pensionType: text("pension_type"),
+  tflsUsedAmount: numeric("tfls_used_amount", { precision: 15, scale: 2 }).notNull().default('0'),
+  mpaaTriggered: boolean("mpaa_triggered").notNull().default(false),
+  inDrawdown: boolean("in_drawdown").notNull().default(false),
+  flexibleIsa: boolean("flexible_isa").notNull().default(false),
+
+  // Leverage
+  mortgageBalance: numeric("mortgage_balance", { precision: 15, scale: 2 }).notNull().default('0'),
+
+  // Lifecycle & extensibility
+  notes: text("notes"),
+  metadata: jsonb("metadata"), // promotion path for speculative fields
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+  deletedAt: timestamp("deleted_at"), // soft delete
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -328,8 +406,18 @@ export const insertOnboardingSessionSchema = createInsertSchema(onboardingSessio
   updatedAt: true,
 });
 
+export const insertAssetSchema = createInsertSchema(assets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+});
+
 export type OnboardingSession = typeof onboardingSessions.$inferSelect;
 export type InsertOnboardingSession = z.infer<typeof insertOnboardingSessionSchema>;
+
+export type Asset = typeof assets.$inferSelect;
+export type InsertAsset = z.infer<typeof insertAssetSchema>;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
