@@ -11,20 +11,12 @@ import { computeTieredImpact } from '@/lib/beliefImpact/computeTieredImpact';
 import { computeIncomeRunway } from '@/lib/beliefImpact/computeIncomeRunway';
 import { BELIEF_SCENARIO_MAPPING, type BeliefScenarioName } from '@/data/beliefImpactTaxonomy';
 import { fmtSignedPct } from '@/lib/scenarioPlannerView';
+import { formatCurrency } from '@/utils/calculators';
 
 const BAND_LABEL: Record<AlignmentBand, string> = {
   BROADLY_ALIGNED: 'Broadly aligned',
   PARTIALLY_ALIGNED: 'Partially aligned',
   MISALIGNED: 'Misaligned',
-};
-
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
 };
 
 export default function OutlookResults() {

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { mixFromHoldings, type MixHolding } from '@/lib/portfolioMix';
 import { blendBeliefAllocation, renormaliseOverModelledBuckets } from '@/lib/beliefImpact/computeAlignment';
 import { apiRequest } from '@/lib/queryClient';
+import { formatCurrency } from '@/utils/calculators';
 
 interface BeliefAction {
   type: 'TRIM' | 'ADD' | 'TRANSFER';
@@ -47,6 +48,7 @@ export default function OutlookAlternatives() {
   const targetMix = useMemo(() => blendBeliefAllocation(outlook.scenario_weights), [outlook.scenario_weights]);
 
   useEffect(() => {
+    if (outlook.insufficient_signal) return;
     let cancelled = false;
     async function run() {
       setLoading(true);
@@ -65,10 +67,32 @@ export default function OutlookAlternatives() {
     }
     run();
     return () => { cancelled = true; };
-  }, [mix, targetMix, summary.total_investable_value]);
+  }, [outlook.insufficient_signal, mix, targetMix, summary.total_investable_value]);
 
   const handleBack = () => navigate('/onboarding-v2/outlook-results');
   const handleContinue = () => navigate('/onboarding-v2/next-steps');
+
+  if (outlook.insufficient_signal) {
+    return (
+      <OnboardingLayout
+        stepId="outlook-alternatives"
+        title="Illustrative alternatives"
+        description="One illustrative way to reduce the impact modelled on the previous page."
+        hideNav={true}
+      >
+        <div className="space-y-6 pt-6">
+          <p className="text-sm text-[var(--muted-foreground)]" data-testid="alternatives-insufficient-signal">
+            Your answers didn't give us enough signal to model an outlook-driven impact — mostly neutral responses
+            cancel each other out. You can go back and answer more definitively, or continue without this view.
+          </p>
+          <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
+            <Button variant="outline" onClick={handleBack} data-testid="alternatives-back-button">Back</Button>
+            <Button onClick={handleContinue} data-testid="alternatives-continue-button">Continue</Button>
+          </div>
+        </div>
+      </OnboardingLayout>
+    );
+  }
 
   return (
     <OnboardingLayout
@@ -93,13 +117,23 @@ export default function OutlookAlternatives() {
                 Estimated turnover: ~{result.summary.estTurnoverPp}pp; indicative cost: ~{(result.summary.estCostPct * 100).toFixed(2)}% of your modelled portfolio.
               </p>
             </div>
+            {result.playbook.length > 0 && (
+              <div data-testid="alternatives-playbook">
+                <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">How this was staged</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  {result.playbook.map((line, i) => (
+                    <li key={i} className="text-sm text-[var(--muted-foreground)]">{line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {result.staged.stage1.length > 0 && (
               <div data-testid="alternatives-stage1">
                 <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 1 — liquid moves</p>
                 {result.staged.stage1.map((a, i) => (
                   <p key={i} className="text-sm">
                     {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
-                    {' '}(£{Math.round(a.amountGBP).toLocaleString('en-GB')}) — {a.rationale}
+                    {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
                   </p>
                 ))}
               </div>
@@ -110,7 +144,7 @@ export default function OutlookAlternatives() {
                 {result.staged.stage2.map((a, i) => (
                   <p key={i} className="text-sm">
                     {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
-                    {' '}(£{Math.round(a.amountGBP).toLocaleString('en-GB')}) — {a.rationale}
+                    {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
                   </p>
                 ))}
               </div>
