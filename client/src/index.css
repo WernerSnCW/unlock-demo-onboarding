@@ -312,6 +312,30 @@
   animation: glow 4s ease-in-out infinite;
 }
 
+/* ============================================================ */
+/* Screen-explainer help drawer — anchor highlight flash        */
+/* Pulses a brand-green ring around an on-screen element when    */
+/* the investor clicks its linked term in the help drawer.       */
+/* box-shadow ring (no layout shift); literal rgba, not the      */
+/* Tailwind var-opacity form which silently drops alpha.         */
+/* ============================================================ */
+@keyframes helpAnchorFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(0,187,119,0); }
+  12%  { box-shadow: 0 0 0 3px rgba(0,187,119,0.95), 0 0 20px 3px rgba(0,187,119,0.45); }
+  55%  { box-shadow: 0 0 0 3px rgba(0,187,119,0.55), 0 0 16px 2px rgba(0,187,119,0.25); }
+  100% { box-shadow: 0 0 0 0 rgba(0,187,119,0); }
+}
+
+.help-anchor-flash {
+  animation: helpAnchorFlash 2.1s var(--u-ease) 1;
+  border-radius: var(--u-radius-m);
+  scroll-margin-top: 96px; /* clear the sticky header/step bar when scrolled into view */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-anchor-flash { animation: none; outline: 2px solid var(--u-green); outline-offset: 2px; }
+}
+
 /* Print styles for Report page */
 @media print {
   .print\\:hidden {

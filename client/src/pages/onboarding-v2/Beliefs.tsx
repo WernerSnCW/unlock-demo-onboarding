@@ -306,7 +306,7 @@ export default function Beliefs() {
                 : "Based on your responses, here's how your portfolio tilts would be configured."}
             </p>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2" data-help-anchor="beliefs-tilt-preview">
               {beliefs.tilt_profile.map((tilt) => {
                 const dirConfig = DIRECTION_CONFIG[tilt.direction];
                 const intensityConfig = INTENSITY_CONFIG[tilt.intensity];
@@ -362,7 +362,7 @@ export default function Beliefs() {
               
               <CollapsibleTrigger asChild>
                 <button className="w-full flex items-center justify-between mb-4 cursor-pointer group/trigger">
-                  <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight">
+                  <h3 className="text-lg font-bold text-[var(--foreground)] tracking-tight" data-help-anchor="beliefs-transparency">
                     Transparency
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] group-hover/trigger:text-[var(--primary)] transition-colors">
