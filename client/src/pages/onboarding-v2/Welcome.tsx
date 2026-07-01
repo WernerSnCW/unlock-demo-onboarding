@@ -1,6 +1,7 @@
 import { Link } from 'wouter';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { Sparkles, Shield, TrendingUp, ArrowRight, Clock, History } from 'lucide-react';
+import { isInvestorMode } from '@/lib/onboardingSync';
 
 export default function Welcome() {
   return (
@@ -75,17 +76,25 @@ export default function Welcome() {
           </div>
         </div>
 
-        {/* Resume a previously saved investor */}
-        <div className="flex items-center justify-center">
-          <Link
-            href="/onboarding-v2/resume"
-            className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
-            data-testid="link-resume"
-          >
-            <History className="w-4 h-4" />
-            Resume a saved investor
-          </Link>
-        </div>
+        {/* Resume link — advisor only (lists all saved investors) */}
+        {!isInvestorMode() && (
+          <div className="flex items-center justify-center">
+            <Link
+              href="/onboarding-v2/resume"
+              className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+              data-testid="link-resume"
+            >
+              <History className="w-4 h-4" />
+              Resume a saved investor
+            </Link>
+          </div>
+        )}
+
+        {/* Data-use notice */}
+        <p className="text-center text-xs leading-relaxed text-[var(--muted-foreground)] max-w-xl mx-auto">
+          Your information is used to power your Unlock experience and future modules — it is never
+          sold or used for any other purpose. This is illustrative decision support, not financial advice.
+        </p>
       </div>
     </OnboardingLayout>
   );

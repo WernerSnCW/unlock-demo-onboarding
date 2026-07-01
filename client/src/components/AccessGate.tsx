@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Lock, Loader2 } from 'lucide-react';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import GridBackground from '@/components/onboarding-v2/GridBackground';
+import { isInvestorMode, setAdminCode } from '@/lib/onboardingSync';
 import unlockLogo from '@assets/unlock-logo.svg';
 
 const GRANTED_KEY = 'unlock-access';
@@ -17,6 +18,12 @@ export default function AccessGate({ children }: { children: React.ReactNode }) 
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    // Investor links (/i/:token) and an active investor session bypass the admin
+    // gate entirely — the private token is their credential, not the admin code.
+    if (window.location.pathname.startsWith('/i/') || isInvestorMode()) {
+      setState('open');
+      return;
+    }
     if (sessionStorage.getItem(GRANTED_KEY) === 'granted') {
       setState('open');
       return;
@@ -47,6 +54,7 @@ export default function AccessGate({ children }: { children: React.ReactNode }) 
       const d = await r.json();
       if (d?.ok) {
         sessionStorage.setItem(GRANTED_KEY, 'granted');
+        setAdminCode(code.trim()); // authorises admin API requests (x-access-code)
         setState('open');
       } else {
         setError(true);
