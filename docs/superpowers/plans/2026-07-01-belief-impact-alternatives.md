@@ -1739,7 +1739,7 @@ curl -X POST http://localhost:5000/api/belief-actions \
   -d '{"currentMix":{"cash":0.05,"uk-equity":0.95,"us-equity":0,"global-equity":0,"govt-bonds":0,"property":0},"targetMix":{"cash":0.15,"uk-equity":0.55,"us-equity":0,"global-equity":0,"govt-bonds":0.30,"property":0},"portfolioValueGBP":500000}'
 ```
 
-Expected: 200 response with `summary`/`staged`/`playbook` fields, `summary.liquidityFixPp: 10`
+Expected: 200 response with `summary`/`staged`/`playbook` fields, `summary.liquidityFixPp: 5`
 
 - [ ] **Step 7: Commit**
 

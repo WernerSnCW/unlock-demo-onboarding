@@ -26,4 +26,26 @@ describe('buildBeliefActions', () => {
     expect(propertyInStage2).toBe(true);
     expect(propertyInStage1).toBe(false);
   });
+
+  it('never surfaces unmodelled buckets (europe-equity, emerging-equity) as a donor or recipient', () => {
+    // europe-equity/emerging-equity are part of the 8-bucket episode taxonomy but are NOT in
+    // BELIEF_MODELLED_BUCKETS. Today that exclusion holds only by construction (buildBeliefActions
+    // always passes BELIEF_MODELLED_BUCKETS as the `buckets` list to computeStagedRebalance, so
+    // anything outside it is never iterated over). This test guards that guarantee so a future
+    // accidental widening of BELIEF_MODELLED_BUCKETS (or a change to how buckets are derived) gets
+    // caught rather than silently leaking an unmodelled bucket into the staged actions.
+    const currentMix = {
+      'cash': 0.10, 'uk-equity': 0.40, 'us-equity': 0.20, 'global-equity': 0.10, 'govt-bonds': 0.10, 'property': 0.10,
+      'europe-equity': 0.30, 'emerging-equity': 0.20,
+    };
+    const targetMix = {
+      'cash': 0.10, 'uk-equity': 0.20, 'us-equity': 0.20, 'global-equity': 0.20, 'govt-bonds': 0.10, 'property': 0.20,
+      'europe-equity': 0.05, 'emerging-equity': 0.60,
+    };
+    const result = buildBeliefActions({ currentMix, targetMix, portfolioValueGBP: 500_000 });
+    const allActions = [...result.staged.stage1, ...result.staged.stage2];
+    const buckets = allActions.map((a) => a.bucket);
+    expect(buckets).not.toContain('europe-equity');
+    expect(buckets).not.toContain('emerging-equity');
+  });
 });
