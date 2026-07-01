@@ -111,9 +111,11 @@ export interface IStorage {
 }
 
 // Lightweight row for the resume picker (excludes the heavy `state` blob).
+// Includes `token` so the admin view can rebuild an investor's private link;
+// this summary is only ever returned from admin-gated endpoints.
 export type OnboardingSessionSummary = Pick<
   OnboardingSession,
-  'id' | 'investorName' | 'email' | 'currentStep' | 'status' | 'updatedAt'
+  'id' | 'token' | 'investorName' | 'email' | 'currentStep' | 'status' | 'updatedAt'
 >;
 
 
@@ -561,6 +563,7 @@ export class DatabaseStorage implements IStorage {
     return db
       .select({
         id: onboardingSessions.id,
+        token: onboardingSessions.token,
         investorName: onboardingSessions.investorName,
         email: onboardingSessions.email,
         currentStep: onboardingSessions.currentStep,
