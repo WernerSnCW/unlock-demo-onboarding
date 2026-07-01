@@ -12,7 +12,7 @@
  * Idempotent: reuses a fixed Tony session (token `tony-demo`) and replaces its
  * csv_import assets each run. Link to view as that investor: /i/tony-demo
  */
-import { eq, and } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '../server/db';
 import { onboardingSessions, assets } from '../shared/schema';
 
@@ -67,12 +67,18 @@ async function main() {
     process.exit(1);
   }
 
-  // Find or create Tony's session (fixed token so the link is stable).
+  // Find or create Tony's session (fixed token so the link is stable). If the
+  // row exists but was overwritten (e.g. renamed by a stray admin save), repair
+  // its identity back to Tony so re-running fully restores him.
+  const tonyDefaults = { investorName: 'Tony (demo import)', state: '{}', currentStep: '/onboarding-v2/welcome', status: 'in_progress' };
   let [tony] = await db.select().from(onboardingSessions).where(eq(onboardingSessions.token, TONY_TOKEN));
   if (!tony) {
+    [tony] = await db.insert(onboardingSessions).values({ token: TONY_TOKEN, ...tonyDefaults }).returning();
+  } else {
     [tony] = await db
-      .insert(onboardingSessions)
-      .values({ token: TONY_TOKEN, investorName: 'Tony (demo import)', state: '{}', currentStep: '/onboarding-v2/welcome', status: 'in_progress' })
+      .update(onboardingSessions)
+      .set({ ...tonyDefaults, updatedAt: sql`now()` })
+      .where(eq(onboardingSessions.id, tony.id))
       .returning();
   }
 
@@ -94,8 +100,9 @@ async function main() {
     pensionType: 'pensionType' in r ? (r as any).pensionType : null,
   }));
 
-  // Replace Tony's imported rows.
-  await db.delete(assets).where(and(eq(assets.investorSessionId, tony.id), eq(assets.source, 'csv_import')));
+  // Clear ALL of Tony's existing assets (removes any duplicates from a stray
+  // projection) and reinsert the clean imported set.
+  await db.delete(assets).where(eq(assets.investorSessionId, tony.id));
   await db.insert(assets).values(rows);
 
   const total = rows.reduce((s, r) => s + Number(r.currentValue), 0);
