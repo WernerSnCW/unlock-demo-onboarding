@@ -975,6 +975,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       },
 
       completeOutlookStep: () => {
+        get().computeOutlookScores();
         set((state) => ({
           outlook: { ...state.outlook, completed: true, completed_at: new Date().toISOString() },
         }));
