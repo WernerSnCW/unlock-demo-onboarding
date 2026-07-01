@@ -83,7 +83,9 @@ export const BELIEF_QUESTIONS: BeliefQuestion[] = [
   },
   {
     id: "B7_renting_vs_buying",
-    statement: "For a 30-year-old today, renting is a better choice than buying over the next 5 years.",
+    // CONTENT-BRAIN-GATE: provisional voice, draft replacement per 2026-07-01 audit (was a disguised
+    // property-price call) — Tom to finalize wording/tone.
+    statement: "Remote and flexible working will reduce demand for city-centre housing over the next 5 years.",
     direction: "higher->Property Crash",
     weights: {
       "Property Crash": 0.18
@@ -91,7 +93,9 @@ export const BELIEF_QUESTIONS: BeliefQuestion[] = [
   },
   {
     id: "B8_local_investment_preference",
-    statement: "Investing in local businesses and infrastructure is more attractive than investing in property.",
+    // CONTENT-BRAIN-GATE: provisional voice, draft replacement per 2026-07-01 audit (was a direct
+    // investment-attractiveness comparison) — Tom to finalize wording/tone; weight kept as-is.
+    statement: "UK housing supply will increase enough over the next 5 years to meaningfully improve affordability.",
     direction: "higher->Property Crash, Rate-Cut Reflation",
     weights: {
       "Property Crash": 0.10,
@@ -109,7 +113,9 @@ export const BELIEF_QUESTIONS: BeliefQuestion[] = [
   },
   {
     id: "B10_fx_view",
-    statement: "The British pound will depreciate against the US dollar and euro over the next 2 years.",
+    // CONTENT-BRAIN-GATE: provisional voice, draft replacement per 2026-07-01 audit (was the FX call
+    // itself, not a belief implying one) — Tom to finalize wording/tone.
+    statement: "International investors will lose confidence in the UK's fiscal position over the next 2 years.",
     direction: "higher->Sterling Devaluation",
     weights: {
       "Sterling Devaluation": 0.22
