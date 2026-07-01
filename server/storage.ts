@@ -104,6 +104,10 @@ export interface IStorage {
   getOnboardingSession(id: string): Promise<OnboardingSession | undefined>;
   upsertOnboardingSession(session: InsertOnboardingSession): Promise<OnboardingSession>;
   deleteOnboardingSession(id: string): Promise<boolean>;
+  // Mint/attach a private token to an existing session (e.g. to share a demo
+  // walkthrough as a link). Only sets it when the session has none — never
+  // overwrites an existing token. Returns the session.
+  setOnboardingSessionToken(id: string, token: string): Promise<OnboardingSession | undefined>;
   // Investor self-service: strictly token-scoped access to a single session.
   getOnboardingSessionByToken(token: string): Promise<OnboardingSession | undefined>;
   updateOnboardingSessionByToken(
@@ -643,6 +647,18 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
+  async setOnboardingSessionToken(id: string, token: string): Promise<OnboardingSession | undefined> {
+    // Only set when currently null so an existing link is never rotated.
+    const [updated] = await db
+      .update(onboardingSessions)
+      .set({ token, updatedAt: sql`now()` })
+      .where(and(eq(onboardingSessions.id, id), sql`${onboardingSessions.token} is null`))
+      .returning();
+    if (updated) return updated;
+    // Already had a token (or no such row) — return the current row as-is.
+    return this.getOnboardingSession(id);
+  }
+
   async getOnboardingSessionByToken(token: string): Promise<OnboardingSession | undefined> {
     const [session] = await db
       .select()
@@ -715,6 +731,7 @@ export class DatabaseStorage implements IStorage {
         category: screenFeedback.category,
         rating: screenFeedback.rating,
         comment: screenFeedback.comment,
+        isInternal: screenFeedback.isInternal,
         status: screenFeedback.status,
         adminNote: screenFeedback.adminNote,
         createdAt: screenFeedback.createdAt,

@@ -17,6 +17,7 @@ export interface ScreenFeedback {
   category: FeedbackCategory;
   rating: number | null;
   comment: string;
+  isInternal: boolean;
   status: FeedbackStatus;
   adminNote: string | null;
   createdAt: string | null;
@@ -96,7 +97,28 @@ export async function deleteMyFeedback(id: string): Promise<{ ok: boolean }> {
   }
 }
 
-// ---- Admin (advisor) consolidation + review ----
+// ---- Admin (advisor) internal notes + consolidation + review ----
+
+// The advisor's own note on a screen, attached to the session they're demoing
+// or reviewing (by id). Flagged internal server-side, so it stays separate
+// from genuine investor feedback in the review.
+export async function submitInternalFeedback(
+  sessionId: string,
+  input: SubmitFeedbackInput,
+): Promise<{ ok: boolean; noDb?: boolean; item?: ScreenFeedback }> {
+  try {
+    const res = await fetch(`/api/onboarding-v2/sessions/${sessionId}/feedback`, {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify(input),
+    });
+    if (res.status === 503) return { ok: false, noDb: true };
+    if (!res.ok) return { ok: false };
+    return { ok: true, item: await res.json() };
+  } catch {
+    return { ok: false };
+  }
+}
 
 export async function listAllFeedback(): Promise<{ ok: boolean; noDb?: boolean; items: ScreenFeedbackWithInvestor[] }> {
   try {
