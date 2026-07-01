@@ -30,18 +30,18 @@ export default function HelpTrigger() {
         onClick={openDrawer}
         aria-label="How this screen works"
         data-testid="help-trigger"
-        className="group relative flex items-center gap-2 rounded-l-[var(--radius-lg)] border border-r-0 border-[var(--border)] bg-[var(--card)] py-4 pl-3 pr-2.5 shadow-[var(--shadow-lg)] transition-colors hover:bg-[#00bb77]/[0.08] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)]"
+        className="group relative flex items-center gap-2 rounded-l-[var(--radius-lg)] bg-[var(--primary)] py-4 pl-3 pr-2.5 shadow-[var(--u-shadow-cta)] transition-colors hover:bg-[#008655] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00bb77] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
       >
-        {/* Pulse ring until first opened. */}
+        {/* Pulse ring until first opened (white, to read on the green tab). */}
         {!hasSeen && (
           <span className="absolute left-2 top-3 flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#00bb77]/75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#00bb77]" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
           </span>
         )}
-        <HelpCircle className="h-5 w-5 text-[var(--primary)]" />
+        <HelpCircle className="h-5 w-5 text-[var(--primary-foreground)]" />
         <span
-          className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground)]"
+          className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--primary-foreground)]"
           style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
         >
           How this works
