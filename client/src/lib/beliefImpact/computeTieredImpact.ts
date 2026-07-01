@@ -55,7 +55,7 @@ export function computeTieredImpact(
   portfolioValueGBP: number,
 ): TieredImpactResult {
   const topScenarios = (Object.entries(scenarioWeights) as [BeliefScenarioName, number][])
-    .filter(([, w]) => w > 0.05)
+    .filter(([name, w]) => w > 0.05 && !BELIEF_SCENARIO_MAPPING[name].isUpside)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
 
@@ -79,6 +79,7 @@ export function computeTieredImpact(
           const path = episode.paths[bucket];
           if (path === null) continue;
           const troughPct = path.points[path.troughIndex];
+          if (Math.abs(troughPct) < 0.01) continue; // held steady in this episode — not worth citing as an impact
           const stepsFromTrough = path.recoveryIndex === -1 ? null : path.recoveryIndex - path.troughIndex;
           citedSources.push({
             id: episode.id,

@@ -61,4 +61,20 @@ describe('computeTieredImpact', () => {
     expect(result.unmodelledSharePct).toBeCloseTo(25, 1);
     expect(result.unmodelledBreakdown).toEqual([{ name: 'emerging-equity', valueGbp: 25_000 }]);
   });
+
+  it('excludes the upside scenario from the top-3 ranking so it never displaces a real downside citation', () => {
+    const mix = { ...emptyMix(), 'uk-equity': 1 };
+    // Rate-Cut Reflation weighted highest, but it's upside — must not consume a slot ahead of Stagflation.
+    const result = computeTieredImpact(mix, [], { 'Rate-Cut Reflation': 0.6, Stagflation: 0.4 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'uk-equity')!;
+    expect(row.citedSources.some((s) => s.id === 'STAGFLATION_1973')).toBe(true);
+  });
+
+  it('does not cite an episode where the bucket essentially held steady (near-zero trough)', () => {
+    const mix = { ...emptyMix(), 'cash': 1 };
+    // Property Crash maps to DOTCOM_2000/GFC_2008/COVID_2020 — cash's path in these only rises.
+    const result = computeTieredImpact(mix, [], { 'Property Crash': 1 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'cash')!;
+    expect(row.citedSources).toHaveLength(0);
+  });
 });
