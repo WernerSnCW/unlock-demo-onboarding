@@ -14,7 +14,8 @@ import {
   type PropertyCashflow, type InsertPropertyCashflow,
   type OnboardingSession, type InsertOnboardingSession,
   type Asset, type InsertAsset,
-  users, investors, investorPreferences, taxProfile, onboardingSessions, assets,
+  type ScreenFeedback, type InsertScreenFeedback,
+  users, investors, investorPreferences, taxProfile, onboardingSessions, assets, screenFeedback,
   portfolioAccounts, portfolioHoldings, alternativeInvestments,
   properties, propertyOwnerships, propertyLoans, 
   propertyValuations, propertyLeases, propertyCashflows,
@@ -114,7 +115,25 @@ export interface IStorage {
   // are re-projected from holdings on each save.
   listAssetsBySession(investorSessionId: string): Promise<Asset[]>;
   replaceSessionAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void>;
+
+  // Screen feedback (per-screen, per-investor review notes).
+  createScreenFeedback(row: InsertScreenFeedback): Promise<ScreenFeedback>;
+  listScreenFeedbackBySession(investorSessionId: string): Promise<ScreenFeedback[]>;
+  deleteScreenFeedback(id: string, investorSessionId: string): Promise<boolean>;
+  // Advisor consolidation: every note across all investors, newest first, with
+  // the investor's name joined in for the review view.
+  listAllScreenFeedback(): Promise<ScreenFeedbackWithInvestor[]>;
+  updateScreenFeedback(
+    id: string,
+    patch: Partial<Pick<ScreenFeedback, 'status' | 'adminNote'>>,
+  ): Promise<ScreenFeedback | undefined>;
 }
+
+// A feedback row plus the investor it came from, for the advisor review view.
+export type ScreenFeedbackWithInvestor = ScreenFeedback & {
+  investorName: string;
+  token: string | null;
+};
 
 // Lightweight row for the resume picker (excludes the heavy `state` blob).
 // Includes `token` so the admin view can rebuild an investor's private link;
@@ -660,6 +679,64 @@ export class DatabaseStorage implements IStorage {
     if (rows.length === 0) return;
     await db.delete(assets).where(eq(assets.investorSessionId, investorSessionId));
     await db.insert(assets).values(rows);
+  }
+
+  // ---- Screen feedback ----
+
+  async createScreenFeedback(row: InsertScreenFeedback): Promise<ScreenFeedback> {
+    const [created] = await db.insert(screenFeedback).values(row).returning();
+    return created;
+  }
+
+  async listScreenFeedbackBySession(investorSessionId: string): Promise<ScreenFeedback[]> {
+    return db
+      .select()
+      .from(screenFeedback)
+      .where(eq(screenFeedback.investorSessionId, investorSessionId))
+      .orderBy(desc(screenFeedback.createdAt));
+  }
+
+  // Scoped delete: the id must belong to this session, so an investor can only
+  // ever remove their own note.
+  async deleteScreenFeedback(id: string, investorSessionId: string): Promise<boolean> {
+    const result = await db
+      .delete(screenFeedback)
+      .where(and(eq(screenFeedback.id, id), eq(screenFeedback.investorSessionId, investorSessionId)))
+      .returning();
+    return result.length > 0;
+  }
+
+  async listAllScreenFeedback(): Promise<ScreenFeedbackWithInvestor[]> {
+    return db
+      .select({
+        id: screenFeedback.id,
+        investorSessionId: screenFeedback.investorSessionId,
+        stepId: screenFeedback.stepId,
+        category: screenFeedback.category,
+        rating: screenFeedback.rating,
+        comment: screenFeedback.comment,
+        status: screenFeedback.status,
+        adminNote: screenFeedback.adminNote,
+        createdAt: screenFeedback.createdAt,
+        updatedAt: screenFeedback.updatedAt,
+        investorName: onboardingSessions.investorName,
+        token: onboardingSessions.token,
+      })
+      .from(screenFeedback)
+      .innerJoin(onboardingSessions, eq(screenFeedback.investorSessionId, onboardingSessions.id))
+      .orderBy(desc(screenFeedback.createdAt));
+  }
+
+  async updateScreenFeedback(
+    id: string,
+    patch: Partial<Pick<ScreenFeedback, 'status' | 'adminNote'>>,
+  ): Promise<ScreenFeedback | undefined> {
+    const [updated] = await db
+      .update(screenFeedback)
+      .set({ ...patch, updatedAt: sql`now()` })
+      .where(eq(screenFeedback.id, id))
+      .returning();
+    return updated || undefined;
   }
 }
 

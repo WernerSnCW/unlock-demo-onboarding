@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut } from 'lucide-react';
+import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut, MessagesSquare } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { ONBOARDING_STEPS } from './StepIndicator';
 import {
@@ -332,6 +332,18 @@ export default function InvestorSwitcher() {
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Investor feedback review — consolidated per-screen notes */}
+          <div className="border-t border-[var(--border)]">
+            <button
+              onClick={() => { setOpen(false); navigate('/onboarding-v2/feedback'); }}
+              className="w-full px-4 py-3 flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[#ffffff]/[0.04] transition-colors"
+              data-testid="admin-feedback-review"
+            >
+              <MessagesSquare className="h-4 w-4" />
+              Investor feedback
+            </button>
           </div>
 
           {/* Log out — clears the admin session and returns to the code screen */}
