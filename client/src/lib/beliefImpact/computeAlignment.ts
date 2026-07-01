@@ -53,26 +53,41 @@ function isCautious(riskComfort: string, drawdownCap?: number): boolean {
     || (typeof drawdownCap === 'number' && drawdownCap <= 0.20);
 }
 
+/** `mixFromHoldings` (portfolioMix.ts) normalises over every bucket `bucketFor()` maps to, which
+ *  includes europe-equity/emerging-equity — it has no notion of this feature's UNMODELLED tier.
+ *  Re-normalise here over MODELLED_BUCKETS only, so downstream math (alignment, HHI, target-mix
+ *  comparisons) operates on a vector that actually sums to 1 over the same support as
+ *  `blendBeliefAllocation`'s output. */
+export function renormaliseOverModelledBuckets(mix: Mix): Mix {
+  const modelledTotal = MODELLED_BUCKETS.reduce((s, b) => s + mix[b], 0);
+  const out = Object.fromEntries(BUCKETS.map((b) => [b, 0])) as Mix;
+  if (modelledTotal <= 0) return out;
+  for (const b of MODELLED_BUCKETS) out[b] = mix[b] / modelledTotal;
+  return out;
+}
+
 /** Spec §5: reuses computeGap.ts's alignment/HHI/concentration/isCautious formulas, recomputed
- *  over the real 8-bucket episodeLibrary taxonomy. `mix` is expected to already come normalised-
- *  over-modelled-buckets-only from `mixFromHoldings` (portfolioMix.ts), so tier-3 buckets are
- *  already excluded before this function runs. */
+ *  over the real 8-bucket episodeLibrary taxonomy. `mix` may come from `mixFromHoldings`
+ *  (portfolioMix.ts), which normalises over ALL of bucketFor()'s buckets (including
+ *  europe-equity/emerging-equity) — it has no notion of this feature's UNMODELLED tier. We
+ *  renormalise internally over MODELLED_BUCKETS before any distance/HHI/concentration math. */
 export function computeAlignment(
   mix: Mix,
   scenarioWeights: Partial<Record<BeliefScenarioName, number>>,
   riskComfort: string,
   drawdownCap?: number,
 ): AlignmentResult {
+  const normalisedMix = renormaliseOverModelledBuckets(mix);
   const idealAllocation = blendBeliefAllocation(scenarioWeights);
-  const distance = l1Modelled(mix, idealAllocation);
+  const distance = l1Modelled(normalisedMix, idealAllocation);
   const score = Math.round(100 * (1 - distance / 2));
 
-  const hhi = MODELLED_BUCKETS.reduce((s, b) => s + mix[b] * mix[b], 0);
+  const hhi = MODELLED_BUCKETS.reduce((s, b) => s + normalisedMix[b] * normalisedMix[b], 0);
   const nEff = hhi > 0 ? 1 / hhi : 0;
 
   let concentrationFlag: string | null = null;
   for (const b of MODELLED_BUCKETS) {
-    if (mix[b] > 0.35) { concentrationFlag = `Concentration: ${b} is over 35% of your modelled portfolio.`; break; }
+    if (normalisedMix[b] > 0.35) { concentrationFlag = `Concentration: ${b} is over 35% of your modelled portfolio.`; break; }
   }
 
   const cautious = isCautious(riskComfort, drawdownCap);
