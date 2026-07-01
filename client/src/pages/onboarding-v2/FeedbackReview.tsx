@@ -11,6 +11,7 @@ import {
   type FeedbackStatus,
   type FeedbackCategory,
 } from '@/lib/screenFeedback';
+import { getLastStepPath } from '@/lib/onboardingSync';
 
 /**
  * Advisor consolidation + review of investor feedback, grouped BY SCREEN so you
@@ -131,7 +132,7 @@ export default function FeedbackReview() {
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
             <Link
-              href="/onboarding-v2/welcome"
+              href={getLastStepPath() ?? '/onboarding-v2/welcome'}
               className="mb-2 inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             >
               <ArrowLeft className="h-4 w-4" /> Back to onboarding
