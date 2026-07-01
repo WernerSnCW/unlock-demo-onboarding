@@ -13,7 +13,8 @@ import {
   type PropertyLease, type InsertPropertyLease,
   type PropertyCashflow, type InsertPropertyCashflow,
   type OnboardingSession, type InsertOnboardingSession,
-  users, investors, investorPreferences, taxProfile, onboardingSessions,
+  type Asset, type InsertAsset,
+  users, investors, investorPreferences, taxProfile, onboardingSessions, assets,
   portfolioAccounts, portfolioHoldings, alternativeInvestments,
   properties, propertyOwnerships, propertyLoans, 
   propertyValuations, propertyLeases, propertyCashflows,
@@ -108,6 +109,11 @@ export interface IStorage {
     token: string,
     patch: Partial<Pick<OnboardingSession, 'investorName' | 'email' | 'state' | 'currentStep' | 'status'>>,
   ): Promise<OnboardingSession | undefined>;
+
+  // Asset register (Layer A). Owned by a session; the onboarding-sourced rows
+  // are re-projected from holdings on each save.
+  listAssetsBySession(investorSessionId: string): Promise<Asset[]>;
+  replaceOnboardingAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void>;
 }
 
 // Lightweight row for the resume picker (excludes the heavy `state` blob).
@@ -636,6 +642,25 @@ export class DatabaseStorage implements IStorage {
       .where(eq(onboardingSessions.token, token))
       .returning();
     return updated || undefined;
+  }
+
+  async listAssetsBySession(investorSessionId: string): Promise<Asset[]> {
+    return db
+      .select()
+      .from(assets)
+      .where(and(eq(assets.investorSessionId, investorSessionId), sql`${assets.deletedAt} is null`));
+  }
+
+  // Re-project the onboarding-sourced register rows for a session: clear the
+  // previous onboarding rows and insert the current set. Leaves rows from other
+  // sources (e.g. csv_import) intact.
+  async replaceOnboardingAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void> {
+    await db
+      .delete(assets)
+      .where(and(eq(assets.investorSessionId, investorSessionId), eq(assets.source, 'onboarding')));
+    if (rows.length > 0) {
+      await db.insert(assets).values(rows);
+    }
   }
 }
 

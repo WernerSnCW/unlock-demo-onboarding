@@ -2657,6 +2657,35 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     return false;
   };
 
+  // Project an onboarding session's holdings into the Layer-A asset register.
+  // Records only the pure facts onboarding captures (no growth/disposal — those
+  // are Layer B/C). Best-effort: never blocks a session save. Keeps the register
+  // in sync as holdings change.
+  const projectHoldingsToAssets = async (sessionId: string, stateJson: string | undefined) => {
+    if (!stateJson) return;
+    let state: any;
+    try { state = JSON.parse(stateJson); } catch { return; }
+    const holdings: any[] = Array.isArray(state?.holdings) ? state.holdings : [];
+    const rows = holdings
+      .filter((h) => Number(h?.value_gbp || 0) > 0)
+      .map((h) => ({
+        investorSessionId: sessionId,
+        assetId: String(h.id || `holding_${Math.random().toString(36).slice(2)}`),
+        label: String(h.instrument_name || 'Unnamed holding'),
+        source: 'onboarding',
+        wrapperType: (h.wrapper ? String(h.wrapper).toLowerCase().trim() : 'gia'),
+        assetClass: (h.asset_class ? String(h.asset_class).toLowerCase().trim() : 'other'),
+        owner: 'person_1',
+        currentValue: String(h.value_gbp ?? 0),
+        acquisitionCost: h.cost_basis_gbp != null ? String(h.cost_basis_gbp) : null,
+        acquisitionDate: h.acquisition_date || null,
+        isin: h.isin || null,
+        ticker: h.ticker || null,
+        notes: h.notes || null,
+      }));
+    await storage.replaceOnboardingAssets(sessionId, rows);
+  };
+
   // ---- Admin (advisor) — full view over every investor ----
   app.get("/api/onboarding-v2/sessions", async (req, res) => {
     if (!requireDb(res)) return;
@@ -2717,6 +2746,9 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
         return res.status(400).json({ error: "Invalid session payload", details: parsed.error.flatten() });
       }
       const saved = await storage.upsertOnboardingSession(parsed.data);
+      if (saved?.id && parsed.data.state) {
+        projectHoldingsToAssets(saved.id, parsed.data.state).catch((e) => console.error("Asset projection (admin) failed:", e));
+      }
       res.json(saved);
     } catch (error) {
       console.error("Upsert onboarding session error:", error);
@@ -2764,10 +2796,37 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
       }
       const updated = await storage.updateOnboardingSessionByToken(req.params.token, patch);
       if (!updated) return res.status(404).json({ error: "Session not found" });
+      if (patch.state) {
+        projectHoldingsToAssets(updated.id, patch.state).catch((e) => console.error("Asset projection (investor) failed:", e));
+      }
       res.json({ ok: true, id: updated.id });
     } catch (error) {
       console.error("Save investor session error:", error);
       res.status(500).json({ error: "Failed to save session", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // ---- Asset register reads ----
+  app.get("/api/onboarding-v2/sessions/:id/assets", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      res.json(await storage.listAssetsBySession(req.params.id));
+    } catch (error) {
+      console.error("List assets (admin) error:", error);
+      res.status(500).json({ error: "Failed to list assets", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.get("/api/onboarding-v2/i/:token/assets", async (req, res) => {
+    if (!requireDb(res)) return;
+    try {
+      const session = await storage.getOnboardingSessionByToken(req.params.token);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      res.json(await storage.listAssetsBySession(session.id));
+    } catch (error) {
+      console.error("List assets (investor) error:", error);
+      res.status(500).json({ error: "Failed to list assets", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
