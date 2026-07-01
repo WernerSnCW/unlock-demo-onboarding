@@ -283,12 +283,19 @@ export function startNewInvestor(): void {
   if (typeof s.resetOnboarding === 'function') s.resetOnboarding();
 }
 
-// Full logout: clear admin session, any active investor, and the local session
-// id, then send the browser back to the code screen.
+// Full logout: clear admin session, any active investor, the local session id,
+// and the locally-persisted working investor, then send the browser back to the
+// code screen. Resetting the store matters: otherwise the switcher keeps showing
+// whoever was last worked on in this browser (from localStorage) even after
+// logging out, since that name is read from the persisted store, not the DB.
 export function logout(): void {
   sessionStorage.removeItem('unlock-access');
   setAdminCode(null);
   setInvestorToken(null);
   setActiveSessionId(null);
+  sessionStorage.removeItem(LAST_STEP_KEY);
+  const s = useOnboardingV2Store.getState() as any;
+  if (typeof s.resetOnboarding === 'function') s.resetOnboarding();
+  try { localStorage.removeItem('onboarding-v2-storage'); } catch { /* storage disabled */ }
   window.location.href = '/';
 }
