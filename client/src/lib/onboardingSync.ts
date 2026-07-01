@@ -226,6 +226,26 @@ export async function createInvestor(
   }
 }
 
+// Ensure an EXISTING session (e.g. an advisor's demo walkthrough) has a private
+// link token, minting one if needed, so it can be shared with the investor
+// afterwards. Idempotent — returns the existing token if there already is one.
+export async function ensureInvestorLink(
+  id: string,
+): Promise<{ ok: boolean; noDb?: boolean; token?: string }> {
+  try {
+    const res = await fetch(`/api/onboarding-v2/sessions/${id}/token`, {
+      method: 'POST',
+      headers: adminHeaders(),
+    });
+    if (res.status === 503) return { ok: false, noDb: true };
+    if (!res.ok) return { ok: false };
+    const d = await res.json();
+    return { ok: true, token: d.token };
+  } catch {
+    return { ok: false };
+  }
+}
+
 // ---- investor (token-scoped) ----
 export async function loadInvestorSession(
   token: string,

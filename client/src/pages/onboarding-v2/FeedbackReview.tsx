@@ -47,12 +47,13 @@ function fmtDate(iso: string | null): string {
 }
 
 function toCsv(rows: ScreenFeedbackWithInvestor[]): string {
-  const header = ['Screen', 'Investor', 'Category', 'Rating', 'Comment', 'Status', 'Advisor note', 'Date'];
+  const header = ['Screen', 'Investor', 'Type', 'Category', 'Rating', 'Comment', 'Status', 'Advisor note', 'Date'];
   const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = rows.map(r =>
     [
       STEP_LABEL[r.stepId] ?? r.stepId,
       r.investorName,
+      r.isInternal ? 'Internal' : 'Investor',
       catLabel(r.category),
       r.rating ?? '',
       r.comment,
@@ -71,6 +72,7 @@ export default function FeedbackReview() {
   const [state, setState] = useState<'loading' | 'ok' | 'no-db' | 'error'>('loading');
   const [catFilter, setCatFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sourceFilter, setSourceFilter] = useState<string>('all'); // all | investor | internal
 
   useEffect(() => {
     listAllFeedback().then(res => {
@@ -86,9 +88,11 @@ export default function FeedbackReview() {
       items.filter(
         i =>
           (catFilter === 'all' || i.category === catFilter) &&
-          (statusFilter === 'all' || i.status === statusFilter),
+          (statusFilter === 'all' || i.status === statusFilter) &&
+          (sourceFilter === 'all' ||
+            (sourceFilter === 'internal' ? i.isInternal : !i.isInternal)),
       ),
-    [items, catFilter, statusFilter],
+    [items, catFilter, statusFilter, sourceFilter],
   );
 
   // Group by screen, ordered by the onboarding flow.
@@ -165,6 +169,16 @@ export default function FeedbackReview() {
               value={statusFilter}
               onChange={setStatusFilter}
               options={[{ value: 'all', label: 'All' }, ...STATUSES.map(s => ({ value: s, label: STATUS_LABEL[s] }))]}
+            />
+            <FilterSelect
+              label="Source"
+              value={sourceFilter}
+              onChange={setSourceFilter}
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 'investor', label: 'Investor' },
+                { value: 'internal', label: 'Internal (advisor)' },
+              ]}
             />
             <span className="text-sm text-[var(--muted-foreground)]">
               {filtered.length} of {items.length} notes
@@ -259,11 +273,18 @@ function FeedbackRow({
   const [noteDraft, setNoteDraft] = useState(note.adminNote ?? '');
   return (
     <div
-      className="rounded-[var(--radius-md)] border border-[var(--border)] bg-white/[0.03] p-4"
+      className={`rounded-[var(--radius-md)] border p-4 ${
+        note.isInternal ? 'border-[#f59e0b]/30 bg-[#f59e0b]/[0.05]' : 'border-[var(--border)] bg-white/[0.03]'
+      }`}
       data-testid={`feedback-row-${note.id}`}
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium text-[var(--foreground)]">{note.investorName}</span>
+        {note.isInternal && (
+          <span className="rounded-full border border-[#f59e0b]/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#f59e0b]">
+            Internal
+          </span>
+        )}
         <span className="rounded-full border border-[#00bb77]/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--primary)]">
           {catLabel(note.category)}
         </span>

@@ -356,6 +356,9 @@ export const screenFeedback = pgTable("screen_feedback", {
   category: text("category").notNull(), // ux | logic | wording | idea | bug | general
   rating: integer("rating"),            // optional 1-5 "was this screen clear?"
   comment: text("comment").notNull(),
+  // Advisor's own internal note (e.g. Tom during a demo), kept separate from
+  // genuine investor feedback in the review. False = the investor's own note.
+  isInternal: boolean("is_internal").notNull().default(false),
   // Advisor review workflow:
   status: text("status").notNull().default('new'), // new | reviewed | actioned | dismissed
   adminNote: text("admin_note"),        // the advisor's decision / note on this item

@@ -2770,6 +2770,25 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     }
   });
 
+  // Mint (or return) a private link token for an existing session, so an advisor
+  // can share a demo walkthrough with the investor after the fact. Idempotent:
+  // returns the existing token if the session already has one.
+  app.post("/api/onboarding-v2/sessions/:id/token", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const existing = await storage.getOnboardingSession(req.params.id);
+      if (!existing) return res.status(404).json({ error: "Session not found" });
+      if (existing.token) return res.json({ token: existing.token, id: existing.id });
+      const token = randomBytes(12).toString("base64url");
+      const updated = await storage.setOnboardingSessionToken(req.params.id, token);
+      res.json({ token: updated?.token ?? token, id: req.params.id });
+    } catch (error) {
+      console.error("Mint session token error:", error);
+      res.status(500).json({ error: "Failed to create link", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   // ---- Investor — STRICTLY scoped to their own session via a private token ----
   // No admin code; the unguessable token is the credential. An investor can only
   // ever read or write the single session whose token matches — never another's.
@@ -2859,6 +2878,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
         category: parsed.data.category,
         rating: parsed.data.rating ?? null,
         comment: parsed.data.comment,
+        isInternal: false,
         status: "new",
         adminNote: null,
       });
@@ -2894,6 +2914,36 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     } catch (error) {
       console.error("Delete feedback error:", error);
       res.status(500).json({ error: "Failed to delete feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Advisor's own INTERNAL note on a screen, attached to the session they're
+  // demoing/reviewing. Admin-gated; flagged isInternal so the review keeps it
+  // separate from genuine investor feedback.
+  app.post("/api/onboarding-v2/sessions/:id/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const session = await storage.getOnboardingSession(req.params.id);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      const parsed = feedbackInputSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid feedback", details: parsed.error.flatten() });
+      }
+      const created = await storage.createScreenFeedback({
+        investorSessionId: session.id,
+        stepId: parsed.data.stepId,
+        category: parsed.data.category,
+        rating: parsed.data.rating ?? null,
+        comment: parsed.data.comment,
+        isInternal: true,
+        status: "new",
+        adminNote: null,
+      });
+      res.json(created);
+    } catch (error) {
+      console.error("Create internal feedback error:", error);
+      res.status(500).json({ error: "Failed to save note", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
