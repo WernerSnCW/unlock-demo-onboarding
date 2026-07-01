@@ -1584,6 +1584,8 @@ git commit -m "refactor(actions): extract generic staged-rebalance core, paramet
 
 **Correction found during Task 5's code review (applies to the caller, Task 12, not this engine itself):** `mixFromHoldings` does NOT actually exclude `europe-equity`/`emerging-equity` (see Task 5's correction note) — so whichever page calls this engine (`OutlookAlternatives.tsx`, Task 12) MUST pass `renormaliseOverModelledBuckets(mix)` as `currentMix`, not the raw mix, or `current`'s modelled-bucket slice won't sum to 1 the way `targetMix` (from `blendBeliefAllocation`) does, producing systematically overstated "need" deltas. Task 12 below is written with this fix already applied — this note is here so the engine's own behavior (this file) isn't mistakenly "fixed" a second time; the fix belongs entirely on the caller side.
 
+**Correction found when this task was implemented (fixture bug, same class as Task 8's regression-fixture arithmetic error, not an engine bug):** the first fixture below originally asserted `liquidityFixPp` of `10`, but with `currentMix.cash = 0.05` and no explicit `liquidityFloorPct` (defaults to `0.10`), the correct top-up to the floor is `0.10 - 0.05 = 0.05` → `liquidityFixPp = 5`, not `10`. `10` is actually the cash bucket's full current→target delta (0.15 − 0.05), which the fixture's own second assertion (`cashNet` ≈ `0.10`) already covers separately — `liquidityFixPp` and the bucket's full need are different quantities and only coincide when the target and floor are the same. Hand-traced against the live, unmodified `stagedRebalance.ts`/`beliefActionsEngine.ts` and confirmed via a `tsx` one-off run: `summary.liquidityFixPp` is `5`. The expectation below is now fixed to `5`.
+
 - [ ] **Step 1: Write the failing test**
 
 ```typescript
@@ -1595,7 +1597,7 @@ describe('buildBeliefActions', () => {
     const currentMix = { 'cash': 0.05, 'uk-equity': 0.95, 'us-equity': 0, 'global-equity': 0, 'govt-bonds': 0, 'property': 0 };
     const targetMix = { 'cash': 0.15, 'uk-equity': 0.55, 'us-equity': 0, 'global-equity': 0, 'govt-bonds': 0.30, 'property': 0 };
     const result = buildBeliefActions({ currentMix, targetMix, portfolioValueGBP: 500_000 });
-    expect(result.summary.liquidityFixPp).toBe(10);
+    expect(result.summary.liquidityFixPp).toBe(5);
     const allActions = [...result.staged.stage1, ...result.staged.stage2];
     const cashNet = allActions.filter((a) => a.bucket === 'cash').reduce((s, a) => s + a.deltaPct, 0);
     expect(cashNet).toBeCloseTo(0.10, 3);

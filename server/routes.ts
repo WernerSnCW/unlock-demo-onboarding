@@ -29,6 +29,7 @@ import { computeGap, type GapRequest } from './lib/gap/computeGap';
 import { buildWhy, type WhyContext } from './lib/gap/why';
 import { SCENARIO_LABELS } from './config/scenarios';
 import { buildActions, type ActionsRequest } from './lib/actions/engine';
+import { buildBeliefActions, type BeliefActionsRequest } from "./lib/actions/beliefActionsEngine";
 import { analyzeOnboarding, type Intake } from './services/analysis';
 import { getPolicy } from './services/policy';
 import { parseUkOrIsoDate } from './lib/ukDates';
@@ -2364,8 +2365,28 @@ Return as JSON with this exact structure:
       return res.json(result);
     } catch (error) {
       console.error('Actions API error:', error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Failed to generate action plan',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Belief Actions API Route - stage rebalancing moves for the belief-impact-alternatives taxonomy
+  app.post("/api/belief-actions", (req, res) => {
+    try {
+      const body = req.body as BeliefActionsRequest;
+      if (!body?.currentMix || !body?.targetMix || !body?.portfolioValueGBP) {
+        return res.status(400).json({
+          error: "currentMix, targetMix, portfolioValueGBP are required"
+        });
+      }
+      const result = buildBeliefActions(body);
+      return res.json(result);
+    } catch (error) {
+      console.error('Belief Actions API error:', error);
+      return res.status(500).json({
+        error: 'Failed to generate belief-driven action plan',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
