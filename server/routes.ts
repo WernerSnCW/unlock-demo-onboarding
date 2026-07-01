@@ -2683,7 +2683,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
         ticker: h.ticker || null,
         notes: h.notes || null,
       }));
-    await storage.replaceOnboardingAssets(sessionId, rows);
+    await storage.replaceSessionAssets(sessionId, rows);
   };
 
   // ---- Admin (advisor) — full view over every investor ----

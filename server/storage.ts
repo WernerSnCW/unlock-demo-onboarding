@@ -113,7 +113,7 @@ export interface IStorage {
   // Asset register (Layer A). Owned by a session; the onboarding-sourced rows
   // are re-projected from holdings on each save.
   listAssetsBySession(investorSessionId: string): Promise<Asset[]>;
-  replaceOnboardingAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void>;
+  replaceSessionAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void>;
 }
 
 // Lightweight row for the resume picker (excludes the heavy `state` blob).
@@ -651,16 +651,15 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(assets.investorSessionId, investorSessionId), sql`${assets.deletedAt} is null`));
   }
 
-  // Re-project the onboarding-sourced register rows for a session: clear the
-  // previous onboarding rows and insert the current set. Leaves rows from other
-  // sources (e.g. csv_import) intact.
-  async replaceOnboardingAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void> {
-    await db
-      .delete(assets)
-      .where(and(eq(assets.investorSessionId, investorSessionId), eq(assets.source, 'onboarding')));
-    if (rows.length > 0) {
-      await db.insert(assets).values(rows);
-    }
+  // Sync a session's register to the current holdings: replace ALL of the
+  // session's asset rows with the projected set. Deleting across sources (not
+  // just 'onboarding') prevents duplicates when holdings were hydrated from an
+  // imported register and then re-projected. Never wipes on an empty set — an
+  // empty projection (e.g. a pre-holdings step) leaves the register untouched.
+  async replaceSessionAssets(investorSessionId: string, rows: InsertAsset[]): Promise<void> {
+    if (rows.length === 0) return;
+    await db.delete(assets).where(eq(assets.investorSessionId, investorSessionId));
+    await db.insert(assets).values(rows);
   }
 }
 

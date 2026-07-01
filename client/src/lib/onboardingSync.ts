@@ -31,9 +31,12 @@ export type SaveResult =
   | { ok: false; reason: 'no-db' | 'empty' | 'error' };
 
 // ---- mode / credential helpers ----
-export function getActiveSessionId(): string | null { return localStorage.getItem(ACTIVE_KEY); }
+// Active session id is PER-TAB (sessionStorage), not localStorage: two admin
+// windows must not share one "active investor" or a save in one clobbers the
+// other's row. (Investor token is likewise per-tab.)
+export function getActiveSessionId(): string | null { return sessionStorage.getItem(ACTIVE_KEY); }
 export function setActiveSessionId(id: string | null): void {
-  if (id) localStorage.setItem(ACTIVE_KEY, id); else localStorage.removeItem(ACTIVE_KEY);
+  if (id) sessionStorage.setItem(ACTIVE_KEY, id); else sessionStorage.removeItem(ACTIVE_KEY);
 }
 export function getInvestorToken(): string | null { return sessionStorage.getItem(TOKEN_KEY); }
 export function setInvestorToken(token: string | null): void {
