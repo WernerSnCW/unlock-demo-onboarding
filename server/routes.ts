@@ -2908,7 +2908,8 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     try {
       const session = await storage.getOnboardingSessionByToken(req.params.token);
       if (!session) return res.status(404).json({ error: "Session not found" });
-      const ok = await storage.deleteScreenFeedback(req.params.id, session.id);
+      // Investors can only remove their OWN (non-internal) notes.
+      const ok = await storage.deleteScreenFeedback(req.params.id, session.id, { internal: false });
       if (!ok) return res.status(404).json({ error: "Feedback not found" });
       res.json({ ok: true });
     } catch (error) {
@@ -2944,6 +2945,33 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     } catch (error) {
       console.error("Create internal feedback error:", error);
       res.status(500).json({ error: "Failed to save note", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Advisor lists a session's notes (used by the drawer to show the advisor
+  // their own internal notes for the session being demoed).
+  app.get("/api/onboarding-v2/sessions/:id/feedback", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      res.json(await storage.listSessionFeedbackForAdmin(req.params.id));
+    } catch (error) {
+      console.error("List session feedback error:", error);
+      res.status(500).json({ error: "Failed to list feedback", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Advisor removes one of their own internal notes (scoped: internal only).
+  app.delete("/api/onboarding-v2/sessions/:id/feedback/:fid", async (req, res) => {
+    if (!requireDb(res)) return;
+    if (!requireAdmin(req, res)) return;
+    try {
+      const ok = await storage.deleteScreenFeedback(req.params.fid, req.params.id, { internal: true });
+      if (!ok) return res.status(404).json({ error: "Feedback not found" });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Delete internal feedback error:", error);
+      res.status(500).json({ error: "Failed to delete note", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 

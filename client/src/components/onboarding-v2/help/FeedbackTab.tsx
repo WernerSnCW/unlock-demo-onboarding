@@ -9,6 +9,8 @@ import {
   submitInternalFeedback,
   listMyFeedback,
   deleteMyFeedback,
+  listSessionFeedback,
+  deleteInternalFeedback,
   type FeedbackCategory,
   type ScreenFeedback,
 } from '@/lib/screenFeedback';
@@ -254,6 +256,20 @@ function AdvisorInternalForm({ stepId, screenTitle }: { stepId: string; screenTi
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<SubmitStatus>('idle');
+  const [mine, setMine] = useState<ScreenFeedback[]>([]);
+
+  // Load the advisor's own internal notes for this session + screen.
+  useEffect(() => {
+    if (!activeId) return;
+    let active = true;
+    listSessionFeedback(activeId).then(({ items }) => {
+      if (!active) return;
+      setMine(items.filter(f => f.isInternal && f.stepId === stepId));
+    });
+    return () => {
+      active = false;
+    };
+  }, [activeId, stepId]);
 
   async function handleSubmit() {
     if (!activeId || !comment.trim() || saving) return;
@@ -261,13 +277,20 @@ function AdvisorInternalForm({ stepId, screenTitle }: { stepId: string; screenTi
     setStatus('idle');
     const res = await submitInternalFeedback(activeId, { stepId, category, rating, comment: comment.trim() });
     setSaving(false);
-    if (res.ok) {
+    if (res.ok && res.item) {
+      setMine(prev => [res.item as ScreenFeedback, ...prev]);
       setComment('');
       setRating(null);
       setStatus('saved');
     } else {
       setStatus(res.noDb ? 'no-db' : 'error');
     }
+  }
+
+  async function handleDelete(id: string) {
+    if (!activeId) return;
+    const res = await deleteInternalFeedback(activeId, id);
+    if (res.ok) setMine(prev => prev.filter(f => f.id !== id));
   }
 
   const reviewLink = (
@@ -322,6 +345,46 @@ function AdvisorInternalForm({ stepId, screenTitle }: { stepId: string; screenTi
         onSubmit={handleSubmit}
         submitLabel="Save internal note"
       />
+
+      {mine.length > 0 && (
+        <div className="border-t border-[var(--border)] pt-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+            Your internal notes on this screen ({mine.length})
+          </p>
+          <ul className="space-y-2">
+            {mine.map(f => (
+              <li
+                key={f.id}
+                data-testid={`internal-note-${f.id}`}
+                className="group flex items-start justify-between gap-3 rounded-[var(--radius-md)] border border-[#f59e0b]/30 bg-[#f59e0b]/[0.05] p-3"
+              >
+                <div className="min-w-0">
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="rounded-full border border-[#f59e0b]/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#f59e0b]">
+                      Internal
+                    </span>
+                    <span className="rounded-full border border-[#00bb77]/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--primary)]">
+                      {FEEDBACK_CATEGORIES.find(c => c.value === f.category)?.label ?? f.category}
+                    </span>
+                    {f.rating != null && (
+                      <span className="text-[11px] text-[var(--muted-foreground)]">clarity {f.rating}/5</span>
+                    )}
+                  </div>
+                  <p className="text-sm leading-snug text-[var(--foreground)] break-words">{f.comment}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(f.id)}
+                  aria-label="Delete note"
+                  className="flex-none rounded p-1 text-[var(--muted-foreground)] opacity-0 transition-opacity hover:text-[#ef4444] group-hover:opacity-100 focus:opacity-100"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {reviewLink}
     </div>

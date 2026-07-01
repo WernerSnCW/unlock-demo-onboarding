@@ -123,7 +123,8 @@ export interface IStorage {
   // Screen feedback (per-screen, per-investor review notes).
   createScreenFeedback(row: InsertScreenFeedback): Promise<ScreenFeedback>;
   listScreenFeedbackBySession(investorSessionId: string): Promise<ScreenFeedback[]>;
-  deleteScreenFeedback(id: string, investorSessionId: string): Promise<boolean>;
+  listSessionFeedbackForAdmin(investorSessionId: string): Promise<ScreenFeedback[]>;
+  deleteScreenFeedback(id: string, investorSessionId: string, opts?: { internal?: boolean }): Promise<boolean>;
   // Advisor consolidation: every note across all investors, newest first, with
   // the investor's name joined in for the review view.
   listAllScreenFeedback(): Promise<ScreenFeedbackWithInvestor[]>;
@@ -704,7 +705,19 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  // The INVESTOR's own notes for their session — internal advisor notes are
+  // deliberately excluded so an investor never sees the team's private notes.
   async listScreenFeedbackBySession(investorSessionId: string): Promise<ScreenFeedback[]> {
+    return db
+      .select()
+      .from(screenFeedback)
+      .where(and(eq(screenFeedback.investorSessionId, investorSessionId), eq(screenFeedback.isInternal, false)))
+      .orderBy(desc(screenFeedback.createdAt));
+  }
+
+  // Advisor view of a single session's notes (both kinds) — used by the drawer
+  // to list the advisor's own internal notes for the session being demoed.
+  async listSessionFeedbackForAdmin(investorSessionId: string): Promise<ScreenFeedback[]> {
     return db
       .select()
       .from(screenFeedback)
@@ -712,12 +725,19 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(screenFeedback.createdAt));
   }
 
-  // Scoped delete: the id must belong to this session, so an investor can only
-  // ever remove their own note.
-  async deleteScreenFeedback(id: string, investorSessionId: string): Promise<boolean> {
+  // Scoped delete: the id must belong to this session. `internal` further
+  // constrains it — the investor path deletes only non-internal notes, the
+  // advisor path only internal ones, so neither can remove the other's.
+  async deleteScreenFeedback(
+    id: string,
+    investorSessionId: string,
+    opts?: { internal?: boolean },
+  ): Promise<boolean> {
+    const conds = [eq(screenFeedback.id, id), eq(screenFeedback.investorSessionId, investorSessionId)];
+    if (opts?.internal !== undefined) conds.push(eq(screenFeedback.isInternal, opts.internal));
     const result = await db
       .delete(screenFeedback)
-      .where(and(eq(screenFeedback.id, id), eq(screenFeedback.investorSessionId, investorSessionId)))
+      .where(and(...conds))
       .returning();
     return result.length > 0;
   }

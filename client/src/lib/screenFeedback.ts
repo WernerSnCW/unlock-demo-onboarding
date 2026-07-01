@@ -120,6 +120,34 @@ export async function submitInternalFeedback(
   }
 }
 
+// A single session's notes (advisor view) — used by the drawer to show the
+// advisor their own internal notes for the session being demoed.
+export async function listSessionFeedback(
+  sessionId: string,
+): Promise<{ ok: boolean; noDb?: boolean; items: ScreenFeedback[] }> {
+  try {
+    const res = await fetch(`/api/onboarding-v2/sessions/${sessionId}/feedback`, { headers: adminHeaders() });
+    if (res.status === 503) return { ok: false, noDb: true, items: [] };
+    if (!res.ok) return { ok: false, items: [] };
+    return { ok: true, items: await res.json() };
+  } catch {
+    return { ok: false, items: [] };
+  }
+}
+
+// Advisor removes one of their own internal notes.
+export async function deleteInternalFeedback(sessionId: string, id: string): Promise<{ ok: boolean }> {
+  try {
+    const res = await fetch(`/api/onboarding-v2/sessions/${sessionId}/feedback/${id}`, {
+      method: 'DELETE',
+      headers: adminHeaders(),
+    });
+    return { ok: res.ok };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export async function listAllFeedback(): Promise<{ ok: boolean; noDb?: boolean; items: ScreenFeedbackWithInvestor[] }> {
   try {
     const res = await fetch('/api/onboarding-v2/feedback', { headers: adminHeaders() });
