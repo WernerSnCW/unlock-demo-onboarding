@@ -1,14 +1,14 @@
-// New Economic Scenario Belief Questions (B1-B15)
+// Outlook questions (B1-B15)
 // Based on Unlock Scenario Belief Engine v2.1
 
-export interface BeliefQuestion {
+export interface OutlookQuestion {
   id: string;
   statement: string;
   direction: string;
   weights: Record<string, number>;
 }
 
-export interface BeliefScale {
+export interface OutlookScale {
   1: string;
   2: string;
   3: string;
@@ -16,7 +16,7 @@ export interface BeliefScale {
   5: string;
 }
 
-export const SCALE_LABELS: BeliefScale = {
+export const SCALE_LABELS: OutlookScale = {
   1: "Strongly Disagree",
   2: "Disagree", 
   3: "Neutral / Unsure",
@@ -26,7 +26,7 @@ export const SCALE_LABELS: BeliefScale = {
 
 // The B1–B15 macro-outlook statements (belief→impact flow). Renamed from BELIEF_QUESTIONS:
 // Beliefs.tsx has an unrelated local constant of that name for the 8 Q_* style-preference questions.
-export const OUTLOOK_QUESTIONS: BeliefQuestion[] = [
+export const OUTLOOK_QUESTIONS: OutlookQuestion[] = [
   {
     id: "B1_mobility_views",
     statement: "The next generation will have better financial opportunities than today.",

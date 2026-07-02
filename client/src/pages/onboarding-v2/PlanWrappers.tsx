@@ -40,6 +40,7 @@ const WRAPPER_TOOLTIPS: Record<string, string> = {
   gia: 'General Investment Account: Taxable wrapper with no contribution limits.',
   cash: 'Cash holdings: Liquid funds for immediate access.',
   offshore_bond: 'Offshore investment bond: Tax-deferred growth until withdrawal.',
+  not_applicable: "No tax wrapper applies to this holding, or wrapper detail isn't relevant for it.",
 };
 
 export default function PlanWrappers() {

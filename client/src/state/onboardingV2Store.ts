@@ -748,6 +748,7 @@ function normalizeWrapper(value: string | undefined | null): string {
     'SEIS': 'EIS/SEIS',
     'EIS/SEIS': 'EIS/SEIS',
     'VCT': 'VCT',
+    'NOT_APPLICABLE': 'Not applicable',
   };
   return wrapperMap[trimmed] || (trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase());
 }
