@@ -15,7 +15,7 @@ export interface AlignmentResult {
   mismatchFlag: string | null;
 }
 
-const MODELLED_BUCKETS: Bucket[] = BUCKETS.filter((b) => BUCKET_TIER[b] !== 'UNMODELLED');
+export const MODELLED_BUCKETS: Bucket[] = BUCKETS.filter((b) => BUCKET_TIER[b] !== 'UNMODELLED');
 
 /** Blend belief scenario weights into an 8-bucket "ideal allocation" vector (spec §5 substrate) —
  *  same pattern as computeGap.ts's blendScenarioTemplates, applied to the real-data taxonomy.
