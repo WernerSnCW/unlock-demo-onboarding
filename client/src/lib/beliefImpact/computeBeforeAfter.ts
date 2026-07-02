@@ -2,7 +2,8 @@ import { EPISODES, type Bucket, type Episode } from '../../data/episodeLibrary';
 import type { Mix } from '../portfolioMix';
 import { replayEpisode, type EpisodeReplay } from '../empiricalEngine';
 import { BELIEF_SCENARIO_MAPPING, type BeliefScenarioName } from '../../data/beliefImpactTaxonomy';
-import { renormaliseOverModelledBuckets, MODELLED_BUCKETS } from './computeAlignment';
+import { renormaliseOverModelledBuckets, MODELLED_BUCKETS, computeAlignment, blendBeliefAllocation } from './computeAlignment';
+import { computeIncomeRunway, type IncomeRunwayResult } from './computeIncomeRunway';
 
 export interface MixDiffRow {
   bucket: Bucket;
@@ -59,7 +60,9 @@ function recoveryLabel(replay: EpisodeReplay): string {
 }
 
 /** Portfolio-level worst cited episode, replayed on both mixes. Picking by BEFORE drawdown and
- *  reporting the SAME episode's after keeps the comparison apples-to-apples. */
+ *  reporting the SAME episode's after keeps the comparison apples-to-apples.
+ *  targetMix is assumed to already sum to 1 over modelled buckets (e.g. the output of
+ *  blendBeliefAllocation); only currentMix is renormalised. */
 export function computeWorstEpisodeComparison(
   currentMix: Mix,
   targetMix: Mix,
@@ -84,4 +87,78 @@ export function computeWorstEpisodeComparison(
     };
   }
   return worst;
+}
+
+export interface RunwayComparison {
+  episodeName: string;
+  unit: 'year' | 'month';
+  before: IncomeRunwayResult;
+  after: IncomeRunwayResult;
+}
+
+/** Selling-into-the-trough verdict, before vs after, on ONE named episode. Note: the
+ *  buffer-exhaustion step is mix-independent — only the recovery timing changes with the mix —
+ *  so the comparison is the verdict, never a "runway months" uplift number.
+ *  Returns null when spend is unset: computeIncomeRunway's documented precondition — a zero
+ *  spend always reports "survives", which would be a false reassurance.
+ *  targetMix is assumed to already sum to 1 over modelled buckets (e.g. blendBeliefAllocation
+ *  output); only currentMix is renormalised. */
+export function computeRunwayComparison(
+  currentMix: Mix,
+  targetMix: Mix,
+  episodeId: string,
+  portfolioValueGBP: number,
+  annualEssentialSpendGbp: number,
+  liquidCashGbp: number,
+): RunwayComparison | null {
+  if (annualEssentialSpendGbp <= 0) return null;
+  const episode = EPISODES.find((e) => e.id === episodeId);
+  if (!episode) return null;
+  const before = replayEpisode(renormaliseOverModelledBuckets(currentMix), episode, portfolioValueGBP);
+  const after = replayEpisode(targetMix, episode, portfolioValueGBP);
+  return {
+    episodeName: episode.name,
+    unit: episode.granularity === 'annual' ? 'year' : 'month',
+    before: computeIncomeRunway(before, annualEssentialSpendGbp, liquidCashGbp, episode.name),
+    after: computeIncomeRunway(after, annualEssentialSpendGbp, liquidCashGbp, episode.name),
+  };
+}
+
+export interface BeforeAfterInputs {
+  currentMix: Mix;
+  targetMix: Mix;
+  scenarioWeights: Partial<Record<BeliefScenarioName, number>>;
+  riskComfort: string;
+  portfolioValueGBP: number;
+  annualEssentialSpendGbp: number;
+  liquidCashGbp: number;
+}
+
+export interface BeforeAfterResult {
+  alignment: { before: number; after: number };
+  mixDiff: MixDiffRow[];
+  worstEpisode: EpisodeComparison | null;
+  runway: RunwayComparison | null;
+}
+
+/** The full step-5 payload: every number is a re-run of an engine the previous page already
+ *  used, on the same inputs, with only the mix swapped current -> target. After-alignment is
+ *  100 by construction (the target IS the blended outlook ideal) — callers must caption it as
+ *  definitional, not present it as an uplift. */
+export function computeBeforeAfter(i: BeforeAfterInputs): BeforeAfterResult {
+  const alignment = {
+    before: computeAlignment(i.currentMix, i.scenarioWeights, i.riskComfort).score,
+    after: computeAlignment(i.targetMix, i.scenarioWeights, i.riskComfort).score,
+  };
+  const mixDiff = computeMixDiff(i.currentMix, i.targetMix);
+  const worstEpisode = computeWorstEpisodeComparison(
+    i.currentMix, i.targetMix, i.scenarioWeights, i.portfolioValueGBP,
+  );
+  const runway = worstEpisode
+    ? computeRunwayComparison(
+        i.currentMix, i.targetMix, worstEpisode.episodeId,
+        i.portfolioValueGBP, i.annualEssentialSpendGbp, i.liquidCashGbp,
+      )
+    : null;
+  return { alignment, mixDiff, worstEpisode, runway };
 }
