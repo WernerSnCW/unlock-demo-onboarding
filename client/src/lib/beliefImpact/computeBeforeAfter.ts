@@ -144,7 +144,8 @@ export interface BeforeAfterResult {
 /** The full step-5 payload: every number is a re-run of an engine the previous page already
  *  used, on the same inputs, with only the mix swapped current -> target. After-alignment is
  *  100 by construction (the target IS the blended outlook ideal) — callers must caption it as
- *  definitional, not present it as an uplift. */
+ *  definitional, not present it as an uplift.
+ * @precondition i.targetMix must be blendBeliefAllocation(i.scenarioWeights) — after-alignment is 100 only under that invariant. */
 export function computeBeforeAfter(i: BeforeAfterInputs): BeforeAfterResult {
   const alignment = {
     before: computeAlignment(i.currentMix, i.scenarioWeights, i.riskComfort).score,

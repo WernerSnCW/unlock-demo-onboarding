@@ -133,4 +133,19 @@ describe('computeBeforeAfter (composed)', () => {
     expect(result.runway).toBeNull();
     expect(result.worstEpisode).not.toBeNull();
   });
+
+  it('propagates null worstEpisode AND null runway for upside-only weights', () => {
+    const upside = { 'Rate-Cut Reflation': 1 } as const;
+    const result = computeBeforeAfter({
+      currentMix: mkMix({ 'uk-equity': 1 }),
+      targetMix: blendBeliefAllocation(upside),
+      scenarioWeights: upside,
+      riskComfort: 'balanced',
+      portfolioValueGBP: 250_000,
+      annualEssentialSpendGbp: 40_000,
+      liquidCashGbp: 60_000,
+    });
+    expect(result.worstEpisode).toBeNull();
+    expect(result.runway).toBeNull();
+  });
 });

@@ -7,6 +7,8 @@ import { mixFromHoldings, type MixHolding } from '@/lib/portfolioMix';
 import { blendBeliefAllocation, renormaliseOverModelledBuckets } from '@/lib/beliefImpact/computeAlignment';
 import { apiRequest } from '@/lib/queryClient';
 import { formatCurrency } from '@/utils/calculators';
+import BeforeAfterPanel from '@/components/onboarding-v2/BeforeAfterPanel';
+import { computeBeforeAfter } from '@/lib/beliefImpact/computeBeforeAfter';
 
 interface BeliefAction {
   type: 'TRIM' | 'ADD' | 'TRANSFER';
@@ -27,7 +29,7 @@ interface BeliefActionsResponse {
 
 export default function OutlookAlternatives() {
   const [, navigate] = useLocation();
-  const { holdings, outlook, summary } = useOnboardingV2Store();
+  const { holdings, outlook, summary, intake } = useOnboardingV2Store();
   const [result, setResult] = useState<BeliefActionsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +48,22 @@ export default function OutlookAlternatives() {
   }, [holdings]);
 
   const targetMix = useMemo(() => blendBeliefAllocation(outlook.scenario_weights), [outlook.scenario_weights]);
+
+  const beforeAfter = useMemo(() => {
+    if (outlook.insufficient_signal) return null;
+    return computeBeforeAfter({
+      currentMix: mix,
+      targetMix,
+      scenarioWeights: outlook.scenario_weights,
+      riskComfort: intake.risk_comfort,
+      portfolioValueGBP: summary.total_investable_value,
+      annualEssentialSpendGbp: intake.annual_essential_spend_gbp,
+      liquidCashGbp: intake.liquid_cash_gbp,
+    });
+  }, [
+    outlook.insufficient_signal, mix, targetMix, outlook.scenario_weights, intake.risk_comfort,
+    summary.total_investable_value, intake.annual_essential_spend_gbp, intake.liquid_cash_gbp,
+  ]);
 
   useEffect(() => {
     if (outlook.insufficient_signal) return;
@@ -149,6 +167,7 @@ export default function OutlookAlternatives() {
                 ))}
               </div>
             )}
+            {beforeAfter && <BeforeAfterPanel result={beforeAfter} />}
           </div>
         )}
 
