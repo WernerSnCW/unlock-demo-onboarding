@@ -171,7 +171,7 @@ export default function NextSteps() {
   };
 
   const handleBack = () => {
-    navigate('/onboarding-v2/target');
+    navigate('/onboarding-v2/outlook-alternatives');
   };
 
   const getPositionContent = () => {

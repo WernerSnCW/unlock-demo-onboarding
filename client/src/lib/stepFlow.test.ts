@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { ONBOARDING_STEPS, TOTAL_STEPS } from '../components/onboarding-v2/StepIndicator';
 
 describe('Onboarding Step Flow Validation', () => {
-  it('should have exactly 10 steps', () => {
-    expect(ONBOARDING_STEPS.length).toBe(10);
-    expect(TOTAL_STEPS).toBe(10);
+  it('should have exactly 13 steps', () => {
+    expect(ONBOARDING_STEPS.length).toBe(13);
+    expect(TOTAL_STEPS).toBe(13);
   });
 
   it('should have TOTAL_STEPS equal to ONBOARDING_STEPS.length', () => {
@@ -38,8 +38,8 @@ describe('Onboarding Step Flow Validation', () => {
     expect(ONBOARDING_STEPS[0].id).toBe('welcome');
   });
 
-  it('should end with plan-wrappers step (Step 10)', () => {
-    expect(ONBOARDING_STEPS[9].id).toBe('plan-wrappers');
+  it('should end with plan-wrappers step (Step 13)', () => {
+    expect(ONBOARDING_STEPS[12].id).toBe('plan-wrappers');
   });
 
   it('should have correct step order', () => {
@@ -51,6 +51,9 @@ describe('Onboarding Step Flow Validation', () => {
       'analysis',
       'beliefs',
       'target',
+      'outlook',
+      'outlook-results',
+      'outlook-alternatives',
       'next-steps',
       'plan-transition',
       'plan-wrappers',

@@ -4,6 +4,9 @@ import { holdingsHelp } from './holdings';
 import { analysisHelp } from './analysis';
 import { beliefsHelp } from './beliefs';
 import { targetHelp } from './target';
+import { outlookHelp } from './outlook';
+import { outlookResultsHelp } from './outlook-results';
+import { outlookAlternativesHelp } from './outlook-alternatives';
 import { nextStepsHelp } from './next-steps';
 import { planTransitionHelp } from './plan-transition';
 import { planWrappersHelp } from './plan-wrappers';
@@ -24,6 +27,9 @@ export const SCREEN_HELP: Record<string, ScreenHelp> = {
   [analysisHelp.stepId]: analysisHelp,
   [beliefsHelp.stepId]: beliefsHelp,
   [targetHelp.stepId]: targetHelp,
+  [outlookHelp.stepId]: outlookHelp,
+  [outlookResultsHelp.stepId]: outlookResultsHelp,
+  [outlookAlternativesHelp.stepId]: outlookAlternativesHelp,
   [nextStepsHelp.stepId]: nextStepsHelp,
   [planTransitionHelp.stepId]: planTransitionHelp,
   [planWrappersHelp.stepId]: planWrappersHelp,

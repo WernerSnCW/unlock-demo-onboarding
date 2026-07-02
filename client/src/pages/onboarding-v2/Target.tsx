@@ -1092,7 +1092,7 @@ export default function Target() {
 
   const handleContinue = () => {
     completeScenarioStep();
-    navigate('/onboarding-v2/next-steps');
+    navigate('/onboarding-v2/outlook');
   };
 
   const handleBack = () => {

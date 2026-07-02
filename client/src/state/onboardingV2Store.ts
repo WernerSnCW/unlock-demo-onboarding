@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { scoreOutlookBeliefs } from '../lib/beliefImpact/scoreOutlook';
 
 export type IntakeMethod = 'manual' | 'upload' | 'connect' | 'advisor';
 
@@ -265,6 +266,18 @@ export interface BeliefsState {
   tilts_gate_reason: TiltsGateReason;
 }
 
+// ============================================
+// Outlook (belief→impact→alternatives, macro-outlook beliefs B1-B15)
+// ============================================
+export interface OutlookState {
+  version: string;
+  completed: boolean;
+  completed_at: string | null;
+  responses: Partial<Record<string, 1 | 2 | 3 | 4 | 5>>;
+  scenario_weights: Partial<Record<import('../data/beliefImpactTaxonomy').BeliefScenarioName, number>>;
+  insufficient_signal: boolean;
+}
+
 export interface AnalysisState {
   status: AnalysisStatus;
   result: AnalysisResult | null;
@@ -359,6 +372,7 @@ interface OnboardingV2State {
   summary: PortfolioSummary;
   analysis: AnalysisState;
   beliefs: BeliefsState;
+  outlook: OutlookState;
   scenario: ScenarioState;
   
   updateIntake: (partial: Partial<IntakeData>) => void;
@@ -379,7 +393,13 @@ interface OnboardingV2State {
   computeBeliefsScores: () => void;
   completeBeliefsStep: () => void;
   resetBeliefs: () => void;
-  
+
+  // Outlook actions
+  setOutlookResponse: (questionId: string, answer: 1 | 2 | 3 | 4 | 5) => void;
+  computeOutlookScores: () => void;
+  completeOutlookStep: () => void;
+  resetOutlook: () => void;
+
   // Scenario actions
   computeScenarios: () => void;
   setActiveScenario: (scenarioType: ScenarioType) => void;
@@ -471,6 +491,15 @@ const initialBeliefs: BeliefsState = {
   tilts_gate_reason: 'NO_RED_FLAGS',
 };
 
+const initialOutlook: OutlookState = {
+  version: '1.0',
+  completed: false,
+  completed_at: null,
+  responses: {},
+  scenario_weights: {},
+  insufficient_signal: false,
+};
+
 const initialScenario: ScenarioState = {
   version: '1.0',
   computed: false,
@@ -516,7 +545,7 @@ const AXIS_DESCRIPTIONS: Record<AxisCode, string> = {
 };
 
 // Compute normalised score from answer (1-5) -> (-1 to +1)
-function normaliseAnswer(answer: 1 | 2 | 3 | 4 | 5): number {
+export function normaliseAnswer(answer: 1 | 2 | 3 | 4 | 5): number {
   // 1 (Strongly disagree) → -1.0
   // 2 (Disagree) → -0.5
   // 3 (Neutral) → 0.0
@@ -794,6 +823,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       summary: initialSummary,
       analysis: initialAnalysis,
       beliefs: initialBeliefs,
+      outlook: initialOutlook,
       scenario: initialScenario,
 
       updateIntake: (partial) => {
@@ -924,6 +954,35 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
             },
           },
         }));
+      },
+
+      // Outlook actions
+      setOutlookResponse: (questionId, answer) => {
+        set((state) => ({
+          outlook: {
+            ...state.outlook,
+            responses: { ...state.outlook.responses, [questionId]: answer },
+          },
+        }));
+      },
+
+      computeOutlookScores: () => {
+        const state = get();
+        const { scenarioWeights, insufficientSignal } = scoreOutlookBeliefs(state.outlook.responses);
+        set((s) => ({
+          outlook: { ...s.outlook, scenario_weights: scenarioWeights, insufficient_signal: insufficientSignal },
+        }));
+      },
+
+      completeOutlookStep: () => {
+        get().computeOutlookScores();
+        set((state) => ({
+          outlook: { ...state.outlook, completed: true, completed_at: new Date().toISOString() },
+        }));
+      },
+
+      resetOutlook: () => {
+        set({ outlook: initialOutlook });
       },
 
       computeBeliefsScores: () => {
@@ -1454,6 +1513,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           summary: initialSummary,
           analysis: initialAnalysis,
           beliefs: initialBeliefs,
+          outlook: initialOutlook,
           scenario: initialScenario,
         });
       },

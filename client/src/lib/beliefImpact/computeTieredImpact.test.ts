@@ -1,0 +1,102 @@
+import { describe, it, expect } from 'vitest';
+import { BUCKETS, type Bucket } from '../../data/episodeLibrary';
+import type { Mix } from '../portfolioMix';
+import { computeTieredImpact } from './computeTieredImpact';
+
+function emptyMix(): Mix {
+  return Object.fromEntries(BUCKETS.map((b) => [b, 0])) as Mix;
+}
+
+describe('computeTieredImpact', () => {
+  it('includes a cited episode source for a tier-1 bucket under a mapped scenario', () => {
+    const mix = { ...emptyMix(), 'uk-equity': 1 };
+    const result = computeTieredImpact(mix, [], { Stagflation: 1 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'uk-equity')!;
+    expect(row.tier).toBe('EPISODE_REPLAY');
+    expect(row.citedSources.some((s) => s.id === 'STAGFLATION_1973')).toBe(true);
+  });
+
+  it('includes an illustrative stress-scenario source for a tier-2 bucket', () => {
+    const mix = { ...emptyMix(), 'property': 1 };
+    const result = computeTieredImpact(mix, [], { 'Property Crash': 1 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'property')!;
+    expect(row.tier).toBe('MODERN_ANCHOR');
+    expect(row.citedSources.some((s) => s.id === 'PROPERTY_DOWNTURN')).toBe(true);
+  });
+
+  it('skips episode/stress sourcing entirely for the upside scenario', () => {
+    const mix = { ...emptyMix(), 'uk-equity': 1 };
+    const result = computeTieredImpact(mix, [], { 'Rate-Cut Reflation': 1 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'uk-equity')!;
+    expect(row.citedSources).toHaveLength(0);
+  });
+
+  it('never produces a row for an UNMODELLED-tier bucket, and renormalises weightPct over modelled buckets only', () => {
+    const mix = { ...emptyMix(), 'emerging-equity': 0.5, 'uk-equity': 0.5 };
+    const result = computeTieredImpact(mix, [], { Stagflation: 1 }, 500_000);
+    expect(result.rows.find((r) => r.bucket === 'emerging-equity')).toBeUndefined();
+    const ukRow = result.rows.find((r) => r.bucket === 'uk-equity')!;
+    expect(ukRow.weightPct).toBe(100);
+  });
+
+  it('reports true-unmodelled holdings (bucketFor -> null) grouped by asset class', () => {
+    const holdings = [
+      { asset_class: 'alternatives', region: 'global', value_gbp: 20_000 },
+      { asset_class: 'alternatives', region: 'uk', value_gbp: 10_000 },
+      { asset_class: 'equity', region: 'uk', value_gbp: 70_000 },
+    ];
+    const mix = { ...emptyMix(), 'uk-equity': 1 };
+    const result = computeTieredImpact(mix, holdings, { Stagflation: 1 }, 100_000);
+    expect(result.unmodelledSharePct).toBeCloseTo(30, 1);
+    expect(result.unmodelledBreakdown).toEqual([{ name: 'alternatives', valueGbp: 30_000 }]);
+  });
+
+  it('also routes UNMODELLED-tier bucket holdings (europe/emerging equity) into the same unmodelled breakdown', () => {
+    const holdings = [
+      { asset_class: 'equity', region: 'emerging', value_gbp: 25_000 },
+      { asset_class: 'equity', region: 'uk', value_gbp: 75_000 },
+    ];
+    const mix = { ...emptyMix(), 'emerging-equity': 0.25, 'uk-equity': 0.75 };
+    const result = computeTieredImpact(mix, holdings, { Stagflation: 1 }, 100_000);
+    expect(result.unmodelledSharePct).toBeCloseTo(25, 1);
+    expect(result.unmodelledBreakdown).toEqual([{ name: 'emerging-equity', valueGbp: 25_000 }]);
+  });
+
+  it('excludes the upside scenario from the top-3 ranking so it never displaces a real downside citation', () => {
+    const mix = { ...emptyMix(), 'uk-equity': 1 };
+    // Rate-Cut Reflation weighted highest, but it's upside — must not consume a slot ahead of Stagflation.
+    const result = computeTieredImpact(mix, [], { 'Rate-Cut Reflation': 0.6, Stagflation: 0.4 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'uk-equity')!;
+    expect(row.citedSources.some((s) => s.id === 'STAGFLATION_1973')).toBe(true);
+  });
+
+  it('does not cite an episode where the bucket essentially held steady (near-zero trough)', () => {
+    const mix = { ...emptyMix(), 'cash': 1 };
+    // Property Crash maps to DOTCOM_2000/GFC_2008/COVID_2020 — cash's path in these only rises.
+    const result = computeTieredImpact(mix, [], { 'Property Crash': 1 }, 500_000);
+    const row = result.rows.find((r) => r.bucket === 'cash')!;
+    expect(row.citedSources).toHaveLength(0);
+  });
+
+  it('deduplicates citedSources by id when multiple top-weighted scenarios cite the same episode (regression: was cited once per scenario, producing exact duplicate rows/keys)', () => {
+    // Stagflation, Debt Spiral, and Sterling Devaluation all map to STAGFLATION_1973 + RATE_SHOCK_2022
+    // in beliefImpactTaxonomy.ts. With all three in the top-3 weighted scenarios, us-equity (which
+    // only has a STAGFLATION_1973 path — RATE_SHOCK_2022's us-equity path is null) must cite
+    // STAGFLATION_1973 exactly once, not three times; govt-bonds (which has both) must cite each once.
+    const mix = { ...emptyMix(), 'us-equity': 0.5, 'govt-bonds': 0.5 };
+    const result = computeTieredImpact(
+      mix,
+      [],
+      { Stagflation: 0.4, 'Debt Spiral': 0.3, 'Sterling Devaluation': 0.2 },
+      500_000,
+    );
+
+    const usEquityRow = result.rows.find((r) => r.bucket === 'us-equity')!;
+    const stagflationCites = usEquityRow.citedSources.filter((s) => s.id === 'STAGFLATION_1973');
+    expect(stagflationCites).toHaveLength(1);
+
+    const govtBondsRow = result.rows.find((r) => r.bucket === 'govt-bonds')!;
+    expect(govtBondsRow.citedSources.filter((s) => s.id === 'STAGFLATION_1973')).toHaveLength(1);
+    expect(govtBondsRow.citedSources.filter((s) => s.id === 'RATE_SHOCK_2022')).toHaveLength(1);
+  });
+});
