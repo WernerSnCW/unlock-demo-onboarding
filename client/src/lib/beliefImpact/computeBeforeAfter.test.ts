@@ -3,7 +3,7 @@ import { BUCKETS, type Bucket } from '../../data/episodeLibrary';
 import type { Mix } from '../portfolioMix';
 import { computeMixDiff } from './computeBeforeAfter';
 
-export function mkMix(partial: Partial<Record<Bucket, number>>): Mix {
+function mkMix(partial: Partial<Record<Bucket, number>>): Mix {
   return { ...(Object.fromEntries(BUCKETS.map((b) => [b, 0])) as Mix), ...partial };
 }
 
