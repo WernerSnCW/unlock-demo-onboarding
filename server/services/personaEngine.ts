@@ -270,7 +270,7 @@ const PRIMARY_PERSONAS: Record<PrimaryPersonaCode, PrimaryPersona> = {
 // Trait order: risk_appetite, alternatives_bias, property_bias, liquidity_comfort, income_orientation, complexity_proxy
 // Weights sum to 1.0 per persona
 
-type PersonaWeights = {
+export type PersonaWeights = {
   risk_appetite: number;
   alternatives_bias: number;
   property_bias: number;
@@ -1390,3 +1390,43 @@ export { PRIMARY_PERSONAS };
 
 // Legacy compatibility - still export old type name
 export type { PersonaCues as PersonaCuesLegacy };
+
+// ── Persona Catalogue ──────────────────────────────────────────────────────
+
+export interface PersonaCatalogueEntry {
+  code: PrimaryPersonaCode;
+  label: string;
+  one_liner: string;
+  plan_focus_bullets: string[];
+  risks_bullets: string[];
+  /** The persona's top-2 matching-weight traits — real weights from PERSONA_WEIGHT_TABLE, not copy. */
+  emphases: { trait: keyof PersonaWeights; label: string; weight: number }[];
+}
+
+const TRAIT_LABELS: Record<keyof PersonaWeights, string> = {
+  risk_appetite: 'Risk appetite',
+  alternatives_bias: 'Alternatives tilt',
+  property_bias: 'Property tilt',
+  liquidity_comfort: 'Liquidity comfort',
+  income_orientation: 'Income orientation',
+  complexity_proxy: 'Financial complexity',
+};
+
+export function buildPersonaCatalogue(): PersonaCatalogueEntry[] {
+  return (Object.keys(PRIMARY_PERSONAS) as PrimaryPersonaCode[]).map((code) => {
+    const persona = PRIMARY_PERSONAS[code];
+    const weights = PERSONA_WEIGHT_TABLE[code];
+    const emphases = (Object.entries(weights) as [keyof PersonaWeights, number][])
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([trait, weight]) => ({ trait, label: TRAIT_LABELS[trait], weight }));
+    return {
+      code,
+      label: persona.label,
+      one_liner: persona.one_liner,
+      plan_focus_bullets: persona.plan_focus_bullets,
+      risks_bullets: persona.risks_bullets,
+      emphases,
+    };
+  });
+}

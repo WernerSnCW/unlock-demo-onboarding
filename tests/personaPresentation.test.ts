@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computePersona } from '../server/services/personaEngine';
+import { computePersona, buildPersonaCatalogue } from '../server/services/personaEngine';
 
 // ============================================================
 // Fixture 1: Business-heavy profile — triggers FOUNDER_ENTREPRENEUR hard override
@@ -149,5 +149,28 @@ describe('persona assignment transparency', () => {
     expect(result.assignment_basis).toBe('HARD_OVERRIDE');
     expect(result.override_reason).toMatch(/buy-to-let/i);
     expect(result.override_reason).not.toContain('30%');
+  });
+});
+
+describe('buildPersonaCatalogue', () => {
+  it('returns all 8 personas with content and top-2 real weight emphases', () => {
+    const catalogue = buildPersonaCatalogue();
+    expect(catalogue).toHaveLength(8);
+    for (const p of catalogue) {
+      expect(p.code.length).toBeGreaterThan(0);
+      expect(p.label.length).toBeGreaterThan(0);
+      expect(p.one_liner.length).toBeGreaterThan(0);
+      expect(p.plan_focus_bullets.length).toBeGreaterThan(0);
+      expect(p.risks_bullets.length).toBeGreaterThan(0);
+      expect(p.emphases).toHaveLength(2);
+      // emphases are the persona's actual top-2 weighted traits, descending
+      expect(p.emphases[0].weight).toBeGreaterThanOrEqual(p.emphases[1].weight);
+      expect(p.emphases[0].label.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('PROPERTY_LED emphasises property tilt first (weight 0.7 — pins the table wiring)', () => {
+    const propertyLed = buildPersonaCatalogue().find((p) => p.code === 'PROPERTY_LED')!;
+    expect(propertyLed.emphases[0]).toEqual({ trait: 'property_bias', label: 'Property tilt', weight: 0.7 });
   });
 });

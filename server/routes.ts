@@ -32,6 +32,7 @@ import { SCENARIO_LABELS } from './config/scenarios';
 import { buildActions, type ActionsRequest } from './lib/actions/engine';
 import { buildBeliefActions, type BeliefActionsRequest } from "./lib/actions/beliefActionsEngine";
 import { analyzeOnboarding, type Intake } from './services/analysis';
+import { buildPersonaCatalogue } from './services/personaEngine';
 import { getPolicy } from './services/policy';
 import { parseUkOrIsoDate } from './lib/ukDates';
 import {
@@ -2640,11 +2641,16 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
       res.json(policy);
     } catch (error) {
       console.error("Policy fetch error:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Failed to fetch policy",
         message: error instanceof Error ? error.message : "Unknown error"
       });
     }
+  });
+
+  // Persona catalogue — all 8 personas with content and top-2 weight emphases
+  app.get('/api/onboarding-v2/personas', (_req, res) => {
+    return res.json({ personas: buildPersonaCatalogue() });
   });
 
   // =============================================================================
