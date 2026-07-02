@@ -21,7 +21,7 @@ Framing (Werner, verbatim intent): *at the end of onboarding you should know wha
 | Value-chain step | Status today |
 |---|---|
 | 1. Investments / profile / beliefs input | ✅ intake → holdings → beliefs → outlook |
-| 2. Persona + persona standard portfolio | ❌ missing entirely |
+| 2. Persona + persona standard portfolio | ◐ **engine exists, presentation missing** — see correction below |
 | 3. Impact if beliefs happen | ✅ tiered impact + income runway (cited episodes) — on the actual portfolio only |
 | 4. Standard-profile impact + belief-driven options | ◐ belief-driven alternatives exist; persona-standard comparison missing |
 | 5. Post-action impact ("if you took action") | ❌ missing — moves are shown, but impact is never re-run on the post-action mix |
@@ -45,15 +45,20 @@ Restore the persona beat the demos proved (step 2 + the persona half of step 4):
 
 ## 5. Workstream C — persona-set validation (the "right personas" question)
 
-Three divergent persona sets exist today:
+> **Correction (2026-07-02 forensic audit — see `2026-07-02-legacy-wizard-forensic-audit.md`):** the flow already HAS a live persona engine. `server/services/personaEngine.ts` (8 primary personas + T1–T6 behavioural traits, hard overrides for dominant asset identities) runs inside `analyzeOnboarding` and renders on the v2 Analysis screen today. What's missing is the demo-praised *presentation* (match-% badge, persona reference portfolio, persona-vs-actual comparison, gallery) — so Workstream B is a presentation + reconciliation job, not a from-scratch engine build. The count below is therefore FOUR sets, and two incompatible `match_score` semantics exist between the legacy and live engines.
+
+Four divergent persona sets exist today:
 
 | Set | Where | Notes |
 |---|---|---|
-| 19 "Investment Personas" (P001–P019) | this repo, `client/src/data/personas.ts` (+ `personaRules.ts`, `personaEngine.ts`) | The wizard's set; 8-dimensional scores; UI copy claims grounding in ONS wealth surveys, FCA segmentation, global wealth reports, proprietary Unlock data |
+| 19 "Investment Personas" (P001–P019) | this repo, `client/src/data/personas.ts` (+ `personaRules.ts`; quiz UI deleted in `c7c7504`, matcher recoverable from git) | The demoed wizard's set; 8-dimensional scores + operative metadata (liquidityMonths, drawdownCap, biases, concentration tolerance) that parameterises portfolio rules |
+| 8 live "Persona Engine v2" personas + T1–T6 traits | this repo, `server/services/personaEngine.ts` — live in the v2 flow | Hand-tuned weights; hard overrides (business/property/crypto dominance); no user-facing match % |
 | 10 P-codes × 4 motivational engines | vault canon (`Context/brand.md`, `Context/operator.md`, `Context/market.md`) | Explicitly named the canonical persona model for how HNW investors think |
 | 3 year-1 bullseye personas | Unlock content brain (`describe_unlock`) | The ICP/marketing bullseye, not necessarily the product taxonomy |
 
-These may be answering different questions (product placement vs behavioural model vs ICP targeting), but nothing currently documents how they relate — and the onboarding product should not ship a persona layer while the sets are unreconciled.
+These may be answering different questions (product placement vs behavioural model vs ICP targeting), but nothing currently documents how they relate — and the onboarding product should not ship a persona presentation layer while the sets are unreconciled.
+
+**Evidence finding (audit §1.3):** the "built from ONS wealth surveys, FCA segmentation studies, global wealth reports" line shown in the demo UI is unsubstantiated — no source data or derivation exists in the repo; the 19 personas trace to a pasted, hand-authored file. Validation task 2 below is therefore not a formality: ground the claim or cut the copy.
 
 **Validation tasks:**
 1. Reconcile the three sets: same taxonomy at different grains, or genuinely competing models? Document the relationship.
