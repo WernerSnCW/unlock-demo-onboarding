@@ -27,6 +27,16 @@ interface BeliefActionsResponse {
   playbook: string[];
 }
 
+function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="p-3 rounded-xl border border-[var(--border)]">
+      <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">{label}</p>
+      <p className="text-lg font-semibold mt-0.5 tabular-nums">{value}</p>
+      {sub && <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{sub}</p>}
+    </div>
+  );
+}
+
 export default function OutlookAlternatives() {
   const [, navigate] = useLocation();
   const { holdings, outlook, summary, intake } = useOnboardingV2Store();
@@ -60,6 +70,8 @@ export default function OutlookAlternatives() {
       annualEssentialSpendGbp: intake.annual_essential_spend_gbp,
       liquidCashGbp: intake.liquid_cash_gbp,
     });
+  // deps: outlook.scenario_weights is listed alongside targetMix (which derives from it) because
+  // computeBeforeAfter reads the raw weights directly — exhaustive-deps, not redundancy.
   }, [
     outlook.insufficient_signal, mix, targetMix, outlook.scenario_weights, intake.risk_comfort,
     summary.total_investable_value, intake.annual_essential_spend_gbp, intake.liquid_cash_gbp,
@@ -130,10 +142,15 @@ export default function OutlookAlternatives() {
 
         {result && (
           <div className="space-y-4" data-testid="alternatives-result">
-            <div className="p-4 rounded-xl border border-[var(--border)]">
-              <p className="text-sm">
-                Estimated turnover: ~{result.summary.estTurnoverPp}pp; indicative cost: ~{(result.summary.estCostPct * 100).toFixed(2)}% of your modelled portfolio.
-              </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="alternatives-summary-grid">
+              <StatCard label="Total change" value={`${result.summary.totalAbsChangePp}pp`} />
+              <StatCard label="Est. turnover" value={`~${result.summary.estTurnoverPp}pp`} />
+              <StatCard label="Indicative cost" value={`~${(result.summary.estCostPct * 100).toFixed(2)}%`} sub="of modelled portfolio" />
+              <StatCard
+                label="Liquidity"
+                value={`${result.summary.liquidityNowPct}% → ${result.summary.liquidityTargetPct}%`}
+                sub={result.summary.liquidityFixPp !== undefined ? `includes +${result.summary.liquidityFixPp}pp top-up` : undefined}
+              />
             </div>
             {result.playbook.length > 0 && (
               <div data-testid="alternatives-playbook">
