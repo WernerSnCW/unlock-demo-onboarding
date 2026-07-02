@@ -48,7 +48,7 @@ type IntakeFormData = z.infer<typeof intakeSchema>;
 export default function Intake() {
   const { intake, updateIntake, updatePersonaCues, resetAnalysis } = useOnboardingV2Store();
   const [, navigate] = useLocation();
-  const [showInvestorProfile, setShowInvestorProfile] = useState(false);
+  const [showInvestorProfile, setShowInvestorProfile] = useState(true);
   const { toast } = useToast();
 
   // Default personaCues if not present (handles old localStorage data)
