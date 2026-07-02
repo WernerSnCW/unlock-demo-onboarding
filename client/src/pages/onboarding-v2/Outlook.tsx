@@ -62,6 +62,7 @@ export default function Outlook() {
                     key={v}
                     type="button"
                     onClick={() => setOutlookResponse(q.id, v)}
+                    aria-pressed={outlook.responses[q.id] === v}
                     className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
                       outlook.responses[q.id] === v
                         ? 'bg-[var(--primary)] text-white border-[var(--primary)]'

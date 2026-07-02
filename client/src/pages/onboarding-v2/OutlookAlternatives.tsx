@@ -145,8 +145,8 @@ export default function OutlookAlternatives() {
         {result && (
           <div className="space-y-4" data-testid="alternatives-result">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="alternatives-summary-grid">
-              <StatCard label="Allocation shift" value={`${result.summary.totalAbsChangePp}pp`} />
-              <StatCard label="Est. turnover" value={`~${result.summary.estTurnoverPp}pp`} />
+              <StatCard label="Allocation shift" value={`${result.summary.totalAbsChangePp}pp`} sub="all moves added together" />
+              <StatCard label="Est. turnover" value={`~${result.summary.estTurnoverPp}pp`} sub="share that changes hands" />
               <StatCard label="Indicative cost" value={`~${(result.summary.estCostPct * 100).toFixed(2)}%`} sub="of modelled portfolio" />
               <StatCard
                 label="Liquidity"
@@ -154,6 +154,9 @@ export default function OutlookAlternatives() {
                 sub={result.summary.liquidityFixPp !== undefined ? `includes +${result.summary.liquidityFixPp}pp top-up` : undefined}
               />
             </div>
+            <p className="text-xs text-[var(--muted-foreground)]" data-testid="alternatives-pp-footnote">
+              pp = percentage points of your modelled portfolio.
+            </p>
             {result.playbook.length > 0 && (
               <div data-testid="alternatives-playbook">
                 <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">How this was staged</p>
