@@ -363,7 +363,7 @@ export default function NextSteps() {
       top_constraints: topConstraints,
       preference_signals_state: tiltsAllowed ? 'enabled' : 'locked',
       signals_summary: signalsSummary,
-      next_step_text: "Next, we'll show an illustrative view of wrappers and transition considerations, and then generate your snapshot report.",
+      next_step_text: "Next: an illustrative view of wrappers and transition considerations, then your snapshot report.",
     };
   };
 

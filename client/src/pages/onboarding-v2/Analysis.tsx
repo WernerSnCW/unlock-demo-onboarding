@@ -38,9 +38,9 @@ const statusConfig: Record<SafetyStatus, { color: string; icon: typeof CheckCirc
 
 const lightDescriptions = {
   liquidity: {
-    GREEN: 'Your cash runway exceeds our recommended threshold. You have a healthy emergency buffer.',
-    AMBER: 'Your cash runway is below our ideal threshold but above the minimum. Consider building more buffer.',
-    RED: 'Your cash runway is below the minimum recommended level. We recommend building an emergency fund before taking investment risk.',
+    GREEN: 'Your cash runway exceeds the recommended threshold. You have a healthy emergency buffer.',
+    AMBER: 'Your cash runway is below the ideal threshold but above the minimum. Consider building more buffer.',
+    RED: 'Your cash runway is below the minimum recommended level. Consider building an emergency fund before taking investment risk.',
   },
   concentration: {
     GREEN: 'Your largest holding is within healthy diversification limits.',
