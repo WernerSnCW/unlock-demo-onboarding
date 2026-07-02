@@ -1,9 +1,12 @@
 import { Link } from 'wouter';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { Sparkles, Shield, TrendingUp, ArrowRight, Clock, History } from 'lucide-react';
+import { Sparkles, Shield, TrendingUp, ArrowRight, Clock, History, PlayCircle } from 'lucide-react';
 import { isInvestorMode } from '@/lib/onboardingSync';
+import { useDemo } from '@/contexts/DemoContext';
 
 export default function Welcome() {
+  const { start } = useDemo();
+
   return (
     <OnboardingLayout
       stepId="welcome"
@@ -76,9 +79,9 @@ export default function Welcome() {
           </div>
         </div>
 
-        {/* Resume link — advisor only (lists all saved investors) */}
+        {/* Resume link + live demo — advisor only */}
         {!isInvestorMode() && (
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center gap-6 flex-wrap">
             <Link
               href="/onboarding-v2/resume"
               className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
@@ -87,6 +90,14 @@ export default function Welcome() {
               <History className="w-4 h-4" />
               Resume a saved investor
             </Link>
+            <button
+              onClick={start}
+              className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] hover:opacity-80 transition-opacity"
+              data-testid="button-watch-live-demo"
+            >
+              <PlayCircle className="w-4 h-4" />
+              Watch a live demo
+            </button>
           </div>
         )}
 
