@@ -12,6 +12,7 @@ import { computeIncomeRunway } from '@/lib/beliefImpact/computeIncomeRunway';
 import { BELIEF_SCENARIO_MAPPING, type BeliefScenarioName } from '@/data/beliefImpactTaxonomy';
 import { fmtSignedPct } from '@/lib/scenarioPlannerView';
 import { formatCurrency } from '@/utils/calculators';
+import { bucketDisplayLabel } from '@/lib/bucketLabels';
 
 const BAND_LABEL: Record<AlignmentBand, string> = {
   BROADLY_ALIGNED: 'Broadly aligned',
@@ -46,6 +47,7 @@ export default function OutlookResults() {
   }, [outlook.scenario_weights]);
 
   const runwayExamples = useMemo(() => {
+    if (intake.annual_essential_spend_gbp <= 0) return [];
     if (!topScenario) return [];
     const mapping = BELIEF_SCENARIO_MAPPING[topScenario];
     if (!mapping || mapping.isUpside) return [];
@@ -117,7 +119,7 @@ export default function OutlookResults() {
           {tieredImpact.rows.map((row) => (
             <div key={row.bucket} className="p-4 rounded-xl border border-[var(--border)]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">{row.bucket.replace(/-/g, ' ')}</span>
+                <span className="text-sm font-medium">{bucketDisplayLabel(row.bucket)}</span>
                 <span className="text-xs text-[var(--muted-foreground)]">{row.weightPct}% of modelled portfolio</span>
               </div>
               <span className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
@@ -145,7 +147,7 @@ export default function OutlookResults() {
             </p>
             {tieredImpact.unmodelledBreakdown.map((u) => (
               <p key={u.name} className="text-sm">
-                {u.name.replace(/-/g, ' ')}: {formatCurrency(u.valueGbp)} — no reliable long-run history exists for this asset class.
+                {bucketDisplayLabel(u.name)}: {formatCurrency(u.valueGbp)} — no reliable long-run history exists for this asset class.
               </p>
             ))}
           </div>

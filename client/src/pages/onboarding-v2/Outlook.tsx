@@ -1,6 +1,6 @@
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
-import { BELIEF_QUESTIONS, SCALE_LABELS } from '@/data/beliefQuestions';
+import { OUTLOOK_QUESTIONS, SCALE_LABELS } from '@/data/outlookQuestions';
 import { useLocation } from 'wouter';
 import { useState, useMemo } from 'react';
 import { AlertTriangle } from 'lucide-react';
@@ -14,7 +14,7 @@ export default function Outlook() {
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const allAnswered = useMemo(
-    () => BELIEF_QUESTIONS.every((q) => outlook.responses[q.id] !== undefined),
+    () => OUTLOOK_QUESTIONS.every((q) => outlook.responses[q.id] !== undefined),
     [outlook.responses],
   );
   const answeredCount = Object.keys(outlook.responses).length;
@@ -38,11 +38,11 @@ export default function Outlook() {
       <div className="space-y-6 pt-6">
         <div className="flex items-center justify-end">
           <span className="text-xs font-medium text-[var(--muted-foreground)] bg-[#2b2b2b]/50 px-3 py-1 rounded-full" data-testid="outlook-progress-indicator">
-            {answeredCount}/{BELIEF_QUESTIONS.length} answered
+            {answeredCount}/{OUTLOOK_QUESTIONS.length} answered
           </span>
         </div>
 
-        {BELIEF_QUESTIONS.map((q) => {
+        {OUTLOOK_QUESTIONS.map((q) => {
           const isUnanswered = attemptedSubmit && outlook.responses[q.id] === undefined;
 
           return (
@@ -86,14 +86,14 @@ export default function Outlook() {
 
         {attemptedSubmit && !allAnswered && (
           <p className="text-sm text-rose-600 dark:text-rose-400" data-testid="outlook-validation-error">
-            Please answer all {BELIEF_QUESTIONS.length} questions to continue ({answeredCount}/{BELIEF_QUESTIONS.length} so far).
+            Please answer all {OUTLOOK_QUESTIONS.length} questions to continue ({answeredCount}/{OUTLOOK_QUESTIONS.length} so far).
           </p>
         )}
 
         <div className="flex justify-between items-center pt-6 border-t border-[var(--border)]">
           <Button variant="outline" onClick={handleBack} data-testid="outlook-back-button">Back</Button>
           <Button onClick={handleContinue} disabled={!allAnswered} data-testid="outlook-continue-button">
-            Continue {!allAnswered && `(${answeredCount}/${BELIEF_QUESTIONS.length})`}
+            Continue {!allAnswered && `(${answeredCount}/${OUTLOOK_QUESTIONS.length})`}
           </Button>
         </div>
       </div>

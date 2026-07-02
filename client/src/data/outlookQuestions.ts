@@ -24,7 +24,9 @@ export const SCALE_LABELS: BeliefScale = {
   5: "Strongly Agree"
 };
 
-export const BELIEF_QUESTIONS: BeliefQuestion[] = [
+// The B1–B15 macro-outlook statements (belief→impact flow). Renamed from BELIEF_QUESTIONS:
+// Beliefs.tsx has an unrelated local constant of that name for the 8 Q_* style-preference questions.
+export const OUTLOOK_QUESTIONS: BeliefQuestion[] = [
   {
     id: "B1_mobility_views",
     statement: "The next generation will have better financial opportunities than today.",

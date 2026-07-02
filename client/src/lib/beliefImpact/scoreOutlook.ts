@@ -1,4 +1,4 @@
-import { BELIEF_QUESTIONS } from '../../data/beliefQuestions';
+import { OUTLOOK_QUESTIONS } from '../../data/outlookQuestions';
 import { BELIEF_SCENARIO_NAMES, type BeliefScenarioName } from '../../data/beliefImpactTaxonomy';
 
 export type OutlookAnswer = 1 | 2 | 3 | 4 | 5;
@@ -29,7 +29,7 @@ export function scoreOutlookBeliefs(
 ): ScoreOutlookResult {
   const totals = zeroedScenarios();
 
-  for (const q of BELIEF_QUESTIONS) {
+  for (const q of OUTLOOK_QUESTIONS) {
     const answer = responses[q.id];
     if (answer === undefined) continue;
     const signedScore = normaliseOutlookAnswer(answer) * directionSign(q.direction);

@@ -7,6 +7,7 @@ import { mixFromHoldings, type MixHolding } from '@/lib/portfolioMix';
 import { blendBeliefAllocation, renormaliseOverModelledBuckets } from '@/lib/beliefImpact/computeAlignment';
 import { apiRequest } from '@/lib/queryClient';
 import { formatCurrency } from '@/utils/calculators';
+import { bucketDisplayLabel } from '@/lib/bucketLabels';
 
 interface BeliefAction {
   type: 'TRIM' | 'ADD' | 'TRANSFER';
@@ -132,7 +133,7 @@ export default function OutlookAlternatives() {
                 <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 1 — liquid moves</p>
                 {result.staged.stage1.map((a, i) => (
                   <p key={i} className="text-sm">
-                    {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
+                    {bucketDisplayLabel(a.bucket)}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
                     {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
                   </p>
                 ))}
@@ -143,7 +144,7 @@ export default function OutlookAlternatives() {
                 <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 2 — illiquid moves, deferred</p>
                 {result.staged.stage2.map((a, i) => (
                   <p key={i} className="text-sm">
-                    {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
+                    {bucketDisplayLabel(a.bucket)}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
                     {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
                   </p>
                 ))}
