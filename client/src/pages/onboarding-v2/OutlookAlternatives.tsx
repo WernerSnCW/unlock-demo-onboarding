@@ -8,6 +8,8 @@ import { blendBeliefAllocation, renormaliseOverModelledBuckets } from '@/lib/bel
 import { apiRequest } from '@/lib/queryClient';
 import { formatCurrency } from '@/utils/calculators';
 import { bucketDisplayLabel } from '@/lib/bucketLabels';
+import BeforeAfterPanel from '@/components/onboarding-v2/BeforeAfterPanel';
+import { computeBeforeAfter } from '@/lib/beliefImpact/computeBeforeAfter';
 
 interface BeliefAction {
   type: 'TRIM' | 'ADD' | 'TRANSFER';
@@ -26,12 +28,23 @@ interface BeliefActionsResponse {
   playbook: string[];
 }
 
+function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="p-3 rounded-xl border border-[var(--border)]">
+      <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)]">{label}</p>
+      <p className="text-lg font-semibold mt-0.5 tabular-nums">{value}</p>
+      {sub && <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{sub}</p>}
+    </div>
+  );
+}
+
 export default function OutlookAlternatives() {
   const [, navigate] = useLocation();
-  const { holdings, outlook, summary } = useOnboardingV2Store();
+  const { holdings, outlook, summary, intake } = useOnboardingV2Store();
   const [result, setResult] = useState<BeliefActionsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeStage, setActiveStage] = useState<1 | 2>(1);
 
   const mix = useMemo(() => {
     const mixHoldings: MixHolding[] = holdings
@@ -47,6 +60,24 @@ export default function OutlookAlternatives() {
   }, [holdings]);
 
   const targetMix = useMemo(() => blendBeliefAllocation(outlook.scenario_weights), [outlook.scenario_weights]);
+
+  const beforeAfter = useMemo(() => {
+    if (outlook.insufficient_signal) return null;
+    return computeBeforeAfter({
+      currentMix: mix,
+      targetMix,
+      scenarioWeights: outlook.scenario_weights,
+      riskComfort: intake.risk_comfort,
+      portfolioValueGBP: summary.total_investable_value,
+      annualEssentialSpendGbp: intake.annual_essential_spend_gbp,
+      liquidCashGbp: intake.liquid_cash_gbp,
+    });
+  // deps: outlook.scenario_weights is listed alongside targetMix (which derives from it) because
+  // computeBeforeAfter reads the raw weights directly — exhaustive-deps, not redundancy.
+  }, [
+    outlook.insufficient_signal, mix, targetMix, outlook.scenario_weights, intake.risk_comfort,
+    summary.total_investable_value, intake.annual_essential_spend_gbp, intake.liquid_cash_gbp,
+  ]);
 
   useEffect(() => {
     if (outlook.insufficient_signal) return;
@@ -113,10 +144,15 @@ export default function OutlookAlternatives() {
 
         {result && (
           <div className="space-y-4" data-testid="alternatives-result">
-            <div className="p-4 rounded-xl border border-[var(--border)]">
-              <p className="text-sm">
-                Estimated turnover: ~{result.summary.estTurnoverPp}pp; indicative cost: ~{(result.summary.estCostPct * 100).toFixed(2)}% of your modelled portfolio.
-              </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="alternatives-summary-grid">
+              <StatCard label="Allocation shift" value={`${result.summary.totalAbsChangePp}pp`} />
+              <StatCard label="Est. turnover" value={`~${result.summary.estTurnoverPp}pp`} />
+              <StatCard label="Indicative cost" value={`~${(result.summary.estCostPct * 100).toFixed(2)}%`} sub="of modelled portfolio" />
+              <StatCard
+                label="Liquidity"
+                value={`${result.summary.liquidityNowPct}% → ${result.summary.liquidityTargetPct}%`}
+                sub={result.summary.liquidityFixPp !== undefined ? `includes +${result.summary.liquidityFixPp}pp top-up` : undefined}
+              />
             </div>
             {result.playbook.length > 0 && (
               <div data-testid="alternatives-playbook">
@@ -128,28 +164,59 @@ export default function OutlookAlternatives() {
                 </ul>
               </div>
             )}
-            {result.staged.stage1.length > 0 && (
-              <div data-testid="alternatives-stage1">
-                <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 1 — liquid moves</p>
-                {result.staged.stage1.map((a, i) => (
-                  <p key={i} className="text-sm">
-                    {bucketDisplayLabel(a.bucket)}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
-                    {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
-                  </p>
-                ))}
+            <div>
+              <div className="flex gap-2 mb-3" role="tablist" aria-label="Staged moves" data-testid="alternatives-stage-tabs">
+                <button
+                  role="tab"
+                  aria-selected={activeStage === 1}
+                  onClick={() => setActiveStage(1)}
+                  className={`px-3 py-1.5 rounded-full border text-sm ${activeStage === 1
+                    ? 'border-[var(--foreground)] font-medium'
+                    : 'border-[var(--border)] text-[var(--muted-foreground)]'}`}
+                  data-testid="stage-tab-1"
+                >
+                  Do now ({result.staged.stage1.length})
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={activeStage === 2}
+                  onClick={() => setActiveStage(2)}
+                  className={`px-3 py-1.5 rounded-full border text-sm ${activeStage === 2
+                    ? 'border-[var(--foreground)] font-medium'
+                    : 'border-[var(--border)] text-[var(--muted-foreground)]'}`}
+                  data-testid="stage-tab-2"
+                >
+                  Later — illiquid ({result.staged.stage2.length})
+                </button>
               </div>
-            )}
-            {result.staged.stage2.length > 0 && (
-              <div data-testid="alternatives-stage2">
-                <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 2 — illiquid moves, deferred</p>
-                {result.staged.stage2.map((a, i) => (
-                  <p key={i} className="text-sm">
-                    {bucketDisplayLabel(a.bucket)}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
-                    {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
-                  </p>
-                ))}
-              </div>
-            )}
+              {activeStage === 1 && (
+                <div role="tabpanel" data-testid="alternatives-stage1">
+                  {result.staged.stage1.length === 0 && (
+                    <p className="text-sm text-[var(--muted-foreground)]">No moves at this stage.</p>
+                  )}
+                  {result.staged.stage1.map((a, i) => (
+                    <p key={i} className="text-sm">
+                      {bucketDisplayLabel(a.bucket)}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
+                      {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
+                    </p>
+                  ))}
+                </div>
+              )}
+              {activeStage === 2 && (
+                <div role="tabpanel" data-testid="alternatives-stage2">
+                  {result.staged.stage2.length === 0 && (
+                    <p className="text-sm text-[var(--muted-foreground)]">No moves at this stage.</p>
+                  )}
+                  {result.staged.stage2.map((a, i) => (
+                    <p key={i} className="text-sm">
+                      {bucketDisplayLabel(a.bucket)}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
+                      {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+            {beforeAfter && <BeforeAfterPanel result={beforeAfter} />}
           </div>
         )}
 
