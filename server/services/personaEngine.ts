@@ -102,6 +102,13 @@ export interface ProfileIndicator {
   tooltip: string;
 }
 
+export type AssignmentBasis = 'HARD_OVERRIDE' | 'WEIGHTED_MATCH';
+
+export interface PersonaRunnerUp {
+  code: string;
+  label: string;
+}
+
 export interface PersonaResult {
   code: string;
   label: string;
@@ -115,6 +122,9 @@ export interface PersonaResult {
   profile_indicators: ProfileIndicator[];
   match_score: number;
   match_confidence: number;
+  assignment_basis: AssignmentBasis;
+  override_reason: string | null;
+  runners_up: PersonaRunnerUp[];
 }
 
 // ============================================
@@ -447,6 +457,9 @@ interface PersonaMatchOutput {
   match_score: number;
   match_confidence: number;
   was_hard_override: boolean;
+  assignment_basis: AssignmentBasis;
+  override_reason: string | null;
+  runners_up: PersonaRunnerUp[];
 }
 
 /**
@@ -490,6 +503,9 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
+      assignment_basis: 'HARD_OVERRIDE',
+      override_reason: 'Your private business stake accounts for 25% or more of your total wealth',
+      runners_up: [],
     };
   }
 
@@ -500,6 +516,9 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
+      assignment_basis: 'HARD_OVERRIDE',
+      override_reason: 'Property makes up 30% or more of your modelled portfolio (or 15% or more with a buy-to-let focus)',
+      runners_up: [],
     };
   }
 
@@ -510,6 +529,9 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
+      assignment_basis: 'HARD_OVERRIDE',
+      override_reason: 'Your crypto or digital-asset allocation is greater than 25% of your portfolio',
+      runners_up: [],
     };
   }
 
@@ -537,6 +559,9 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
     match_score: normalizedScore,
     match_confidence: matchConfidence,
     was_hard_override: false,
+    assignment_basis: 'WEIGHTED_MATCH',
+    override_reason: null,
+    runners_up: matches.slice(1, 3).map((m) => ({ code: m.code, label: PRIMARY_PERSONAS[m.code].label })),
   };
 }
 
@@ -1347,6 +1372,9 @@ export function computePersona(profile: InvestorProfile): PersonaResult {
     profile_indicators: profileIndicators,
     match_score: matchResult.match_score,
     match_confidence: matchResult.match_confidence,
+    assignment_basis: matchResult.assignment_basis,
+    override_reason: matchResult.override_reason,
+    runners_up: matchResult.runners_up,
   };
 }
 
