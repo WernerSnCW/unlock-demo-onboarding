@@ -43,6 +43,7 @@ export default function OutlookAlternatives() {
   const [result, setResult] = useState<BeliefActionsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeStage, setActiveStage] = useState<1 | 2>(1);
 
   const mix = useMemo(() => {
     const mixHoldings: MixHolding[] = holdings
@@ -143,7 +144,7 @@ export default function OutlookAlternatives() {
         {result && (
           <div className="space-y-4" data-testid="alternatives-result">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="alternatives-summary-grid">
-              <StatCard label="Total change" value={`${result.summary.totalAbsChangePp}pp`} />
+              <StatCard label="Allocation shift" value={`${result.summary.totalAbsChangePp}pp`} />
               <StatCard label="Est. turnover" value={`~${result.summary.estTurnoverPp}pp`} />
               <StatCard label="Indicative cost" value={`~${(result.summary.estCostPct * 100).toFixed(2)}%`} sub="of modelled portfolio" />
               <StatCard
@@ -162,28 +163,58 @@ export default function OutlookAlternatives() {
                 </ul>
               </div>
             )}
-            {result.staged.stage1.length > 0 && (
-              <div data-testid="alternatives-stage1">
-                <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 1 — liquid moves</p>
-                {result.staged.stage1.map((a, i) => (
-                  <p key={i} className="text-sm">
-                    {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
-                    {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
-                  </p>
-                ))}
+            <div>
+              <div className="flex gap-2 mb-3" role="tablist" aria-label="Staged moves" data-testid="alternatives-stage-tabs">
+                <button
+                  role="tab"
+                  aria-selected={activeStage === 1}
+                  onClick={() => setActiveStage(1)}
+                  className={`px-3 py-1.5 rounded-full border text-sm ${activeStage === 1
+                    ? 'border-[var(--foreground)] font-medium'
+                    : 'border-[var(--border)] text-[var(--muted-foreground)]'}`}
+                  data-testid="stage-tab-1"
+                >
+                  Do now ({result.staged.stage1.length})
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={activeStage === 2}
+                  onClick={() => setActiveStage(2)}
+                  className={`px-3 py-1.5 rounded-full border text-sm ${activeStage === 2
+                    ? 'border-[var(--foreground)] font-medium'
+                    : 'border-[var(--border)] text-[var(--muted-foreground)]'}`}
+                  data-testid="stage-tab-2"
+                >
+                  Later — illiquid ({result.staged.stage2.length})
+                </button>
               </div>
-            )}
-            {result.staged.stage2.length > 0 && (
-              <div data-testid="alternatives-stage2">
-                <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">Stage 2 — illiquid moves, deferred</p>
-                {result.staged.stage2.map((a, i) => (
-                  <p key={i} className="text-sm">
-                    {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
-                    {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
-                  </p>
-                ))}
-              </div>
-            )}
+              {activeStage === 1 && (
+                <div role="tabpanel" data-testid="alternatives-stage1">
+                  {result.staged.stage1.length === 0 && (
+                    <p className="text-sm text-[var(--muted-foreground)]">No moves at this stage.</p>
+                  )}
+                  {result.staged.stage1.map((a, i) => (
+                    <p key={i} className="text-sm">
+                      {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
+                      {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
+                    </p>
+                  ))}
+                </div>
+              )}
+              {activeStage === 2 && (
+                <div role="tabpanel" data-testid="alternatives-stage2">
+                  {result.staged.stage2.length === 0 && (
+                    <p className="text-sm text-[var(--muted-foreground)]">No moves at this stage.</p>
+                  )}
+                  {result.staged.stage2.map((a, i) => (
+                    <p key={i} className="text-sm">
+                      {a.bucket.replace(/-/g, ' ')}: {a.type === 'ADD' ? '+' : '-'}{Math.abs(a.deltaPct * 100).toFixed(1)}pp
+                      {' '}({formatCurrency(Math.round(a.amountGBP))}) — {a.rationale}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
             {beforeAfter && <BeforeAfterPanel result={beforeAfter} />}
           </div>
         )}
