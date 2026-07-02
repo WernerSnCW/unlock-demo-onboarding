@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
 import { Plus, Trash2, AlertCircle, PieChart, TrendingUp, Lock, ChevronDown, ChevronUp, Info, Shield, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { useOnboardingV2Store, Holding } from '@/state/onboardingV2Store';
@@ -363,8 +363,8 @@ export default function Holdings() {
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
               {holdings.map((holding, index) => (
-                <>
-                  <tr key={holding.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors duration-150">
+                <Fragment key={holding.id}>
+                  <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors duration-150">
                     <td className="py-2 px-2 min-w-[200px]">
                       <Input
                         value={holding.instrument_name}
@@ -486,7 +486,7 @@ export default function Holdings() {
                     </td>
                   </tr>
                   {expandedHoldings.has(holding.id) && (
-                    <tr key={`${holding.id}-details`} className="bg-[#2b2b2b]/10">
+                    <tr className="bg-[#2b2b2b]/10">
                       <td colSpan={9} className="p-4">
                         <div className="space-y-4">
                           <div className="flex items-start gap-2 p-3 rounded-lg bg-[#00bb77]/5 border border-[#00bb77]/20">
@@ -596,7 +596,7 @@ export default function Holdings() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
