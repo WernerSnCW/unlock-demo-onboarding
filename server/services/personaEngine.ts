@@ -511,13 +511,20 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
 
   // Hard Override 2: Property dominant (>30% of portfolio or >40% with BTL focus)
   if (propertyDominance >= 0.30) {
+    // Branch the reason on which path actually fired (mirrors getPropertyDominance's
+    // accessor/normalisation): pure allocation >= 0.30, or allocation crossing the
+    // threshold only with the +0.15 buy-to-let focus boost.
+    const propertyAllocationAlone =
+      normalizeToFraction(profile.asset_class_breakdown.property_pct ?? 0) >= 0.30;
     return {
       code: 'PROPERTY_LED',
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
       assignment_basis: 'HARD_OVERRIDE',
-      override_reason: 'Property makes up 30% or more of your modelled portfolio (or 15% or more with a buy-to-let focus)',
+      override_reason: propertyAllocationAlone
+        ? 'Property makes up 30% or more of your modelled portfolio'
+        : 'Your property holdings combined with a buy-to-let focus make property the dominant theme of your portfolio',
       runners_up: [],
     };
   }

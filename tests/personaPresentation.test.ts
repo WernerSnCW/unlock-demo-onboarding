@@ -44,7 +44,10 @@ const businessHeavyProfile = {
 };
 
 // ============================================================
-// Fixture 2: Weighted match profile — no override triggers; moderate values
+// Fixture 2: Weighted match profile — no override triggers.
+// Deliberately a decisive weighted outcome (self-directed, high risk, long horizon,
+// equity-heavy — strongly SELF_DIRECTED_GROWTH-shaped). The assertions pin only the
+// basis/reason/runners-up CONTRACT, not which persona wins.
 // ============================================================
 const weightedProfile = {
   age_band: '35_44' as const,
@@ -123,5 +126,28 @@ describe('persona assignment transparency', () => {
     const result = computePersona(fullServiceProfile);
     expect(result.code).not.toBe('SELF_DIRECTED_GROWTH');
     expect(result.runners_up.map((r) => r.code)).not.toContain('SELF_DIRECTED_GROWTH');
+    // 8 personas with exactly one filtered still leaves 7 — slice(1, 3) must always yield 2
+    expect(result.runners_up).toHaveLength(2);
+  });
+
+  it('BTL-focus property override states the buy-to-let path, not the 30% allocation path', () => {
+    // property_pct 0.20 alone is below the 0.30 threshold; +0.15 BTL-focus boost fires the override
+    const btlProfile = {
+      ...weightedProfile,
+      asset_class_breakdown: {
+        ...weightedProfile.asset_class_breakdown,
+        equity_pct: 0.55,
+        property_pct: 0.20,
+      },
+      personaCues: {
+        ...weightedProfile.personaCues,
+        investing_focus: ['PROPERTY_BTL' as const],
+      },
+    };
+    const result = computePersona(btlProfile);
+    expect(result.code).toBe('PROPERTY_LED');
+    expect(result.assignment_basis).toBe('HARD_OVERRIDE');
+    expect(result.override_reason).toMatch(/buy-to-let/i);
+    expect(result.override_reason).not.toContain('30%');
   });
 });
