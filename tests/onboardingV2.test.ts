@@ -1049,7 +1049,7 @@ describe('Persona Engine - CORE_GROWTH Fixture', () => {
         owns_business: false,
         private_business_wealth_band: null,
         has_employer_stock: true,
-        employer_stock_alloc_band: '5_10' as const,
+        employer_stock_alloc_band: '5_15' as const,
         has_crypto: false,
         crypto_alloc_band: null,
         adviser_usage: 'FULL_SERVICE_ADVISER' as const,
@@ -1069,6 +1069,10 @@ describe('Persona Engine - CORE_GROWTH Fixture', () => {
     expect(result.label).toBe(CORE_GROWTH_FIXTURE.expected_label);
     expect(result.match_score).toBeGreaterThanOrEqual(0);
     expect(result.match_confidence).toBeGreaterThanOrEqual(0);
+    // Margin guard (added alongside the 2026-07-02 persona coverage fixes): this fixture's win
+    // over its runner-up is not a knife-edge tie. A future trait-weighting change that erodes
+    // this to near-zero should fail loudly here rather than silently flip the winning code.
+    expect(result.match_confidence).toBeGreaterThan(0.005);
   });
 });
 
@@ -1136,6 +1140,8 @@ describe('Persona Engine - BALANCED_ALLOCATOR Fixture', () => {
     expect(result.label).toBe(BALANCED_ALLOCATOR_FIXTURE.expected_label);
     expect(result.match_score).toBeGreaterThanOrEqual(0);
     expect(result.match_confidence).toBeGreaterThanOrEqual(0);
+    // Margin guard (see CORE_GROWTH fixture above for rationale).
+    expect(result.match_confidence).toBeGreaterThan(0.01);
   });
 });
 

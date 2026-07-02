@@ -375,7 +375,10 @@ function getBusinessDominance(profile: InvestorProfile): number {
     // matching instead, where complexity_proxy's own NOT_SURE treatment still picks it up.
     'NOT_SURE': 0.15,
   };
-  return bandScore[band || ''] || 0.25;
+  // quality-review follow-up: an unanswered band (null) shares the NOT_SURE fallback (0.15),
+  // not the old 0.25 override threshold — an unanswered question shouldn't auto-fire the
+  // override any more than an explicit "not sure" does.
+  return bandScore[band || ''] || 0.15;
 }
 
 function getCryptoAllocPct(profile: InvestorProfile): number {
@@ -881,7 +884,11 @@ function computeIncomeOrientation(profile: InvestorProfile): number {
   }
 
   // rec 5: a DB pension covering a large share of income needs is a strong income-security
-  // signal that was previously ignored beyond the flat T6 complexity bump.
+  // signal that was previously ignored beyond the flat T6 complexity bump. NOTE: for a
+  // high-signal profile (drawdown + income goal + low risk + GT_75 DB) this can push the raw
+  // sum above the nominal 100% weight budget implied by the 40/35/25 comment above — the
+  // function's trailing Math.min(1, ...) clamp handles this the same way every other trait
+  // function in this file already does; not treated as a bug.
   const dbBand = profile.personaCues.db_income_coverage_band;
   if (profile.personaCues.has_defined_benefit_pension && dbBand) {
     const dbBoost: Record<string, number> = { 'GT_75': 0.15, '50_75': 0.10, '25_50': 0.05, 'LT_25': 0, 'NOT_SURE': 0.05 };
