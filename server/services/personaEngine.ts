@@ -306,6 +306,8 @@ const PERSONA_WEIGHT_TABLE: Record<PrimaryPersonaCode, PersonaWeights> = {
     complexity_proxy: 0.29,
   },
   BALANCED_ALLOCATOR: {
+    // NOTE: risk_appetite ties with complexity_proxy (0.22). buildPersonaCatalogue's stable
+    // sort breaks the tie by object-key order, so risk_appetite lists first in emphases.
     risk_appetite: 0.22,
     alternatives_bias: 0.05,
     property_bias: 0.05,

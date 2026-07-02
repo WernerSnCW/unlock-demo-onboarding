@@ -2650,7 +2650,15 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
 
   // Persona catalogue — all 8 personas with content and top-2 weight emphases
   app.get('/api/onboarding-v2/personas', (_req, res) => {
-    return res.json({ personas: buildPersonaCatalogue() });
+    try {
+      return res.json({ personas: buildPersonaCatalogue() });
+    } catch (error) {
+      console.error('Persona catalogue error:', error);
+      return res.status(500).json({
+        error: 'Failed to build persona catalogue',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   });
 
   // =============================================================================

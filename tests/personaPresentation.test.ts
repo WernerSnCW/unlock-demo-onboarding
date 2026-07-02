@@ -161,7 +161,9 @@ describe('buildPersonaCatalogue', () => {
       expect(p.label.length).toBeGreaterThan(0);
       expect(p.one_liner.length).toBeGreaterThan(0);
       expect(p.plan_focus_bullets.length).toBeGreaterThan(0);
+      expect(p.plan_focus_bullets.every((b) => b.length > 0)).toBe(true);
       expect(p.risks_bullets.length).toBeGreaterThan(0);
+      expect(p.risks_bullets.every((b) => b.length > 0)).toBe(true);
       expect(p.emphases).toHaveLength(2);
       // emphases are the persona's actual top-2 weighted traits, descending
       expect(p.emphases[0].weight).toBeGreaterThanOrEqual(p.emphases[1].weight);
