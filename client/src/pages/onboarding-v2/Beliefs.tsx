@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { compareRiskConsistency } from '@/lib/beliefImpact/compareRiskConsistency';
 
 interface BeliefQuestion {
   id: BeliefQuestionId;
@@ -85,7 +86,7 @@ const GATE_REASON_MESSAGES: Record<TiltsGateReason, string> = {
 
 export default function Beliefs() {
   const [, navigate] = useLocation();
-  const { beliefs, analysis, setBeliefResponse, computeBeliefsScores, completeBeliefsStep } = useOnboardingV2Store();
+  const { intake, beliefs, analysis, setBeliefResponse, computeBeliefsScores, completeBeliefsStep } = useOnboardingV2Store();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [transparencyOpen, setTransparencyOpen] = useState(false);
   const [methodologyOpen, setMethodologyOpen] = useState(false);
@@ -104,6 +105,12 @@ export default function Beliefs() {
   const unansweredQuestions = useMemo(() => {
     return BELIEF_QUESTIONS.filter(q => beliefs.responses[q.id] === undefined).map(q => q.id);
   }, [beliefs.responses]);
+
+  const volatilityResponse = beliefs.responses.Q_VOLATILITY_COMFORT;
+  const riskConsistency = useMemo(
+    () => compareRiskConsistency(intake.risk_comfort, volatilityResponse),
+    [intake.risk_comfort, volatilityResponse],
+  );
 
   const hasAnyRed = safetyLights && (
     safetyLights.liquidity === 'RED' || 
@@ -279,6 +286,16 @@ export default function Beliefs() {
             </div>
           </div>
         </div>
+
+        {/* Risk-consistency note - informational only, never gates progress */}
+        {volatilityResponse && riskConsistency.verdict !== 'INSUFFICIENT_DATA' && (
+          <div className="flex items-start gap-3 p-4 rounded-xl border border-[var(--border)] bg-slate-50/50 dark:bg-slate-800/30" data-testid="risk-consistency-note">
+            <Info className="w-4 h-4 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+              {riskConsistency.note}
+            </p>
+          </div>
+        )}
 
         {/* Tilt Preview Section - Always shows all 8 axes */}
         <div className="group relative">
