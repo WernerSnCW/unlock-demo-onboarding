@@ -198,7 +198,7 @@ export default function Holdings() {
     <OnboardingLayout
       stepId="holdings"
       title="Your Current Holdings"
-      description="Enter your investment holdings. We'll use this to analyse your portfolio and show personalised considerations."
+      description="Enter your investment holdings to see a personalised analysis of your portfolio."
       hideNav
       wideLayout
     >

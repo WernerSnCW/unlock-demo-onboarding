@@ -8,7 +8,7 @@ export default function Welcome() {
     <OnboardingLayout
       stepId="welcome"
       title="Welcome to Unlock"
-      description="Begin your personalised onboarding journey. We'll guide you through a simple process to understand your portfolio and build an illustrative picture of it."
+      description="Begin your personalised onboarding journey — a simple, step-by-step way to see a clear, illustrative picture of your own portfolio."
     >
       <div className="space-y-10">
         {/* Feature Cards with enhanced depth */}
