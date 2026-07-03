@@ -99,8 +99,21 @@ function scrollAndTrack(
     const start = Date.now();
     let lastTop: number | null = null;
     let stableFrames = 0;
+    let done = false;
+    // requestAnimationFrame is PAUSED while the tab is backgrounded, so a
+    // timer fallback guarantees we always resolve (and settle the ring on the
+    // element) — otherwise switching tabs mid-demo would hang the run.
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { setCursorRect(el.getBoundingClientRect()); } catch { /* element gone */ }
+      resolve();
+    };
+    const timer = setTimeout(finish, maxMs + 200);
     const tick = () => {
-      if (runIdRef.current !== runId) return resolve();
+      if (done) return;
+      if (runIdRef.current !== runId) return finish();
       const rect = el.getBoundingClientRect();
       setCursorRect(rect);
       // Settle detection: stop once the element has stopped moving for a few
@@ -108,7 +121,7 @@ function scrollAndTrack(
       if (lastTop !== null && Math.abs(rect.top - lastTop) < 0.5) stableFrames += 1;
       else stableFrames = 0;
       lastTop = rect.top;
-      if (stableFrames >= 4 || Date.now() - start > maxMs) return resolve();
+      if (stableFrames >= 4 || Date.now() - start > maxMs) return finish();
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
