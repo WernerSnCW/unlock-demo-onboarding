@@ -3,5 +3,7 @@ dist
 .DS_Store
 server/public
 vite.config.ts.*
-*.tar.gz.superpowers/
+*.tar.gz
+.superpowers/
+*.local-backup
 .worktrees/
