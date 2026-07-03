@@ -67,6 +67,38 @@ function typeIntoElement(el: HTMLInputElement, text: string, runIdRef: { current
   });
 }
 
+// Scroll an element to centre and keep the highlight rect pinned to it for the
+// whole (smooth) scroll, updating every animation frame until it settles. This
+// replaces snapshotting the rect BEFORE the scroll — which left the ring behind
+// whenever a target needed scrolling into view.
+function scrollAndTrack(
+  el: HTMLElement,
+  setCursorRect: (r: DOMRect) => void,
+  runIdRef: { current: number },
+  runId: number,
+  maxMs = 550,
+): Promise<void> {
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  return new Promise((resolve) => {
+    const start = Date.now();
+    let lastTop: number | null = null;
+    let stableFrames = 0;
+    const tick = () => {
+      if (runIdRef.current !== runId) return resolve();
+      const rect = el.getBoundingClientRect();
+      setCursorRect(rect);
+      // Settle detection: stop once the element has stopped moving for a few
+      // frames, or after maxMs as a safety cap for very long scrolls.
+      if (lastTop !== null && Math.abs(rect.top - lastTop) < 0.5) stableFrames += 1;
+      else stableFrames = 0;
+      lastTop = rect.top;
+      if (stableFrames >= 4 || Date.now() - start > maxMs) return resolve();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [, navigate] = useLocation();
   const [active, setActive] = useState(false);
@@ -95,10 +127,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     if (action.type === 'clickText') {
       const el = findByText(action.value!);
       if (!el) return;
-      setCursorRect(el.getBoundingClientRect());
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      await sleep(350);
+      await scrollAndTrack(el, setCursorRect, runIdRef, runId);
       if (runIdRef.current !== runId) return;
+      await sleep(150);
       el.click();
       await sleep(300);
       return;
@@ -106,9 +137,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
     const el = await waitForElement(action.selector!, runIdRef, runId);
     if (!el || runIdRef.current !== runId) return;
-    setCursorRect(el.getBoundingClientRect());
-    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    await sleep(350);
+    await scrollAndTrack(el, setCursorRect, runIdRef, runId);
     if (runIdRef.current !== runId) return;
 
     if (action.type === 'click') {
@@ -125,8 +154,13 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       const opts = Array.from(document.querySelectorAll('[role="option"]')) as HTMLElement[];
       const target = opts.find((o) => o.textContent?.trim() === action.value);
       if (target) {
+        // Let the dropdown finish opening, then measure so the ring lands on
+        // the option's settled position (not mid open-animation).
+        await sleep(150);
+        if (runIdRef.current !== runId) return;
+        target.scrollIntoView({ block: 'nearest' });
         setCursorRect(target.getBoundingClientRect());
-        await sleep(300);
+        await sleep(250);
         if (runIdRef.current !== runId) return;
         target.click();
       }
