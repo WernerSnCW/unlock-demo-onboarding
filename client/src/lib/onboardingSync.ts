@@ -45,6 +45,13 @@ export function setInvestorToken(token: string | null): void {
 }
 export function isInvestorMode(): boolean { return Boolean(getInvestorToken()); }
 
+// The in-app live demo drives the real UI, which would otherwise autosave and
+// create real DB records (a synthetic session + projected assets) on every run.
+// While the demo is active, all persistence is suppressed.
+let demoMode = false;
+export function setDemoMode(on: boolean): void { demoMode = on; }
+export function isDemoMode(): boolean { return demoMode; }
+
 // The last onboarding step path visited in this tab, so side-trips (e.g. the
 // feedback review) can send the user back to where they were rather than to
 // step 1. Per-tab, like the active session.
@@ -135,6 +142,10 @@ export async function saveCurrentSession(
   currentStep: string,
   status: 'in_progress' | 'completed' = 'in_progress',
 ): Promise<SaveResult> {
+  // Never persist while the live demo is playing — it uses the real flow but
+  // must not create sessions/assets or touch a real investor's row.
+  if (demoMode) return { ok: false, reason: 'empty' };
+
   const token = getInvestorToken();
 
   // Investor mode — always save to their own token-scoped session.
