@@ -1,9 +1,25 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import { useLocation } from 'wouter';
 import { DEMO_STEPS, DEMO_INVESTOR_LABEL, type DemoAction } from '@/lib/demo/demoScript';
+import { setDemoMode } from '@/lib/onboardingSync';
 
 const STORAGE_KEY = 'onboarding-v2-storage';
 const BACKUP_KEY = '__demo_backup_onboarding_v2_storage';
+
+// End the demo cleanly: stop gating saves, restore the advisor's real store
+// (or clear it), and hard-reload to Welcome so no synthetic data lingers in
+// memory or gets autosaved afterwards.
+function endDemoCleanup(): void {
+  setDemoMode(false);
+  const backup = sessionStorage.getItem(BACKUP_KEY);
+  if (backup) {
+    localStorage.setItem(STORAGE_KEY, backup);
+    sessionStorage.removeItem(BACKUP_KEY);
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+  window.location.href = '/onboarding-v2/welcome';
+}
 
 interface DemoContextValue {
   active: boolean;
@@ -183,13 +199,17 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       }
     }
     if (runIdRef.current === runId) {
-      setActive(false);
+      // Demo finished: keep the controls bar (with Exit) visible and stay in
+      // demo mode — saves remain suppressed — until the presenter clicks Exit,
+      // which restores their real state. Prevents synthetic data leaking into a
+      // real save after the run.
       setCursorRect(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runAction, navigate]);
 
   const start = useCallback(() => {
+    setDemoMode(true); // suppress all persistence for the duration of the demo
     const existing = localStorage.getItem(STORAGE_KEY);
     if (existing) sessionStorage.setItem(BACKUP_KEY, existing);
     localStorage.removeItem(STORAGE_KEY);
@@ -210,20 +230,13 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const exit = useCallback(() => {
-    runIdRef.current += 1;
+    runIdRef.current += 1; // stop the play loop before tearing down
     setActive(false);
     setPaused(false);
     pausedRef.current = false;
     setCursorRect(null);
-    const backup = sessionStorage.getItem(BACKUP_KEY);
-    if (backup) {
-      localStorage.setItem(STORAGE_KEY, backup);
-      sessionStorage.removeItem(BACKUP_KEY);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    navigate('/onboarding-v2/welcome');
-  }, [navigate]);
+    endDemoCleanup();
+  }, []);
 
   const value: DemoContextValue = {
     active,
