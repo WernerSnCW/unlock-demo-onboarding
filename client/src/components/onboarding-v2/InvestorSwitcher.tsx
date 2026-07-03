@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut, MessagesSquare, Link2 } from 'lucide-react';
+import { ChevronDown, UserPlus, Search, Check, CircleDashed, Briefcase, Loader2, Copy, Play, LogOut, MessagesSquare, Link2, Trash2, X } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { ONBOARDING_STEPS } from './StepIndicator';
 import {
-  listSessions, loadSession, startNewInvestor, getActiveSessionId,
-  createInvestor, ensureInvestorLink, isInvestorMode, logout,
+  listSessions, loadSession, startNewInvestor, getActiveSessionId, setActiveSessionId,
+  createInvestor, ensureInvestorLink, deleteInvestorSession, isInvestorMode, logout,
   type SessionSummary,
 } from '@/lib/onboardingSync';
 
@@ -37,6 +37,9 @@ export default function InvestorSwitcher() {
   const [copied, setCopied] = useState(false);
   const [copiedRowId, setCopiedRowId] = useState<string | null>(null);
   const [linkBusyId, setLinkBusyId] = useState<string | null>(null);
+  // Delete flow: a row shows an inline "Delete?" confirm before it actually deletes.
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const activeId = getActiveSessionId();
   const investorMode = isInvestorMode();
@@ -58,6 +61,11 @@ export default function InvestorSwitcher() {
       setSessions(r.sessions);
       setLoading(false);
     });
+  }, [open]);
+
+  // Drop any pending delete-confirm when the dropdown closes.
+  useEffect(() => {
+    if (!open) setConfirmDeleteId(null);
   }, [open]);
 
   const label = activeName?.trim() ? activeName.trim() : 'New investor';
@@ -125,6 +133,19 @@ export default function InvestorSwitcher() {
     if (!r.ok || !r.token) return;
     setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, token: r.token! } : s)));
     await copyRowLink(id, r.token);
+  };
+
+  // Delete an investor — only after the inline "Delete?" confirm. Admin-gated
+  // server-side; the DB cascades to the session's assets + feedback.
+  const confirmDeleteInvestor = async (id: string) => {
+    setDeletingId(id);
+    const r = await deleteInvestorSession(id);
+    setDeletingId(null);
+    setConfirmDeleteId(null);
+    if (r.ok) {
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      if (getActiveSessionId() === id) setActiveSessionId(null); // don't point at a deleted row
+    }
   };
 
   // Investors see a read-only label of their own name — never the list/dropdown.
@@ -239,43 +260,76 @@ export default function InvestorSwitcher() {
                     </span>
                   </button>
                   <div className="flex items-center gap-2 shrink-0">
-                    {busyId === s.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--muted-foreground)]" />
-                    ) : (
-                      <span
-                        className={
-                          completed
-                            ? 'inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#00bb77]/12 text-[var(--primary)] border border-[#00bb77]/30'
-                            : 'inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#ffffff]/[0.04] text-[var(--muted-foreground)] border border-[var(--border)]'
-                        }
-                      >
-                        {completed ? <Check className="h-3 w-3" /> : <CircleDashed className="h-3 w-3" />}
-                        {completed ? 'Done' : 'In progress'}
+                    {confirmDeleteId === s.id ? (
+                      <span className="inline-flex items-center gap-1.5" data-testid={`investor-delete-confirm-row-${s.id}`}>
+                        <span className="text-xs text-[var(--muted-foreground)]">Delete?</span>
+                        <button
+                          onClick={() => confirmDeleteInvestor(s.id)}
+                          disabled={deletingId === s.id}
+                          title="Confirm delete — this is permanent"
+                          className="p-1 rounded-md text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors"
+                          data-testid={`investor-delete-confirm-${s.id}`}
+                        >
+                          {deletingId === s.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          title="Cancel"
+                          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[#ffffff]/[0.06] transition-colors"
+                          data-testid={`investor-delete-cancel-${s.id}`}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
                       </span>
-                    )}
-                    {s.token ? (
-                      <button
-                        onClick={() => copyRowLink(s.id, s.token!)}
-                        title="Copy this investor's private link"
-                        className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[#00bb77]/[0.08] transition-colors"
-                        data-testid={`investor-copylink-${s.id}`}
-                      >
-                        {copiedRowId === s.id ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" /> : <Copy className="h-3.5 w-3.5" />}
-                      </button>
                     ) : (
-                      <button
-                        onClick={() => generateRowLink(s.id)}
-                        disabled={linkBusyId === s.id}
-                        title="Generate a private link to share this session with the investor"
-                        className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[#00bb77]/[0.08] transition-colors"
-                        data-testid={`investor-genlink-${s.id}`}
-                      >
-                        {linkBusyId === s.id
-                          ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          : copiedRowId === s.id
-                            ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
-                            : <Link2 className="h-3.5 w-3.5" />}
-                      </button>
+                      <>
+                        {busyId === s.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--muted-foreground)]" />
+                        ) : (
+                          <span
+                            className={
+                              completed
+                                ? 'inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#00bb77]/12 text-[var(--primary)] border border-[#00bb77]/30'
+                                : 'inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[#ffffff]/[0.04] text-[var(--muted-foreground)] border border-[var(--border)]'
+                            }
+                          >
+                            {completed ? <Check className="h-3 w-3" /> : <CircleDashed className="h-3 w-3" />}
+                            {completed ? 'Done' : 'In progress'}
+                          </span>
+                        )}
+                        {s.token ? (
+                          <button
+                            onClick={() => copyRowLink(s.id, s.token!)}
+                            title="Copy this investor's private link"
+                            className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[#00bb77]/[0.08] transition-colors"
+                            data-testid={`investor-copylink-${s.id}`}
+                          >
+                            {copiedRowId === s.id ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" /> : <Copy className="h-3.5 w-3.5" />}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => generateRowLink(s.id)}
+                            disabled={linkBusyId === s.id}
+                            title="Generate a private link to share this session with the investor"
+                            className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[#00bb77]/[0.08] transition-colors"
+                            data-testid={`investor-genlink-${s.id}`}
+                          >
+                            {linkBusyId === s.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : copiedRowId === s.id
+                                ? <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
+                                : <Link2 className="h-3.5 w-3.5" />}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setConfirmDeleteId(s.id)}
+                          title="Delete this investor"
+                          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors"
+                          data-testid={`investor-delete-${s.id}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
