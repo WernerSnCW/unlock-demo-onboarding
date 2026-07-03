@@ -244,6 +244,18 @@ export async function createInvestor(
   }
 }
 
+// Admin: permanently delete an investor's session. The DB cascades this to the
+// session's assets and screen-feedback rows. Admin-gated server-side.
+export async function deleteInvestorSession(id: string): Promise<{ ok: boolean; noDb?: boolean }> {
+  try {
+    const res = await fetch(`/api/onboarding-v2/sessions/${id}`, { method: 'DELETE', headers: adminHeaders() });
+    if (res.status === 503) return { ok: false, noDb: true };
+    return { ok: res.ok };
+  } catch {
+    return { ok: false };
+  }
+}
+
 // Ensure an EXISTING session (e.g. an advisor's demo walkthrough) has a private
 // link token, minting one if needed, so it can be shared with the investor
 // afterwards. Idempotent — returns the existing token if there already is one.
