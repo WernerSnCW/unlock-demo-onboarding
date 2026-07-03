@@ -6,6 +6,11 @@ interface PersonaCardProps {
   persona: PersonaResult;
 }
 
+/** Qualitative read of match_confidence (the raw gap between the top two weighted scores).
+ *  Deliberately NOT shown as a number: the underlying score is an uncalibrated weighted sum,
+ *  so only the ordinal fact ("clear-cut" vs "close") is honest to present. */
+const CLEAR_MATCH_GAP = 0.10;
+
 // Trait visibility rules per spec
 const ALWAYS_SHOW_TRAITS = new Set([
   'Liquidity Resilience',
@@ -113,6 +118,20 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
             <p className="text-sm text-[var(--muted-foreground)] mt-1" data-testid="persona-oneliner">
               {persona.one_liner}
             </p>
+            {persona.assignment_basis === 'HARD_OVERRIDE' && persona.override_reason && (
+              <p className="text-xs text-[var(--muted-foreground)] mt-1" data-testid="persona-assignment-basis">
+                Assigned directly: {persona.override_reason}.
+              </p>
+            )}
+            {persona.assignment_basis === 'WEIGHTED_MATCH' && (
+              <p className="text-xs text-[var(--muted-foreground)] mt-1" data-testid="persona-assignment-basis">
+                {persona.match_confidence >= CLEAR_MATCH_GAP ? 'Clear match against the other profiles' : 'A close call'}
+                {persona.runners_up && persona.runners_up.length > 0 && (
+                  <> — also considered: {persona.runners_up.map((r) => r.label).join(', ')}</>
+                )}
+                .
+              </p>
+            )}
           </div>
         </div>
       </div>

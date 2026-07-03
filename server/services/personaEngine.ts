@@ -102,6 +102,13 @@ export interface ProfileIndicator {
   tooltip: string;
 }
 
+export type AssignmentBasis = 'HARD_OVERRIDE' | 'WEIGHTED_MATCH';
+
+export interface PersonaRunnerUp {
+  code: string;
+  label: string;
+}
+
 export interface PersonaResult {
   code: string;
   label: string;
@@ -115,6 +122,9 @@ export interface PersonaResult {
   profile_indicators: ProfileIndicator[];
   match_score: number;
   match_confidence: number;
+  assignment_basis: AssignmentBasis;
+  override_reason: string | null;
+  runners_up: PersonaRunnerUp[];
 }
 
 // ============================================
@@ -260,7 +270,7 @@ const PRIMARY_PERSONAS: Record<PrimaryPersonaCode, PrimaryPersona> = {
 // Trait order: risk_appetite, alternatives_bias, property_bias, liquidity_comfort, income_orientation, complexity_proxy
 // Weights sum to 1.0 per persona
 
-type PersonaWeights = {
+export type PersonaWeights = {
   risk_appetite: number;
   alternatives_bias: number;
   property_bias: number;
@@ -296,6 +306,8 @@ const PERSONA_WEIGHT_TABLE: Record<PrimaryPersonaCode, PersonaWeights> = {
     complexity_proxy: 0.29,
   },
   BALANCED_ALLOCATOR: {
+    // NOTE: risk_appetite ties with complexity_proxy (0.22). buildPersonaCatalogue's stable
+    // sort breaks the tie by object-key order, so risk_appetite lists first in emphases.
     risk_appetite: 0.22,
     alternatives_bias: 0.05,
     property_bias: 0.05,
@@ -447,6 +459,9 @@ interface PersonaMatchOutput {
   match_score: number;
   match_confidence: number;
   was_hard_override: boolean;
+  assignment_basis: AssignmentBasis;
+  override_reason: string | null;
+  runners_up: PersonaRunnerUp[];
 }
 
 /**
@@ -490,16 +505,29 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
+      assignment_basis: 'HARD_OVERRIDE',
+      override_reason: 'Your private business stake accounts for 25% or more of your total wealth',
+      runners_up: [],
     };
   }
 
   // Hard Override 2: Property dominant (>30% of portfolio or >40% with BTL focus)
   if (propertyDominance >= 0.30) {
+    // Branch the reason on which path actually fired (mirrors getPropertyDominance's
+    // accessor/normalisation): pure allocation >= 0.30, or allocation crossing the
+    // threshold only with the +0.15 buy-to-let focus boost.
+    const propertyAllocationAlone =
+      normalizeToFraction(profile.asset_class_breakdown.property_pct ?? 0) >= 0.30;
     return {
       code: 'PROPERTY_LED',
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
+      assignment_basis: 'HARD_OVERRIDE',
+      override_reason: propertyAllocationAlone
+        ? 'Property makes up 30% or more of your modelled portfolio'
+        : 'Your property holdings combined with a buy-to-let focus make property the dominant theme of your portfolio',
+      runners_up: [],
     };
   }
 
@@ -510,6 +538,9 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
       match_score: 1.0,
       match_confidence: 1.0,
       was_hard_override: true,
+      assignment_basis: 'HARD_OVERRIDE',
+      override_reason: 'Your crypto or digital-asset allocation is greater than 25% of your portfolio',
+      runners_up: [],
     };
   }
 
@@ -537,6 +568,9 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
     match_score: normalizedScore,
     match_confidence: matchConfidence,
     was_hard_override: false,
+    assignment_basis: 'WEIGHTED_MATCH',
+    override_reason: null,
+    runners_up: matches.slice(1, 3).map((m) => ({ code: m.code, label: PRIMARY_PERSONAS[m.code].label })),
   };
 }
 
@@ -1347,6 +1381,9 @@ export function computePersona(profile: InvestorProfile): PersonaResult {
     profile_indicators: profileIndicators,
     match_score: matchResult.match_score,
     match_confidence: matchResult.match_confidence,
+    assignment_basis: matchResult.assignment_basis,
+    override_reason: matchResult.override_reason,
+    runners_up: matchResult.runners_up,
   };
 }
 
@@ -1355,3 +1392,43 @@ export { PRIMARY_PERSONAS };
 
 // Legacy compatibility - still export old type name
 export type { PersonaCues as PersonaCuesLegacy };
+
+// ── Persona Catalogue ──────────────────────────────────────────────────────
+
+export interface PersonaCatalogueEntry {
+  code: PrimaryPersonaCode;
+  label: string;
+  one_liner: string;
+  plan_focus_bullets: string[];
+  risks_bullets: string[];
+  /** The persona's top-2 matching-weight traits — real weights from PERSONA_WEIGHT_TABLE, not copy. */
+  emphases: { trait: keyof PersonaWeights; label: string; weight: number }[];
+}
+
+const TRAIT_LABELS: Record<keyof PersonaWeights, string> = {
+  risk_appetite: 'Risk appetite',
+  alternatives_bias: 'Alternatives tilt',
+  property_bias: 'Property tilt',
+  liquidity_comfort: 'Liquidity comfort',
+  income_orientation: 'Income orientation',
+  complexity_proxy: 'Financial complexity',
+};
+
+export function buildPersonaCatalogue(): PersonaCatalogueEntry[] {
+  return (Object.keys(PRIMARY_PERSONAS) as PrimaryPersonaCode[]).map((code) => {
+    const persona = PRIMARY_PERSONAS[code];
+    const weights = PERSONA_WEIGHT_TABLE[code];
+    const emphases = (Object.entries(weights) as [keyof PersonaWeights, number][])
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([trait, weight]) => ({ trait, label: TRAIT_LABELS[trait], weight }));
+    return {
+      code,
+      label: persona.label,
+      one_liner: persona.one_liner,
+      plan_focus_bullets: persona.plan_focus_bullets,
+      risks_bullets: persona.risks_bullets,
+      emphases,
+    };
+  });
+}

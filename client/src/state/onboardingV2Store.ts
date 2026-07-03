@@ -193,6 +193,9 @@ export interface PersonaResult {
   profile_indicators: ProfileIndicator[];
   match_score: number;
   match_confidence: number;
+  assignment_basis?: 'HARD_OVERRIDE' | 'WEIGHTED_MATCH';
+  override_reason?: string | null;
+  runners_up?: { code: string; label: string }[];
 }
 
 export interface AnalysisResult {
