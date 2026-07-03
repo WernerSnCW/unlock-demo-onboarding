@@ -35,6 +35,8 @@ import { analyzeOnboarding, type Intake } from './services/analysis';
 import { buildPersonaCatalogue } from './services/personaEngine';
 import { getPolicy } from './services/policy';
 import { parseUkOrIsoDate } from './lib/ukDates';
+import { isMethodologyEnabled } from './config/methodologyAccess';
+import { getSequencedTopics } from './content/explainerTopics';
 import {
   COMPLIANCE_LINE,
   FORBIDDEN_WORDS,
@@ -2832,10 +2834,25 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     try {
       const session = await storage.getOnboardingSessionByToken(req.params.token);
       if (!session) return res.status(404).json({ error: "Session not found" });
-      res.json(session);
+      res.json({ ...session, methodologyDocEnabled: isMethodologyEnabled(req.params.token) });
     } catch (error) {
       console.error("Get investor session error:", error);
       res.status(500).json({ error: "Failed to fetch session", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  app.get("/api/onboarding-v2/methodology", async (req, res) => {
+    try {
+      const topics = getSequencedTopics().map((t) => ({
+        id: t.id,
+        kind: t.kind,
+        title: t.title,
+        ...t.render(),
+      }));
+      res.json({ topics });
+    } catch (error) {
+      console.error("Get methodology content error:", error);
+      res.status(500).json({ error: "Failed to build methodology content", message: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
