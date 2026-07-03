@@ -6,6 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { InvestorProvider } from "./contexts/InvestorContext";
+import { DemoProvider, useDemo } from "./contexts/DemoContext";
+import DemoCursor from "@/components/onboarding-v2/DemoCursor";
+import DemoControls from "@/components/onboarding-v2/DemoControls";
 import AccessGate from "@/components/AccessGate";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -116,16 +119,29 @@ function Router() {
   );
 }
 
+function AppContent() {
+  const { active } = useDemo();
+  return (
+    <div style={{ paddingTop: active ? 52 : 0 }}>
+      <AccessGate>
+        <Router />
+      </AccessGate>
+    </div>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <InvestorProvider>
           <TooltipProvider>
-            <AccessGate>
-              <Router />
-            </AccessGate>
-            <Toaster />
+            <DemoProvider>
+              <AppContent />
+              <DemoCursor />
+              <DemoControls />
+              <Toaster />
+            </DemoProvider>
           </TooltipProvider>
         </InvestorProvider>
       </ThemeProvider>
