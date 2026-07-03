@@ -382,9 +382,15 @@ function getBusinessDominance(profile: InvestorProfile): number {
     '10_25': 0.175,
     '25_50': 0.375,
     'GT_50': 0.60,
-    'NOT_SURE': 0.25,
+    // rec 8: was 0.25 (== the >=0.25 override threshold), so answering "not sure" auto-fired
+    // FOUNDER_ENTREPRENEUR at confidence 1.0. Lowered to route NOT_SURE through weighted
+    // matching instead, where complexity_proxy's own NOT_SURE treatment still picks it up.
+    'NOT_SURE': 0.15,
   };
-  return bandScore[band || ''] || 0.25;
+  // quality-review follow-up: an unanswered band (null) shares the NOT_SURE fallback (0.15),
+  // not the old 0.25 override threshold — an unanswered question shouldn't auto-fire the
+  // override any more than an explicit "not sure" does.
+  return bandScore[band || ''] || 0.15;
 }
 
 function getCryptoAllocPct(profile: InvestorProfile): number {
@@ -549,7 +555,7 @@ function assignPrimaryPersonaWithMatching(profile: InvestorProfile, traits: Pers
   
   // Exclude SELF_DIRECTED_GROWTH for fully-advised profiles
   // Rationale: FULL_SERVICE_ADVISER users are by definition not self-directed
-  if (profile.personaCues.adviser_usage === 'FULL_SERVICE_ADVISER') {
+  if (profile.personaCues.adviser_usage === 'FULL_SERVICE_ADVISER' || profile.personaCues.adviser_usage === 'I_AM_AN_ADVISER') {
     matches = matches.filter(m => m.code !== 'SELF_DIRECTED_GROWTH');
   }
   
@@ -792,17 +798,22 @@ function computeRiskAppetite(profile: InvestorProfile): number {
   const riskBase = riskMap[(profile.risk_comfort || '').toLowerCase()] ?? 0.5;
   
   // Time horizon as scalar (20% weight): 10+yrs=1.0, 5-9yrs=0.6, else 0.3
-  const horizonScalar = isLongHorizon(profile) ? 1.0 : 
-                        profile.time_horizon === '5_9' ? 0.6 : 0.3;
+  const horizonLower = (profile.time_horizon || '').toLowerCase();
+  const horizonScalar = isLongHorizon(profile) ? 1.0
+    : (horizonLower === 'medium' || horizonLower === '5_9') ? 0.6
+    : 0.3;
   
   // Equity + alts allocation (45% weight): higher risk assets → higher appetite
   const equityPct = normalizeToFraction(profile.asset_class_breakdown.equity_pct);
   const altsPct = normalizeToFraction(profile.asset_class_breakdown.alts_pct) + 
                   normalizeToFraction(profile.asset_class_breakdown.crypto_pct);
   const allocationTerm = Math.min(1, equityPct + altsPct);
-  
+
+  // rec 6: an individual-shares focus is a self-directedness signal with no other trait home
+  const focusBoost = profile.personaCues.investing_focus?.includes('INDIVIDUAL_SHARES') ? 0.05 : 0;
+
   // Weighted blend before adviser multiplier
-  const rawScore = 0.35 * riskBase + 0.20 * horizonScalar + 0.45 * allocationTerm;
+  const rawScore = 0.35 * riskBase + 0.20 * horizonScalar + 0.45 * allocationTerm + focusBoost;
   
   // Adviser multiplier: SELF_DIRECTED amplifies, FULL_SERVICE dampens
   const adviserMultiplier: Record<string, number> = {
@@ -867,8 +878,14 @@ function computeLiquidityComfort(profile: InvestorProfile): number {
   
   // Illiquidity penalty (25% weight): high illiquid % reduces comfort
   const illiquidPenalty = profile.illiquid_pct * 0.5;
-  
-  return Math.min(1, Math.max(0, runwayScore * 0.5 + cashScore * 0.25 - illiquidPenalty * 0.25));
+
+  // rec 1+10: 'preserve_capital' is a stronger liquidity-comfort signal, relatively, than an
+  // income signal — CAPITAL_PRESERVATION's liquidity/income weight ratio (0.36/0.44=0.82) is
+  // higher than INCOME_STABILITY's (0.28/0.52=0.54), so this differentiates the two personas
+  // correctly where boosting income_orientation would have favoured the wrong one.
+  const preservationBoost = (profile.primary_goal || '').toLowerCase() === 'preserve_capital' ? 0.12 : 0;
+
+  return Math.min(1, Math.max(0, runwayScore * 0.5 + cashScore * 0.25 - illiquidPenalty * 0.25 + preservationBoost));
 }
 
 /**
@@ -899,7 +916,19 @@ function computeIncomeOrientation(profile: InvestorProfile): number {
   } else if (riskComfort === 'moderate' || riskComfort === 'medium') {
     score += 0.1;
   }
-  
+
+  // rec 5: a DB pension covering a large share of income needs is a strong income-security
+  // signal that was previously ignored beyond the flat T6 complexity bump. NOTE: for a
+  // high-signal profile (drawdown + income goal + low risk + GT_75 DB) this can push the raw
+  // sum above the nominal 100% weight budget implied by the 40/35/25 comment above — the
+  // function's trailing Math.min(1, ...) clamp handles this the same way every other trait
+  // function in this file already does; not treated as a bug.
+  const dbBand = profile.personaCues.db_income_coverage_band;
+  if (profile.personaCues.has_defined_benefit_pension && dbBand) {
+    const dbBoost: Record<string, number> = { 'GT_75': 0.15, '50_75': 0.10, '25_50': 0.05, 'LT_25': 0, 'NOT_SURE': 0.05 };
+    score += dbBoost[dbBand] || 0;
+  }
+
   return Math.min(1, Math.max(0, score));
 }
 
@@ -940,9 +969,11 @@ function computeComplexityProxy(profile: InvestorProfile): number {
     score += bandScore[band || 'NOT_SURE'] || 0.1;
   }
   
-  // Employer stock (15% weight)
+  // Employer stock (15% weight, banded — rec 5)
   if (profile.personaCues.has_employer_stock) {
-    score += 0.15;
+    const stockBand = profile.personaCues.employer_stock_alloc_band;
+    const stockBoost: Record<string, number> = { 'LT_5': 0.08, '5_15': 0.11, '15_30': 0.14, 'GT_30': 0.18, 'NOT_SURE': 0.11 };
+    score += stockBoost[stockBand || 'NOT_SURE'] || 0.11;
   }
   
   // Cross-border (20% weight)

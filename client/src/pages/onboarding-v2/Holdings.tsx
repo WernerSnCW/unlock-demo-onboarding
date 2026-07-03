@@ -31,6 +31,7 @@ const ASSET_CLASSES = [
   { value: 'cash', label: 'Cash' },
   { value: 'property', label: 'Property' },
   { value: 'alternatives', label: 'Alternatives' },
+  { value: 'crypto', label: 'Crypto / Digital Assets' },
   { value: 'other', label: 'Other' },
 ];
 
