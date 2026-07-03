@@ -2841,6 +2841,7 @@ Write a 90-130 word summary that paraphrases this information. End with: "${COMP
     }
   });
 
+  // Static content per app build, not per investor — no DB dependency by design.
   app.get("/api/onboarding-v2/methodology", async (req, res) => {
     try {
       const topics = getSequencedTopics().map((t) => ({
