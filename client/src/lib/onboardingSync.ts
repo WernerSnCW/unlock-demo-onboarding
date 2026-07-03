@@ -279,7 +279,7 @@ export async function ensureInvestorLink(
 // ---- investor (token-scoped) ----
 export async function loadInvestorSession(
   token: string,
-): Promise<{ ok: boolean; noDb?: boolean; currentStep?: string }> {
+): Promise<{ ok: boolean; noDb?: boolean; currentStep?: string; methodologyDocEnabled?: boolean }> {
   try {
     const res = await fetch('/api/onboarding-v2/i/' + token);
     if (res.status === 503) return { ok: false, noDb: true };
@@ -293,10 +293,15 @@ export async function loadInvestorSession(
     if (data && Object.keys(data).length) useOnboardingV2Store.setState(data);
     if (hydrated) useOnboardingV2Store.getState().setHoldings(data.holdings);
     const currentStep = hydrated ? '/onboarding-v2/intake' : (session.currentStep || '/onboarding-v2/welcome');
-    return { ok: true, currentStep };
+    sessionStorage.setItem('methodology-doc-enabled', session.methodologyDocEnabled ? '1' : '0');
+    return { ok: true, currentStep, methodologyDocEnabled: !!session.methodologyDocEnabled };
   } catch {
     return { ok: false };
   }
+}
+
+export function isMethodologyDocEnabled(): boolean {
+  return sessionStorage.getItem('methodology-doc-enabled') === '1';
 }
 
 // Begin a brand-new investor (admin/demo only): clear the active session + reset.
