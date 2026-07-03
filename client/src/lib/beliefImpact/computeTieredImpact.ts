@@ -1,11 +1,11 @@
-import { EPISODES, BUCKETS, bucketFor, type Bucket } from '../../data/episodeLibrary';
+import { EPISODES, bucketFor, type Bucket } from '../../data/episodeLibrary';
 import { STRESS_SCENARIOS } from '../../data/stressScenarios';
 import { shockFor } from '../scenarioStress';
 import type { Mix } from '../portfolioMix';
 import {
   BUCKET_TIER, BELIEF_SCENARIO_MAPPING, type BeliefScenarioName, type ImpactTier,
 } from '../../data/beliefImpactTaxonomy';
-import { renormaliseOverModelledBuckets } from './computeAlignment';
+import { renormaliseOverModelledBuckets, MODELLED_BUCKETS } from './computeAlignment';
 
 export interface CitedSource {
   id: string;
@@ -33,8 +33,6 @@ export interface TieredImpactResult {
 }
 
 interface HoldingForBreakdown { asset_class: string; region: string; value_gbp: number; }
-
-const MODELLED_BUCKETS: Bucket[] = BUCKETS.filter((b) => BUCKET_TIER[b] !== 'UNMODELLED');
 
 const BUCKET_TO_ASSET_REGION: Record<Bucket, [string, string]> = {
   'uk-equity': ['equity', 'uk'], 'us-equity': ['equity', 'us'],
