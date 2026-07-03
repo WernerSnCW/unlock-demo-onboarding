@@ -42,6 +42,7 @@ export default function Methodology() {
       title="How this works"
       description="The logic, formulas, and evidence behind your analysis — generated from the same code and configuration that powers it, so it never falls out of date."
       hideNav
+      skipSessionTracking
     >
       <div className="space-y-8 pt-6">
         {error && (
