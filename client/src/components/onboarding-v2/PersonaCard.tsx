@@ -1,6 +1,7 @@
 import { PersonaResult, PortfolioTrait, TraitIntensity, RiskToWatch, ProfileIndicator } from '@/state/onboardingV2Store';
-import { User, Target, AlertTriangle, Layers, BarChart3 } from 'lucide-react';
+import { User, Target, AlertTriangle, Layers, BarChart3, BookOpen } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getPersonaEvidenceCitation } from '@/data/personaEvidenceCitations';
 
 interface PersonaCardProps {
   persona: PersonaResult;
@@ -99,6 +100,8 @@ const indicatorColors: Record<string, string> = {
 };
 
 export default function PersonaCard({ persona }: PersonaCardProps) {
+  const evidenceCitation = getPersonaEvidenceCitation(persona.code);
+
   return (
     <div 
       className="rounded-xl border border-[var(--border)] bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-gray-900 shadow-sm overflow-hidden"
@@ -137,6 +140,14 @@ export default function PersonaCard({ persona }: PersonaCardProps) {
       </div>
 
       <div className="p-6 space-y-6">
+        {/* Sourced descriptive context - never a target mix, never a match-% */}
+        {evidenceCitation && (
+          <div className="flex items-start gap-2 text-xs text-[var(--muted-foreground)] italic" data-testid="persona-evidence-citation">
+            <BookOpen className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 opacity-70" />
+            <span>{evidenceCitation}</span>
+          </div>
+        )}
+
         {/* Why This Fits You */}
         {(persona.why_fits_bullets?.length ?? 0) > 0 && (
           <div className="space-y-3">
