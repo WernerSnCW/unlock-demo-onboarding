@@ -51,6 +51,7 @@ const WRAPPER_LABELS: Record<string, string> = {
   gia: 'GIA (Taxable)',
   cash: 'Cash Account',
   offshore_bond: 'Offshore Bond',
+  not_applicable: 'Not applicable',
 };
 
 const WRAPPER_ROLES: Record<string, string> = {
@@ -59,6 +60,7 @@ const WRAPPER_ROLES: Record<string, string> = {
   gia: 'Taxable',
   cash: 'Liquidity',
   offshore_bond: 'Tax-deferred',
+  not_applicable: 'No wrapper',
 };
 
 export function deriveWrapperPriority(policyPriorityOrder: string[]): string[] {

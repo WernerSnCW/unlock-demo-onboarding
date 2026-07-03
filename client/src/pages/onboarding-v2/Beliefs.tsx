@@ -254,6 +254,7 @@ export default function Beliefs() {
                         <button
                           key={option.value}
                           onClick={() => setBeliefResponse(question.id, option.value)}
+                          aria-pressed={response?.answer === option.value}
                           className={`px-4 py-2.5 text-xs font-medium rounded-lg border-2 transition-all duration-200 ${
                             response?.answer === option.value
                               ? 'bg-gradient-to-br from-[var(--primary)] to-[#00bb77]/80 text-white border-transparent shadow-lg shadow-[#00bb77]/25 scale-105'

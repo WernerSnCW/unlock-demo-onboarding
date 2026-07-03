@@ -21,6 +21,7 @@ const WRAPPERS = [
   { value: 'gia', label: 'GIA (General)' },
   { value: 'cash', label: 'Cash Account' },
   { value: 'offshore_bond', label: 'Offshore Bond' },
+  { value: 'not_applicable', label: 'Not applicable' },
   { value: 'other', label: 'Other' },
 ];
 

@@ -1,5 +1,6 @@
 import { Donut } from '@/components/shared/Donut';
 import { fmtSignedPct } from '@/lib/scenarioPlannerView';
+import { bucketDisplayLabel } from '@/lib/bucketLabels';
 import type {
   BeforeAfterResult, MixDiffRow, RunwayComparison,
 } from '@/lib/beliefImpact/computeBeforeAfter';
@@ -10,13 +11,11 @@ const BUCKET_COLOUR: Record<string, string> = {
   'govt-bonds': '#10b981', 'property': '#f59e0b', 'cash': '#64748b',
 };
 
-const bucketLabel = (b: string) => b.replace(/-/g, ' ');
-
 function donutData(rows: MixDiffRow[], key: 'beforePct' | 'afterPct') {
   return rows
     .filter((r) => r[key] > 0)
     .sort((a, b) => b[key] - a[key])
-    .map((r) => ({ label: bucketLabel(r.bucket), value: r[key], color: BUCKET_COLOUR[r.bucket] ?? '#94a3b8' }));
+    .map((r) => ({ label: bucketDisplayLabel(r.bucket), value: r[key], color: BUCKET_COLOUR[r.bucket] ?? '#94a3b8' }));
 }
 
 const fmtPp = (d: number) => `${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d).toFixed(1)}pp`;
@@ -93,7 +92,7 @@ export default function BeforeAfterPanel({ result }: { result: BeforeAfterResult
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: BUCKET_COLOUR[row.bucket] ?? '#94a3b8' }}
                 />
-                {bucketLabel(row.bucket)}
+                {bucketDisplayLabel(row.bucket)}
               </span>
               <span className="flex items-center gap-3 tabular-nums">
                 <span className="text-[var(--muted-foreground)]">{row.beforePct.toFixed(1)}%</span>

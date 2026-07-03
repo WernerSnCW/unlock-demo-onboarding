@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildTransitionTimeline, generateTransitionCSV, type PolicyData, type TimelineStep } from './step9Helpers';
+import { buildTransitionTimeline, generateTransitionCSV, computeWrapperSummaries, type PolicyData, type TimelineStep } from './step9Helpers';
 
 const BANNED_WORDS = [
   'should',
@@ -253,7 +253,21 @@ describe('generateTransitionCSV', () => {
   it('should include not-advice disclaimer', () => {
     const timeline = buildTransitionTimeline(greenSafetyLights, true, mockPolicy);
     const csv = generateTransitionCSV(timeline, 'v1.0');
-    
+
     expect(csv).toContain('not financial advice');
+  });
+});
+
+describe('computeWrapperSummaries — not_applicable wrapper', () => {
+  it('groups not_applicable holdings under a proper label instead of the uppercase fallback', () => {
+    const holdings = [
+      { wrapper: 'not_applicable', value_gbp: 10_000 },
+      { wrapper: 'isa', value_gbp: 5_000 },
+    ] as any[];
+    const summaries = computeWrapperSummaries(holdings, ['isa', 'gia']);
+    const na = summaries.find((s) => s.wrapper_code === 'not_applicable');
+    expect(na).toBeDefined();
+    expect(na!.wrapper_label).toBe('Not applicable');
+    expect(na!.illustrative_role).toBe('No wrapper');
   });
 });
