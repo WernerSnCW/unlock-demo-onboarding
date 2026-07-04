@@ -21,14 +21,19 @@ is built to generalize.
 
 ## Run order
 
-1. `npm test` — confirm the harness's own unit tests pass (no API key needed).
+1. `npm test` — runs this repo's entire vitest suite (server, client, and the eval harness's own
+   tests together, per `vitest.config.server.ts`'s `include` globs), not just the harness's tests
+   in isolation. No API key needed. To run only the harness's own tests:
+   `npx vitest run --config vitest.config.server.ts scripts/eval/`.
 2. `ANTHROPIC_API_KEY=... npx tsx scripts/eval/runCalibration.ts` — calibration gate. Must print
    "Calibration PASSED" before proceeding. If it fails, fix the judge prompt
    (`scripts/eval/judgePrompt.ts`) or re-examine the golden cases
    (`scripts/eval/golden/golden_profiles.json`) before continuing — do not skip this step.
-3. `ANTHROPIC_API_KEY=... npm run eval:onboarding` — full run across ~120 stratified profiles.
-   Writes `scripts/eval/results/eval-run-<timestamp>.json` (gitignored), incrementally after every
-   profile — safe to interrupt (Ctrl+C, crash) partway through without losing prior progress.
+3. `ANTHROPIC_API_KEY=... npm run eval:onboarding` — full run across ~120 stratified profiles,
+   ~120 real, costed API calls to `claude-opus-4-8` (the judge model, hardcoded in
+   `scripts/eval/judgeProfile.ts`). Writes `scripts/eval/results/eval-run-<timestamp>.json`
+   (gitignored), incrementally after every profile — safe to interrupt (Ctrl+C, crash) partway
+   through without losing prior progress.
    Any profile whose judge call fails (rate limit, network error) is recorded with
    `verdict: null` and an `error` message rather than aborting the whole run; re-run those
    specific profiles or the whole batch before treating the report as complete.
