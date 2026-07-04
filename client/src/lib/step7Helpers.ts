@@ -71,16 +71,16 @@ export function computeTotalMovement(bands: AllocationBand[]): TotalMovementResu
 
 export function computeGuardrailImpacts(
   appliedTilts: AppliedTiltEntry[],
-  hasAnyRedLight: boolean
+  tiltsLocked: boolean
 ): GuardrailImpactEntry[] {
   const nonFullyApplied = appliedTilts.filter(
     t => t.status !== 'APPLIED'
   );
-  
+
   return nonFullyApplied.map(tilt => {
     let primaryReason: string;
-    
-    if (tilt.status === 'LOCKED' && hasAnyRedLight) {
+
+    if (tilt.status === 'LOCKED' && tiltsLocked) {
       primaryReason = 'Tilts locked while a red item exists';
     } else if (tilt.status === 'LOCKED') {
       primaryReason = tilt.constraint_reason || 'Locked by guardrails';
@@ -219,13 +219,13 @@ export interface MovementLimitedCallout {
 
 export function computeMovementLimitedCallout(
   totalMovementPp: number,
-  hasAnyRedLight: boolean,
+  tiltsLocked: boolean,
   bindingConstraints: { constraint_type: string }[],
   rangesIdentical: boolean
 ): MovementLimitedCallout {
   const isLowMovement = totalMovementPp < 1.0;
   const showCallout = isLowMovement || rangesIdentical;
-  
+
   if (!showCallout) {
     return {
       show: false,
@@ -234,12 +234,12 @@ export function computeMovementLimitedCallout(
       dominant_guardrail: null,
     };
   }
-  
+
   const title = 'Why movement is limited (illustrative)';
   let body: string;
   let dominant_guardrail: string | null = null;
-  
-  if (hasAnyRedLight) {
+
+  if (tiltsLocked) {
     dominant_guardrail = 'red guardrails';
     body = 'Preferences are recorded but locked while a red guardrail exists. Under current constraints, the model shows minimal deviation from the current position.';
   } else if (bindingConstraints.length > 0) {

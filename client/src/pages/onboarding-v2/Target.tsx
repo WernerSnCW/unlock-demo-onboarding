@@ -53,7 +53,6 @@ import {
   computeGuardrailImpacts,
   computeSafetyLightsForScenario,
   generateChangeBullets,
-  hasAnyRedLightFromResult,
   computeMovementLimitedCallout,
   checkRangesIdenticalAcrossScenarios,
   computeExamplePortfolioSet,
@@ -514,13 +513,13 @@ function AllocationBandRow({ band, showDelta = false }: { band: AllocationBand; 
   );
 }
 
-function AppliedTiltRow({ tilt, hasAnyRed }: { tilt: AppliedTiltEntry; hasAnyRed: boolean }) {
+function AppliedTiltRow({ tilt, tiltsLocked }: { tilt: AppliedTiltEntry; tiltsLocked: boolean }) {
   const statusConfig = STATUS_CONFIG[tilt.status] || STATUS_CONFIG.NOT_APPLIED;
   const StatusIcon = statusConfig.icon;
-  
+
   const getPrimaryConstraint = (): string | null => {
     if (tilt.status === 'APPLIED') return null;
-    if (tilt.status === 'LOCKED' && hasAnyRed) return 'Tilts locked while a red item exists';
+    if (tilt.status === 'LOCKED' && tiltsLocked) return 'Tilts locked while a red item exists';
     if (tilt.constraint_reason) return tilt.constraint_reason;
     if (tilt.status === 'CONSTRAINED') return 'Guardrail binding';
     if (tilt.status === 'PARTIALLY_APPLIED') return 'Partially constrained';
@@ -684,17 +683,19 @@ function DebugPanel({ scenarios }: { scenarios: IllustrativeScenario[] }) {
   );
 }
 
-function ScenarioContent({ 
-  scenario, 
+function ScenarioContent({
+  scenario,
   safetyLights,
+  tiltsAllowed,
   compareMode = false,
   allScenarios = [],
   rangesIdentical = false,
   displayMode = 'percent',
   totalValue = 0,
-}: { 
-  scenario: IllustrativeScenario; 
+}: {
+  scenario: IllustrativeScenario;
   safetyLights?: any;
+  tiltsAllowed: boolean;
   compareMode?: boolean;
   allScenarios?: IllustrativeScenario[];
   rangesIdentical?: boolean;
@@ -708,7 +709,7 @@ function ScenarioContent({
     ? 0 
     : scenario.tilts_applied_count;
     
-  const hasAnyRed = hasAnyRedLightFromResult(safetyLights);
+  const tiltsLocked = !tiltsAllowed;
   
   const exampleSet = useMemo(() => 
     computeExamplePortfolioSet(scenario.asset_class_bands),
@@ -733,9 +734,9 @@ function ScenarioContent({
     [scenario.region_bands]
   );
   
-  const guardrailImpacts = useMemo(() => 
-    computeGuardrailImpacts(scenario.applied_tilts, hasAnyRed),
-    [scenario.applied_tilts, hasAnyRed]
+  const guardrailImpacts = useMemo(() =>
+    computeGuardrailImpacts(scenario.applied_tilts, tiltsLocked),
+    [scenario.applied_tilts, tiltsLocked]
   );
   
   const safetyLightStatuses = useMemo(() => 
@@ -748,14 +749,14 @@ function ScenarioContent({
     [scenario.asset_class_bands, scenario.region_bands, scenario.applied_tilts]
   );
   
-  const movementCallout = useMemo(() => 
+  const movementCallout = useMemo(() =>
     computeMovementLimitedCallout(
       assetTotalMovement.total_movement_pp,
-      hasAnyRed,
+      tiltsLocked,
       scenario.binding_constraints,
       rangesIdentical
     ),
-    [assetTotalMovement.total_movement_pp, hasAnyRed, scenario.binding_constraints, rangesIdentical]
+    [assetTotalMovement.total_movement_pp, tiltsLocked, scenario.binding_constraints, rangesIdentical]
   );
 
   const assetRangeRows: RangeBarRow[] = useMemo(() => 
@@ -1025,7 +1026,7 @@ function ScenarioContent({
         </p>
         <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
           {scenario.applied_tilts.map((tilt) => (
-            <AppliedTiltRow key={tilt.axis_code} tilt={tilt} hasAnyRed={hasAnyRed} />
+            <AppliedTiltRow key={tilt.axis_code} tilt={tilt} tiltsLocked={tiltsLocked} />
           ))}
         </div>
       </div>
@@ -1293,9 +1294,10 @@ export default function Target() {
 
                 {scenario.scenarios.map((s) => (
                   <TabsContent key={s.scenario_type} value={s.scenario_type}>
-                    <ScenarioContent 
-                      scenario={s} 
+                    <ScenarioContent
+                      scenario={s}
                       safetyLights={analysis.result?.safety_lights}
+                      tiltsAllowed={tiltsAllowed}
                       compareMode={compareMode}
                       allScenarios={scenario.scenarios}
                       rangesIdentical={rangesIdentical}
