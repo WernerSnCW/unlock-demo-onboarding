@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { scoreOutlookBeliefs } from '../lib/beliefImpact/scoreOutlook';
 import type { SafetyLightType } from '../data/safetyLightPerspectives';
+import { computeTiltsGate } from '../lib/tiltsGate';
+import { SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED } from '../lib/featureFlags';
 
 export type IntakeMethod = 'manual' | 'upload' | 'connect' | 'advisor';
 
@@ -936,19 +938,11 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         // Immediately compute beliefs gate status from new safety lights
         const safetyLights = result?.safety_lights;
         if (safetyLights) {
-          let tiltsAllowed = true;
-          let gateReason: TiltsGateReason = 'NO_RED_FLAGS';
-          const redFlags: string[] = [];
-          if (safetyLights.liquidity === 'RED') redFlags.push('RED_LIQUIDITY');
-          if (safetyLights.concentration === 'RED') redFlags.push('RED_CONCENTRATION');
-          if (safetyLights.illiquids === 'RED') redFlags.push('RED_ILLIQUIDS');
-          if (redFlags.length >= 2) {
-            tiltsAllowed = false;
-            gateReason = 'MULTIPLE_RED_FLAGS';
-          } else if (redFlags.length === 1) {
-            tiltsAllowed = false;
-            gateReason = redFlags[0] as TiltsGateReason;
-          }
+          const { tiltsAllowed, gateReason } = computeTiltsGate(
+            safetyLights,
+            get().safetyLightResponse,
+            SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED,
+          );
           set((state) => ({
             beliefs: {
               ...state.beliefs,
@@ -1042,17 +1036,9 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         let tiltsAllowed = true;
         let gateReason: TiltsGateReason = 'NO_RED_FLAGS';
         if (safetyLights) {
-          const redFlags: string[] = [];
-          if (safetyLights.liquidity === 'RED') redFlags.push('RED_LIQUIDITY');
-          if (safetyLights.concentration === 'RED') redFlags.push('RED_CONCENTRATION');
-          if (safetyLights.illiquids === 'RED') redFlags.push('RED_ILLIQUIDS');
-          if (redFlags.length >= 2) {
-            tiltsAllowed = false;
-            gateReason = 'MULTIPLE_RED_FLAGS';
-          } else if (redFlags.length === 1) {
-            tiltsAllowed = false;
-            gateReason = redFlags[0] as TiltsGateReason;
-          }
+          const gate = computeTiltsGate(safetyLights, state.safetyLightResponse, SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED);
+          tiltsAllowed = gate.tiltsAllowed;
+          gateReason = gate.gateReason;
         }
 
         // Compute axis scores
