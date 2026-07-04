@@ -4,11 +4,14 @@ import PortfolioSnapshot from '@/components/onboarding-v2/PortfolioSnapshot';
 import PersonaCard from '@/components/onboarding-v2/PersonaCard';
 import PersonaGallery from '@/components/onboarding-v2/PersonaGallery';
 import ScenarioStressSection from '@/components/onboarding-v2/ScenarioStressSection';
+import SafetyLightAcknowledgment from '@/components/onboarding-v2/SafetyLightAcknowledgment';
 import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
 import { useOnboardingV2Store, SafetyStatus, computePortfolioBreakdowns, DBIncomeCoverageBand, PrivateBusinessWealthBand, EmployerStockAllocBand, CryptoAllocBand } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
+import { SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED } from '@/lib/featureFlags';
+import type { SafetyLightType } from '@/data/safetyLightPerspectives';
 
 const statusConfig: Record<SafetyStatus, { color: string; icon: typeof CheckCircle2; bgColor: string; borderColor: string; gradient: string; iconBg: string }> = {
   GREEN: {
@@ -533,6 +536,14 @@ export default function Analysis() {
             </div>
           </div>
         </div>
+
+        {SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED && (['liquidity', 'concentration', 'illiquids'] as SafetyLightType[])
+          .filter((light) => ({ liquidity, concentration, illiquids }[light] === 'RED'))
+          .map((light) => (
+            <div key={light} className="mt-4">
+              <SafetyLightAcknowledgment light={light} />
+            </div>
+          ))}
 
         <div className="flex justify-between items-center pt-8 border-t border-[var(--border)]">
           <Button
