@@ -41,6 +41,7 @@ export default function SafetyLightAcknowledgment({ light }: { light: SafetyLigh
         type="button"
         onClick={() => setExpanded((e) => !e)}
         className="flex items-center justify-between w-full text-left"
+        aria-expanded={expanded}
         data-testid={`safety-light-acknowledgment-toggle-${light}`}
       >
         <span className="text-sm font-semibold text-[var(--foreground)]">
@@ -64,7 +65,7 @@ export default function SafetyLightAcknowledgment({ light }: { light: SafetyLigh
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Your stance on this flag">
         {(['REDUCE', 'HOLD_DELIBERATE', 'UNSURE'] as const).map((s) => (
           <button
             key={s}
@@ -76,6 +77,7 @@ export default function SafetyLightAcknowledgment({ light }: { light: SafetyLigh
                 ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
                 : 'bg-white dark:bg-slate-800 text-[var(--foreground)] border-[var(--border)] hover:border-[var(--primary)]'
             }`}
+            aria-pressed={stance === s}
           >
             {STANCE_LABEL[s]}
           </button>
@@ -86,8 +88,8 @@ export default function SafetyLightAcknowledgment({ light }: { light: SafetyLigh
         <p className="mt-3 text-xs text-[var(--muted-foreground)]" data-testid={`safety-light-acknowledgment-recorded-${light}`}>
           Recorded: {STANCE_LABEL[stance]}.{' '}
           {stance === 'HOLD_DELIBERATE'
-            ? 'Preference signals for this area are unlocked based on what you told us.'
-            : 'Preference signals for this area stay locked until this is addressed or you tell us it’s a deliberate choice.'}
+            ? 'Preference Signals Enabled for this area based on what you told us.'
+            : 'Preference Signals Locked for this area until this is addressed or you tell us it’s a deliberate choice.'}
         </p>
       )}
     </div>
