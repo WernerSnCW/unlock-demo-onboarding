@@ -31,6 +31,10 @@ export interface ProfileRunResult {
   tieredImpact: TieredImpactResult;
   stagedRebalance: StagedRebalanceResult;
   caveats: string[];
+  sourceProfile: {
+    holdings: GeneratedProfile['holdings'];
+    investorProfile: GeneratedProfile['investorProfile'];
+  };
 }
 
 const ALL_LIGHTS: SafetyLightType[] = ['liquidity', 'concentration', 'illiquids'];
@@ -141,5 +145,9 @@ export function runProfileThroughPipeline(profile: GeneratedProfile): ProfileRun
     tieredImpact,
     stagedRebalance,
     caveats,
+    sourceProfile: {
+      holdings: profile.holdings,
+      investorProfile: profile.investorProfile,
+    },
   };
 }

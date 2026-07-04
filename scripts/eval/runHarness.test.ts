@@ -53,4 +53,14 @@ describe('runProfileThroughPipeline', () => {
       'stagedRebalance target mix equals current mix (belief-driven target-mix construction not wired in this harness) — do not read an empty stagedRebalance as a real zero-action recommendation',
     );
   });
+
+  it('includes sourceProfile with holdings and investorProfile so the judge can cross-check safety-lights/persona fidelity', () => {
+    const profiles = generateProfiles();
+    const profile = profiles[0];
+    const result = runProfileThroughPipeline(profile);
+    expect(result.sourceProfile.holdings).toEqual(profile.holdings);
+    expect(result.sourceProfile.investorProfile).toEqual(profile.investorProfile);
+    expect(result.sourceProfile.investorProfile.personaCues).toBeDefined();
+    expect(result.sourceProfile.investorProfile.asset_class_breakdown).toBeDefined();
+  });
 });
