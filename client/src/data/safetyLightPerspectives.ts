@@ -32,7 +32,7 @@ export const SAFETY_LIGHT_PERSPECTIVES: Record<SafetyLightType, PerspectivePair>
         'Other reliable, fast-access sources of income or credit outside this portfolio — for example a salary, a second portfolio, or a credit facility — that make a large standalone buffer less necessary.',
         'Keeping more capital invested and working rather than held aside.',
       ],
-      tradeOff: 'A thinner buffer means less cushion if an unexpected cost and a market downturn happen at the same time.',
+      tradeOff: 'A thinner buffer means less cushion if an unexpected cost or a market downturn arrives.',
     },
   },
   concentration: {
