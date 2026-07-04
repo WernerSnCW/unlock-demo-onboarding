@@ -63,4 +63,75 @@ describe('judgeProfile', () => {
     const result = runProfileThroughPipeline(profiles[0]);
     await expect(judgeProfile(result, fakeClient('not json at all'))).rejects.toThrow(/JSON/);
   });
+
+  it('parses unfenced JSON whose evidence field contains a literal triple-backtick', async () => {
+    const profiles = generateProfiles();
+    const result = runProfileThroughPipeline(profiles[0]);
+    const withEmbeddedFence = JSON.stringify({
+      vetoFailed: false,
+      vetoReason: null,
+      dimensions: {
+        personaLegibility: { level: 'Strong', evidence: 'Copy cites the ```code block``` shown on-screen.' },
+        safetyLightsFidelity: { level: 'Adequate', evidence: 'Lights match holdings-derived metrics.' },
+        beliefOutlookTraceability: { level: 'Strong', evidence: 'Tiered impact cites GFC_2008.' },
+        internalConsistency: { level: 'Strong', evidence: 'No contradictions found.' },
+        informationalSufficiency: { level: 'Adequate', evidence: 'Next step implied but not explicit.' },
+        complianceTargetMarketPosture: { level: 'Strong', evidence: 'No advice-shaped language.' },
+      },
+      checklist: {
+        personaAssignedWithReason: true,
+        everyHoldingCategoryFeedsOutput: true,
+        atLeastOneScenarioCitedToRealEpisode: true,
+        noContradictions: true,
+        lowConfidenceAreasFlagged: false,
+        clearNextStepShown: false,
+      },
+    });
+    const verdict = await judgeProfile(result, fakeClient(withEmbeddedFence));
+    expect(verdict.vetoFailed).toBe(false);
+    expect(verdict.dimensions.personaLegibility.evidence).toContain('```code block```');
+  });
+
+  it('throws a descriptive error when a dimension level is not a valid enum value', async () => {
+    const profiles = generateProfiles();
+    const result = runProfileThroughPipeline(profiles[0]);
+    const parsedInvalid = JSON.parse(VALID_RESPONSE);
+    parsedInvalid.dimensions.personaLegibility.level = 'Very Strong';
+    await expect(judgeProfile(result, fakeClient(JSON.stringify(parsedInvalid)))).rejects.toThrow(
+      /personaLegibility.*level.*Strong\/Adequate\/Weak\/Absent/
+    );
+  });
+
+  it('throws a descriptive error when a dimension evidence field has the wrong type', async () => {
+    const profiles = generateProfiles();
+    const result = runProfileThroughPipeline(profiles[0]);
+    const parsedInvalid = JSON.parse(VALID_RESPONSE);
+    parsedInvalid.dimensions.personaLegibility.evidence = 123;
+    await expect(judgeProfile(result, fakeClient(JSON.stringify(parsedInvalid)))).rejects.toThrow(
+      /personaLegibility.*evidence.*must be a string/
+    );
+  });
+
+  it('throws a descriptive error when vetoFailed has the wrong type', async () => {
+    const profiles = generateProfiles();
+    const result = runProfileThroughPipeline(profiles[0]);
+    const parsedInvalid = JSON.parse(VALID_RESPONSE);
+    parsedInvalid.vetoFailed = 'false';
+    await expect(judgeProfile(result, fakeClient(JSON.stringify(parsedInvalid)))).rejects.toThrow(
+      /vetoFailed.*must be a boolean/
+    );
+  });
+
+  it('re-throws a clear error mentioning the profile id when the API call fails', async () => {
+    const profiles = generateProfiles();
+    const result = runProfileThroughPipeline(profiles[0]);
+    const failingClient: AnthropicMessagesClient = {
+      messages: {
+        create: vi.fn().mockRejectedValue(new Error('rate limit exceeded')),
+      },
+    };
+    await expect(judgeProfile(result, failingClient)).rejects.toThrow(
+      new RegExp(`${result.profileId}.*rate limit exceeded`)
+    );
+  });
 });

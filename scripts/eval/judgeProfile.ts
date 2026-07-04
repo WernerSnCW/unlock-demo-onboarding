@@ -23,9 +23,12 @@ const REQUIRED_CHECKLIST_KEYS = [
   'lowConfidenceAreasFlagged', 'clearNextStepShown',
 ] as const;
 
+const VALID_LEVELS = ['Strong', 'Adequate', 'Weak', 'Absent'] as const;
+
 function extractJsonText(rawText: string): string {
-  const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-  return fenceMatch ? fenceMatch[1] : rawText;
+  const trimmed = rawText.trim();
+  const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+  return fenceMatch ? fenceMatch[1] : trimmed;
 }
 
 function validateVerdict(parsed: unknown): asserts parsed is JudgeVerdict {
@@ -36,23 +39,56 @@ function validateVerdict(parsed: unknown): asserts parsed is JudgeVerdict {
   for (const key of REQUIRED_TOP_LEVEL_KEYS) {
     if (!(key in obj)) throw new Error(`Judge response validation error: missing required top-level key "${key}"`);
   }
+
+  if (typeof obj.vetoFailed !== 'boolean') {
+    throw new Error(`Judge response validation error: "vetoFailed" must be a boolean, got ${typeof obj.vetoFailed}`);
+  }
+  if (obj.vetoReason !== null && typeof obj.vetoReason !== 'string') {
+    throw new Error(`Judge response validation error: "vetoReason" must be a string or null, got ${typeof obj.vetoReason}`);
+  }
+
   const dimensions = obj.dimensions as Record<string, unknown>;
+  if (typeof dimensions !== 'object' || dimensions === null) {
+    throw new Error('Judge response validation error: "dimensions" must be an object');
+  }
   for (const key of REQUIRED_DIMENSION_KEYS) {
     if (!(key in dimensions)) throw new Error(`Judge response validation error: missing required dimension "${key}"`);
+    const dim = dimensions[key] as Record<string, unknown>;
+    if (typeof dim !== 'object' || dim === null) {
+      throw new Error(`Judge response validation error: dimension "${key}" must be an object`);
+    }
+    if (!VALID_LEVELS.includes(dim.level as (typeof VALID_LEVELS)[number])) {
+      throw new Error(`Judge response validation error: dimension "${key}".level must be one of ${VALID_LEVELS.join('/')}, got ${JSON.stringify(dim.level)}`);
+    }
+    if (typeof dim.evidence !== 'string') {
+      throw new Error(`Judge response validation error: dimension "${key}".evidence must be a string, got ${typeof dim.evidence}`);
+    }
   }
+
   const checklist = obj.checklist as Record<string, unknown>;
+  if (typeof checklist !== 'object' || checklist === null) {
+    throw new Error('Judge response validation error: "checklist" must be an object');
+  }
   for (const key of REQUIRED_CHECKLIST_KEYS) {
     if (!(key in checklist)) throw new Error(`Judge response validation error: missing required checklist item "${key}"`);
+    if (typeof checklist[key] !== 'boolean') {
+      throw new Error(`Judge response validation error: checklist item "${key}" must be a boolean, got ${typeof checklist[key]}`);
+    }
   }
 }
 
 export async function judgeProfile(result: ProfileRunResult, client: AnthropicMessagesClient): Promise<JudgeVerdict> {
   const prompt = buildJudgePrompt(result);
-  const response = await client.messages.create({
-    model: 'claude-opus-4-8',
-    max_tokens: 2000,
-    messages: [{ role: 'user', content: prompt }],
-  });
+  let response;
+  try {
+    response = await client.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+  } catch (e) {
+    throw new Error(`Judge API call failed for profile ${result.profileId}: ${(e as Error).message}`);
+  }
 
   const textBlock = response.content.find((c) => c.type === 'text');
   if (!textBlock || !textBlock.text) {
