@@ -238,6 +238,19 @@ export type TiltsGateReason =
   | 'RED_ILLIQUIDS'
   | 'MULTIPLE_RED_FLAGS';
 
+export type SafetyLightType = 'liquidity' | 'concentration' | 'illiquids';
+export type SafetyLightStance = 'REDUCE' | 'HOLD_DELIBERATE' | 'UNSURE';
+
+export interface SafetyLightResponseEntry {
+  stance: SafetyLightStance;
+  responded_at: string;
+}
+
+export interface SafetyLightResponseState {
+  version: string;
+  responses: Partial<Record<SafetyLightType, SafetyLightResponseEntry>>;
+}
+
 export interface BeliefResponse {
   answer: 1 | 2 | 3 | 4 | 5;
   normalised: number; // -1 to +1
@@ -376,6 +389,7 @@ interface OnboardingV2State {
   analysis: AnalysisState;
   beliefs: BeliefsState;
   outlook: OutlookState;
+  safetyLightResponse: SafetyLightResponseState;
   scenario: ScenarioState;
   
   updateIntake: (partial: Partial<IntakeData>) => void;
@@ -402,6 +416,10 @@ interface OnboardingV2State {
   computeOutlookScores: () => void;
   completeOutlookStep: () => void;
   resetOutlook: () => void;
+
+  // Safety-light self-placement actions
+  setSafetyLightResponse: (light: SafetyLightType, stance: SafetyLightStance) => void;
+  resetSafetyLightResponse: () => void;
 
   // Scenario actions
   computeScenarios: () => void;
@@ -501,6 +519,11 @@ const initialOutlook: OutlookState = {
   responses: {},
   scenario_weights: {},
   insufficient_signal: false,
+};
+
+const initialSafetyLightResponse: SafetyLightResponseState = {
+  version: '1.0',
+  responses: {},
 };
 
 const initialScenario: ScenarioState = {
@@ -828,6 +851,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       analysis: initialAnalysis,
       beliefs: initialBeliefs,
       outlook: initialOutlook,
+      safetyLightResponse: initialSafetyLightResponse,
       scenario: initialScenario,
 
       updateIntake: (partial) => {
@@ -987,6 +1011,22 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
 
       resetOutlook: () => {
         set({ outlook: initialOutlook });
+      },
+
+      setSafetyLightResponse: (light, stance) => {
+        set((state) => ({
+          safetyLightResponse: {
+            ...state.safetyLightResponse,
+            responses: {
+              ...state.safetyLightResponse.responses,
+              [light]: { stance, responded_at: new Date().toISOString() },
+            },
+          },
+        }));
+      },
+
+      resetSafetyLightResponse: () => {
+        set({ safetyLightResponse: initialSafetyLightResponse });
       },
 
       computeBeliefsScores: () => {
