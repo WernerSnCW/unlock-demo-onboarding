@@ -1012,15 +1012,34 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       },
 
       setSafetyLightResponse: (light, stance) => {
-        set((state) => ({
-          safetyLightResponse: {
+        set((state) => {
+          const safetyLightResponse = {
             ...state.safetyLightResponse,
             responses: {
               ...state.safetyLightResponse.responses,
               [light]: { stance, responded_at: new Date().toISOString() },
             },
-          },
-        }));
+          };
+
+          // Immediately recompute beliefs gate status from the updated response
+          const safetyLights = state.analysis.result?.safety_lights;
+          if (!safetyLights) {
+            return { safetyLightResponse };
+          }
+          const { tiltsAllowed, gateReason } = computeTiltsGate(
+            safetyLights,
+            safetyLightResponse,
+            SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED,
+          );
+          return {
+            safetyLightResponse,
+            beliefs: {
+              ...state.beliefs,
+              tilts_allowed: tiltsAllowed,
+              tilts_gate_reason: gateReason,
+            },
+          };
+        });
       },
 
       resetSafetyLightResponse: () => {
