@@ -39,4 +39,18 @@ describe('runProfileThroughPipeline', () => {
       expect(() => runProfileThroughPipeline(profile), `profile ${profile.id} threw`).not.toThrow();
     }
   });
+
+  it('liquidity light varies across the generated profile set (not structurally stuck at GREEN)', () => {
+    const profiles = generateProfiles();
+    const statuses = new Set(profiles.map((p) => runProfileThroughPipeline(p).safetyLights.liquidity));
+    expect(statuses.size, `liquidity status never varies — got only: ${[...statuses]}`).toBeGreaterThan(1);
+  });
+
+  it('surfaces the staged-rebalance stub limitation via caveats', () => {
+    const profiles = generateProfiles();
+    const result = runProfileThroughPipeline(profiles[0]);
+    expect(result.caveats).toContain(
+      'stagedRebalance target mix equals current mix (belief-driven target-mix construction not wired in this harness) — do not read an empty stagedRebalance as a real zero-action recommendation',
+    );
+  });
 });

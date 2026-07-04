@@ -30,6 +30,7 @@ export interface ProfileRunResult {
   alignment: AlignmentResult;
   tieredImpact: TieredImpactResult;
   stagedRebalance: StagedRebalanceResult;
+  caveats: string[];
 }
 
 const ALL_LIGHTS: SafetyLightType[] = ['liquidity', 'concentration', 'illiquids'];
@@ -68,9 +69,16 @@ function buildSafetyLightResponseState(profile: GeneratedProfile): SafetyLightRe
  * as "the engine recommended zero rebalancing action" — it reflects a stubbed target, not a real one.
  */
 export function runProfileThroughPipeline(profile: GeneratedProfile): ProfileRunResult {
+  // cash and spend are both derived from the profile's actual cash holding and its
+  // independently-sampled cash_runway_months (see generateProfiles.ts), NOT a flat percentage of
+  // total_portfolio_value_gbp — a flat-rate spend would make cash_runway_months scale-invariant
+  // (collapsing to a constant ~30 or ~90 months regardless of wealth tier or trouble zone) and
+  // structurally defeat the liquidity safety light. See the fix commit for the empirical finding.
+  const cashHoldingGBP = profile.holdings.find((h) => h.asset_class === 'cash')?.value_gbp ?? 0;
+  const intendedRunwayMonths = profile.investorProfile.cash_runway_months;
   const intake: Intake = {
-    cash: profile.holdings.find((h) => h.asset_class === 'cash')?.value_gbp ?? 0,
-    spend: Math.round(profile.investorProfile.total_portfolio_value_gbp * 0.04),
+    cash: cashHoldingGBP,
+    spend: intendedRunwayMonths > 0 ? Math.round((cashHoldingGBP * 12) / intendedRunwayMonths) : 0,
     largest_line_pct: profile.investorProfile.largest_line_pct,
     illiquid_pct: profile.investorProfile.illiquid_pct,
   };
@@ -107,6 +115,19 @@ export function runProfileThroughPipeline(profile: GeneratedProfile): ProfileRun
     portfolioValueGBP: profile.investorProfile.total_portfolio_value_gbp,
   });
 
+  // targetMix is built from the same `mix` spread as currentMix (see the "Known harness
+  // limitation" doc comment above), so compare by value, not by reference — the two are always
+  // distinct object instances but always equal in content given the harness's current stub.
+  const caveats: string[] = [];
+  const targetEqualsCurrentMix =
+    Object.keys(targetMix).length === Object.keys(currentMix).length &&
+    Object.entries(targetMix).every(([key, value]) => currentMix[key] === value);
+  if (targetEqualsCurrentMix) {
+    caveats.push(
+      'stagedRebalance target mix equals current mix (belief-driven target-mix construction not wired in this harness) — do not read an empty stagedRebalance as a real zero-action recommendation',
+    );
+  }
+
   return {
     profileId: profile.id,
     shapeId: profile.shapeId,
@@ -119,5 +140,6 @@ export function runProfileThroughPipeline(profile: GeneratedProfile): ProfileRun
     alignment,
     tieredImpact,
     stagedRebalance,
+    caveats,
   };
 }
