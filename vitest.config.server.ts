@@ -3,7 +3,7 @@ import path from 'path';
 
 export default defineConfig({
   test: {
-    include: ['tests/**/*.test.ts', 'client/src/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'client/src/**/*.test.ts', 'scripts/eval/**/*.test.ts'],
     environment: 'node',
     globals: true,
   },
