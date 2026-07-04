@@ -9,6 +9,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "test": "vitest run --config vitest.config.server.ts",
+    "eval:onboarding": "tsx scripts/eval/runFullEval.ts",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
