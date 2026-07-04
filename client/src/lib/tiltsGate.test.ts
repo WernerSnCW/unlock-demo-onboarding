@@ -77,4 +77,34 @@ describe('computeTiltsGate', () => {
     const result = computeTiltsGate(lights({ liquidity: 'RED', concentration: 'RED' }), responses, true);
     expect(result).toEqual({ tiltsAllowed: true, gateReason: 'MULTIPLE_RED_FLAGS' });
   });
+
+  it('blocks tilts with MULTIPLE_RED_FLAGS when all three lights are RED, flag off', () => {
+    const result = computeTiltsGate(lights({ liquidity: 'RED', concentration: 'RED', illiquids: 'RED' }), NO_RESPONSES, false);
+    expect(result).toEqual({ tiltsAllowed: false, gateReason: 'MULTIPLE_RED_FLAGS' });
+  });
+
+  it('flag ON, all three lights RED, only two self-placed HOLD_DELIBERATE: stays blocked', () => {
+    const responses: SafetyLightResponseState = {
+      version: '1.0',
+      responses: {
+        liquidity: { stance: 'HOLD_DELIBERATE', responded_at: '2026-07-04T00:00:00.000Z' },
+        concentration: { stance: 'HOLD_DELIBERATE', responded_at: '2026-07-04T00:00:00.000Z' },
+      },
+    };
+    const result = computeTiltsGate(lights({ liquidity: 'RED', concentration: 'RED', illiquids: 'RED' }), responses, true);
+    expect(result).toEqual({ tiltsAllowed: false, gateReason: 'MULTIPLE_RED_FLAGS' });
+  });
+
+  it('flag ON, all three lights RED, all self-placed HOLD_DELIBERATE: unlocks', () => {
+    const responses: SafetyLightResponseState = {
+      version: '1.0',
+      responses: {
+        liquidity: { stance: 'HOLD_DELIBERATE', responded_at: '2026-07-04T00:00:00.000Z' },
+        concentration: { stance: 'HOLD_DELIBERATE', responded_at: '2026-07-04T00:00:00.000Z' },
+        illiquids: { stance: 'HOLD_DELIBERATE', responded_at: '2026-07-04T00:00:00.000Z' },
+      },
+    };
+    const result = computeTiltsGate(lights({ liquidity: 'RED', concentration: 'RED', illiquids: 'RED' }), responses, true);
+    expect(result).toEqual({ tiltsAllowed: true, gateReason: 'MULTIPLE_RED_FLAGS' });
+  });
 });
