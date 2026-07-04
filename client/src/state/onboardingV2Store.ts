@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { scoreOutlookBeliefs } from '../lib/beliefImpact/scoreOutlook';
+import type { SafetyLightType } from '../data/safetyLightPerspectives';
 
 export type IntakeMethod = 'manual' | 'upload' | 'connect' | 'advisor';
 
@@ -238,7 +239,10 @@ export type TiltsGateReason =
   | 'RED_ILLIQUIDS'
   | 'MULTIPLE_RED_FLAGS';
 
-export type SafetyLightType = 'liquidity' | 'concentration' | 'illiquids';
+// ============================================
+// Safety-light self-placement (RED-gate stance capture)
+// ============================================
+
 export type SafetyLightStance = 'REDUCE' | 'HOLD_DELIBERATE' | 'UNSURE';
 
 export interface SafetyLightResponseEntry {
@@ -1558,6 +1562,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           analysis: initialAnalysis,
           beliefs: initialBeliefs,
           outlook: initialOutlook,
+          safetyLightResponse: initialSafetyLightResponse,
           scenario: initialScenario,
         });
       },
