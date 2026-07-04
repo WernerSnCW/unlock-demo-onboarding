@@ -7,3 +7,4 @@ vite.config.ts.*
 .superpowers/
 *.local-backup
 .worktrees/
+scripts/eval/results/
