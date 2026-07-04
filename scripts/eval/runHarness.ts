@@ -53,15 +53,16 @@ function buildSafetyLightResponseState(profile: GeneratedProfile): SafetyLightRe
 /**
  * Runs one generated profile through every pure onboarding-v2 engine function and assembles the
  * results. Known harness limitation (flagged for the later judge-prompt task, not hidden): the
- * staged-rebalance call below uses the CURRENT mix as its own target (targetMix = currentMix),
- * because the belief-driven target-mix construction (blendBeliefAllocation, in computeAlignment.ts)
- * produces a vector over MODELLED_BUCKETS (the 8-bucket episodeLibrary taxonomy: uk-equity,
- * us-equity, europe-equity, emerging-equity, global-equity, govt-bonds, property, cash), while
- * buildBeliefActions/computeStagedRebalance operates over BELIEF_MODELLED_BUCKETS (a distinct
- * 6-bucket set: uk-equity, us-equity, global-equity, govt-bonds, property, cash — no europe/emerging
- * split). Wiring the real belief-derived target mix into the rebalance call requires reconciling
- * those two bucket sets, which is out of scope for "call all pure functions per profile" — that
- * reconciliation belongs to whichever task actually wires the alternatives/tilts engine end to end.
+ * staged-rebalance call below uses the CURRENT mix as its own target (targetMix = currentMix).
+ * The real belief-driven target-mix construction (blendBeliefAllocation, in computeAlignment.ts)
+ * returns a Mix keyed over all 8 episodeLibrary BUCKETS (uk/us/europe/emerging/global equity,
+ * govt-bonds, property, cash), zero-filled for the 2 UNMODELLED buckets (europe/emerging equity).
+ * buildBeliefActions/computeStagedRebalance only reads the 6-key BELIEF_MODELLED_BUCKETS subset,
+ * so wiring blendBeliefAllocation's real output straight in would compile fine (both are loosely
+ * typed Record<string, number>) but its 2 extra keys would be silently ignored by the rebalance
+ * engine — not a type error, a silent-truncation risk worth deciding on deliberately rather than
+ * wiring in without review. Skipping that wiring is out of scope for "call all pure functions per
+ * profile" — it belongs to whichever task actually wires the alternatives/tilts engine end to end.
  * Passing targetMix = currentMix here means stagedRebalance.staged.stage1/stage2 will be empty (no
  * change needed) for most profiles; downstream consumers (e.g. a judge prompt) must not read this
  * as "the engine recommended zero rebalancing action" — it reflects a stubbed target, not a real one.
