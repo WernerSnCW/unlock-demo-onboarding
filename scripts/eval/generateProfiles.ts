@@ -60,40 +60,9 @@ function mulberry32(seed: number) {
   };
 }
 
-// TARGET_TOTAL: the resolved spec (§2/§3) asks for a total between 100 and 150, sampled
-// proportionally to `weight` with each shape's `floor` guaranteed. PROFILE_SHAPES' floors
-// (Task 2, already committed) sum to 73 — below the floor of the target range. Per Task 3's
-// own Step 4 guidance ("adjust individual floor values ... until the sum lands in range" OR,
-// per the Step 3 implementation note, "extend the loop to draw floor + round((weight/totalWeight)
-// * extraBudget) per shape"), this generator takes the second path: it keeps every committed
-// floor untouched and tops up proportionally to `weight` until the total lands mid-range. This
-// satisfies both the floor requirement and the total-count requirement without editing Task 2's
-// already-merged file.
-const TARGET_TOTAL = 120;
-
-function computeShapeCounts(): Map<string, number> {
-  const floorSum = PROFILE_SHAPES.reduce((sum, s) => sum + s.floor, 0);
-  const extraBudget = Math.max(0, TARGET_TOTAL - floorSum);
-  const totalWeight = PROFILE_SHAPES.reduce((sum, s) => sum + s.weight, 0);
-
-  const counts = new Map<string, number>();
-  let allocatedExtra = 0;
-  for (const shape of PROFILE_SHAPES) {
-    const extra = Math.round((shape.weight / totalWeight) * extraBudget);
-    counts.set(shape.id, shape.floor + extra);
-    allocatedExtra += extra;
-  }
-
-  // Rounding can land a couple of units off the extraBudget; reconcile the delta against the
-  // highest-weight shape so the total is deterministic and doesn't quietly drift by rounding.
-  const drift = extraBudget - allocatedExtra;
-  if (drift !== 0) {
-    const heaviest = [...PROFILE_SHAPES].sort((a, b) => b.weight - a.weight)[0];
-    counts.set(heaviest.id, (counts.get(heaviest.id) ?? heaviest.floor) + drift);
-  }
-
-  return counts;
-}
+// PROFILE_SHAPES' floors (Task 2, per the plan's Step 4 instruction) were adjusted so that a flat
+// floor-per-shape count already sums to 120, inside the resolved spec's 100-150 target range — no
+// runtime top-up is needed here.
 
 function pickPortfolioValue(tier: WealthTier, rand: () => number): number {
   const min = tier.minGBP;
@@ -205,7 +174,6 @@ function resolveTimeHorizon(pattern: AnswerPattern): string {
 
 export function generateProfiles(): GeneratedProfile[] {
   const rand = mulberry32(20260704); // fixed seed — deterministic across runs, per Task 9's calibration requirement
-  const shapeCounts = computeShapeCounts();
   const profiles: GeneratedProfile[] = [];
 
   for (const shape of PROFILE_SHAPES) {
@@ -218,7 +186,7 @@ export function generateProfiles(): GeneratedProfile[] {
       throw new Error(`generateProfiles: shape ${shape.id} references an unknown tier/pattern id`);
     }
 
-    const count = shapeCounts.get(shape.id) ?? shape.floor;
+    const count = shape.floor;
 
     for (let i = 0; i < count; i++) {
       const totalGBP = pickPortfolioValue(tier, rand);
