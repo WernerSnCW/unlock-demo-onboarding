@@ -4,11 +4,14 @@ import PortfolioSnapshot from '@/components/onboarding-v2/PortfolioSnapshot';
 import PersonaCard from '@/components/onboarding-v2/PersonaCard';
 import PersonaGallery from '@/components/onboarding-v2/PersonaGallery';
 import ScenarioStressSection from '@/components/onboarding-v2/ScenarioStressSection';
+import SafetyLightAcknowledgment from '@/components/onboarding-v2/SafetyLightAcknowledgment';
 import { Shield, Droplets, Target, Lock, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
 import { useOnboardingV2Store, SafetyStatus, computePortfolioBreakdowns, DBIncomeCoverageBand, PrivateBusinessWealthBand, EmployerStockAllocBand, CryptoAllocBand } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
+import { SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED } from '@/lib/featureFlags';
+import type { SafetyLightType } from '@/data/safetyLightPerspectives';
 
 const statusConfig: Record<SafetyStatus, { color: string; icon: typeof CheckCircle2; bgColor: string; borderColor: string; gradient: string; iconBg: string }> = {
   GREEN: {
@@ -101,7 +104,7 @@ const formatCryptoBand = (band: CryptoAllocBand): string => {
 };
 
 export default function Analysis() {
-  const { intake, holdings, summary, analysis, setAnalysisLoading, setAnalysisResult, setAnalysisError } = useOnboardingV2Store();
+  const { intake, holdings, summary, analysis, beliefs, setAnalysisLoading, setAnalysisResult, setAnalysisError } = useOnboardingV2Store();
   const [, navigate] = useLocation();
 
   const hasValidData = summary.total_investable_value > 0 && intake.annual_essential_spend_gbp > 0;
@@ -273,7 +276,7 @@ export default function Analysis() {
   }
 
   const { safety_lights, persona } = result;
-  const { liquidity, concentration, illiquids, tilts_allowed, details, overall_status, overall_status_code, overall_status_label, overall_status_message, metrics } = safety_lights;
+  const { liquidity, concentration, illiquids, details, overall_status, overall_status_code, overall_status_label, overall_status_message, metrics } = safety_lights;
 
   const overallStatusConfig = statusConfig[overall_status];
   const OverallStatusIcon = overallStatusConfig.icon;
@@ -500,21 +503,21 @@ export default function Analysis() {
         {/* Tilts Banner */}
         <div className="group relative">
           <div className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-            tilts_allowed ? 'bg-gradient-to-br from-[#00bb77]/20 to-transparent' : 'bg-gradient-to-br from-[#ef4444]/20 to-transparent'
+            beliefs.tilts_allowed ? 'bg-gradient-to-br from-[#00bb77]/20 to-transparent' : 'bg-gradient-to-br from-[#ef4444]/20 to-transparent'
           }`} />
           <div
             className={`relative bg-white dark:bg-slate-800/80 rounded-2xl border shadow-lg hover:shadow-xl transition-all duration-300 p-5 pt-10 ${
-              tilts_allowed ? 'border-[#00bb77]/30' : 'border-[#ef4444]/30'
+              beliefs.tilts_allowed ? 'border-[#00bb77]/30' : 'border-[#ef4444]/30'
             }`}
             data-testid="tilts-banner"
           >
             <div className="absolute -top-4 left-4 z-10">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg rotate-3 group-hover:rotate-0 transition-transform duration-300 ${
-                tilts_allowed
+                beliefs.tilts_allowed
                   ? 'bg-gradient-to-br from-[var(--success)] to-[var(--u-green-deep)] shadow-[#00bb77]/25'
                   : 'bg-gradient-to-br from-[var(--destructive)] to-[var(--destructive)] shadow-[#ef4444]/25'
               }`}>
-                {tilts_allowed ? (
+                {beliefs.tilts_allowed ? (
                   <CheckCircle2 className="w-5 h-5 text-white" />
                 ) : (
                   <AlertTriangle className="w-5 h-5 text-white" />
@@ -522,17 +525,25 @@ export default function Analysis() {
               </div>
             </div>
             <div>
-              <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${tilts_allowed ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
-                {tilts_allowed ? 'Preference Signals Enabled' : 'Preference Signals Locked'}
+              <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${beliefs.tilts_allowed ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                {beliefs.tilts_allowed ? 'Preference Signals Enabled' : 'Preference Signals Locked'}
               </h4>
               <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                {tilts_allowed
+                {beliefs.tilts_allowed
                   ? 'No red flags detected. Your preference signals can inform the illustrative scenarios in Step 7, within our guardrails.'
                   : 'One or more Safety Lights are Red. Unlock will not recommend moves that increase overall risk until these red flags are addressed. Focus on improving your liquidity, reducing concentration, or lowering illiquid exposure first.'}
               </p>
             </div>
           </div>
         </div>
+
+        {SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED && (['liquidity', 'concentration', 'illiquids'] as SafetyLightType[])
+          .filter((light) => ({ liquidity, concentration, illiquids }[light] === 'RED'))
+          .map((light) => (
+            <div key={light} className="mt-4">
+              <SafetyLightAcknowledgment light={light} />
+            </div>
+          ))}
 
         <div className="flex justify-between items-center pt-8 border-t border-[var(--border)]">
           <Button

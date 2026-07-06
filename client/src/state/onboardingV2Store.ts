@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { scoreOutlookBeliefs } from '../lib/beliefImpact/scoreOutlook';
+import type { SafetyLightType } from '../data/safetyLightPerspectives';
+import { computeTiltsGate } from '../lib/tiltsGate';
+import { SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED } from '../lib/featureFlags';
 
 export type IntakeMethod = 'manual' | 'upload' | 'connect' | 'advisor';
 
@@ -238,6 +241,22 @@ export type TiltsGateReason =
   | 'RED_ILLIQUIDS'
   | 'MULTIPLE_RED_FLAGS';
 
+// ============================================
+// Safety-light self-placement (RED-gate stance capture)
+// ============================================
+
+export type SafetyLightStance = 'REDUCE' | 'HOLD_DELIBERATE' | 'UNSURE';
+
+export interface SafetyLightResponseEntry {
+  stance: SafetyLightStance;
+  responded_at: string;
+}
+
+export interface SafetyLightResponseState {
+  version: string;
+  responses: Partial<Record<SafetyLightType, SafetyLightResponseEntry>>;
+}
+
 export interface BeliefResponse {
   answer: 1 | 2 | 3 | 4 | 5;
   normalised: number; // -1 to +1
@@ -376,6 +395,7 @@ interface OnboardingV2State {
   analysis: AnalysisState;
   beliefs: BeliefsState;
   outlook: OutlookState;
+  safetyLightResponse: SafetyLightResponseState;
   scenario: ScenarioState;
   
   updateIntake: (partial: Partial<IntakeData>) => void;
@@ -402,6 +422,10 @@ interface OnboardingV2State {
   computeOutlookScores: () => void;
   completeOutlookStep: () => void;
   resetOutlook: () => void;
+
+  // Safety-light self-placement actions
+  setSafetyLightResponse: (light: SafetyLightType, stance: SafetyLightStance) => void;
+  resetSafetyLightResponse: () => void;
 
   // Scenario actions
   computeScenarios: () => void;
@@ -501,6 +525,11 @@ const initialOutlook: OutlookState = {
   responses: {},
   scenario_weights: {},
   insufficient_signal: false,
+};
+
+const initialSafetyLightResponse: SafetyLightResponseState = {
+  version: '1.0',
+  responses: {},
 };
 
 const initialScenario: ScenarioState = {
@@ -828,6 +857,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
       analysis: initialAnalysis,
       beliefs: initialBeliefs,
       outlook: initialOutlook,
+      safetyLightResponse: initialSafetyLightResponse,
       scenario: initialScenario,
 
       updateIntake: (partial) => {
@@ -908,19 +938,11 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         // Immediately compute beliefs gate status from new safety lights
         const safetyLights = result?.safety_lights;
         if (safetyLights) {
-          let tiltsAllowed = true;
-          let gateReason: TiltsGateReason = 'NO_RED_FLAGS';
-          const redFlags: string[] = [];
-          if (safetyLights.liquidity === 'RED') redFlags.push('RED_LIQUIDITY');
-          if (safetyLights.concentration === 'RED') redFlags.push('RED_CONCENTRATION');
-          if (safetyLights.illiquids === 'RED') redFlags.push('RED_ILLIQUIDS');
-          if (redFlags.length >= 2) {
-            tiltsAllowed = false;
-            gateReason = 'MULTIPLE_RED_FLAGS';
-          } else if (redFlags.length === 1) {
-            tiltsAllowed = false;
-            gateReason = redFlags[0] as TiltsGateReason;
-          }
+          const { tiltsAllowed, gateReason } = computeTiltsGate(
+            safetyLights,
+            get().safetyLightResponse,
+            SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED,
+          );
           set((state) => ({
             beliefs: {
               ...state.beliefs,
@@ -989,6 +1011,41 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         set({ outlook: initialOutlook });
       },
 
+      setSafetyLightResponse: (light, stance) => {
+        set((state) => {
+          const safetyLightResponse = {
+            ...state.safetyLightResponse,
+            responses: {
+              ...state.safetyLightResponse.responses,
+              [light]: { stance, responded_at: new Date().toISOString() },
+            },
+          };
+
+          // Immediately recompute beliefs gate status from the updated response
+          const safetyLights = state.analysis.result?.safety_lights;
+          if (!safetyLights) {
+            return { safetyLightResponse };
+          }
+          const { tiltsAllowed, gateReason } = computeTiltsGate(
+            safetyLights,
+            safetyLightResponse,
+            SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED,
+          );
+          return {
+            safetyLightResponse,
+            beliefs: {
+              ...state.beliefs,
+              tilts_allowed: tiltsAllowed,
+              tilts_gate_reason: gateReason,
+            },
+          };
+        });
+      },
+
+      resetSafetyLightResponse: () => {
+        set({ safetyLightResponse: initialSafetyLightResponse });
+      },
+
       computeBeliefsScores: () => {
         const state = get();
         const responses = state.beliefs.responses;
@@ -998,17 +1055,9 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
         let tiltsAllowed = true;
         let gateReason: TiltsGateReason = 'NO_RED_FLAGS';
         if (safetyLights) {
-          const redFlags: string[] = [];
-          if (safetyLights.liquidity === 'RED') redFlags.push('RED_LIQUIDITY');
-          if (safetyLights.concentration === 'RED') redFlags.push('RED_CONCENTRATION');
-          if (safetyLights.illiquids === 'RED') redFlags.push('RED_ILLIQUIDS');
-          if (redFlags.length >= 2) {
-            tiltsAllowed = false;
-            gateReason = 'MULTIPLE_RED_FLAGS';
-          } else if (redFlags.length === 1) {
-            tiltsAllowed = false;
-            gateReason = redFlags[0] as TiltsGateReason;
-          }
+          const gate = computeTiltsGate(safetyLights, state.safetyLightResponse, SAFETY_LIGHT_ACKNOWLEDGMENT_ENABLED);
+          tiltsAllowed = gate.tiltsAllowed;
+          gateReason = gate.gateReason;
         }
 
         // Compute axis scores
@@ -1518,6 +1567,7 @@ export const useOnboardingV2Store = create<OnboardingV2State>()(
           analysis: initialAnalysis,
           beliefs: initialBeliefs,
           outlook: initialOutlook,
+          safetyLightResponse: initialSafetyLightResponse,
           scenario: initialScenario,
         });
       },

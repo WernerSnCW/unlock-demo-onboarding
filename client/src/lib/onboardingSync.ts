@@ -16,7 +16,7 @@ const LAST_STEP_KEY = 'onboarding-v2-last-step';  // last onboarding step visite
 const METHODOLOGY_DOC_KEY = 'methodology-doc-enabled'; // access flag for the methodology explainer
 
 // The data slices that make up a session (must match the store + persist set).
-const DATA_KEYS = ['intake', 'holdings', 'summary', 'analysis', 'beliefs', 'outlook', 'scenario'] as const;
+const DATA_KEYS = ['intake', 'holdings', 'summary', 'analysis', 'beliefs', 'outlook', 'scenario', 'safetyLightResponse'] as const;
 
 export interface SessionSummary {
   id: string;
