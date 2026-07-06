@@ -52,10 +52,10 @@ export default function Methodology() {
             (getLastStepPath isn't overwritten here), falling back to welcome. */}
         <Link
           href={getLastStepPath() ?? '/onboarding-v2/welcome'}
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[#00bb77]/40 bg-[#00bb77]/[0.06] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:border-[#00bb77] hover:bg-[#00bb77]/[0.12] transition-colors"
           data-testid="methodology-back"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to onboarding
+          <ArrowLeft className="h-4 w-4 text-[var(--primary)]" /> Back to onboarding
         </Link>
         {error && (
           <p className="text-sm text-rose-600 dark:text-rose-400" data-testid="methodology-error">{error}</p>
