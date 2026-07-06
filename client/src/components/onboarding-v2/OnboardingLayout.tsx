@@ -20,6 +20,7 @@ interface OnboardingLayoutProps {
   prevPath?: string;
   hideNav?: boolean;
   wideLayout?: boolean;
+  skipSessionTracking?: boolean;
 }
 
 /**
@@ -44,6 +45,7 @@ function OnboardingLayoutBody({
   prevPath,
   hideNav = false,
   wideLayout = false,
+  skipSessionTracking = false,
 }: OnboardingLayoutProps) {
   const [location, navigate] = useLocation();
   const { open: helpOpen } = useHelpDrawer();
@@ -56,11 +58,15 @@ function OnboardingLayoutBody({
   // skips steps before there's an identifiable investor or holdings). Stores the
   // current route path so resume can navigate straight back to it.
   useEffect(() => {
+    // Reference-only pages outside the 13-step flow (e.g. the methodology
+    // explainer) must skip this — stepId won't match ONBOARDING_STEPS, and
+    // saving it as "currentStep" would corrupt the investor's real resume point.
+    if (skipSessionTracking) return;
     void saveCurrentSession(location);
     // Remember this step so side-trips (e.g. the feedback review) can return
     // here instead of resetting to step 1.
     setLastStepPath(location);
-  }, [location]);
+  }, [location, skipSessionTracking]);
 
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === stepId);
   const prevStep = currentIndex > 0 ? ONBOARDING_STEPS[currentIndex - 1] : null;

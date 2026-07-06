@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from './ThemeProvider';
-import { Play } from 'lucide-react';
+import { Play, BookOpen } from 'lucide-react';
 import Logo from './Logo';
 import InvestorSwitcher from './onboarding-v2/InvestorSwitcher';
+import { isInvestorMode, isMethodologyDocEnabled } from '@/lib/onboardingSync';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -68,6 +69,17 @@ export default function Header() {
             >
               <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'} text-lg`}></i>
             </button>
+
+            {isInvestorMode() && isMethodologyDocEnabled() && (
+              <Link
+                href="/onboarding-v2/methodology"
+                className="hidden md:flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors mr-2"
+                data-testid="link-methodology"
+              >
+                <BookOpen className="w-4 h-4" />
+                How this works
+              </Link>
+            )}
 
             {/* Active investor switcher (replaces the user menu) */}
             <InvestorSwitcher />

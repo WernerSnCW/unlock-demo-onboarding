@@ -13,6 +13,7 @@ const ACTIVE_KEY = 'onboarding-v2-session-id';   // admin/demo: active row id
 const TOKEN_KEY = 'onboarding-v2-investor-token'; // investor: their private token
 const ADMIN_KEY = 'onboarding-v2-admin-code';     // advisor: admin code for headers
 const LAST_STEP_KEY = 'onboarding-v2-last-step';  // last onboarding step visited this tab
+const METHODOLOGY_DOC_KEY = 'methodology-doc-enabled'; // access flag for the methodology explainer
 
 // The data slices that make up a session (must match the store + persist set).
 const DATA_KEYS = ['intake', 'holdings', 'summary', 'analysis', 'beliefs', 'outlook', 'scenario'] as const;
@@ -279,7 +280,7 @@ export async function ensureInvestorLink(
 // ---- investor (token-scoped) ----
 export async function loadInvestorSession(
   token: string,
-): Promise<{ ok: boolean; noDb?: boolean; currentStep?: string }> {
+): Promise<{ ok: boolean; noDb?: boolean; currentStep?: string; methodologyDocEnabled?: boolean }> {
   try {
     const res = await fetch('/api/onboarding-v2/i/' + token);
     if (res.status === 503) return { ok: false, noDb: true };
@@ -293,10 +294,15 @@ export async function loadInvestorSession(
     if (data && Object.keys(data).length) useOnboardingV2Store.setState(data);
     if (hydrated) useOnboardingV2Store.getState().setHoldings(data.holdings);
     const currentStep = hydrated ? '/onboarding-v2/intake' : (session.currentStep || '/onboarding-v2/welcome');
-    return { ok: true, currentStep };
+    sessionStorage.setItem(METHODOLOGY_DOC_KEY, session.methodologyDocEnabled ? '1' : '0');
+    return { ok: true, currentStep, methodologyDocEnabled: !!session.methodologyDocEnabled };
   } catch {
     return { ok: false };
   }
+}
+
+export function isMethodologyDocEnabled(): boolean {
+  return sessionStorage.getItem(METHODOLOGY_DOC_KEY) === '1';
 }
 
 // Begin a brand-new investor (admin/demo only): clear the active session + reset.
