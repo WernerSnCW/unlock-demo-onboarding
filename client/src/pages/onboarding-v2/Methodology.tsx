@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'wouter';
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { getLastStepPath } from '@/lib/onboardingSync';
 
 interface TopicTable {
   headers: string[];
@@ -45,6 +47,16 @@ export default function Methodology() {
       skipSessionTracking
     >
       <div className="space-y-8 pt-6">
+        {/* This is a reference side-trip (hideNav + skipSessionTracking), so it
+            needs its own way back — return to the step the investor came from
+            (getLastStepPath isn't overwritten here), falling back to welcome. */}
+        <Link
+          href={getLastStepPath() ?? '/onboarding-v2/welcome'}
+          className="inline-flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          data-testid="methodology-back"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to onboarding
+        </Link>
         {error && (
           <p className="text-sm text-rose-600 dark:text-rose-400" data-testid="methodology-error">{error}</p>
         )}
