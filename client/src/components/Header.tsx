@@ -4,7 +4,7 @@ import { useTheme } from './ThemeProvider';
 import { Play, BookOpen } from 'lucide-react';
 import Logo from './Logo';
 import InvestorSwitcher from './onboarding-v2/InvestorSwitcher';
-import { isInvestorMode, isMethodologyDocEnabled } from '@/lib/onboardingSync';
+import { isInvestorMode, isMethodologyDocEnabled, getLastStepPath } from '@/lib/onboardingSync';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,12 +25,16 @@ export default function Header() {
   // focused, distraction-free experience (routes are unchanged, just not shown).
   const isOnboarding = location.startsWith('/onboarding-v2');
 
+  // For investors the logo must NOT lead to the advisor launch screen ("/"); keep
+  // them inside their own onboarding.
+  const logoHref = isInvestorMode() ? (getLastStepPath() ?? '/onboarding-v2/welcome') : '/';
+
   return (
     <header className="bg-[var(--card)] shadow-sm border-b border-[var(--border)] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center">
+            <Link href={logoHref} className="flex items-center">
               <Logo size="md" />
             </Link>
           </div>
