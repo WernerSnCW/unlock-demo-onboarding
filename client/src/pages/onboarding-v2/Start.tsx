@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   LineChart, ShieldCheck, Layers, Crosshair, Landmark, Users, Cpu, Scale,
@@ -5,7 +6,7 @@ import {
 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
-import { startNewInvestor } from '@/lib/onboardingSync';
+import { startNewInvestor, isInvestorMode, getLastStepPath } from '@/lib/onboardingSync';
 import GridBackground from '@/components/onboarding-v2/GridBackground';
 import unlockLogo from '@assets/unlock-logo.svg';
 
@@ -71,6 +72,13 @@ const FEATURES: Feature[] = [
 
 export default function Start() {
   const [, navigate] = useLocation();
+
+  // Investors must never reach the advisor launch screen (it offers "start a new
+  // investor" etc.). Bounce them back into their own onboarding.
+  useEffect(() => {
+    if (isInvestorMode()) navigate(getLastStepPath() ?? '/onboarding-v2/welcome', { replace: true });
+  }, [navigate]);
+  if (isInvestorMode()) return null;
 
   const onStart = () => {
     // Begin a fresh investor each time the demo is launched from here.

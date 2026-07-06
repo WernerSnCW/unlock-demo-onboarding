@@ -1,5 +1,6 @@
 import { Link } from 'wouter';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { isInvestorMode, getLastStepPath } from '@/lib/onboardingSync';
 import unlockLogo from '@assets/unlock-logo.svg';
 
 // Footer feature links. In this investor demo they DON'T navigate into the wider
@@ -75,12 +76,15 @@ function FeatureLink({ name, description }: { name: string; description: string 
 }
 
 export default function Footer() {
+  // Investors must stay inside their own onboarding — the logo can't lead to the
+  // advisor launch screen ("/").
+  const logoHref = isInvestorMode() ? (getLastStepPath() ?? '/onboarding-v2/welcome') : '/';
   return (
     <footer className="bg-[var(--u-bg-deepest)] text-[var(--secondary-foreground)] border-t border-[var(--border)] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="col-span-2">
-            <Link href="/" className="flex items-center mb-4">
+            <Link href={logoHref} className="flex items-center mb-4">
               <img src={unlockLogo} alt="Unlock" className="h-8 w-auto brightness-0 invert" />
             </Link>
             <p className="text-[#ffffff]/80 mb-4 max-w-md">
