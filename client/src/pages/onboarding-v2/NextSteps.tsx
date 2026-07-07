@@ -164,6 +164,7 @@ export default function NextSteps() {
 
   const safetyLights = analysis.result?.safety_lights;
   const overallStatus = safetyLights?.overall_status ?? 'GREEN';
+  const tiltsAllowed = beliefs.tilts_allowed;
 
   const handleContinue = () => {
     completeNextStepsStep();
@@ -193,13 +194,21 @@ export default function NextSteps() {
           iconColor: 'text-[var(--warning)]',
         };
       case 'RED':
-        return {
-          headline: "Action required before preferences can be applied",
-          sentence: "One or more red flags are present. Preference signals are recorded but locked until these constraints are addressed.",
-          icon: XCircle,
-          bgColor: 'bg-[#ef4444]/5 border-[#ef4444]/30',
-          iconColor: 'text-[var(--destructive)]',
-        };
+        return tiltsAllowed
+          ? {
+              headline: "Red flags present, preferences acknowledged",
+              sentence: "One or more red flags are present, but you've indicated you want to hold as-is. Preference signals are enabled within guardrails.",
+              icon: ShieldAlert,
+              bgColor: 'bg-[#f59e0b]/5 border-[#f59e0b]/30',
+              iconColor: 'text-[var(--warning)]',
+            }
+          : {
+              headline: "Action required before preferences can be applied",
+              sentence: "One or more red flags are present. Preference signals are recorded but locked until these constraints are addressed.",
+              icon: XCircle,
+              bgColor: 'bg-[#ef4444]/5 border-[#ef4444]/30',
+              iconColor: 'text-[var(--destructive)]',
+            };
     }
   };
 
@@ -338,8 +347,6 @@ export default function NextSteps() {
   const reviewChecklist = getReviewChecklist();
 
   const buildTranslationPayload = (): TranslationPayload => {
-    const tiltsAllowed = beliefs.tilts_allowed;
-    
     const topConstraints = orderedLights.map(light => ({
       name: LIGHT_CONFIG[light.key].label,
       status: light.status,

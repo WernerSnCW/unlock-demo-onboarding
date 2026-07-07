@@ -15,11 +15,10 @@ import {
   Info,
 } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
-import { 
+import {
   buildTransitionTimeline,
   generateTransitionCSV,
   downloadCSV,
-  hasAnyRedLight,
   type PolicyData,
   type TimelineStep,
 } from '@/lib/step9Helpers';
@@ -33,7 +32,6 @@ export default function PlanTransition() {
   
   const safetyLights = analysis.result?.safety_lights;
   const tiltsAllowed = beliefs.tilts_allowed;
-  const hasRedLight = hasAnyRedLight(safetyLights);
   const overallStatus: SafetyStatus = safetyLights?.overall_status ?? 'GREEN';
   
   const { data: policy, isLoading: policyLoading } = useQuery<PolicyData>({
@@ -120,7 +118,7 @@ export default function PlanTransition() {
     >
       <div className="space-y-6 pt-6">
         {/* Guardrail Lock Banner */}
-        {hasRedLight && (
+        {!tiltsAllowed && (
           <div 
             className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl p-4"
             data-testid="guardrail-lock-banner"

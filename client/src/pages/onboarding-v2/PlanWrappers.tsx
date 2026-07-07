@@ -15,10 +15,9 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
-import { 
-  computeWrapperSummaries, 
-  bedAndIsaEligible, 
-  hasAnyRedLight,
+import {
+  computeWrapperSummaries,
+  bedAndIsaEligible,
   type WrapperSummary,
   type PolicyData,
 } from '@/lib/step9Helpers';
@@ -45,12 +44,10 @@ const WRAPPER_TOOLTIPS: Record<string, string> = {
 
 export default function PlanWrappers() {
   const [, navigate] = useLocation();
-  const { holdings, analysis, beliefs } = useOnboardingV2Store();
+  const { holdings, beliefs } = useOnboardingV2Store();
   
-  const safetyLights = analysis.result?.safety_lights;
   const tiltsAllowed = beliefs.tilts_allowed;
-  const hasRedLight = hasAnyRedLight(safetyLights);
-  
+
   const { data: policy, isLoading: policyLoading } = useQuery<PolicyData>({
     queryKey: ['/api/onboarding-v2/policy'],
   });
@@ -118,7 +115,7 @@ export default function PlanWrappers() {
     >
       <div className="space-y-6 pt-6">
         {/* Guardrail Lock Banner */}
-        {hasRedLight && (
+        {!tiltsAllowed && (
           <div 
             className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl p-4"
             data-testid="guardrail-lock-banner"
