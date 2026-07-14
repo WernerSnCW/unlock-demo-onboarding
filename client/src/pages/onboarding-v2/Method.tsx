@@ -1,11 +1,21 @@
 import OnboardingLayout from '@/components/onboarding-v2/OnboardingLayout';
-import { Upload, FileSpreadsheet, Link2, Building2, Check } from 'lucide-react';
+import { Upload, FileSpreadsheet, Link2, Building2, Check, Sparkles } from 'lucide-react';
 import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
+import { DEMO_INTAKE, buildDemoHoldings } from '@/data/demoWalkthroughSeed';
 
 export default function Method() {
-  const { updateIntake, intake } = useOnboardingV2Store();
+  const {
+    updateIntake,
+    intake,
+    setHoldings,
+    resetAnalysis,
+    resetBeliefs,
+    resetOutlook,
+    resetScenario,
+    resetSafetyLightResponse,
+  } = useOnboardingV2Store();
   const [, navigate] = useLocation();
 
   const handleSelectMethod = (method: 'manual' | 'upload' | 'connect' | 'advisor') => {
@@ -13,6 +23,21 @@ export default function Method() {
       updateIntake({ intake_method: method });
       navigate('/onboarding-v2/intake');
     }
+  };
+
+  // Demo Walkthrough: pre-populate Step 3 (Intake) and Step 4 (Holdings) with a
+  // realistic anonymised investor so a salesperson can walk straight through the
+  // flow. Downstream stages (analysis/beliefs/scenario) are reset so they
+  // recompute cleanly from the seeded data.
+  const handleDemoWalkthrough = () => {
+    updateIntake(DEMO_INTAKE);
+    setHoldings(buildDemoHoldings());
+    resetAnalysis();
+    resetBeliefs();
+    resetOutlook();
+    resetScenario();
+    resetSafetyLightResponse();
+    navigate('/onboarding-v2/intake');
   };
 
   const methods = [
@@ -137,13 +162,22 @@ export default function Method() {
           </div>
         </div>
 
-        <div className="flex justify-center pt-2">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-2">
           <Button
             onClick={() => handleSelectMethod('manual')}
             className="gap-2 bg-gradient-to-r from-[var(--primary)] to-[#00bb77]/80 hover:from-[#00bb77]/90 hover:to-[#00bb77]/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-medium px-8 py-6 text-base"
             data-testid="button-continue-manual"
           >
             Continue with Manual Entry
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleDemoWalkthrough}
+            className="gap-2 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 shadow-sm hover:shadow-md transition-all duration-300 font-medium px-8 py-6 text-base"
+            data-testid="button-demo-walkthrough"
+          >
+            <Sparkles className="w-4 h-4" />
+            Demo Walkthrough
           </Button>
         </div>
       </div>
