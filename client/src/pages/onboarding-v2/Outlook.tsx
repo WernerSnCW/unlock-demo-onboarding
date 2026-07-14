@@ -3,8 +3,9 @@ import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { OUTLOOK_QUESTIONS, SCALE_LABELS } from '@/data/outlookQuestions';
 import { useLocation } from 'wouter';
 import { useState, useMemo } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { randomizeLikertResponses } from '@/lib/randomizeAnswers';
 
 const ANSWER_VALUES: (1 | 2 | 3 | 4 | 5)[] = [1, 2, 3, 4, 5];
 
@@ -12,6 +13,11 @@ export default function Outlook() {
   const [, navigate] = useLocation();
   const { outlook, setOutlookResponse, completeOutlookStep } = useOnboardingV2Store();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+
+  // Demo helper: fill every question with a random 1–5 answer.
+  const handleRandomize = () => {
+    randomizeLikertResponses(OUTLOOK_QUESTIONS.map((q) => q.id), setOutlookResponse);
+  };
 
   const allAnswered = useMemo(
     () => OUTLOOK_QUESTIONS.every((q) => outlook.responses[q.id] !== undefined),
@@ -36,7 +42,17 @@ export default function Outlook() {
       hideNav={true}
     >
       <div className="space-y-6 pt-6">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRandomize}
+            className="gap-1.5 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-all duration-200"
+            data-testid="button-randomize-outlook"
+          >
+            <Shuffle className="w-3.5 h-3.5" />
+            Randomise answers
+          </Button>
           <span className="text-xs font-medium text-[var(--muted-foreground)] bg-[#2b2b2b]/50 px-3 py-1 rounded-full" data-testid="outlook-progress-indicator">
             {answeredCount}/{OUTLOOK_QUESTIONS.length} answered
           </span>
