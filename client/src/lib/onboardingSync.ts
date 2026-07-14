@@ -93,7 +93,9 @@ function normalizeAnalysis(data: any): void {
 // Map Layer-A register assets back into onboarding holdings (reverse of the
 // server-side projection). Gains/summary are recomputed by the store's
 // setHoldings action once applied.
-function mapAssetsToHoldings(assets: any[]): Holding[] {
+// Exported so the client-seeded "Demo Walkthrough" produces holdings identical
+// to a real register-hydrated investor (see data/demoWalkthroughSeed.ts).
+export function mapAssetsToHoldings(assets: any[]): Holding[] {
   return assets.map((a) => ({
     id: String(a.assetId || a.id || 'h' + Math.random().toString(36).slice(2)),
     instrument_name: a.label || 'Holding',
