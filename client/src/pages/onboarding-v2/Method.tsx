@@ -4,8 +4,12 @@ import { useOnboardingV2Store } from '@/state/onboardingV2Store';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { DEMO_INTAKE, buildDemoHoldings } from '@/data/demoWalkthroughSeed';
+import { isInvestorMode } from '@/lib/onboardingSync';
 
 export default function Method() {
+  // Demo helpers are advisor/admin-only — investors (on a /i/:token link) never
+  // see them. Matches the InvestorSwitcher's "hidden in investor mode" gate.
+  const adminMode = !isInvestorMode();
   const {
     updateIntake,
     intake,
@@ -170,15 +174,17 @@ export default function Method() {
           >
             Continue with Manual Entry
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleDemoWalkthrough}
-            className="gap-2 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 shadow-sm hover:shadow-md transition-all duration-300 font-medium px-8 py-6 text-base"
-            data-testid="button-demo-walkthrough"
-          >
-            <Sparkles className="w-4 h-4" />
-            Demo Walkthrough
-          </Button>
+          {adminMode && (
+            <Button
+              variant="outline"
+              onClick={handleDemoWalkthrough}
+              className="gap-2 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 shadow-sm hover:shadow-md transition-all duration-300 font-medium px-8 py-6 text-base"
+              data-testid="button-demo-walkthrough"
+            >
+              <Sparkles className="w-4 h-4" />
+              Demo Walkthrough
+            </Button>
+          )}
         </div>
       </div>
     </OnboardingLayout>

@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react';
 import { AlertTriangle, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { randomizeLikertResponses } from '@/lib/randomizeAnswers';
+import { isInvestorMode } from '@/lib/onboardingSync';
 
 const ANSWER_VALUES: (1 | 2 | 3 | 4 | 5)[] = [1, 2, 3, 4, 5];
 
@@ -13,6 +14,8 @@ export default function Outlook() {
   const [, navigate] = useLocation();
   const { outlook, setOutlookResponse, completeOutlookStep } = useOnboardingV2Store();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  // Demo helper — advisor/admin-only; hidden for investors on a /i/:token link.
+  const adminMode = !isInvestorMode();
 
   // Demo helper: fill every question with a random 1–5 answer.
   const handleRandomize = () => {
@@ -43,16 +46,18 @@ export default function Outlook() {
     >
       <div className="space-y-6 pt-6">
         <div className="flex items-center justify-end gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRandomize}
-            className="gap-1.5 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-all duration-200"
-            data-testid="button-randomize-outlook"
-          >
-            <Shuffle className="w-3.5 h-3.5" />
-            Randomise answers
-          </Button>
+          {adminMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRandomize}
+              className="gap-1.5 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-all duration-200"
+              data-testid="button-randomize-outlook"
+            >
+              <Shuffle className="w-3.5 h-3.5" />
+              Randomise answers
+            </Button>
+          )}
           <span className="text-xs font-medium text-[var(--muted-foreground)] bg-[#2b2b2b]/50 px-3 py-1 rounded-full" data-testid="outlook-progress-indicator">
             {answeredCount}/{OUTLOOK_QUESTIONS.length} answered
           </span>

@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { compareRiskConsistency } from '@/lib/beliefImpact/compareRiskConsistency';
 import { randomizeLikertResponses } from '@/lib/randomizeAnswers';
+import { isInvestorMode } from '@/lib/onboardingSync';
 
 interface BeliefQuestion {
   id: BeliefQuestionId;
@@ -94,6 +95,8 @@ export default function Beliefs() {
   const [methodologyOpen, setMethodologyOpen] = useState(false);
 
   const safetyLights = analysis.result?.safety_lights;
+  // Demo helper — advisor/admin-only; hidden for investors on a /i/:token link.
+  const adminMode = !isInvestorMode();
 
   const responseCount = Object.keys(beliefs.responses).length;
   useEffect(() => {
@@ -229,16 +232,18 @@ export default function Beliefs() {
                 Investment Beliefs Questionnaire
               </h3>
               <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRandomize}
-                  className="gap-1.5 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-all duration-200"
-                  data-testid="button-randomize-beliefs"
-                >
-                  <Shuffle className="w-3.5 h-3.5" />
-                  Randomise answers
-                </Button>
+                {adminMode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRandomize}
+                    className="gap-1.5 border-[#00bb77]/50 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-all duration-200"
+                    data-testid="button-randomize-beliefs"
+                  >
+                    <Shuffle className="w-3.5 h-3.5" />
+                    Randomise answers
+                  </Button>
+                )}
                 <span className="text-xs font-medium text-[var(--muted-foreground)] bg-[#2b2b2b]/50 px-3 py-1 rounded-full whitespace-nowrap">
                   {responseCount}/8 answered
                 </span>
