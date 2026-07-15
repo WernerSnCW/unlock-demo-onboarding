@@ -36,7 +36,6 @@ const intakeSchema = z.object({
   annual_income_gbp: z.coerce.number().min(0, 'Income cannot be negative'),
   annual_essential_spend_gbp: z.coerce.number().min(1, 'Please enter your annual essential spending'),
   liquid_cash_gbp: z.coerce.number().min(0, 'Please enter your liquid cash amount'),
-  total_investable_assets_gbp: z.coerce.number().min(0, 'Assets cannot be negative'),
   regular_monthly_contribution_gbp: z.coerce.number().min(0, 'Contribution cannot be negative'),
   primary_goal: z.string().min(1, 'Please select your primary goal'),
   time_horizon_years: z.string().min(1, 'Please select your time horizon'),
@@ -100,7 +99,6 @@ export default function Intake() {
       annual_income_gbp: intake.annual_income_gbp || 0,
       annual_essential_spend_gbp: intake.annual_essential_spend_gbp || 0,
       liquid_cash_gbp: intake.liquid_cash_gbp || 0,
-      total_investable_assets_gbp: intake.total_investable_assets_gbp || 0,
       regular_monthly_contribution_gbp: intake.regular_monthly_contribution_gbp || 0,
       primary_goal: intake.primary_goal || '',
       time_horizon_years: intake.time_horizon_years || '',
@@ -117,15 +115,14 @@ export default function Intake() {
       annual_income_gbp: intake.annual_income_gbp || 0,
       annual_essential_spend_gbp: intake.annual_essential_spend_gbp || 0,
       liquid_cash_gbp: intake.liquid_cash_gbp || 0,
-      total_investable_assets_gbp: intake.total_investable_assets_gbp || 0,
       regular_monthly_contribution_gbp: intake.regular_monthly_contribution_gbp || 0,
       primary_goal: intake.primary_goal || '',
       time_horizon_years: intake.time_horizon_years || '',
       risk_comfort: intake.risk_comfort || '',
     });
-  }, [intake.full_name, intake.email, intake.investor_type, intake.region, 
+  }, [intake.full_name, intake.email, intake.investor_type, intake.region,
       intake.annual_income_gbp, intake.annual_essential_spend_gbp, intake.liquid_cash_gbp,
-      intake.total_investable_assets_gbp, intake.regular_monthly_contribution_gbp,
+      intake.regular_monthly_contribution_gbp,
       intake.primary_goal, intake.time_horizon_years, intake.risk_comfort, form]);
 
   const onSubmit = (data: IntakeFormData) => {
@@ -357,31 +354,6 @@ export default function Intake() {
                     </FormControl>
                     <p className="text-xs text-[var(--muted-foreground)] mt-1">
                       Cash you can access quickly for emergencies
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="total_investable_assets_gbp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[var(--foreground)]">Total Investable Assets (£)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        min="0"
-                        step="1000"
-                        placeholder="e.g. 500000"
-                        className={inputClass}
-                        data-testid="input-investable-assets"
-                      />
-                    </FormControl>
-                    <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                      Approximate portfolio value (we'll confirm in Holdings)
                     </p>
                     <FormMessage />
                   </FormItem>
