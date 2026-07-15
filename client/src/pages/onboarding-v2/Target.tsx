@@ -92,16 +92,19 @@ function RangeBarChart({
   showMidpoint = true,
   overlays = [],
   showOverlayMode = false,
+  converged = false,
   exampleValuesBySleeveMap,
   showExample = false,
   displayMode = 'percent',
   totalValue = 0,
-}: { 
-  title: string; 
-  rows: RangeBarRow[]; 
+}: {
+  title: string;
+  rows: RangeBarRow[];
   showMidpoint?: boolean;
   overlays?: ScenarioRangeOverlay[];
   showOverlayMode?: boolean;
+  /** All scenarios share the same centre (no belief-driven shift) — differ only in width. */
+  converged?: boolean;
   exampleValuesBySleeveMap?: Map<string, number>;
   showExample?: boolean;
   displayMode?: DisplayMode;
@@ -110,10 +113,16 @@ function RangeBarChart({
   const showMonetary = displayMode === 'monetary' && totalValue > 0;
   const allIdentical = showOverlayMode && overlays.length > 1 && overlays.every((overlay, i, arr) => {
     if (i === 0) return true;
-    return overlay.rows.every((row, j) => 
+    return overlay.rows.every((row, j) =>
       row.minPct === arr[0].rows[j]?.minPct && row.maxPct === arr[0].rows[j]?.maxPct
     );
   });
+
+  // Ranges aren't byte-identical, but all three share the same centre (no
+  // belief-driven shift — usually a red Safety Light or neutral answers), so the
+  // scenarios differ only in width. Explains why the overlaid bands sit on top of
+  // each other instead of spreading apart.
+  const sameCentre = showOverlayMode && converged && !allIdentical && overlays.length > 1;
 
   return (
     <div className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/50 dark:from-slate-800/90 dark:via-slate-800/70 dark:to-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-lg ring-1 ring-slate-900/5 dark:ring-white/5 p-5">
@@ -122,6 +131,13 @@ function RangeBarChart({
       {allIdentical && (
         <p className="text-xs text-[var(--muted-foreground)] italic mb-4 bg-slate-100/80 dark:bg-slate-700/50 p-2.5 rounded-lg border border-slate-200/50 dark:border-slate-600/30">
           Ranges are identical across scenarios under current constraints.
+        </p>
+      )}
+
+      {sameCentre && (
+        <p className="text-xs text-[var(--muted-foreground)] italic mb-4 bg-slate-100/80 dark:bg-slate-700/50 p-2.5 rounded-lg border border-slate-200/50 dark:border-slate-600/30">
+          All three scenarios centre on your current mix — your preferences aren't shifting it right now (usually
+          because a Safety Light is red or your answers were neutral), so they differ only in how wide the range is.
         </p>
       )}
 
@@ -410,10 +426,13 @@ function ExamplePortfolioPanel({
   );
 }
 
+// Distinct hues so the three overlaid ranges are tellable apart in Compare mode
+// (previously two near-identical greens read as a single band). Green = lean-in
+// (Preference), blue = safety-led (Guardrail), grey = do-little (Neutral).
 const SCENARIO_COLORS: Record<ScenarioType, string> = {
-  GUARDRAIL_FIRST: 'var(--u-green)',
-  PREFERENCE_LEANING: 'var(--u-green-accent)',
-  NEUTRAL_BASELINE: 'var(--u-viz-5)',
+  GUARDRAIL_FIRST: '#3b82f6',
+  PREFERENCE_LEANING: 'var(--u-green)',
+  NEUTRAL_BASELINE: '#94a3b8',
 };
 
 const SCENARIO_LABELS: Record<ScenarioType, { label: string; description: string; icon: typeof ShieldCheck }> = {
@@ -809,6 +828,17 @@ function ScenarioContent({
     }));
   }, [compareMode, allScenarios]);
 
+  // The scenarios "converge" when no belief pressure moves the centre (a red
+  // Safety Light gates tilts to zero, or answers were neutral): every band's
+  // centre shift is ~0, so the three ranges share a centre and differ only in
+  // width. Read from debug.centreShift so edge-clamped sleeves don't fool it.
+  const centresConverged = useMemo(() => {
+    if (!compareMode || allScenarios.length < 2) return false;
+    return allScenarios.every(s =>
+      [...s.asset_class_bands, ...s.region_bands].every(b => Math.abs(b.debug?.centreShift ?? 0) < 0.05),
+    );
+  }, [compareMode, allScenarios]);
+
   return (
     <div className="space-y-6">
       <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
@@ -926,6 +956,7 @@ function ScenarioContent({
           showMidpoint={true}
           overlays={assetOverlays}
           showOverlayMode={compareMode}
+          converged={centresConverged}
           exampleValuesBySleeveMap={exampleValuesBySleeveMap}
           showExample={!compareMode}
           displayMode={displayMode}
@@ -938,6 +969,7 @@ function ScenarioContent({
             showMidpoint={true}
             overlays={regionOverlays}
             showOverlayMode={compareMode}
+            converged={centresConverged}
             displayMode={displayMode}
             totalValue={totalValue}
           />
