@@ -707,6 +707,7 @@ function ScenarioContent({
   safetyLights,
   tiltsAllowed,
   compareMode = false,
+  onCompareChange,
   allScenarios = [],
   rangesIdentical = false,
   displayMode = 'percent',
@@ -716,6 +717,7 @@ function ScenarioContent({
   safetyLights?: any;
   tiltsAllowed: boolean;
   compareMode?: boolean;
+  onCompareChange?: (v: boolean) => void;
   allScenarios?: IllustrativeScenario[];
   rangesIdentical?: boolean;
   displayMode?: DisplayMode;
@@ -948,9 +950,35 @@ function ScenarioContent({
         totalValue={totalValue}
       />
 
+      {/* Compare toggle — placed with the charts it controls, so toggling it
+          visibly changes the section right here. */}
+      <div className="flex items-center justify-between gap-3 flex-wrap p-4 rounded-xl border border-[var(--border)] bg-slate-50/60 dark:bg-slate-800/40">
+        <div>
+          <h4 className="font-semibold text-[var(--foreground)] text-sm">Compare all three scenarios</h4>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            Overlay Guardrail-first, Preference-leaning and Neutral baseline on the same range bars below — colour-coded, so you can see how far each would lean.
+          </p>
+        </div>
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+          compareMode
+            ? 'bg-[#00bb77]/10 border-[#00bb77]/30'
+            : 'bg-white dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'
+        }`}>
+          <Switch
+            id="compare-mode"
+            checked={compareMode}
+            onCheckedChange={(v) => onCompareChange?.(v)}
+            data-testid="compare-scenarios-toggle"
+          />
+          <Label htmlFor="compare-mode" className="text-sm text-[var(--foreground)] cursor-pointer whitespace-nowrap">
+            Compare
+          </Label>
+        </div>
+      </div>
+
       {/* Range Bar Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <RangeBarChart 
+        <RangeBarChart
           title="Asset Class Ranges (Illustrative)"
           rows={assetRangeRows}
           showMidpoint={true}
@@ -1284,23 +1312,6 @@ export default function Target() {
                         £
                       </button>
                     </div>
-                    <div 
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                        compareMode 
-                          ? 'bg-[#00bb77]/10 border-[#00bb77]/30' 
-                          : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'
-                      }`}
-                    >
-                      <Switch
-                        id="compare-mode"
-                        checked={compareMode}
-                        onCheckedChange={setCompareMode}
-                        data-testid="compare-scenarios-toggle"
-                      />
-                      <Label htmlFor="compare-mode" className="text-sm text-[var(--foreground)] cursor-pointer whitespace-nowrap">
-                        Compare
-                      </Label>
-                    </div>
                   </div>
                   {rangesIdentical && (
                     <span className="text-xs text-[var(--muted-foreground)] italic" data-testid="convergence-microcopy">
@@ -1340,6 +1351,7 @@ export default function Target() {
                       safetyLights={analysis.result?.safety_lights}
                       tiltsAllowed={tiltsAllowed}
                       compareMode={compareMode}
+                      onCompareChange={setCompareMode}
                       allScenarios={scenario.scenarios}
                       rangesIdentical={rangesIdentical}
                       displayMode={displayMode}
