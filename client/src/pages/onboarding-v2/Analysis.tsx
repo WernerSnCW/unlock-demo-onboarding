@@ -491,7 +491,8 @@ export default function Analysis() {
               Investor Persona
             </h3>
             <p className="text-sm text-[var(--muted-foreground)] -mt-1">
-              From your answers and current portfolio, here's the investing stance we heard:
+              A plain description of the kind of investor you look like — worked out from your answers and what you
+              actually hold. It's a mirror to react to, not a label that limits you. Does it ring true?
             </p>
             <PersonaCard persona={persona} />
             <PersonaGallery currentCode={persona.code} />

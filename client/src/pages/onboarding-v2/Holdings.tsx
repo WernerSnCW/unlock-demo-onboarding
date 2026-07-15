@@ -203,6 +203,11 @@ export default function Holdings() {
       wideLayout
     >
       <div className="space-y-6">
+        <p className="text-sm text-[var(--muted-foreground)] pt-6 -mb-2">
+          List what you own, one line each — roughly is fine. As you type, these four update live: your total value,
+          whether any single holding is a big share of everything (concentration), how much is hard to sell quickly
+          (illiquid), and a first read of your safety checks.
+        </p>
         <div className="grid lg:grid-cols-4 gap-6 mb-6 pt-6">
           {/* Total Value Card */}
           <div className="group relative">

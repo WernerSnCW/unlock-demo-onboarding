@@ -182,7 +182,8 @@ export default function Intake() {
                 </div>
               </div>
               <div className="p-6 pt-10">
-                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">Basic Details</h3>
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-1">Basic Details</h3>
+                <p className="text-sm text-[var(--muted-foreground)] mb-6">The essentials — who this plan is for, and where you're taxed.</p>
                 <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -286,7 +287,8 @@ export default function Intake() {
                 </div>
               </div>
               <div className="p-6 pt-10">
-                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">Financial Picture</h3>
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-1">Financial Picture</h3>
+                <p className="text-sm text-[var(--muted-foreground)] mb-6">Rough numbers are fine. The two that matter most are your essential spending and your cash — together they tell us how many months your cash alone would cover if income stopped.</p>
                 <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -399,7 +401,8 @@ export default function Intake() {
                 </div>
               </div>
               <div className="p-6 pt-10">
-                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">Goals & Risk Profile</h3>
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-1">Goals & Risk Profile</h3>
+                <p className="text-sm text-[var(--muted-foreground)] mb-6">What you're aiming for and how you feel about your investments moving up and down. This shapes the "investor type" we describe on the next screen.</p>
                 <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}

@@ -250,7 +250,9 @@ export default function Beliefs() {
               </div>
             </div>
             <p className="text-sm text-[var(--muted-foreground)] mb-6">
-              Please indicate your level of agreement with each statement. All 8 questions are required.
+              These eight statements capture <strong>how you like to invest</strong> — your preferences, not predictions.
+              There are no right answers; two people with the same portfolio can want quite different things. Say how
+              much you agree with each. All 8 are required.
             </p>
 
             <div className="space-y-4">
@@ -345,10 +347,15 @@ export default function Beliefs() {
                 </span>
               )}
             </div>
+            <p className="text-sm text-[var(--muted-foreground)] mb-2">
+              A <strong>tilt</strong> is a gentle lean in one direction — like seasoning to taste. Each dial below shows
+              how you'd like your portfolio flavoured (e.g. a little more UK, a little less in smaller companies) and how
+              strongly. It's a preview of your preferences — it never buys or sells anything on its own.
+            </p>
             <p className="text-sm text-[var(--muted-foreground)] mb-6">
               {responseCount === 0
-                ? "Answer the questions above to see how your tilts would be configured."
-                : "Based on your responses, here's how your portfolio tilts would be configured."}
+                ? "Answer the questions above and your leanings will appear here."
+                : "Based on your answers, here's how each of your eight leanings looks."}
             </p>
 
             <div className="grid gap-4 sm:grid-cols-2" data-help-anchor="beliefs-tilt-preview">
