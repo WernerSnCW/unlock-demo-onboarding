@@ -91,12 +91,12 @@ export default function Presenter() {
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">{note.title}</h1>
         <p className="mt-2 text-sm text-[var(--muted-foreground)] italic">{note.onScreen}</p>
 
-        {/* Purpose */}
+        {/* What this covers */}
         <section className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-2">
-            What this screen is for
+            What this covers
           </h2>
-          <p className="text-[15px] leading-relaxed">{note.purpose}</p>
+          <p className="text-[15px] leading-relaxed">{note.covers}</p>
         </section>
 
         {/* Say this */}
@@ -109,9 +109,25 @@ export default function Presenter() {
           </section>
         )}
 
+        {/* Why it's useful */}
+        <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-2">
+            Why it&rsquo;s useful
+          </h2>
+          <p className="text-[15px] leading-relaxed">{note.useful}</p>
+        </section>
+
+        {/* How it's used / why it's needed */}
+        <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-2">
+            How it&rsquo;s used &amp; why it&rsquo;s needed
+          </h2>
+          <p className="text-[15px] leading-relaxed">{note.howUsed}</p>
+        </section>
+
         {/* Sections */}
         {note.sections.length > 0 && (
-          <section className="mt-5">
+          <section className="mt-6">
             <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-3">
               Section by section
             </h2>
