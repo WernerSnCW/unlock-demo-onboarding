@@ -101,7 +101,10 @@ export default function OutlookResults() {
     );
   }
 
-  const modelledPct = Math.max(0, Math.min(100, 100 - tieredImpact.unmodelledSharePct));
+  // Round for display — 100 − unmodelledSharePct is a float (e.g. 17.2999…).
+  // Derive set-aside as the complement so the two always read as summing to 100.
+  const modelledPct = Math.round(Math.max(0, Math.min(100, 100 - tieredImpact.unmodelledSharePct)));
+  const setAsidePct = Math.max(0, 100 - modelledPct);
   const maxTrough = Math.max(
     0.2,
     ...tieredImpact.rows.flatMap((r) => r.citedSources.map((s) => Math.abs(s.troughPct))),
@@ -182,7 +185,7 @@ export default function OutlookResults() {
                 <span className="w-2 h-2 rounded-full bg-[var(--primary)]" /> Modelled {modelledPct}%
               </span>
               <span className="flex items-center gap-1.5 text-[var(--muted-foreground)]">
-                <span className="w-2 h-2 rounded-full bg-[var(--muted-foreground)]" /> Set aside {tieredImpact.unmodelledSharePct}%
+                <span className="w-2 h-2 rounded-full bg-[var(--muted-foreground)]" /> Set aside {setAsidePct}%
               </span>
             </div>
           </div>
@@ -246,7 +249,7 @@ export default function OutlookResults() {
         {tieredImpact.unmodelledBreakdown.length > 0 && (
           <div className="p-4 rounded-xl border border-dashed border-[var(--border)]" data-testid="unmodelled-breakdown">
             <p className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] mb-2">
-              Set aside — not modelled ({tieredImpact.unmodelledSharePct}% of your portfolio)
+              Set aside — not modelled ({setAsidePct}% of your portfolio)
             </p>
             {tieredImpact.unmodelledBreakdown.map((u) => (
               <p key={u.name} className="text-sm mt-1">
