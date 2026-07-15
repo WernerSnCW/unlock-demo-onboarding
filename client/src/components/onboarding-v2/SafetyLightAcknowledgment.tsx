@@ -9,10 +9,41 @@ const LIGHT_LABEL: Record<SafetyLightType, string> = {
   illiquids: 'Illiquid exposure',
 };
 
-const STANCE_LABEL: Record<SafetyLightStance, string> = {
-  REDUCE: 'Closer to reduce this',
-  HOLD_DELIBERATE: 'Closer to hold this as-is',
-  UNSURE: 'Not sure yet',
+// Concrete, concern-specific stance labels — rather than a vague "this". Note
+// that for liquidity the corrective direction is to BUILD cash, not reduce it,
+// so the REDUCE stance is worded accordingly per concern.
+const STANCE_LABEL: Record<SafetyLightType, Record<SafetyLightStance, string>> = {
+  liquidity: {
+    REDUCE: 'I’d aim to build more cash',
+    HOLD_DELIBERATE: 'I’m comfortable with my cash level',
+    UNSURE: 'I’m not sure yet',
+  },
+  concentration: {
+    REDUCE: 'I’d aim to be less concentrated',
+    HOLD_DELIBERATE: 'I’m comfortable staying concentrated',
+    UNSURE: 'I’m not sure yet',
+  },
+  illiquids: {
+    REDUCE: 'I’d aim to hold less that’s hard to sell',
+    HOLD_DELIBERATE: 'I’m comfortable with my illiquid holdings',
+    UNSURE: 'I’m not sure yet',
+  },
+};
+
+// Titles for the two "considerations" cards, per concern.
+const PERSPECTIVE_TITLE: Record<SafetyLightType, { reduce: string; hold: string }> = {
+  liquidity: {
+    reduce: 'Considerations for building more cash',
+    hold: 'Considerations for keeping your cash level',
+  },
+  concentration: {
+    reduce: 'Considerations for being less concentrated',
+    hold: 'Considerations for staying concentrated',
+  },
+  illiquids: {
+    reduce: 'Considerations for holding less that’s hard to sell',
+    hold: 'Considerations for keeping your illiquid holdings',
+  },
 };
 
 function PerspectiveCard({ title, valuePoints, tradeOff }: { title: string; valuePoints: string[]; tradeOff: string }) {
@@ -53,12 +84,12 @@ export default function SafetyLightAcknowledgment({ light }: { light: SafetyLigh
       {expanded && (
         <div className="mt-4 flex flex-col sm:flex-row gap-3">
           <PerspectiveCard
-            title="Considerations for reducing this"
+            title={PERSPECTIVE_TITLE[light].reduce}
             valuePoints={perspectives.REDUCE.valuePoints}
             tradeOff={perspectives.REDUCE.tradeOff}
           />
           <PerspectiveCard
-            title="Considerations for holding this as-is"
+            title={PERSPECTIVE_TITLE[light].hold}
             valuePoints={perspectives.HOLD_DELIBERATE.valuePoints}
             tradeOff={perspectives.HOLD_DELIBERATE.tradeOff}
           />
@@ -79,14 +110,14 @@ export default function SafetyLightAcknowledgment({ light }: { light: SafetyLigh
             }`}
             aria-pressed={stance === s}
           >
-            {STANCE_LABEL[s]}
+            {STANCE_LABEL[light][s]}
           </button>
         ))}
       </div>
 
       {stance && (
         <p className="mt-3 text-xs text-[var(--muted-foreground)]" data-testid={`safety-light-acknowledgment-recorded-${light}`}>
-          Recorded: {STANCE_LABEL[stance]}.{' '}
+          Recorded: {STANCE_LABEL[light][stance]}.{' '}
           {stance === 'HOLD_DELIBERATE'
             ? 'Preference Signals Enabled for this area based on what you told us.'
             : 'Preference Signals Locked for this area until this is addressed or you tell us it’s a deliberate choice.'}
