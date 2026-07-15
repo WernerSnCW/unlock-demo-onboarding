@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ArcButton } from '@/components/ui/unlock/ArcButton';
 import StepIndicator, { ONBOARDING_STEPS } from './StepIndicator';
 import { saveCurrentSession, setLastStepPath } from '@/lib/onboardingSync';
+import { broadcastStep } from '@/lib/presenterSync';
 import GridBackground from './GridBackground';
 import Header from '../Header';
 import Footer from '../Footer';
@@ -52,6 +53,12 @@ function OnboardingLayoutBody({
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [stepId]);
+
+  // Tell the advisor's second-screen Presenter window which step we're on, so it
+  // can follow along. Harmless no-op if no presenter window is open.
+  useEffect(() => {
+    broadcastStep(stepId);
   }, [stepId]);
 
   // Autosave the session on each step (best-effort; no-ops without a DB and
