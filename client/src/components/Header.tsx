@@ -87,16 +87,18 @@ export default function Header() {
             )}
 
             {/* Advisor-only: open plain-English speaker notes in a second window
-                that follows the live step. Hidden for investors. */}
+                that follows the live step. Icon-only and styled like the other
+                header icons so it's discreet on a shared screen; hidden entirely
+                for investors. */}
             {isOnboarding && !isInvestorMode() && (
               <button
                 onClick={() => openPresenterWindow()}
-                className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-[#00bb77]/50 px-3 py-1.5 text-sm font-medium text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-colors"
-                title="Open plain-English presenter notes on a second screen — follows the step you're on"
+                className="hidden md:inline-flex p-2 text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors duration-200"
+                title="Presenter notes"
+                aria-label="Presenter notes"
                 data-testid="button-presenter-notes"
               >
-                <MessageSquareQuote className="w-4 h-4" />
-                Presenter notes
+                <MessageSquareQuote className="w-5 h-5" />
               </button>
             )}
 
