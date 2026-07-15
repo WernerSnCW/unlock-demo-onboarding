@@ -90,6 +90,33 @@ function normalizeAnalysis(data: any): void {
   }
 }
 
+// The register/DB uses a richer asset-class + wrapper vocabulary than the
+// onboarding UI (e.g. 'property_residential', 'property_investment', 'vct',
+// 'aim', 'pension'). Normalise them onto the app's own vocabularies so holdings
+// classify correctly everywhere downstream: the Holdings dropdowns, the Safety
+// Lights, and — critically — the Step-9 historical model, which only recognises
+// the canonical asset classes. Anything we can't confidently place (a pension
+// pot of unknown composition, collectibles) becomes 'other', which is honestly
+// left out of the historical model rather than mislabelled.
+function mapRegisterAssetClass(raw: unknown): string {
+  const c = String(raw || '').trim().toLowerCase();
+  if (c.startsWith('property')) return 'property';
+  if (['equity', 'equities', 'shares', 'stock', 'stocks'].includes(c)) return 'equity';
+  if (['bond', 'bonds', 'fixed_income', 'gilts'].includes(c)) return 'bond';
+  if (c === 'cash') return 'cash';
+  if (c === 'crypto') return 'crypto';
+  if (['vct', 'aim', 'eis', 'seis', 'alternatives', 'alts', 'alternative'].includes(c)) return 'alternatives';
+  return 'other'; // pension pots, collectibles, structured, or unknown
+}
+
+function mapRegisterWrapper(raw: unknown): string {
+  const w = String(raw || '').trim().toLowerCase();
+  if (['isa', 'sipp', 'gia', 'cash', 'offshore_bond', 'not_applicable', 'other'].includes(w)) return w;
+  if (w === 'pension') return 'sipp';
+  if (w === 'property') return 'not_applicable'; // property isn't wrapped
+  return w ? 'other' : ''; // vct, aim, or unknown wrappers
+}
+
 // Map Layer-A register assets back into onboarding holdings (reverse of the
 // server-side projection). Gains/summary are recomputed by the store's
 // setHoldings action once applied.
@@ -100,10 +127,13 @@ export function mapAssetsToHoldings(assets: any[]): Holding[] {
     id: String(a.assetId || a.id || 'h' + Math.random().toString(36).slice(2)),
     instrument_name: a.label || 'Holding',
     ticker: a.ticker || '',
-    wrapper: a.wrapperType || '',
-    asset_class: a.assetClass || '',
+    wrapper: mapRegisterWrapper(a.wrapperType),
+    asset_class: mapRegisterAssetClass(a.assetClass),
     region: '',
     value_gbp: Number(a.currentValue || 0),
+    // Illiquidity is judged from the ORIGINAL register class (before it's folded
+    // into 'property'/'alternatives'/'other'), so property, VCT/AIM/EIS and
+    // collectibles stay correctly flagged.
     illiquid: /propert|collect|vct|aim|eis|seis|alt/i.test(String(a.assetClass || '')),
     currency: 'GBP',
     instrument_type: 'Fund',
