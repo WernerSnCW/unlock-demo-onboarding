@@ -144,6 +144,12 @@ export default function OutlookAlternatives() {
 
         {result && (
           <div className="space-y-4" data-testid="alternatives-result">
+            <p className="text-sm text-[var(--muted-foreground)]">
+              These four numbers size up the move: how much shifts in total, roughly how much would change hands, a rough
+              cost, and how your cash cushion would change. Below, the changes are split into what's sensible to do
+              <strong> now</strong> versus slower <strong>later</strong> decisions — and a before/after showing what it
+              would buy you.
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="alternatives-summary-grid">
               <StatCard label="Allocation shift" value={`${result.summary.totalAbsChangePp}pp`} sub="all moves added together" />
               <StatCard label="Est. turnover" value={`~${result.summary.estTurnoverPp}pp`} sub="share that changes hands" />

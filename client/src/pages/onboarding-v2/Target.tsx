@@ -868,7 +868,8 @@ function ScenarioContent({
             </div>
           </div>
           <p className="text-xs text-[var(--muted-foreground)] mb-4">
-            Ranges illustrate feasible directions under the scenario constraints. They do not represent target allocations.
+            Each row is one type of investment: where you are now, and an illustrative range it could lean to under this
+            scenario — a band, never a target to hit. "Total movement" adds up how far the whole mix would shift.
           </p>
           <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
             {scenario.asset_class_bands.map((band) => (
@@ -881,12 +882,15 @@ function ScenarioContent({
       {/* Region Bands */}
       {scenario.region_bands.length > 0 && (
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-bold text-[var(--foreground)]">Regional Allocation</h3>
             <div className="text-sm text-[var(--muted-foreground)]">
               Total movement: <span className="font-mono font-semibold text-[var(--primary)]" data-testid="total-movement-region">{regionTotalMovement.display}</span>
             </div>
           </div>
+          <p className="text-xs text-[var(--muted-foreground)] mb-4">
+            The same view by part of the world — where your money sits geographically now, and the illustrative range.
+          </p>
           <div className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] overflow-hidden">
             {scenario.region_bands.map((band) => (
               <AllocationBandRow key={band.sleeve} band={band} showDelta={true} />
@@ -1015,10 +1019,11 @@ function ScenarioContent({
       <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-[var(--border)] shadow-lg p-6">
         <h3 className="text-lg font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
           <TargetIcon className="w-5 h-5 text-[var(--primary)]" />
-          Belief Axes Reflected
+          How your preferences show up here
         </h3>
         <p className="text-sm text-[var(--muted-foreground)] mb-2">
-          This shows how each belief axis from Step 6 is reflected in this illustrative scenario.
+          Each of your eight preferences from the Beliefs step, and how far it made it into this illustration —
+          applied, partly applied, held back by a safety limit, or not used.
         </p>
         {/* Helper caption for Applied badges */}
         <p className="text-xs text-[var(--muted-foreground)] italic mb-4">
@@ -1038,6 +1043,10 @@ function ScenarioContent({
             <ShieldAlert className="w-5 h-5 text-[var(--warning)]" />
             Trade-offs and Constraints
           </h3>
+          <p className="text-sm text-[var(--muted-foreground)] mb-4">
+            Where a safety limit is holding a preference back. Safety comes before style, so if leaning further would
+            worsen a flagged risk, the illustration stops short — and tells you which limit is binding.
+          </p>
           <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl mb-4">
             <p className="text-sm text-[var(--foreground)] font-medium">
               Safety Lights guardrails take precedence over belief axes.
