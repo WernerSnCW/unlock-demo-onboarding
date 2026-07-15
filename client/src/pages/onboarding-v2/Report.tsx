@@ -410,7 +410,7 @@ export default function Report() {
               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
                 <p className="text-sm text-[var(--muted-foreground)] mb-1">Preference Status</p>
                 <p className="font-semibold text-[var(--foreground)]">
-                  {tiltsAllowed ? 'Preferences allowed' : 'Preferences locked'}
+                  {tiltsAllowed ? 'Preferences allowed' : 'Preferences saved'}
                 </p>
               </div>
             </div>
@@ -485,7 +485,7 @@ export default function Report() {
               <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4 mb-4 flex items-start gap-3">
                 <Lock className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-rose-800 dark:text-rose-200">
-                  Preferences are locked while a red item exists. Address the red cards in Analysis to enable preference signals.
+                  While a Safety Light is red, the illustration stays on the current mix. Your preferences are saved.
                 </p>
               </div>
             )}

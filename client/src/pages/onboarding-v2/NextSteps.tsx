@@ -55,7 +55,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
   APPLIED: { label: 'Applied', color: 'text-[var(--success)]', bgColor: 'bg-[#00bb77]/10', icon: Check },
   PARTIALLY_APPLIED: { label: 'Partially applied', color: 'text-[var(--u-green-deep)]', bgColor: 'bg-[#008655]/10', icon: Check },
   CONSTRAINED: { label: 'Constrained', color: 'text-[var(--warning)]', bgColor: 'bg-[#f59e0b]/10', icon: Lock },
-  LOCKED: { label: 'Locked', color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10', icon: Lock },
+  LOCKED: { label: 'On hold', color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10', icon: Lock },
   NOT_APPLIED: { label: 'Not applied', color: 'text-[var(--muted-foreground)]', bgColor: 'bg-[var(--muted)]', icon: Minus },
 };
 
@@ -196,15 +196,15 @@ export default function NextSteps() {
       case 'RED':
         return tiltsAllowed
           ? {
-              headline: "Red flags present, preferences acknowledged",
-              sentence: "One or more red flags are present, but you've indicated you want to hold as-is. Preference signals are enabled within guardrails.",
+              headline: "You've chosen to proceed as-is",
+              sentence: "One or more Safety Lights are red, and you've said you're comfortable holding as-is. Your preferences are enabled, within guardrails.",
               icon: ShieldAlert,
               bgColor: 'bg-[#f59e0b]/5 border-[#f59e0b]/30',
               iconColor: 'text-[var(--warning)]',
             }
           : {
-              headline: "Action required before preferences can be applied",
-              sentence: "One or more red flags are present. Preference signals are recorded but locked until these constraints are addressed.",
+              headline: "Your preferences are saved for now",
+              sentence: "One or more Safety Lights are red. Your preferences are recorded; the illustration stays neutral while that's the case.",
               icon: XCircle,
               bgColor: 'bg-[#ef4444]/5 border-[#ef4444]/30',
               iconColor: 'text-[var(--destructive)]',
@@ -309,11 +309,11 @@ export default function NextSteps() {
     const notAppliedCount = appliedTilts.filter(t => t.status === 'NOT_APPLIED').length;
     
     if (lockedCount > 0) {
-      bullets.push(`${lockedCount} preference signal${lockedCount > 1 ? 's are' : ' is'} locked pending resolution of red-flagged constraints.`);
+      bullets.push(`${lockedCount} preference${lockedCount > 1 ? 's are' : ' is'} on hold while a Safety Light is red.`);
     }
     
     if (constrainedCount > 0 && lockedCount === 0) {
-      bullets.push(`${constrainedCount} preference signal${constrainedCount > 1 ? 's are' : ' is'} constrained by amber guardrails—full application requires addressing these first.`);
+      bullets.push(`${constrainedCount} preference${constrainedCount > 1 ? 's are' : ' is'} held a little tighter by amber Safety Lights.`);
     }
     
     if (appliedCount > 0 && lockedCount === 0) {
@@ -563,7 +563,7 @@ export default function NextSteps() {
           {appliedTilts.some(t => t.status === 'CONSTRAINED' || t.status === 'LOCKED') && (
             <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
               <p className="text-xs text-amber-700 dark:text-amber-300">
-                Some preferences are constrained or locked due to Safety Light guardrails. Address the underlying constraints to enable full application.
+                Some preferences are on hold or held tighter by your Safety Lights. They'll apply more fully as your position changes.
               </p>
             </div>
           )}
@@ -627,9 +627,9 @@ export default function NextSteps() {
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ef4444]/10 text-[var(--destructive)] font-medium">
                   <Lock className="w-3 h-3" />
-                  Locked
+                  On hold
                 </span>
-                <span className="text-[var(--muted-foreground)]">Blocked by red guardrails</span>
+                <span className="text-[var(--muted-foreground)]">A Safety Light is red</span>
               </div>
             </div>
           </div>

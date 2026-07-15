@@ -120,7 +120,7 @@ export default function PlanWrappers() {
             className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl p-4"
             data-testid="guardrail-lock-banner"
             role="alert"
-            aria-label="Preference signals are locked"
+            aria-label="Preferences saved for now"
           >
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-800/50 flex items-center justify-center flex-shrink-0">
@@ -128,10 +128,10 @@ export default function PlanWrappers() {
               </div>
               <div>
                 <h3 className="font-semibold text-rose-800 dark:text-rose-200 text-sm">
-                  Preference signals are locked
+                  Preferences saved for now
                 </h3>
                 <p className="text-sm text-rose-700 dark:text-rose-300 mt-1">
-                  Tilts are locked while a red item exists. Address the red cards in Analysis to enable beliefs.
+                  While a Safety Light is red, the illustration stays neutral. Your preferences are saved — nothing is lost.
                 </p>
               </div>
             </div>

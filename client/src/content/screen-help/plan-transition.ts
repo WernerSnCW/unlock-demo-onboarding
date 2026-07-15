@@ -22,7 +22,7 @@ export const planTransitionHelp: ScreenHelp = {
           items: [
             'Three summary cards: your safety status, your preference (tilt) status, and the policy constraints that apply.',
             'A five-step illustrative timeline describing the sequence and pacing of any change.',
-            'A red-lock banner if a red safety light is present, noting that preferences stay locked until it is addressed.',
+            'A banner if a red safety light is present, noting that preferences are saved but held back while it applies.',
             'A download of the constraints summary as a CSV.',
           ],
         },
@@ -33,7 +33,7 @@ export const planTransitionHelp: ScreenHelp = {
       blocks: [
         {
           type: 'p',
-          text: 'The timeline is always five deterministic steps, but their wording adapts to your situation: the first step reflects whether there is structural pressure (from a red or amber light) or none; a middle step notes any pacing limit drawn from policy; and a later step states whether your preferences are active-within-limits or locked behind a red item. The rest is consistent framing for discussion.',
+          text: 'The timeline is always five deterministic steps, but their wording adapts to your situation: the first step reflects whether there is structural pressure (from a red or amber light) or none; a middle step notes any pacing limit drawn from policy; and a later step states whether your preferences are active-within-limits or on hold behind a red item. The rest is consistent framing for discussion.',
         },
       ],
     },
@@ -46,7 +46,7 @@ export const planTransitionHelp: ScreenHelp = {
           items: [
             'The timeline is fixed at five steps; only the wording varies by your safety and preference status.',
             'Pacing language uses a policy value (a minimum number of years to reduce a position) when one is available, otherwise generic pacing text.',
-            'While any red light is present, preferences are shown as locked.',
+            'While any red light is present, preferences are shown as on hold.',
             'The CSV carries a timestamp, a policy version, and a "not financial advice" disclaimer.',
           ],
         },

@@ -456,7 +456,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
   APPLIED: { label: 'Reflected', color: 'text-[var(--success)]', bgColor: 'bg-[#00bb77]/10', icon: Check },
   PARTIALLY_APPLIED: { label: 'Partially reflected', color: 'text-[var(--u-green-deep)]', bgColor: 'bg-[#008655]/10', icon: Check },
   CONSTRAINED: { label: 'Constrained', color: 'text-[var(--warning)]', bgColor: 'bg-[#f59e0b]/10', icon: Lock },
-  LOCKED: { label: 'Constrained by guardrails', color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10', icon: Lock },
+  LOCKED: { label: 'Held for now', color: 'text-[var(--destructive)]', bgColor: 'bg-[#ef4444]/10', icon: Lock },
   NOT_APPLIED: { label: 'Not reflected', color: 'text-[#64748B]', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: X },
 };
 
@@ -519,7 +519,7 @@ function AppliedTiltRow({ tilt, tiltsLocked }: { tilt: AppliedTiltEntry; tiltsLo
 
   const getPrimaryConstraint = (): string | null => {
     if (tilt.status === 'APPLIED') return null;
-    if (tilt.status === 'LOCKED' && tiltsLocked) return 'Tilts locked while a red item exists';
+    if (tilt.status === 'LOCKED' && tiltsLocked) return 'On hold while a Safety Light is red';
     if (tilt.constraint_reason) return tilt.constraint_reason;
     if (tilt.status === 'CONSTRAINED') return 'Guardrail binding';
     if (tilt.status === 'PARTIALLY_APPLIED') return 'Partially constrained';
@@ -1137,7 +1137,7 @@ export default function Target() {
                   </li>
                   <li className="flex items-start gap-2">
                     <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
-                    <span>Use the scenarios to understand which preferences are being applied, constrained, or locked — and why.</span>
+                    <span>Use the scenarios to understand which preferences are applied, partly applied, or held back — and why.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <ChevronRight className="w-4 h-4 text-[var(--primary)] flex-shrink-0 mt-0.5" />
@@ -1187,9 +1187,9 @@ export default function Target() {
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[var(--warning)]">Belief axes captured but constrained</h4>
+                  <h4 className="font-bold text-[var(--warning)]">Your preferences are saved</h4>
                   <p className="text-sm text-[var(--muted-foreground)]">
-                    Safety Lights guardrails constrain how preferences can be considered. Address the underlying constraints to enable full consideration.
+                    While a Safety Light is red, the illustration stays on your current mix. Your preferences are saved and would shape it once your position changes.
                   </p>
                 </div>
               </div>

@@ -51,7 +51,7 @@ export const beliefsHelp: ScreenHelp = {
             'Strength bands (absolute score): under 0.20 is neutral, 0.20–0.50 light, 0.50–0.80 moderate, 0.80+ strong.',
             'Volatility aversion is the inverse of the volatility-comfort answer.',
             'All eight questions must be answered before you can continue.',
-            'If any Safety Light is red, these preferences are locked and will not move the scenarios at all — the screen tells you when this is the case.',
+            'If any Safety Light is red, these preferences are saved but held back — they will not move the scenarios while that is the case, and the screen tells you when it applies.',
           ],
         },
       ],

@@ -23,7 +23,7 @@ export const targetHelp: ScreenHelp = {
             'Three [[scenarios|target-scenario-tabs]]: Guardrail-first (safety leads), Preference-leaning (your beliefs lead, within limits), and a Neutral baseline (no lean at all).',
             'A [[display toggle|display-mode-toggle]] to view ranges as percentages or as pounds, and a [[compare mode|compare-scenarios-toggle]] that overlays all three.',
             'An [[example portfolio|example-portfolio-panel]] within each scenario’s ranges, with low / mid / high variants and the holdings that move most.',
-            'Which belief signals were applied, partially applied, constrained or locked — and which guardrails are actively binding.',
+            'Which belief signals were applied, partially applied, constrained or held for now — and which guardrails are actively binding.',
           ],
         },
       ],
@@ -67,7 +67,7 @@ export const targetHelp: ScreenHelp = {
         {
           type: 'list',
           items: [
-            'Next steps — the applied/constrained/locked status of your preferences is summarised there as a review checklist.',
+            'Next steps — the applied/constrained/on-hold status of your preferences is summarised there as a review checklist.',
             'The historical stress lens — the mix behind these scenarios is what gets replayed against past market episodes.',
             'The report — the scenarios and their convergence note are carried into the final snapshot.',
           ],
