@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 export interface OnboardingStep {
   id: string;
@@ -30,6 +31,7 @@ interface StepIndicatorProps {
 
 export default function StepIndicator({ currentStepId }: StepIndicatorProps) {
   const currentIndex = ONBOARDING_STEPS.findIndex(s => s.id === currentStepId);
+  const [, navigate] = useLocation();
 
   return (
     <div className="w-full py-3 px-2 bg-[var(--card)] border-b border-[var(--border)]">
@@ -38,35 +40,57 @@ export default function StepIndicator({ currentStepId }: StepIndicatorProps) {
           {ONBOARDING_STEPS.map((step, index) => {
             const isCompleted = index < currentIndex;
             const isCurrent = step.id === currentStepId;
-            
+            // Only already-completed steps are clickable — you can jump back to a
+            // step you've finished, but not forward to one you haven't reached.
+            const isClickable = isCompleted;
+
+            const node = (
+              <div className="flex flex-col items-center">
+                <div
+                  className={`
+                    w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all
+                    ${isCompleted
+                      ? 'bg-[var(--success)] text-white'
+                      : isCurrent
+                        ? 'bg-[var(--primary)] text-white ring-2 ring-[var(--primary)] ring-offset-1 ring-offset-[var(--card)]'
+                        : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                    }
+                    ${isClickable ? 'group-hover:ring-2 group-hover:ring-[var(--success)] group-hover:ring-offset-1 group-hover:ring-offset-[var(--card)]' : ''}
+                  `}
+                  data-testid={`step-indicator-${step.id}`}
+                >
+                  {isCompleted ? <Check className="w-3 h-3" /> : index + 1}
+                </div>
+                <span
+                  className={`
+                    mt-1 text-[10px] font-medium whitespace-nowrap
+                    ${isCurrent ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}
+                    ${isClickable ? 'group-hover:text-[var(--success)]' : ''}
+                  `}
+                >
+                  {step.label}
+                </span>
+              </div>
+            );
+
             return (
               <div key={step.id} className="flex items-center flex-1 last:flex-none">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`
-                      w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all
-                      ${isCompleted 
-                        ? 'bg-[var(--success)] text-white' 
-                        : isCurrent 
-                          ? 'bg-[var(--primary)] text-white ring-2 ring-[var(--primary)] ring-offset-1 ring-offset-[var(--card)]' 
-                          : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
-                      }
-                    `}
-                    data-testid={`step-indicator-${step.id}`}
+                {isClickable ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(step.path)}
+                    className="group cursor-pointer bg-transparent border-0 p-0 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--success)]"
+                    title={`Back to ${step.label}`}
+                    aria-label={`Go back to ${step.label}`}
+                    data-testid={`step-link-${step.id}`}
                   >
-                    {isCompleted ? <Check className="w-3 h-3" /> : index + 1}
-                  </div>
-                  <span 
-                    className={`
-                      mt-1 text-[10px] font-medium whitespace-nowrap
-                      ${isCurrent ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}
-                    `}
-                  >
-                    {step.label}
-                  </span>
-                </div>
+                    {node}
+                  </button>
+                ) : (
+                  node
+                )}
                 {index < ONBOARDING_STEPS.length - 1 && (
-                  <div 
+                  <div
                     className={`
                       flex-1 h-0.5 mx-1 mt-[-12px] min-w-2
                       ${isCompleted ? 'bg-[var(--success)]' : 'bg-[var(--border)]'}
