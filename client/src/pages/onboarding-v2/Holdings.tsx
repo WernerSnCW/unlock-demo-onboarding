@@ -310,7 +310,7 @@ export default function Holdings() {
                     ? 'All lights green'
                     : analysis.result.safety_lights.overall_status_code === 'CAUTION'
                     ? 'Worth reviewing'
-                    : 'Action required'
+                    : 'Worth a look'
                   : 'Run analysis to check'}
               </div>
             </div>

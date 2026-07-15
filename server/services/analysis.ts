@@ -132,12 +132,12 @@ export function computeSafetyLights(intake: Intake, policy?: Policy): SafetyLigh
 
   if (overall_status === 'RED') {
     overall_status_code = 'ACTION_REQUIRED';
-    overall_status_label = 'Action required: red flags present';
-    overall_status_message = 'One or more Safety Lights are red. Risk-increasing options are not explored until these issues are addressed.';
+    overall_status_label = 'A couple of things worth looking at';
+    overall_status_message = 'One or more Safety Lights are red. While that\'s the case we keep the illustration on your current mix rather than leaning it further. Your preferences are saved either way, and you can carry on.';
   } else if (overall_status === 'AMBER') {
     overall_status_code = 'CAUTION';
-    overall_status_label = 'Caution: amber flags present';
-    overall_status_message = 'One or more Safety Lights are amber. These areas are worth reviewing before significantly increasing risk.';
+    overall_status_label = 'A few things to keep an eye on';
+    overall_status_message = 'One or more Safety Lights are amber — areas worth being aware of. Your preferences still apply, within slightly tighter guardrails.';
   } else {
     overall_status_code = 'ALL_CLEAR';
     overall_status_label = 'Within guardrails';

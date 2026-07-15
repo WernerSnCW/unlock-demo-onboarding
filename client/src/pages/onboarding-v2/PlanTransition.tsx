@@ -81,7 +81,7 @@ export default function PlanTransition() {
       case 'RED':
         return {
           icon: XCircle,
-          label: 'Action Required',
+          label: 'Worth a look',
           color: 'text-rose-600 dark:text-rose-400',
           bg: 'bg-rose-100 dark:bg-rose-900/30',
           border: 'border-rose-200 dark:border-rose-800',
@@ -123,7 +123,7 @@ export default function PlanTransition() {
             className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl p-4"
             data-testid="guardrail-lock-banner"
             role="alert"
-            aria-label="Preference signals are locked"
+            aria-label="Preferences saved for now"
           >
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-800/50 flex items-center justify-center flex-shrink-0">
@@ -131,10 +131,10 @@ export default function PlanTransition() {
               </div>
               <div>
                 <h3 className="font-semibold text-rose-800 dark:text-rose-200 text-sm">
-                  Preference signals are locked
+                  Preferences saved for now
                 </h3>
                 <p className="text-sm text-rose-700 dark:text-rose-300 mt-1">
-                  Constraints take priority while a red item exists. Address the red cards in Analysis to unlock preferences.
+                  While a Safety Light is red, the illustration stays neutral. Your preferences are saved — you can carry on.
                 </p>
               </div>
             </div>
@@ -197,14 +197,14 @@ export default function PlanTransition() {
                     ? 'text-[var(--success)]'
                     : 'text-slate-500 dark:text-slate-400'
                 }`}>
-                  {tiltsAllowed ? 'Allowed' : 'Locked'}
+                  {tiltsAllowed ? 'Allowed' : 'On hold'}
                 </p>
               </div>
             </div>
             <p className="text-sm text-[var(--muted-foreground)]">
-              {tiltsAllowed 
+              {tiltsAllowed
                 ? 'Preferences can inform illustrative ranges (within constraints).'
-                : 'Preferences recorded; tilts locked until reds clear.'
+                : 'Preferences recorded; the illustration stays neutral while a Safety Light is red.'
               }
             </p>
           </div>

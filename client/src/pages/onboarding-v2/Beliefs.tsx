@@ -80,11 +80,11 @@ const INTENSITY_CONFIG: Record<TiltIntensity, { color: string; bgColor: string; 
 };
 
 const GATE_REASON_MESSAGES: Record<TiltsGateReason, string> = {
-  NO_RED_FLAGS: 'Tilts are available and can be applied in the next step.',
-  RED_LIQUIDITY: 'Liquidity concerns detected. Build your emergency buffer before applying tilts.',
-  RED_CONCENTRATION: 'Concentration risk detected. Diversify before applying tilts.',
-  RED_ILLIQUIDS: 'Illiquids allocation too high. Improve liquidity before applying tilts.',
-  MULTIPLE_RED_FLAGS: 'Multiple safety concerns detected. Address these before applying tilts.',
+  NO_RED_FLAGS: 'You\'re all clear — your preferences will shape the next step.',
+  RED_LIQUIDITY: 'Your cash buffer is on the low side — often the most useful first step is topping it up a little. Your preferences are saved in the meantime.',
+  RED_CONCENTRATION: 'A lot is riding on one holding — worth being aware of. That\'s often structural rather than something to change today; your preferences are saved.',
+  RED_ILLIQUIDS: 'A large share is in things that are slow to sell — worth knowing. Often structural rather than a quick change; your preferences are saved.',
+  MULTIPLE_RED_FLAGS: 'A few things stand out in your current position. The illustration stays neutral for now; your preferences are saved.',
 };
 
 export default function Beliefs() {
@@ -169,10 +169,10 @@ export default function Beliefs() {
                 </div>
               </div>
               <h4 className="text-base font-bold text-rose-600 dark:text-rose-400 mb-1">
-                Tilts Currently Locked
+                Your preferences are saved
               </h4>
               <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                Preference signals captured, but locked until red Safety Lights are addressed.
+                We've captured your preferences. While a Safety Light is red, the illustration stays on your current mix rather than leaning further — they'll shape it once that changes.
               </p>
               <p className="text-xs text-rose-600 dark:text-rose-400 mt-2">
                 {GATE_REASON_MESSAGES[beliefs.tilts_gate_reason]}
@@ -341,12 +341,12 @@ export default function Beliefs() {
               {!beliefs.tilts_allowed && (
                 <span className="flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-1 rounded-full">
                   <Lock className="w-3 h-3" />
-                  Locked
+                  On hold
                 </span>
               )}
             </div>
             <p className="text-sm text-[var(--muted-foreground)] mb-6">
-              {responseCount === 0 
+              {responseCount === 0
                 ? "Answer the questions above to see how your tilts would be configured."
                 : "Based on your responses, here's how your portfolio tilts would be configured."}
             </p>
@@ -384,7 +384,7 @@ export default function Beliefs() {
                     {!beliefs.tilts_allowed && (
                       <p className="text-xs text-rose-500 dark:text-rose-400 mt-3 flex items-center gap-1">
                         <Lock className="w-3 h-3" />
-                        Captured (not applied yet)
+                        Saved — not applied yet
                       </p>
                     )}
                   </div>
@@ -630,7 +630,7 @@ export default function Beliefs() {
                   {/* What Happens Next */}
                   <div className="pt-2 border-t border-[var(--border)]">
                     <p className="text-[var(--muted-foreground)] leading-relaxed italic">
-                      <strong>Next:</strong> Step 7 shows three illustrative scenarios and explicitly marks which signals were applied, constrained, or blocked by guardrails.
+                      <strong>Next:</strong> Step 7 shows three illustrative scenarios and explicitly marks which preferences were applied, partly applied, or held back by your Safety Lights.
                     </p>
                   </div>
 

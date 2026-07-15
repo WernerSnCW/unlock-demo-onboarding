@@ -44,17 +44,17 @@ const lightDescriptions = {
   liquidity: {
     GREEN: 'Your cash runway exceeds the recommended threshold. You have a healthy emergency buffer.',
     AMBER: 'Your cash runway is below the ideal threshold but above the minimum. Consider building more buffer.',
-    RED: 'Your cash runway is below the minimum recommended level. Consider building an emergency fund before taking investment risk.',
+    RED: 'Your cash runway is below the minimum recommended level. Building up your cash buffer a little is often a useful first step.',
   },
   concentration: {
     GREEN: 'Your largest holding is within healthy diversification limits.',
     AMBER: 'Your largest holding is moderately concentrated. Consider diversifying to reduce single-name risk.',
-    RED: 'Your largest holding exceeds safe concentration limits. High single-name exposure increases portfolio risk.',
+    RED: 'A large share of your portfolio sits in a single holding. That concentrates your outcomes on one thing — worth being aware of.',
   },
   illiquids: {
     GREEN: 'Your illiquid asset allocation is within recommended limits.',
     AMBER: 'Your illiquid allocation is approaching the upper limit. Consider your liquidity needs.',
-    RED: 'Your illiquid allocation exceeds recommended limits. You may face challenges accessing funds when needed.',
+    RED: 'A large share is in assets that are slow to sell. Worth knowing, in case you ever need to reach cash quickly.',
   },
 };
 
@@ -526,12 +526,12 @@ export default function Analysis() {
             </div>
             <div>
               <h4 className={`font-bold text-[var(--foreground)] mb-1 tracking-tight ${beliefs.tilts_allowed ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
-                {beliefs.tilts_allowed ? 'Preference Signals Enabled' : 'Preference Signals Locked'}
+                {beliefs.tilts_allowed ? 'Preferences ready' : 'Preferences saved for now'}
               </h4>
               <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                 {beliefs.tilts_allowed
-                  ? 'No red flags detected. Your preference signals can inform the illustrative scenarios in Step 7, within our guardrails.'
-                  : 'One or more Safety Lights are Red. Unlock will not recommend moves that increase overall risk until these red flags are addressed. Focus on improving your liquidity, reducing concentration, or lowering illiquid exposure first.'}
+                  ? 'You\'re all clear — your preferences can shape the illustration in the next steps, within our guardrails.'
+                  : 'While a Safety Light is red, we keep your illustration on your current mix rather than leaning further into risk. Your preferences are saved and will shape the picture once your position changes — nothing is lost, and you can continue.'}
               </p>
             </div>
           </div>

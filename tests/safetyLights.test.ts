@@ -462,7 +462,7 @@ describe('Overall Status Code and Labels', () => {
 
     expect(result.liquidity).toBe('AMBER');
     expect(result.overall_status_code).toBe('CAUTION');
-    expect(result.overall_status_label).toBe('Caution: amber flags present');
+    expect(result.overall_status_label).toBe('A few things to keep an eye on');
     expect(result.overall_status_message).toContain('One or more Safety Lights are amber');
     expect(result.tilts_allowed).toBe(true);
   });
@@ -479,7 +479,7 @@ describe('Overall Status Code and Labels', () => {
 
     expect(result.liquidity).toBe('RED');
     expect(result.overall_status_code).toBe('ACTION_REQUIRED');
-    expect(result.overall_status_label).toBe('Action required: red flags present');
+    expect(result.overall_status_label).toBe('A couple of things worth looking at');
     expect(result.overall_status_message).toContain('One or more Safety Lights are red');
     expect(result.tilts_allowed).toBe(false);
   });

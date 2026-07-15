@@ -157,7 +157,7 @@ export const PRESENTER_NOTES: PresenterNote[] = [
     stepId: 'analysis',
     stepNumber: 5,
     title: 'Analysis',
-    onScreen: 'A read-only results page: an overall status banner, three "Safety Lights", key metrics, an "Investor Persona", and a banner saying whether preferences are enabled or locked.',
+    onScreen: 'A read-only results page: an overall status banner, three "Safety Lights", key metrics, an "Investor Persona", and a banner saying whether preferences are ready or saved for now.',
     covers:
       'The tool\'s first honest read of the position. It runs a "Safety Lights" check on three things — is there enough accessible cash (liquidity), is too much riding on one holding (concentration), and is too much tied up in things that can\'t be sold quickly (illiquids) — and gives each a green, amber, or red. It also describes what kind of investor they look like (their "persona"), worked out from their answers and their actual holdings.',
     sayThis:
@@ -188,8 +188,8 @@ export const PRESENTER_NOTES: PresenterNote[] = [
         body: 'A one-line description — e.g. "Property-Led Investor" — matched from a set of eight types using their profile and their actual holdings. Stress that it\'s a mirror, not a box that limits them: "based on what you\'ve told me, you look like X — does that sound right?" It frames the whole conversation around who they actually are, and it\'s a natural place to let them correct you.',
       },
       {
-        heading: 'The preferences banner — and why it might say "locked"',
-        body: 'If any light is red, the tool says preference signals are "locked." All it means is: let\'s fix the urgent safety issue before we lean the portfolio in any direction. Say it as "safety before style — stabilise first, then optimise." It is not the tool breaking or penalising them; the preferences are safely recorded and will apply once the red is cleared. (This wording is being softened — it currently reads harsher than it means.)',
+        heading: 'The preferences banner — when it says "saved for now"',
+        body: 'If any light is red, the banner reads "Preferences saved for now" and explains the illustration stays on the current mix rather than leaning further. All it means is: safety before style — nothing is blocked, nothing is lost. Say it as "your preferences are saved; while a light is red we keep the picture neutral, and they\'ll shape it once your position changes." It is not the tool penalising them, and they can always continue.',
       },
     ],
     terms: [
@@ -197,7 +197,7 @@ export const PRESENTER_NOTES: PresenterNote[] = [
       { term: 'Cash runway', plain: 'how many months your cash could cover the essential bills' },
       { term: 'Concentration', plain: 'how much is riding on a single holding — eggs in one basket' },
       { term: 'Persona / investor type', plain: 'a plain description of what kind of investor you look like' },
-      { term: 'Locked', plain: 'a safety light is red — fix that before leaning into style' },
+      { term: '"Saved for now" / "On hold"', plain: 'a safety light is red — preferences are saved; the illustration stays neutral until your position changes' },
     ],
   },
   {
@@ -212,7 +212,7 @@ export const PRESENTER_NOTES: PresenterNote[] = [
     useful:
       'It captures the investor\'s personality and preferences, which numbers alone can\'t show. Two investors with the same holdings might want completely different things — one wants to lean into UK companies, another wants everything sustainable — and this is where that gets heard. It makes the later scenarios feel like theirs, not off-the-shelf.',
     howUsed:
-      'These leanings shape the illustrative scenarios in the next step — but only within the safety guardrails. If a light is red, the tilts are recorded but held back (the "locked" idea from Analysis) so the tool never leans a portfolio in a riskier direction while a safety issue is unresolved. Nothing here buys or sells anything — it only flavours the illustration you\'ll show next.',
+      'These leanings shape the illustrative scenarios in the next step — but only within the safety guardrails. If a light is red, the preferences are saved but held back (the same "saved for now" idea from Analysis) so the tool never leans a portfolio in a riskier direction while a safety issue is unresolved. Nothing here buys or sells anything — it only flavours the illustration you\'ll show next.',
     sections: [
       {
         heading: 'What a "tilt" is (the question you get most)',
@@ -404,7 +404,7 @@ export const PRESENTER_NOTES: PresenterNote[] = [
       },
       {
         heading: 'Preference signals status',
-        body: 'All eight preferences and whether each was applied, constrained, or locked — nothing hidden. It reinforces the safety-before-style story: "your preferences are all captured; a couple are on hold until the amber flag improves."',
+        body: 'All eight preferences and whether each was applied, held tighter, or on hold — nothing hidden. It reinforces the safety-before-style story: "your preferences are all saved; a couple are on hold or held a little tighter while a light is amber or red."',
       },
     ],
   },
@@ -424,7 +424,7 @@ export const PRESENTER_NOTES: PresenterNote[] = [
     sections: [
       {
         heading: 'The three summary cards',
-        body: 'A quick "where do we stand": current safety status, whether preferences are active or locked, and a note that pacing limits apply. It\'s the one-glance context before the timeline.',
+        body: 'A quick "where do we stand": current safety status, whether preferences are active or on hold, and a note that pacing limits apply. It\'s the one-glance context before the timeline.',
       },
       {
         heading: 'The five-step timeline',

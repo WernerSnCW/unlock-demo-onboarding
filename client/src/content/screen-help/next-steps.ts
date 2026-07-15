@@ -22,7 +22,7 @@ export const nextStepsHelp: ScreenHelp = {
           items: [
             'A position headline and sentence describing your overall guardrail status.',
             'Your three Safety Lights again, ordered worst-first so the most pressing item leads.',
-            'The status of each of the eight preference signals: applied, partially applied, constrained, locked, or not applied.',
+            'The status of each of the eight preference signals: applied, partially applied, constrained, on hold, or not applied.',
             'A short review checklist — a few points drawn from your reds, ambers and preference statuses.',
             'An optional generated summary of your position in plain language, with the raw inputs it was built from viewable on request.',
           ],
@@ -34,7 +34,7 @@ export const nextStepsHelp: ScreenHelp = {
       blocks: [
         {
           type: 'p',
-          text: 'The checklist is generated deterministically from your data — a red light adds a "review your cash reserves" style prompt, locked preferences add a note that a red item is holding them back, and so on, with fallback prompts to ensure there are always at least a few useful points.',
+          text: 'The checklist is generated deterministically from your data — a red light adds a "review your cash reserves" style prompt, preferences on hold add a note that a red item is holding them back, and so on, with fallback prompts to ensure there are always at least a few useful points.',
         },
         {
           type: 'p',

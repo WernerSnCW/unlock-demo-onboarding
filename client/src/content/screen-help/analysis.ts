@@ -64,7 +64,7 @@ export const analysisHelp: ScreenHelp = {
         },
         {
           type: 'p',
-          text: 'Preferences gate: if any light is red, your belief-driven tilts are locked for the scenarios — structural safety takes priority over preference. Amber and green leave them available.',
+          text: 'Preferences gate: if any light is red, your preferences are saved but held back from the scenarios — structural safety takes priority over preference. Amber and green leave them available.',
         },
       ],
     },
