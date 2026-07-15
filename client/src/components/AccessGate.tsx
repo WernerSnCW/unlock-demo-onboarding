@@ -20,7 +20,15 @@ export default function AccessGate({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     // Investor links (/i/:token) and an active investor session bypass the admin
     // gate entirely — the private token is their credential, not the admin code.
-    if (window.location.pathname.startsWith('/i/') || isInvestorMode()) {
+    // The advisor's second-screen Presenter window also bypasses: it's opened
+    // from an already-unlocked window via window.open (sessionStorage isn't
+    // reliably copied to popups across browsers), and it shows only generic
+    // speaker notes — no investor data.
+    if (
+      window.location.pathname.startsWith('/i/') ||
+      window.location.pathname.startsWith('/onboarding-v2/presenter') ||
+      isInvestorMode()
+    ) {
       setState('open');
       return;
     }

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from './ThemeProvider';
-import { Play, BookOpen } from 'lucide-react';
+import { Play, BookOpen, MessageSquareQuote } from 'lucide-react';
 import Logo from './Logo';
 import InvestorSwitcher from './onboarding-v2/InvestorSwitcher';
 import { isInvestorMode, isMethodologyDocEnabled, getLastStepPath } from '@/lib/onboardingSync';
+import { openPresenterWindow } from '@/lib/presenterSync';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -83,6 +84,20 @@ export default function Header() {
                 <BookOpen className="w-4 h-4" />
                 How this works
               </Link>
+            )}
+
+            {/* Advisor-only: open plain-English speaker notes in a second window
+                that follows the live step. Hidden for investors. */}
+            {isOnboarding && !isInvestorMode() && (
+              <button
+                onClick={() => openPresenterWindow()}
+                className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-[#00bb77]/50 px-3 py-1.5 text-sm font-medium text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[#00bb77]/5 transition-colors"
+                title="Open plain-English presenter notes on a second screen — follows the step you're on"
+                data-testid="button-presenter-notes"
+              >
+                <MessageSquareQuote className="w-4 h-4" />
+                Presenter notes
+              </button>
             )}
 
             {/* Active investor switcher (replaces the user menu) */}
